@@ -62,7 +62,7 @@ export async function GET() {
     players: { group_name: string };
   };
 
-  const gesorteerd = ((sessies ?? []) as RawSessie[])
+  const gesorteerd = ((sessies ?? []) as unknown as RawSessie[])
     .map((s) => ({
       player_id: s.player_id,
       group_name: s.players.group_name,
