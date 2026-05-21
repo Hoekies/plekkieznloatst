@@ -41,7 +41,7 @@ export async function GET() {
     .in("status", ["actief", "voltooid"])
     .neq("id", eigenSessie.id);
 
-  const rijen = (andereSessies ?? []) as SessieRij[];
+  const rijen = (andereSessies ?? []) as unknown as SessieRij[];
   if (rijen.length === 0) return NextResponse.json({ locaties: [] });
 
   const sessieIds = rijen.map((s) => s.id);
