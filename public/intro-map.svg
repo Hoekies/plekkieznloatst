@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Sky -->
+  <rect width="800" height="600" fill="#B8D4E8"/>
+
+  <!-- Landmassa -->
+  <ellipse cx="400" cy="420" rx="390" ry="230" fill="#C8E6A0"/>
+  <ellipse cx="160" cy="480" rx="160" ry="140" fill="#B8D990"/>
+  <ellipse cx="660" cy="460" rx="180" ry="150" fill="#B8D990"/>
+
+  <!-- Water / rivier -->
+  <path d="M 0 340 Q 120 310 200 340 Q 300 375 380 345 Q 470 315 560 350 Q 660 385 800 360" fill="#7BB8D4" stroke="none"/>
+  <path d="M 0 360 Q 130 330 210 355 Q 310 390 390 360 Q 480 330 570 365 Q 670 398 800 378" fill="#6AAAC8" stroke="none"/>
+
+  <!-- Wandelpad / route -->
+  <path d="M 80 540 L 160 460 L 280 430 L 380 450 L 480 420 L 600 440 L 720 380" stroke="#A0845A" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18,10"/>
+
+  <!-- Bomen -->
+  <circle cx="130" cy="400" r="28" fill="#5C9A5C"/>
+  <circle cx="165" cy="385" r="20" fill="#4A8A4A"/>
+  <circle cx="210" cy="405" r="24" fill="#5C9A5C"/>
+
+  <circle cx="580" cy="390" r="26" fill="#5C9A5C"/>
+  <circle cx="620" cy="378" r="20" fill="#4A8A4A"/>
+  <circle cx="655" cy="395" r="22" fill="#5C9A5C"/>
+
+  <circle cx="380" cy="300" r="18" fill="#5C9A5C"/>
+  <circle cx="410" cy="290" r="14" fill="#4A8A4A"/>
+
+  <!-- Huisje -->
+  <rect x="460" y="415" width="44" height="32" fill="#E8C880" rx="2"/>
+  <polygon points="456,415 508,415 482,390" fill="#C06840"/>
+  <rect x="476" y="427" width="12" height="20" fill="#A07840" rx="1"/>
+  <rect x="463" y="420" width="8" height="8" fill="#87CEEB" rx="1"/>
+  <rect x="492" y="420" width="8" height="8" fill="#87CEEB" rx="1"/>
+
+  <!-- Routepunten -->
+  <circle cx="160" cy="460" r="11" fill="#1E40AF" stroke="#fff" stroke-width="2.5"/>
+  <circle cx="160" cy="460" r="5" fill="#fff"/>
+
+  <circle cx="380" cy="450" r="11" fill="#1E40AF" stroke="#fff" stroke-width="2.5"/>
+  <circle cx="380" cy="450" r="5" fill="#fff"/>
+
+  <circle cx="600" cy="440" r="12" fill="#F59E0B" stroke="#fff" stroke-width="2.5"/>
+  <text x="600" y="445" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">🏁</text>
+
+  <!-- Kompas -->
+  <circle cx="724" cy="76" r="30" fill="rgba(255,255,255,0.85)" stroke="#ccc" stroke-width="1.5"/>
+  <text x="724" y="60" text-anchor="middle" font-size="11" fill="#1E40AF" font-weight="bold">N</text>
+  <polygon points="724,66 720,84 724,80 728,84" fill="#C0392B"/>
+  <polygon points="724,66 720,84 724,80 728,84" fill="#C0392B" transform="rotate(180,724,76)" opacity="0.35"/>
+</svg>

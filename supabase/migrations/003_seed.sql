@@ -1,0 +1,33 @@
+-- ══════════════════════════════════════════════════════════════════════════════
+-- Plekkie z'n Loatst — Migratie 003: Admin aanmaken (handmatig uitvoeren)
+-- ══════════════════════════════════════════════════════════════════════════════
+--
+-- Voer dit script NIET automatisch uit via de migratietool.
+-- Maak de admin-gebruiker aan via het Supabase dashboard:
+--
+--   Authentication > Users > Invite user
+--   E-mail:     admin@plekkie.nl  (of eigen e-mail)
+--   Wachtwoord: kies een sterk wachtwoord
+--
+-- Voeg daarna via de SQL-editor de rol toe:
+--
+--   UPDATE auth.users
+--   SET raw_user_meta_data = raw_user_meta_data || '{"rol": "admin"}'
+--   WHERE email = 'admin@plekkie.nl';
+--
+-- Spelergroepen aanmaken (herhaal per groep):
+--
+--   1. Maak een gebruiker aan via Authentication > Users
+--      E-mail: groep1@plekkie.nl
+--      Wachtwoord: kies een wachtwoord
+--
+--   2. Voeg de speler-rol toe:
+--      UPDATE auth.users
+--      SET raw_user_meta_data = raw_user_meta_data || '{"rol": "speler"}'
+--      WHERE email = 'groep1@plekkie.nl';
+--
+--   3. Maak een players-rij aan:
+--      INSERT INTO players (group_name, auth_user_id)
+--      SELECT 'Groep 1', id FROM auth.users WHERE email = 'groep1@plekkie.nl';
+--
+-- ══════════════════════════════════════════════════════════════════════════════
