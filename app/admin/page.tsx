@@ -1,4 +1,4 @@
-import { haalLiveData } from "@/app/api/admin/live/spelers/route";
+import { haalLiveData } from "@/lib/admin-live";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export default async function DashboardPagina() {

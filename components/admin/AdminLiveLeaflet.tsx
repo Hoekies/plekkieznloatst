@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { SpelerOverzicht, RoutePuntKort } from "@/app/api/admin/live/spelers/route";
+import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 
 interface Props {
   spelers: SpelerOverzicht[];

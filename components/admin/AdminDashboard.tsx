@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { formateerTijd } from "@/lib/geo";
-import type { LiveData, SpelerOverzicht } from "@/app/api/admin/live/spelers/route";
+import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 
 const POLL_INTERVAL_MS = 15000;
 

@@ -1,4 +1,4 @@
-import { haalLiveData } from "@/app/api/admin/live/spelers/route";
+import { haalLiveData } from "@/lib/admin-live";
 import AdminLiveKaart from "@/components/admin/AdminLiveKaart";
 
 export default async function LiveKaartPagina() {
