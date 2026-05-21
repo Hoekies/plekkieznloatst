@@ -98,17 +98,28 @@ export interface LocatieUpdate {
   created_at: string;
 }
 
+type TableDef<Row, Insert, Update = Partial<Row>> = {
+  Row: Row;
+  Insert: Insert;
+  Update: Update;
+  Relationships: never[];
+};
+
 export interface Database {
   public: {
     Tables: {
-      routes: { Row: Route; Insert: Omit<Route, "id" | "created_at" | "updated_at">; Update: Partial<Route> };
-      route_points: { Row: RoutePunt; Insert: Omit<RoutePunt, "id" | "created_at" | "updated_at">; Update: Partial<RoutePunt> };
-      questions: { Row: Vraag; Insert: Omit<Vraag, "id" | "created_at" | "updated_at">; Update: Partial<Vraag> };
-      answer_options: { Row: AntwoordOptie; Insert: Omit<AntwoordOptie, "id">; Update: Partial<AntwoordOptie> };
-      players: { Row: Speler; Insert: Omit<Speler, "id" | "created_at">; Update: Partial<Speler> };
-      player_sessions: { Row: SpelerSessie; Insert: Omit<SpelerSessie, "id">; Update: Partial<SpelerSessie> };
-      player_point_progress: { Row: SpelerPuntVoortgang; Insert: Omit<SpelerPuntVoortgang, "id">; Update: Partial<SpelerPuntVoortgang> };
-      location_updates: { Row: LocatieUpdate; Insert: Omit<LocatieUpdate, "id" | "created_at">; Update: Partial<LocatieUpdate> };
+      routes: TableDef<Route, Omit<Route, "id" | "created_at" | "updated_at">>;
+      route_points: TableDef<RoutePunt, Omit<RoutePunt, "id" | "created_at" | "updated_at">>;
+      questions: TableDef<Vraag, Omit<Vraag, "id" | "created_at" | "updated_at">>;
+      answer_options: TableDef<AntwoordOptie, Omit<AntwoordOptie, "id">>;
+      players: TableDef<Speler, Omit<Speler, "id" | "created_at">>;
+      player_sessions: TableDef<SpelerSessie, Omit<SpelerSessie, "id">>;
+      player_point_progress: TableDef<SpelerPuntVoortgang, Omit<SpelerPuntVoortgang, "id">>;
+      location_updates: TableDef<LocatieUpdate, Omit<LocatieUpdate, "id" | "created_at">>;
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }

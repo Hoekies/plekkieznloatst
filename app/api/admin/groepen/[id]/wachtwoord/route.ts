@@ -19,11 +19,13 @@ export async function PATCH(
 
   const admin = createAdminClient();
 
-  const { data: speler } = await admin
+  const { data: spelerRaw } = await admin
     .from("players")
-    .select("*")
+    .select("auth_user_id")
     .eq("id", params.id)
     .single();
+
+  const speler = spelerRaw as { auth_user_id: string } | null;
 
   if (!speler) return NextResponse.json({ fout: "Groep niet gevonden" }, { status: 404 });
 
