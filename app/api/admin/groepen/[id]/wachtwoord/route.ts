@@ -19,10 +19,9 @@ export async function PATCH(
 
   const admin = createAdminClient();
 
-  // Zoek de auth_user_id op via het players id
   const { data: speler } = await admin
     .from("players")
-    .select("auth_user_id")
+    .select("*")
     .eq("id", params.id)
     .single();
 
