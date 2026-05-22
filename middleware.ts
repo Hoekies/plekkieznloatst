@@ -26,8 +26,8 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pad = request.nextUrl.pathname;
 
-  // Niet ingelogd → naar login
-  if (!user && pad !== "/login") {
+  // Niet ingelogd → naar login (auth-API routes zijn altijd toegankelijk)
+  if (!user && pad !== "/login" && !pad.startsWith("/api/auth/")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
