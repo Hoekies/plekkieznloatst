@@ -77,7 +77,7 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
   const eigenInTop3 = leaderboard.some((e) => e.is_eigen_team);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", overflow: "hidden", alignItems: "center" }}>
 
       {/* Confetti */}
       {confettiZichtbaar && (
@@ -109,7 +109,7 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
       )}
 
       {/* Inhoud */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "32px 20px 48px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "32px 20px 48px", width: "100%", maxWidth: 600 }}>
 
         {/* Titel */}
         <div style={{ textAlign: "center" }}>
