@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import UitlogKnop from "@/components/admin/UitlogKnop";
+import AdminNavLink from "@/components/admin/AdminNavLink";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -16,10 +16,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", maxWidth: 180, objectFit: "contain" }} />
         </div>
         <nav className="admin-nav">
-          <Link className="admin-nav-link" href="/admin">🏠 Dashboard</Link>
-          <Link className="admin-nav-link" href="/admin/routes">🗺️ Routes</Link>
-          <Link className="admin-nav-link" href="/admin/groepen">👥 Groepen</Link>
-          <Link className="admin-nav-link" href="/admin/live">📡 Live kaart</Link>
+          <AdminNavLink href="/admin" exact>🏠 Dashboard</AdminNavLink>
+          <AdminNavLink href="/admin/routes">🗺️ Routes</AdminNavLink>
+          <AdminNavLink href="/admin/groepen">👥 Groepen</AdminNavLink>
+          <AdminNavLink href="/admin/live">📡 Live kaart</AdminNavLink>
         </nav>
         <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
           <UitlogKnop />

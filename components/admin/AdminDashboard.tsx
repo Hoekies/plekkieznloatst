@@ -87,9 +87,9 @@ export default function AdminDashboard({ initData }: Props) {
   return (
     <>
       <div className="admin-topbar">
-        <h1>Dashboard</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", color: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)" }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)", display: "inline-block" }} />
+        <h1 className="admin-topbar-titel">Dashboard</h1>
+        <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
+          <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
           {realtimeOk ? "Live" : "Verbinding weg"}
         </div>
       </div>
@@ -97,18 +97,18 @@ export default function AdminDashboard({ initData }: Props) {
       <div className="admin-content">
 
         {/* Stat kaarten */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
-          <StatKaart label="Actieve route" waarde={route?.name ?? "—"} icon="🗺️" />
-          <StatKaart label="Bezig met spelen" waarde={String(aantalActief)} icon="🏃" />
-          <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} icon="🏁" />
-          <StatKaart label="Routepunten" waarde={totaalPunten ? String(totaalPunten) : "—"} icon="📍" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 28 }}>
+          <StatKaart label="Actieve route" waarde={route?.name ?? "—"} icon="🗺️" kleur="var(--blue)" />
+          <StatKaart label="Bezig met spelen" waarde={String(aantalActief)} icon="🏃" kleur="var(--gold)" />
+          <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} icon="🏁" kleur="var(--green)" />
+          <StatKaart label="Routepunten" waarde={totaalPunten ? String(totaalPunten) : "—"} icon="📍" kleur="var(--cyan)" />
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div className="admin-tabs" style={{ marginBottom: 16 }}>
           {(["overzicht", "leaderboard"] as Tab[]).map((t) => (
-            <button key={t} className={`btn ${tab === t ? "btn-primary" : "btn-outline"}`}
-              style={{ fontSize: "0.82rem" }} onClick={() => setTab(t)}>
+            <button key={t} className={`admin-tab${tab === t ? " admin-tab--actief" : ""}`}
+              onClick={() => setTab(t)}>
               {t === "overzicht" ? "👥 Overzicht" : "🏆 Leaderboard"}
             </button>
           ))}
@@ -121,9 +121,9 @@ export default function AdminDashboard({ initData }: Props) {
               <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen groepen aangemaakt.</p>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {spelers.map((s) => (
-                <SpelerKaart key={s.player_id} speler={s} totaalPunten={totaalPunten} />
+            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+              {spelers.map((s, i) => (
+                <SpelerKaart key={s.player_id} speler={s} totaalPunten={totaalPunten} isLast={i === spelers.length - 1} />
               ))}
             </div>
           )
@@ -210,39 +210,35 @@ export default function AdminDashboard({ initData }: Props) {
 }
 
 // ── SpelerKaart ───────────────────────────────────────────────────────────────
-function SpelerKaart({ speler: s, totaalPunten }: { speler: SpelerOverzicht; totaalPunten: number }) {
+function SpelerKaart({ speler: s, totaalPunten, isLast }: { speler: SpelerOverzicht; totaalPunten: number; isLast: boolean }) {
   return (
-    <div className="card" style={{ padding: "14px 16px" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontWeight: 700, fontSize: "0.95rem" }}>{s.group_name}</span>
-            <StatusPil status={s.sessie_status} />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px 16px" }}>
-            <InfoRegel label="Score" waarde={`${s.score} pt`} />
-            <InfoRegel
-              label="Voortgang"
-              waarde={totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : String(s.bezochte_punten)}
-            />
-            <InfoRegel
-              label="Gestart"
-              waarde={s.started_at ? new Date(s.started_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) : "—"}
-            />
-            {s.huidig_punt_naam && (
-              <InfoRegel label="Huidig punt" waarde={s.huidig_punt_naam} />
-            )}
-            {s.finished_at && (
-              <InfoRegel
-                label="Speeltijd"
-                waarde={formateerTijd(Math.floor((new Date(s.finished_at).getTime() - new Date(s.started_at!).getTime()) / 1000))}
-              />
-            )}
-            {s.laatste_gezien && (
-              <InfoRegel label="Laatste update" waarde={`${tijdGeleden(s.laatste_gezien)} geleden`} />
-            )}
-          </div>
-        </div>
+    <div className="speler-rij" style={{ borderBottom: isLast ? "none" : "1px solid var(--line)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{s.group_name}</span>
+        <StatusPil status={s.sessie_status} />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "4px 16px" }}>
+        <InfoRegel label="Score" waarde={`${s.score} pt`} />
+        <InfoRegel
+          label="Voortgang"
+          waarde={totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : String(s.bezochte_punten)}
+        />
+        <InfoRegel
+          label="Gestart"
+          waarde={s.started_at ? new Date(s.started_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) : "—"}
+        />
+        {s.huidig_punt_naam && (
+          <InfoRegel label="Huidig punt" waarde={s.huidig_punt_naam} />
+        )}
+        {s.finished_at && (
+          <InfoRegel
+            label="Speeltijd"
+            waarde={formateerTijd(Math.floor((new Date(s.finished_at).getTime() - new Date(s.started_at!).getTime()) / 1000))}
+          />
+        )}
+        {s.laatste_gezien && (
+          <InfoRegel label="Laatste update" waarde={`${tijdGeleden(s.laatste_gezien)} geleden`} />
+        )}
       </div>
     </div>
   );
@@ -257,27 +253,25 @@ function InfoRegel({ label, waarde }: { label: string; waarde: string }) {
   );
 }
 
-function StatKaart({ label, waarde, icon }: { label: string; waarde: string; icon: string }) {
+function StatKaart({ label, waarde, icon, kleur }: { label: string; waarde: string; icon: string; kleur: string }) {
   return (
-    <div className="card" style={{ display: "flex", alignItems: "center", gap: 16 }}>
-      <div style={{ fontSize: "2rem" }}>{icon}</div>
-      <div>
-        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--blue)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 160 }}>{waarde}</div>
-        <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 2 }}>{label}</div>
-      </div>
+    <div className="card stat-kaart" style={{ borderTop: `3px solid ${kleur}` }}>
+      <div style={{ fontSize: "1.1rem", marginBottom: 8 }}>{icon}</div>
+      <div style={{ fontSize: "1.6rem", fontWeight: 800, color: kleur, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.1 }}>{waarde}</div>
+      <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
     </div>
   );
 }
 
 function StatusPil({ status }: { status: SpelerOverzicht["sessie_status"] }) {
   const cfg = {
-    geen_sessie: { label: "Niet gestart",  bg: "var(--line)",       kleur: "var(--muted)" },
-    actief:      { label: "Bezig",          bg: "var(--cyan-soft)",  kleur: "var(--cyan)"  },
-    voltooid:    { label: "Klaar",          bg: "var(--green-soft, #DCFCE7)", kleur: "var(--green, #16A34A)" },
-    vervallen:   { label: "Vervallen",      bg: "var(--line)",       kleur: "var(--muted)" },
+    geen_sessie: { label: "Niet gestart", cls: "status-pil--grijs" },
+    actief:      { label: "Actief",        cls: "status-pil--blauw" },
+    voltooid:    { label: "Voltooid",      cls: "status-pil--groen" },
+    vervallen:   { label: "Vervallen",     cls: "status-pil--grijs" },
   }[status];
   return (
-    <span style={{ fontSize: "0.68rem", fontWeight: 700, background: cfg.bg, color: cfg.kleur, padding: "2px 8px", borderRadius: 99 }}>
+    <span className={`status-pil ${cfg.cls}`}>
       {cfg.label}
     </span>
   );
