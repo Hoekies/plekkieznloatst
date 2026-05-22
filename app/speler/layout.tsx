@@ -9,8 +9,13 @@ export default async function SpelerLayout({ children }: { children: React.React
 
   return (
     <div className="speler-shell">
-      <header className="speler-header">
+      <header className="speler-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <h1>📍 Plekkie z&apos;n Loatst</h1>
+        <form action="/api/auth/uitloggen" method="post">
+          <button type="submit" style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", cursor: "pointer", padding: "4px 8px" }}>
+            Uitloggen
+          </button>
+        </form>
       </header>
       <main className="speler-content">
         {children}
