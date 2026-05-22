@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     {
       cookies: {
         getAll: () => request.cookies.getAll(),
-        setAll: (cookiesToSet) => pendingCookies.push(...cookiesToSet),
+        setAll: (cookiesToSet) => { pendingCookies.push(...cookiesToSet); },
       },
     }
   );
