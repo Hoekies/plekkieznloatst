@@ -54,19 +54,20 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const playerIds = allePlayers.map((p) => p.id);
 
-  const { data: sessies } = route
+  const sessiesResult = route
     ? await admin
         .from("player_sessions")
         .select("id, player_id, status, started_at, finished_at, score, current_point_id")
         .eq("route_id", route.id)
         .in("player_id", playerIds)
-    : { data: [] as null };
+    : null;
+  const sessies = sessiesResult?.data ?? [];
 
-  const sessieMap = new Map((sessies ?? []).map((s) => [s.player_id, s]));
-  const sessieIds = (sessies ?? []).map((s) => s.id);
+  const sessieMap = new Map((sessies).map((s) => [s.player_id, s]));
+  const sessieIds = (sessies).map((s) => s.id);
 
   const huidigePointIds = [...new Set(
-    (sessies ?? []).filter((s) => s.current_point_id).map((s) => s.current_point_id as string)
+    (sessies).filter((s) => s.current_point_id).map((s) => s.current_point_id as string)
   )];
   const puntNaam = new Map<string, string>();
   if (huidigePointIds.length) {
