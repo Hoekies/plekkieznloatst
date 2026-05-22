@@ -1,12 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { inloggenAction } from "./actions";
 
-const beginState = { fout: "" };
-
 export default function LoginPagina() {
-  const [state, formAction, pending] = useActionState(inloggenAction, beginState);
+  const [fout, setFout] = useState("");
+  const [pending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setFout("");
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const result = await inloggenAction(null, formData);
+      if (result?.fout) setFout(result.fout);
+    });
+  }
 
   return (
     <div style={{
@@ -33,7 +42,7 @@ export default function LoginPagina() {
           </p>
         </div>
 
-        <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div className="form-group">
             <label className="form-label" htmlFor="email">E-mailadres</label>
             <input
@@ -60,10 +69,10 @@ export default function LoginPagina() {
             />
           </div>
 
-          {state?.fout && (
+          {fout && (
             <div className="melding melding-fout">
               <span>⚠️</span>
-              <span>{state.fout}</span>
+              <span>{fout}</span>
             </div>
           )}
 
