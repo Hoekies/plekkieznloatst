@@ -31,8 +31,11 @@ function LoginForm() {
         boxShadow: "var(--shadow-lg)",
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "8px" }}>📍</div>
-          <h1 style={{ fontSize: "1.4rem" }}>Plekkie z&apos;n Loatst</h1>
+          <img
+            src="/logo.png"
+            alt="Plekkie z'n Loatst"
+            style={{ maxWidth: "220px", width: "100%", marginBottom: "16px", display: "block", margin: "0 auto 16px" }}
+          />
           <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginTop: "4px" }}>
             Log in om verder te gaan
           </p>
