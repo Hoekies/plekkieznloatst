@@ -19,8 +19,12 @@ export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    let mounted = true;
+
     async function init() {
       const L = (await import("leaflet")).default;
+      if (!mounted || !containerRef.current || mapRef.current) return;
+
       LRef.current = L;
 
       if (!document.querySelector("#leaflet-css")) {
@@ -38,7 +42,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
         shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
 
-      const map = L.map(containerRef.current!, {
+      const map = L.map(containerRef.current, {
         zoom: 14,
         center: [52.37, 4.9],
         zoomControl: true,
@@ -56,6 +60,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
     init();
 
     return () => {
+      mounted = false;
       mapRef.current?.remove();
       mapRef.current = null;
       LRef.current = null;

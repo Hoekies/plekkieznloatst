@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RoutePunt } from "@/types/database";
 
 // Leaflet wordt alleen client-side geladen
@@ -27,6 +27,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
   const onMarkerKlikRef = useRef(onMarkerKlik);
   const onMarkerVerplaatsdRef = useRef(onMarkerVerplaatst);
   const prevPuntenLenRef = useRef(-1);
+  const [kaartKlaar, setKaartKlaar] = useState(false);
 
   addModusRef.current = addModus;
   onKlikRef.current = onKlik;
@@ -61,6 +62,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
       });
 
       kaartRef.current = kaart;
+      setKaartKlaar(true);
     });
 
     return () => {
@@ -132,7 +134,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
         }
       }
     });
-  }, [punten, geselecteerdId]);
+  }, [punten, geselecteerdId, kaartKlaar]);
 
   return (
     <div
