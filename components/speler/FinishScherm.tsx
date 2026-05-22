@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { formateerTijd } from "@/lib/geo";
-import type { LeaderboardEntry } from "@/app/api/speler/leaderboard/route";
+import type { LeaderboardEntry } from "@/lib/types";
 
 interface Props {
   groepNaam: string;

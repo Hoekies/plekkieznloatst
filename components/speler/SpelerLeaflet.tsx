@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { RoutePunt } from "@/types/database";
-import type { SpelerLocatie } from "@/app/api/speler/locaties/route";
+import type { SpelerLocatie } from "@/lib/types";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 

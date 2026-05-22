@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import { createClient } from "@/lib/supabase";
 import VraagPopup from "./VraagPopup";
-import type { SpelerLocatie } from "@/app/api/speler/locaties/route";
+import type { SpelerLocatie } from "@/lib/types";
 import type { RoutePunt, SpelerSessie, SpelerPuntVoortgang } from "@/types/database";
 
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {

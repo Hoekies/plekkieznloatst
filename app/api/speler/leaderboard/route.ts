@@ -2,13 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-export type LeaderboardEntry = {
-  rank: number;
-  group_name: string;
-  score: number;
-  tijd_seconden: number;
-  is_eigen_team: boolean;
-};
+import type { LeaderboardEntry } from "@/lib/types";
 
 export async function GET() {
   const supabase = await createServerSupabaseClient();

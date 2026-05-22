@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import FinishScherm from "@/components/speler/FinishScherm";
-import type { LeaderboardEntry } from "@/app/api/speler/leaderboard/route";
+import type { LeaderboardEntry } from "@/lib/types";
 
 export default async function FinishPage() {
   const supabase = await createServerSupabaseClient();

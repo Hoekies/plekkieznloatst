@@ -2,13 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-export type SpelerLocatie = {
-  session_id: string;
-  group_name: string;
-  latitude: number;
-  longitude: number;
-  created_at: string;
-};
+import type { SpelerLocatie } from "@/lib/types";
 
 export async function GET() {
   const supabase = await createServerSupabaseClient();
