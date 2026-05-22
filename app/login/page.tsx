@@ -32,7 +32,7 @@ function LoginForm() {
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <img
-            src="/logo.png"
+            src="/logo-dark.png"
             alt="Plekkie z'n Loatst"
             style={{ maxWidth: "220px", width: "100%", marginBottom: "16px", display: "block", margin: "0 auto 16px" }}
           />

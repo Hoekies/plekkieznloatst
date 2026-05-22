@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description: "Route-gebaseerd quizspel op een kaart",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent" },
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export const viewport: Viewport = {
