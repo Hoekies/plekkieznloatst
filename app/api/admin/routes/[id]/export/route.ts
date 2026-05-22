@@ -49,7 +49,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     .from("routes")
     .select("name, status")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!route) return NextResponse.json({ fout: "Route niet gevonden" }, { status: 404 });
 

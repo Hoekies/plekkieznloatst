@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     .from("players")
     .select("id, active_device_id")
     .eq("auth_user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 404 });
 

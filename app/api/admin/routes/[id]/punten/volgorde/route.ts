@@ -6,9 +6,12 @@ import { createAdminClient } from "@/lib/supabase-admin";
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user?.user_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!user || user.user_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
-  const { volgorde }: { volgorde: string[] } = await request.json();
+  const body = await request.json();
+  const volgorde: string[] = body.volgorde;
+  if (!Array.isArray(volgorde)) return NextResponse.json({ fout: "Ongeldig verzoek" }, { status: 400 });
+
   const admin = createAdminClient();
 
   await Promise.all(

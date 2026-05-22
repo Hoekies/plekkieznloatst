@@ -122,9 +122,10 @@ export async function POST(request: NextRequest) {
 
   if (error || !bijgewerkt) return NextResponse.json({ fout: error?.message }, { status: 500 });
 
-  // Score bijwerken
+  // Score bijwerken — lees huidige score opnieuw om stale read te vermijden
   if (puntWaarde > 0) {
-    await admin.from("player_sessions").update({ score: sessie.score + puntWaarde }).eq("id", sessie.id);
+    const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", sessie.id).maybeSingle();
+    await admin.from("player_sessions").update({ score: (huidig?.score ?? sessie.score) + puntWaarde }).eq("id", sessie.id);
   }
 
   // Eindpunt → sessie sluiten

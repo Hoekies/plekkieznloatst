@@ -6,9 +6,11 @@ const TOEGESTANE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 500 * 1024; // 500 KB
 
 export async function POST(request: NextRequest) {
+  const TOEGESTANE_BUCKETS = ["route-afbeeldingen", "vraag-afbeeldingen"];
+
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user?.user_metadata?.rol !== "admin") {
+  if (!user || user.user_metadata?.rol !== "admin") {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
@@ -18,6 +20,9 @@ export async function POST(request: NextRequest) {
 
   if (!bestand || !bucket) {
     return NextResponse.json({ fout: "Bestand of bucket ontbreekt" }, { status: 400 });
+  }
+  if (!TOEGESTANE_BUCKETS.includes(bucket)) {
+    return NextResponse.json({ fout: "Ongeldig opslaglocatie" }, { status: 400 });
   }
   if (!TOEGESTANE_TYPES.includes(bestand.type)) {
     return NextResponse.json({ fout: "Alleen jpg, png en webp zijn toegestaan" }, { status: 400 });

@@ -8,16 +8,28 @@ async function checkAdmin() {
   return user?.user_metadata?.rol === "admin" ? user : null;
 }
 
+const TOEGESTANE_VELDEN = [
+  "name", "description", "type", "latitude", "longitude",
+  "radius_meters", "points", "image_path", "sound_path",
+] as const;
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string; pid: string } }
 ) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
+
+  // Whitelist: alleen bekende velden doorgeven aan de database
+  const update: Record<string, unknown> = {};
+  for (const veld of TOEGESTANE_VELDEN) {
+    if (veld in body) update[veld] = body[veld];
+  }
+
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("route_points")
-    .update(body)
+    .update(update)
     .eq("id", params.pid)
     .eq("route_id", params.id)
     .select()
