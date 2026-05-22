@@ -23,9 +23,15 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const addModusRef = useRef(addModus);
+  const onKlikRef = useRef(onKlik);
+  const onMarkerKlikRef = useRef(onMarkerKlik);
+  const onMarkerVerplaatsdRef = useRef(onMarkerVerplaatst);
   const prevPuntenLenRef = useRef(-1);
 
   addModusRef.current = addModus;
+  onKlikRef.current = onKlik;
+  onMarkerKlikRef.current = onMarkerKlik;
+  onMarkerVerplaatsdRef.current = onMarkerVerplaatst;
 
   useEffect(() => {
     if (!containerRef.current || kaartRef.current) return;
@@ -51,7 +57,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
 
       kaart.on("click", (e) => {
         if (!addModusRef.current) return;
-        onKlik(e.latlng.lat, e.latlng.lng);
+        onKlikRef.current(e.latlng.lat, e.latlng.lng);
       });
 
       kaartRef.current = kaart;
@@ -91,10 +97,10 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
         } else {
           const marker = L.marker([pt.latitude, pt.longitude], { icon, draggable: true })
             .addTo(kaart)
-            .on("click", () => onMarkerKlik(pt.id))
+            .on("click", () => onMarkerKlikRef.current(pt.id))
             .on("dragend", (e) => {
               const pos = (e.target as import("leaflet").Marker).getLatLng();
-              onMarkerVerplaatst(pt.id, pos.lat, pos.lng);
+              onMarkerVerplaatsdRef.current(pt.id, pos.lat, pos.lng);
             });
           markersRef.current.set(pt.id, marker);
         }

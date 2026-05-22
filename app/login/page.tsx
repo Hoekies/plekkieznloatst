@@ -1,22 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function LoginPagina() {
-  const [fout, setFout] = useState("");
-  const [pending, startTransition] = useTransition();
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setFout("");
-    const formData = new FormData(e.currentTarget);
-    startTransition(async () => {
-      const res = await fetch("/api/auth/inloggen", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.fout) { setFout(data.fout); return; }
-      if (data.redirect) window.location.href = data.redirect;
-    });
-  }
+function LoginForm() {
+  const params = useSearchParams();
+  const fout = params.get("fout");
+  const foutTekst =
+    fout === "ongeldig"
+      ? "Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord."
+      : fout === "leeg"
+      ? "Vul je e-mailadres en wachtwoord in."
+      : null;
 
   return (
     <div style={{
@@ -43,7 +38,7 @@ export default function LoginPagina() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div className="form-group">
             <label className="form-label" htmlFor="email">E-mailadres</label>
             <input
@@ -70,23 +65,30 @@ export default function LoginPagina() {
             />
           </div>
 
-          {fout && (
+          {foutTekst && (
             <div className="melding melding-fout">
               <span>⚠️</span>
-              <span>{fout}</span>
+              <span>{foutTekst}</span>
             </div>
           )}
 
           <button
             className="btn btn-primary"
             type="submit"
-            disabled={pending}
             style={{ width: "100%", padding: "13px", marginTop: "4px", fontSize: "0.95rem" }}
           >
-            {pending ? "Bezig met inloggen…" : "Inloggen"}
+            Inloggen
           </button>
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPagina() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
