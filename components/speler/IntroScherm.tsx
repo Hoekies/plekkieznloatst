@@ -98,15 +98,9 @@ export default function IntroScherm() {
         padding: "40px 28px", textAlign: "center",
         maxWidth: 380, width: "100%",
       }}>
-        {/* Titel */}
-        <div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
-            Plekkie
-          </div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#06B6D4", letterSpacing: "0.5px" }}>
-            z&apos;n Loatst
-          </div>
-        </div>
+        {/* Logo */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
 
         {/* Intro: aftellen */}
         {fase === "intro" && (
