@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { inloggenAction } from "./actions";
 
 export default function LoginPagina() {
   const [fout, setFout] = useState("");
@@ -12,8 +11,10 @@ export default function LoginPagina() {
     setFout("");
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await inloggenAction(null, formData);
-      if (result?.fout) setFout(result.fout);
+      const res = await fetch("/api/auth/inloggen", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.fout) { setFout(data.fout); return; }
+      if (data.redirect) window.location.href = data.redirect;
     });
   }
 
