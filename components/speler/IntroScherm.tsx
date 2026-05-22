@@ -3,18 +3,25 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Fase = "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
+type Fase = "profiel" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
+
+const ICONEN = ["🦊", "🐸", "🦄", "🐧", "🦁", "🐙"];
 
 const INTRO_DUUR = 5000;
 
 export default function IntroScherm() {
   const router = useRouter();
-  const [fase, setFase] = useState<Fase>("intro");
+  const [fase, setFase] = useState<Fase>("profiel");
   const [voortgang, setVoortgang] = useState(0);
   const [fout, setFout] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [groepsnaam, setGroepsnaam] = useState("");
+  const [gekozenIcono, setGekozenIcono] = useState("🦊");
+  const [profielFout, setProfielFout] = useState("");
+  const [profielBezig, setProfielBezig] = useState(false);
 
   useEffect(() => {
+    if (fase !== "intro") return;
     const start = Date.now();
     intervalRef.current = setInterval(() => {
       const pct = Math.min((Date.now() - start) / INTRO_DUUR, 1);
@@ -26,7 +33,7 @@ export default function IntroScherm() {
       }
     }, 80);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, []);
+  }, [fase]);
 
   async function vraagLocatiePermissie() {
     if (!navigator?.geolocation) {
@@ -61,6 +68,29 @@ export default function IntroScherm() {
     } catch {
       setFout("Geen verbinding. Controleer je internet en probeer opnieuw.");
       setFase("gereed");
+    }
+  }
+
+  async function slaProfielOp() {
+    if (!groepsnaam.trim()) return;
+    setProfielBezig(true);
+    setProfielFout("");
+    try {
+      const res = await fetch("/api/speler/profiel", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ group_name: groepsnaam.trim(), icon: gekozenIcono }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setProfielFout(data.fout ?? "Opslaan mislukt.");
+        return;
+      }
+      setFase("intro");
+    } catch {
+      setProfielFout("Geen verbinding. Probeer opnieuw.");
+    } finally {
+      setProfielBezig(false);
     }
   }
 
@@ -101,6 +131,52 @@ export default function IntroScherm() {
         {/* Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
+
+        {/* Profiel: groepsnaam en icoon kiezen */}
+        {fase === "profiel" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
+            <div>
+              <label style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", display: "block", marginBottom: 6 }}>
+                Groepsnaam
+              </label>
+              <input
+                className="form-input"
+                style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
+                placeholder="Bijv. Team Turbo"
+                value={groepsnaam}
+                onChange={(e) => setGroepsnaam(e.target.value)}
+                maxLength={30}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", display: "block", marginBottom: 8 }}>
+                Kies een icoon
+              </label>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                {ICONEN.map((icoon) => (
+                  <button key={icoon} onClick={() => setGekozenIcono(icoon)}
+                    style={{
+                      fontSize: "1.8rem", width: 52, height: 52, borderRadius: 12,
+                      border: gekozenIcono === icoon ? "2.5px solid #06B6D4" : "2px solid rgba(255,255,255,0.2)",
+                      background: gekozenIcono === icoon ? "rgba(6,182,212,0.2)" : "rgba(255,255,255,0.07)",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}>
+                    {icoon}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {profielFout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{profielFout}</p>}
+            <button
+              className="btn btn-cyan"
+              style={{ width: "100%", fontSize: "1rem", padding: "14px 0", borderRadius: 14, marginTop: 4 }}
+              disabled={!groepsnaam.trim() || profielBezig}
+              onClick={slaProfielOp}>
+              {profielBezig ? "Opslaan…" : "Doorgaan →"}
+            </button>
+          </div>
+        )}
 
         {/* Intro: aftellen */}
         {fase === "intro" && (

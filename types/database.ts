@@ -59,6 +59,7 @@ export interface AntwoordOptie {
 export interface Speler {
   id: string;
   group_name: string;
+  icon: string;
   auth_user_id: string;
   active_device_id: string | null;
   created_at: string;
