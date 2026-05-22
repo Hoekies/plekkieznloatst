@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin" exact>🏠 Dashboard</AdminNavLink>
           <AdminNavLink href="/admin/routes">🗺️ Routes</AdminNavLink>
           <AdminNavLink href="/admin/groepen">👥 Groepen</AdminNavLink>
+          <AdminNavLink href="/admin/leaderboard">🏆 Leaderboard</AdminNavLink>
           <AdminNavLink href="/admin/live">📡 Live kaart</AdminNavLink>
         </nav>
         <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
