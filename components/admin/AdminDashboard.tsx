@@ -237,18 +237,18 @@ function SpelerKaart({ speler: s, totaalPunten, isLast }: { speler: SpelerOverzi
           />
         )}
         {s.laatste_gezien && (
-          <InfoRegel label="Laatste update" waarde={`${tijdGeleden(s.laatste_gezien)} geleden`} />
+          <InfoRegel label="Laatste update" waarde={`${tijdGeleden(s.laatste_gezien)} geleden`} suppressHydrationWarning />
         )}
       </div>
     </div>
   );
 }
 
-function InfoRegel({ label, waarde }: { label: string; waarde: string }) {
+function InfoRegel({ label, waarde, suppressHydrationWarning }: { label: string; waarde: string; suppressHydrationWarning?: boolean }) {
   return (
     <div>
       <div style={{ fontSize: "0.68rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
-      <div style={{ fontSize: "0.83rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{waarde}</div>
+      <div style={{ fontSize: "0.83rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} suppressHydrationWarning={suppressHydrationWarning}>{waarde}</div>
     </div>
   );
 }
