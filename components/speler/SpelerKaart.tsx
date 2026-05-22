@@ -43,11 +43,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [andereSpelers, setAndereSpelers] = useState<SpelerLocatie[]>([]);
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
+  const [kmAfgelegd, setKmAfgelegd] = useState(0);
+
   const bezigRef = useRef(false);
   const positieRef = useRef<GeolocationCoordinates | null>(null);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const locatieTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const vorigePositieRef = useRef<GeolocationCoordinates | null>(null);
 
   // Afgeleid uit voortgang
   const verwerktIds = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
@@ -148,6 +151,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     positieRef.current = pos.coords;
     setPositie(pos.coords);
     setGpsStatus(pos.coords.accuracy <= SLECHTE_NAUWKEURIGHEID_M ? "ok" : "zwak");
+    if (vorigePositieRef.current) {
+      const d = haversine(vorigePositieRef.current.latitude, vorigePositieRef.current.longitude, pos.coords.latitude, pos.coords.longitude);
+      if (d > 5) {
+        setKmAfgelegd(prev => prev + d);
+        vorigePositieRef.current = pos.coords;
+      }
+    } else {
+      vorigePositieRef.current = pos.coords;
+    }
   }
 
   async function markeerBereikt(punt: RoutePunt) {
@@ -211,6 +223,27 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           ❌ GPS-verbinding weg. Wacht op herstel van het signaal…
         </div>
       )}
+
+      {/* Statistiekenbalk: km afgelegd + punten behaald */}
+      <div style={{
+        display: "flex", background: "var(--paper)",
+        borderBottom: "1px solid var(--line)", flexShrink: 0,
+      }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", borderRight: "1px solid var(--line)" }}>
+          <span style={{ fontSize: "1.1rem" }}>🗺️</span>
+          <div style={{ lineHeight: 1.2 }}>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "var(--ink)" }}>{(kmAfgelegd / 1000).toFixed(2)}</div>
+            <div style={{ fontSize: "0.62rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>km gelopen</div>
+          </div>
+        </div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0" }}>
+          <span style={{ fontSize: "1.1rem" }}>⭐</span>
+          <div style={{ lineHeight: 1.2 }}>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "var(--ink)" }}>{verwerktIds.size}</div>
+            <div style={{ fontSize: "0.62rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>punten behaald</div>
+          </div>
+        </div>
+      </div>
 
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>
