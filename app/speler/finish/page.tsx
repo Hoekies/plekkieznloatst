@@ -62,7 +62,7 @@ export default async function FinishPage() {
     .eq("status", "voltooid")
     .not("finished_at", "is", null);
 
-  const gesorteerd = ((alleSessies ?? []) as RawSessie[])
+  const gesorteerd = ((alleSessies ?? []) as unknown as RawSessie[])
     .map((s) => ({
       player_id: s.player_id,
       group_name: s.players.group_name,
