@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt } from "@/types/database";
 
@@ -227,11 +227,10 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
   const [radius, setRadius] = useState(punt.radius_meters);
   const [punten, setPunten] = useState(punt.points);
 
-  // Update lokale state als geselecteerd punt wisselt
-  useState(() => {
+  useEffect(() => {
     setNaam(punt.name); setBeschrijving(punt.description ?? ""); setType(punt.type);
     setRadius(punt.radius_meters); setPunten(punt.points);
-  });
+  }, [punt.id]);
 
   return (
     <div style={{ borderTop: "1px solid var(--line)", padding: "14px", background: "var(--bg)", display: "flex", flexDirection: "column", gap: 10 }}>

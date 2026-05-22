@@ -23,13 +23,15 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const addModusRef = useRef(addModus);
+  const prevPuntenLenRef = useRef(-1);
 
   addModusRef.current = addModus;
 
   useEffect(() => {
     if (!containerRef.current || kaartRef.current) return;
 
-    // Laad Leaflet CSS
+    let mounted = true;
+
     if (!document.getElementById("leaflet-css")) {
       const link = document.createElement("link");
       link.id = "leaflet-css";
@@ -39,7 +41,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
     }
 
     import("leaflet").then((L) => {
-      if (!containerRef.current || kaartRef.current) return;
+      if (!mounted || !containerRef.current || kaartRef.current) return;
 
       const kaart = L.map(containerRef.current).setView([52.3676, 4.9041], 13);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -56,6 +58,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
     });
 
     return () => {
+      mounted = false;
       kaartRef.current?.remove();
       kaartRef.current = null;
       markersRef.current.clear();
@@ -112,8 +115,9 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
         ).addTo(kaart);
       }
 
-      // Kaart inzoomen op punten als er nieuw zijn
-      if (punten.length > 0) {
+      // Kaart inzoomen alleen als het aantal punten verandert
+      if (punten.length !== prevPuntenLenRef.current && punten.length > 0) {
+        prevPuntenLenRef.current = punten.length;
         const bounds = L.latLngBounds(punten.map((p) => [p.latitude, p.longitude]));
         if (punten.length === 1) {
           kaart.setView([punten[0].latitude, punten[0].longitude], 16);
