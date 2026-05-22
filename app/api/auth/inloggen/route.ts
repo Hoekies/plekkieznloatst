@@ -36,10 +36,13 @@ export async function POST(request: NextRequest) {
   const rol = data.user.user_metadata?.rol;
   const redirectNaar = rol === "admin" ? "/admin" : "/speler";
 
-  // Cookies op de JSON-response zetten zodat de browser ze opslaat vóór de navigatie
+  // Cookies op de JSON-response zetten zodat de browser ze opslaat vóór de navigatie.
+  // Op localhost (HTTP) werken Secure-cookies niet — verwijder de flag in development.
+  const isDev = process.env.NODE_ENV === "development";
   const response = NextResponse.json({ redirect: redirectNaar });
   pendingCookies.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+    const opts = isDev ? { ...options, secure: false } : options;
+    response.cookies.set(name, value, opts as Parameters<typeof response.cookies.set>[2]);
   });
 
   return response;
