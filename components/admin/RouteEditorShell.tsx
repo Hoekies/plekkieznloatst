@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt } from "@/types/database";
+import { haversine } from "@/lib/geo";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
@@ -133,7 +134,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Zijpaneel */}
         <div style={{ width: 300, background: "var(--paper)", borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", gap: 6 }}>
+          <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 8 }}>
             <button
               className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
               style={{ flex: 1, fontSize: "0.82rem" }}
@@ -141,6 +142,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             >
               {addModus ? "✅ Klik op kaart…" : "📍 Punt toevoegen"}
             </button>
+            {punten.length >= 2 && (() => {
+              const totaalM = punten.reduce((som, pt, i) => {
+                if (i === 0) return som;
+                const vorige = punten[i - 1];
+                return som + haversine(vorige.latitude, vorige.longitude, pt.latitude, pt.longitude);
+              }, 0);
+              const totaalKm = (totaalM / 1000).toFixed(1);
+              return (
+                <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+                  Totale afstand: {totaalKm} km
+                </span>
+              );
+            })()}
           </div>
 
           {/* Puntenlijst */}

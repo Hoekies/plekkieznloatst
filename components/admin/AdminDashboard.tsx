@@ -142,7 +142,7 @@ export default function AdminDashboard({ initData }: Props) {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
-                    {["#", "Groep", "Score", "Tijd", "Punten", "Status"].map((h) => (
+                    {["#", "Groep", "Score", "Tijd", "Punten", "Afstand", "Status"].map((h) => (
                       <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
@@ -160,6 +160,10 @@ export default function AdminDashboard({ initData }: Props) {
                       </td>
                       <td style={{ padding: "10px 14px", fontSize: "0.85rem" }}>
                         {totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : s.bezochte_punten}
+                      </td>
+                      <td style={{ padding: "10px 14px", fontSize: "0.85rem", color: "var(--muted)" }}>
+                        {/* TODO: afstand per sessie ophalen uit location_updates */}
+                        —
                       </td>
                       <td style={{ padding: "10px 14px" }}>
                         <StatusPil status={s.sessie_status} />
