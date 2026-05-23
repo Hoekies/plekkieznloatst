@@ -14,10 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/apple-touch-icon.png" alt="" style={{ width: 40, height: 40, objectFit: "contain", marginBottom: 6 }} />
-          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
-            Plekkie z&apos;n Loatst
-          </div>
+          <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", objectFit: "contain" }} />
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact>🏠 Dashboard</AdminNavLink>
