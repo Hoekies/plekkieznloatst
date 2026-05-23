@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Fase = "profiel" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
+type Fase = "profiel" | "melding" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
 
 const ICONEN = ["🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩"];
 
@@ -86,7 +86,7 @@ export default function IntroScherm() {
         setProfielFout(data.fout ?? "Opslaan mislukt.");
         return;
       }
-      setFase("intro");
+      setFase("melding");
     } catch {
       setProfielFout("Geen verbinding. Probeer opnieuw.");
     } finally {
@@ -174,6 +174,46 @@ export default function IntroScherm() {
               disabled={!groepsnaam.trim() || profielBezig}
               onClick={slaProfielOp}>
               {profielBezig ? "Opslaan…" : "Doorgaan →"}
+            </button>
+          </div>
+        )}
+
+        {/* Melding: GPS en geluid */}
+        {fase === "melding" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+            <div style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: 14, padding: "16px 18px",
+              display: "flex", flexDirection: "column", gap: 14,
+            }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>📍</span>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>GPS locatie</div>
+                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
+                    Dit spel gebruikt je GPS-locatie om te bepalen wanneer je een routepunt bereikt.
+                    Locatietoegang is vereist om te spelen.
+                  </div>
+                </div>
+              </div>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>🔔</span>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>Geluid</div>
+                  <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
+                    Bij het bereiken van punten en het beantwoorden van vragen worden geluiden afgespeeld.
+                    Zet je volume aan voor de beste ervaring.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              className="btn btn-cyan"
+              style={{ width: "100%", fontSize: "1rem", padding: "14px 0", borderRadius: 14 }}
+              onClick={() => setFase("intro")}>
+              OK, begrepen →
             </button>
           </div>
         )}

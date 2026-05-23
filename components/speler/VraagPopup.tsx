@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
-import { speelGoedAntwoord, speelFoutAntwoord, speelPuntBereikt } from "@/lib/sounds";
+import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const KLEUR_STIJL: Record<string, string> = {
+
+const KLEUR_RAND: Record<string, string> = {
   geel: "#F59E0B",
   blauw: "#1E40AF",
   rood: "#EF4444",
@@ -61,10 +62,8 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  // Bewaar voortgang die van de server terugkomt, zodat onDoorgaan het kan doorgeven
   const voortgangRef = useRef<SpelerPuntVoortgang | null>(null);
 
-  // Vraag ophalen voor vraagpunten
   useEffect(() => {
     if (punt.type !== "vraagpunt") return;
     fetch(`/api/speler/vraag/${punt.id}`)
@@ -76,7 +75,6 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
       .catch(() => setPopupFase("informatie"));
   }, [punt]);
 
-  // ── Info / eindpunt: direct verwerken ────────────────────────────────────
   async function verwerkDirect() {
     setBezig(true);
     try {
@@ -94,7 +92,6 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
     }
   }
 
-  // ── Vraagpunt: antwoord indienen ─────────────────────────────────────────
   async function beantwoord() {
     if (!vraag) return;
     setFout("");
@@ -144,26 +141,21 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
     if (voortgangRef.current) onVerwerkt(voortgangRef.current);
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  // ── Volledig scherm shell ─────────────────────────────────────────────────
   return (
     <div style={{
-      position: "absolute", inset: 0, zIndex: 500,
-      background: "rgba(10,27,54,0.55)",
-      display: "flex", alignItems: "flex-end",
+      position: "fixed", inset: 0, zIndex: 500,
+      background: "var(--paper)",
+      display: "flex", flexDirection: "column",
     }}>
-      <div style={{
-        background: "var(--paper)", borderRadius: "20px 20px 0 0",
-        padding: "24px 20px 36px",
-        width: "100%", maxHeight: "82vh",
-        overflowY: "auto",
-        display: "flex", flexDirection: "column", gap: 16,
-      }}>
+      {/* Scrollbaar inhoudsgebied */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px 8px", display: "flex", flexDirection: "column", gap: 16 }}>
 
         <TypeBadge type={punt.type} />
 
         {/* Laden */}
         {popupFase === "laden" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "24px 0" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "48px 0" }}>
             <div className="loading-spinner" />
             <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Vraag ophalen…</span>
           </div>
@@ -171,23 +163,66 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 
         {/* Informatie / eindpunt */}
         {popupFase === "informatie" && (
-          <InfoInhoud punt={punt} bezig={bezig} onDoorgaan={verwerkDirect} />
+          <InfoInhoud punt={punt} />
         )}
 
         {/* Vraag beantwoorden */}
         {popupFase === "vraag" && vraag && (
           <>
-            <h2 style={{ margin: 0, fontSize: "1.1rem", lineHeight: 1.4 }}>{vraag.question_text}</h2>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700 }}>
+              {vraag.question_text}
+            </h2>
 
             {vraag.question_image_path && (
               <img
                 src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraag.question_image_path}`}
                 alt=""
-                style={{ width: "100%", borderRadius: 10, maxHeight: 200, objectFit: "cover" }}
+                style={{ width: "100%", borderRadius: 12, maxHeight: 220, objectFit: "cover" }}
               />
             )}
 
-            {(vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") && (
+            {vraag.type === "meerkeuze_afbeelding" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {vraag.answer_options.map((optie) => {
+                  const isGekozen = gekozenId === optie.id;
+                  return (
+                    <button
+                      key={optie.id}
+                      type="button"
+                      onClick={() => setGekozenId(optie.id)}
+                      style={{
+                        border: `3px solid ${isGekozen ? KLEUR_RAND[optie.color] : "var(--line)"}`,
+                        borderRadius: 16, overflow: "hidden",
+                        cursor: "pointer",
+                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "var(--bg)",
+                        padding: 0,
+                        display: "flex", flexDirection: "column",
+                        transition: "border-color 0.12s, background 0.12s",
+                      }}>
+                      {optie.image_path ? (
+                        <img
+                          src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
+                          alt=""
+                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div style={{ aspectRatio: "4/3", background: KLEUR_ZACHT[optie.color] ?? "#f3f4f6" }} />
+                      )}
+                      {optie.text && (
+                        <div style={{
+                          padding: "8px 10px", fontSize: "0.88rem", fontWeight: 600,
+                          textAlign: "center", color: "var(--ink)",
+                        }}>
+                          {optie.text}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {vraag.type === "meerkeuze_tekst" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {vraag.answer_options.map((optie) => {
                   const isGekozen = gekozenId === optie.id;
@@ -197,26 +232,19 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                       type="button"
                       onClick={() => setGekozenId(optie.id)}
                       style={{
-                        display: "flex", alignItems: "center", gap: 12,
-                        padding: "14px 16px", borderRadius: 12, cursor: "pointer",
-                        border: `2px solid ${isGekozen ? KLEUR_STIJL[optie.color] : "var(--line)"}`,
+                        display: "flex", alignItems: "center", gap: 14,
+                        padding: "16px 18px", borderRadius: 14, cursor: "pointer",
+                        border: `2.5px solid ${isGekozen ? KLEUR_RAND[optie.color] : "var(--line)"}`,
                         background: isGekozen ? KLEUR_ZACHT[optie.color] : "transparent",
                         textAlign: "left",
+                        transition: "border-color 0.12s, background 0.12s",
                       }}>
                       <div style={{
-                        width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                        background: isGekozen ? KLEUR_STIJL[optie.color] : "transparent",
-                        border: `2.5px solid ${KLEUR_STIJL[optie.color]}`,
+                        width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
+                        background: isGekozen ? KLEUR_RAND[optie.color] : "transparent",
+                        border: `2.5px solid ${KLEUR_RAND[optie.color]}`,
                       }} />
-                      {optie.answer_type === "afbeelding" && optie.image_path ? (
-                        <img
-                          src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
-                          alt=""
-                          style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8 }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: "0.95rem", fontWeight: 500 }}>{optie.text}</span>
-                      )}
+                      <span style={{ fontSize: "1rem", fontWeight: 600 }}>{optie.text}</span>
                     </button>
                   );
                 })}
@@ -231,20 +259,12 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                 onChange={(e) => setOpenAntwoord(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && beantwoord()}
                 placeholder="Typ hier je antwoord…"
-                style={{ fontSize: "1rem", padding: "12px 14px" }}
+                style={{ fontSize: "1rem", padding: "14px 16px" }}
                 autoFocus
               />
             )}
 
             {fout && <p style={{ color: "var(--red)", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
-
-            <button
-              className="btn btn-primary"
-              style={{ width: "100%", padding: "14px 0", fontSize: "1rem" }}
-              disabled={bezig}
-              onClick={beantwoord}>
-              {bezig ? "Controleren…" : "Bevestig antwoord"}
-            </button>
           </>
         )}
 
@@ -254,8 +274,37 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             feedback={feedback}
             vraag={vraag}
             gekozenId={gekozenId}
-            onDoorgaan={doorgaan}
           />
+        )}
+      </div>
+
+      {/* Vaste knop onderaan */}
+      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid var(--line)", background: "var(--paper)" }}>
+        {popupFase === "informatie" && (
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            disabled={bezig}
+            onClick={verwerkDirect}>
+            {bezig ? "Even geduld…" : punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
+          </button>
+        )}
+        {popupFase === "vraag" && (
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            disabled={bezig}
+            onClick={beantwoord}>
+            {bezig ? "Controleren…" : "Bevestig antwoord"}
+          </button>
+        )}
+        {popupFase === "feedback" && (
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            onClick={doorgaan}>
+            Doorgaan →
+          </button>
         )}
       </div>
     </div>
@@ -265,110 +314,120 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 // ── TypeBadge ─────────────────────────────────────────────────────────────────
 function TypeBadge({ type }: { type: RoutePunt["type"] }) {
   const cfg = {
-    vraagpunt:     { label: "❓ VRAAG",      bg: "var(--blue-soft)", kleur: "var(--blue)" },
-    informatiepunt:{ label: "ℹ️ INFORMATIE", bg: "var(--cyan-soft)", kleur: "var(--cyan)" },
-    eindpunt:      { label: "🏁 EINDPUNT",   bg: "#FEF9C3",          kleur: "#A16207"     },
+    vraagpunt:      { label: "❓ VRAAG",      bg: "var(--blue-soft)", kleur: "var(--blue)" },
+    informatiepunt: { label: "ℹ️ INFORMATIE", bg: "var(--cyan-soft)", kleur: "var(--cyan)" },
+    eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3",          kleur: "#A16207"     },
   }[type];
   return (
     <span style={{
       fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em",
       background: cfg.bg, color: cfg.kleur,
-      padding: "3px 10px", borderRadius: 99, alignSelf: "flex-start",
+      padding: "4px 12px", borderRadius: 99, alignSelf: "flex-start",
     }}>{cfg.label}</span>
   );
 }
 
 // ── InfoInhoud ────────────────────────────────────────────────────────────────
-function InfoInhoud({ punt, bezig, onDoorgaan }: {
-  punt: RoutePunt; bezig: boolean; onDoorgaan: () => void;
-}) {
+function InfoInhoud({ punt }: { punt: RoutePunt }) {
   return (
     <>
-      <h2 style={{ margin: 0, fontSize: "1.2rem" }}>{punt.name}</h2>
+      <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700 }}>{punt.name}</h2>
       {punt.image_path && (
         <img
           src={`${SUPABASE_URL}/storage/v1/object/public/punt-afbeeldingen/${punt.image_path}`}
           alt=""
-          style={{ width: "100%", borderRadius: 10, maxHeight: 200, objectFit: "cover" }}
+          style={{ width: "100%", borderRadius: 12, maxHeight: 240, objectFit: "cover" }}
         />
       )}
       {punt.description && (
-        <p style={{ margin: 0, lineHeight: 1.6, fontSize: "0.95rem" }}>{punt.description}</p>
+        <p style={{ margin: 0, lineHeight: 1.7, fontSize: "1rem", color: "var(--ink)" }}>{punt.description}</p>
       )}
-      <button
-        className="btn btn-primary"
-        style={{ width: "100%", padding: "14px 0", fontSize: "1rem" }}
-        disabled={bezig}
-        onClick={onDoorgaan}>
-        {bezig ? "Even geduld…" : punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
-      </button>
     </>
   );
 }
 
 // ── FeedbackWeergave ──────────────────────────────────────────────────────────
-function FeedbackWeergave({ feedback, vraag, gekozenId, onDoorgaan }: {
+function FeedbackWeergave({ feedback, vraag, gekozenId }: {
   feedback: Feedback;
   vraag: VraagData;
   gekozenId: string | null;
-  onDoorgaan: () => void;
 }) {
   return (
     <>
-      {/* Resultaatbanner */}
       <div style={{
         background: feedback.is_correct ? "#DCFCE7" : "#FEE2E2",
         border: `1px solid ${feedback.is_correct ? "#86EFAC" : "#FECACA"}`,
-        borderRadius: 12, padding: "14px 16px",
+        borderRadius: 14, padding: "16px 18px",
         display: "flex", flexDirection: "column", gap: 4,
       }}>
-        <div style={{ fontWeight: 700, fontSize: "1rem", color: feedback.is_correct ? "#15803D" : "#B91C1C" }}>
+        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: feedback.is_correct ? "#15803D" : "#B91C1C" }}>
           {feedback.is_correct ? "✓ Goed gedaan!" : "✗ Helaas, dat klopt niet."}
         </div>
         {feedback.points_awarded > 0 && (
-          <div style={{ fontSize: "0.85rem", color: "#15803D" }}>
+          <div style={{ fontSize: "0.9rem", color: "#15803D" }}>
             +{feedback.points_awarded} punt{feedback.points_awarded !== 1 ? "en" : ""} verdiend
           </div>
         )}
       </div>
 
-      {/* Juiste antwoord bij fout */}
       {!feedback.is_correct && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--muted)", fontWeight: 600 }}>
             Het juiste antwoord:
           </p>
 
-          {(vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {vraag.type === "meerkeuze_afbeelding" && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {vraag.answer_options.map((optie) => {
+                const isJuist = optie.id === feedback.correct_answer_id;
+                const wasGekozen = optie.id === gekozenId;
+                if (!isJuist && !wasGekozen) return null;
+                return (
+                  <div key={optie.id} style={{
+                    border: `3px solid ${isJuist ? "#86EFAC" : "#FECACA"}`,
+                    borderRadius: 14, overflow: "hidden",
+                    background: isJuist ? "#F0FDF4" : "#FFF5F5",
+                  }}>
+                    {optie.image_path && (
+                      <img
+                        src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
+                        alt=""
+                        style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover" }}
+                      />
+                    )}
+                    {optie.text && (
+                      <div style={{ padding: "6px 8px", fontSize: "0.85rem", fontWeight: 600, textAlign: "center" }}>
+                        {isJuist ? "✓ " : "✗ "}{optie.text}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {vraag.type === "meerkeuze_tekst" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {vraag.answer_options.map((optie) => {
                 const isJuist = optie.id === feedback.correct_answer_id;
                 const wasGekozen = optie.id === gekozenId;
                 return (
                   <div key={optie.id} style={{
                     display: "flex", alignItems: "center", gap: 12,
-                    padding: "10px 14px", borderRadius: 10,
+                    padding: "12px 16px", borderRadius: 12,
                     border: `2px solid ${isJuist ? "#86EFAC" : wasGekozen ? "#FECACA" : "var(--line)"}`,
                     background: isJuist ? "#F0FDF4" : wasGekozen ? "#FFF5F5" : "transparent",
-                    opacity: isJuist || wasGekozen ? 1 : 0.45,
+                    opacity: isJuist || wasGekozen ? 1 : 0.4,
                   }}>
                     <div style={{
-                      width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
-                      background: KLEUR_STIJL[optie.color],
+                      width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                      background: KLEUR_RAND[optie.color],
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "11px", color: "#fff", fontWeight: 700,
+                      fontSize: "12px", color: "#fff", fontWeight: 700,
                     }}>
                       {isJuist ? "✓" : wasGekozen ? "✗" : ""}
                     </div>
-                    {optie.answer_type === "afbeelding" && optie.image_path ? (
-                      <img
-                        src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
-                        alt=""
-                        style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 6 }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: "0.9rem" }}>{optie.text}</span>
-                    )}
+                    <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>{optie.text}</span>
                   </div>
                 );
               })}
@@ -378,7 +437,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId, onDoorgaan }: {
           {vraag.type === "open" && feedback.numeric_answer !== null && (
             <div style={{
               background: "#F0FDF4", border: "1px solid #86EFAC",
-              borderRadius: 10, padding: "10px 14px", fontSize: "0.95rem", fontWeight: 600,
+              borderRadius: 12, padding: "12px 16px", fontSize: "1rem", fontWeight: 600,
             }}>
               {feedback.numeric_tolerance && feedback.numeric_tolerance > 0
                 ? `${feedback.numeric_answer} (± ${feedback.numeric_tolerance})`
@@ -389,20 +448,13 @@ function FeedbackWeergave({ feedback, vraag, gekozenId, onDoorgaan }: {
           {vraag.type === "open" && feedback.correct_text_answers?.length && (
             <div style={{
               background: "#F0FDF4", border: "1px solid #86EFAC",
-              borderRadius: 10, padding: "10px 14px", fontSize: "0.95rem", fontWeight: 600,
+              borderRadius: 12, padding: "12px 16px", fontSize: "1rem", fontWeight: 600,
             }}>
               {feedback.correct_text_answers[0]}
             </div>
           )}
         </div>
       )}
-
-      <button
-        className="btn btn-primary"
-        style={{ width: "100%", padding: "14px 0", fontSize: "1rem" }}
-        onClick={onDoorgaan}>
-        Doorgaan →
-      </button>
     </>
   );
 }

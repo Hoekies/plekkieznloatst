@@ -8,18 +8,14 @@ interface Props {
   groepNaam: string;
   score: number;
   tijdSeconden: number;
+  distanceMeters: number;
   initLeaderboard: LeaderboardEntry[];
 }
 
 const CONFETTI_KLEUREN = ["#F59E0B", "#1E40AF", "#EF4444", "#10B981", "#8B5CF6", "#F97316", "#06B6D4"];
 const CONFETTI_AANTAL = 70;
 const POLL_INTERVAL_MS = 10000;
-
 const RANK_EMOJI = ["🥇", "🥈", "🥉"];
-
-function speelFinishGeluid() {
-  try { new Audio("/sounds/finish.mp3").play(); } catch { /* geen geluid */ }
-}
 
 type ConfettiStuk = {
   id: number;
@@ -45,27 +41,30 @@ function maakConfetti(): ConfettiStuk[] {
   }));
 }
 
-export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeaderboard }: Props) {
+function formateerAfstand(meters: number): string {
+  if (meters === 0) return "—";
+  if (meters < 1000) return `${meters} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
+export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceMeters, initLeaderboard }: Props) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [confetti] = useState<ConfettiStuk[]>(maakConfetti);
   const [confettiZichtbaar, setConfettiZichtbaar] = useState(true);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    speelFinishGeluid();
-
-    // Confetti na 4 seconden verbergen
     const timer = setTimeout(() => setConfettiZichtbaar(false), 4000);
 
-    // Leaderboard elke 10 seconden verversen
     pollRef.current = setInterval(async () => {
       try {
         const res = await fetch("/api/speler/leaderboard");
         if (res.ok) {
           const data = await res.json();
-          if (data.top3) setLeaderboard(data.top3);
+          // Houd de laatste bekende staat als de server leeg teruggeeft (bijv. na reset)
+          if (data.leaderboard?.length) setLeaderboard(data.leaderboard);
         }
-      } catch { /* verbindingsfout, volgende keer opnieuw */ }
+      } catch { /* verbindingsfout */ }
     }, POLL_INTERVAL_MS);
 
     return () => {
@@ -73,8 +72,6 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, []);
-
-  const eigenInTop3 = leaderboard.some((e) => e.is_eigen_team);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", overflow: "hidden", alignItems: "center" }}>
@@ -118,31 +115,16 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
           <p style={{ color: "var(--muted)", margin: 0, fontSize: "0.9rem" }}>{groepNaam}</p>
         </div>
 
-        {/* Score + tijd */}
-        <div style={{ display: "flex", gap: 16, width: "100%" }}>
-          <div style={{
-            flex: 1, background: "var(--paper)", borderRadius: 16,
-            padding: "18px 16px", textAlign: "center",
-            border: "1px solid var(--line)",
-          }}>
-            <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--blue)" }}>{score}</div>
-            <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: 2 }}>punten</div>
-          </div>
-          <div style={{
-            flex: 1, background: "var(--paper)", borderRadius: 16,
-            padding: "18px 16px", textAlign: "center",
-            border: "1px solid var(--line)",
-          }}>
-            <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
-              {formateerTijd(tijdSeconden)}
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: 2 }}>speeltijd</div>
-          </div>
+        {/* Score + tijd + afstand */}
+        <div style={{ display: "flex", gap: 12, width: "100%" }}>
+          <StatKaart waarde={String(score)} label="punten" kleur="var(--blue)" />
+          <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
+          <StatKaart waarde={formateerAfstand(distanceMeters)} label="afstand" kleur="var(--green, #16A34A)" />
         </div>
 
         {/* Leaderboard */}
         <div style={{ width: "100%" }}>
-          <h2 style={{ fontSize: "1rem", marginBottom: 12, color: "var(--ink)" }}>Top 3</h2>
+          <h2 style={{ fontSize: "1rem", marginBottom: 12, color: "var(--ink)" }}>🏆 Leaderboard</h2>
           {leaderboard.length === 0 ? (
             <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
           ) : (
@@ -151,15 +133,6 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
                 <LeaderboardRij key={entry.rank} entry={entry} />
               ))}
             </div>
-          )}
-
-          {!eigenInTop3 && (
-            <p style={{
-              marginTop: 12, fontSize: "0.8rem", color: "var(--muted)",
-              textAlign: "center", lineHeight: 1.5,
-            }}>
-              Jouw score staat nog niet in de top 3. Blijven strijden! 💪
-            </p>
           )}
         </div>
 
@@ -184,33 +157,52 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, initLeade
   );
 }
 
+// ── StatKaart ──────────────────────────────────────────────────────────────────
+function StatKaart({ waarde, label, kleur, tabular }: { waarde: string; label: string; kleur: string; tabular?: boolean }) {
+  return (
+    <div style={{
+      flex: 1, background: "var(--paper)", borderRadius: 16,
+      padding: "16px 12px", textAlign: "center",
+      border: "1px solid var(--line)",
+    }}>
+      <div style={{
+        fontSize: "1.7rem", fontWeight: 800, color: kleur,
+        fontVariantNumeric: tabular ? "tabular-nums" : undefined,
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+      }}>{waarde}</div>
+      <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+
 // ── LeaderboardRij ─────────────────────────────────────────────────────────────
 function LeaderboardRij({ entry }: { entry: LeaderboardEntry }) {
   const isEigen = entry.is_eigen_team;
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      padding: "12px 16px", borderRadius: 12,
+      display: "flex", alignItems: "center", gap: 10,
+      padding: "10px 14px", borderRadius: 12,
       background: isEigen ? "var(--blue-soft)" : "var(--paper)",
       border: `1.5px solid ${isEigen ? "var(--blue)" : "var(--line)"}`,
     }}>
-      <span style={{ fontSize: "1.4rem", flexShrink: 0, width: 28, textAlign: "center" }}>
+      <span style={{ fontSize: "1.3rem", flexShrink: 0, width: 28, textAlign: "center" }}>
         {RANK_EMOJI[entry.rank - 1] ?? `${entry.rank}.`}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontWeight: 700, fontSize: "0.95rem",
+          fontWeight: 700, fontSize: "0.9rem",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           color: isEigen ? "var(--blue)" : "var(--ink)",
         }}>
-          {entry.group_name}{isEigen && " (jij)"}
+          {entry.display_name}{isEigen && " (jij)"}
         </div>
-        <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 1 }}>
-          {formateerTijd(entry.tijd_seconden)}
+        <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1, display: "flex", gap: 8 }}>
+          <span>{formateerTijd(entry.tijd_seconden)}</span>
+          {entry.distance_meters > 0 && <span>{formateerAfstand(entry.distance_meters)}</span>}
         </div>
       </div>
       <div style={{
-        fontWeight: 800, fontSize: "1.1rem",
+        fontWeight: 800, fontSize: "1.05rem",
         color: isEigen ? "var(--blue)" : "var(--ink)", flexShrink: 0,
       }}>
         {entry.score} <span style={{ fontWeight: 400, fontSize: "0.72rem", color: "var(--muted)" }}>pt</span>

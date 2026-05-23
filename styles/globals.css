@@ -334,6 +334,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 .speler-header h1 {
   font-size: 1rem;
