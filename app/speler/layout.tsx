@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
+import AudioUnlock from "@/components/speler/AudioUnlock";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -9,6 +10,7 @@ export default async function SpelerLayout({ children }: { children: React.React
 
   return (
     <div className="speler-shell">
+      <AudioUnlock />
       <header className="speler-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ height: 120, objectFit: "contain" }} />

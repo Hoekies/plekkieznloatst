@@ -5,9 +5,18 @@ function getCtx(): AudioContext {
   return ctx;
 }
 
+// Ontgrendel AudioContext op eerste gebruikersinteractie (vereist door iOS Safari)
+export function ontgrendelAudio() {
+  try {
+    const ac = getCtx();
+    if (ac.state === "suspended") ac.resume();
+  } catch { /* geen AudioContext support */ }
+}
+
 function speel(frequenties: number[], duur: number, type: OscillatorType = "sine", volume = 0.3) {
   try {
     const ac = getCtx();
+    if (ac.state === "suspended") ac.resume();
     frequenties.forEach((freq, i) => {
       const osc = ac.createOscillator();
       const gain = ac.createGain();
