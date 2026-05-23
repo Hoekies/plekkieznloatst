@@ -226,21 +226,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
       {/* Statistiekenbalk: km afgelegd + punten behaald */}
       <div style={{
-        display: "flex", background: "var(--paper)",
-        borderBottom: "1px solid var(--line)", flexShrink: 0,
+        display: "flex", background: "var(--ink)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)", flexShrink: 0,
       }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", borderRight: "1px solid var(--line)" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", borderRight: "1px solid rgba(255,255,255,0.1)" }}>
           <span style={{ fontSize: "1.1rem" }}>🗺️</span>
           <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "var(--ink)" }}>{(kmAfgelegd / 1000).toFixed(2)}</div>
-            <div style={{ fontSize: "0.62rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>km gelopen</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{(kmAfgelegd / 1000).toFixed(2)}</div>
+            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.04em" }}>km gelopen</div>
           </div>
         </div>
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0" }}>
           <span style={{ fontSize: "1.1rem" }}>⭐</span>
           <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "var(--ink)" }}>{verwerktIds.size}</div>
-            <div style={{ fontSize: "0.62rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>punten behaald</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</div>
+            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.04em" }}>punten behaald</div>
           </div>
         </div>
       </div>
