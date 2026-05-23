@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import type { SpelerLocatie } from "@/lib/types";

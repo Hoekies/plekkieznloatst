@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {

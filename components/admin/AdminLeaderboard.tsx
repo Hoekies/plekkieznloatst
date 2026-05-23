@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
 import { formateerTijd } from "@/lib/geo";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 
