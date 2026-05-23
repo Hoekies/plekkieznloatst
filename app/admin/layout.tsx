@@ -36,6 +36,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
       <div className="admin-main">
         {children}
+        <footer style={{ textAlign: "right", padding: "8px 24px", fontSize: "0.68rem", color: "var(--muted)", borderTop: "1px solid var(--line)", flexShrink: 0 }}>
+          Hoekies 2026
+        </footer>
       </div>
     </div>
   );

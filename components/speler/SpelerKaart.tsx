@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import { createClient } from "@/lib/supabase";
+import { speelPuntBereikt, speelFinish } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import type { SpelerLocatie } from "@/lib/types";
 import type { RoutePunt, SpelerSessie, SpelerPuntVoortgang } from "@/types/database";
@@ -114,7 +115,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   // Redirect naar finish als alle punten verwerkt zijn
   useEffect(() => {
-    if (spelAfgelopen) router.push("/speler/finish");
+    if (spelAfgelopen) { speelFinish(); router.push("/speler/finish"); }
   }, [spelAfgelopen, router]);
 
   async function haalAndereSpelersOp() {
@@ -175,6 +176,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (res.ok) {
         const nieuweVoortgang: SpelerPuntVoortgang = await res.json();
         setVoortgang((v) => [...v, nieuweVoortgang]);
+        speelPuntBereikt();
         setPopupPunt(punt);
       }
     } finally {

@@ -48,16 +48,22 @@ export default function GroepenBeheer() {
           {groepen.map((g) => (
             <div key={g.id} className="card" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div style={{
-                width: 36, height: 36, borderRadius: "50%",
-                background: "var(--blue-soft)", color: "var(--blue)",
+                width: 40, height: 40, borderRadius: "50%",
+                background: "var(--blue-soft)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 700, fontSize: "0.9rem", flexShrink: 0,
+                fontSize: g.icon ? "1.4rem" : "0.9rem",
+                fontWeight: 700, color: "var(--blue)", flexShrink: 0,
               }}>
-                {g.group_name.slice(0, 2).toUpperCase()}
+                {g.icon ?? g.group_name.slice(0, 2).toUpperCase()}
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>{g.group_name}</div>
-                <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 2 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{g.group_name}</div>
+                {g.nickname && (
+                  <div style={{ fontSize: "0.8rem", color: "var(--blue)", fontWeight: 600, marginTop: 1 }}>
+                    Bijnaam: {g.nickname}
+                  </div>
+                )}
+                <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>
                   {g.active_device_id ? "📱 Actief op apparaat" : "Niet actief"}
                 </div>
               </div>

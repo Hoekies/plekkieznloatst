@@ -12,13 +12,14 @@ export async function PATCH(request: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Probeer met icon; als kolom nog niet bestaat, sla alleen group_name op
+  // Sla de spelernaam op als nickname (admin group_name blijft ongewijzigd)
   let { error } = await admin
     .from("players")
-    .update({ group_name: group_name.trim(), icon })
+    .update({ nickname: group_name.trim(), icon })
     .eq("auth_user_id", user.id);
 
-  if (error?.message?.includes("icon")) {
+  if (error?.message?.includes("nickname") || error?.message?.includes("icon")) {
+    // Fallback: kolom bestaat nog niet, sla op in group_name
     const fallback = await admin
       .from("players")
       .update({ group_name: group_name.trim() })

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
+import { speelGoedAntwoord, speelFoutAntwoord, speelPuntBereikt } from "@/lib/sounds";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const KLEUR_STIJL: Record<string, string> = {
@@ -124,6 +125,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 
       const data = await res.json();
       voortgangRef.current = data.voortgang;
+      if (data.is_correct) speelGoedAntwoord(); else speelFoutAntwoord();
       setFeedback({
         is_correct: data.is_correct,
         points_awarded: data.points_awarded,
