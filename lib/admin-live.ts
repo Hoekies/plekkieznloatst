@@ -32,6 +32,12 @@ export type LiveData = {
   spelers: SpelerOverzicht[];
 };
 
+export function sessietijd(s: SpelerOverzicht): number {
+  if (!s.started_at) return 0;
+  const eind = s.finished_at ? new Date(s.finished_at).getTime() : Date.now();
+  return Math.floor((eind - new Date(s.started_at).getTime()) / 1000);
+}
+
 export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 

@@ -68,7 +68,3 @@ export async function uploadAfbeelding(bestand: File, bucket: string): Promise<s
   const { pad } = await res.json();
   return pad;
 }
-
-export function afbeeldingUrl(bucket: string, pad: string, supabaseUrl: string): string {
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${pad}`;
-}

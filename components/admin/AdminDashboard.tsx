@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { formateerTijd } from "@/lib/geo";
+import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 
 const POLL_INTERVAL_MS = 15000;
@@ -18,11 +19,6 @@ function tijdGeleden(iso: string): string {
   return `${Math.floor(sec / 3600)}u`;
 }
 
-function sessietijd(s: SpelerOverzicht): number {
-  if (!s.started_at) return 0;
-  const eind = s.finished_at ? new Date(s.finished_at).getTime() : Date.now();
-  return Math.floor((eind - new Date(s.started_at).getTime()) / 1000);
-}
 
 export default function AdminDashboard({ initData }: Props) {
   const [data, setData] = useState<LiveData>(initData);
