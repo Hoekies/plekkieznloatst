@@ -8,9 +8,9 @@ function LoginForm() {
   const fout = params.get("fout");
   const foutTekst =
     fout === "ongeldig"
-      ? "Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord."
+      ? "Ongeldige naam of wachtwoord. Probeer het opnieuw."
       : fout === "leeg"
-      ? "Vul je e-mailadres en wachtwoord in."
+      ? "Vul je naam en wachtwoord in."
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
@@ -45,15 +45,15 @@ function LoginForm() {
 
         <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div className="form-group">
-            <label className="form-label" htmlFor="email" style={{ color: "rgba(255,255,255,0.6)" }}>E-mailadres</label>
+            <label className="form-label" htmlFor="naam" style={{ color: "rgba(255,255,255,0.6)" }}>Naam</label>
             <input
-              id="email"
-              name="email"
+              id="naam"
+              name="naam"
               className="form-input"
-              type="email"
-              placeholder="naam@voorbeeld.nl"
+              type="text"
+              placeholder="bijv. groep1"
               required
-              autoComplete="email"
+              autoComplete="username"
               style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}
             />
           </div>

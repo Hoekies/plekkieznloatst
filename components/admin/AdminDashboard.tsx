@@ -148,7 +148,10 @@ function SpelerKaart({ speler: s, totaalPunten, isLast }: { speler: SpelerOverzi
   return (
     <div className="speler-rij" style={{ borderBottom: isLast ? "none" : "1px solid var(--line)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{s.group_name}</span>
+        <div>
+          <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{s.display_name}</span>
+          {s.nickname && <span style={{ fontSize: "0.72rem", color: "var(--muted)", marginLeft: 6 }}>{s.group_name}</span>}
+        </div>
         <StatusPil status={s.sessie_status} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "4px 16px" }}>

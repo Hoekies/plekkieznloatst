@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import type { Speler } from "@/types/database";
 
+type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
+
 export default function GroepenBeheer() {
   const [groepen, setGroepen] = useState<Speler[]>([]);
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
-  const [wachtwoordId, setWachtwoordId] = useState<string | null>(null);
+  const [modal, setModal] = useState<BeheerModal | null>(null);
 
   async function laadGroepen() {
     const res = await fetch("/api/admin/groepen");
@@ -48,42 +50,63 @@ export default function GroepenBeheer() {
           {groepen.map((g) => (
             <div key={g.id} className="card" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div style={{
-                width: 40, height: 40, borderRadius: "50%",
+                width: 42, height: 42, borderRadius: "50%",
                 background: "var(--blue-soft)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: g.icon ? "1.4rem" : "0.9rem",
+                fontSize: g.icon ? "1.5rem" : "0.85rem",
                 fontWeight: 700, color: "var(--blue)", flexShrink: 0,
               }}>
                 {g.icon ?? g.group_name.slice(0, 2).toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{g.group_name}</div>
-                {g.nickname && (
-                  <div style={{ fontSize: "0.8rem", color: "var(--blue)", fontWeight: 600, marginTop: 1 }}>
-                    Bijnaam: {g.nickname}
+                {g.login_name && (
+                  <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 1 }}>
+                    Login: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{g.login_name}</span>
                   </div>
                 )}
-                <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>
+                {g.nickname && (
+                  <div style={{ fontSize: "0.75rem", color: "var(--blue)", fontWeight: 600, marginTop: 1 }}>
+                    Alias: {g.nickname}
+                  </div>
+                )}
+                <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 2 }}>
                   {g.active_device_id ? "📱 Actief op apparaat" : "Niet actief"}
                 </div>
               </div>
-              <button
-                className="btn btn-ghost"
-                style={{ fontSize: "0.78rem", padding: "6px 12px" }}
-                onClick={() => setWachtwoordId(wachtwoordId === g.id ? null : g.id)}
-              >
-                🔑 Wachtwoord
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <button
+                  className="btn btn-ghost"
+                  style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                  onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}
+                >
+                  🔑 Wachtwoord
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                  onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}
+                >
+                  ✏️ Loginnaam
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {wachtwoordId && (
+      {modal?.type === "wachtwoord" && (
         <WachtwoordWijzigen
-          id={wachtwoordId}
-          groepNaam={groepen.find((g) => g.id === wachtwoordId)?.group_name ?? ""}
-          onKlaar={() => setWachtwoordId(null)}
+          id={modal.id}
+          groepNaam={modal.groepNaam}
+          onKlaar={() => setModal(null)}
+        />
+      )}
+      {modal?.type === "loginnaam" && (
+        <LoginNaamWijzigen
+          id={modal.id}
+          groepNaam={modal.groepNaam}
+          onKlaar={() => { setModal(null); laadGroepen(); }}
         />
       )}
     </div>
@@ -93,7 +116,7 @@ export default function GroepenBeheer() {
 // ── Nieuwe groep formulier ────────────────────────────────────────────────────
 function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onAnnuleer: () => void }) {
   const [groepNaam, setGroepNaam] = useState("");
-  const [email, setEmail] = useState("");
+  const [loginNaam, setLoginNaam] = useState("");
   const [wachtwoord, setWachtwoord] = useState("");
   const [fout, setFout] = useState("");
   const [laden, setLaden] = useState(false);
@@ -106,7 +129,7 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
     const res = await fetch("/api/admin/groepen", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ groepNaam, email, wachtwoord }),
+      body: JSON.stringify({ groepNaam, loginNaam, wachtwoord }),
     });
 
     if (!res.ok) {
@@ -128,9 +151,9 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
             placeholder="bijv. Groep 1" required />
         </div>
         <div className="form-group">
-          <label className="form-label">E-mailadres</label>
-          <input className="form-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="groep1@plekkie.nl" required />
+          <label className="form-label">Loginnaam (speler typt dit in bij inloggen)</label>
+          <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
+            placeholder="bijv. groep1" required />
         </div>
         <div className="form-group">
           <label className="form-label">Wachtwoord (min. 8 tekens)</label>
@@ -145,6 +168,52 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ── Login naam wijzigen ───────────────────────────────────────────────────────
+function LoginNaamWijzigen({ id, groepNaam, onKlaar }: { id: string; groepNaam: string; onKlaar: () => void }) {
+  const [loginNaam, setLoginNaam] = useState("");
+  const [fout, setFout] = useState("");
+  const [ok, setOk] = useState(false);
+  const [laden, setLaden] = useState(false);
+
+  async function opslaan(e: React.FormEvent) {
+    e.preventDefault();
+    setFout("");
+    setLaden(true);
+    const res = await fetch(`/api/admin/groepen/${id}/loginnaam`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginNaam }),
+    });
+    if (!res.ok) {
+      const { fout: f } = await res.json();
+      setFout(f ?? "Er is een fout opgetreden");
+    } else {
+      setOk(true);
+      setTimeout(onKlaar, 1500);
+    }
+    setLaden(false);
+  }
+
+  return (
+    <div className="card" style={{ border: "1px solid var(--blue)" }}>
+      <h2 style={{ marginBottom: "12px", fontSize: "1rem" }}>✏️ Loginnaam wijzigen — {groepNaam}</h2>
+      {ok ? (
+        <div className="melding melding-ok">✅ Loginnaam gewijzigd</div>
+      ) : (
+        <form onSubmit={opslaan} style={{ display: "flex", gap: "8px" }}>
+          <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
+            placeholder="Nieuwe loginnaam" required style={{ flex: 1 }} />
+          <button type="button" className="btn btn-ghost" onClick={onKlaar}>✕</button>
+          <button type="submit" className="btn btn-primary" disabled={laden}>
+            {laden ? "…" : "Opslaan"}
+          </button>
+        </form>
+      )}
+      {fout && <div className="melding melding-fout" style={{ marginTop: 8 }}><span>⚠️</span> {fout}</div>}
     </div>
   );
 }

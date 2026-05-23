@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase-admin";
 export type SpelerOverzicht = {
   player_id: string;
   group_name: string;
+  nickname: string | null;
+  display_name: string;
   sessie_id: string | null;
   sessie_status: "geen_sessie" | "actief" | "voltooid" | "vervallen";
   started_at: string | null;
@@ -35,7 +37,7 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, group_name").order("group_name"),
+    admin.from("players").select("id, group_name, nickname").order("group_name"),
   ]);
 
   let routePunten: RoutePuntKort[] = [];
@@ -109,6 +111,8 @@ export async function haalLiveData(): Promise<LiveData> {
     return {
       player_id: player.id,
       group_name: player.group_name,
+      nickname: player.nickname ?? null,
+      display_name: player.nickname ?? player.group_name,
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
       started_at: sessie?.started_at ?? null,

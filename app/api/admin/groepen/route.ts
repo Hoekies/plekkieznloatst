@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { loginNaarEmail } from "@/lib/login-naam";
 
 // GET — alle groepen ophalen
 export async function GET() {
@@ -25,9 +26,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { groepNaam, email, wachtwoord } = await request.json();
+  const { groepNaam, loginNaam, wachtwoord } = await request.json();
 
-  if (!groepNaam?.trim() || !email?.trim() || !wachtwoord?.trim()) {
+  if (!groepNaam?.trim() || !loginNaam?.trim() || !wachtwoord?.trim()) {
     return NextResponse.json({ fout: "Vul alle velden in" }, { status: 400 });
   }
   if (wachtwoord.length < 8) {
@@ -36,9 +37,15 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Controleer of login_name al in gebruik is
+  const { data: bestaand } = await admin.from("players").select("id").eq("login_name", loginNaam.trim()).maybeSingle();
+  if (bestaand) return NextResponse.json({ fout: "Deze loginnaam is al in gebruik" }, { status: 400 });
+
+  const internEmail = loginNaarEmail(loginNaam.trim());
+
   // Auth-gebruiker aanmaken
   const { data: authData, error: authFout } = await admin.auth.admin.createUser({
-    email,
+    email: internEmail,
     password: wachtwoord,
     email_confirm: true,
     user_metadata: { rol: "speler" },
@@ -46,7 +53,7 @@ export async function POST(request: NextRequest) {
 
   if (authFout || !authData.user) {
     const bericht = authFout?.message?.includes("already registered")
-      ? "Dit e-mailadres is al in gebruik"
+      ? "Deze loginnaam is al in gebruik"
       : authFout?.message ?? "Kon gebruiker niet aanmaken";
     return NextResponse.json({ fout: bericht }, { status: 400 });
   }
@@ -54,7 +61,7 @@ export async function POST(request: NextRequest) {
   // Players-rij aanmaken
   const { data: speler, error: spelerFout } = await admin
     .from("players")
-    .insert({ group_name: groepNaam.trim(), auth_user_id: authData.user.id })
+    .insert({ group_name: groepNaam.trim(), login_name: loginNaam.trim(), auth_user_id: authData.user.id })
     .select()
     .single();
 

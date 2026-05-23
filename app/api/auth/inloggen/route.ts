@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/supabase-admin";
+import { loginNaarEmail } from "@/lib/login-naam";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
-  const email = formData.get("email") as string;
+  const naam = (formData.get("naam") as string)?.trim();
   const wachtwoord = formData.get("wachtwoord") as string;
 
-  if (!email || !wachtwoord) {
+  if (!naam || !wachtwoord) {
     return NextResponse.redirect(new URL("/login?fout=leeg", request.url), { status: 303 });
+  }
+
+  // Bepaal het e-mailadres: spelers loggen in met login_name, admins met e-mail
+  let email = naam;
+  if (!naam.includes("@")) {
+    // Speler: zoek op login_name in de players tabel
+    const admin = createAdminClient();
+    const { data: speler } = await admin
+      .from("players")
+      .select("login_name")
+      .eq("login_name", naam)
+      .maybeSingle();
+
+    if (speler) {
+      // Gevonden: converteer naar intern e-mailadres
+      email = loginNaarEmail(naam);
+    } else {
+      return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });
+    }
   }
 
   // Vang auth-cookies op zodat we ze op de redirect-response kunnen plakken

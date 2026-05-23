@@ -91,7 +91,10 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
                     <td style={{ padding: "12px 16px", fontWeight: 700, fontSize: "1.2rem" }}>
                       {s.rang <= 3 ? ["🥇", "🥈", "🥉"][s.rang - 1] : s.rang}
                     </td>
-                    <td style={{ padding: "12px 16px", fontWeight: 600 }}>{s.group_name}</td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <div style={{ fontWeight: 700 }}>{s.display_name}</div>
+                      {s.nickname && <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>{s.group_name}</div>}
+                    </td>
                     <td style={{ padding: "12px 16px", fontWeight: 800, fontSize: "1.1rem", color: "var(--blue)" }}>{s.score}</td>
                     <td style={{ padding: "12px 16px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
                       {s.started_at ? formateerTijd(sessietijd(s)) : "—"}
