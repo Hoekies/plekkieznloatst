@@ -7,8 +7,6 @@ import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 
 const POLL_INTERVAL_MS = 15000;
 
-type Tab = "overzicht" | "leaderboard";
-
 interface Props {
   initData: LiveData;
 }
@@ -28,7 +26,6 @@ function sessietijd(s: SpelerOverzicht): number {
 
 export default function AdminDashboard({ initData }: Props) {
   const [data, setData] = useState<LiveData>(initData);
-  const [tab, setTab] = useState<Tab>("overzicht");
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -75,15 +72,6 @@ export default function AdminDashboard({ initData }: Props) {
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
 
-  // Leaderboard: klare spelers gerangschikt, daarna actieve op score
-  const leaderboard = [...spelers]
-    .filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid")
-    .sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      return sessietijd(a) - sessietijd(b);
-    })
-    .map((s, i) => ({ ...s, rang: i + 1 }));
-
   return (
     <>
       <div className="admin-topbar">
@@ -104,76 +92,18 @@ export default function AdminDashboard({ initData }: Props) {
           <StatKaart label="Routepunten" waarde={totaalPunten ? String(totaalPunten) : "—"} icon="📍" kleur="var(--cyan)" />
         </div>
 
-        {/* Tabs */}
-        <div className="admin-tabs" style={{ marginBottom: 16 }}>
-          {(["overzicht", "leaderboard"] as Tab[]).map((t) => (
-            <button key={t} className={`admin-tab${tab === t ? " admin-tab--actief" : ""}`}
-              onClick={() => setTab(t)}>
-              {t === "overzicht" ? "👥 Overzicht" : "🏆 Leaderboard"}
-            </button>
-          ))}
-        </div>
-
-        {/* Overzicht */}
-        {tab === "overzicht" && (
-          spelers.length === 0 ? (
-            <div className="card">
-              <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen groepen aangemaakt.</p>
-            </div>
-          ) : (
-            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-              {spelers.map((s, i) => (
-                <SpelerKaart key={s.player_id} speler={s} totaalPunten={totaalPunten} isLast={i === spelers.length - 1} />
-              ))}
-            </div>
-          )
-        )}
-
-        {/* Leaderboard */}
-        {tab === "leaderboard" && (
-          leaderboard.length === 0 ? (
-            <div className="card">
-              <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
-                Nog geen actieve sessies. Start een route om het leaderboard te activeren.
-              </p>
-            </div>
-          ) : (
-            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
-                    {["#", "Groep", "Score", "Tijd", "Punten", "Afstand", "Status"].map((h) => (
-                      <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard.map((s) => (
-                    <tr key={s.player_id} style={{ borderBottom: "1px solid var(--line)" }}>
-                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "var(--muted)" }}>
-                        {s.rang <= 3 ? ["🥇","🥈","🥉"][s.rang - 1] : s.rang}
-                      </td>
-                      <td style={{ padding: "10px 14px", fontWeight: 600 }}>{s.group_name}</td>
-                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "var(--blue)" }}>{s.score}</td>
-                      <td style={{ padding: "10px 14px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
-                        {s.started_at ? formateerTijd(sessietijd(s)) : "—"}
-                      </td>
-                      <td style={{ padding: "10px 14px", fontSize: "0.85rem" }}>
-                        {totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : s.bezochte_punten}
-                      </td>
-                      <td style={{ padding: "10px 14px", fontSize: "0.85rem", color: "var(--muted)" }}>
-                        {/* TODO: afstand per sessie ophalen uit location_updates */}
-                        —
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
-                        <StatusPil status={s.sessie_status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )
+        {/* Groepen overzicht */}
+        <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>👥 Groepen</div>
+        {spelers.length === 0 ? (
+          <div className="card">
+            <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen groepen aangemaakt.</p>
+          </div>
+        ) : (
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            {spelers.map((s, i) => (
+              <SpelerKaart key={s.player_id} speler={s} totaalPunten={totaalPunten} isLast={i === spelers.length - 1} />
+            ))}
+          </div>
         )}
 
         {/* Reset sectie */}
