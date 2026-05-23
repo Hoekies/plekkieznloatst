@@ -5,11 +5,16 @@ import { useRouter } from "next/navigation";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
 type VraagMetAntwoorden = Vraag & { answer_options: AntwoordOptie[] };
 
 const KLEUREN = ["geel", "blauw", "rood"] as const;
 const KLEUR_STIJL: Record<string, string> = {
   geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444",
+};
+const KLEUR_ZACHT: Record<string, string> = {
+  geel: "#FEF9C3", blauw: "#DBEAFE", rood: "#FEE2E2",
 };
 
 interface Props {
@@ -25,7 +30,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   const [punten, setPunten] = useState(bestaandeVraag?.points ?? punt.points);
 
-  // Meerkeuze state
   const [antwoorden, setAntwoorden] = useState<{
     color: typeof KLEUREN[number];
     text: string;
@@ -42,7 +46,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
       : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel" }))
   );
 
-  // Open vraag state
   const [openAntwoorden, setOpenAntwoorden] = useState(
     bestaandeVraag?.correct_text_answers?.join("\n") ?? ""
   );
@@ -141,151 +144,293 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
         )}
       </div>
 
-      {/* Formulier */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px", maxWidth: 720 }}>
-        <form onSubmit={slaOp} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Twee-koloms layout: formulier + preview */}
+      <div style={{ flex: 1, overflowY: "auto", display: "flex", gap: 0 }}>
 
-          {/* Type */}
-          <div className="form-group">
-            <label className="form-label">Vraagtype</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open"] as VraagType[]).map((t) => (
-                <button key={t} type="button"
-                  className={`btn ${type === t ? "btn-primary" : "btn-outline"}`}
-                  style={{ fontSize: "0.82rem" }}
-                  onClick={() => setType(t)}>
-                  {t === "meerkeuze_tekst" ? "Meerkeuze tekst" : t === "meerkeuze_afbeelding" ? "Meerkeuze afbeelding" : "Open vraag"}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* ── Formulier (links) ── */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "28px", maxWidth: 600, minWidth: 0 }}>
+          <form onSubmit={slaOp} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Vraagstelling */}
-          <div className="form-group">
-            <label className="form-label">Vraagstelling</label>
-            <textarea className="form-textarea" value={tekst} onChange={(e) => setTekst(e.target.value)}
-              placeholder="Typ hier de vraag…" required style={{ minHeight: 80 }} />
-          </div>
-
-          {/* Vraag-afbeelding */}
-          <div className="form-group">
-            <label className="form-label">Vraag-afbeelding (optioneel)</label>
-            <AfbeeldingUpload
-              huidigPad={vraagAfbeelding}
-              bucket="vraag-afbeeldingen"
-              onUpload={(pad) => setVraagAfbeelding(pad)}
-              onVerwijder={() => setVraagAfbeelding(null)}
-            />
-          </div>
-
-          {/* Punten */}
-          <div className="form-group" style={{ maxWidth: 160 }}>
-            <label className="form-label">Punten voor dit punt</label>
-            <input className="form-input" type="number" min={0} value={punten}
-              onChange={(e) => setPunten(Number(e.target.value))} />
-          </div>
-
-          {/* ── Meerkeuze ── */}
-          {(type === "meerkeuze_tekst" || type === "meerkeuze_afbeelding") && (
-            <div className="card">
-              <h3 style={{ marginBottom: 16 }}>Antwoorden</h3>
-              <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginBottom: 16 }}>
-                Klik op het rondje om het juiste antwoord te markeren.
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {antwoorden.map((ant, i) => (
-                  <div key={ant.color} style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "10px 14px", borderRadius: "var(--radius-md)",
-                    border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "var(--line)"}`,
-                    background: ant.is_correct ? `${KLEUR_STIJL[ant.color]}12` : "transparent",
-                  }}>
-                    {/* Correct radio */}
-                    <button type="button" onClick={() => setCorrect(i)}
-                      style={{
-                        width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                        border: `2px solid ${KLEUR_STIJL[ant.color]}`,
-                        background: ant.is_correct ? KLEUR_STIJL[ant.color] : "transparent",
-                        cursor: "pointer",
-                      }} />
-                    {/* Kleur label */}
-                    <span style={{
-                      width: 54, fontSize: "0.75rem", fontWeight: 700,
-                      color: KLEUR_STIJL[ant.color], flexShrink: 0, textTransform: "capitalize",
-                    }}>{ant.color}</span>
-                    {/* Input */}
-                    {type === "meerkeuze_tekst" ? (
-                      <input className="form-input" style={{ flex: 1, fontSize: "0.88rem" }}
-                        value={ant.text}
-                        onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
-                        placeholder={`Antwoord ${ant.color}`} />
-                    ) : (
-                      <AfbeeldingUpload
-                        huidigPad={ant.image_path}
-                        bucket="vraag-afbeeldingen"
-                        onUpload={(pad) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, image_path: pad } : x))}
-                        onVerwijder={() => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, image_path: null } : x))}
-                        compact
-                      />
-                    )}
-                  </div>
+            <div className="form-group">
+              <label className="form-label">Vraagtype</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open"] as VraagType[]).map((t) => (
+                  <button key={t} type="button"
+                    className={`btn ${type === t ? "btn-primary" : "btn-outline"}`}
+                    style={{ fontSize: "0.82rem" }}
+                    onClick={() => setType(t)}>
+                    {t === "meerkeuze_tekst" ? "Meerkeuze tekst" : t === "meerkeuze_afbeelding" ? "Meerkeuze afbeelding" : "Open vraag"}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* ── Open vraag ── */}
-          {type === "open" && (
-            <div className="card">
-              <h3 style={{ marginBottom: 16 }}>Correct antwoord</h3>
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                <button type="button" className={`btn ${!isNumeriek ? "btn-primary" : "btn-outline"}`}
-                  style={{ fontSize: "0.82rem" }} onClick={() => setIsNumeriek(false)}>Tekst</button>
-                <button type="button" className={`btn ${isNumeriek ? "btn-primary" : "btn-outline"}`}
-                  style={{ fontSize: "0.82rem" }} onClick={() => setIsNumeriek(true)}>Numeriek</button>
+            <div className="form-group">
+              <label className="form-label">Vraagstelling</label>
+              <textarea className="form-textarea" value={tekst} onChange={(e) => setTekst(e.target.value)}
+                placeholder="Typ hier de vraag…" required style={{ minHeight: 80 }} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Vraag-afbeelding (optioneel)</label>
+              <AfbeeldingUpload
+                huidigPad={vraagAfbeelding}
+                bucket="vraag-afbeeldingen"
+                onUpload={(pad) => setVraagAfbeelding(pad)}
+                onVerwijder={() => setVraagAfbeelding(null)}
+              />
+            </div>
+
+            <div className="form-group" style={{ maxWidth: 160 }}>
+              <label className="form-label">Punten voor dit punt</label>
+              <input className="form-input" type="number" min={0} value={punten}
+                onChange={(e) => setPunten(Number(e.target.value))} />
+            </div>
+
+            {(type === "meerkeuze_tekst" || type === "meerkeuze_afbeelding") && (
+              <div className="card">
+                <h3 style={{ marginBottom: 16 }}>Antwoorden</h3>
+                <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginBottom: 16 }}>
+                  Klik op het rondje om het juiste antwoord te markeren.
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {antwoorden.map((ant, i) => (
+                    <div key={ant.color} style={{
+                      display: "flex", alignItems: "center", gap: 10,
+                      padding: "10px 14px", borderRadius: "var(--radius-md)",
+                      border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "var(--line)"}`,
+                      background: ant.is_correct ? `${KLEUR_STIJL[ant.color]}12` : "transparent",
+                    }}>
+                      <button type="button" onClick={() => setCorrect(i)}
+                        style={{
+                          width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                          border: `2px solid ${KLEUR_STIJL[ant.color]}`,
+                          background: ant.is_correct ? KLEUR_STIJL[ant.color] : "transparent",
+                          cursor: "pointer",
+                        }} />
+                      <span style={{
+                        width: 54, fontSize: "0.75rem", fontWeight: 700,
+                        color: KLEUR_STIJL[ant.color], flexShrink: 0, textTransform: "capitalize",
+                      }}>{ant.color}</span>
+                      {type === "meerkeuze_tekst" ? (
+                        <input className="form-input" style={{ flex: 1, fontSize: "0.88rem" }}
+                          value={ant.text}
+                          onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
+                          placeholder={`Antwoord ${ant.color}`} />
+                      ) : (
+                        <AfbeeldingUpload
+                          huidigPad={ant.image_path}
+                          bucket="vraag-afbeeldingen"
+                          onUpload={(pad) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, image_path: pad } : x))}
+                          onVerwijder={() => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, image_path: null } : x))}
+                          compact
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {type === "open" && (
+              <div className="card">
+                <h3 style={{ marginBottom: 16 }}>Correct antwoord</h3>
+                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                  <button type="button" className={`btn ${!isNumeriek ? "btn-primary" : "btn-outline"}`}
+                    style={{ fontSize: "0.82rem" }} onClick={() => setIsNumeriek(false)}>Tekst</button>
+                  <button type="button" className={`btn ${isNumeriek ? "btn-primary" : "btn-outline"}`}
+                    style={{ fontSize: "0.82rem" }} onClick={() => setIsNumeriek(true)}>Numeriek</button>
+                </div>
+                {!isNumeriek ? (
+                  <div className="form-group">
+                    <label className="form-label">Correcte antwoorden (één per regel, hoofdletterongevoelig)</label>
+                    <textarea className="form-textarea" value={openAntwoorden}
+                      onChange={(e) => setOpenAntwoorden(e.target.value)}
+                      placeholder={"Amsterdam\namsterdam\nAmsterDAM"} style={{ minHeight: 90 }} />
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div className="form-group">
+                      <label className="form-label">Correct antwoord</label>
+                      <input className="form-input" value={numeriekeWaarde}
+                        onChange={(e) => setNumeriekeWaarde(e.target.value)}
+                        placeholder="bijv. 1980 of 1,5" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Tolerantie (± waarde)</label>
+                      <input className="form-input" value={tolerantie}
+                        onChange={(e) => setTolerantie(e.target.value)}
+                        placeholder="0" />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                        Tolerantie 1 → 1979, 1980 en 1981 zijn correct
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {fout && <div className="melding melding-fout"><span>⚠️</span> {fout}</div>}
+            {opgeslagen && <div className="melding melding-ok">✅ Vraag opgeslagen</div>}
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <a href={`/admin/routes/${routeId}`} className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}>
+                ← Terug
+              </a>
+              <button type="submit" className="btn btn-primary" disabled={opslaan} style={{ flex: 2 }}>
+                {opslaan ? "Opslaan…" : bestaandeVraag ? "Vraag bijwerken" : "Vraag opslaan"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* ── Preview (rechts) ── */}
+        <div style={{
+          width: 340, flexShrink: 0,
+          borderLeft: "1px solid var(--line)",
+          background: "var(--bg)",
+          display: "flex", flexDirection: "column",
+        }}>
+          <div style={{
+            padding: "12px 16px",
+            borderBottom: "1px solid var(--line)",
+            fontSize: "0.72rem", fontWeight: 700,
+            color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em",
+          }}>
+            👁 Spelersweergave
+          </div>
+
+          {/* Telefoon-mockup */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", justifyContent: "center" }}>
+            <div style={{
+              width: "100%", maxWidth: 300,
+              border: "2px solid #333", borderRadius: 28,
+              overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+              background: "#fff", display: "flex", flexDirection: "column",
+              minHeight: 520,
+            }}>
+              {/* Nep statusbalk */}
+              <div style={{ background: "#0A1B36", padding: "10px 16px 6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.6rem" }}>16:36</span>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.6rem" }}>▲ ▲ ▲</span>
+              </div>
+              {/* Nep header */}
+              <div style={{ background: "#0A1B36", padding: "6px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="" style={{ height: 22, objectFit: "contain" }} />
               </div>
 
-              {!isNumeriek ? (
-                <div className="form-group">
-                  <label className="form-label">Correcte antwoorden (één per regel, hoofdletterongevoelig)</label>
-                  <textarea className="form-textarea" value={openAntwoorden}
-                    onChange={(e) => setOpenAntwoorden(e.target.value)}
-                    placeholder={"Amsterdam\namsterdam\nAmsterDAM"} style={{ minHeight: 90 }} />
+              {/* Popup inhoud */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#fff" }}>
+                {/* Scrollbaar deel */}
+                <div style={{ flex: 1, overflowY: "auto", padding: "14px 12px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+
+                  {/* Type badge */}
+                  <span style={{
+                    fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
+                    background: "#DBEAFE", color: "#1E40AF",
+                    padding: "3px 8px", borderRadius: 99, alignSelf: "flex-start",
+                  }}>❓ VRAAG</span>
+
+                  {/* Vraagstelling */}
+                  <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.4, color: "#111" }}>
+                    {tekst || <span style={{ color: "#aaa", fontStyle: "italic" }}>Vraagstelling verschijnt hier…</span>}
+                  </p>
+
+                  {/* Vraag-afbeelding */}
+                  {vraagAfbeelding && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraagAfbeelding}`}
+                      alt=""
+                      style={{ width: "100%", borderRadius: 8, maxHeight: 120, objectFit: "cover" }}
+                    />
+                  )}
+
+                  {/* Meerkeuze afbeelding: 2-koloms grid */}
+                  {type === "meerkeuze_afbeelding" && (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                      {antwoorden.map((ant) => (
+                        <div key={ant.color} style={{
+                          border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "#e5e7eb"}`,
+                          borderRadius: 10, overflow: "hidden",
+                          background: ant.is_correct ? KLEUR_ZACHT[ant.color] : "#f9fafb",
+                        }}>
+                          {ant.image_path ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${ant.image_path}`}
+                              alt=""
+                              style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
+                            />
+                          ) : (
+                            <div style={{
+                              aspectRatio: "4/3", background: KLEUR_ZACHT[ant.color],
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "0.6rem", color: KLEUR_STIJL[ant.color], fontWeight: 700,
+                            }}>
+                              {ant.color}
+                            </div>
+                          )}
+                          {ant.text && (
+                            <div style={{ padding: "4px 6px", fontSize: "0.62rem", fontWeight: 600, textAlign: "center", color: "#111" }}>
+                              {ant.text}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Meerkeuze tekst: lijst knoppen */}
+                  {type === "meerkeuze_tekst" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {antwoorden.map((ant) => (
+                        <div key={ant.color} style={{
+                          display: "flex", alignItems: "center", gap: 8,
+                          padding: "10px 10px", borderRadius: 10,
+                          border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "#e5e7eb"}`,
+                          background: ant.is_correct ? KLEUR_ZACHT[ant.color] : "transparent",
+                        }}>
+                          <div style={{
+                            width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
+                            border: `2px solid ${KLEUR_STIJL[ant.color]}`,
+                            background: ant.is_correct ? KLEUR_STIJL[ant.color] : "transparent",
+                          }} />
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#111" }}>
+                            {ant.text || <span style={{ color: "#aaa", fontStyle: "italic" }}>{ant.color}</span>}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Open vraag */}
+                  {type === "open" && (
+                    <div style={{
+                      border: "1.5px solid #e5e7eb", borderRadius: 8,
+                      padding: "8px 10px", fontSize: "0.72rem", color: "#aaa",
+                      background: "#f9fafb",
+                    }}>
+                      Typ hier je antwoord…
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <div className="form-group">
-                    <label className="form-label">Correct antwoord</label>
-                    <input className="form-input" value={numeriekeWaarde}
-                      onChange={(e) => setNumeriekeWaarde(e.target.value)}
-                      placeholder="bijv. 1980 of 1,5" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Tolerantie (± waarde)</label>
-                    <input className="form-input" value={tolerantie}
-                      onChange={(e) => setTolerantie(e.target.value)}
-                      placeholder="0" />
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Tolerantie 1 → 1979, 1980 en 1981 zijn correct
-                    </span>
+
+                {/* Vaste knop */}
+                <div style={{ padding: "8px 12px 16px", borderTop: "1px solid #f3f4f6" }}>
+                  <div style={{
+                    background: "#1E40AF", color: "#fff",
+                    borderRadius: 10, padding: "10px 0",
+                    textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
+                  }}>
+                    Bevestig antwoord
                   </div>
                 </div>
-              )}
+              </div>
             </div>
-          )}
-
-          {fout && <div className="melding melding-fout"><span>⚠️</span> {fout}</div>}
-          {opgeslagen && <div className="melding melding-ok">✅ Vraag opgeslagen</div>}
-
-          <div style={{ display: "flex", gap: 10 }}>
-            <a href={`/admin/routes/${routeId}`} className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}>
-              ← Terug
-            </a>
-            <button type="submit" className="btn btn-primary" disabled={opslaan} style={{ flex: 2 }}>
-              {opslaan ? "Opslaan…" : bestaandeVraag ? "Vraag bijwerken" : "Vraag opslaan"}
-            </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
