@@ -14,6 +14,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   const admin = createAdminClient();
 
+  // Stap 1: tijdelijke hoge waarden om UNIQUE (route_id, order_index) conflicten te vermijden
+  await Promise.all(
+    volgorde.map((id, i) =>
+      admin.from("route_points").update({ order_index: 10000 + i }).eq("id", id).eq("route_id", params.id)
+    )
+  );
+  // Stap 2: echte waarden zetten
   await Promise.all(
     volgorde.map((id, i) =>
       admin.from("route_points").update({ order_index: i + 1 }).eq("id", id).eq("route_id", params.id)

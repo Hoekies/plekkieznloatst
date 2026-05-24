@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin-shell">
       <div className="admin-mobile-topbar">
         <SidebarToggle />
-        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--ink)" }}>Plekkie z&apos;n Loatst</span>
+        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>Plekkie z&apos;n Loatst</span>
         <div style={{ width: 40 }} />
       </div>
       <aside className="admin-sidebar">
@@ -44,7 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
       <div className="admin-main">
         {children}
-        <footer style={{ textAlign: "right", padding: "8px 24px", fontSize: "0.68rem", color: "var(--muted)", borderTop: "1px solid var(--line)", flexShrink: 0 }}>
+        <footer style={{ textAlign: "right", padding: "8px 24px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", borderTop: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
           Hoekies 2026
         </footer>
       </div>
