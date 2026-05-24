@@ -5,6 +5,19 @@ import type { Speler } from "@/types/database";
 
 type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
 
+async function deelLink(id: string, groepNaam: string) {
+  const res = await fetch(`/api/admin/groepen/${id}/deellink`, { method: "POST" });
+  if (!res.ok) { alert("Kon link niet genereren"); return; }
+  const { link } = await res.json();
+  const tekst = `Hoi! Gebruik deze link om in te loggen bij Plekkie z'n Loatst:\n${link}`;
+  if (navigator.share) {
+    await navigator.share({ title: `Inloglink ${groepNaam}`, text: tekst });
+  } else {
+    await navigator.clipboard.writeText(link);
+    alert("Link gekopieerd naar klembord!");
+  }
+}
+
 export default function GroepenBeheer() {
   const [groepen, setGroepen] = useState<Speler[]>([]);
   const [laden, setLaden] = useState(true);
@@ -75,6 +88,13 @@ export default function GroepenBeheer() {
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <button
+                  className="btn btn-cyan"
+                  style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                  onClick={() => deelLink(g.id, g.group_name)}
+                >
+                  🔗 Deel link
+                </button>
                 <button
                   className="btn btn-ghost"
                   style={{ fontSize: "0.75rem", padding: "5px 10px" }}
