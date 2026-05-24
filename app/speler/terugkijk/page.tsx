@@ -84,9 +84,10 @@ export default async function TerugkijkPage() {
         .from("answer_options")
         .select("id, question_id, answer_type, text, image_path, is_correct")
         .in("question_id", vraagIds)
-    : { data: [] };
+    : { data: null };
 
-  const optiesPerVraag = new Map<string, typeof opties>();
+  type AntwoordOptie = NonNullable<typeof opties>[number];
+  const optiesPerVraag = new Map<string, AntwoordOptie[]>();
   (opties ?? []).forEach((o) => {
     if (!optiesPerVraag.has(o.question_id)) optiesPerVraag.set(o.question_id, []);
     optiesPerVraag.get(o.question_id)!.push(o);
