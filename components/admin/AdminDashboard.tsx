@@ -25,8 +25,6 @@ export default function AdminDashboard({ initData }: Props) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
-  const [broadcastTekst, setBroadcastTekst] = useState("");
-  const [broadcastFase, setBroadcastFase] = useState<"idle" | "bezig" | "verzonden">("idle");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function ververs() {
@@ -34,23 +32,6 @@ export default function AdminDashboard({ initData }: Props) {
       const res = await fetch("/api/admin/live/spelers");
       if (res.ok) setData(await res.json());
     } catch { /* verbindingsfout */ }
-  }
-
-  async function verstuurBroadcast() {
-    if (!broadcastTekst.trim()) return;
-    setBroadcastFase("bezig");
-    try {
-      await fetch("/api/admin/broadcast", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bericht: broadcastTekst }),
-      });
-      setBroadcastTekst("");
-      setBroadcastFase("verzonden");
-      setTimeout(() => setBroadcastFase("idle"), 3000);
-    } catch {
-      setBroadcastFase("idle");
-    }
   }
 
   async function bevestigReset() {
@@ -124,33 +105,6 @@ export default function AdminDashboard({ initData }: Props) {
             ))}
           </div>
         )}
-
-        {/* Broadcast sectie */}
-        <div style={{ marginTop: 28, borderTop: "1px solid var(--line)", paddingTop: 24 }}>
-          <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 4 }}>📢 Bericht versturen</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
-            Stuur een bericht naar alle actieve spelers. Verschijnt als melding op hun scherm.
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <input
-              className="form-input"
-              placeholder="Bijv. Over 5 minuten pauze bij de vijver!"
-              value={broadcastTekst}
-              onChange={(e) => setBroadcastTekst(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && verstuurBroadcast()}
-              maxLength={150}
-              disabled={broadcastFase !== "idle"}
-              style={{ flex: 1, fontSize: "0.85rem" }}
-            />
-            <button
-              className="btn btn-primary"
-              style={{ fontSize: "0.82rem", flexShrink: 0 }}
-              disabled={!broadcastTekst.trim() || broadcastFase !== "idle"}
-              onClick={verstuurBroadcast}>
-              {broadcastFase === "bezig" ? "Versturen…" : broadcastFase === "verzonden" ? "✓ Verzonden!" : "Verstuur"}
-            </button>
-          </div>
-        </div>
 
         {/* Reset sectie */}
         <div style={{ marginTop: 32, borderTop: "1px solid var(--line)", paddingTop: 24, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>

@@ -98,7 +98,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       {/* Topbar */}
       <div className="admin-topbar" style={{ gap: 12 }}>
-        <a href="/admin/routes" style={{ color: "var(--muted)", fontSize: "0.85rem", textDecoration: "none" }}>← Routes</a>
+        <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "7px 14px", flexShrink: 0 }}>← Routes</a>
         {naamWijzig ? (
           <div style={{ display: "flex", gap: 6, flex: 1 }}>
             <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
