@@ -163,6 +163,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   min-height: 100vh;
   background: var(--game-gradient);
   color: #fff;
+  /* Overschrijf lichte-thema variabelen voor donkere admin-context */
+  --muted: rgba(255, 255, 255, 0.52);
+  --line:  rgba(255, 255, 255, 0.12);
+  --ink:   #ffffff;
+  --text:  rgba(255, 255, 255, 0.92);
 }
 .admin-sidebar {
   width: 180px;
@@ -476,7 +481,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 10px 16px;
+  padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -618,7 +623,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     backdrop-filter: blur(14px) saturate(130%);
     -webkit-backdrop-filter: blur(14px) saturate(130%);
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 10px 16px;
+    padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
     position: sticky;
     top: 0;
     z-index: 100;
@@ -664,6 +669,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     overflow-y: auto;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   .admin-sidebar--open {
     transform: translateX(0);
