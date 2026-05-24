@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -63,6 +66,12 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
   const [fout, setFout] = useState("");
   const [opgeslagen, setOpgeslagen] = useState(false);
 
+  // QR-unlock
+  const [qrEnabled, setQrEnabled] = useState(punt.qr_unlock_enabled ?? false);
+  const [qrSecret, setQrSecret] = useState(punt.qr_secret ?? "");
+  const [qrOpslaan, setQrOpslaan] = useState(false);
+  const qrUrl = qrSecret ? `${SITE_URL}/speler/qr?p=${punt.id}&s=${qrSecret}` : "";
+
   function setCorrect(index: number) {
     setAntwoorden((a) => a.map((ant, i) => ({ ...ant, is_correct: i === index })));
   }
@@ -78,7 +87,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
       points: punten,
     };
 
-    if (type === "open") {
+    if (type === "foto_opdracht") {
+      // Foto-opdracht: alleen tekst en punten, geen antwoordopties
+    } else if (type === "open") {
       if (isNumeriek) {
         const num = parseFloat(numeriekeWaarde.replace(",", "."));
         if (isNaN(num)) { setFout("Vul een geldig numeriek antwoord in"); setOpslaan(false); return; }
@@ -129,6 +140,36 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
     router.push(`/admin/routes/${routeId}`);
   }
 
+  async function toggleQr(inschakelen: boolean) {
+    const nieuweSecret = inschakelen
+      ? (qrSecret || crypto.randomUUID().replace(/-/g, "").slice(0, 12))
+      : "";
+    setQrOpslaan(true);
+    await fetch(`/api/admin/routes/${routeId}/punten/${punt.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qr_unlock_enabled: inschakelen, qr_secret: nieuweSecret }),
+    });
+    setQrEnabled(inschakelen);
+    setQrSecret(nieuweSecret);
+    setQrOpslaan(false);
+  }
+
+  function printQr() {
+    const el = document.getElementById("qr-print-zone");
+    if (!el) return;
+    const html = `<!DOCTYPE html><html><head><title>QR — ${punt.name}</title><style>
+      body { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:sans-serif; }
+      h2 { margin-bottom:16px; }
+    </style></head><body>
+      <h2>${punt.name}</h2>
+      ${el.innerHTML}
+      <p style="margin-top:16px; font-size:14px; color:#555">Scan deze code om dit punt te ontgrendelen</p>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    if (w) { w.document.write(html); w.document.close(); w.print(); }
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       {/* Topbar */}
@@ -153,13 +194,16 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
 
             <div className="form-group">
               <label className="form-label">Vraagtype</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open"] as VraagType[]).map((t) => (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht"] as VraagType[]).map((t) => (
                   <button key={t} type="button"
                     className={`btn ${type === t ? "btn-primary" : "btn-outline"}`}
                     style={{ fontSize: "0.82rem" }}
                     onClick={() => setType(t)}>
-                    {t === "meerkeuze_tekst" ? "Meerkeuze tekst" : t === "meerkeuze_afbeelding" ? "Meerkeuze afbeelding" : "Open vraag"}
+                    {t === "meerkeuze_tekst" ? "Meerkeuze tekst"
+                      : t === "meerkeuze_afbeelding" ? "Meerkeuze afbeelding"
+                      : t === "open" ? "Open vraag"
+                      : "📷 Foto-opdracht"}
                   </button>
                 ))}
               </div>
@@ -282,6 +326,40 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
               </button>
             </div>
           </form>
+
+          {/* QR-unlock sectie (buiten formulier) */}
+          <div className="card" style={{ marginTop: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 2 }}>📱 QR-code ontgrendeling</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+                  Spelers kunnen dit punt ontgrendelen door een QR-code te scannen in plaats van GPS.
+                </div>
+              </div>
+              <button
+                type="button"
+                className={`btn ${qrEnabled ? "btn-danger" : "btn-outline"}`}
+                style={{ fontSize: "0.82rem", flexShrink: 0 }}
+                disabled={qrOpslaan}
+                onClick={() => toggleQr(!qrEnabled)}>
+                {qrOpslaan ? "…" : qrEnabled ? "Uitschakelen" : "Inschakelen"}
+              </button>
+            </div>
+
+            {qrEnabled && qrUrl && (
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <div id="qr-print-zone" style={{ padding: 12, background: "#fff", borderRadius: 10, border: "1px solid var(--line)" }}>
+                  <QRCodeSVG value={qrUrl} size={180} />
+                </div>
+                <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "center", wordBreak: "break-all", maxWidth: 280 }}>
+                  {qrUrl}
+                </div>
+                <button type="button" className="btn btn-outline" style={{ fontSize: "0.82rem" }} onClick={printQr}>
+                  🖨️ Print QR-code
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Preview (rechts) ── */}
@@ -413,6 +491,19 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                       background: "#f9fafb",
                     }}>
                       Typ hier je antwoord…
+                    </div>
+                  )}
+
+                  {/* Foto-opdracht */}
+                  {type === "foto_opdracht" && (
+                    <div style={{
+                      border: "2px dashed #e5e7eb", borderRadius: 10,
+                      padding: "20px 12px", textAlign: "center",
+                      background: "#f9fafb",
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                    }}>
+                      <span style={{ fontSize: "2rem" }}>📷</span>
+                      <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>Maak een foto en upload hem</span>
                     </div>
                   )}
                 </div>

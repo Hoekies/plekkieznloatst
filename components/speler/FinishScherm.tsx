@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formateerTijd } from "@/lib/geo";
 import type { LeaderboardEntry } from "@/lib/types";
 
@@ -48,6 +49,7 @@ function formateerAfstand(meters: number): string {
 }
 
 export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceMeters, initLeaderboard }: Props) {
+  const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [confetti] = useState<ConfettiStuk[]>(maakConfetti);
   const [confettiZichtbaar, setConfettiZichtbaar] = useState(true);
@@ -135,6 +137,14 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
             </div>
           )}
         </div>
+
+        {/* Terugkijken */}
+        <button
+          className="btn btn-ghost"
+          onClick={() => router.push("/speler/terugkijk")}
+          style={{ width: "100%", fontSize: "0.9rem", padding: "12px 0", borderRadius: 14 }}>
+          📖 Terugkijken — alle vragen &amp; antwoorden
+        </button>
 
         {/* Live-indicator */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: "0.75rem" }}>

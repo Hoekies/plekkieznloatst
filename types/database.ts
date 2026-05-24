@@ -1,9 +1,10 @@
 export type RouteStatus = "concept" | "gepubliceerd";
 export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt";
-export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open";
+export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
 export type AntwoordKleur = "geel" | "blauw" | "rood";
 export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
+export type FotoStatus = "wacht" | "goedgekeurd" | "afgekeurd";
 
 export interface Route {
   id: string;
@@ -27,6 +28,8 @@ export interface RoutePunt {
   points: number;
   image_path: string | null;
   sound_path: string | null;
+  qr_unlock_enabled: boolean;
+  qr_secret: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -101,6 +104,23 @@ export interface LocatieUpdate {
   created_at: string;
 }
 
+export interface FotoInzending {
+  id: string;
+  session_id: string;
+  route_point_id: string;
+  foto_pad: string;
+  status: FotoStatus;
+  punten_toegekend: number;
+  beoordeeld_op: string | null;
+  created_at: string;
+}
+
+export interface Broadcast {
+  id: string;
+  bericht: string;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -112,6 +132,8 @@ export interface Database {
       player_sessions: { Row: SpelerSessie; Insert: Omit<SpelerSessie, "id">; Update: Partial<SpelerSessie> };
       player_point_progress: { Row: SpelerPuntVoortgang; Insert: Omit<SpelerPuntVoortgang, "id">; Update: Partial<SpelerPuntVoortgang> };
       location_updates: { Row: LocatieUpdate; Insert: Omit<LocatieUpdate, "id" | "created_at">; Update: Partial<LocatieUpdate> };
+      foto_inzendingen: { Row: FotoInzending; Insert: Omit<FotoInzending, "id" | "created_at">; Update: Partial<FotoInzending> };
+      broadcasts: { Row: Broadcast; Insert: Omit<Broadcast, "id" | "created_at">; Update: Partial<Broadcast> };
     };
   };
 }

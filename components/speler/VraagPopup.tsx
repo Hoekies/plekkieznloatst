@@ -28,7 +28,7 @@ type AntwoordOptie = {
 
 type VraagData = {
   id: string;
-  type: "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open";
+  type: "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
   question_text: string;
   question_image_path: string | null;
   points: number;
@@ -44,7 +44,7 @@ type Feedback = {
   numeric_tolerance: number | null;
 };
 
-type PopupFase = "laden" | "informatie" | "vraag" | "feedback";
+type PopupFase = "laden" | "informatie" | "vraag" | "wachten" | "feedback";
 
 interface Props {
   punt: RoutePunt;
@@ -61,8 +61,12 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
+  const [fotoBestand, setFotoBestand] = useState<File | null>(null);
+  const [fotoFeedback, setFotoFeedback] = useState<{ goedgekeurd: boolean; punten: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fotoInputRef = useRef<HTMLInputElement>(null);
   const voortgangRef = useRef<SpelerPuntVoortgang | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (punt.type !== "vraagpunt") return;
@@ -141,6 +145,68 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
     if (voortgangRef.current) onVerwerkt(voortgangRef.current);
   }
 
+  async function uploadFoto() {
+    if (!fotoBestand) { setFout("Kies eerst een foto"); return; }
+    setBezig(true); setFout("");
+    try {
+      // Comprimeer via canvas (max 1200px)
+      const bmp = await createImageBitmap(fotoBestand);
+      const maxW = 1200;
+      const scale = bmp.width > maxW ? maxW / bmp.width : 1;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob>((res, rej) =>
+        canvas.toBlob((b) => b ? res(b) : rej(new Error("canvas leeg")), "image/jpeg", 0.85)
+      );
+
+      const formData = new FormData();
+      formData.append("foto", new File([blob], "foto.jpg", { type: "image/jpeg" }));
+      formData.append("route_point_id", punt.id);
+
+      const res = await fetch("/api/speler/foto", { method: "POST", body: formData });
+      if (!res.ok) {
+        const data = await res.json();
+        setFout(data.fout ?? "Upload mislukt");
+        return;
+      }
+      setPopupFase("wachten");
+      // Poll elke 4 seconden
+      pollRef.current = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`/api/speler/foto-status/${punt.id}`);
+          if (!statusRes.ok) return;
+          const { status, punten_toegekend } = await statusRes.json();
+          if (status === "goedgekeurd" || status === "afgekeurd") {
+            if (pollRef.current) clearInterval(pollRef.current);
+            setFotoFeedback({ goedgekeurd: status === "goedgekeurd", punten: punten_toegekend ?? 0 });
+            // Maak synthetische voortgang voor onVerwerkt
+            voortgangRef.current = {
+              id: "",
+              session_id: "",
+              route_point_id: punt.id,
+              reached_at: new Date().toISOString(),
+              answered_at: new Date().toISOString(),
+              selected_answer_id: null,
+              open_answer_text: null,
+              is_correct: status === "goedgekeurd",
+              points_awarded: punten_toegekend ?? 0,
+            };
+            setPopupFase("feedback");
+          }
+        } catch { /* verbindingsfout, volgende keer opnieuw */ }
+      }, 4000);
+    } finally {
+      setBezig(false);
+    }
+  }
+
+  // Opruimen poll bij unmount
+  useEffect(() => {
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, []);
+
   // ── Volledig scherm shell ─────────────────────────────────────────────────
   return (
     <div style={{
@@ -203,7 +269,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                         <img
                           src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
                           alt=""
-                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover" }}
+                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "contain", background: "#f3f4f6" }}
                         />
                       ) : (
                         <div style={{ aspectRatio: "4/3", background: KLEUR_ZACHT[optie.color] ?? "#f3f4f6" }} />
@@ -264,17 +330,91 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
               />
             )}
 
+            {vraag.type === "foto_opdracht" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => fotoInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && fotoInputRef.current?.click()}
+                  style={{
+                    border: `2.5px dashed ${fotoBestand ? "var(--blue)" : "var(--line)"}`,
+                    borderRadius: 16, padding: "28px 16px",
+                    textAlign: "center", cursor: "pointer",
+                    background: fotoBestand ? "var(--blue-soft)" : "var(--bg)",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+                  }}>
+                  {fotoBestand ? (
+                    <>
+                      <span style={{ fontSize: "2rem" }}>✅</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{fotoBestand.name}</span>
+                      <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Tik om een andere foto te kiezen</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: "2.5rem" }}>📷</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>Tik om een foto te maken of te kiezen</span>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={fotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: "none" }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setFotoBestand(f); }}
+                />
+              </div>
+            )}
+
             {fout && <p style={{ color: "var(--red)", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
           </>
         )}
 
-        {/* Feedback */}
-        {popupFase === "feedback" && feedback && vraag && (
+        {/* Wachten op beoordeling admin */}
+        {popupFase === "wachten" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "32px 0" }}>
+            <div className="loading-spinner" style={{ borderTopColor: "#06B6D4", width: 40, height: 40, borderWidth: 4 }} />
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontWeight: 700, fontSize: "1rem", margin: "0 0 6px" }}>Foto ingediend!</p>
+              <p style={{ color: "var(--muted)", fontSize: "0.88rem", margin: 0, lineHeight: 1.5 }}>
+                De spelleider beoordeelt hem…<br />
+                Je hoeft niks te doen, dit scherm wordt automatisch bijgewerkt.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Feedback reguliere vraag */}
+        {popupFase === "feedback" && feedback && vraag && vraag.type !== "foto_opdracht" && (
           <FeedbackWeergave
             feedback={feedback}
             vraag={vraag}
             gekozenId={gekozenId}
           />
+        )}
+
+        {/* Feedback foto-opdracht */}
+        {popupFase === "feedback" && fotoFeedback && (
+          <div style={{
+            background: fotoFeedback.goedgekeurd ? "#DCFCE7" : "#FEE2E2",
+            border: `1px solid ${fotoFeedback.goedgekeurd ? "#86EFAC" : "#FECACA"}`,
+            borderRadius: 14, padding: "20px 18px",
+            display: "flex", flexDirection: "column", gap: 6,
+          }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: fotoFeedback.goedgekeurd ? "#15803D" : "#B91C1C" }}>
+              {fotoFeedback.goedgekeurd ? "✅ Foto goedgekeurd!" : "❌ Foto afgekeurd"}
+            </div>
+            {fotoFeedback.goedgekeurd && fotoFeedback.punten > 0 && (
+              <div style={{ fontSize: "0.9rem", color: "#15803D" }}>
+                +{fotoFeedback.punten} punt{fotoFeedback.punten !== 1 ? "en" : ""} verdiend
+              </div>
+            )}
+            {!fotoFeedback.goedgekeurd && (
+              <div style={{ fontSize: "0.85rem", color: "#B91C1C" }}>Je krijgt geen punten voor dit punt.</div>
+            )}
+          </div>
         )}
       </div>
 
@@ -289,13 +429,22 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             {bezig ? "Even geduld…" : punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
           </button>
         )}
-        {popupFase === "vraag" && (
+        {popupFase === "vraag" && vraag?.type !== "foto_opdracht" && (
           <button
             className="btn btn-primary"
             style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
             disabled={bezig}
             onClick={beantwoord}>
             {bezig ? "Controleren…" : "Bevestig antwoord"}
+          </button>
+        )}
+        {popupFase === "vraag" && vraag?.type === "foto_opdracht" && (
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            disabled={bezig || !fotoBestand}
+            onClick={uploadFoto}>
+            {bezig ? "Uploaden…" : "📤 Foto insturen"}
           </button>
         )}
         {popupFase === "feedback" && (

@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
   if (!context) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
 
   const { sessie } = context;
-  const { route_point_id } = await request.json();
+  const body = await request.json();
+  const { route_point_id, qr_secret } = body;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
 
   const admin = createAdminClient();
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
   // Controleer of punt bij de route hoort
   const { data: punt } = await admin
     .from("route_points")
-    .select("id, route_id, order_index")
+    .select("id, route_id, order_index, qr_unlock_enabled, qr_secret")
     .eq("id", route_point_id)
     .eq("route_id", sessie.route_id)
     .maybeSingle();
@@ -61,6 +62,13 @@ export async function POST(request: NextRequest) {
   const aantalVerwerkt = verwerkt?.length ?? 0;
   if (punt.order_index !== aantalVerwerkt + 1) {
     return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
+  }
+
+  // QR-verificatie (als qr_secret meegegeven)
+  if (qr_secret) {
+    if (!punt.qr_unlock_enabled || punt.qr_secret !== qr_secret) {
+      return NextResponse.json({ fout: "Ongeldige QR-code voor dit punt" }, { status: 403 });
+    }
   }
 
   // Voortgang invoegen

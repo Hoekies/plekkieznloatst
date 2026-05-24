@@ -45,6 +45,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
   const [kmAfgelegd, setKmAfgelegd] = useState(0);
+  const [broadcastBericht, setBroadcastBericht] = useState<string | null>(null);
+  const broadcastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const bezigRef = useRef(false);
   const positieRef = useRef<GeolocationCoordinates | null>(null);
@@ -58,6 +60,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
   const spelAfgelopen = verwerktIds.size >= punten.length;
+
+  // Bij mount: als er al een bereikt-maar-niet-beantwoord punt is (bijv. na QR-scan), toon popup
+  useEffect(() => {
+    if (bereiktIds.size > 0 && activePunt && bereiktIds.has(activePunt.id) && !popupPunt) {
+      setPopupPunt(activePunt);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // GPS starten
   useEffect(() => {
@@ -82,26 +92,36 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     return () => { if (locatieTimerRef.current) clearInterval(locatieTimerRef.current); };
   }, []);
 
-  // Andere spelers: initieel ophalen + Supabase Realtime abonnement
+  // Andere spelers + broadcasts: Supabase Realtime abonnement
   useEffect(() => {
     haalAndereSpelersOp();
 
     const supabase = createClient();
     const kanaal = supabase
-      .channel("locaties-kanaal")
+      .channel("locaties-en-broadcasts")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "location_updates" },
-        () => {
-          // Veilig ophalen via de beveiligde API (geen exacte coords uit de payload)
-          haalAndereSpelersOp();
+        () => { haalAndereSpelersOp(); },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "broadcasts" },
+        (payload) => {
+          const bericht = (payload.new as { bericht: string }).bericht;
+          setBroadcastBericht(bericht);
+          if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
+          broadcastTimerRef.current = setTimeout(() => setBroadcastBericht(null), 8000);
         },
       )
       .subscribe((status) => {
         setRealtimeVerbonden(status === "SUBSCRIBED");
       });
 
-    return () => { supabase.removeChannel(kanaal); };
+    return () => {
+      supabase.removeChannel(kanaal);
+      if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -283,6 +303,34 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
         }}>
           ❌ GPS-verbinding weg
+        </div>
+      )}
+
+      {/* Broadcast bericht van admin */}
+      {broadcastBericht && (
+        <div style={{
+          position: "absolute", bottom: 90, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, maxWidth: "calc(100% - 32px)",
+          background: "rgba(6, 182, 212, 0.92)", backdropFilter: "blur(10px)",
+          color: "#fff", padding: "10px 20px",
+          borderRadius: 30, fontSize: "0.85rem", fontWeight: 600,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+          display: "flex", alignItems: "center", gap: 8,
+          animation: "fadeInUp 0.3s ease",
+        }}>
+          <span style={{ flexShrink: 0 }}>📢</span>
+          <span>{broadcastBericht}</span>
+          <button
+            onClick={() => setBroadcastBericht(null)}
+            style={{
+              background: "rgba(255,255,255,0.2)", border: "none",
+              borderRadius: "50%", width: 22, height: 22,
+              color: "#fff", fontSize: "0.75rem", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, marginLeft: 4,
+            }}>
+            ✕
+          </button>
         </div>
       )}
 

@@ -11,6 +11,7 @@ async function checkAdmin() {
 const TOEGESTANE_VELDEN = [
   "name", "description", "type", "latitude", "longitude",
   "radius_meters", "points", "image_path", "sound_path",
+  "qr_unlock_enabled", "qr_secret",
 ] as const;
 
 export async function PATCH(

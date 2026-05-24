@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const admin = createAdminClient();
 
   // Valideer exact 1 correct antwoord bij meerkeuze
-  if (body.type !== "open") {
+  if (body.type !== "open" && body.type !== "foto_opdracht") {
     const aantalCorrect = (body.antwoorden ?? []).filter((a: { is_correct: boolean }) => a.is_correct).length;
     if (aantalCorrect !== 1) {
       return NextResponse.json({ fout: "Selecteer precies één correct antwoord" }, { status: 400 });
