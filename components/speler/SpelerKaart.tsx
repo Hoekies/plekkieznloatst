@@ -202,50 +202,89 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
 
-      {/* Realtime-verbindingsbanner */}
-      {!realtimeVerbonden && (
-        <div style={{ background: "#FEF9C3", color: "#A16207", padding: "6px 14px", fontSize: "0.78rem", textAlign: "center" }}>
-          ⚠️ Live verbinding onderbroken — bezig met opnieuw verbinden…
-        </div>
-      )}
-
-      {/* GPS-statusbalk */}
-      {gpsStatus === "laden" && (
-        <div style={{ background: "var(--cyan-soft)", color: "var(--cyan)", padding: "8px 14px", fontSize: "0.83rem", textAlign: "center" }}>
-          GPS-signaal ophalen…
-        </div>
-      )}
-      {gpsStatus === "zwak" && (
-        <div style={{ background: "#FEF9C3", color: "#A16207", padding: "8px 14px", fontSize: "0.83rem", textAlign: "center" }}>
-          ⚠️ GPS-nauwkeurigheid te laag. Ga naar buiten voor een beter signaal.
-        </div>
-      )}
-      {gpsStatus === "weg" && (
-        <div style={{ background: "#FEE2E2", color: "#991B1B", padding: "8px 14px", fontSize: "0.83rem", textAlign: "center" }}>
-          ❌ GPS-verbinding weg. Wacht op herstel van het signaal…
-        </div>
-      )}
-
-      {/* Statistiekenbalk: km afgelegd + punten behaald */}
+      {/* Statistiekenbalk: km afgelegd + punten behaald — glass floating */}
       <div style={{
-        display: "flex", background: "var(--ink)",
-        borderBottom: "1px solid rgba(255,255,255,0.1)", flexShrink: 0,
+        display: "flex", gap: 10, padding: "10px 14px", flexShrink: 0,
+        background: "rgba(10, 27, 54, 0.45)",
+        backdropFilter: "blur(14px) saturate(130%)",
+        WebkitBackdropFilter: "blur(14px) saturate(130%)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
       }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", borderRight: "1px solid rgba(255,255,255,0.1)" }}>
-          <span style={{ fontSize: "1.1rem" }}>🗺️</span>
+        <div style={{
+          flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)",
+          borderRadius: 14, padding: "8px 12px",
+        }}>
+          <span style={{ fontSize: "1.2rem" }}>🗺️</span>
           <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{(kmAfgelegd / 1000).toFixed(2)}</div>
-            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.04em" }}>km gelopen</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>
+              {(kmAfgelegd / 1000).toFixed(2)}
+            </div>
+            <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>km gelopen</div>
           </div>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0" }}>
-          <span style={{ fontSize: "1.1rem" }}>⭐</span>
+        <div style={{
+          flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)",
+          borderRadius: 14, padding: "8px 12px",
+        }}>
+          <span style={{ fontSize: "1.2rem" }}>⭐</span>
           <div style={{ lineHeight: 1.2 }}>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</div>
-            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.04em" }}>punten behaald</div>
+            <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>punten behaald</div>
           </div>
         </div>
       </div>
+
+      {/* GPS / realtime toast — floating pill over de kaart */}
+      {!realtimeVerbonden && (
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, whiteSpace: "nowrap",
+          background: "rgba(234, 179, 8, 0.85)", backdropFilter: "blur(10px)",
+          color: "#fff", padding: "7px 18px",
+          borderRadius: 30, fontSize: "0.78rem", fontWeight: 600,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        }}>
+          ⚠️ Live verbinding onderbroken…
+        </div>
+      )}
+      {gpsStatus === "laden" && (
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, whiteSpace: "nowrap",
+          background: "rgba(6, 182, 212, 0.8)", backdropFilter: "blur(10px)",
+          color: "#fff", padding: "7px 18px",
+          borderRadius: 30, fontSize: "0.78rem", fontWeight: 600,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        }}>
+          📡 GPS-signaal ophalen…
+        </div>
+      )}
+      {gpsStatus === "zwak" && (
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, whiteSpace: "nowrap",
+          background: "rgba(234, 179, 8, 0.85)", backdropFilter: "blur(10px)",
+          color: "#fff", padding: "7px 18px",
+          borderRadius: 30, fontSize: "0.78rem", fontWeight: 600,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        }}>
+          ⚠️ GPS-nauwkeurigheid te laag — ga naar buiten
+        </div>
+      )}
+      {gpsStatus === "weg" && (
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, whiteSpace: "nowrap",
+          background: "rgba(239, 68, 68, 0.85)", backdropFilter: "blur(10px)",
+          color: "#fff", padding: "7px 18px",
+          borderRadius: 30, fontSize: "0.78rem", fontWeight: 600,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        }}>
+          ❌ GPS-verbinding weg
+        </div>
+      )}
 
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>
@@ -261,11 +300,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         {/* Controleer locatie-knop */}
         {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && gpsStatus !== "laden" && (
           <button
-            className="btn btn-primary"
+            className="btn btn-game"
             onClick={controleerLocatie}
             style={{
-              position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)",
-              zIndex: 1000, whiteSpace: "nowrap", boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%) translateY(-2px)",
+              zIndex: 1000, whiteSpace: "nowrap",
+              padding: "14px 28px", borderRadius: 30, fontSize: "0.95rem",
             }}>
             📍 Controleer locatie
           </button>

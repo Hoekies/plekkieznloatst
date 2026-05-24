@@ -99,7 +99,7 @@ export default function IntroScherm() {
       position: "fixed", inset: 0, zIndex: 200,
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
-      background: "#0A1B36", overflow: "hidden",
+      background: "var(--game-gradient)", overflow: "hidden",
     }}>
       {/* Kaartafbeelding */}
       <img
@@ -116,7 +116,7 @@ export default function IntroScherm() {
       {/* Gradient overlay */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(10,27,54,0.25) 0%, rgba(10,27,54,0.75) 60%, rgba(10,27,54,0.95) 100%)",
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.82) 100%)",
         pointerEvents: "none",
       }} />
 
@@ -140,8 +140,7 @@ export default function IntroScherm() {
                 Groepsnaam
               </label>
               <input
-                className="form-input"
-                style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}
+                className="glass-input"
                 placeholder="Bijv. Team Turbo"
                 value={groepsnaam}
                 onChange={(e) => setGroepsnaam(e.target.value)}
@@ -157,10 +156,21 @@ export default function IntroScherm() {
                 {ICONEN.map((icoon) => (
                   <button key={icoon} onClick={() => setGekozenIcono(icoon)}
                     style={{
-                      fontSize: "1.8rem", width: 52, height: 52, borderRadius: 12,
-                      border: gekozenIcono === icoon ? "2.5px solid #06B6D4" : "2px solid rgba(255,255,255,0.2)",
-                      background: gekozenIcono === icoon ? "rgba(6,182,212,0.2)" : "rgba(255,255,255,0.07)",
-                      cursor: "pointer", transition: "all 0.15s",
+                      fontSize: "1.9rem", width: 56, height: 56, borderRadius: 16,
+                      border: gekozenIcono === icoon
+                        ? "2.5px solid #06B6D4"
+                        : "1.5px solid rgba(255,255,255,0.18)",
+                      background: gekozenIcono === icoon
+                        ? "rgba(6, 182, 212, 0.22)"
+                        : "rgba(255, 255, 255, 0.07)",
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      boxShadow: gekozenIcono === icoon
+                        ? "0 0 0 3px rgba(6,182,212,0.3), 0 4px 16px rgba(6,182,212,0.25)"
+                        : "0 2px 8px rgba(0,0,0,0.15)",
+                      cursor: "pointer",
+                      transform: gekozenIcono === icoon ? "scale(1.1)" : "scale(1)",
+                      transition: "all 0.2s ease",
                     }}>
                     {icoon}
                   </button>
@@ -169,7 +179,7 @@ export default function IntroScherm() {
             </div>
             {profielFout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{profielFout}</p>}
             <button
-              className="btn btn-cyan"
+              className="btn btn-game"
               style={{ width: "100%", fontSize: "1rem", padding: "14px 0", borderRadius: 14, marginTop: 4 }}
               disabled={!groepsnaam.trim() || profielBezig}
               onClick={slaProfielOp}>
@@ -181,10 +191,8 @@ export default function IntroScherm() {
         {/* Melding: GPS en geluid */}
         {fase === "melding" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
-            <div style={{
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              borderRadius: 14, padding: "16px 18px",
+            <div className="glass-card" style={{
+              padding: "16px 18px",
               display: "flex", flexDirection: "column", gap: 14,
             }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -210,7 +218,7 @@ export default function IntroScherm() {
               </div>
             </div>
             <button
-              className="btn btn-cyan"
+              className="btn btn-game"
               style={{ width: "100%", fontSize: "1rem", padding: "14px 0", borderRadius: 14 }}
               onClick={() => setFase("intro")}>
               OK, begrepen →
@@ -257,7 +265,7 @@ export default function IntroScherm() {
               <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{fout}</p>
             )}
             <button
-              className="btn btn-cyan"
+              className="btn btn-game"
               style={{ width: "100%", fontSize: "1.05rem", padding: "15px 0", borderRadius: 14 }}
               onClick={startSpel}>
               Start het spel 🚀

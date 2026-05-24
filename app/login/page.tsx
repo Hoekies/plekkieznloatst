@@ -22,20 +22,15 @@ function LoginForm() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      background: "linear-gradient(160deg, #0A1B36 0%, #1E3A8A 100%)",
+      background: "var(--game-gradient)",
       padding: "24px",
     }}>
-      <div style={{
-        background: "rgba(255,255,255,0.06)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        borderRadius: "var(--radius-xl)",
+      {/* Glass card */}
+      <div className="glass-card" style={{
         padding: "40px 36px",
         width: "100%",
         maxWidth: "400px",
-        boxShadow: "var(--shadow-lg)",
       }}>
-        {/* Logo vullend */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
@@ -44,32 +39,36 @@ function LoginForm() {
         />
 
         <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="naam" style={{ color: "rgba(255,255,255,0.6)" }}>Naam</label>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label htmlFor="naam" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
+              Naam
+            </label>
             <input
               id="naam"
               name="naam"
-              className="form-input"
+              className="glass-input"
               type="text"
               placeholder="bijv. groep1"
               required
               autoComplete="username"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="wachtwoord" style={{ color: "rgba(255,255,255,0.6)" }}>Wachtwoord</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label htmlFor="wachtwoord" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
+              Wachtwoord
+            </label>
             <div style={{ position: "relative" }}>
               <input
                 id="wachtwoord"
                 name="wachtwoord"
-                className="form-input"
+                className="glass-input"
                 type={toonWachtwoord ? "text" : "password"}
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
-                style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", paddingRight: "44px" }}
+                style={{ paddingRight: "44px" }}
               />
               <button
                 type="button"
@@ -77,7 +76,7 @@ function LoginForm() {
                 style={{
                   position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
                   background: "none", border: "none", cursor: "pointer",
-                  color: "rgba(255,255,255,0.5)", fontSize: "1.1rem", lineHeight: 1, padding: 0,
+                  color: "rgba(255,255,255,0.45)", fontSize: "1.1rem", lineHeight: 1, padding: 0,
                 }}
                 aria-label={toonWachtwoord ? "Verberg wachtwoord" : "Toon wachtwoord"}
               >
@@ -87,23 +86,33 @@ function LoginForm() {
           </div>
 
           {foutTekst && (
-            <div className="melding melding-fout">
+            <div style={{
+              background: "rgba(239, 68, 68, 0.18)",
+              border: "1px solid rgba(239, 68, 68, 0.35)",
+              borderRadius: 12,
+              padding: "10px 14px",
+              fontSize: "0.85rem",
+              color: "#FCA5A5",
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+            }}>
               <span>⚠️</span>
               <span>{foutTekst}</span>
             </div>
           )}
 
           <button
-            className="btn btn-cyan"
+            className="btn btn-game"
             type="submit"
-            style={{ width: "100%", padding: "13px", marginTop: "4px", fontSize: "0.95rem" }}
+            style={{ width: "100%", padding: "14px 0", marginTop: "6px" }}
           >
             Inloggen
           </button>
         </form>
       </div>
 
-      <footer style={{ marginTop: 24, color: "rgba(255,255,255,0.3)", fontSize: "0.72rem" }}>
+      <footer style={{ marginTop: 24, color: "rgba(255,255,255,0.25)", fontSize: "0.72rem" }}>
         Hoekies 2026
       </footer>
     </div>

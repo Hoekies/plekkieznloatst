@@ -23,7 +23,23 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 18px;
-  --font: "Aptos", "Segoe UI", Verdana, sans-serif;
+  --font: "Nunito", "Aptos", "Segoe UI", Verdana, sans-serif;
+
+  /* ── Game gradient achtergrond ── */
+  --game-bg-start: #0D3A5C;
+  --game-bg-mid:   #0C4E6B;
+  --game-bg-end:   #0A7A72;
+  --game-gradient: linear-gradient(145deg, var(--game-bg-start) 0%, var(--game-bg-mid) 48%, var(--game-bg-end) 100%);
+
+  /* ── Glassmorphism tokens ── */
+  --glass-bg:     rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --glass-blur:   blur(14px) saturate(130%);
+
+  /* ── Game button ── */
+  --game-btn-bg:     linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);
+  --game-btn-shadow: 0 4px 0 rgba(6, 182, 212, 0.45), 0 8px 24px rgba(6, 182, 212, 0.28);
 }
 
 *, *::before, *::after {
@@ -74,6 +90,62 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-ghost { background: var(--blue-soft); color: var(--blue); }
 .btn-outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
+
+/* ── Game-knop (vibrant teal, 3D lift) ── */
+.btn-game {
+  background: var(--game-btn-bg);
+  color: #fff;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  box-shadow: var(--game-btn-shadow);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+.btn-game:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
+  box-shadow: 0 6px 0 rgba(6, 182, 212, 0.45), 0 12px 28px rgba(6, 182, 212, 0.35);
+  transform: translateY(-3px);
+}
+.btn-game:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(6, 182, 212, 0.35), 0 2px 8px rgba(6, 182, 212, 0.18);
+}
+.btn-game:disabled {
+  opacity: 0.5;
+  transform: none;
+}
+
+/* ── Glass card ── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+}
+
+/* ── Glass input (voor speler/login schermen) ── */
+.glass-input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+.glass-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.glass-input:focus {
+  border-color: rgba(6, 182, 212, 0.7);
+  background: rgba(255, 255, 255, 0.13);
+}
 
 /* ── Formulieren ── */
 .form-group {
@@ -324,10 +396,13 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  background: var(--paper);
+  background: var(--game-gradient);
 }
 .speler-header {
-  background: var(--ink);
+  background: rgba(10, 27, 54, 0.5);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   padding: 10px 16px;
   flex-shrink: 0;
@@ -335,10 +410,31 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  position: relative;
+  z-index: 10;
 }
 .speler-header h1 {
   font-size: 1rem;
   color: #fff;
+}
+
+/* Uitloggen knop in speler header */
+.speler-uitlog-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font);
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.speler-uitlog-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 .speler-content {
   flex: 1;

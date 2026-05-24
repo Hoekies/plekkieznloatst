@@ -17,11 +17,7 @@ export default async function SpelerLayout({ children }: { children: React.React
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ height: 72, width: "auto", objectFit: "contain", flexShrink: 0 }} />
         <form action="/api/auth/uitloggen" method="post">
-          <button type="submit" style={{
-            background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)",
-            color: "#fff", fontSize: "0.82rem", cursor: "pointer",
-            padding: "6px 14px", borderRadius: 6, fontWeight: 600,
-          }}>
+          <button type="submit" className="speler-uitlog-btn">
             Uitloggen
           </button>
         </form>

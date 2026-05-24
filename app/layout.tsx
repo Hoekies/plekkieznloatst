@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito } from "next/font/google";
 import "@/styles/globals.css";
 import GeenInternet from "@/components/shared/GeenInternet";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: "Plekkie z'n Loatst",
@@ -23,7 +31,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl">
-      <body>
+      <body className={nunito.variable}>
         <GeenInternet />
         {children}
       </body>
