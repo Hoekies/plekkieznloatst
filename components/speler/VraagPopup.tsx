@@ -211,7 +211,8 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 500,
-      background: "var(--paper)",
+      background: "#ffffff",
+      color: "#0A1B36",
       display: "flex", flexDirection: "column",
     }}>
       {/* Scrollbaar inhoudsgebied */}
@@ -419,7 +420,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
       </div>
 
       {/* Vaste knop onderaan */}
-      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid var(--line)", background: "var(--paper)" }}>
+      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid #e5e7eb", background: "#ffffff" }}>
         {popupFase === "informatie" && (
           <button
             className="btn btn-primary"

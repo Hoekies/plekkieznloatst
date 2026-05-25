@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaartKapers — Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── KaartKapers CSS variabelen ── */
+  :root {
+    --bg: #081120;
+    --paper: #ffffff;
+    --bg-panel: rgba(14,22,38,0.88);
+    --ink: #e8f0ff;
+    --text: #b8cce0;
+    --muted: #6b84a8;
+    --blue: #00d9ff;
+    --blue-dark: #0099bb;
+    --blue-soft: rgba(0,217,255,0.12);
+    --cyan: #00d9ff;
+    --green: #22c55e;
+    --green-soft: rgba(34,197,94,0.15);
+    --red: #ff3b5c;
+    --red-soft: rgba(255,59,92,0.15);
+    --gold: #ffd93b;
+    --gold-soft: rgba(255,217,59,0.15);
+    --purple: #8b5cf6;
+    --line: rgba(255,255,255,0.08);
+    --glass-bg: rgba(14,22,38,0.78);
+    --glass-border: rgba(0,217,255,0.14);
+    --glass-blur: blur(16px) saturate(180%);
+    --game-gradient: linear-gradient(145deg, #060e1a 0%, #091525 48%, #0c1c30 100%);
+    --game-btn-bg: linear-gradient(135deg, #0099bb 0%, #00d9ff 100%);
+    --glow-cyan: 0 0 14px rgba(0,217,255,.4);
+    --font: "Space Grotesk", "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: #030810;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* Preview page header */
+  .preview-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .preview-header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    letter-spacing: -0.5px;
+  }
+  .preview-header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--glass-border);
+  }
+
+  /* Screen containers */
+  .screens-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .screen-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .screen-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .phone {
+    width: 375px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1.5px solid rgba(0,217,255,0.2);
+    box-shadow: 0 0 0 6px rgba(0,217,255,0.04), 0 24px 60px rgba(0,0,0,0.7);
+    position: relative;
+  }
+  .phone-wide {
+    width: 860px;
+    border-radius: 16px;
+  }
+
+  /* ── SCREEN 1: Login ── */
+  .login-screen {
+    background: var(--game-gradient);
+    min-height: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 28px;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 300px 200px at 80% 20%, rgba(0,217,255,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 200px 300px at 10% 80%, rgba(139,92,246,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .login-logo {
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    margin-bottom: 18px;
+  }
+  .login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .login-slogan {
+    font-size: 0.75rem;
+    color: rgba(0,217,255,0.8);
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 36px;
+    max-width: 240px;
+  }
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: var(--glass-blur);
+    border-radius: 20px;
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,217,255,0.07);
+  }
+  .form-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .glass-input {
+    width: 100%;
+    background: rgba(0,217,255,0.06);
+    border: 1.5px solid rgba(0,217,255,0.2);
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    color: #fff;
+    outline: none;
+    margin-bottom: 16px;
+  }
+  .glass-input::placeholder { color: var(--muted); }
+  .btn-game {
+    display: block;
+    width: 100%;
+    background: var(--game-btn-bg);
+    color: #000;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 0 rgba(0,217,255,0.35), 0 8px 24px rgba(0,217,255,0.2);
+    margin-top: 4px;
+  }
+  .login-footer {
+    position: absolute;
+    bottom: 18px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.25);
+    font-weight: 500;
+  }
+
+  /* ── SCREEN 2: Speler HUD ── */
+  .hud-screen {
+    background: #2a3d2e;
+    min-height: 680px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .map-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px),
+      linear-gradient(135deg, #1a2e1e 0%, #243526 40%, #1e3028 100%);
+  }
+  .map-road {
+    position: absolute;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+  }
+  /* Simulated map roads */
+  .road-h1 { width: 100%; height: 8px; top: 38%; left: 0; transform: rotate(-3deg); }
+  .road-h2 { width: 70%; height: 5px; top: 60%; left: 10%; transform: rotate(1deg); }
+  .road-v1 { width: 6px; height: 100%; top: 0; left: 55%; transform: rotate(2deg); }
+  .road-v2 { width: 4px; height: 60%; top: 20%; left: 30%; }
+  .map-dot { position: absolute; border-radius: 50%; }
+
+  /* HUD Topbar */
+  .hud-topbar {
+    position: relative;
+    z-index: 10;
+    background: rgba(8,17,32,0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+  }
+  .hud-stat {
+    flex: 1;
+    background: rgba(14,22,38,0.7);
+    border: 1px solid rgba(0,217,255,0.12);
+    border-radius: 14px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .hud-stat-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .hud-stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    line-height: 1;
+  }
+
+  /* Map markers */
+  .marker {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    color: #fff;
+    border: 2px solid #fff;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    z-index: 5;
+  }
+  .marker-route { background: #1e40af; width: 32px; height: 32px; }
+  .marker-active {
+    background: var(--cyan);
+    color: #000;
+    box-shadow: 0 0 0 4px rgba(0,217,255,0.25), 0 4px 12px rgba(0,217,255,0.4);
+  }
+  .marker-done { background: #374151; opacity: 0.6; }
+  .marker-finish { background: #f59e0b; width: 32px; height: 32px; font-size: 0.9rem; }
+
+  /* Route polyline */
+  .route-line {
+    position: absolute;
+    border-top: 2.5px dashed rgba(0,217,255,0.5);
+    z-index: 4;
+    transform-origin: left center;
+  }
+
+  /* HUD Buttons */
+  .hud-btn-locatie {
+    position: absolute;
+    bottom: 92px;
+    left: 16px;
+    z-index: 20;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(0,153,187,0.9);
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,217,255,0.35), var(--glow-cyan);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .hud-btn-info {
+    position: absolute;
+    bottom: 92px;
+    right: 16px;
+    z-index: 20;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Inventory bar */
+  .inventaris-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    background: rgba(8,17,32,0.88);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 72px;
+  }
+  .inv-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .inv-item {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  }
+  .inv-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+  }
+
+  /* Toast */
+  .hud-toast {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    background: rgba(5,150,105,0.9);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  /* ── SCREEN 3: Admin ── */
+  .admin-screen {
+    display: flex;
+    min-height: 580px;
+    background: var(--game-gradient);
+  }
+
+  /* Admin sidebar */
+  .admin-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    background: rgba(6,14,26,0.85);
+    backdrop-filter: blur(18px);
+    border-right: 1px solid rgba(0,217,255,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+  }
+  .sidebar-logo-wrap {
+    padding: 0 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+  }
+  .sidebar-logo {
+    width: 135px;
+    height: 135px;
+    object-fit: contain;
+    border-radius: 16px;
+  }
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+  }
+  .nav-link.active {
+    color: var(--cyan);
+    background: rgba(0,217,255,0.07);
+    border-left-color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+  }
+  .sidebar-footer {
+    padding: 14px 16px;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.2);
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+
+  /* Admin main */
+  .admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .admin-topbar {
+    background: rgba(6,14,26,0.75);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(0,217,255,0.1);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .admin-topbar h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(34,197,94,0.6);
+  }
+
+  .admin-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  /* Stat cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: rgba(14,22,38,0.82);
+    border: 1px solid rgba(0,217,255,0.14);
+    backdrop-filter: blur(16px);
+    border-radius: 14px;
+    padding: 10px 14px;
+    border-top: 3px solid;
+  }
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .stat-card-icon { font-size: 0.95rem; }
+  .stat-card-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stat-card-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  /* Groups table */
+  .section-header {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .table-card {
+    background: rgba(14,22,38,0.82);
+    border: 1px solid rgba(0,217,255,0.14);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .table-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .team-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+  }
+  .pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .pill-active { background: rgba(0,217,255,0.12); color: var(--cyan); border: 1px solid rgba(0,217,255,0.25); }
+  .pill-done { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+  .pill-idle { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+  .team-meta {
+    display: flex;
+    gap: 16px;
+  }
+  .team-meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .team-meta-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .team-meta-value { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .progress-fill { height: 100%; border-radius: 2px; background: var(--cyan); box-shadow: var(--glow-cyan); }
+
+  /* Divider */
+  .divider {
+    margin: 48px 0 20px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1>KaartKapers</h1>
+  <p>Design Preview · Space Grotesk · Dark-mode first</p>
+</div>
+
+<!-- ── SECTIE 1: Login + HUD ── -->
+<div class="section-label">Speler schermen</div>
+<div class="screens-row" style="margin-bottom:48px;">
+
+  <!-- Login -->
+  <div class="screen-wrap">
+    <div class="screen-title">Inloggen / Intro</div>
+    <div class="phone">
+      <div class="login-screen">
+        <img class="login-logo" src="../assets/branding/logo KK.jpeg" alt="KaartKapers" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div style="display:none;width:110px;height:110px;border-radius:26px;background:rgba(0,217,255,0.15);border:1.5px solid rgba(0,217,255,0.3);align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:18px;box-shadow:0 0 20px rgba(0,217,255,0.2);">🗺️</div>
+        <div class="glass-card">
+          <label class="form-label">Naam van je groep</label>
+          <input class="glass-input" type="text" placeholder="bijv. Team Tornado" value="">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.72rem;color:var(--muted);">Kies een groepsicoon</div>
+            <div style="display:flex;gap:4px;">
+              <button onclick="wissel(-1)" style="width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+              <button onclick="wissel(1)"  style="width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+            </div>
+          </div>
+          <div id="icon-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;"></div>
+          <script>
+            const ALLE_ICONEN = [
+              ["🦅","🐺","🦊","🐉","🦁"],
+              ["🐯","🦝","🦜","🦈","🐝"],
+              ["🦩","🦋","🐬","🦉","🐸"],
+              ["🦔","🦌","🐙","🦗","🦎"],
+              ["🌋","⚡","🔥","🌊","🌪️"],
+              ["💀","🤖","👾","🎯","🗡️"],
+            ];
+            let pagina = 0;
+            let geselecteerd = 0;
+
+            function renderIconen() {
+              const grid = document.getElementById('icon-grid');
+              grid.innerHTML = '';
+              ALLE_ICONEN[pagina].forEach((emoji, i) => {
+                const isGeselecteerd = pagina === 0 && i === geselecteerd || (pagina > 0 && false);
+                const span = document.createElement('span');
+                span.textContent = emoji;
+                span.style.cssText = `width:100%;aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;transition:all 0.12s;` +
+                  (i === geselecteerd && pagina === currentPagina
+                    ? `background:rgba(0,217,255,0.1);border:2.5px solid #00d9ff;box-shadow:0 0 14px rgba(0,217,255,.4);`
+                    : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);`);
+                span.onclick = () => { geselecteerd = i; currentPagina = pagina; renderIconen(); };
+                grid.appendChild(span);
+              });
+            }
+            let currentPagina = 0;
+            function wissel(dir) {
+              pagina = (pagina + dir + ALLE_ICONEN.length) % ALLE_ICONEN.length;
+              renderIconen();
+            }
+            renderIconen();
+          </script>
+          <button class="btn-game">Ga op pad 🚀</button>
+        </div>
+        <div class="login-footer">Design Hoekies 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speler HUD -->
+  <div class="screen-wrap">
+    <div class="screen-title">Kaart HUD (tijdens spel)</div>
+    <div class="phone">
+      <div class="hud-screen">
+        <!-- Map background -->
+        <div class="map-bg">
+          <div class="map-road road-h1"></div>
+          <div class="map-road road-h2"></div>
+          <div class="map-road road-v1"></div>
+          <div class="map-road road-v2"></div>
+        </div>
+
+        <!-- Topbar -->
+        <div class="hud-topbar">
+          <div class="hud-stat">
+            <div class="hud-stat-label">🗺️ km gelopen</div>
+            <div class="hud-stat-value">2.4</div>
+          </div>
+          <div class="hud-stat">
+            <div class="hud-stat-label">⭐ Punten</div>
+            <div class="hud-stat-value" style="color:var(--gold);text-shadow:0 0 14px rgba(255,217,59,.4);">175</div>
+          </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="hud-toast">💣 Bom opgehaald!</div>
+
+        <!-- Route markers (simulated positions) -->
+        <div class="marker marker-route marker-done" style="top:42%;left:22%;">1</div>
+        <div class="marker marker-route marker-done" style="top:30%;left:44%;">2</div>
+        <div class="marker marker-route marker-active" style="top:48%;left:60%;">3</div>
+        <div class="marker marker-route" style="top:62%;left:52%;">4</div>
+        <div class="marker marker-finish" style="top:70%;left:28%;">🏁</div>
+
+        <!-- Speciale items op kaart -->
+        <div style="position:absolute;top:35%;left:70%;font-size:26px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));z-index:5;">👻</div>
+        <div style="position:absolute;top:55%;left:38%;font-size:26px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));z-index:5;">📡</div>
+
+        <!-- Eigen positie -->
+        <div style="position:absolute;top:52%;left:54%;width:16px;height:16px;border-radius:50%;background:var(--cyan);border:3px solid #fff;box-shadow:0 0 0 6px rgba(0,217,255,0.2),var(--glow-cyan);z-index:6;"></div>
+
+        <!-- Andere teams (vaag) -->
+        <div style="position:absolute;top:38%;left:32%;width:12px;height:12px;border-radius:50%;background:#8b5cf6;border:2px solid rgba(255,255,255,0.5);opacity:0.7;z-index:6;"></div>
+        <div style="position:absolute;top:65%;left:68%;width:12px;height:12px;border-radius:50%;background:#ff3b5c;border:2px solid rgba(255,255,255,0.5);opacity:0.7;z-index:6;"></div>
+
+        <!-- HUD Buttons -->
+        <div class="hud-btn-locatie">📍</div>
+        <div class="hud-btn-info">ℹ️</div>
+
+        <!-- Inventaris bar -->
+        <div class="inventaris-bar">
+          <div class="inv-label">Inventaris</div>
+          <div class="inv-item" style="background:#DC2626;">
+            💣
+            <div class="inv-badge" style="border-color:#DC2626;color:#DC2626;">2</div>
+          </div>
+          <div class="inv-item" style="background:#7C3AED;">
+            👻
+          </div>
+          <div class="inv-item" style="background:#0369A1;">
+            📡
+          </div>
+          <div style="margin-left:auto;font-size:0.65rem;color:var(--muted);white-space:nowrap;">Tik om in te zetten</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SECTIE 2: Admin Dashboard ── -->
+<div class="section-label">Admin scherm</div>
+<div style="display:flex;justify-content:center;">
+  <div class="screen-wrap" style="width:100%;max-width:860px;">
+    <div class="screen-title">Admin Dashboard</div>
+    <div class="phone phone-wide">
+      <div class="admin-screen">
+
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+          <div class="sidebar-logo-wrap">
+            <img class="sidebar-logo" src="../assets/branding/logo KK.jpeg" alt="KaartKapers" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <div style="display:none;font-size:1.2rem;font-weight:700;color:var(--cyan);padding:10px 0;">KaartKapers</div>
+          </div>
+          <nav class="sidebar-nav">
+            <div class="nav-link active">🏠 Dashboard</div>
+            <div class="nav-link">🗺️ Routes</div>
+            <div class="nav-link">👥 Groepen</div>
+            <div class="nav-link">🏆 Leaderboard</div>
+            <div class="nav-link">📡 Live kaart</div>
+          </nav>
+          <div class="sidebar-footer">Design Hoekies 2026</div>
+        </div>
+
+        <!-- Main -->
+        <div class="admin-main">
+          <div class="admin-topbar">
+            <h1>Dashboard</h1>
+            <div class="live-badge">
+              <div class="live-dot"></div>
+              Live
+            </div>
+          </div>
+
+          <div class="admin-content">
+
+            <!-- Stat cards -->
+            <div class="stat-grid">
+              <div class="stat-card" style="border-top-color:var(--cyan);">
+                <div class="stat-card-header">
+                  <span class="stat-card-icon">🗺️</span>
+                  <span class="stat-card-label">Actieve route</span>
+                </div>
+                <div class="stat-card-value" style="color:var(--cyan);font-size:0.92rem;">Berghem Parochie</div>
+              </div>
+              <div class="stat-card" style="border-top-color:var(--gold);">
+                <div class="stat-card-header">
+                  <span class="stat-card-icon">🏃</span>
+                  <span class="stat-card-label">Bezig met spelen</span>
+                </div>
+                <div class="stat-card-value" style="color:var(--gold);">3</div>
+              </div>
+              <div class="stat-card" style="border-top-color:var(--green);">
+                <div class="stat-card-header">
+                  <span class="stat-card-icon">🏁</span>
+                  <span class="stat-card-label">Gefinisht</span>
+                </div>
+                <div class="stat-card-value" style="color:var(--green);">1</div>
+              </div>
+              <div class="stat-card" style="border-top-color:var(--purple);">
+                <div class="stat-card-header">
+                  <span class="stat-card-icon">📍</span>
+                  <span class="stat-card-label">Routepunten</span>
+                </div>
+                <div class="stat-card-value" style="color:var(--purple);">6</div>
+              </div>
+            </div>
+
+            <!-- Groups -->
+            <div class="section-header">👥 Groepen</div>
+            <div class="table-card">
+              <div class="table-row">
+                <div>
+                  <div class="team-name">Team Tornado 🦅</div>
+                  <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Gestart 14:03</div>
+                </div>
+                <div class="pill pill-active">Actief</div>
+                <div class="team-meta">
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Score</span>
+                    <span class="team-meta-value" style="color:var(--gold);">225 pt</span>
+                  </div>
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Voortgang</span>
+                    <span class="team-meta-value">4 / 6</span>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:67%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-row">
+                <div>
+                  <div class="team-name">De Wolven 🐺</div>
+                  <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Gestart 14:05</div>
+                </div>
+                <div class="pill pill-active">Actief</div>
+                <div class="team-meta">
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Score</span>
+                    <span class="team-meta-value" style="color:var(--gold);">175 pt</span>
+                  </div>
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Voortgang</span>
+                    <span class="team-meta-value">3 / 6</span>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:50%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-row">
+                <div>
+                  <div class="team-name">Team Vos 🦊</div>
+                  <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Gestart 14:08</div>
+                </div>
+                <div class="pill pill-done">Voltooid</div>
+                <div class="team-meta">
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Score</span>
+                    <span class="team-meta-value" style="color:var(--gold);">310 pt</span>
+                  </div>
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Speeltijd</span>
+                    <span class="team-meta-value">38m 14s</span>
+                  </div>
+                </div>
+              </div>
+              <div class="table-row">
+                <div>
+                  <div class="team-name">Drakenfang 🐉</div>
+                  <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Niet gestart</div>
+                </div>
+                <div class="pill pill-idle">Niet gestart</div>
+                <div class="team-meta">
+                  <div class="team-meta-item">
+                    <span class="team-meta-label">Score</span>
+                    <span class="team-meta-value">0 pt</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

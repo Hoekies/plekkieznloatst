@@ -130,7 +130,7 @@ export default function IntroScherm() {
       }}>
         {/* Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
+        <img src="/logo.png" alt="KaartKapers" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
 
         {/* Profiel: groepsnaam en icoon kiezen */}
         {fase === "profiel" && (
@@ -230,7 +230,7 @@ export default function IntroScherm() {
         {fase === "intro" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
             <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.95rem", margin: 0 }}>
-              Klaar om op pad te gaan?
+              Klaar om te kapen? 🗺️
             </p>
             <div style={{
               width: "100%", height: 5,
@@ -268,7 +268,7 @@ export default function IntroScherm() {
               className="btn btn-game"
               style={{ width: "100%", fontSize: "1.05rem", padding: "15px 0", borderRadius: 14 }}
               onClick={startSpel}>
-              Start het spel 🚀
+              Ga op pad 🚀
             </button>
           </div>
         )}

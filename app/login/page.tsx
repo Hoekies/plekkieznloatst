@@ -34,7 +34,7 @@ function LoginForm() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
-          alt="Plekkie z'n Loatst"
+          alt="KaartKapers"
           style={{ width: "100%", display: "block", marginBottom: "32px" }}
         />
 

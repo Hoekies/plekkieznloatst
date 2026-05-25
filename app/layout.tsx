@@ -1,18 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "@/styles/globals.css";
 import GeenInternet from "@/components/shared/GeenInternet";
 
-const nunito = Nunito({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Plekkie z'n Loatst",
-  description: "Route-gebaseerd quizspel op een kaart",
+  title: "KaartKapers",
+  description: "Loop de route. Pak de punten. Saboteer je vrienden.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent" },
   icons: {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A1B36",
+  themeColor: "#081120",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl">
-      <body className={nunito.variable}>
+      <body className={spaceGrotesk.variable}>
         <GeenInternet />
         {children}
       </body>

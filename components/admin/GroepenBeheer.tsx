@@ -9,7 +9,7 @@ async function deelLink(id: string, groepNaam: string) {
   const res = await fetch(`/api/admin/groepen/${id}/deellink`, { method: "POST" });
   if (!res.ok) { alert("Kon link niet genereren"); return; }
   const { link } = await res.json();
-  const tekst = `Hoi! Gebruik deze link om in te loggen bij Plekkie z'n Loatst:\n${link}`;
+  const tekst = `Hoi! Gebruik deze link om in te loggen bij KaartKapers:\n${link}`;
   if (navigator.share) {
     await navigator.share({ title: `Inloglink ${groepNaam}`, text: tekst });
   } else {

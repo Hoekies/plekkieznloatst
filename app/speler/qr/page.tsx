@@ -47,7 +47,7 @@ function QrScanFlow() {
     }}>
       <div className="glass-card" style={{ padding: "32px 28px", maxWidth: 360, width: "100%", textAlign: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Plekkie z'n Loatst" style={{ width: "100%", maxWidth: 200, marginBottom: 24 }} />
+        <img src="/logo.png" alt="KaartKapers" style={{ width: "100%", maxWidth: 200, marginBottom: 24 }} />
 
         {fase === "bezig" && (
           <>
