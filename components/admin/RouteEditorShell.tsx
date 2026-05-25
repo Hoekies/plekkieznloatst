@@ -229,7 +229,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   fontSize: "0.72rem", fontWeight: 700,
                 }}>{pt.type === "eindpunt" ? "🏁" : i + 1}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pt.name}</div>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
                   <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
                     {pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt"} · {pt.radius_meters}m
                   </div>
@@ -264,7 +264,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     }}>
                     <span style={{ fontSize: "18px", flexShrink: 0 }}>{emoji}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{item.name}</div>
                       <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
                         {item.type} · {item.radius_meters}m
                         {item.claimed && " · geclaimd"}
