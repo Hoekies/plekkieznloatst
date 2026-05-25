@@ -493,7 +493,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left));
+  min-height: 100px;
   flex-shrink: 0;
   display: flex;
   align-items: center;

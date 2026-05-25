@@ -348,19 +348,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         WebkitBackdropFilter: "blur(14px) saturate(130%)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
       }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "8px 12px" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
           <span style={{ fontSize: "1.2rem" }}>🗺️</span>
-          <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{(kmAfgelegd / 1000).toFixed(2)}</div>
-            <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>km gelopen</div>
-          </div>
+          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "8px 12px" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
           <span style={{ fontSize: "1.2rem" }}>⭐</span>
-          <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</div>
-            <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>punten behaald</div>
-          </div>
+          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</span>
         </div>
       </div>
 
