@@ -154,11 +154,9 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
         const emoji = SPECIAAL_EMOJI[item.type] ?? "?";
         const icon = L.divIcon({
           className: "",
-          html: `<div style="width:34px;height:34px;border-radius:10px;background:#6366F1;border:2px solid #fff;
-            box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:17px;
-            opacity:${item.claimed ? 0.4 : 1};">${emoji}</div>`,
-          iconSize: [34, 34],
-          iconAnchor: [17, 17],
+          html: `<div style="font-size:26px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};">${emoji}</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         });
         const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false })
           .bindTooltip(`${emoji} ${item.name}`, { permanent: false })
