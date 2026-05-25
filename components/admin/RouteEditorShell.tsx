@@ -174,7 +174,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       {/* Hoofdindeling */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Zijpaneel */}
-        <div style={{ width: 300, background: "var(--paper)", borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ width: 300, background: "rgba(8,28,48,0.82)", backdropFilter: "blur(18px)", borderRight: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", gap: 6 }}>
               <button
@@ -219,8 +219,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
                 style={{
                   padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                  background: geselecteerd?.id === pt.id ? "var(--blue-soft)" : "transparent",
-                  borderLeft: geselecteerd?.id === pt.id ? "3px solid var(--blue)" : "3px solid transparent",
+                  background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
+                  borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
                 }}>
                 <div style={{
                   width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
@@ -248,7 +248,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
           {/* Speciale items sectie */}
           {specialeItems.length > 0 && (
-            <div style={{ borderTop: "1px solid var(--line)" }}>
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
               <div style={{ padding: "8px 14px 4px", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 Speciale items ({specialeItems.length})
               </div>
@@ -259,8 +259,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
                     style={{
                       padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                      background: geselecteerdSpeciaal?.id === item.id ? "var(--blue-soft)" : "transparent",
-                      borderLeft: geselecteerdSpeciaal?.id === item.id ? "3px solid var(--blue)" : "3px solid transparent",
+                      background: geselecteerdSpeciaal?.id === item.id ? "rgba(255,255,255,0.12)" : "transparent",
+                      borderLeft: geselecteerdSpeciaal?.id === item.id ? "3px solid #60A5FA" : "3px solid transparent",
                     }}>
                     <span style={{ fontSize: "18px", flexShrink: 0 }}>{emoji}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -340,7 +340,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
   const heeftPunten = type === "ster" || type === "bom";
 
   return (
-    <div style={{ borderTop: "1px solid var(--line)", padding: "14px", background: "var(--bg)", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Speciaal item bewerken</span>
         <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem" }}>✕</button>
@@ -399,7 +399,7 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
   }, [punt.id]);
 
   return (
-    <div style={{ borderTop: "1px solid var(--line)", padding: "14px", background: "var(--bg)", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Punt bewerken</span>
         <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem" }}>✕</button>
