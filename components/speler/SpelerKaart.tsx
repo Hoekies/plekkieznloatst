@@ -440,14 +440,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         {/* Controleer locatie-knop */}
         {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && gpsStatus !== "laden" && (
           <button
-            className="btn btn-game"
             onClick={controleerLocatie}
+            title="Controleer locatie"
             style={{
-              position: "absolute", bottom: knoepBottomOffset, left: "50%", transform: "translateX(-50%) translateY(-2px)",
-              zIndex: 1000, whiteSpace: "nowrap",
-              padding: "14px 28px", borderRadius: 30, fontSize: "0.95rem",
+              position: "absolute", bottom: knoepBottomOffset, left: 16,
+              zIndex: 1000,
+              width: 52, height: 52, borderRadius: "50%",
+              background: "rgba(30,64,175,0.9)", border: "none",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.35)",
+              fontSize: "22px", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-            📍 Controleer locatie
+            📍
           </button>
         )}
 

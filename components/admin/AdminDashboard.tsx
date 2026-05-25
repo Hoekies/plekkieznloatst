@@ -192,10 +192,12 @@ function InfoRegel({ label, waarde, suppressHydrationWarning }: { label: string;
 
 function StatKaart({ label, waarde, icon, kleur }: { label: string; waarde: string; icon: string; kleur: string }) {
   return (
-    <div className="card stat-kaart" style={{ borderTop: `3px solid ${kleur}` }}>
-      <div style={{ fontSize: "1.1rem", marginBottom: 8 }}>{icon}</div>
-      <div style={{ fontSize: "1.6rem", fontWeight: 800, color: kleur, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.1 }}>{waarde}</div>
-      <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
+    <div className="card stat-kaart" style={{ borderTop: `3px solid ${kleur}`, padding: "10px 14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: "0.95rem" }}>{icon}</span>
+        <span style={{ fontSize: "0.72rem", color: "var(--muted)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+      </div>
+      <div style={{ fontSize: "1.35rem", fontWeight: 800, color: kleur, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.1 }}>{waarde}</div>
     </div>
   );
 }
