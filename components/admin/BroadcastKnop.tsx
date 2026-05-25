@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function BroadcastKnop() {
   const [open, setOpen] = useState(false);
@@ -34,7 +35,7 @@ export default function BroadcastKnop() {
         📢 Bericht sturen
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className="broadcast-overlay" onClick={() => setOpen(false)}>
           <div className="broadcast-modal" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
@@ -67,7 +68,8 @@ export default function BroadcastKnop() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
