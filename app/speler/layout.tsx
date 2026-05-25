@@ -15,7 +15,7 @@ export default async function SpelerLayout({ children }: { children: React.React
       <IOSFixes />
       <header className="speler-header">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="KaartKapers" style={{ height: 72, width: "auto", objectFit: "contain", flexShrink: 0 }} />
+        <img src="/logo-breed.png" alt="KaartKapers" style={{ height: 52, width: "auto", objectFit: "contain", flexShrink: 0 }} />
         <form action="/api/auth/uitloggen" method="post">
           <button type="submit" className="speler-uitlog-btn">
             Uitloggen
