@@ -214,15 +214,9 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
       const icon = L.divIcon({
         className: "",
-        html: `<div style="
-          width:40px;height:40px;border-radius:12px;
-          background:${stijl.kleur};border:3px solid #fff;
-          box-shadow:0 3px 10px rgba(0,0,0,0.4);
-          display:flex;align-items:center;justify-content:center;
-          font-size:20px;
-        ">${stijl.emoji}</div>`,
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
+        html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.55));">${stijl.emoji}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
       });
 
       const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false }).addTo(map);
