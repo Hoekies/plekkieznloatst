@@ -121,6 +121,36 @@ export interface Broadcast {
   created_at: string;
 }
 
+export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar";
+export type SpeciaalItemEffectType = "ghost" | "punt_aftrek" | "verdubbeling" | "wissel" | "diefstal" | "radar";
+
+export interface SpeciaalItem {
+  id: string;
+  route_id: string;
+  type: SpeciaalItemType;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius_meters: number;
+  points_effect: number;
+  claimed: boolean;
+  claimed_by_session_id: string | null;
+  claimed_at: string | null;
+  used_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SpeciaalItemEffect {
+  id: string;
+  special_item_id: string;
+  target_session_id: string;
+  effect_type: SpeciaalItemEffectType;
+  expires_at: string | null;
+  applied_at: string;
+  notification: string | null;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -134,6 +164,16 @@ export interface Database {
       location_updates: { Row: LocatieUpdate; Insert: Omit<LocatieUpdate, "id" | "created_at">; Update: Partial<LocatieUpdate> };
       foto_inzendingen: { Row: FotoInzending; Insert: Omit<FotoInzending, "id" | "created_at">; Update: Partial<FotoInzending> };
       broadcasts: { Row: Broadcast; Insert: Omit<Broadcast, "id" | "created_at">; Update: Partial<Broadcast> };
+      special_items: {
+        Row: SpeciaalItem;
+        Insert: Omit<SpeciaalItem, "id" | "created_at" | "updated_at" | "claimed" | "claimed_by_session_id" | "claimed_at" | "used_at">;
+        Update: Partial<SpeciaalItem>;
+      };
+      special_item_effects: {
+        Row: SpeciaalItemEffect;
+        Insert: Omit<SpeciaalItemEffect, "id" | "applied_at">;
+        Update: Partial<SpeciaalItemEffect>;
+      };
     };
   };
 }

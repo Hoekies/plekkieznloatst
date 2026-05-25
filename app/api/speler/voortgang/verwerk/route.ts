@@ -11,7 +11,7 @@ async function getActieveSessie() {
   const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
   if (!speler) return null;
   const { data: sessie } = await admin
-    .from("player_sessions").select("*").eq("player_id", speler.id).eq("status", "actief").maybeSingle();
+    .from("player_sessions").select("*, player_id").eq("player_id", speler.id).eq("status", "actief").maybeSingle();
   return sessie ?? null;
 }
 
@@ -103,6 +103,92 @@ export async function POST(request: NextRequest) {
         correctTextAnswers = vraag.correct_text_answers ?? [];
       }
       puntWaarde = isCorrect ? vraag.points : 0;
+    }
+  }
+
+  // Verdubbeling check: actief effect op eigen sessie?
+  if (isCorrect && puntWaarde > 0) {
+    const { data: dubbel } = await admin
+      .from("special_item_effects")
+      .select("id")
+      .eq("target_session_id", sessie.id)
+      .eq("effect_type", "verdubbeling")
+      .order("applied_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (dubbel) {
+      puntWaarde *= 2;
+      await admin.from("special_item_effects").delete().eq("id", dubbel.id);
+    }
+  }
+
+  // Diefstal check: actief effect op eigen sessie? (alleen voor vraagpunten)
+  if (punt.type === "vraagpunt") {
+    const { data: diefstal } = await admin
+      .from("special_item_effects")
+      .select("id, special_item_id")
+      .eq("target_session_id", sessie.id)
+      .eq("effect_type", "diefstal")
+      .order("applied_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (diefstal) {
+      await admin.from("special_item_effects").delete().eq("id", diefstal.id);
+
+      if (isCorrect && puntWaarde > 0) {
+        const { data: diefItem } = await admin
+          .from("special_items")
+          .select("claimed_by_session_id")
+          .eq("id", diefstal.special_item_id)
+          .maybeSingle();
+
+        if (diefItem?.claimed_by_session_id) {
+          const { data: diefSessie } = await admin
+            .from("player_sessions")
+            .select("score, player_id")
+            .eq("id", diefItem.claimed_by_session_id)
+            .maybeSingle();
+
+          const { data: diefSpeler } = await admin
+            .from("players")
+            .select("nickname, group_name")
+            .eq("id", diefSessie?.player_id ?? "")
+            .maybeSingle();
+          const diefNaam = diefSpeler?.nickname ?? diefSpeler?.group_name ?? "Een team";
+
+          const { data: slachtofferSpeler } = await admin
+            .from("players")
+            .select("nickname, group_name")
+            .eq("id", sessie.player_id)
+            .maybeSingle();
+          const slachtofferNaam = slachtofferSpeler?.nickname ?? slachtofferSpeler?.group_name ?? "een team";
+
+          await admin.from("player_sessions")
+            .update({ score: (diefSessie?.score ?? 0) + puntWaarde })
+            .eq("id", diefItem.claimed_by_session_id);
+
+          await Promise.all([
+            admin.from("special_item_effects").insert({
+              special_item_id: diefstal.special_item_id,
+              target_session_id: sessie.id,
+              effect_type: "diefstal",
+              expires_at: null,
+              notification: `🦹 ${diefNaam} heeft je ${puntWaarde} punten gestolen!`,
+            }),
+            admin.from("special_item_effects").insert({
+              special_item_id: diefstal.special_item_id,
+              target_session_id: diefItem.claimed_by_session_id,
+              effect_type: "diefstal",
+              expires_at: null,
+              notification: `🦹 Je hebt ${puntWaarde} punten gestolen van ${slachtofferNaam}!`,
+            }),
+          ]);
+
+          puntWaarde = 0;
+        }
+      }
     }
   }
 

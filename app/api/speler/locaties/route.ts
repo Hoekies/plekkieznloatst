@@ -41,27 +41,61 @@ export async function GET() {
   const sessieIds = rijen.map((s) => s.id);
   const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.group_name]));
 
-  // Laatste locatie-update per sessie (meest recente eerst ophalen, dan de-dupliceren)
-  const { data: locatieRows } = await admin
-    .from("location_updates")
-    .select("session_id, public_latitude, public_longitude, created_at")
-    .in("session_id", sessieIds)
-    .order("created_at", { ascending: false })
-    .limit(sessieIds.length * 5);
+  // Radar check: heeft de speler een actief radar-effect?
+  const { data: radarEffect } = await admin
+    .from("special_item_effects")
+    .select("id")
+    .eq("target_session_id", eigenSessie.id)
+    .eq("effect_type", "radar")
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
 
-  const gezien = new Set<string>();
-  const locaties: SpelerLocatie[] = [];
+  let locaties: SpelerLocatie[];
 
-  for (const row of locatieRows ?? []) {
-    if (gezien.has(row.session_id)) continue;
-    gezien.add(row.session_id);
-    locaties.push({
-      session_id: row.session_id,
-      group_name: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
-      latitude: row.public_latitude,
-      longitude: row.public_longitude,
-      created_at: row.created_at,
-    });
+  if (radarEffect) {
+    // Radar actief: exacte coördinaten uit location_updates
+    const { data: locatieRows } = await admin
+      .from("location_updates")
+      .select("session_id, latitude, longitude, created_at")
+      .in("session_id", sessieIds)
+      .order("created_at", { ascending: false })
+      .limit(sessieIds.length * 5);
+
+    const gezien = new Set<string>();
+    locaties = [];
+    for (const row of locatieRows ?? []) {
+      if (gezien.has(row.session_id)) continue;
+      gezien.add(row.session_id);
+      locaties.push({
+        session_id: row.session_id,
+        group_name: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
+        latitude: row.latitude,
+        longitude: row.longitude,
+        created_at: row.created_at,
+      });
+    }
+  } else {
+    // Standaard: afgeronde posities uit public_locaties
+    const { data: locatieRows } = await admin
+      .from("location_updates")
+      .select("session_id, public_latitude, public_longitude, created_at")
+      .in("session_id", sessieIds)
+      .order("created_at", { ascending: false })
+      .limit(sessieIds.length * 5);
+
+    const gezien = new Set<string>();
+    locaties = [];
+    for (const row of locatieRows ?? []) {
+      if (gezien.has(row.session_id)) continue;
+      gezien.add(row.session_id);
+      locaties.push({
+        session_id: row.session_id,
+        group_name: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
+        latitude: row.public_latitude,
+        longitude: row.public_longitude,
+        created_at: row.created_at,
+      });
+    }
   }
 
   return NextResponse.json({ locaties });

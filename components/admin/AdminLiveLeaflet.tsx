@@ -2,18 +2,31 @@
 
 import { useEffect, useRef } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
+import type { SpeciaalItem } from "@/types/database";
+
+const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
+  spook:        { kleur: "#7C3AED", emoji: "👻" },
+  bom:          { kleur: "#DC2626", emoji: "💣" },
+  ster:         { kleur: "#D97706", emoji: "⭐" },
+  verdubbeling: { kleur: "#B91C1C", emoji: "🔴" },
+  wissel:       { kleur: "#1D4ED8", emoji: "🔄" },
+  dief:         { kleur: "#7C2D12", emoji: "🦹" },
+  radar:        { kleur: "#0369A1", emoji: "📡" },
+};
 
 interface Props {
   spelers: SpelerOverzicht[];
   route_punten: RoutePuntKort[];
+  speciale_items?: SpeciaalItem[];
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);
   const spelerMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
+  const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const initBoundsRef = useRef(false);
 
   useEffect(() => {
@@ -66,6 +79,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
       LRef.current = null;
       spelerMarkersRef.current.clear();
       puntMarkersRef.current.clear();
+      specialeItemMarkersRef.current.clear();
       initBoundsRef.current = false;
     };
   }, []);
@@ -165,6 +179,37 @@ export default function AdminLiveLeaflet({ spelers, route_punten }: Props) {
       map.fitBounds(L.latLngBounds(alleLatlngs), { padding: [40, 40] });
     }
   }, [spelers, route_punten]);
+
+  // Speciale item markers bijwerken (admin ziet geclaimd = transparant)
+  useEffect(() => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    specialeItemMarkersRef.current.forEach((m) => m.remove());
+    specialeItemMarkersRef.current.clear();
+
+    speciale_items.forEach((item) => {
+      const stijl = SPECIAAL_ITEM_STIJL[item.type] ?? { kleur: "#555", emoji: "?" };
+      const opaciteit = item.claimed ? 0.3 : 1.0;
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="
+          width:36px;height:36px;border-radius:10px;
+          background:${stijl.kleur};border:2px solid #fff;
+          box-shadow:0 2px 8px rgba(0,0,0,0.3);
+          display:flex;align-items:center;justify-content:center;
+          font-size:18px;opacity:${opaciteit};
+        ">${stijl.emoji}</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+      const marker = L.marker([item.latitude, item.longitude], { icon })
+        .bindTooltip(`${item.name}${item.claimed ? " (geclaimd)" : ""}`, { permanent: false })
+        .addTo(map);
+      specialeItemMarkersRef.current.set(item.id, marker);
+    });
+  }, [speciale_items]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 }

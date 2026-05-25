@@ -1,10 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { RoutePunt } from "@/types/database";
+import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
+
+const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
+  spook:        { kleur: "#7C3AED", emoji: "👻" },
+  bom:          { kleur: "#DC2626", emoji: "💣" },
+  ster:         { kleur: "#D97706", emoji: "⭐" },
+  verdubbeling: { kleur: "#B91C1C", emoji: "🔴" },
+  wissel:       { kleur: "#1D4ED8", emoji: "🔄" },
+  dief:         { kleur: "#7C2D12", emoji: "🦹" },
+  radar:        { kleur: "#0369A1", emoji: "📡" },
+};
 
 interface Props {
   positie: GeolocationCoordinates | null;
@@ -13,12 +23,14 @@ interface Props {
   bereiktIds: Set<string>;
   activePuntId: string | null;
   andereSpelers: SpelerLocatie[];
+  specialeItems: SpeciaalItem[];
+  ghostedPuntId: string | null;
 }
 
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);
@@ -26,6 +38,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const spelerMarkerRef = useRef<import("leaflet").CircleMarker | null>(null);
   const accuracyCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
+  const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
 
@@ -74,6 +87,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       mapRef.current = null;
       LRef.current = null;
       puntMarkersRef.current.clear();
+      specialeItemMarkersRef.current.clear();
       gecenterRef.current = false;
     };
   }, []);
@@ -145,6 +159,9 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       // Verborgen toekomstige punten
       if (!isVerwerkt && !isActief && !isBereikt) return;
 
+      // Ghosted punt: onzichtbaar maken
+      if (punt.id === ghostedPuntId && !isVerwerkt) return;
+
       let kleur: string;
       let label: string;
 
@@ -178,7 +195,40 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const marker = L.marker([punt.latitude, punt.longitude], { icon, interactive: false }).addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [punten, verwerktIds, bereiktIds, activePuntId]);
+  }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId]);
+
+  // Speciale item markers bijwerken
+  useEffect(() => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    // Alle bestaande markers verwijderen en opnieuw tekenen
+    specialeItemMarkersRef.current.forEach((m) => m.remove());
+    specialeItemMarkersRef.current.clear();
+
+    specialeItems.forEach((item) => {
+      if (item.claimed) return;
+
+      const stijl = SPECIAAL_ITEM_STIJL[item.type] ?? { kleur: "#555", emoji: "?" };
+
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="
+          width:40px;height:40px;border-radius:12px;
+          background:${stijl.kleur};border:3px solid #fff;
+          box-shadow:0 3px 10px rgba(0,0,0,0.4);
+          display:flex;align-items:center;justify-content:center;
+          font-size:20px;
+        ">${stijl.emoji}</div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+      });
+
+      const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false }).addTo(map);
+      specialeItemMarkersRef.current.set(item.id, marker);
+    });
+  }, [specialeItems]);
 
   // Andere spelers bijwerken
   useEffect(() => {

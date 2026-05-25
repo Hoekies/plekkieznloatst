@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase-admin";
+import type { SpeciaalItem } from "@/types/database";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -30,6 +31,7 @@ export type LiveData = {
   route: { id: string; name: string } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
+  speciale_items: SpeciaalItem[];
 };
 
 export function sessietijd(s: SpelerOverzicht): number {
@@ -46,6 +48,16 @@ export async function haalLiveData(): Promise<LiveData> {
     admin.from("players").select("id, group_name, nickname").order("group_name"),
   ]);
 
+  let specialeItems: SpeciaalItem[] = [];
+  if (route) {
+    const { data: items } = await admin
+      .from("special_items")
+      .select("*")
+      .eq("route_id", route.id)
+      .order("created_at");
+    specialeItems = (items ?? []) as SpeciaalItem[];
+  }
+
   let routePunten: RoutePuntKort[] = [];
   if (route) {
     const { data: punten } = await admin
@@ -57,7 +69,7 @@ export async function haalLiveData(): Promise<LiveData> {
   }
 
   if (!allePlayers?.length) {
-    return { route, route_punten: routePunten, spelers: [] };
+    return { route, route_punten: routePunten, spelers: [], speciale_items: specialeItems };
   }
 
   const playerIds = allePlayers.map((p) => p.id);
@@ -132,5 +144,5 @@ export async function haalLiveData(): Promise<LiveData> {
     };
   });
 
-  return { route, route_punten: routePunten, spelers };
+  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems };
 }

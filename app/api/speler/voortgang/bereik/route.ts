@@ -64,6 +64,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
   }
 
+  // Ghost check: is het actieve punt geblokkeerd door een spook-effect?
+  const { data: ghostEffect } = await admin
+    .from("special_item_effects")
+    .select("id")
+    .eq("target_session_id", sessie.id)
+    .eq("effect_type", "ghost")
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (ghostEffect) {
+    return NextResponse.json({ fout: "Punt tijdelijk geblokkeerd" }, { status: 423 });
+  }
+
   // QR-verificatie (als qr_secret meegegeven)
   if (qr_secret) {
     if (!punt.qr_unlock_enabled || punt.qr_secret !== qr_secret) {

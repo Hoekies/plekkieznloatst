@@ -1,26 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { RoutePunt } from "@/types/database";
+import type { RoutePunt, SpeciaalItem } from "@/types/database";
 
 // Leaflet wordt alleen client-side geladen
 declare global {
   interface Window { L: typeof import("leaflet"); }
 }
 
+const SPECIAAL_EMOJI: Record<string, string> = {
+  spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡",
+};
+
 interface Props {
   punten: RoutePunt[];
   addModus: boolean;
   geselecteerdId: string | null;
+  specialeItems?: SpeciaalItem[];
   onKlik: (lat: number, lng: number) => void;
   onMarkerVerplaatst: (id: string, lat: number, lng: number) => void;
   onMarkerKlik: (id: string) => void;
 }
 
-export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
+export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
+  const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const addModusRef = useRef(addModus);
   const onKlikRef = useRef(onKlik);
@@ -70,6 +76,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
       kaartRef.current?.remove();
       kaartRef.current = null;
       markersRef.current.clear();
+      specialeItemMarkersRef.current.clear();
     };
   }, []);
 
@@ -135,6 +142,31 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, onKlik,
       }
     });
   }, [punten, geselecteerdId, kaartKlaar]);
+
+  // Speciale item markers bijhouden (static, niet draggable)
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      const kaart = kaartRef.current!;
+      specialeItemMarkersRef.current.forEach((m) => m.remove());
+      specialeItemMarkersRef.current.clear();
+      specialeItems.forEach((item) => {
+        const emoji = SPECIAAL_EMOJI[item.type] ?? "?";
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="width:34px;height:34px;border-radius:10px;background:#6366F1;border:2px solid #fff;
+            box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:17px;
+            opacity:${item.claimed ? 0.4 : 1};">${emoji}</div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+        });
+        const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false })
+          .bindTooltip(`${emoji} ${item.name}`, { permanent: false })
+          .addTo(kaart);
+        specialeItemMarkersRef.current.set(item.id, marker);
+      });
+    });
+  }, [specialeItems, kaartKlaar]);
 
   return (
     <div
