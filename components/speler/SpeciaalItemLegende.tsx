@@ -24,6 +24,7 @@ export default function SpeciaalItemLegende({ onSluit }: Props) {
     }}>
       <div style={{
         background: "#fff",
+        color: "#0A1B36",
         borderRadius: "16px",
         padding: "24px",
         maxWidth: "420px",

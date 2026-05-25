@@ -69,6 +69,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt }: P
     }}>
       <div style={{
         background: "#fff",
+        color: "#0A1B36",
         borderRadius: "18px",
         padding: "28px 24px",
         maxWidth: "400px",
