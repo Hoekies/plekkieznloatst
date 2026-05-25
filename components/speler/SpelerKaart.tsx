@@ -347,6 +347,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         backdropFilter: "blur(14px) saturate(130%)",
         WebkitBackdropFilter: "blur(14px) saturate(130%)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
+        alignItems: "center",
       }}>
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
           <span style={{ fontSize: "1.2rem" }}>🗺️</span>
@@ -356,6 +357,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           <span style={{ fontSize: "1.2rem" }}>⭐</span>
           <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</span>
         </div>
+        <button
+          onClick={() => setLegendeOpen(true)}
+          title="Wat doen de speciale items?"
+          style={{
+            width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+            background: "rgba(0,217,255,0.12)", border: "1.5px solid rgba(0,217,255,0.35)",
+            color: "#00d9ff", fontSize: "1rem", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontFamily: "var(--font)",
+          }}>
+          i
+        </button>
       </div>
 
       {/* GPS / realtime toasts */}
@@ -449,21 +462,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           </button>
         )}
 
-        {/* Legende knop */}
-        <button
-          onClick={() => setLegendeOpen(true)}
-          title="Wat doen de speciale items?"
-          style={{
-            position: "absolute", bottom: knoepBottomOffset, right: 16,
-            zIndex: 1000,
-            width: 44, height: 44, borderRadius: "50%",
-            background: "rgba(255,255,255,0.9)", border: "none",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-            fontSize: "20px", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-          ℹ️
-        </button>
 
         {/* Inventaris balk onderin de kaart */}
         <InventarisBar inventaris={inventaris} onGebruik={(item) => setActiveSpeciaalItem(item)} />
