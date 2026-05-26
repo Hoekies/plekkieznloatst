@@ -13,11 +13,8 @@ export default function UitlogKnop() {
   return (
     <button
       onClick={uitloggen}
-      style={{
-        background: "none", border: "none",
-        color: "rgba(255,255,255,0.5)", fontSize: "0.8rem",
-        cursor: "pointer", padding: 0,
-      }}
+      className="admin-nav-link"
+      style={{ cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "var(--font)", background: "transparent", border: "1px solid transparent" }}
     >
       ↩ Uitloggen
     </button>

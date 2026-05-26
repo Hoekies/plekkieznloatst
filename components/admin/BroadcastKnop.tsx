@@ -29,7 +29,7 @@ export default function BroadcastKnop() {
     <>
       <button
         className="admin-nav-link"
-        style={{ cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "var(--font)" }}
+        style={{ cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "var(--font)", background: "transparent", border: "1px solid transparent" }}
         onClick={() => setOpen(true)}
       >
         📢 Bericht sturen
