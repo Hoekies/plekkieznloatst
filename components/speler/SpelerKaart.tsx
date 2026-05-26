@@ -40,10 +40,6 @@ const ITEM_LABEL: Record<string, string> = {
   dief: "🦹 Dief", radar: "📡 Radar", banaan: "🍌 Banaan",
 };
 
-function speelGeluid() {
-  try { new Audio("/sounds/punt-bereikt.mp3").play(); } catch { /* geen geluid */ }
-}
-
 export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const router = useRouter();
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -65,8 +61,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
-  const [plekzooiActief, setLandmijnActief] = useState(false);
-  const [plekzooiSecondsLeft, setLandmijnSecondsLeft] = useState(0);
+  const [plekzooiActief, setPlekzooiActief] = useState(false);
+  const [plekzooiSecondsLeft, setPlekzooiSecondsLeft] = useState(0);
   const effectNotificatieTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const opgehaaldTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plekzooiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -141,6 +137,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "special_items" }, () => { haalSpecialeItemsOp(); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "special_item_effects" }, () => { haalEffectenOp(); })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "player_sessions", filter: `id=eq.${sessie.id}` }, () => {
+        router.push("/speler");
+      })
       .subscribe((status) => { setRealtimeVerbonden(status === "SUBSCRIBED"); });
 
     return () => {
@@ -216,19 +215,19 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     } catch { /* verbindingsfout */ }
   }
 
-  function activeerLandmijn(verlooptOp: Date) {
+  function activeerPlekzooi(verlooptOp: Date) {
     const remaining = Math.max(0, Math.floor((verlooptOp.getTime() - Date.now()) / 1000));
     if (remaining <= 0) return;
-    setLandmijnActief(true);
-    setLandmijnSecondsLeft(remaining);
+    setPlekzooiActief(true);
+    setPlekzooiSecondsLeft(remaining);
     if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
     plekzooiTimerRef.current = setInterval(() => {
       const rem = Math.max(0, Math.floor((verlooptOp.getTime() - Date.now()) / 1000));
-      setLandmijnSecondsLeft(rem);
+      setPlekzooiSecondsLeft(rem);
       if (rem <= 0) {
         clearInterval(plekzooiTimerRef.current!);
         plekzooiTimerRef.current = null;
-        setLandmijnActief(false);
+        setPlekzooiActief(false);
       }
     }, 1000);
   }
@@ -247,9 +246,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 8000);
       }
 
-      // Landmijn actief: herstel afteltimer bij herverbinding
+      // Plek zooi actief: herstel afteltimer bij herverbinding
       if (data.plekzooi?.active && data.plekzooi.expires_at) {
-        activeerLandmijn(new Date(data.plekzooi.expires_at));
+        activeerPlekzooi(new Date(data.plekzooi.expires_at));
       }
 
       // Radar actief: poll andere spelers elke 5 seconden
@@ -289,7 +288,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           });
           if (effectRes.ok) {
             const effectData = await effectRes.json();
-            if (effectData.expires_at) activeerLandmijn(new Date(effectData.expires_at));
+            if (effectData.expires_at) activeerPlekzooi(new Date(effectData.expires_at));
           }
         } else if (data.item.type === "ster") {
           // Direct inzetten: punten meteen bijschrijven
@@ -370,7 +369,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   async function markeerBereikt(punt: RoutePunt) {
     if (bezigRef.current) return;
     bezigRef.current = true;
-    speelGeluid();
     try {
       const res = await fetch("/api/speler/voortgang/bereik", {
         method: "POST",
@@ -570,7 +568,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         />
       )}
 
-      {/* Landmijn overlay — rood scherm met afteltimer */}
+      {/* Plek zooi overlay — rood scherm met afteltimer */}
       {plekzooiActief && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 3000,
@@ -584,7 +582,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           <h1 style={{
             margin: 0, fontSize: "2.6rem", fontWeight: 900,
             letterSpacing: "0.06em", textShadow: "0 2px 12px rgba(0,0,0,0.4)",
-          }}>LANDMIJN!</h1>
+          }}>PLEK ZOOI!</h1>
           <p style={{ margin: 0, fontSize: "1rem", opacity: 0.85, textAlign: "center", padding: "0 32px" }}>
             Je zit vast — de kaart is niet beschikbaar
           </p>

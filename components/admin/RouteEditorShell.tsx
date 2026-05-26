@@ -465,7 +465,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
       )}
       {type === "plekzooi" && (
         <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>
-          ⚠️ Landmijn is <strong>onzichtbaar</strong> voor spelers — zij zien geen icoontje op de kaart.
+          ⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers — zij zien geen icoontje op de kaart.
         </div>
       )}
       {item.claimed && <div className="melding" style={{ fontSize: "0.78rem", background: "var(--gold-soft)", color: "var(--gold)" }}>✅ Dit item is al geclaimd</div>}

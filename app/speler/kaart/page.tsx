@@ -27,7 +27,7 @@ export default async function SpelerKaartPage() {
 
   if (!sessie) redirect("/speler");
 
-  const [{ data: punten }, { data: voortgang }] = await Promise.all([
+  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spo }] = await Promise.all([
     admin
       .from("route_points")
       .select("*")
@@ -38,12 +38,29 @@ export default async function SpelerKaartPage() {
       .select("*")
       .eq("session_id", sessie.id)
       .order("reached_at"),
+    admin
+      .from("routes")
+      .select("modus")
+      .eq("id", sessie.route_id)
+      .maybeSingle(),
+    admin
+      .from("session_point_order")
+      .select("volgorde, route_point_id")
+      .eq("session_id", sessie.id)
+      .order("volgorde"),
   ]);
+
+  // Voor verspreid-modus: sorteer punten op de sessie-specifieke volgorde
+  let punten = ruwePunten ?? [];
+  if (route?.modus === "verspreid" && spo && spo.length > 0) {
+    const puntenMap = new Map((ruwePunten ?? []).map((p) => [p.id, p]));
+    punten = spo.map((s) => puntenMap.get(s.route_point_id)).filter(Boolean) as typeof punten;
+  }
 
   return (
     <SpelerKaart
       sessie={sessie}
-      punten={punten ?? []}
+      punten={punten}
       initVoortgang={voortgang ?? []}
     />
   );

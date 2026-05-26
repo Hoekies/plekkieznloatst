@@ -98,9 +98,11 @@ export default function RoutesOverzicht() {
 
   return (
     <div style={{ maxWidth: 700 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>{routes.length} route{routes.length !== 1 ? "s" : ""}</p>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 20 }}>
+        <p style={{ color: "var(--muted)", fontSize: "0.875rem", flex: 1, minWidth: 80 }}>
+          {routes.length} route{routes.length !== 1 ? "s" : ""}
+        </p>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           <button className="btn btn-ghost" style={{ fontSize: "0.82rem" }}
             onClick={() => importRef.current?.click()} disabled={importBezig}>
             {importBezig ? "Importeren…" : "📥 Importeer"}
@@ -133,35 +135,41 @@ export default function RoutesOverzicht() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {routes.map((r) => (
             <div key={r.id} className="card" style={{
-              display: "flex", alignItems: "center", gap: 14,
               borderLeft: r.is_active ? "4px solid var(--green)" : r.status === "gepubliceerd" ? "4px solid var(--cyan)" : "4px solid var(--line)",
+              padding: "14px 16px",
+              display: "flex", flexDirection: "column", gap: 10,
             }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: "0.95rem" }}>{r.name}</div>
-                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                  {r.is_active && <StatusBadge kleur="green" label="✓ Actief" />}
-                  {r.status === "gepubliceerd" && !r.is_active && <StatusBadge kleur="cyan" label="Gepubliceerd" />}
-                  {r.status === "concept" && <StatusBadge kleur="muted" label="Concept" />}
+              {/* Naam + status */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: "1rem", wordBreak: "break-word" }}>{r.name}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
+                    {r.is_active && <StatusBadge kleur="green" label="✓ Actief" />}
+                    {r.status === "gepubliceerd" && !r.is_active && <StatusBadge kleur="cyan" label="Gepubliceerd" />}
+                    {r.status === "concept" && <StatusBadge kleur="muted" label="Concept" />}
+                    {r.modus === "verspreid" && <StatusBadge kleur="cyan" label="Verspreid" />}
+                  </div>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "6px 10px" }}
+              {/* Actieknoppen */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
                   onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
-                <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "6px 10px" }}
-                  onClick={() => exporteer(r.id, r.name)}>📤</button>
+                <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 12px" }}
+                  onClick={() => exporteer(r.id, r.name)} title="Exporteer">📤</button>
                 {!r.is_active && (
-                  <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "6px 10px" }}
+                  <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
                     onClick={() => togglePubliceer(r)}>
                     {r.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
                   </button>
                 )}
                 {!r.is_active && r.status === "gepubliceerd" && (
-                  <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "6px 10px" }}
+                  <button className="btn btn-cyan" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
                     onClick={() => activeer(r.id)}>▶ Activeer</button>
                 )}
                 {!r.is_active && (
-                  <button className="btn btn-danger" style={{ fontSize: "0.78rem", padding: "6px 10px" }}
-                    onClick={() => verwijder(r.id, r.name)}>🗑️</button>
+                  <button className="btn btn-danger" style={{ fontSize: "0.82rem", padding: "7px 12px" }}
+                    onClick={() => verwijder(r.id, r.name)} title="Verwijder">🗑️</button>
                 )}
               </div>
             </div>

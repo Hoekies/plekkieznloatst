@@ -21,7 +21,7 @@ Op de kaart zie je:
 - **Jouw locatie** — blauwe stip
 - **Het volgende doel** — genummerd cirkeltje
 - **Andere teams** — in een lichtere kleur (globale positie, niet exact)
-- **Speciale items** — emoji-icoontjes verspreid over de kaart (let op: landmijnen zijn onzichtbaar!)
+- **Speciale items** — emoji-icoontjes verspreid over de kaart (let op: Plek zooi-items zijn onzichtbaar!)
 
 Navigeer naar het genummerde punt. Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt.
 
