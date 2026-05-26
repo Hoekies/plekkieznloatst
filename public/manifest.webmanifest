@@ -1,6 +1,6 @@
 {
-  "name": "KaartKapers",
-  "short_name": "KaartKapers",
+  "name": "PointRush",
+  "short_name": "PointRush",
   "description": "Loop de route. Pak de punten. Saboteer je vrienden.",
   "start_url": "/",
   "display": "standalone",

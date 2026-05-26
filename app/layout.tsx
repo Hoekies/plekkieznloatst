@@ -11,7 +11,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "KaartKapers",
+  title: "PointRush",
   description: "Loop de route. Pak de punten. Saboteer je vrienden.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent" },

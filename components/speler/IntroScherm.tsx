@@ -130,7 +130,7 @@ export default function IntroScherm() {
       }}>
         {/* Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="KaartKapers" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
+        <img src="/logo.png" alt="PointRush" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
 
         {/* Profiel: groepsnaam en icoon kiezen */}
         {fase === "profiel" && (

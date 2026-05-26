@@ -15,13 +15,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin-shell">
       <div className="admin-mobile-topbar">
         <SidebarToggle />
-        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>KaartKapers</span>
+        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>PointRush</span>
         <div style={{ width: 40 }} />
       </div>
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="KaartKapers" style={{ width: "100%", objectFit: "contain" }} />
+          <img src="/logo.png" alt="PointRush" style={{ width: "100%", objectFit: "contain" }} />
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact>🏠 Dashboard</AdminNavLink>
