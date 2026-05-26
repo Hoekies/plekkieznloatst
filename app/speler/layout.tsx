@@ -16,7 +16,7 @@ export default async function SpelerLayout({ children }: { children: React.React
       <header className="speler-header" style={{ position: "relative" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{
-          height: 204, width: "auto", objectFit: "contain",
+          height: "auto", width: "clamp(120px, 30vw, 200px)", objectFit: "contain",
           position: "absolute", left: "50%", transform: "translateX(-50%)",
         }} />
         <div style={{ flex: 1 }} />

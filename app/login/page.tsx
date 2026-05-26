@@ -35,7 +35,7 @@ function LoginForm() {
         <img
           src="/logo.png"
           alt="PointRush"
-          style={{ width: "100%", display: "block", marginBottom: "32px" }}
+          style={{ width: "67%", display: "block", margin: "0 auto 32px" }}
         />
 
         <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
