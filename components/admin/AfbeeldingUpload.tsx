@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { uploadAfbeelding, valideerAfbeelding } from "@/lib/upload";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const CROP_W = 360;
-const CROP_H = 270;
+const CROP_H = 360;
 
 function afbeeldingUrl(bucket: string, pad: string) {
   return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${pad}`;
@@ -145,9 +146,9 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
 
   const totalScale = berekenBaseScale(imgGrootte.w, imgGrootte.h) * zoom;
 
-  const cropModal = cropBestand ? (
+  const cropModalInhoud = cropBestand ? (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 1000,
+      position: "fixed", inset: 0, zIndex: 9999,
       background: "rgba(0,0,0,0.72)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 16,
@@ -235,6 +236,10 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
       </div>
     </div>
   ) : null;
+
+  const cropModal = (typeof document !== "undefined" && cropModalInhoud)
+    ? createPortal(cropModalInhoud, document.body)
+    : null;
 
   if (compact) {
     return (
