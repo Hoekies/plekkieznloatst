@@ -411,7 +411,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                   }}>❓ VRAAG</span>
 
                   {/* Vraagstelling */}
-                  <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.4, color: "#111" }}>
+                  <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.4, color: "#111", whiteSpace: "pre-wrap" }}>
                     {tekst || <span style={{ color: "#aaa", fontStyle: "italic" }}>Vraagstelling verschijnt hier…</span>}
                   </p>
 

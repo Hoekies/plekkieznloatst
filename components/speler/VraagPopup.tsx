@@ -236,7 +236,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {/* Vraag beantwoorden */}
         {popupFase === "vraag" && vraag && (
           <>
-            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700 }}>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap" }}>
               {vraag.question_text}
             </h2>
 
