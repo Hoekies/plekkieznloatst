@@ -31,7 +31,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
   const [type, setType] = useState<VraagType>(bestaandeVraag?.type ?? "meerkeuze_tekst");
   const [tekst, setTekst] = useState(bestaandeVraag?.question_text ?? "");
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
-  const [punten, setPunten] = useState(bestaandeVraag?.points ?? punt.points);
+  const [punten, setPunten] = useState(bestaandeVraag?.points ?? 50);
 
   const [antwoorden, setAntwoorden] = useState<{
     color: typeof KLEUREN[number];
@@ -421,7 +421,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                     <img
                       src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraagAfbeelding}`}
                       alt=""
-                      style={{ width: "100%", borderRadius: 8, maxHeight: 120, objectFit: "cover" }}
+                      style={{ width: "100%", borderRadius: 8, aspectRatio: "1/1", objectFit: "cover" }}
                     />
                   )}
 

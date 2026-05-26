@@ -49,7 +49,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: lat, longitude: lng }),
+      body: JSON.stringify({ latitude: lat, longitude: lng, points: 10 }),
     });
     if (res.ok) {
       const nieuw: RoutePunt = await res.json();

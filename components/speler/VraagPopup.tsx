@@ -244,7 +244,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
               <img
                 src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraag.question_image_path}`}
                 alt=""
-                style={{ width: "100%", borderRadius: 12, maxHeight: 220, objectFit: "cover" }}
+                style={{ width: "100%", borderRadius: 12, aspectRatio: "1/1", objectFit: "cover" }}
               />
             )}
 
