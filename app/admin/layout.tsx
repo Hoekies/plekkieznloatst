@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="PointRush" style={{ width: "100%", objectFit: "contain" }} />
+          <img src="/logo.png" alt="PointRush" style={{ width: "50%", objectFit: "contain", display: "block", margin: "0 auto" }} />
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact>🏠 Dashboard</AdminNavLink>
