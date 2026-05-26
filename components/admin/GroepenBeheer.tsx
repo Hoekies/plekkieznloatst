@@ -4,17 +4,13 @@ import { useEffect, useState } from "react";
 import type { Speler } from "@/types/database";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
-const TEMPLATE_DEFAULT = "Hoi! Gebruik de link hieronder om in te loggen bij PointRush 🎯\nhttps://plekkieznloatst.vercel.app";
+const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
 
 type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
 
-async function deelViaWhatsApp(id: string) {
-  const res = await fetch(`/api/admin/groepen/${id}/deellink`, { method: "POST" });
-  if (!res.ok) { alert("Kon link niet genereren"); return; }
-  const { link } = await res.json();
+function deelViaWhatsApp() {
   const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
-  const tekst = `${template}\n\n${link}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
+  window.open(`https://wa.me/?text=${encodeURIComponent(template)}`, "_blank");
 }
 
 export default function GroepenBeheer() {
@@ -133,7 +129,7 @@ export default function GroepenBeheer() {
                 <button
                   className="btn btn-cyan"
                   style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                  onClick={() => deelViaWhatsApp(g.id)}
+                  onClick={() => deelViaWhatsApp()}
                 >
                   🔗 Deel link
                 </button>
