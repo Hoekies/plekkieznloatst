@@ -2,6 +2,7 @@
 
 interface Props {
   onSluit: () => void;
+  itemTypes?: string[];
 }
 
 const ITEMS = [
@@ -15,7 +16,11 @@ const ITEMS = [
   { emoji: "🍌", naam: "Banaan",       beschrijving: "Verwisselt het eerstvolgende punt van een doelteam met een ander nog te bezoeken punt." },
 ];
 
-export default function SpeciaalItemLegende({ onSluit }: Props) {
+export default function SpeciaalItemLegende({ onSluit, itemTypes }: Props) {
+  const zichtbaar = itemTypes && itemTypes.length > 0
+    ? ITEMS.filter((item) => itemTypes.includes(item.naam.toLowerCase()))
+    : ITEMS;
+
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 500,
@@ -54,7 +59,7 @@ export default function SpeciaalItemLegende({ onSluit }: Props) {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {ITEMS.map((item) => (
+          {zichtbaar.map((item) => (
             <div
               key={item.naam}
               style={{

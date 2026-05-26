@@ -37,7 +37,7 @@ const LOCATIE_PUBLICEER_INTERVAL_MS = 60000;
 const ITEM_LABEL: Record<string, string> = {
   spook: "👻 Spook", bom: "💣 Bom", ster: "⭐ Ster",
   verdubbeling: "🔴 Verdubbeling", wissel: "🔄 Wissel",
-  dief: "🦹 Dief", radar: "📡 Radar",
+  dief: "🦹 Dief", radar: "📡 Radar", banaan: "🍌 Banaan",
 };
 
 function speelGeluid() {
@@ -483,7 +483,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
       {/* Speciale items legende */}
       {legendeOpen && (
-        <SpeciaalItemLegende onSluit={() => setLegendeOpen(false)} />
+        <SpeciaalItemLegende
+          onSluit={() => setLegendeOpen(false)}
+          itemTypes={[...new Set(specialeItems.map((i) => i.type))]}
+        />
       )}
     </div>
   );
