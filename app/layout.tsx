@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "@/styles/globals.css";
 import GeenInternet from "@/components/shared/GeenInternet";
+import InAppBrowserWaarschuwing from "@/components/shared/InAppBrowserWaarschuwing";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="nl">
       <body className={spaceGrotesk.variable}>
         <GeenInternet />
+        <InAppBrowserWaarschuwing />
         {children}
       </body>
     </html>

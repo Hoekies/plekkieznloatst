@@ -98,8 +98,8 @@ export default function IntroScherm() {
     <div style={{
       position: "fixed", inset: 0, zIndex: 200,
       display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      background: "var(--game-gradient)", overflow: "hidden",
+      alignItems: "center", justifyContent: "flex-start",
+      background: "var(--game-gradient)", overflowY: "auto",
     }}>
       {/* Kaartafbeelding */}
       <img
@@ -125,12 +125,14 @@ export default function IntroScherm() {
         position: "relative",
         display: "flex", flexDirection: "column",
         alignItems: "center", gap: 20,
-        padding: "40px 28px", textAlign: "center",
+        padding: "clamp(24px, 8vh, 56px) 28px 40px",
+        textAlign: "center",
         maxWidth: 380, width: "100%",
+        minHeight: "100%",
       }}>
         {/* Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="PointRush" style={{ width: "100%", maxWidth: 260, objectFit: "contain" }} />
+        <img src="/logo.png" alt="PointRush" style={{ width: "clamp(140px, 55vw, 220px)", objectFit: "contain" }} />
 
         {/* Profiel: groepsnaam en icoon kiezen */}
         {fase === "profiel" && (

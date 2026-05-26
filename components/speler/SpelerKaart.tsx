@@ -64,6 +64,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
+  const [score, setScore] = useState(sessie.score);
   const effectNotificatieTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const opgehaaldTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bezigSpeciaalRef = useRef(false);
@@ -121,6 +122,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     haalSpecialeItemsOp();
     haalEffectenOp();
     haalInventarisOp();
+    haalScoreOp();
+    const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5 * 60 * 1000);
 
     const supabase = createClient();
     const kanaal = supabase
@@ -138,6 +141,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
     return () => {
       supabase.removeChannel(kanaal);
+      clearInterval(itemsTimer);
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
       if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
@@ -196,6 +200,16 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     } catch { /* verbindingsfout */ }
   }
 
+  async function haalScoreOp() {
+    try {
+      const res = await fetch("/api/speler/sessie");
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.score !== undefined) setScore(data.score);
+      }
+    } catch { /* verbindingsfout */ }
+  }
+
   async function haalEffectenOp() {
     try {
       const res = await fetch("/api/speler/speciaal/effecten");
@@ -234,12 +248,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           });
           const pts = data.item.points_effect > 0 ? `+${data.item.points_effect}` : String(data.item.points_effect);
           if (effectRes.ok) {
+            setScore((prev) => prev + data.item.points_effect);
             setOpgehaaldToast(`⭐ ${pts} bonuspunten bijgeschreven!`);
           } else {
             setOpgehaaldToast(`⭐ Ster opgehaald!`);
           }
         } else if (data.item.type === "wissel") {
-          // Direct popup: meteen team kiezen
+          setInventaris((prev) => [...prev, data.item]);
           setActiveSpeciaalItem(data.item);
           setOpgehaaldToast(`🔄 Wissel opgehaald — kies een team!`);
         } else {
@@ -329,6 +344,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         : [...v, bijgewerktVoortgang]
     );
     setPopupPunt(null);
+    haalScoreOp();
+  }
+
+  function bewaarItemVoorLater() {
+    setActiveSpeciaalItem(null);
   }
 
   function controleerLocatie() {
@@ -355,7 +375,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         </div>
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
           <span style={{ fontSize: "1.2rem" }}>⭐</span>
-          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>{verwerktIds.size}</span>
+          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{score}</span>
         </div>
         <button
           onClick={() => setLegendeOpen(true)}
@@ -478,6 +498,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           item={activeSpeciaalItem}
           andereSessies={andereSpelers.map((s) => ({ session_id: s.session_id, group_name: s.group_name }))}
           onVerwerkt={inventarisItemGebruikt}
+          onSluit={bewaarItemVoorLater}
         />
       )}
 

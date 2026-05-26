@@ -14,6 +14,7 @@ interface Props {
   item: SpeciaalItem;
   andereSessies: AndereSpeler[];
   onVerwerkt: (itemId: string, eigenNotificatie?: string) => void;
+  onSluit?: () => void;
 }
 
 const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string; beschrijving: string }> = {
@@ -29,7 +30,7 @@ const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string; b
 
 const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar"]);
 
-export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt }: Props) {
+export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onSluit }: Props) {
   const startFase: Fase = TYPES_ZONDER_DOEL.has(item.type) ? "bevestig" : "kies_team";
   const [fase, setFase] = useState<Fase>(startFase);
   const [foutMelding, setFoutMelding] = useState("");
@@ -108,7 +109,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt }: P
               Gebruik!
             </button>
             <button
-              onClick={() => onVerwerkt(item.id)}
+              onClick={() => onSluit ? onSluit() : onVerwerkt(item.id)}
               style={{
                 padding: "10px",
                 borderRadius: "10px",
@@ -158,7 +159,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt }: P
               </div>
             )}
             <button
-              onClick={() => onVerwerkt(item.id)}
+              onClick={() => onSluit ? onSluit() : onVerwerkt(item.id)}
               style={{
                 marginTop: 12, padding: "10px", width: "100%",
                 borderRadius: "10px", border: "1px solid #ddd",
