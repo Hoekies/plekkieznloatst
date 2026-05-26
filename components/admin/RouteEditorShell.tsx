@@ -308,7 +308,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
                 </p>
               ) : specialeItems.map((item) => {
-                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌" }[item.type] ?? "?";
+                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", landmijn: "⛔" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
@@ -406,6 +406,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
   }, [item.id]);
 
   const heeftPunten = type === "ster" || type === "bom";
+  const heeftDuur = type === "landmijn";
 
   return (
     <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -429,6 +430,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
             <option value="dief">🦹 Dief</option>
             <option value="radar">📡 Radar</option>
             <option value="banaan">🍌 Banaan</option>
+            <option value="landmijn">⛔ Landmijn</option>
           </select>
         </div>
         <div className="form-group">
@@ -440,6 +442,18 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
         <div className="form-group">
           <label className="form-label">{type === "bom" ? "Aftrek punten" : "Bonus punten"}</label>
           <input className="form-input" type="number" min={0} value={Math.abs(effect)} onChange={(e) => setEffect(type === "bom" ? -Number(e.target.value) : Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
+        </div>
+      )}
+      {heeftDuur && (
+        <div className="form-group">
+          <label className="form-label">Blokkeer duur (seconden)</label>
+          <input className="form-input" type="number" min={10} value={effect || 120} onChange={(e) => setEffect(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
+          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>bijv. 60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+        </div>
+      )}
+      {type === "landmijn" && (
+        <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>
+          ⚠️ Landmijn is <strong>onzichtbaar</strong> voor spelers — zij zien geen icoontje op de kaart.
         </div>
       )}
       {item.claimed && <div className="melding" style={{ fontSize: "0.78rem", background: "var(--gold-soft)", color: "var(--gold)" }}>✅ Dit item is al geclaimd</div>}

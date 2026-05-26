@@ -43,6 +43,17 @@ export async function GET() {
     .limit(1)
     .maybeSingle();
 
+  // Actief landmijn effect (eigen sessie heeft een landmijn geraakt)
+  const { data: landmijnEffect } = await admin
+    .from("special_item_effects")
+    .select("id, expires_at")
+    .eq("target_session_id", sessie.id)
+    .eq("effect_type", "landmijn")
+    .gt("expires_at", now)
+    .order("applied_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   // Meest recente notification (ook verlopen) voor toast
   const { data: latestNotification } = await admin
     .from("special_item_effects")
@@ -59,6 +70,9 @@ export async function GET() {
       : { active: false },
     radar: radarEffect
       ? { active: true, expires_at: radarEffect.expires_at }
+      : { active: false },
+    landmijn: landmijnEffect
+      ? { active: true, expires_at: landmijnEffect.expires_at }
       : { active: false },
     notification: latestNotification?.notification ?? null,
     notification_at: latestNotification?.applied_at ?? null,

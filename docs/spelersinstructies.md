@@ -21,7 +21,7 @@ Op de kaart zie je:
 - **Jouw locatie** — blauwe stip
 - **Het volgende doel** — genummerd cirkeltje
 - **Andere teams** — in een lichtere kleur (globale positie, niet exact)
-- **Speciale items** — emoji-icoontjes verspreid over de kaart
+- **Speciale items** — emoji-icoontjes verspreid over de kaart (let op: landmijnen zijn onzichtbaar!)
 
 Navigeer naar het genummerde punt. Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt.
 
@@ -68,6 +68,7 @@ Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de
 | 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van een gekozen team |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
+| ⛔ | Landmijn | **Onzichtbaar op de kaart.** Als je er overheen loopt, wordt je scherm rood en kun je een ingestelde tijd niet verder. De kaart is niet zichtbaar tijdens de blokkade. |
 
 ### Hoe gebruik je een item?
 

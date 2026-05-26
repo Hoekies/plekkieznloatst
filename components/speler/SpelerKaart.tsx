@@ -65,8 +65,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
+  const [landmijnActief, setLandmijnActief] = useState(false);
+  const [landmijnSecondsLeft, setLandmijnSecondsLeft] = useState(0);
   const effectNotificatieTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const opgehaaldTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const landmijnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bezigSpeciaalRef = useRef(false);
   const effectNotificatieAtRef = useRef<string | null>(null);
 
@@ -144,6 +147,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       supabase.removeChannel(kanaal);
       clearInterval(itemsTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
+      if (landmijnTimerRef.current) clearInterval(landmijnTimerRef.current);
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
       if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
@@ -153,7 +157,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   // Puntdetectie bij iedere positiewijziging
   useEffect(() => {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || bezigRef.current || popupPunt) return;
+    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || bezigRef.current || popupPunt || landmijnActief) return;
     const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
     if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,7 +165,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   // Speciale item detectie bij positiewijziging
   useEffect(() => {
-    if (!positie || bezigSpeciaalRef.current) return;
+    if (!positie || bezigSpeciaalRef.current || landmijnActief) return;
     for (const item of specialeItems) {
       if (item.claimed) continue;
       const afstand = haversine(positie.latitude, positie.longitude, item.latitude, item.longitude);
@@ -212,6 +216,23 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     } catch { /* verbindingsfout */ }
   }
 
+  function activeerLandmijn(verlooptOp: Date) {
+    const remaining = Math.max(0, Math.floor((verlooptOp.getTime() - Date.now()) / 1000));
+    if (remaining <= 0) return;
+    setLandmijnActief(true);
+    setLandmijnSecondsLeft(remaining);
+    if (landmijnTimerRef.current) clearInterval(landmijnTimerRef.current);
+    landmijnTimerRef.current = setInterval(() => {
+      const rem = Math.max(0, Math.floor((verlooptOp.getTime() - Date.now()) / 1000));
+      setLandmijnSecondsLeft(rem);
+      if (rem <= 0) {
+        clearInterval(landmijnTimerRef.current!);
+        landmijnTimerRef.current = null;
+        setLandmijnActief(false);
+      }
+    }, 1000);
+  }
+
   async function haalEffectenOp() {
     try {
       const res = await fetch("/api/speler/speciaal/effecten");
@@ -224,6 +245,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         haalScoreOp();
         if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
         effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 8000);
+      }
+
+      // Landmijn actief: herstel afteltimer bij herverbinding
+      if (data.landmijn?.active && data.landmijn.expires_at) {
+        activeerLandmijn(new Date(data.landmijn.expires_at));
       }
 
       // Radar actief: poll andere spelers elke 5 seconden
@@ -254,7 +280,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (data.status === "geclaimd" && data.item) {
         setSpecialeItems((prev) => prev.map((i) => i.id === item.id ? { ...i, claimed: true } : i));
 
-        if (data.item.type === "ster") {
+        if (data.item.type === "landmijn") {
+          // Onzichtbare val: direct effect op zichzelf, geen inventaris
+          const effectRes = await fetch("/api/speler/speciaal/effect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ special_item_id: data.item.id }),
+          });
+          if (effectRes.ok) {
+            const effectData = await effectRes.json();
+            if (effectData.expires_at) activeerLandmijn(new Date(effectData.expires_at));
+          }
+        } else if (data.item.type === "ster") {
           // Direct inzetten: punten meteen bijschrijven
           const effectRes = await fetch("/api/speler/speciaal/effect", {
             method: "POST",
@@ -367,7 +404,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   }
 
   function controleerLocatie() {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt) return;
+    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt || landmijnActief) return;
     const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
     if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
   }
@@ -483,7 +520,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           bereiktIds={bereiktIds}
           activePuntId={activePunt?.id ?? null}
           andereSpelers={andereSpelers}
-          specialeItems={specialeItems}
+          specialeItems={specialeItems.filter((i) => i.type !== "landmijn")}
           ghostedPuntId={ghostedPuntId}
         />
 
@@ -531,6 +568,38 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           onSluit={() => setLegendeOpen(false)}
           speciaalItems={specialeItems}
         />
+      )}
+
+      {/* Landmijn overlay — rood scherm met afteltimer */}
+      {landmijnActief && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 3000,
+          background: "linear-gradient(160deg, #7f1d1d 0%, #b91c1c 55%, #991b1b 100%)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          color: "#fff", gap: 20,
+          userSelect: "none",
+        }}>
+          <div style={{ fontSize: "5rem", lineHeight: 1 }}>💥</div>
+          <h1 style={{
+            margin: 0, fontSize: "2.6rem", fontWeight: 900,
+            letterSpacing: "0.06em", textShadow: "0 2px 12px rgba(0,0,0,0.4)",
+          }}>LANDMIJN!</h1>
+          <p style={{ margin: 0, fontSize: "1rem", opacity: 0.85, textAlign: "center", padding: "0 32px" }}>
+            Je zit vast — de kaart is niet beschikbaar
+          </p>
+          <div style={{
+            fontSize: "5rem", fontWeight: 800,
+            fontVariantNumeric: "tabular-nums", letterSpacing: "0.04em",
+            textShadow: "0 4px 20px rgba(0,0,0,0.5)",
+            marginTop: 8,
+          }}>
+            {String(Math.floor(landmijnSecondsLeft / 60)).padStart(2, "0")}:{String(landmijnSecondsLeft % 60).padStart(2, "0")}
+          </div>
+          <p style={{ margin: 0, fontSize: "0.78rem", opacity: 0.55 }}>
+            Wacht tot de timer op nul staat
+          </p>
+        </div>
       )}
     </div>
   );

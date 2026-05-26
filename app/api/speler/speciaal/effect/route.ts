@@ -192,6 +192,21 @@ export async function POST(request: NextRequest) {
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
+  } else if (item.type === "landmijn") {
+    // Landmijn treft de speler zelf — duur in seconden opgeslagen in points_effect
+    const duurSeconden = Math.max(10, item.points_effect);
+    const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
+    const { error } = await admin.from("special_item_effects").insert({
+      special_item_id: item.id,
+      target_session_id: eigenSessie.id,
+      effect_type: "landmijn",
+      expires_at: expiresAt,
+      notification: null,
+    });
+    if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+    await admin.from("special_items").update({ used_at: usedAt }).eq("id", item.id);
+    return NextResponse.json({ ok: true, expires_at: expiresAt, eigen_notificatie: null });
+
   } else {
     return NextResponse.json({ fout: "Onbekend item type" }, { status: 400 });
   }

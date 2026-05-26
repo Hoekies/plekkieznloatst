@@ -131,8 +131,8 @@ export interface Broadcast {
   created_at: string;
 }
 
-export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar" | "banaan";
-export type SpeciaalItemEffectType = "ghost" | "punt_aftrek" | "verdubbeling" | "wissel" | "diefstal" | "radar" | "banaan";
+export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar" | "banaan" | "landmijn";
+export type SpeciaalItemEffectType = "ghost" | "punt_aftrek" | "verdubbeling" | "wissel" | "diefstal" | "radar" | "banaan" | "landmijn";
 
 export interface SpeciaalItem {
   id: string;
