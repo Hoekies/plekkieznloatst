@@ -17,6 +17,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
+  const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
@@ -175,117 +176,138 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel */}
         <div style={{ width: 300, background: "rgba(8,28,48,0.82)", backdropFilter: "blur(18px)", borderRight: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", gap: 6 }}>
-              <button
-                className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
-                style={{ flex: 1, fontSize: "0.82rem" }}
-                onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}
-              >
-                {addModus ? "✅ Klik op kaart…" : "📍 Punt toevoegen"}
-              </button>
-              <button
-                className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
-                style={{ flex: 1, fontSize: "0.82rem" }}
-                onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}
-                title="Voeg een speciaal item toe op de kaart"
-              >
-                {addSpeciaalModus ? "✅ Klik op kaart…" : "⭐ Item toevoegen"}
-              </button>
-            </div>
-              {/* Routemodus toggle */}
+
+          {/* Routemodus + afstand */}
+          <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "0.75rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
               {(["sequentieel", "verspreid"] as const).map((m) => (
-                <button
-                  key={m}
+                <button key={m}
                   onClick={async () => {
                     if (route.modus === m) return;
                     const res = await fetch(`/api/admin/routes/${route.id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
+                      method: "PATCH", headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ modus: m }),
                     });
                     if (res.ok) setRoute((r) => ({ ...r, modus: m }));
                   }}
                   style={{
-                    flex: 1, fontSize: "0.75rem", fontWeight: 600, padding: "5px 8px",
-                    borderRadius: 8, border: "1px solid",
-                    cursor: "pointer",
+                    flex: 1, fontSize: "0.72rem", fontWeight: 600, padding: "4px 6px",
+                    borderRadius: 7, border: "1px solid", cursor: "pointer",
                     background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
                     borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
                     color: route.modus === m ? "var(--cyan)" : "var(--muted)",
-                  }}
-                >
+                  }}>
                   {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
                 </button>
               ))}
             </div>
             {route.modus === "verspreid" && (
-              <span style={{ fontSize: "0.7rem", color: "var(--muted)", lineHeight: 1.4 }}>
-                Elke groep start op een ander punt. Zorg dat de route geografisch als lus werkt.
+              <span style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.4 }}>
+                Elke groep start op een ander punt. Zorg dat de route als lus werkt.
               </span>
             )}
-          {punten.length >= 2 && (() => {
+            {punten.length >= 2 && (() => {
               const totaalM = punten.reduce((som, pt, i) => {
                 if (i === 0) return som;
                 const vorige = punten[i - 1];
                 return som + haversine(vorige.latitude, vorige.longitude, pt.latitude, pt.longitude);
               }, 0);
-              const totaalKm = (totaalM / 1000).toFixed(1);
-              return (
-                <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
-                  Totale afstand: {totaalKm} km
-                </span>
-              );
+              return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km</span>;
             })()}
           </div>
 
-          {/* Puntenlijst */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
-            {punten.length === 0 ? (
-              <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                Klik op &ldquo;Punt toevoegen&rdquo; en tik op de kaart om een punt te plaatsen.
-              </p>
-            ) : punten.map((pt, i) => (
-              <div key={pt.id}
-                onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
-                style={{
-                  padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                  background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
-                  borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
-                }}>
-                <div style={{
-                  width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                  background: pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)",
-                  color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "0.72rem", fontWeight: 700,
-                }}>{pt.type === "eindpunt" ? "🏁" : i + 1}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                    {pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt"} · {pt.radius_meters}m
-                  </div>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === 0 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
-                  <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === punten.length - 1 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
-                </div>
-                <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
-              </div>
-            ))}
+          {/* Tabbladen */}
+          <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
+            <button
+              onClick={() => { setActieveTab("punten"); setAddSpeciaalModus(false); }}
+              style={{
+                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
+                background: "transparent", border: "none", cursor: "pointer",
+                borderBottom: actieveTab === "punten" ? "2px solid var(--cyan)" : "2px solid transparent",
+                color: actieveTab === "punten" ? "var(--cyan)" : "var(--muted)",
+              }}>
+              📍 Punten ({punten.length})
+            </button>
+            <button
+              onClick={() => { setActieveTab("items"); setAddModus(false); }}
+              style={{
+                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
+                background: "transparent", border: "none", cursor: "pointer",
+                borderBottom: actieveTab === "items" ? "2px solid var(--cyan)" : "2px solid transparent",
+                color: actieveTab === "items" ? "var(--cyan)" : "var(--muted)",
+              }}>
+              ⭐ Items ({specialeItems.length})
+            </button>
           </div>
 
-          {/* Speciale items sectie */}
-          {specialeItems.length > 0 && (
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-              <div style={{ padding: "8px 14px 4px", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                Speciale items ({specialeItems.length})
-              </div>
-              {specialeItems.map((item) => {
+          {/* Toevoegen-knop */}
+          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
+            {actieveTab === "punten" ? (
+              <button
+                className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
+                style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
+                {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
+              </button>
+            ) : (
+              <button
+                className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
+                style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
+                {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
+              </button>
+            )}
+          </div>
+
+          {/* Tab-inhoud */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+
+            {/* Punten-tab */}
+            {actieveTab === "punten" && (
+              punten.length === 0 ? (
+                <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
+                  Klik op &ldquo;Punt toevoegen&rdquo; en tik op de kaart om een punt te plaatsen.
+                </p>
+              ) : punten.map((pt, i) => (
+                <div key={pt.id}
+                  onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                  style={{
+                    padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                    background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
+                    borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
+                  }}>
+                  <div style={{
+                    width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                    background: pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)",
+                    color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "0.72rem", fontWeight: 700,
+                  }}>{pt.type === "eindpunt" ? "🏁" : i + 1}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
+                    <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                      {pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt"} · {pt.radius_meters}m
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === 0 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
+                    <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === punten.length - 1 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
+                </div>
+              ))
+            )}
+
+            {/* Items-tab */}
+            {actieveTab === "items" && (
+              specialeItems.length === 0 ? (
+                <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
+                  Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
+                </p>
+              ) : specialeItems.map((item) => {
                 const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
@@ -299,17 +321,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{item.name}</div>
                       <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                        {item.type} · {item.radius_meters}m
-                        {item.claimed && " · geclaimd"}
+                        {item.type} · {item.radius_meters}m{item.claimed && " · geclaimd"}
                       </div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
                   </div>
                 );
-              })}
-            </div>
-          )}
+              })
+            )}
+          </div>
 
         </div>
 
