@@ -3,19 +3,18 @@
 import { useEffect, useState } from "react";
 import type { Speler } from "@/types/database";
 
+const TEMPLATE_KEY = "pointrush_deel_template";
+const TEMPLATE_DEFAULT = "Hoi! Gebruik de link hieronder om in te loggen bij PointRush 🎯\nhttps://plekkieznloatst.vercel.app";
+
 type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
 
-async function deelLink(id: string, groepNaam: string) {
+async function deelViaWhatsApp(id: string) {
   const res = await fetch(`/api/admin/groepen/${id}/deellink`, { method: "POST" });
   if (!res.ok) { alert("Kon link niet genereren"); return; }
   const { link } = await res.json();
-  const tekst = `Hoi! Gebruik deze link om in te loggen bij PointRush:\n${link}`;
-  if (navigator.share) {
-    await navigator.share({ title: `Inloglink ${groepNaam}`, text: tekst });
-  } else {
-    await navigator.clipboard.writeText(link);
-    alert("Link gekopieerd naar klembord!");
-  }
+  const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
+  const tekst = `${template}\n\n🔗 Jouw persoonlijke inloglink:\n${link}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
 }
 
 export default function GroepenBeheer() {
@@ -23,6 +22,12 @@ export default function GroepenBeheer() {
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
   const [modal, setModal] = useState<BeheerModal | null>(null);
+  const [toonTemplate, setToonTemplate] = useState(false);
+  const [template, setTemplate] = useState(TEMPLATE_DEFAULT);
+
+  useEffect(() => {
+    setTemplate(localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT);
+  }, []);
 
   async function laadGroepen() {
     const res = await fetch("/api/admin/groepen");
@@ -38,10 +43,47 @@ export default function GroepenBeheer() {
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
           {groepen.length} groep{groepen.length !== 1 ? "en" : ""}
         </p>
-        <button className="btn btn-primary" onClick={() => setToonFormulier(true)}>
-          + Nieuwe groep
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="btn btn-ghost"
+            style={{ fontSize: "0.8rem" }}
+            onClick={() => setToonTemplate((v) => !v)}
+          >
+            ✏️ Berichttekst
+          </button>
+          <button className="btn btn-primary" onClick={() => setToonFormulier(true)}>
+            + Nieuwe groep
+          </button>
+        </div>
       </div>
+
+      {toonTemplate && (
+        <div className="card" style={{ border: "1px solid var(--glass-border)" }}>
+          <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 8 }}>
+            Standaard WhatsApp-berichttekst — wordt meegestuurd bij elke inloglink. De persoonlijke inloglink wordt er automatisch onder gezet.
+          </p>
+          <textarea
+            className="form-textarea"
+            value={template}
+            onChange={(e) => {
+              setTemplate(e.target.value);
+              localStorage.setItem(TEMPLATE_KEY, e.target.value);
+            }}
+            rows={4}
+            style={{ width: "100%", fontSize: "0.875rem", marginBottom: 8 }}
+          />
+          <button
+            className="btn btn-ghost"
+            style={{ fontSize: "0.8rem" }}
+            onClick={() => {
+              setTemplate(TEMPLATE_DEFAULT);
+              localStorage.setItem(TEMPLATE_KEY, TEMPLATE_DEFAULT);
+            }}
+          >
+            Herstel standaard
+          </button>
+        </div>
+      )}
 
       {toonFormulier && (
         <NieuweGroepForm
@@ -91,7 +133,7 @@ export default function GroepenBeheer() {
                 <button
                   className="btn btn-cyan"
                   style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                  onClick={() => deelLink(g.id, g.group_name)}
+                  onClick={() => deelViaWhatsApp(g.id)}
                 >
                   🔗 Deel link
                 </button>

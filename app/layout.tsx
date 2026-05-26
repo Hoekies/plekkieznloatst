@@ -19,6 +19,14 @@ export const metadata: Metadata = {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
   },
+  openGraph: {
+    title: "PointRush",
+    description: "Loop de route. Pak de punten. Saboteer je vrienden.",
+    url: "https://plekkieznloatst.vercel.app",
+    siteName: "PointRush",
+    images: [{ url: "https://plekkieznloatst.vercel.app/favicon.png", width: 512, height: 512, alt: "PointRush" }],
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
