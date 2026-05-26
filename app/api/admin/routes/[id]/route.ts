@@ -24,12 +24,11 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
-  // Whitelist: alleen name en status mogen via PATCH worden bijgewerkt.
-  // is_active loopt uitsluitend via /activeren.
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
   if (body.modus === "sequentieel" || body.modus === "verspreid") toegestaan.modus = body.modus;
+  if (body.is_active === false) toegestaan.is_active = false;
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

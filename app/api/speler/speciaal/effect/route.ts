@@ -192,14 +192,14 @@ export async function POST(request: NextRequest) {
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
-  } else if (item.type === "landmijn") {
+  } else if (item.type === "plekzooi") {
     // Landmijn treft de speler zelf — duur in seconden opgeslagen in points_effect
     const duurSeconden = Math.max(10, item.points_effect);
     const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
     const { error } = await admin.from("special_item_effects").insert({
       special_item_id: item.id,
       target_session_id: eigenSessie.id,
-      effect_type: "landmijn",
+      effect_type: "plekzooi",
       expires_at: expiresAt,
       notification: null,
     });

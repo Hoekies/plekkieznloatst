@@ -170,6 +170,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               if (res.ok) setRoute((r) => ({ ...r, is_active: true }));
             }}>▶ Activeer</button>
         )}
+        {route.is_active && (
+          <button className="btn btn-danger" style={{ fontSize: "0.82rem" }}
+            onClick={async () => {
+              if (!confirm("Route deactiveren en terugzetten naar concept?")) return;
+              const res = await fetch(`/api/admin/routes/${route.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_active: false, status: "concept" }),
+              });
+              if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
+            }}>⏹ Deactiveer</button>
+        )}
       </div>
 
       {/* Hoofdindeling */}
@@ -308,7 +320,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
                 </p>
               ) : specialeItems.map((item) => {
-                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", landmijn: "⛔" }[item.type] ?? "?";
+                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", plekzooi: "⛔" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
@@ -406,7 +418,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
   }, [item.id]);
 
   const heeftPunten = type === "ster" || type === "bom";
-  const heeftDuur = type === "landmijn";
+  const heeftDuur = type === "plekzooi";
 
   return (
     <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -430,7 +442,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
             <option value="dief">🦹 Dief</option>
             <option value="radar">📡 Radar</option>
             <option value="banaan">🍌 Banaan</option>
-            <option value="landmijn">⛔ Landmijn</option>
+            <option value="plekzooi">⛔ Plek zooi</option>
           </select>
         </div>
         <div className="form-group">
@@ -451,7 +463,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
           <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>bijv. 60 = 1 min · 120 = 2 min · 180 = 3 min</span>
         </div>
       )}
-      {type === "landmijn" && (
+      {type === "plekzooi" && (
         <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>
           ⚠️ Landmijn is <strong>onzichtbaar</strong> voor spelers — zij zien geen icoontje op de kaart.
         </div>

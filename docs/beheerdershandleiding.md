@@ -42,7 +42,7 @@ Gebruik **Verspreid** als je wilt dat groepen niet tegelijk op hetzelfde punt st
 1. Klik op **⭐ Item toevoegen** in de route-editor.
 2. Klik op de kaart waar het item moet liggen.
 3. Stel het **type**, **naam**, **radius** en (voor Ster/Bom) de **puntwaarde** in.
-4. Items zijn zichtbaar op de kaart voor alle spelers zodra de route actief is — **behalve de Landmijn, die is altijd onzichtbaar**.
+4. Items zijn zichtbaar op de kaart voor alle spelers zodra de route actief is — **behalve de Plek zooi, die is altijd onzichtbaar**.
 5. De **legende** in de spelerapp toont automatisch alleen de itemtypen die je in de route hebt geplaatst.
 
 #### Beschikbare itemtypen
@@ -57,7 +57,7 @@ Gebruik **Verspreid** als je wilt dat groepen niet tegelijk op hetzelfde punt st
 | 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van het doelteam met een ander nog te bezoeken punt |
-| ⛔ | Landmijn | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. De duur stel je in bij het item (in seconden). Kaart en voortgang zijn geblokkeerd tijdens de blokkade. |
+| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. De duur stel je in bij het item (in seconden). Kaart en voortgang zijn geblokkeerd tijdens de blokkade. |
 
 > **Dief-effect**: als een team een Dief op een ander team zet, worden de punten van het eerstvolgende goede antwoord van dat team gestolen. Als het antwoord fout is, is het Dief-effect toch verbruikt.
 

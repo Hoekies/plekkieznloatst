@@ -43,12 +43,12 @@ export async function GET() {
     .limit(1)
     .maybeSingle();
 
-  // Actief landmijn effect (eigen sessie heeft een landmijn geraakt)
-  const { data: landmijnEffect } = await admin
+  // Actief plekzooi effect (eigen sessie heeft een plekzooi geraakt)
+  const { data: plekzooiEffect } = await admin
     .from("special_item_effects")
     .select("id, expires_at")
     .eq("target_session_id", sessie.id)
-    .eq("effect_type", "landmijn")
+    .eq("effect_type", "plekzooi")
     .gt("expires_at", now)
     .order("applied_at", { ascending: false })
     .limit(1)
@@ -71,8 +71,8 @@ export async function GET() {
     radar: radarEffect
       ? { active: true, expires_at: radarEffect.expires_at }
       : { active: false },
-    landmijn: landmijnEffect
-      ? { active: true, expires_at: landmijnEffect.expires_at }
+    plekzooi: plekzooiEffect
+      ? { active: true, expires_at: plekzooiEffect.expires_at }
       : { active: false },
     notification: latestNotification?.notification ?? null,
     notification_at: latestNotification?.applied_at ?? null,

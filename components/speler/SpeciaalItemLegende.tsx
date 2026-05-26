@@ -17,7 +17,7 @@ const ITEM_INFO: Record<string, ItemInfo> = {
   dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Steel de punten van de eerstvolgende correct beantwoorde vraag van een ander team. De dief krijgt de punten; het andere team krijgt 0." },
   radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten. De posities worden elke 15 seconden ververst." },
   banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Verwissel het eerstvolgende GPS-punt van een doelteam met een ander nog te bezoeken GPS-punt van dat team." },
-  landmijn:     { emoji: "⛔", naam: "Landmijn",     beschrijving: (p) => `Onzichtbare val — als je hier overheen loopt word je ${p !== undefined ? p : "een aantal"} seconden geblokkeerd. De kaart verdwijnt en een afteltimer verschijnt.` },
+  plekzooi:     { emoji: "⛔", naam: "Plek zooi",     beschrijving: (p) => `Onzichtbare val — als je hier overheen loopt word je ${p !== undefined ? p : "een aantal"} seconden geblokkeerd. De kaart verdwijnt en een afteltimer verschijnt.` },
 };
 
 interface Props {
