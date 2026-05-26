@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -86,30 +87,35 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
         )}
       </button>
 
-      {/* Modal */}
-      {open && (
+      {/* Modal via portal zodat hij altijd volledig scherm bedekt */}
+      {open && createPortal(
         <div style={{
           position: "fixed", inset: 0, zIndex: 500,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "flex-start", justifyContent: "center",
-          padding: "40px 16px", overflowY: "auto",
+          background: "rgba(0,0,0,0.75)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "24px 16px",
         }}
           onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
           <div style={{
-            background: "#fff", borderRadius: 16, width: "100%", maxWidth: 560,
-            boxShadow: "0 24px 48px rgba(0,0,0,0.25)", overflow: "hidden",
+            background: "#0f1c2e",
+            border: "1px solid rgba(0,217,255,0.12)",
+            borderRadius: 16, width: "100%", maxWidth: 560,
+            boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+            maxHeight: "90vh", display: "flex", flexDirection: "column",
+            overflow: "hidden",
           }}>
             {/* Header */}
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "16px 20px", borderBottom: "1px solid var(--line)",
+              padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)",
+              flexShrink: 0,
             }}>
-              <h2 style={{ margin: 0, fontSize: "1rem" }}>📷 Foto-inzendingen beoordelen</h2>
+              <h2 style={{ margin: 0, fontSize: "1rem", color: "#e8f0ff" }}>📷 Foto-inzendingen beoordelen</h2>
               <button className="btn btn-ghost" style={{ fontSize: "0.82rem" }} onClick={() => setOpen(false)}>✕ Sluiten</button>
             </div>
 
             {/* Inhoud */}
-            <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto" }}>
               {laden && inzendingen.length === 0 ? (
                 <p style={{ color: "var(--muted)", textAlign: "center" }}>Laden…</p>
               ) : inzendingen.length === 0 ? (
@@ -117,16 +123,15 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
               ) : (
                 inzendingen.map((inz) => (
                   <div key={inz.id} style={{
-                    border: "1px solid var(--line)", borderRadius: 12, overflow: "hidden",
+                    border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, overflow: "hidden",
+                    background: "rgba(255,255,255,0.04)",
                   }}>
-                    {/* Foto */}
                     <FotoViewer pad={inz.foto_pad} />
 
-                    {/* Info + knoppen */}
                     <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                         <div>
-                          <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{inz.group_name}</span>
+                          <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8f0ff" }}>{inz.group_name}</span>
                           <span style={{ color: "var(--muted)", fontSize: "0.78rem", marginLeft: 8 }}>@ {inz.punt_naam}</span>
                         </div>
                         <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -168,7 +173,8 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
