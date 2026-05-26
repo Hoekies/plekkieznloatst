@@ -124,6 +124,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     haalInventarisOp();
     haalScoreOp();
     const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5 * 60 * 1000);
+    const sessieCheckTimer = setInterval(() => haalScoreOp(), 30 * 1000);
 
     const supabase = createClient();
     const kanaal = supabase
@@ -145,6 +146,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     return () => {
       supabase.removeChannel(kanaal);
       clearInterval(itemsTimer);
+      clearInterval(sessieCheckTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
@@ -208,8 +210,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   async function haalScoreOp() {
     try {
       const res = await fetch("/api/speler/sessie");
+      if (res.status === 403) { router.push("/speler"); return; }
       if (res.ok) {
         const data = await res.json();
+        if (data === null) { router.push("/speler"); return; }
         if (data?.score !== undefined) setScore(data.score);
       }
     } catch { /* verbindingsfout */ }
@@ -337,11 +341,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   async function publiceerLocatie(coords: GeolocationCoordinates) {
     try {
-      await fetch("/api/speler/locatie", {
+      const res = await fetch("/api/speler/locatie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy }),
       });
+      if (res.status === 403) router.push("/speler");
     } catch { /* verbindingsfout */ }
   }
 
