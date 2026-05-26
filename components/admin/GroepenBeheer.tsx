@@ -13,7 +13,7 @@ async function deelViaWhatsApp(id: string) {
   if (!res.ok) { alert("Kon link niet genereren"); return; }
   const { link } = await res.json();
   const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
-  const tekst = `${template}\n\n🔗 Jouw persoonlijke inloglink:\n${link}`;
+  const tekst = `${template}\n\n${link}`;
   window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
 }
 
