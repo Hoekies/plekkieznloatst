@@ -172,7 +172,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       </div>
 
       {/* Hoofdindeling */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel */}
         <div style={{ width: 300, background: "rgba(8,28,48,0.82)", backdropFilter: "blur(18px)", borderRight: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -311,26 +311,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </div>
           )}
 
-          {/* Punt bewerkformulier */}
-          {geselecteerd && (
-            <PuntForm
-              punt={geselecteerd}
-              routeId={route.id}
-              opslaan={opslaan}
-              fout={fout}
-              onOpslaan={slaPuntOp}
-              onSluit={() => setGeselecteerd(null)}
-            />
-          )}
-
-          {/* Speciaal item bewerkformulier */}
-          {geselecteerdSpeciaal && !geselecteerd && (
-            <SpeciaalItemForm
-              item={geselecteerdSpeciaal}
-              onOpslaan={(update) => slaSpeciaalItemOp(geselecteerdSpeciaal.id, update)}
-              onSluit={() => setGeselecteerdSpeciaal(null)}
-            />
-          )}
         </div>
 
         {/* Kaart */}
@@ -343,6 +323,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}
         />
+
+        {/* Rechter bewerkdrawer */}
+        {(geselecteerd || (geselecteerdSpeciaal && !geselecteerd)) && (
+          <div style={{
+            position: "absolute",
+            right: 0, top: 0, bottom: 0,
+            width: 340,
+            zIndex: 500,
+            background: "rgba(8,28,48,0.97)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderLeft: "1px solid rgba(255,255,255,0.12)",
+            display: "flex", flexDirection: "column",
+            overflowY: "auto",
+          }}>
+            {geselecteerd && (
+              <PuntForm
+                punt={geselecteerd}
+                routeId={route.id}
+                opslaan={opslaan}
+                fout={fout}
+                onOpslaan={slaPuntOp}
+                onSluit={() => setGeselecteerd(null)}
+              />
+            )}
+            {geselecteerdSpeciaal && !geselecteerd && (
+              <SpeciaalItemForm
+                item={geselecteerdSpeciaal}
+                onOpslaan={(update) => slaSpeciaalItemOp(geselecteerdSpeciaal.id, update)}
+                onSluit={() => setGeselecteerdSpeciaal(null)}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

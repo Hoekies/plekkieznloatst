@@ -224,7 +224,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {popupFase === "laden" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "48px 0" }}>
             <div className="loading-spinner" />
-            <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Vraag ophalen…</span>
+            <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>Vraag ophalen…</span>
           </div>
         )}
 
@@ -258,10 +258,10 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                       type="button"
                       onClick={() => setGekozenId(optie.id)}
                       style={{
-                        border: `3px solid ${isGekozen ? KLEUR_RAND[optie.color] : "var(--line)"}`,
+                        border: `3px solid ${isGekozen ? KLEUR_RAND[optie.color] : "#e5e7eb"}`,
                         borderRadius: 16, overflow: "hidden",
                         cursor: "pointer",
-                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "var(--bg)",
+                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "#f9fafb",
                         padding: 0,
                         display: "flex", flexDirection: "column",
                         transition: "border-color 0.12s, background 0.12s",
@@ -278,7 +278,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                       {optie.text && (
                         <div style={{
                           padding: "8px 10px", fontSize: "0.88rem", fontWeight: 600,
-                          textAlign: "center", color: "var(--ink)",
+                          textAlign: "center", color: "#0A1B36",
                         }}>
                           {optie.text}
                         </div>
@@ -301,8 +301,8 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                       style={{
                         display: "flex", alignItems: "center", gap: 14,
                         padding: "16px 18px", borderRadius: 14, cursor: "pointer",
-                        border: `2.5px solid ${isGekozen ? KLEUR_RAND[optie.color] : "var(--line)"}`,
-                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "transparent",
+                        border: `2.5px solid ${isGekozen ? KLEUR_RAND[optie.color] : "#e5e7eb"}`,
+                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "#f9fafb",
                         textAlign: "left",
                         transition: "border-color 0.12s, background 0.12s",
                       }}>
@@ -311,7 +311,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                         background: isGekozen ? KLEUR_RAND[optie.color] : "transparent",
                         border: `2.5px solid ${KLEUR_RAND[optie.color]}`,
                       }} />
-                      <span style={{ fontSize: "1rem", fontWeight: 600 }}>{optie.text}</span>
+                      <span style={{ fontSize: "1rem", fontWeight: 600, color: "#0A1B36" }}>{optie.text}</span>
                     </button>
                   );
                 })}
@@ -326,7 +326,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                 onChange={(e) => setOpenAntwoord(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && beantwoord()}
                 placeholder="Typ hier je antwoord…"
-                style={{ fontSize: "1rem", padding: "14px 16px" }}
+                style={{ fontSize: "1rem", padding: "14px 16px", background: "#fff", color: "#0A1B36", borderColor: "#d1d5db" }}
                 autoFocus
               />
             )}
@@ -339,22 +339,22 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                   onClick={() => fotoInputRef.current?.click()}
                   onKeyDown={(e) => e.key === "Enter" && fotoInputRef.current?.click()}
                   style={{
-                    border: `2.5px dashed ${fotoBestand ? "var(--blue)" : "var(--line)"}`,
+                    border: `2.5px dashed ${fotoBestand ? "#3B82F6" : "#d1d5db"}`,
                     borderRadius: 16, padding: "28px 16px",
                     textAlign: "center", cursor: "pointer",
-                    background: fotoBestand ? "var(--blue-soft)" : "var(--bg)",
+                    background: fotoBestand ? "#EFF6FF" : "#f9fafb",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
                   }}>
                   {fotoBestand ? (
                     <>
                       <span style={{ fontSize: "2rem" }}>✅</span>
-                      <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{fotoBestand.name}</span>
-                      <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Tik om een andere foto te kiezen</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0A1B36" }}>{fotoBestand.name}</span>
+                      <span style={{ fontSize: "0.78rem", color: "#6B7280" }}>Tik om een andere foto te kiezen</span>
                     </>
                   ) : (
                     <>
                       <span style={{ fontSize: "2.5rem" }}>📷</span>
-                      <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>Tik om een foto te maken of te kiezen</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "#374151" }}>Tik om een foto te maken of te kiezen</span>
                     </>
                   )}
                 </div>
@@ -369,7 +369,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
               </div>
             )}
 
-            {fout && <p style={{ color: "var(--red)", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
+            {fout && <p style={{ color: "#DC2626", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
           </>
         )}
 
@@ -379,7 +379,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             <div className="loading-spinner" style={{ borderTopColor: "#06B6D4", width: 40, height: 40, borderWidth: 4 }} />
             <div style={{ textAlign: "center" }}>
               <p style={{ fontWeight: 700, fontSize: "1rem", margin: "0 0 6px" }}>Foto ingediend!</p>
-              <p style={{ color: "var(--muted)", fontSize: "0.88rem", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ color: "#6B7280", fontSize: "0.88rem", margin: 0, lineHeight: 1.5 }}>
                 De spelleider beoordeelt hem…<br />
                 Je hoeft niks te doen, dit scherm wordt automatisch bijgewerkt.
               </p>
@@ -464,9 +464,9 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 // ── TypeBadge ─────────────────────────────────────────────────────────────────
 function TypeBadge({ type }: { type: RoutePunt["type"] }) {
   const cfg = {
-    vraagpunt:      { label: "❓ VRAAG",      bg: "var(--blue-soft)", kleur: "var(--blue)" },
-    informatiepunt: { label: "ℹ️ INFORMATIE", bg: "var(--cyan-soft)", kleur: "var(--cyan)" },
-    eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3",          kleur: "#A16207"     },
+    vraagpunt:      { label: "❓ VRAAG",      bg: "#DBEAFE", kleur: "#1E40AF" },
+    informatiepunt: { label: "ℹ️ INFORMATIE", bg: "#CFFAFE", kleur: "#0E7490" },
+    eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3", kleur: "#A16207" },
   }[type];
   return (
     <span style={{
@@ -490,7 +490,7 @@ function InfoInhoud({ punt }: { punt: RoutePunt }) {
         />
       )}
       {punt.description && (
-        <p style={{ margin: 0, lineHeight: 1.7, fontSize: "1rem", color: "var(--ink)" }}>{punt.description}</p>
+        <p style={{ margin: 0, lineHeight: 1.7, fontSize: "1rem", color: "#0A1B36" }}>{punt.description}</p>
       )}
     </>
   );
@@ -522,7 +522,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
 
       {!feedback.is_correct && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--muted)", fontWeight: 600 }}>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "#6B7280", fontWeight: 600 }}>
             Het juiste antwoord:
           </p>
 
@@ -565,7 +565,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
                   <div key={optie.id} style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 16px", borderRadius: 12,
-                    border: `2px solid ${isJuist ? "#86EFAC" : wasGekozen ? "#FECACA" : "var(--line)"}`,
+                    border: `2px solid ${isJuist ? "#86EFAC" : wasGekozen ? "#FECACA" : "#e5e7eb"}`,
                     background: isJuist ? "#F0FDF4" : wasGekozen ? "#FFF5F5" : "transparent",
                     opacity: isJuist || wasGekozen ? 1 : 0.4,
                   }}>

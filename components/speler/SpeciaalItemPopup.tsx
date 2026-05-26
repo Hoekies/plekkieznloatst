@@ -106,7 +106,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
                 cursor: "pointer",
               }}
             >
-              Gebruik!
+              Nu gebruiken!
             </button>
             <button
               onClick={() => onSluit ? onSluit() : onVerwerkt(item.id)}
@@ -121,7 +121,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
                 cursor: "pointer",
               }}
             >
-              Bewaar voor later
+              Later gebruiken
             </button>
           </div>
         )}
@@ -167,7 +167,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
                 fontWeight: 500, fontSize: "14px", cursor: "pointer",
               }}
             >
-              Bewaar voor later
+              Later gebruiken
             </button>
           </div>
         )}

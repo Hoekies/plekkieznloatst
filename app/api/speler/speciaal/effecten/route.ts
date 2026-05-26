@@ -32,6 +32,17 @@ export async function GET() {
     .limit(1)
     .maybeSingle();
 
+  // Actief radar effect (eigen sessie heeft radar gebruikt)
+  const { data: radarEffect } = await admin
+    .from("special_item_effects")
+    .select("id, expires_at")
+    .eq("target_session_id", sessie.id)
+    .eq("effect_type", "radar")
+    .gt("expires_at", now)
+    .order("applied_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   // Meest recente notification (ook verlopen) voor toast
   const { data: latestNotification } = await admin
     .from("special_item_effects")
@@ -45,6 +56,9 @@ export async function GET() {
   return NextResponse.json({
     ghost: ghostEffect
       ? { active: true, expires_at: ghostEffect.expires_at, blocked_point_id: sessie.current_point_id }
+      : { active: false },
+    radar: radarEffect
+      ? { active: true, expires_at: radarEffect.expires_at }
       : { active: false },
     notification: latestNotification?.notification ?? null,
     notification_at: latestNotification?.applied_at ?? null,

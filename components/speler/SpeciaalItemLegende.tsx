@@ -1,25 +1,46 @@
 "use client";
 
-interface Props {
-  onSluit: () => void;
-  itemTypes?: string[];
+import type { SpeciaalItem } from "@/types/database";
+
+interface ItemInfo {
+  emoji: string;
+  naam: string;
+  beschrijving: (punten?: number) => string;
 }
 
-const ITEMS = [
-  { emoji: "👻", naam: "Spook",        beschrijving: "Verbergt het huidige doel van een team voor 10 minuten. Het punt kan tijdelijk niet gehaald worden." },
-  { emoji: "💣", naam: "Bom",          beschrijving: "Trekt een aantal punten af van een team naar keuze." },
-  { emoji: "⭐", naam: "Ster",         beschrijving: "Geeft direct bonuspunten aan jouw eigen team." },
-  { emoji: "🔴", naam: "Verdubbeling", beschrijving: "Jouw volgende behaalde vraagpunt levert dubbele punten op (eenmalig)." },
-  { emoji: "🔄", naam: "Wissel",       beschrijving: "Wisselt de score van jouw team met die van een ander team." },
-  { emoji: "🦹", naam: "Dief",         beschrijving: "Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam. De dief krijgt de punten; het doelteam krijgt 0." },
-  { emoji: "📡", naam: "Radar",        beschrijving: "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten." },
-  { emoji: "🍌", naam: "Banaan",       beschrijving: "Verwisselt het eerstvolgende punt van een doelteam met een ander nog te bezoeken punt." },
-];
+const ITEM_INFO: Record<string, ItemInfo> = {
+  spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Verberg het te halen GPS-punt van een team 10 minuten. Het punt kan tijdelijk niet gehaald worden." },
+  bom:          { emoji: "💣", naam: "Bom",          beschrijving: (p) => `Trek ${p !== undefined ? p : "een aantal"} punten af van een team naar keuze.` },
+  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? p : "bonus"}punten aan jouw eigen team.` },
+  verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Jouw volgende behaalde vraagpunt levert dubbele punten op (eenmalig)." },
+  wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Wissel de score van jouw team met die van een ander team. Alleen de vraag is: hoeveel punten heeft dat andere team? 😳" },
+  dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Steel de punten van de eerstvolgende correct beantwoorde vraag van een ander team. De dief krijgt de punten; het andere team krijgt 0." },
+  radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten. De posities worden elke 15 seconden ververst." },
+  banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Verwissel het eerstvolgende GPS-punt van een doelteam met een ander nog te bezoeken GPS-punt van dat team." },
+};
 
-export default function SpeciaalItemLegende({ onSluit, itemTypes }: Props) {
-  const zichtbaar = itemTypes && itemTypes.length > 0
-    ? ITEMS.filter((item) => itemTypes.includes(item.naam.toLowerCase()))
-    : ITEMS;
+interface Props {
+  onSluit: () => void;
+  speciaalItems?: SpeciaalItem[];
+}
+
+export default function SpeciaalItemLegende({ onSluit, speciaalItems }: Props) {
+  // Bepaal welke types zichtbaar zijn + hun puntenwaarde
+  const zichtbaarMap = new Map<string, number | undefined>();
+  if (speciaalItems && speciaalItems.length > 0) {
+    for (const item of speciaalItems) {
+      if (!zichtbaarMap.has(item.type)) {
+        zichtbaarMap.set(item.type, Math.abs(item.points_effect) || undefined);
+      }
+    }
+  } else {
+    // Geen filter: toon alles zonder puntwaarde
+    Object.keys(ITEM_INFO).forEach((k) => zichtbaarMap.set(k, undefined));
+  }
+
+  const items = [...zichtbaarMap.entries()]
+    .map(([type, punten]) => ({ ...ITEM_INFO[type], type, punten }))
+    .filter((i) => i.emoji);
 
   return (
     <div style={{
@@ -59,9 +80,9 @@ export default function SpeciaalItemLegende({ onSluit, itemTypes }: Props) {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {zichtbaar.map((item) => (
+          {items.map((item) => (
             <div
-              key={item.naam}
+              key={item.type}
               style={{
                 display: "flex", alignItems: "flex-start", gap: "14px",
                 padding: "12px", borderRadius: "12px",
@@ -72,7 +93,9 @@ export default function SpeciaalItemLegende({ onSluit, itemTypes }: Props) {
               <span style={{ fontSize: "30px", lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
               <div>
                 <p style={{ margin: "0 0 3px", fontWeight: 700, fontSize: "14px", color: "#e8f0ff" }}>{item.naam}</p>
-                <p style={{ margin: 0, fontSize: "12px", color: "#6b84a8", lineHeight: "1.5" }}>{item.beschrijving}</p>
+                <p style={{ margin: 0, fontSize: "12px", color: "#6b84a8", lineHeight: "1.5" }}>
+                  {item.beschrijving(item.punten)}
+                </p>
               </div>
             </div>
           ))}

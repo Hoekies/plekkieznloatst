@@ -32,7 +32,7 @@ type GpsStatus = "laden" | "ok" | "zwak" | "weg";
 
 const GPS_TIMEOUT_MS = 12000;
 const SLECHTE_NAUWKEURIGHEID_M = 30;
-const LOCATIE_PUBLICEER_INTERVAL_MS = 60000;
+const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 
 const ITEM_LABEL: Record<string, string> = {
   spook: "👻 Spook", bom: "💣 Bom", ster: "⭐ Ster",
@@ -75,6 +75,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const locatieTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const radarPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const vorigePositieRef = useRef<GeolocationCoordinates | null>(null);
 
   // Afgeleid uit voortgang
@@ -142,6 +143,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     return () => {
       supabase.removeChannel(kanaal);
       clearInterval(itemsTimer);
+      if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
       if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
@@ -219,8 +221,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (data.notification && data.notification_at !== effectNotificatieAtRef.current) {
         effectNotificatieAtRef.current = data.notification_at;
         setEffectNotificatie(data.notification);
+        haalScoreOp();
         if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
         effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 8000);
+      }
+
+      // Radar actief: poll andere spelers elke 5 seconden
+      if (data.radar?.active) {
+        if (!radarPollRef.current) {
+          radarPollRef.current = setInterval(() => haalAndereSpelersOp(), 5000);
+        }
+      } else {
+        if (radarPollRef.current) {
+          clearInterval(radarPollRef.current);
+          radarPollRef.current = null;
+        }
       }
     } catch { /* verbindingsfout */ }
   }
@@ -415,7 +430,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
       {/* Item opgehaald toast */}
       {opgehaaldToast && (
-        <div style={{ position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 900, whiteSpace: "nowrap", background: "rgba(5, 150, 105, 0.9)", backdropFilter: "blur(10px)", color: "#fff", padding: "7px 18px", borderRadius: 30, fontSize: "0.82rem", fontWeight: 600, boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
+          zIndex: 900, maxWidth: "calc(100% - 32px)", width: "max-content",
+          background: "rgba(5, 150, 105, 0.95)", backdropFilter: "blur(12px)",
+          color: "#fff", padding: "14px 22px", borderRadius: 16,
+          fontSize: "1rem", fontWeight: 700, boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
+          display: "flex", alignItems: "center", gap: 10, textAlign: "center",
+          border: "1px solid rgba(255,255,255,0.25)",
+        }}>
           {opgehaaldToast}
         </div>
       )}
@@ -506,7 +529,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       {legendeOpen && (
         <SpeciaalItemLegende
           onSluit={() => setLegendeOpen(false)}
-          itemTypes={[...new Set(specialeItems.map((i) => i.type))]}
+          speciaalItems={specialeItems}
         />
       )}
     </div>
