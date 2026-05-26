@@ -193,7 +193,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {addSpeciaalModus ? "✅ Klik op kaart…" : "⭐ Item toevoegen"}
               </button>
             </div>
-            {punten.length >= 2 && (() => {
+              {/* Routemodus toggle */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
+              {(["sequentieel", "verspreid"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={async () => {
+                    if (route.modus === m) return;
+                    const res = await fetch(`/api/admin/routes/${route.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ modus: m }),
+                    });
+                    if (res.ok) setRoute((r) => ({ ...r, modus: m }));
+                  }}
+                  style={{
+                    flex: 1, fontSize: "0.75rem", fontWeight: 600, padding: "5px 8px",
+                    borderRadius: 8, border: "1px solid",
+                    cursor: "pointer",
+                    background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
+                    borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
+                    color: route.modus === m ? "var(--cyan)" : "var(--muted)",
+                  }}
+                >
+                  {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
+                </button>
+              ))}
+            </div>
+            {route.modus === "verspreid" && (
+              <span style={{ fontSize: "0.7rem", color: "var(--muted)", lineHeight: 1.4 }}>
+                Elke groep start op een ander punt. Zorg dat de route geografisch als lus werkt.
+              </span>
+            )}
+          {punten.length >= 2 && (() => {
               const totaalM = punten.reduce((som, pt, i) => {
                 if (i === 0) return som;
                 const vorige = punten[i - 1];
@@ -253,7 +286,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 Speciale items ({specialeItems.length})
               </div>
               {specialeItems.map((item) => {
-                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡" }[item.type] ?? "?";
+                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
@@ -360,6 +393,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
             <option value="wissel">🔄 Wissel</option>
             <option value="dief">🦹 Dief</option>
             <option value="radar">📡 Radar</option>
+            <option value="banaan">🍌 Banaan</option>
           </select>
         </div>
         <div className="form-group">

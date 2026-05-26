@@ -39,7 +39,7 @@ export async function POST() {
   // Actieve route ophalen
   const { data: route } = await admin
     .from("routes")
-    .select("id")
+    .select("id, modus")
     .eq("is_active", true)
     .maybeSingle();
 
@@ -74,6 +74,32 @@ export async function POST() {
 
   if (error || !sessie) {
     return NextResponse.json({ fout: error?.message ?? "Sessie aanmaken mislukt" }, { status: 500 });
+  }
+
+  // Voor verspreid-modus: vul session_point_order met rotatie
+  if (route.modus === "verspreid") {
+    const { data: punten } = await admin
+      .from("route_points")
+      .select("id")
+      .eq("route_id", route.id)
+      .order("order_index");
+
+    if (punten && punten.length > 0) {
+      const { count: aantalSessies } = await admin
+        .from("player_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("route_id", route.id)
+        .neq("id", sessie.id);
+
+      const offset = (aantalSessies ?? 0) % punten.length;
+      const volgorde = punten.map((p, k) => ({
+        session_id: sessie.id,
+        volgorde: k + 1,
+        route_point_id: punten[(offset + k) % punten.length].id,
+      }));
+
+      await admin.from("session_point_order").insert(volgorde);
+    }
   }
 
   return NextResponse.json(sessie);

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief"]);
+const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -53,6 +53,14 @@ export async function POST(request: NextRequest) {
     doelSessie = ds;
   }
 
+  // Naam van het aanvallende team ophalen voor notificaties
+  const { data: aanvallerData } = await admin
+    .from("player_sessions")
+    .select("players(group_name)")
+    .eq("id", eigenSessie.id)
+    .maybeSingle();
+  const aanvallerNaam: string = (aanvallerData as { players?: { group_name?: string } } | null)?.players?.group_name ?? "Onbekend team";
+
   const usedAt = new Date().toISOString();
   let eigenNotificatie: string | null = null;
 
@@ -90,7 +98,7 @@ export async function POST(request: NextRequest) {
       target_session_id: doelSessie!.id,
       effect_type: "ghost",
       expires_at: expiresAt,
-      notification: "👻 Je bent geghost! Je huidige doel is 10 minuten verborgen.",
+      notification: `👻 Spook aangeboden door team ${aanvallerNaam}! Je huidige doel is 10 minuten verborgen.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
@@ -104,7 +112,7 @@ export async function POST(request: NextRequest) {
       target_session_id: doelSessie!.id,
       effect_type: "punt_aftrek",
       expires_at: null,
-      notification: `💣 Boem! Je verliest ${aftrek} punten.`,
+      notification: `💣 Bom van team ${aanvallerNaam}! Je verliest ${aftrek} punten.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
@@ -122,9 +130,9 @@ export async function POST(request: NextRequest) {
       target_session_id: doelSessie!.id,
       effect_type: "wissel",
       expires_at: null,
-      notification: "🔄 Je score is gewisseld met een ander team!",
+      notification: `🔄 Team ${aanvallerNaam} wisselt scores met jou!`,
     });
-    eigenNotificatie = "🔄 Je score is gewisseld met een ander team!";
+    eigenNotificatie = `🔄 Je score is gewisseld met team ${(doelSessie as { group_name?: string } | null)?.group_name ?? "het doelteam"}!`;
 
   } else if (item.type === "dief") {
     const { error } = await admin.from("special_item_effects").insert({
@@ -132,7 +140,55 @@ export async function POST(request: NextRequest) {
       target_session_id: doelSessie!.id,
       effect_type: "diefstal",
       expires_at: null,
-      notification: "🦹 Een team heeft een dief op je losgelaten! Je volgende punten lopen gevaar.",
+      notification: `🦹 Team ${aanvallerNaam} heeft een dief op je losgelaten! Je volgende punten lopen gevaar.`,
+    });
+    if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+
+  } else if (item.type === "banaan") {
+    // Haal session_point_order op voor doelteam
+    const { data: spo } = await admin
+      .from("session_point_order")
+      .select("volgorde, route_point_id")
+      .eq("session_id", doelSessie!.id)
+      .order("volgorde");
+
+    // Hoeveel punten heeft het doelteam al verwerkt?
+    const { data: doelVerwerkt } = await admin
+      .from("player_point_progress")
+      .select("route_point_id")
+      .eq("session_id", doelSessie!.id)
+      .not("answered_at", "is", null);
+
+    const verwerktIds = new Set((doelVerwerkt ?? []).map((v: { route_point_id: string }) => v.route_point_id));
+    const onbezochtSpo = (spo ?? []).filter((s: { route_point_id: string }) => !verwerktIds.has(s.route_point_id));
+
+    if (onbezochtSpo.length < 2) {
+      return NextResponse.json({ fout: "Doelteam heeft niet genoeg punten over om te wisselen" }, { status: 400 });
+    }
+
+    // Wissel het eerste onbezochte punt met een willekeurig ander onbezocht punt
+    const eersteIdx = 0;
+    const anderIdx = Math.floor(Math.random() * (onbezochtSpo.length - 1)) + 1;
+    const eerste = onbezochtSpo[eersteIdx];
+    const ander = onbezochtSpo[anderIdx];
+
+    await Promise.all([
+      admin.from("session_point_order")
+        .update({ route_point_id: ander.route_point_id })
+        .eq("session_id", doelSessie!.id)
+        .eq("volgorde", eerste.volgorde),
+      admin.from("session_point_order")
+        .update({ route_point_id: eerste.route_point_id })
+        .eq("session_id", doelSessie!.id)
+        .eq("volgorde", ander.volgorde),
+    ]);
+
+    const { error } = await admin.from("special_item_effects").insert({
+      special_item_id: item.id,
+      target_session_id: doelSessie!.id,
+      effect_type: "banaan",
+      expires_at: null,
+      notification: `🍌 Banaan van team ${aanvallerNaam}! Je volgende punt is omgewisseld.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 

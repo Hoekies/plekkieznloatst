@@ -12,6 +12,7 @@ const ITEMS = [
   { emoji: "🔄", naam: "Wissel",       beschrijving: "Wisselt de score van jouw team met die van een ander team." },
   { emoji: "🦹", naam: "Dief",         beschrijving: "Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam. De dief krijgt de punten; het doelteam krijgt 0." },
   { emoji: "📡", naam: "Radar",        beschrijving: "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten." },
+  { emoji: "🍌", naam: "Banaan",       beschrijving: "Verwisselt het eerstvolgende punt van een doelteam met een ander nog te bezoeken punt." },
 ];
 
 export default function SpeciaalItemLegende({ onSluit }: Props) {

@@ -60,8 +60,30 @@ export async function POST(request: NextRequest) {
     .not("answered_at", "is", null);
 
   const aantalVerwerkt = verwerkt?.length ?? 0;
-  if (punt.order_index !== aantalVerwerkt + 1) {
-    return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
+
+  // Haal route-modus op
+  const { data: route } = await admin
+    .from("routes")
+    .select("modus")
+    .eq("id", sessie.route_id)
+    .maybeSingle();
+
+  if (route?.modus === "verspreid") {
+    // Verspreid: controleer via session_point_order
+    const { data: spo } = await admin
+      .from("session_point_order")
+      .select("volgorde")
+      .eq("session_id", sessie.id)
+      .eq("route_point_id", route_point_id)
+      .maybeSingle();
+    if (!spo || spo.volgorde !== aantalVerwerkt + 1) {
+      return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
+    }
+  } else {
+    // Sequentieel: bestaande check
+    if (punt.order_index !== aantalVerwerkt + 1) {
+      return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
+    }
   }
 
   // Ghost check: is het actieve punt geblokkeerd door een spook-effect?

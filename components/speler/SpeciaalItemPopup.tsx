@@ -24,6 +24,7 @@ const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string; b
   wissel:       { emoji: "🔄", kleur: "#1D4ED8", label: "Wissel",       beschrijving: "Wisselt jouw score met die van een ander team." },
   dief:         { emoji: "🦹", kleur: "#7C2D12", label: "Dief",         beschrijving: "Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam." },
   radar:        { emoji: "📡", kleur: "#0369A1", label: "Radar",        beschrijving: "Onthult de exacte GPS-positie van alle teams gedurende 2 minuten." },
+  banaan:       { emoji: "🍌", kleur: "#CA8A04", label: "Banaan",       beschrijving: "Verwisselt het volgende punt van het doelteam met een verrassing." },
 };
 
 const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar"]);

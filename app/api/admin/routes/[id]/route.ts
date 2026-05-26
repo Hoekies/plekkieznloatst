@@ -29,6 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
+  if (body.modus === "sequentieel" || body.modus === "verspreid") toegestaan.modus = body.modus;
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

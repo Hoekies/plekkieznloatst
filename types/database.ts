@@ -6,13 +6,23 @@ export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
 export type FotoStatus = "wacht" | "goedgekeurd" | "afgekeurd";
 
+export type RouteModus = "sequentieel" | "verspreid";
+
 export interface Route {
   id: string;
   name: string;
   status: RouteStatus;
   is_active: boolean;
+  modus: RouteModus;
   created_at: string;
   updated_at: string;
+}
+
+export interface SessionPointOrder {
+  id: string;
+  session_id: string;
+  volgorde: number;
+  route_point_id: string;
 }
 
 export interface RoutePunt {
@@ -121,8 +131,8 @@ export interface Broadcast {
   created_at: string;
 }
 
-export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar";
-export type SpeciaalItemEffectType = "ghost" | "punt_aftrek" | "verdubbeling" | "wissel" | "diefstal" | "radar";
+export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar" | "banaan";
+export type SpeciaalItemEffectType = "ghost" | "punt_aftrek" | "verdubbeling" | "wissel" | "diefstal" | "radar" | "banaan";
 
 export interface SpeciaalItem {
   id: string;
