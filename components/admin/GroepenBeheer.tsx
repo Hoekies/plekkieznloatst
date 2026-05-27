@@ -112,66 +112,71 @@ export default function GroepenBeheer() {
           </p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           {groepen.map((g) => {
             const displayNaam = g.nickname ?? g.group_name;
             const isUit = g.is_uitgeschakeld;
             return (
               <div key={g.id} className="card" style={{
-                display: "flex", alignItems: "center", gap: "12px",
-                opacity: isUit ? 0.6 : 1,
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "10px 14px",
+                opacity: isUit ? 0.55 : 1,
                 borderLeft: isUit ? "3px solid var(--red)" : "3px solid transparent",
               }}>
+                {/* Icoon */}
                 <div style={{
-                  width: 42, height: 42, borderRadius: "50%",
+                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
                   background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: g.icon ? "1.5rem" : "0.85rem",
-                  fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)", flexShrink: 0,
+                  fontSize: g.icon ? "1.3rem" : "0.8rem",
+                  fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
                 }}>
                   {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
                 </div>
+
+                {/* Tekst + knoppen */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{displayNaam}</div>
-                  {g.login_name && (
-                    <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 1 }}>
-                      Login: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{g.login_name}</span>
-                    </div>
-                  )}
-                  {g.nickname && g.nickname !== g.group_name && (
-                    <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
-                      Groep: {g.group_name}
-                    </div>
-                  )}
-                  <div style={{ fontSize: "0.7rem", marginTop: 2, color: isUit ? "var(--red)" : g.active_device_id ? "var(--green)" : "var(--muted)" }}>
-                    {isUit ? "⛔ Uitgeschakeld" : g.active_device_id ? "📱 Actief op apparaat" : "Niet actief"}
+                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--ink)" }}>{displayNaam}</div>
+                  <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
+                    {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
+                    <span style={{ color: isUit ? "var(--red)" : g.active_device_id ? "var(--green)" : "var(--muted)" }}>
+                      {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
+                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}>
+                      🔑 Wachtwoord
+                    </button>
+                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}>
+                      ✏️ Loginnaam
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <button
-                    className={`btn ${isUit ? "btn-primary" : "btn-danger"}`}
-                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                    onClick={async () => {
-                      const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
-                      if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
-                    }}
-                  >
-                    {isUit ? "✅ Aanzetten" : "⛔ Uitzetten"}
-                  </button>
-                  <button
-                    className="btn btn-ghost"
-                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                    onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}
-                  >
-                    🔑 Wachtwoord
-                  </button>
-                  <button
-                    className="btn btn-ghost"
-                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                    onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}
-                  >
-                    ✏️ Loginnaam
-                  </button>
+
+                {/* Aan/uit toggle */}
+                <div
+                  title={isUit ? "Aanzetten" : "Uitzetten"}
+                  onClick={async () => {
+                    const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
+                    if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
+                  }}
+                  style={{
+                    width: 42, height: 24, borderRadius: 12, flexShrink: 0,
+                    background: isUit ? "rgba(255,59,92,0.3)" : "rgba(34,197,94,0.3)",
+                    border: `1.5px solid ${isUit ? "var(--red)" : "var(--green)"}`,
+                    position: "relative", cursor: "pointer",
+                    transition: "background 0.2s, border-color 0.2s",
+                  }}
+                >
+                  <div style={{
+                    position: "absolute", width: 18, height: 18, borderRadius: "50%",
+                    background: isUit ? "var(--red)" : "var(--green)",
+                    top: 2, left: isUit ? 2 : 20,
+                    transition: "left 0.2s, background 0.2s",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                  }} />
                 </div>
               </div>
             );
