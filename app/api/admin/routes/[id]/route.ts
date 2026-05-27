@@ -29,6 +29,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
   if (body.modus === "sequentieel" || body.modus === "verspreid") toegestaan.modus = body.modus;
   if (body.is_active === false) toegestaan.is_active = false;
+  if (typeof body.verwacht_aantal_teams === "number" && body.verwacht_aantal_teams >= 2) toegestaan.verwacht_aantal_teams = body.verwacht_aantal_teams;
+  if (typeof body.doel_afstand_km === "number" && body.doel_afstand_km >= 0) toegestaan.doel_afstand_km = body.doel_afstand_km;
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

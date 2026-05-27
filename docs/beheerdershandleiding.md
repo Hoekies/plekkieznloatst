@@ -35,7 +35,31 @@ In de route-editor, boven de puntenlijst, staat een **Modus**-toggle:
 | **Sequentieel** | Alle groepen lopen de punten in dezelfde volgorde (standaard) |
 | **Verspreid (lus)** | Elke groep start op een ander punt en loopt de route als een lus — iedereen legt dezelfde afstand af, maar in een andere volgorde |
 
-Gebruik **Verspreid** als je wilt dat groepen niet tegelijk op hetzelfde punt staan. Zorg dat de route geografisch als lus werkt (start- en eindlocatie dichtbij elkaar).
+#### Hoe werkt Verspreid?
+
+De punten vormen samen een lus. Elke groep die start krijgt automatisch een ander beginpunt toegewezen. Groep 1 start bij punt 1, groep 2 bij punt 2, enzovoort. Iedereen loopt daarna door in dezelfde richting totdat alle punten bezocht zijn.
+
+```
+Route met 5 punten als lus:
+
+        [2]
+       /   \
+     [1]   [3]
+       \   /
+        [5]-[4]
+
+Groep A:  1 → 2 → 3 → 4 → 5        (start bij punt 1)
+Groep B:  2 → 3 → 4 → 5 → 1        (start bij punt 2)
+Groep C:  3 → 4 → 5 → 1 → 2        (start bij punt 3)
+
+✓ Iedereen bezoekt alle 5 punten
+✓ Niemand staat meteen op hetzelfde punt
+✓ Iedereen loopt exact dezelfde afstand
+```
+
+> **Belangrijk:** Zorg dat de route geografisch als lus werkt — punt 5 en punt 1 moeten geografisch dicht bij elkaar liggen, anders moeten groepen die "omslaggen" een lange terugweg lopen.
+
+> **Eindpunt:** Bij verspreid-modus is het eindpunt het *laatste punt dat een team bezoekt* (voor groep A is dat punt 5, voor groep B punt 1, enz.). De route is klaar zodra een groep alle punten heeft afgerond.
 
 ### 3. Speciale items plaatsen (optioneel)
 

@@ -22,6 +22,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
   const [fout, setFout] = useState("");
+  const [verwachtTeams, setVerwachtTeams] = useState(initRoute.verwacht_aantal_teams ?? 2);
+  const [doelAfstandKm, setDoelAfstandKm] = useState(initRoute.doel_afstand_km ?? 0);
 
   useEffect(() => {
     fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
@@ -120,6 +122,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) { setRoute((r) => ({ ...r, name: nieuweNaam })); setNaamWijzig(false); }
   }
 
+  async function slaVerspreideInstellingenOp(teams: number, afstand: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ verwacht_aantal_teams: teams, doel_afstand_km: afstand }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, verwacht_aantal_teams: teams, doel_afstand_km: afstand }));
+  }
+
   async function slaPuntOp(update: Partial<RoutePunt>) {
     if (!geselecteerd) return;
     setOpslaan(true); setFout("");
@@ -214,12 +225,71 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </button>
               ))}
             </div>
-            {route.modus === "verspreid" && (
-              <span style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.4 }}>
-                Elke groep start op een ander punt. Zorg dat de route als lus werkt.
-              </span>
-            )}
-            {punten.length >= 2 && (() => {
+
+            {route.modus === "verspreid" && (() => {
+              const totaalM = punten.length >= 2 ? punten.reduce((som, pt, i) => {
+                if (i === 0) return som;
+                const v = punten[i - 1];
+                return som + haversine(v.latitude, v.longitude, pt.latitude, pt.longitude);
+              }, 0) : 0;
+              const stapM = doelAfstandKm > 0 && punten.length > 0 ? doelAfstandKm * 1000 / punten.length : null;
+              const teWeinigPunten = punten.length < verwachtTeams * 2;
+
+              return (
+                <>
+                  {/* Teams input */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal teams:</span>
+                    <input
+                      type="number" min={2} max={20} value={verwachtTeams}
+                      onChange={(e) => setVerwachtTeams(Math.max(2, Number(e.target.value)))}
+                      onBlur={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
+                      style={{
+                        width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none",
+                      }}
+                    />
+                  </div>
+
+                  {/* Doelafstand input */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Doelafstand:</span>
+                    <input
+                      type="number" min={0} step={0.1} value={doelAfstandKm}
+                      onChange={(e) => setDoelAfstandKm(Math.max(0, Number(e.target.value)))}
+                      onBlur={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
+                      style={{
+                        width: 66, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none",
+                      }}
+                    />
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)" }}>km</span>
+                  </div>
+
+                  {/* Live preview */}
+                  <div style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.5 }}>
+                    {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km</div>}
+                    {doelAfstandKm > 0 && <div style={{ color: "var(--cyan)" }}>Teams ≈ {(doelAfstandKm / verwachtTeams).toFixed(2)} km uit elkaar</div>}
+                    {stapM !== null && punten.length > 0 && <div>Aanbevolen puntafstand: ≈ {Math.round(stapM)} m</div>}
+                    {geselecteerd && doelAfstandKm > 0 && punten.length > 0 && (
+                      <div style={{ color: "rgba(0,217,255,0.7)" }}>⬤ Cirkel op kaart = aanbevolen afstand</div>
+                    )}
+                  </div>
+
+                  {/* Waarschuwing */}
+                  {teWeinigPunten && (
+                    <div style={{ fontSize: "0.68rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "5px 8px", borderRadius: 6 }}>
+                      ⚠ Minimaal {verwachtTeams * 2} punten aanbevolen voor {verwachtTeams} teams
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+
+            {/* Gemeten afstand voor sequentieel */}
+            {route.modus === "sequentieel" && punten.length >= 2 && (() => {
               const totaalM = punten.reduce((som, pt, i) => {
                 if (i === 0) return som;
                 const vorige = punten[i - 1];
@@ -352,6 +422,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           addModus={addModus || addSpeciaalModus}
           geselecteerdId={geselecteerd?.id ?? null}
           specialeItems={specialeItems}
+          guideCirkel={
+            route.modus === "verspreid" && doelAfstandKm > 0 && geselecteerd && punten.length > 0
+              ? { lat: geselecteerd.latitude, lng: geselecteerd.longitude, radiusM: doelAfstandKm * 1000 / punten.length }
+              : null
+          }
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}

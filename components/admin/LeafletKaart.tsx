@@ -12,22 +12,30 @@ const SPECIAAL_EMOJI: Record<string, string> = {
   spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡",
 };
 
+interface GuideCirkel {
+  lat: number;
+  lng: number;
+  radiusM: number;
+}
+
 interface Props {
   punten: RoutePunt[];
   addModus: boolean;
   geselecteerdId: string | null;
   specialeItems?: SpeciaalItem[];
+  guideCirkel?: GuideCirkel | null;
   onKlik: (lat: number, lng: number) => void;
   onMarkerVerplaatst: (id: string, lat: number, lng: number) => void;
   onMarkerKlik: (id: string) => void;
 }
 
-export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
+export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], guideCirkel = null, onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
+  const cirkelRef = useRef<import("leaflet").Circle | null>(null);
   const addModusRef = useRef(addModus);
   const onKlikRef = useRef(onKlik);
   const onMarkerKlikRef = useRef(onMarkerKlik);
@@ -77,6 +85,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
       kaartRef.current = null;
       markersRef.current.clear();
       specialeItemMarkersRef.current.clear();
+      cirkelRef.current = null;
     };
   }, []);
 
@@ -165,6 +174,36 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
       });
     });
   }, [specialeItems, kaartKlaar]);
+
+  // Aanbevolen-afstand cirkel (verspreid-modus)
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      cirkelRef.current?.remove();
+      cirkelRef.current = null;
+      if (!guideCirkel || guideCirkel.radiusM <= 0) return;
+      cirkelRef.current = L.circle(
+        [guideCirkel.lat, guideCirkel.lng],
+        {
+          radius: guideCirkel.radiusM,
+          color: "#00d9ff",
+          weight: 2,
+          dashArray: "10 6",
+          fill: false,
+          opacity: 0.65,
+          interactive: false,
+        }
+      )
+        .bindTooltip(`≈ ${Math.round(guideCirkel.radiusM)} m`, {
+          permanent: true,
+          direction: "bottom",
+          offset: [0, guideCirkel.radiusM > 0 ? 6 : 0],
+          className: "",
+          opacity: 0.85,
+        })
+        .addTo(kaartRef.current!);
+    });
+  }, [guideCirkel, kaartKlaar]);
 
   return (
     <div

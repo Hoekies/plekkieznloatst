@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { haversine } from "@/lib/geo";
 
 async function getSpeler() {
   const supabase = await createServerSupabaseClient();
@@ -39,7 +40,7 @@ export async function POST() {
   // Actieve route ophalen
   const { data: route } = await admin
     .from("routes")
-    .select("id, modus")
+    .select("id, modus, verwacht_aantal_teams")
     .eq("is_active", true)
     .maybeSingle();
 
@@ -76,11 +77,11 @@ export async function POST() {
     return NextResponse.json({ fout: error?.message ?? "Sessie aanmaken mislukt" }, { status: 500 });
   }
 
-  // Voor verspreid-modus: vul session_point_order met rotatie
+  // Voor verspreid-modus: vul session_point_order met afstandsgebaseerde rotatie
   if (route.modus === "verspreid") {
     const { data: punten } = await admin
       .from("route_points")
-      .select("id")
+      .select("id, latitude, longitude")
       .eq("route_id", route.id)
       .order("order_index");
 
@@ -91,7 +92,29 @@ export async function POST() {
         .eq("route_id", route.id)
         .neq("id", sessie.id);
 
-      const offset = (aantalSessies ?? 0) % punten.length;
+      const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
+      const teamIndex = (aantalSessies ?? 0) % nTeams;
+
+      // Bereken cumulatieve afstand per punt
+      const cumulatief = [0];
+      for (let i = 1; i < punten.length; i++) {
+        cumulatief.push(
+          cumulatief[i - 1] +
+          haversine(punten[i - 1].latitude, punten[i - 1].longitude,
+                    punten[i].latitude,     punten[i].longitude)
+        );
+      }
+      const totalMeters = cumulatief[cumulatief.length - 1];
+      const targetMeters = totalMeters > 0 ? (totalMeters / nTeams) * teamIndex : 0;
+
+      // Vind het dichtstbijzijnde punt bij de doelafstand
+      let offset = 0;
+      let minDelta = Infinity;
+      for (let i = 0; i < cumulatief.length; i++) {
+        const delta = Math.abs(cumulatief[i] - targetMeters);
+        if (delta < minDelta) { minDelta = delta; offset = i; }
+      }
+
       const volgorde = punten.map((p, k) => ({
         session_id: sessie.id,
         volgorde: k + 1,

@@ -14,6 +14,8 @@ export interface Route {
   status: RouteStatus;
   is_active: boolean;
   modus: RouteModus;
+  verwacht_aantal_teams: number;
+  doel_afstand_km: number;
   created_at: string;
   updated_at: string;
 }
