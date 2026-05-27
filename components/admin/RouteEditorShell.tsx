@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
@@ -28,6 +28,29 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   useEffect(() => {
     fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
   }, [route.id]);
+
+  // Bereken de startpunten per team voor verspreid-modus
+  const teamStartPunten = useMemo(() => {
+    if (route.modus !== "verspreid" || punten.length < 2 || verwachtTeams < 2) return [];
+    const cumulatief = [0];
+    for (let i = 1; i < punten.length; i++) {
+      cumulatief.push(
+        cumulatief[i - 1] +
+        haversine(punten[i - 1].latitude, punten[i - 1].longitude, punten[i].latitude, punten[i].longitude)
+      );
+    }
+    const totalM = cumulatief[cumulatief.length - 1];
+    if (totalM === 0) return [];
+    return Array.from({ length: verwachtTeams }, (_, k) => {
+      const targetM = (totalM / verwachtTeams) * k;
+      let offset = 0, minDelta = Infinity;
+      cumulatief.forEach((d, i) => {
+        const delta = Math.abs(d - targetM);
+        if (delta < minDelta) { minDelta = delta; offset = i; }
+      });
+      return { lat: punten[offset].latitude, lng: punten[offset].longitude, teamIndex: k + 1 };
+    });
+  }, [route.modus, punten, verwachtTeams]);
 
   async function herlaadPunten() {
     const res = await fetch(`/api/admin/routes/${route.id}/punten`);
@@ -427,6 +450,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               ? { lat: geselecteerd.latitude, lng: geselecteerd.longitude, radiusM: doelAfstandKm * 1000 / punten.length }
               : null
           }
+          teamStartPunten={teamStartPunten}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}

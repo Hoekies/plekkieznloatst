@@ -18,24 +18,34 @@ interface GuideCirkel {
   radiusM: number;
 }
 
+interface TeamStartPunt {
+  lat: number;
+  lng: number;
+  teamIndex: number;
+}
+
 interface Props {
   punten: RoutePunt[];
   addModus: boolean;
   geselecteerdId: string | null;
   specialeItems?: SpeciaalItem[];
   guideCirkel?: GuideCirkel | null;
+  teamStartPunten?: TeamStartPunt[];
   onKlik: (lat: number, lng: number) => void;
   onMarkerVerplaatst: (id: string, lat: number, lng: number) => void;
   onMarkerKlik: (id: string) => void;
 }
 
-export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], guideCirkel = null, onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
+export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], guideCirkel = null, teamStartPunten = [], onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const cirkelRef = useRef<import("leaflet").Circle | null>(null);
+  const startPolygoonRef = useRef<import("leaflet").Polygon | null>(null);
+  const startMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const ontmoetingMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const addModusRef = useRef(addModus);
   const onKlikRef = useRef(onKlik);
   const onMarkerKlikRef = useRef(onMarkerKlik);
@@ -86,6 +96,9 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
       markersRef.current.clear();
       specialeItemMarkersRef.current.clear();
       cirkelRef.current = null;
+      startPolygoonRef.current = null;
+      startMarkersRef.current = [];
+      ontmoetingMarkerRef.current = null;
     };
   }, []);
 
@@ -174,6 +187,74 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
       });
     });
   }, [specialeItems, kaartKlaar]);
+
+  // Teamstartpunten: verbindingslijnen + ontmoetingspunt (verspreid-modus)
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      // Opruimen
+      startPolygoonRef.current?.remove();
+      startPolygoonRef.current = null;
+      startMarkersRef.current.forEach((m) => m.remove());
+      startMarkersRef.current = [];
+      ontmoetingMarkerRef.current?.remove();
+      ontmoetingMarkerRef.current = null;
+
+      if (teamStartPunten.length < 2) return;
+
+      // Verbindingspolygoon tussen startpunten
+      const coords = teamStartPunten.map((p) => [p.lat, p.lng] as [number, number]);
+      startPolygoonRef.current = L.polygon(coords, {
+        color: "#ffd93b",
+        weight: 1.5,
+        dashArray: "6 5",
+        fill: false,
+        opacity: 0.7,
+        interactive: false,
+      }).addTo(kaartRef.current!);
+
+      // Nummerlabels per startpunt
+      teamStartPunten.forEach((p) => {
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="
+            width:22px;height:22px;border-radius:50%;
+            background:#ffd93b;color:#060e1a;
+            font-size:0.68rem;font-weight:800;
+            display:flex;align-items:center;justify-content:center;
+            border:2px solid #fff;box-shadow:0 0 6px rgba(255,217,59,0.6);
+          ">T${p.teamIndex}</div>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        });
+        const marker = L.marker([p.lat, p.lng], { icon, interactive: false })
+          .addTo(kaartRef.current!);
+        startMarkersRef.current.push(marker);
+      });
+
+      // Ontmoetingspunt = centroïde van alle startpunten
+      const centLat = teamStartPunten.reduce((s, p) => s + p.lat, 0) / teamStartPunten.length;
+      const centLng = teamStartPunten.reduce((s, p) => s + p.lng, 0) / teamStartPunten.length;
+      const ontmoetingIcon = L.divIcon({
+        className: "",
+        html: `<div style="
+          background:rgba(255,217,59,0.15);
+          border:2px solid #ffd93b;
+          border-radius:8px;
+          padding:4px 7px;
+          font-size:0.68rem;font-weight:700;
+          color:#ffd93b;
+          white-space:nowrap;
+          box-shadow:0 2px 8px rgba(0,0,0,0.5);
+        ">📍 Startlocatie</div>`,
+        iconSize: [100, 28],
+        iconAnchor: [50, 14],
+        className: "",
+      });
+      ontmoetingMarkerRef.current = L.marker([centLat, centLng], { icon: ontmoetingIcon, interactive: false })
+        .addTo(kaartRef.current!);
+    });
+  }, [teamStartPunten, kaartKlaar]);
 
   // Aanbevolen-afstand cirkel (verspreid-modus)
   useEffect(() => {
