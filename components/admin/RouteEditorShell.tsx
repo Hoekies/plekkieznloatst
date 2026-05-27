@@ -24,10 +24,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [fout, setFout] = useState("");
   const [verwachtTeams, setVerwachtTeams] = useState(initRoute.verwacht_aantal_teams ?? 2);
   const [doelAfstandKm, setDoelAfstandKm] = useState(initRoute.doel_afstand_km ?? 0);
+  const [aantalPunten, setAantalPunten] = useState(6);
+  const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
   }, [route.id]);
+
+  useEffect(() => {
+    if (centrumPunt) return;
+    if (punten.length > 0) {
+      const avgLat = punten.reduce((s, p) => s + p.latitude, 0) / punten.length;
+      const avgLng = punten.reduce((s, p) => s + p.longitude, 0) / punten.length;
+      setCentrumPunt({ lat: avgLat, lng: avgLng });
+    } else {
+      setCentrumPunt({ lat: 52.3676, lng: 4.9041 });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Bereken de startpunten per team voor verspreid-modus
   const teamStartPunten = useMemo(() => {
@@ -52,9 +66,57 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     });
   }, [route.modus, punten, verwachtTeams]);
 
+  function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number) {
+    const R = 6371000;
+    return Array.from({ length: n }, (_, i) => {
+      const hoek = (2 * Math.PI / n) * i - Math.PI / 2;
+      const dLat = (radiusM * Math.cos(hoek)) / R * (180 / Math.PI);
+      const dLng = (radiusM * Math.sin(hoek)) / (R * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
+      return { lat: lat + dLat, lng: lng + dLng };
+    });
+  }
+
+  const ghostPunten = useMemo(() => {
+    if (route.modus !== "verspreid" || doelAfstandKm <= 0 || !centrumPunt) return [];
+    const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
+    return puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.modus, doelAfstandKm, centrumPunt, aantalPunten]);
+
   async function herlaadPunten() {
     const res = await fetch(`/api/admin/routes/${route.id}/punten`);
     if (res.ok) setPunten(await res.json());
+  }
+
+  async function genereerPuntenInCirkel() {
+    if (!centrumPunt || doelAfstandKm <= 0) return;
+    if (punten.length > 0 && !confirm(`Dit verwijdert ${punten.length} bestaand(e) punt(en). Doorgaan?`)) return;
+    const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
+    const coords = puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
+    for (const pt of punten) {
+      await fetch(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
+    }
+    setPunten([]);
+    setGeselecteerd(null);
+    const nieuwePunten: RoutePunt[] = [];
+    for (const coord of coords) {
+      const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ latitude: coord.lat, longitude: coord.lng, points: 10 }),
+      });
+      if (res.ok) nieuwePunten.push(await res.json());
+    }
+    if (nieuwePunten.length > 0) {
+      const last = nieuwePunten[nieuwePunten.length - 1];
+      await fetch(`/api/admin/routes/${route.id}/punten/${last.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "eindpunt" }),
+      });
+      nieuwePunten[nieuwePunten.length - 1] = { ...last, type: "eindpunt" };
+    }
+    setPunten(nieuwePunten);
   }
 
   async function kaartKlik(lat: number, lng: number) {
@@ -291,6 +353,27 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <span style={{ fontSize: "0.70rem", color: "var(--muted)" }}>km</span>
                   </div>
 
+                  {/* Aantal punten + genereer */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal punten:</span>
+                    <input
+                      type="number" min={3} max={30} value={aantalPunten}
+                      onChange={(e) => setAantalPunten(Math.max(3, Math.min(30, Number(e.target.value))))}
+                      style={{
+                        width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none",
+                      }}
+                    />
+                  </div>
+                  <button
+                    className="btn btn-cyan"
+                    style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                    disabled={doelAfstandKm <= 0}
+                    onClick={genereerPuntenInCirkel}>
+                    🔄 Genereer punten in cirkel
+                  </button>
+
                   {/* Live preview */}
                   <div style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.5 }}>
                     {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km</div>}
@@ -451,6 +534,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               : null
           }
           teamStartPunten={teamStartPunten}
+          centrumPunt={route.modus === "verspreid" && doelAfstandKm > 0 ? centrumPunt : null}
+          ghostPunten={ghostPunten}
+          ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
+          onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}

@@ -113,51 +113,69 @@ export default function GroepenBeheer() {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {groepen.map((g) => (
-            <div key={g.id} className="card" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{
-                width: 42, height: 42, borderRadius: "50%",
-                background: "var(--blue-soft)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: g.icon ? "1.5rem" : "0.85rem",
-                fontWeight: 700, color: "var(--blue)", flexShrink: 0,
+          {groepen.map((g) => {
+            const displayNaam = g.nickname ?? g.group_name;
+            const isUit = g.is_uitgeschakeld;
+            return (
+              <div key={g.id} className="card" style={{
+                display: "flex", alignItems: "center", gap: "12px",
+                opacity: isUit ? 0.6 : 1,
+                borderLeft: isUit ? "3px solid var(--red)" : "3px solid transparent",
               }}>
-                {g.icon ?? g.group_name.slice(0, 2).toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{g.group_name}</div>
-                {g.login_name && (
-                  <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 1 }}>
-                    Login: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{g.login_name}</span>
+                <div style={{
+                  width: 42, height: 42, borderRadius: "50%",
+                  background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: g.icon ? "1.5rem" : "0.85rem",
+                  fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)", flexShrink: 0,
+                }}>
+                  {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{displayNaam}</div>
+                  {g.login_name && (
+                    <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 1 }}>
+                      Login: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{g.login_name}</span>
+                    </div>
+                  )}
+                  {g.nickname && g.nickname !== g.group_name && (
+                    <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
+                      Groep: {g.group_name}
+                    </div>
+                  )}
+                  <div style={{ fontSize: "0.7rem", marginTop: 2, color: isUit ? "var(--red)" : g.active_device_id ? "var(--green)" : "var(--muted)" }}>
+                    {isUit ? "⛔ Uitgeschakeld" : g.active_device_id ? "📱 Actief op apparaat" : "Niet actief"}
                   </div>
-                )}
-                {g.nickname && (
-                  <div style={{ fontSize: "0.75rem", color: "var(--blue)", fontWeight: 600, marginTop: 1 }}>
-                    Alias: {g.nickname}
-                  </div>
-                )}
-                <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 2 }}>
-                  {g.active_device_id ? "📱 Actief op apparaat" : "Niet actief"}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <button
+                    className={`btn ${isUit ? "btn-primary" : "btn-danger"}`}
+                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                    onClick={async () => {
+                      const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
+                      if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
+                    }}
+                  >
+                    {isUit ? "✅ Aanzetten" : "⛔ Uitzetten"}
+                  </button>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                    onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}
+                  >
+                    🔑 Wachtwoord
+                  </button>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ fontSize: "0.75rem", padding: "5px 10px" }}
+                    onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}
+                  >
+                    ✏️ Loginnaam
+                  </button>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <button
-                  className="btn btn-ghost"
-                  style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                  onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}
-                >
-                  🔑 Wachtwoord
-                </button>
-                <button
-                  className="btn btn-ghost"
-                  style={{ fontSize: "0.75rem", padding: "5px 10px" }}
-                  onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}
-                >
-                  ✏️ Loginnaam
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

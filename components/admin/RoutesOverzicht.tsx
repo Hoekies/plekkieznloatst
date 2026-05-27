@@ -136,20 +136,16 @@ export default function RoutesOverzicht() {
           {routes.map((r) => (
             <div key={r.id} className="card" style={{
               borderLeft: r.is_active ? "4px solid var(--green)" : r.status === "gepubliceerd" ? "4px solid var(--cyan)" : "4px solid var(--line)",
-              padding: "14px 16px",
-              display: "flex", flexDirection: "column", gap: 10,
+              padding: "12px 16px",
+              display: "flex", flexDirection: "column", gap: 8,
             }}>
               {/* Naam + status */}
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: "1rem", wordBreak: "break-word" }}>{r.name}</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
-                    {r.is_active && <StatusBadge kleur="green" label="✓ Actief" />}
-                    {r.status === "gepubliceerd" && !r.is_active && <StatusBadge kleur="cyan" label="Gepubliceerd" />}
-                    {r.status === "concept" && <StatusBadge kleur="muted" label="Concept" />}
-                    {r.modus === "verspreid" && <StatusBadge kleur="cyan" label="Verspreid" />}
-                  </div>
-                </div>
+              <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
+                <span style={{ fontWeight: 700, fontSize: "1rem" }}>{r.name}</span>
+                {r.is_active && <StatusBadge kleur="green" label="✓ Actief" />}
+                {r.status === "gepubliceerd" && !r.is_active && <StatusBadge kleur="cyan" label="Gepubliceerd" />}
+                {r.status === "concept" && <StatusBadge kleur="muted" label="Concept" />}
+                {r.modus === "verspreid" && <StatusBadge kleur="cyan" label="Verspreid" />}
               </div>
               {/* Actieknoppen */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

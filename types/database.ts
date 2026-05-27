@@ -79,6 +79,7 @@ export interface Speler {
   icon: string | null;
   auth_user_id: string;
   active_device_id: string | null;
+  is_uitgeschakeld: boolean;
   created_at: string;
 }
 

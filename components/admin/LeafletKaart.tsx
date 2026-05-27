@@ -31,12 +31,22 @@ interface Props {
   specialeItems?: SpeciaalItem[];
   guideCirkel?: GuideCirkel | null;
   teamStartPunten?: TeamStartPunt[];
+  // Genereer-preview
+  centrumPunt?: { lat: number; lng: number } | null;
+  ghostPunten?: { lat: number; lng: number }[];
+  ghostRadiusM?: number;
+  onCentrumVerplaatst?: (lat: number, lng: number) => void;
   onKlik: (lat: number, lng: number) => void;
   onMarkerVerplaatst: (id: string, lat: number, lng: number) => void;
   onMarkerKlik: (id: string) => void;
 }
 
-export default function LeafletKaart({ punten, addModus, geselecteerdId, specialeItems = [], guideCirkel = null, teamStartPunten = [], onKlik, onMarkerVerplaatst, onMarkerKlik }: Props) {
+export default function LeafletKaart({
+  punten, addModus, geselecteerdId, specialeItems = [],
+  guideCirkel = null, teamStartPunten = [],
+  centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
+  onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -46,10 +56,14 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
   const startPolygoonRef = useRef<import("leaflet").Polygon | null>(null);
   const startMarkersRef = useRef<import("leaflet").Marker[]>([]);
   const ontmoetingMarkerRef = useRef<import("leaflet").Marker | null>(null);
+  const centrumMarkerRef = useRef<import("leaflet").Marker | null>(null);
+  const ghostMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const ghostCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const addModusRef = useRef(addModus);
   const onKlikRef = useRef(onKlik);
   const onMarkerKlikRef = useRef(onMarkerKlik);
   const onMarkerVerplaatsdRef = useRef(onMarkerVerplaatst);
+  const onCentrumVerplaatsdRef = useRef(onCentrumVerplaatst);
   const prevPuntenLenRef = useRef(-1);
   const [kaartKlaar, setKaartKlaar] = useState(false);
 
@@ -57,6 +71,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
   onKlikRef.current = onKlik;
   onMarkerKlikRef.current = onMarkerKlik;
   onMarkerVerplaatsdRef.current = onMarkerVerplaatst;
+  onCentrumVerplaatsdRef.current = onCentrumVerplaatst;
 
   useEffect(() => {
     if (!containerRef.current || kaartRef.current) return;
@@ -99,6 +114,9 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
       startPolygoonRef.current = null;
       startMarkersRef.current = [];
       ontmoetingMarkerRef.current = null;
+      centrumMarkerRef.current = null;
+      ghostMarkersRef.current = [];
+      ghostCirkelRef.current = null;
     };
   }, []);
 
@@ -137,7 +155,6 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
         }
       });
 
-      // Verwijder markers van verwijderde punten
       bestaandeIds.forEach((id) => {
         markersRef.current.get(id)?.remove();
         markersRef.current.delete(id);
@@ -152,7 +169,6 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
         ).addTo(kaart);
       }
 
-      // Kaart inzoomen alleen als het aantal punten verandert
       if (punten.length !== prevPuntenLenRef.current && punten.length > 0) {
         prevPuntenLenRef.current = punten.length;
         const bounds = L.latLngBounds(punten.map((p) => [p.latitude, p.longitude]));
@@ -165,7 +181,7 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
     });
   }, [punten, geselecteerdId, kaartKlaar]);
 
-  // Speciale item markers bijhouden (static, niet draggable)
+  // Speciale item markers
   useEffect(() => {
     if (!kaartRef.current) return;
     import("leaflet").then((L) => {
@@ -188,11 +204,10 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
     });
   }, [specialeItems, kaartKlaar]);
 
-  // Teamstartpunten: verbindingslijnen + ontmoetingspunt (verspreid-modus)
+  // Teamstartpunten: verbindingspolygoon + T-markers + startlocatie
   useEffect(() => {
     if (!kaartRef.current) return;
     import("leaflet").then((L) => {
-      // Opruimen
       startPolygoonRef.current?.remove();
       startPolygoonRef.current = null;
       startMarkersRef.current.forEach((m) => m.remove());
@@ -202,60 +217,69 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
 
       if (teamStartPunten.length < 2) return;
 
-      // Verbindingspolygoon tussen startpunten
       const coords = teamStartPunten.map((p) => [p.lat, p.lng] as [number, number]);
       startPolygoonRef.current = L.polygon(coords, {
         color: "#ffd93b",
-        weight: 1.5,
-        dashArray: "6 5",
+        weight: 2.5,
+        dashArray: "8 5",
         fill: false,
-        opacity: 0.7,
+        opacity: 0.9,
         interactive: false,
       }).addTo(kaartRef.current!);
 
-      // Nummerlabels per startpunt
       teamStartPunten.forEach((p) => {
         const icon = L.divIcon({
           className: "",
           html: `<div style="
-            width:22px;height:22px;border-radius:50%;
+            width:26px;height:26px;border-radius:50%;
             background:#ffd93b;color:#060e1a;
             font-size:0.68rem;font-weight:800;
             display:flex;align-items:center;justify-content:center;
-            border:2px solid #fff;box-shadow:0 0 6px rgba(255,217,59,0.6);
+            border:2px solid #fff;
+            box-shadow:0 0 0 3px rgba(255,217,59,0.3),0 0 8px rgba(255,217,59,0.6);
           ">T${p.teamIndex}</div>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
         });
         const marker = L.marker([p.lat, p.lng], { icon, interactive: false })
           .addTo(kaartRef.current!);
         startMarkersRef.current.push(marker);
       });
 
-      // Ontmoetingspunt = centroïde van alle startpunten
+      // Startlocatie = centroïde — groot icoon met gloed
       const centLat = teamStartPunten.reduce((s, p) => s + p.lat, 0) / teamStartPunten.length;
       const centLng = teamStartPunten.reduce((s, p) => s + p.lng, 0) / teamStartPunten.length;
       const ontmoetingIcon = L.divIcon({
         className: "",
-        html: `<div style="
-          background:rgba(255,217,59,0.15);
-          border:2px solid #ffd93b;
-          border-radius:8px;
-          padding:4px 7px;
-          font-size:0.68rem;font-weight:700;
-          color:#ffd93b;
-          white-space:nowrap;
-          box-shadow:0 2px 8px rgba(0,0,0,0.5);
-        ">📍 Startlocatie</div>`,
-        iconSize: [100, 28],
-        iconAnchor: [50, 14],
+        html: `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div style="
+            width:48px;height:48px;border-radius:50%;
+            background:rgba(255,217,59,0.2);
+            border:2.5px solid #ffd93b;
+            display:flex;align-items:center;justify-content:center;
+            font-size:22px;
+            box-shadow:0 0 0 5px rgba(255,217,59,0.12),0 0 18px rgba(255,217,59,0.45);
+          ">📍</div>
+          <div style="
+            background:rgba(6,14,26,0.85);
+            border:1px solid rgba(255,217,59,0.5);
+            border-radius:5px;
+            padding:2px 7px;
+            font-size:0.62rem;font-weight:700;
+            color:#ffd93b;
+            white-space:nowrap;
+            text-shadow:0 1px 3px rgba(0,0,0,0.8);
+          ">Startlocatie</div>
+        </div>`,
+        iconSize: [80, 68],
+        iconAnchor: [40, 30],
       });
-      ontmoetingMarkerRef.current = L.marker([centLat, centLng], { icon: ontmoetingIcon, interactive: false })
+      ontmoetingMarkerRef.current = L.marker([centLat, centLng], { icon: ontmoetingIcon, interactive: false, zIndexOffset: 500 })
         .addTo(kaartRef.current!);
     });
   }, [teamStartPunten, kaartKlaar]);
 
-  // Aanbevolen-afstand cirkel (verspreid-modus)
+  // Aanbevolen-afstand cirkel bij geselecteerd punt
   useEffect(() => {
     if (!kaartRef.current) return;
     import("leaflet").then((L) => {
@@ -267,23 +291,105 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
         {
           radius: guideCirkel.radiusM,
           color: "#00d9ff",
-          weight: 2,
-          dashArray: "10 6",
-          fill: false,
-          opacity: 0.65,
+          weight: 3,
+          dashArray: "12 5",
+          fill: true,
+          fillColor: "#00d9ff",
+          fillOpacity: 0.04,
+          opacity: 0.9,
           interactive: false,
         }
       )
         .bindTooltip(`≈ ${Math.round(guideCirkel.radiusM)} m`, {
           permanent: true,
           direction: "bottom",
-          offset: [0, guideCirkel.radiusM > 0 ? 6 : 0],
-          className: "",
-          opacity: 0.85,
+          opacity: 0.9,
         })
         .addTo(kaartRef.current!);
     });
   }, [guideCirkel, kaartKlaar]);
+
+  // Genereer-preview: draggable centerpunt + ghost markers + ghost cirkel
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      centrumMarkerRef.current?.remove();
+      centrumMarkerRef.current = null;
+      ghostMarkersRef.current.forEach((m) => m.remove());
+      ghostMarkersRef.current = [];
+      ghostCirkelRef.current?.remove();
+      ghostCirkelRef.current = null;
+
+      if (!centrumPunt) return;
+
+      // Draggable centerpunt
+      const centrumIcon = L.divIcon({
+        className: "",
+        html: `<div style="
+          width:38px;height:38px;border-radius:50%;
+          background:rgba(0,217,255,0.15);
+          border:2.5px solid #00d9ff;
+          display:flex;align-items:center;justify-content:center;
+          font-size:20px;color:#00d9ff;font-weight:900;
+          box-shadow:0 0 0 5px rgba(0,217,255,0.12),0 0 16px rgba(0,217,255,0.4);
+          cursor:grab;
+        ">⊕</div>`,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+      });
+      centrumMarkerRef.current = L.marker([centrumPunt.lat, centrumPunt.lng], {
+        icon: centrumIcon,
+        draggable: true,
+        zIndexOffset: 1000,
+      })
+        .on("dragend", (e) => {
+          const pos = (e.target as import("leaflet").Marker).getLatLng();
+          onCentrumVerplaatsdRef.current?.(pos.lat, pos.lng);
+        })
+        .addTo(kaartRef.current!);
+
+      if (ghostPunten.length === 0) return;
+
+      // Ghost cirkel
+      if (ghostRadiusM > 0) {
+        ghostCirkelRef.current = L.circle(
+          [centrumPunt.lat, centrumPunt.lng],
+          {
+            radius: ghostRadiusM,
+            color: "#00d9ff",
+            weight: 2,
+            dashArray: "8 6",
+            fill: true,
+            fillColor: "#00d9ff",
+            fillOpacity: 0.03,
+            opacity: 0.5,
+            interactive: false,
+          }
+        ).addTo(kaartRef.current!);
+      }
+
+      // Ghost punt-markers
+      ghostPunten.forEach((p, i) => {
+        const isLaatste = i === ghostPunten.length - 1;
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="
+            width:30px;height:30px;border-radius:50%;
+            background:rgba(0,217,255,0.1);
+            border:2px dashed rgba(0,217,255,${isLaatste ? "0.9" : "0.55"});
+            display:flex;align-items:center;justify-content:center;
+            font-size:0.7rem;font-weight:800;
+            color:rgba(0,217,255,${isLaatste ? "1" : "0.7"});
+          ">${isLaatste ? "🏁" : i + 1}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        });
+        const marker = L.marker([p.lat, p.lng], { icon, interactive: false })
+          .addTo(kaartRef.current!);
+        ghostMarkersRef.current.push(marker);
+      });
+    });
+  }, [centrumPunt, ghostPunten, ghostRadiusM, kaartKlaar]);
 
   return (
     <div

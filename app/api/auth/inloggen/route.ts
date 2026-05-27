@@ -19,12 +19,14 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient();
     const { data: speler } = await admin
       .from("players")
-      .select("login_name")
+      .select("login_name, is_uitgeschakeld")
       .eq("login_name", naam)
       .maybeSingle();
 
     if (speler) {
-      // Gevonden: converteer naar intern e-mailadres
+      if (speler.is_uitgeschakeld) {
+        return NextResponse.redirect(new URL("/login?fout=uitgeschakeld", request.url), { status: 303 });
+      }
       email = loginNaarEmail(naam);
     } else {
       return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });

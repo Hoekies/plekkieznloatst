@@ -27,10 +27,10 @@ export async function GET() {
   if (!eigenSessie) return NextResponse.json({ locaties: [] });
 
   // Andere sessies op dezelfde route (actief of zojuist gefinisht)
-  type SessieRij = { id: string; players: { group_name: string } };
+  type SessieRij = { id: string; players: { group_name: string; nickname: string | null } };
   const { data: andereSessies } = await admin
     .from("player_sessions")
-    .select("id, players!inner(group_name)")
+    .select("id, players!inner(group_name, nickname)")
     .eq("route_id", eigenSessie.route_id)
     .in("status", ["actief", "voltooid"])
     .neq("id", eigenSessie.id);
@@ -39,7 +39,7 @@ export async function GET() {
   if (rijen.length === 0) return NextResponse.json({ locaties: [] });
 
   const sessieIds = rijen.map((s) => s.id);
-  const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.group_name]));
+  const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.nickname ?? s.players.group_name]));
 
   // Radar check: heeft de speler een actief radar-effect?
   const { data: radarEffect } = await admin

@@ -11,6 +11,8 @@ function LoginForm() {
       ? "Ongeldige naam of wachtwoord. Probeer het opnieuw."
       : fout === "leeg"
       ? "Vul je naam en wachtwoord in."
+      : fout === "uitgeschakeld"
+      ? "Deze groep is uitgeschakeld. Neem contact op met de spelleider."
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
