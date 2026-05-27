@@ -249,7 +249,6 @@ export default function LeafletKaart({ punten, addModus, geselecteerdId, special
         ">📍 Startlocatie</div>`,
         iconSize: [100, 28],
         iconAnchor: [50, 14],
-        className: "",
       });
       ontmoetingMarkerRef.current = L.marker([centLat, centLng], { icon: ontmoetingIcon, interactive: false })
         .addTo(kaartRef.current!);
