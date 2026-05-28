@@ -107,7 +107,7 @@ export default function AdminDashboard({ initData }: Props) {
         )}
 
         {/* Reset sectie */}
-        <div style={{ marginTop: 32, borderTop: "1px solid var(--line)", paddingTop: 24, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ marginTop: 32, borderTop: "1px solid var(--line)", paddingTop: 24, display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 4 }}>Spel resetten</div>
             <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>

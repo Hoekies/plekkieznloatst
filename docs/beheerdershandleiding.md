@@ -26,6 +26,8 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 
 > Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd.
 
+---
+
 ### 2. Routemodus kiezen
 
 In de route-editor, boven de puntenlijst, staat een **Modus**-toggle:
@@ -37,29 +39,58 @@ In de route-editor, boven de puntenlijst, staat een **Modus**-toggle:
 
 #### Hoe werkt Verspreid?
 
-De punten vormen samen een lus. Elke groep die start krijgt automatisch een ander beginpunt toegewezen. Groep 1 start bij punt 1, groep 2 bij punt 2, enzovoort. Iedereen loopt daarna door in dezelfde richting totdat alle punten bezocht zijn.
+De punten vormen samen een lus. Bij het starten van een sessie berekent het systeem automatisch het optimale startpunt per groep op basis van GPS-afstand, zodat groepen gelijkmatig verspreid beginnen over de route.
 
 ```
-Route met 5 punten als lus:
+Route met 6 punten als lus (3 teams, doelafstand 5 km):
 
         [2]
        /   \
      [1]   [3]
+     |       |
+     [6]   [4]
        \   /
-        [5]-[4]
+        [5]
 
-Groep A:  1 → 2 → 3 → 4 → 5        (start bij punt 1)
-Groep B:  2 → 3 → 4 → 5 → 1        (start bij punt 2)
-Groep C:  3 → 4 → 5 → 1 → 2        (start bij punt 3)
+Team 1:  1 → 2 → 3 → 4 → 5 → 6   (start bij punt 1, ≈ 0 km)
+Team 2:  3 → 4 → 5 → 6 → 1 → 2   (start bij punt 3, ≈ 1.7 km)
+Team 3:  5 → 6 → 1 → 2 → 3 → 4   (start bij punt 5, ≈ 3.3 km)
 
-✓ Iedereen bezoekt alle 5 punten
-✓ Niemand staat meteen op hetzelfde punt
+✓ Iedereen bezoekt alle 6 punten
+✓ Teams starten op gelijke GPS-afstand van elkaar
 ✓ Iedereen loopt exact dezelfde afstand
 ```
 
-> **Belangrijk:** Zorg dat de route geografisch als lus werkt — punt 5 en punt 1 moeten geografisch dicht bij elkaar liggen, anders moeten groepen die "omslaggen" een lange terugweg lopen.
+> **Belangrijk:** Zorg dat de route geografisch als lus werkt — het laatste punt moet geografisch dicht bij het eerste punt liggen.
 
-> **Eindpunt:** Bij verspreid-modus is het eindpunt het *laatste punt dat een team bezoekt* (voor groep A is dat punt 5, voor groep B punt 1, enz.). De route is klaar zodra een groep alle punten heeft afgerond.
+> **Eindpunt:** Bij verspreid-modus is het eindpunt het *laatste punt dat een team bezoekt* (verschilt per team). De route is klaar zodra een groep alle punten heeft afgerond.
+
+#### Instellingen voor Verspreid-modus
+
+Onder de modus-toggle verschijnen extra velden:
+
+| Instelling | Uitleg |
+|---|---|
+| **Aantal teams** | Verwacht aantal deelnemende groepen (min. 2). Bepaalt de startpuntberekening. |
+| **Doelafstand** | Totale routelengte in km. Wordt gebruikt voor de kaartcirkel en puntgenerator. |
+| **Aantal punten** | Aantal punten voor de automatische generator (zie hieronder). |
+
+#### Punten automatisch genereren in cirkel
+
+Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
+
+1. Stel de **doelafstand** in (bijv. 5 km).
+2. Stel het **aantal punten** in (bijv. 9).
+3. Klik op **🔄 Genereer punten in cirkel**.
+4. Het systeem plaatst de punten in een gelijke cirkel rondom het middelpunt op de kaart.
+5. Het **middelpunt** (⊕) is versleepbaar — sleep het naar de gewenste locatie en de ghost-voorvertoning past zich direct aan.
+6. Sleep daarna elk punt afzonderlijk naar de exacte straat.
+
+> Het laatste punt wordt automatisch als **Eindpunt** gemarkeerd. Je kunt het type daarna nog aanpassen.
+
+> De ghost-cirkel op de kaart (gestippeld, cyaan) toont een voorvertoning van de punten vóór je ze genereert. De gids-cirkel rondom een geselecteerd punt toont de aanbevolen afstand tot het volgende punt.
+
+---
 
 ### 3. Speciale items plaatsen (optioneel)
 
@@ -89,13 +120,32 @@ Groep C:  3 → 4 → 5 → 1 → 2        (start bij punt 3)
 
 > **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam een melding met de naam van het aanvallende team.
 
+---
+
 ### 4. Groepen aanmaken
 
 1. Ga naar **Groepen** in de zijbalk.
-2. Klik op **Groep toevoegen** en vul de naam (en optioneel een bijnaam) in.
-3. Elke groep krijgt een unieke inloglink. Deel die link met de betreffende groep via de **WhatsApp-knop** bovenaan de groepenlijst.
+2. Klik op **+ Nieuwe groep** en vul de **groepsnaam**, **loginnaam** en een **wachtwoord** in.
+   - De **groepsnaam** is de interne naam (bijv. "Groep 1") en wordt door de beheerder bepaald.
+   - De **loginnaam** is wat de speler typt bij het inloggen (bijv. "team1").
+   - Het **wachtwoord** moet minimaal 8 tekens zijn.
+3. Deel de inloggegevens met de groep via de **WhatsApp-knop** bovenaan.
 4. De berichttekst is aanpasbaar via **✏️ Berichttekst** — opgeslagen per browser.
-5. Groepen hoeven geen wachtwoord in te voeren — de link is de toegang.
+
+> Spelers kunnen na het inloggen een **alias** (bijnaam) en een **icoon** instellen via het interscherm. De alias verschijnt als weergavenaam in de beheerderlijst en op de kaart van medespelers.
+
+#### Groepen aan- en uitzetten
+
+Met de **toggle** (groen/rood) rechts op elke groepskaart kun je een groep in- of uitschakelen:
+
+- **Groen (aan)** — de groep kan normaal inloggen en deelnemen.
+- **Rood (uit)** — de groep kan niet meer inloggen. Bij een inlogpoging verschijnt de melding _"Deze groep is uitgeschakeld."_
+
+Handig bij een testgroep die niet meer mee moet doen, of om groepen tijdelijk te blokkeren.
+
+#### Loginnaam of wachtwoord wijzigen
+
+Via de knoppen **🔑 Wachtwoord** en **✏️ Loginnaam** op de groepskaart kun je deze gegevens aanpassen zonder de groep opnieuw aan te maken.
 
 ---
 
@@ -104,8 +154,8 @@ Groep C:  3 → 4 → 5 → 1 → 2        (start bij punt 3)
 1. Ga naar de gewenste route en klik op **▶ Activeer**.
    - Er kan maar één route tegelijk actief zijn.
    - De route moet op "Gepubliceerd" staan voordat je hem kunt activeren.
-2. Groepen kunnen nu via hun link inloggen en op **Start spel** drukken.
-3. Bij een **verspreid**-route krijgt elke groep automatisch een uniek startpunt toegewezen op basis van het aanmelddvolgorde.
+2. Groepen kunnen nu via hun inloggegevens inloggen en op **Start spel** drukken.
+3. Bij een **verspreid**-route krijgt elke groep automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
 
 ---
 
@@ -118,7 +168,7 @@ Het **Dashboard** toont per groep:
 | Score | Huidig puntentotaal |
 | Voortgang | Aantal bezochte punten / totaal |
 | Gestart | Starttijd van de sessie |
-| Huidig punt | Laatste punt dat de groep heeft bereikt |
+| Huidig punt | Naam van het laatste bereiktte punt |
 | Speeltijd | Totale tijd (alleen zichtbaar na finish) |
 | Laatste update | Hoe lang geleden de GPS-positie is bijgewerkt |
 
@@ -136,11 +186,11 @@ Ga naar **Bericht sturen** om een notificatie naar alle actieve groepen te sture
 
 ### Route stoppen
 
-In de route-editor staat een **Stop route**-knop. Hiermee haal je de route uit de actieve stand zonder gegevens te wissen.
+In de route-editor staat een **⏹ Deactiveer**-knop. Hiermee haal je de route uit de actieve stand zonder gegevens te wissen.
 
 ### Spel resetten
 
-Op het dashboard staat onderaan **Spel resetten**. Dit wist:
+Op het dashboard staat onderaan **🗑️ Reset spel**. Dit wist:
 
 - Alle actieve sessies
 - Alle locatiegeschiedenis
@@ -165,3 +215,4 @@ Het leaderboard toont de eindrangschikking op basis van score. Bij gelijke score
 - **Speciale items** worden pas actief zodra de route actief is.
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: zorg dat het laatste punt en het eerste punt geografisch dicht bij elkaar liggen, zodat de lus logisch aanvoelt voor alle groepen.
+- **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
