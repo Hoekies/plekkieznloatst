@@ -392,10 +392,9 @@ export default function LeafletKaart({
   }, [centrumPunt, ghostPunten, ghostRadiusM, kaartKlaar]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ flex: 1, minHeight: 0 }}
-    />
+    <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
+      <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+    </div>
   );
 }
 
