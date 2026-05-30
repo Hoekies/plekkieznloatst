@@ -4,8 +4,6 @@
 
 PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route langs geocoördinaten, beantwoorden vragen op locatie en proberen elkaar te saboteren met speciale items. Beheer van routes, groepen en live-voortgang gaat via een ingebouwd adminpaneel.
 
-**Live:** [plekkieznloatst.vercel.app](https://plekkieznloatst.vercel.app)
-
 ---
 
 ## Functies
