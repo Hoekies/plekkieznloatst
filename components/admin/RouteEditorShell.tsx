@@ -26,20 +26,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [doelAfstandKm, setDoelAfstandKm] = useState(initRoute.doel_afstand_km ?? 0);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
+  const [centrumModus, setCentrumModus] = useState(false);
 
   useEffect(() => {
     fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
   }, [route.id]);
 
   useEffect(() => {
-    if (centrumPunt) return;
-    if (punten.length > 0) {
-      const avgLat = punten.reduce((s, p) => s + p.latitude, 0) / punten.length;
-      const avgLng = punten.reduce((s, p) => s + p.longitude, 0) / punten.length;
-      setCentrumPunt({ lat: avgLat, lng: avgLng });
-    } else {
-      setCentrumPunt({ lat: 52.3676, lng: 4.9041 });
-    }
+    if (centrumPunt || punten.length === 0) return;
+    const avgLat = punten.reduce((s, p) => s + p.latitude, 0) / punten.length;
+    const avgLng = punten.reduce((s, p) => s + p.longitude, 0) / punten.length;
+    setCentrumPunt({ lat: avgLat, lng: avgLng });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -120,6 +117,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
+    if (centrumModus) {
+      setCentrumPunt({ lat, lng });
+      setCentrumModus(false);
+      return;
+    }
     if (addSpeciaalModus) {
       const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
         method: "POST",
@@ -353,26 +355,39 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <span style={{ fontSize: "0.70rem", color: "var(--muted)" }}>km</span>
                   </div>
 
+                  {/* Middelpunt kiezen */}
+                  {doelAfstandKm > 0 && (
+                    <button
+                      className={`btn ${centrumModus ? "btn-cyan" : centrumPunt ? "btn-ghost" : "btn-primary"}`}
+                      style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                      onClick={() => { setCentrumModus((v) => !v); }}>
+                      {centrumModus ? "✅ Klik op kaart voor middelpunt…" : centrumPunt ? "📍 Verplaats middelpunt" : "📍 Kies middelpunt op kaart"}
+                    </button>
+                  )}
+
                   {/* Aantal punten + genereer */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal punten:</span>
-                    <input
-                      type="number" min={3} max={30} value={aantalPunten}
-                      onChange={(e) => setAantalPunten(Math.max(3, Math.min(30, Number(e.target.value))))}
-                      style={{
-                        width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
-                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
-                        borderRadius: 6, color: "var(--cyan)", outline: "none",
-                      }}
-                    />
-                  </div>
-                  <button
-                    className="btn btn-cyan"
-                    style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
-                    disabled={doelAfstandKm <= 0}
-                    onClick={genereerPuntenInCirkel}>
-                    🔄 Genereer punten in cirkel
-                  </button>
+                  {centrumPunt && doelAfstandKm > 0 && (
+                    <>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal punten:</span>
+                        <input
+                          type="number" min={3} max={30} value={aantalPunten}
+                          onChange={(e) => setAantalPunten(Math.max(3, Math.min(30, Number(e.target.value))))}
+                          style={{
+                            width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                            background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                            borderRadius: 6, color: "var(--cyan)", outline: "none",
+                          }}
+                        />
+                      </div>
+                      <button
+                        className="btn btn-cyan"
+                        style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                        onClick={genereerPuntenInCirkel}>
+                        🔄 Genereer punten in cirkel
+                      </button>
+                    </>
+                  )}
 
                   {/* Live preview */}
                   <div style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.5 }}>
@@ -525,7 +540,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Kaart */}
         <LeafletKaart
           punten={punten}
-          addModus={addModus || addSpeciaalModus}
+          addModus={addModus || addSpeciaalModus || centrumModus}
           geselecteerdId={geselecteerd?.id ?? null}
           specialeItems={specialeItems}
           guideCirkel={
