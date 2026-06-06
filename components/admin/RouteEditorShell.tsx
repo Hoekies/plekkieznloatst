@@ -167,7 +167,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) {
       const bijgewerkt: SpeciaalItem = await res.json();
       setSpecialeItems((p) => p.map((i) => i.id === id ? bijgewerkt : i));
-      setGeselecteerdSpeciaal(bijgewerkt);
+      setGeselecteerdSpeciaal(null);
     }
   }
 
