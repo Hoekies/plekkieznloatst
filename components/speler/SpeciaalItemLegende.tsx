@@ -18,6 +18,7 @@ const ITEM_INFO: Record<string, ItemInfo> = {
   radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten. De posities worden elke 15 seconden ververst." },
   banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Verwissel het eerstvolgende GPS-punt van een doelteam met een ander nog te bezoeken GPS-punt van dat team." },
   plekzooi:     { emoji: "⛔", naam: "Plek zooi",     beschrijving: (p) => `Onzichtbare val — als je hier overheen loopt word je ${p !== undefined ? p : "een aantal"} seconden geblokkeerd. De kaart verdwijnt en een afteltimer verschijnt.` },
+  vraagteken:   { emoji: "❓", naam: "Vraagteken",    beschrijving: () => "Willekeurig effect: 40% dubbele ster voor jezelf · 20% ieder ander team ster of bom (willekeurig per team) · 10% jackpot 5× ster · 10% −200 punten · 20% bom op jezelf." },
 };
 
 interface Props {

@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
   const { data: eigenSessie } = await admin
     .from("player_sessions")
-    .select("id, score")
+    .select("id, score, route_id")
     .eq("player_id", speler.id)
     .eq("status", "actief")
     .maybeSingle();
@@ -191,6 +191,75 @@ export async function POST(request: NextRequest) {
       notification: `🍌 Banaan van team ${aanvallerNaam}! Je volgende punt is omgewisseld.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+
+  } else if (item.type === "vraagteken") {
+    const roll = Math.random();
+    const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", eigenSessie.id).maybeSingle();
+    const huidigScore = huidig?.score ?? eigenSessie.score;
+    const sterWaarde = item.points_effect;
+
+    if (roll < 0.40) {
+      // 40%: dubbele ster voor jezelf
+      await admin.from("player_sessions")
+        .update({ score: huidigScore + sterWaarde * 2 })
+        .eq("id", eigenSessie.id);
+      eigenNotificatie = `❓ Vraagteken! Je krijgt 2× ster (${sterWaarde * 2} punten)! 🎉`;
+
+    } else if (roll < 0.60) {
+      // 20%: ieder ander actief team willekeurig ster of bom
+      const { data: andereSessies } = await admin
+        .from("player_sessions")
+        .select("id, score")
+        .eq("route_id", eigenSessie.route_id)
+        .eq("status", "actief")
+        .neq("id", eigenSessie.id);
+
+      for (const s of andereSessies ?? []) {
+        const teamRol = Math.random() < 0.5;
+        if (teamRol) {
+          await admin.from("player_sessions").update({ score: s.score + sterWaarde }).eq("id", s.id);
+          await admin.from("special_item_effects").insert({
+            special_item_id: item.id,
+            target_session_id: s.id,
+            effect_type: "punt_aftrek",
+            expires_at: null,
+            notification: `❓ Vraagteken van ${aanvallerNaam}: jij krijgt ${sterWaarde} bonuspunten! ⭐`,
+          });
+        } else {
+          const nieuwScore = Math.max(0, s.score - Math.abs(sterWaarde));
+          await admin.from("player_sessions").update({ score: nieuwScore }).eq("id", s.id);
+          await admin.from("special_item_effects").insert({
+            special_item_id: item.id,
+            target_session_id: s.id,
+            effect_type: "punt_aftrek",
+            expires_at: null,
+            notification: `❓ Vraagteken van ${aanvallerNaam}: je verliest ${Math.abs(sterWaarde)} punten! 💣`,
+          });
+        }
+      }
+      eigenNotificatie = `❓ Vraagteken! Ieder ander team krijgt een willekeurig effect van jou!`;
+
+    } else if (roll < 0.70) {
+      // 10%: jackpot
+      await admin.from("player_sessions")
+        .update({ score: huidigScore + sterWaarde * 5 })
+        .eq("id", eigenSessie.id);
+      eigenNotificatie = `❓ JACKPOT! Je krijgt 5× ster (${sterWaarde * 5} punten)! 🎰🎉`;
+
+    } else if (roll < 0.80) {
+      // 10%: verlies 200 punten
+      await admin.from("player_sessions")
+        .update({ score: Math.max(0, huidigScore - 200) })
+        .eq("id", eigenSessie.id);
+      eigenNotificatie = `❓ Pech! Je verliest 200 punten. 💸`;
+
+    } else {
+      // 20%: bom op jezelf (verlies sterwaarde punten)
+      await admin.from("player_sessions")
+        .update({ score: Math.max(0, huidigScore - Math.abs(sterWaarde)) })
+        .eq("id", eigenSessie.id);
+      eigenNotificatie = `❓ Bom op jezelf! Je verliest ${Math.abs(sterWaarde)} punten. 💥`;
+    }
 
   } else if (item.type === "plekzooi") {
     // Plek zooi treft de speler zelf — duur in seconden opgeslagen in points_effect

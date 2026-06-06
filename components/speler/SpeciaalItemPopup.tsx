@@ -27,9 +27,10 @@ const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string; b
   radar:        { emoji: "📡", kleur: "#0369A1", label: "Radar",        beschrijving: "Onthult de exacte GPS-positie van alle teams gedurende 2 minuten." },
   banaan:       { emoji: "🍌", kleur: "#CA8A04", label: "Banaan",       beschrijving: "Verwisselt het volgende punt van het doelteam met een verrassing." },
   plekzooi:     { emoji: "⛔", kleur: "#991B1B", label: "Plek zooi",     beschrijving: "Onzichtbare val — blokkeert een team als ze er overheen lopen." },
+  vraagteken:   { emoji: "❓", kleur: "#7C3AED", label: "Vraagteken",    beschrijving: "Willekeurig effect: 40% dubbele ster · 20% jackpot/verlies · 20% chaos voor iedereen · 20% bom op jezelf." },
 };
 
-const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar"]);
+const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar", "vraagteken"]);
 
 export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onSluit }: Props) {
   const startFase: Fase = TYPES_ZONDER_DOEL.has(item.type) ? "bevestig" : "kies_team";
@@ -186,6 +187,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
               {item.type === "ster" ? "Punten bijgeschreven!" :
                item.type === "verdubbeling" ? "Verdubbeling actief!" :
                item.type === "radar" ? "Radar actief voor 2 minuten!" :
+               item.type === "vraagteken" ? "Het lot heeft gesproken! 🎲" :
                "Effect toegepast!"}
             </p>
             <p style={{ fontSize: "13px", color: "#888", marginTop: 4 }}>Dit venster sluit automatisch.</p>
