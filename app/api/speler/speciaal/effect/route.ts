@@ -61,13 +61,22 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   const aanvallerNaam: string = (aanvallerData as { players?: { group_name?: string } } | null)?.players?.group_name ?? "Onbekend team";
 
+  // Route-niveau waarden ophalen voor ster/bom/vraagteken
+  const { data: routeWaarden } = await admin
+    .from("routes")
+    .select("ster_waarde, bom_waarde")
+    .eq("id", eigenSessie.route_id)
+    .maybeSingle();
+  const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;
+  const routeBomWaarde = routeWaarden?.bom_waarde ?? item.points_effect ?? 30;
+
   const usedAt = new Date().toISOString();
   let eigenNotificatie: string | null = null;
 
   if (item.type === "ster") {
     const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", eigenSessie.id).maybeSingle();
     await admin.from("player_sessions")
-      .update({ score: (huidig?.score ?? eigenSessie.score) + item.points_effect })
+      .update({ score: (huidig?.score ?? eigenSessie.score) + routeSterWaarde })
       .eq("id", eigenSessie.id);
 
   } else if (item.type === "verdubbeling") {
@@ -103,7 +112,7 @@ export async function POST(request: NextRequest) {
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
   } else if (item.type === "bom") {
-    const aftrek = Math.abs(item.points_effect);
+    const aftrek = routeBomWaarde;
     const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", doelSessie!.id).maybeSingle();
     const nieuweScore = Math.max(0, (huidig?.score ?? doelSessie!.score) - aftrek);
     await admin.from("player_sessions").update({ score: nieuweScore }).eq("id", doelSessie!.id);
@@ -196,7 +205,7 @@ export async function POST(request: NextRequest) {
     const roll = Math.random();
     const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", eigenSessie.id).maybeSingle();
     const huidigScore = huidig?.score ?? eigenSessie.score;
-    const sterWaarde = item.points_effect;
+    const sterWaarde = routeSterWaarde;
 
     if (roll < 0.40) {
       // 40%: dubbele ster voor jezelf

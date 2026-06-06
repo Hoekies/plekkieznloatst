@@ -24,6 +24,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [fout, setFout] = useState("");
   const [verwachtTeams, setVerwachtTeams] = useState(initRoute.verwacht_aantal_teams ?? 2);
   const [doelAfstandKm, setDoelAfstandKm] = useState(initRoute.doel_afstand_km ?? 0);
+  const [sterWaarde, setSterWaarde] = useState(initRoute.ster_waarde ?? 50);
+  const [bomWaarde, setBomWaarde] = useState(initRoute.bom_waarde ?? 30);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -220,6 +222,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       body: JSON.stringify({ verwacht_aantal_teams: teams, doel_afstand_km: afstand }),
     });
     if (res.ok) setRoute((r) => ({ ...r, verwacht_aantal_teams: teams, doel_afstand_km: afstand }));
+  }
+
+  async function slaItemWaardenOp(ster: number, bom: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ster_waarde: ster, bom_waarde: bom }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, ster_waarde: ster, bom_waarde: bom }));
   }
 
   async function slaPuntOp(update: Partial<RoutePunt>) {
@@ -424,6 +435,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             })()}
           </div>
 
+          {/* Itemwaarden */}
+          <div style={{ padding: "8px 14px", borderTop: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
+            <span style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Itemwaarden</span>
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: "0.68rem", color: "var(--muted)", display: "block", marginBottom: 3 }}>⭐ Sterwaarde</label>
+                <input
+                  type="number" min={1} value={sterWaarde}
+                  onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
+                  onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                  style={{
+                    width: "100%", padding: "4px 8px", fontSize: "0.82rem", fontWeight: 700,
+                    background: "rgba(255,217,59,0.07)", border: "1px solid rgba(255,217,59,0.3)",
+                    borderRadius: 6, color: "var(--gold)", outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: "0.68rem", color: "var(--muted)", display: "block", marginBottom: 3 }}>💣 Bomwaarde</label>
+                <input
+                  type="number" min={1} value={bomWaarde}
+                  onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
+                  onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                  style={{
+                    width: "100%", padding: "4px 8px", fontSize: "0.82rem", fontWeight: 700,
+                    background: "rgba(255,59,92,0.07)", border: "1px solid rgba(255,59,92,0.3)",
+                    borderRadius: 6, color: "var(--red)", outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            </div>
+            <span style={{ fontSize: "0.66rem", color: "var(--muted)" }}>Geldt voor alle ⭐ ster, 💣 bom en ❓ vraagteken items in deze route.</span>
+          </div>
+
           {/* Tabbladen */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
             <button
@@ -625,7 +670,6 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
     setNaam(item.name); setType(item.type); setRadius(item.radius_meters); setEffect(item.points_effect);
   }, [item.id]);
 
-  const heeftPunten = type === "ster" || type === "bom" || type === "vraagteken";
   const heeftDuur = type === "plekzooi";
 
   return (
@@ -659,12 +703,6 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
           <input className="form-input" type="number" min={1} value={radius} onChange={(e) => setRadius(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
         </div>
       </div>
-      {heeftPunten && (
-        <div className="form-group">
-          <label className="form-label">{type === "bom" ? "Aftrek punten" : type === "vraagteken" ? "Basis sterwaarde" : "Bonus punten"}</label>
-          <input className="form-input" type="number" min={0} value={Math.abs(effect)} onChange={(e) => setEffect(type === "bom" ? -Number(e.target.value) : Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
-        </div>
-      )}
       {heeftDuur && (
         <div className="form-group">
           <label className="form-label">Blokkeer duur (seconden)</label>

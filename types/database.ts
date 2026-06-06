@@ -16,6 +16,8 @@ export interface Route {
   modus: RouteModus;
   verwacht_aantal_teams: number;
   doel_afstand_km: number;
+  ster_waarde: number;
+  bom_waarde: number;
   created_at: string;
   updated_at: string;
 }
