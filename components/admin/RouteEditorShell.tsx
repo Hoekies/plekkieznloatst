@@ -169,6 +169,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
   }
 
+  async function specialItemVerplaatst(id: string, lat: number, lng: number) {
+    await slaSpeciaalItemOp(id, { latitude: lat, longitude: lng });
+  }
+
   async function markerVerplaatst(id: string, lat: number, lng: number) {
     await fetch(`/api/admin/routes/${route.id}/punten/${id}`, {
       method: "PATCH",
@@ -511,7 +515,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
                 </p>
               ) : specialeItems.map((item) => {
-                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", plekzooi: "⛔" }[item.type] ?? "?";
+                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", plekzooi: "⛔", vraagteken: "❓" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
@@ -556,6 +560,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}
+          onSpeciaalItemVerplaatst={specialItemVerplaatst}
+          onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
+          geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
         />
 
         {/* Rechter bewerkdrawer */}
@@ -618,7 +625,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
     setNaam(item.name); setType(item.type); setRadius(item.radius_meters); setEffect(item.points_effect);
   }, [item.id]);
 
-  const heeftPunten = type === "ster" || type === "bom";
+  const heeftPunten = type === "ster" || type === "bom" || type === "vraagteken";
   const heeftDuur = type === "plekzooi";
 
   return (
@@ -644,6 +651,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
             <option value="radar">📡 Radar</option>
             <option value="banaan">🍌 Banaan</option>
             <option value="plekzooi">⛔ Plek zooi</option>
+            <option value="vraagteken">❓ Vraagteken</option>
           </select>
         </div>
         <div className="form-group">
@@ -653,7 +661,7 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
       </div>
       {heeftPunten && (
         <div className="form-group">
-          <label className="form-label">{type === "bom" ? "Aftrek punten" : "Bonus punten"}</label>
+          <label className="form-label">{type === "bom" ? "Aftrek punten" : type === "vraagteken" ? "Basis sterwaarde" : "Bonus punten"}</label>
           <input className="form-input" type="number" min={0} value={Math.abs(effect)} onChange={(e) => setEffect(type === "bom" ? -Number(e.target.value) : Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
         </div>
       )}
