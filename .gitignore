@@ -24,3 +24,5 @@ yarn-debug.log*
 *.pem
 supa-ww.txt
 tsconfig.tsbuildinfo
+
+.vercel
