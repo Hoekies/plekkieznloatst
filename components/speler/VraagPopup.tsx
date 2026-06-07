@@ -218,7 +218,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
       {/* Logo header */}
       <div style={{ padding: "10px 16px 8px", borderBottom: "1px solid #e5e7eb", background: "#ffffff", flexShrink: 0, display: "flex", alignItems: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-breed.png" alt="PointRush" style={{ height: 32, width: "auto" }} />
+        <img src="/logo-breed.png" alt="PointRush" style={{ height: 96, width: "auto" }} />
       </div>
 
       {/* Scrollbaar inhoudsgebied */}
@@ -263,7 +263,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 
             {vraag.type === "meerkeuze_afbeelding" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                {vraag.answer_options.map((optie) => {
+                {(vraag.answer_options ?? []).map((optie) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -306,7 +306,10 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 
             {vraag.type === "meerkeuze_tekst" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {vraag.answer_options.map((optie) => {
+                {(vraag.answer_options ?? []).length === 0 && (
+                  <p style={{ color: "#DC2626", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
+                )}
+                {(vraag.answer_options ?? []).map((optie) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -339,12 +342,17 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             {vraag.type === "open" && (
               <input
                 ref={inputRef}
-                className="form-input"
                 value={openAntwoord}
                 onChange={(e) => setOpenAntwoord(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && beantwoord()}
                 placeholder="Typ hier je antwoord…"
-                style={{ fontSize: "1rem", padding: "14px 16px", background: "#fff", color: "#0A1B36", borderColor: "#d1d5db" }}
+                style={{
+                  fontSize: "1rem", padding: "14px 16px",
+                  background: "#f9fafb", color: "#0A1B36",
+                  border: "2px solid #d1d5db", borderRadius: 12,
+                  outline: "none", width: "100%", boxSizing: "border-box",
+                  fontFamily: "inherit",
+                }}
                 autoFocus
               />
             )}
