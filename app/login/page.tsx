@@ -120,7 +120,7 @@ function LoginForm() {
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%", marginTop: "6px" }}>
-            <img src="/help/inloggen.png" alt="Inloggen" style={{ width: "100%", borderRadius: 8, display: "block" }} />
+            <img src="/help/inloggen.png" alt="Inloggen" style={{ width: "50%", borderRadius: 8, display: "block", margin: "0 auto" }} />
           </button>
         </form>
       </div>
