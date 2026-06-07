@@ -467,16 +467,17 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                         <div key={ant.color} style={{
                           display: "flex", alignItems: "center", gap: 8,
                           padding: "10px 10px", borderRadius: 10,
-                          border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "#e5e7eb"}`,
-                          background: ant.is_correct ? KLEUR_STIJL[ant.color] : "#ffffff",
+                          border: `2px solid ${ant.is_correct ? "#ffffff" : "transparent"}`,
+                          background: KLEUR_STIJL[ant.color],
+                          boxShadow: ant.is_correct ? "0 0 0 2px rgba(0,0,0,0.25)" : "none",
                         }}>
                           <div style={{
                             width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
-                            border: `2px solid ${ant.is_correct ? "#ffffff" : KLEUR_STIJL[ant.color]}`,
+                            border: "2px solid rgba(255,255,255,0.7)",
                             background: ant.is_correct ? "#ffffff" : "transparent",
                           }} />
-                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: ant.is_correct ? "#ffffff" : "#111" }}>
-                            {ant.text || <span style={{ color: ant.is_correct ? "rgba(255,255,255,0.7)" : "#aaa", fontStyle: "italic" }}>{ant.color}</span>}
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ffffff" }}>
+                            {ant.text || <span style={{ color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{ant.color}</span>}
                           </span>
                         </div>
                       ))}
@@ -508,16 +509,18 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                   )}
                 </div>
 
-                {/* Vaste knop */}
-                <div style={{ padding: "8px 12px 16px", borderTop: "1px solid #f3f4f6" }}>
-                  <div style={{
-                    background: "#1E40AF", color: "#fff",
-                    borderRadius: 10, padding: "10px 0",
-                    textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
-                  }}>
-                    Bevestig antwoord
+                {/* Vaste knop — alleen bij open vraag/foto */}
+                {(type === "open" || type === "foto_opdracht") && (
+                  <div style={{ padding: "8px 12px 16px", borderTop: "1px solid #f3f4f6" }}>
+                    <div style={{
+                      background: "#1E40AF", color: "#fff",
+                      borderRadius: 10, padding: "10px 0",
+                      textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
+                    }}>
+                      {type === "foto_opdracht" ? "📤 Foto insturen" : "Bevestig antwoord"}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

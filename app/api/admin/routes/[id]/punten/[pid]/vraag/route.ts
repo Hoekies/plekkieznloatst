@@ -37,8 +37,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (aantalCorrect !== 1) {
       return NextResponse.json({ fout: "Selecteer precies één correct antwoord" }, { status: 400 });
     }
-    if ((body.antwoorden ?? []).length !== 3) {
-      return NextResponse.json({ fout: "Er zijn precies 3 antwoorden vereist" }, { status: 400 });
+    if ((body.antwoorden ?? []).length !== 4) {
+      return NextResponse.json({ fout: "Er zijn precies 4 antwoorden vereist" }, { status: 400 });
     }
   }
 
