@@ -72,7 +72,8 @@ export default function AdminDashboard({ initData }: Props) {
   return (
     <>
       <div className="admin-topbar">
-        <h1 className="admin-topbar-titel">Dashboard</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/help/dashboard.png" alt="Dashboard" style={{ height: 36, borderRadius: 6 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <FotoBeoordelingPanel />
           <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>

@@ -4,7 +4,8 @@ export default function GroepenPagina() {
   return (
     <>
       <div className="admin-topbar">
-        <h1>Groepen</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/help/groepen.png" alt="Groepen" style={{ height: 36, borderRadius: 6 }} />
       </div>
       <div className="admin-content">
         <GroepenBeheer />

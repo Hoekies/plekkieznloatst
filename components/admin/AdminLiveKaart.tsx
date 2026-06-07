@@ -55,7 +55,8 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <h1>Live kaart</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/help/live kaart.png" alt="Live kaart" style={{ height: 36, borderRadius: 6 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", color: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)" }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)", display: "inline-block" }} />
           {realtimeOk ? "Live" : "Verbinding weg"}
