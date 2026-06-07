@@ -51,7 +51,13 @@ function LoginForm() {
         <img
           src="/logo.png"
           alt="PointRush"
-          style={{ width: "67%", display: "block", margin: "0 auto 32px" }}
+          style={{ width: "67%", display: "block", margin: "0 auto 20px" }}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/help/inloggen.png"
+          alt="Inloggen"
+          style={{ width: "100%", borderRadius: 10, marginBottom: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
         />
 
         <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

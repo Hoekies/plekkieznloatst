@@ -12,7 +12,6 @@ const ITEMS = [
   { naam: "Stop route",       bestand: "stop route.png" },
   { naam: "Reset spel",       bestand: "reset spel.png" },
   { naam: "Uitloggen",        bestand: "uitloggen.png" },
-  { naam: "Inloggen",         bestand: "inloggen.png" },
 ];
 
 export default function AdminHelpKnop() {
