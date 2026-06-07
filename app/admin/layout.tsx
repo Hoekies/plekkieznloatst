@@ -25,15 +25,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <nav className="admin-nav">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin" exact><img src="/help/dashboard.png" alt="Dashboard" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin" exact><img src="/help/dashboard.png" alt="Dashboard" style={{ height: 20, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/routes"><img src="/help/routes.png" alt="Routes" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/routes"><img src="/help/routes.png" alt="Routes" style={{ height: 20, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/groepen"><img src="/help/groepen.png" alt="Groepen" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/groepen"><img src="/help/groepen.png" alt="Groepen" style={{ height: 20, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/leaderboard"><img src="/help/leaderboard.png" alt="Leaderboard" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/leaderboard"><img src="/help/leaderboard.png" alt="Leaderboard" style={{ height: 20, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/live"><img src="/help/live kaart.png" alt="Live kaart" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/live"><img src="/help/live kaart.png" alt="Live kaart" style={{ height: 20, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           <BroadcastKnop />
         </nav>
         <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
