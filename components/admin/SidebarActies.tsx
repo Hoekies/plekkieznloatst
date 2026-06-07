@@ -70,11 +70,11 @@ export default function SidebarActies() {
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <button className="sidebar-actie-knop sidebar-actie-knop--groot" style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => setFase("bevestig-stop")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/stop route.png" alt="Stop route" style={{ height: 20, width: "auto", borderRadius: 6, display: "block" }} />
+        <img src="/help/stop route.png" alt="Stop route" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} />
       </button>
       <button className="sidebar-actie-knop sidebar-actie-knop--gevaar sidebar-actie-knop--groot" style={{ display: "flex", justifyContent: "flex-end" }} onClick={() => setFase("bevestig-reset")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/reset spel.png" alt="Reset spel" style={{ height: 20, width: "auto", borderRadius: 6, display: "block" }} />
+        <img src="/help/reset spel.png" alt="Reset spel" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} />
       </button>
     </div>
   );
