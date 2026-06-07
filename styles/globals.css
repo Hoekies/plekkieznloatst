@@ -166,8 +166,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .form-label {
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 .form-textarea {
   resize: vertical;
