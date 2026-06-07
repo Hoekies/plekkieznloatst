@@ -35,8 +35,6 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems }: Props) {
         zichtbaarMap.set(item.type, Math.abs(item.points_effect) || undefined);
       }
     }
-    // Plekzooi altijd tonen in legende (ook als niet op kaart zichtbaar)
-    if (!zichtbaarMap.has("plekzooi")) zichtbaarMap.set("plekzooi", undefined);
   } else {
     // Geen filter: toon alles zonder puntwaarde
     Object.keys(ITEM_INFO).forEach((k) => zichtbaarMap.set(k, undefined));

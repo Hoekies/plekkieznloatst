@@ -569,7 +569,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       {legendeOpen && (
         <SpeciaalItemLegende
           onSluit={() => setLegendeOpen(false)}
-          speciaalItems={specialeItems.filter((i) => i.type !== "plekzooi")}
+          speciaalItems={specialeItems}
         />
       )}
 
