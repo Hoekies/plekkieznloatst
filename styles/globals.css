@@ -229,16 +229,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .admin-nav {
   flex: 1;
-  padding: 12px 10px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 .admin-nav-link {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 5px 14px;
   color: rgba(255,255,255,0.6);
   text-decoration: none;
   font-size: 0.83rem;
