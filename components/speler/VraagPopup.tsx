@@ -10,11 +10,13 @@ const KLEUR_RAND: Record<string, string> = {
   geel: "#F59E0B",
   blauw: "#1E40AF",
   rood: "#EF4444",
+  groen: "#16A34A",
 };
 const KLEUR_ZACHT: Record<string, string> = {
   geel: "#FEF9C3",
   blauw: "#DBEAFE",
   rood: "#FEE2E2",
+  groen: "#DCFCE7",
 };
 
 type AntwoordOptie = {
@@ -96,16 +98,9 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
     }
   }
 
-  async function beantwoord() {
+  async function beantwoordMet(answerId: string | null, openTekst?: string) {
     if (!vraag) return;
     setFout("");
-
-    if (vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") {
-      if (!gekozenId) { setFout("Kies een antwoord"); return; }
-    } else {
-      if (!openAntwoord.trim()) { setFout("Vul een antwoord in"); return; }
-    }
-
     setBezig(true);
     try {
       const res = await fetch("/api/speler/voortgang/verwerk", {
@@ -113,8 +108,8 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           route_point_id: punt.id,
-          selected_answer_id: gekozenId ?? undefined,
-          open_answer_text: vraag.type === "open" ? openAntwoord : undefined,
+          selected_answer_id: answerId ?? undefined,
+          open_answer_text: openTekst,
         }),
       });
 
@@ -139,6 +134,11 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
     } finally {
       setBezig(false);
     }
+  }
+
+  function beantwoord() {
+    if (!openAntwoord.trim()) { setFout("Vul een antwoord in"); return; }
+    beantwoordMet(null, openAntwoord);
   }
 
   function doorgaan() {
@@ -263,15 +263,17 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                     <button
                       key={optie.id}
                       type="button"
-                      onClick={() => setGekozenId(optie.id)}
+                      disabled={bezig}
+                      onClick={() => { setGekozenId(optie.id); beantwoordMet(optie.id); }}
                       style={{
-                        border: `3px solid ${isGekozen ? KLEUR_RAND[optie.color] : "#e5e7eb"}`,
+                        border: `3px solid ${isGekozen ? "#ffffff" : KLEUR_RAND[optie.color]}`,
                         borderRadius: 16, overflow: "hidden",
                         cursor: "pointer",
-                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "#f9fafb",
+                        background: KLEUR_RAND[optie.color],
                         padding: 0,
                         display: "flex", flexDirection: "column",
-                        transition: "border-color 0.12s, background 0.12s",
+                        opacity: bezig && !isGekozen ? 0.5 : 1,
+                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.3)" : "none",
                       }}>
                       {optie.image_path ? (
                         <img
@@ -285,7 +287,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                       {optie.text && (
                         <div style={{
                           padding: "8px 10px", fontSize: "0.88rem", fontWeight: 600,
-                          textAlign: "center", color: "#0A1B36",
+                          textAlign: "center", color: "#ffffff",
                         }}>
                           {optie.text}
                         </div>
@@ -304,21 +306,24 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                     <button
                       key={optie.id}
                       type="button"
-                      onClick={() => setGekozenId(optie.id)}
+                      disabled={bezig}
+                      onClick={() => { setGekozenId(optie.id); beantwoordMet(optie.id); }}
                       style={{
                         display: "flex", alignItems: "center", gap: 14,
                         padding: "16px 18px", borderRadius: 14, cursor: "pointer",
-                        border: `2.5px solid ${isGekozen ? KLEUR_RAND[optie.color] : "#e5e7eb"}`,
-                        background: isGekozen ? KLEUR_RAND[optie.color] : "#ffffff",
+                        border: `2.5px solid ${isGekozen ? "#ffffff" : "transparent"}`,
+                        background: KLEUR_RAND[optie.color],
                         textAlign: "left",
-                        transition: "border-color 0.12s, background 0.12s",
+                        transition: "opacity 0.12s",
+                        opacity: bezig && !isGekozen ? 0.5 : 1,
+                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.3)" : "none",
                       }}>
                       <div style={{
                         width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
                         background: isGekozen ? "#ffffff" : "transparent",
-                        border: `2.5px solid ${isGekozen ? "#ffffff" : KLEUR_RAND[optie.color]}`,
+                        border: `2.5px solid rgba(255,255,255,0.7)`,
                       }} />
-                      <span style={{ fontSize: "1rem", fontWeight: 600, color: isGekozen ? "#ffffff" : "#0A1B36" }}>{optie.text}</span>
+                      <span style={{ fontSize: "1rem", fontWeight: 600, color: "#ffffff" }}>{optie.text}</span>
                     </button>
                   );
                 })}
@@ -437,7 +442,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             {bezig ? "Even geduld…" : punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
           </button>
         )}
-        {popupFase === "vraag" && vraag?.type !== "foto_opdracht" && (
+        {popupFase === "vraag" && vraag?.type === "open" && (
           <button
             className="btn btn-primary"
             style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}

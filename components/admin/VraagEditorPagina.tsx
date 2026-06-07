@@ -12,12 +12,12 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 type VraagMetAntwoorden = Vraag & { answer_options: AntwoordOptie[] };
 
-const KLEUREN = ["geel", "blauw", "rood"] as const;
+const KLEUREN = ["geel", "blauw", "rood", "groen"] as const;
 const KLEUR_STIJL: Record<string, string> = {
-  geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444",
+  geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A",
 };
 const KLEUR_ZACHT: Record<string, string> = {
-  geel: "#FEF9C3", blauw: "#DBEAFE", rood: "#FEE2E2",
+  geel: "#FEF9C3", blauw: "#DBEAFE", rood: "#FEE2E2", groen: "#DCFCE7",
 };
 
 interface Props {
@@ -39,7 +39,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
     image_path: string | null;
     is_correct: boolean;
   }[]>(
-    bestaandeVraag?.answer_options.length === 3
+    bestaandeVraag?.answer_options.length === 4
       ? bestaandeVraag.answer_options.map((a) => ({
           color: a.color as typeof KLEUREN[number],
           text: a.text ?? "",

@@ -1,7 +1,7 @@
 export type RouteStatus = "concept" | "gepubliceerd";
 export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt";
 export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
-export type AntwoordKleur = "geel" | "blauw" | "rood";
+export type AntwoordKleur = "geel" | "blauw" | "rood" | "groen";
 export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
 export type FotoStatus = "wacht" | "goedgekeurd" | "afgekeurd";
