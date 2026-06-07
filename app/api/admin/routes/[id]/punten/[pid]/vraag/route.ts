@@ -7,7 +7,8 @@ type Params = { params: { id: string; pid: string } };
 async function checkAdmin() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  return user?.user_metadata?.rol === "admin" ? user : null;
+  const rol = user?.app_metadata?.rol ?? user?.user_metadata?.rol;
+  return rol === "admin" ? user : null;
 }
 
 export async function GET(_: NextRequest, { params }: Params) {
@@ -65,7 +66,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
     vraagId = bestaand.id;
 
     // Antwoorden vervangen
-    await admin.from("answer_options").delete().eq("question_id", vraagId);
+    const { error: deleteFout } = await admin.from("answer_options").delete().eq("question_id", vraagId);
+    if (deleteFout) return NextResponse.json({ fout: `Antwoorden verwijderen mislukt: ${deleteFout.message}` }, { status: 500 });
   } else {
     // Aanmaken
     const { data: nieuw, error } = await admin.from("questions").insert({
@@ -83,8 +85,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 
   // Antwoorden invoegen (alleen bij meerkeuzevragen)
-  if (body.type !== "open" && body.antwoorden?.length) {
-    await admin.from("answer_options").insert(
+  if (body.type !== "open" && body.type !== "foto_opdracht" && body.antwoorden?.length) {
+    const { error: insertFout } = await admin.from("answer_options").insert(
       body.antwoorden.map((a: { color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean }, i: number) => ({
         question_id: vraagId,
         order_index: i + 1,
@@ -95,6 +97,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         is_correct: a.is_correct,
       }))
     );
+    if (insertFout) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${insertFout.message}` }, { status: 500 });
   }
 
   // Teruggeven inclusief antwoorden
