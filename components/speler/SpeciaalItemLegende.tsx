@@ -26,20 +26,20 @@ interface Props {
   speciaalItems?: SpeciaalItem[];
 }
 
-const VERBORGEN_TYPES = new Set(["plekzooi"]);
-
 export default function SpeciaalItemLegende({ onSluit, speciaalItems }: Props) {
   // Bepaal welke types zichtbaar zijn + hun puntenwaarde
   const zichtbaarMap = new Map<string, number | undefined>();
   if (speciaalItems && speciaalItems.length > 0) {
     for (const item of speciaalItems) {
-      if (!zichtbaarMap.has(item.type) && !VERBORGEN_TYPES.has(item.type)) {
+      if (!zichtbaarMap.has(item.type)) {
         zichtbaarMap.set(item.type, Math.abs(item.points_effect) || undefined);
       }
     }
+    // Plekzooi altijd tonen in legende (ook als niet op kaart zichtbaar)
+    if (!zichtbaarMap.has("plekzooi")) zichtbaarMap.set("plekzooi", undefined);
   } else {
-    // Geen filter: toon alles zonder puntwaarde (behalve verborgen typen)
-    Object.keys(ITEM_INFO).filter((k) => !VERBORGEN_TYPES.has(k)).forEach((k) => zichtbaarMap.set(k, undefined));
+    // Geen filter: toon alles zonder puntwaarde
+    Object.keys(ITEM_INFO).forEach((k) => zichtbaarMap.set(k, undefined));
   }
 
   const items = [...zichtbaarMap.entries()]
