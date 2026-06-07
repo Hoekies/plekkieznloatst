@@ -309,16 +309,16 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
                         display: "flex", alignItems: "center", gap: 14,
                         padding: "16px 18px", borderRadius: 14, cursor: "pointer",
                         border: `2.5px solid ${isGekozen ? KLEUR_RAND[optie.color] : "#e5e7eb"}`,
-                        background: isGekozen ? KLEUR_ZACHT[optie.color] : "#f9fafb",
+                        background: isGekozen ? KLEUR_RAND[optie.color] : "#ffffff",
                         textAlign: "left",
                         transition: "border-color 0.12s, background 0.12s",
                       }}>
                       <div style={{
                         width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
-                        background: isGekozen ? KLEUR_RAND[optie.color] : "transparent",
-                        border: `2.5px solid ${KLEUR_RAND[optie.color]}`,
+                        background: isGekozen ? "#ffffff" : "transparent",
+                        border: `2.5px solid ${isGekozen ? "#ffffff" : KLEUR_RAND[optie.color]}`,
                       }} />
-                      <span style={{ fontSize: "1rem", fontWeight: 600, color: "#0A1B36" }}>{optie.text}</span>
+                      <span style={{ fontSize: "1rem", fontWeight: 600, color: isGekozen ? "#ffffff" : "#0A1B36" }}>{optie.text}</span>
                     </button>
                   );
                 })}

@@ -468,15 +468,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                           display: "flex", alignItems: "center", gap: 8,
                           padding: "10px 10px", borderRadius: 10,
                           border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "#e5e7eb"}`,
-                          background: ant.is_correct ? KLEUR_ZACHT[ant.color] : "transparent",
+                          background: ant.is_correct ? KLEUR_STIJL[ant.color] : "#ffffff",
                         }}>
                           <div style={{
                             width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
-                            border: `2px solid ${KLEUR_STIJL[ant.color]}`,
-                            background: ant.is_correct ? KLEUR_STIJL[ant.color] : "transparent",
+                            border: `2px solid ${ant.is_correct ? "#ffffff" : KLEUR_STIJL[ant.color]}`,
+                            background: ant.is_correct ? "#ffffff" : "transparent",
                           }} />
-                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#111" }}>
-                            {ant.text || <span style={{ color: "#aaa", fontStyle: "italic" }}>{ant.color}</span>}
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: ant.is_correct ? "#ffffff" : "#111" }}>
+                            {ant.text || <span style={{ color: ant.is_correct ? "rgba(255,255,255,0.7)" : "#aaa", fontStyle: "italic" }}>{ant.color}</span>}
                           </span>
                         </div>
                       ))}
