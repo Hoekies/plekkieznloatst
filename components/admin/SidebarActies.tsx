@@ -68,11 +68,13 @@ export default function SidebarActies() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <button className="sidebar-actie-knop sidebar-actie-knop--groot" onClick={() => setFase("bevestig-stop")}>
-        ⏹ Stop route
+      <button className="sidebar-actie-knop sidebar-actie-knop--groot" style={{ padding: 0 }} onClick={() => setFase("bevestig-stop")}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/help/stop route.png" alt="Stop route" style={{ width: "100%", borderRadius: 6, display: "block" }} />
       </button>
-      <button className="sidebar-actie-knop sidebar-actie-knop--gevaar sidebar-actie-knop--groot" onClick={() => setFase("bevestig-reset")}>
-        🗑️ Reset spel
+      <button className="sidebar-actie-knop sidebar-actie-knop--gevaar sidebar-actie-knop--groot" style={{ padding: 0 }} onClick={() => setFase("bevestig-reset")}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/help/reset spel.png" alt="Reset spel" style={{ width: "100%", borderRadius: 6, display: "block" }} />
       </button>
     </div>
   );
