@@ -5,6 +5,7 @@ import AdminNavLink from "@/components/admin/AdminNavLink";
 import SidebarActies from "@/components/admin/SidebarActies";
 import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import SidebarToggle from "@/components/admin/SidebarToggle";
+import AdminHelpKnop from "@/components/admin/AdminHelpKnop";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -35,7 +36,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Beheer</div>
           <SidebarActies />
         </div>
-        <div style={{ padding: "10px 14px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ padding: "10px 14px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", gap: 8 }}>
+          <AdminHelpKnop />
           <UitlogKnop />
         </div>
         <div style={{ padding: "8px 14px", textAlign: "center" }}>
