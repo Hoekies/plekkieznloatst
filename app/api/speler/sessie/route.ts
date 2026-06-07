@@ -77,7 +77,7 @@ export async function POST() {
     return NextResponse.json({ fout: error?.message ?? "Sessie aanmaken mislukt" }, { status: 500 });
   }
 
-  // Voor verspreid-modus: vul session_point_order met afstandsgebaseerde rotatie
+  // Voor verspreid-modus: vul session_point_order met hub-start, geroteerde middenpunten, hub-eind
   if (route.modus === "verspreid") {
     const { data: punten } = await admin
       .from("route_points")
@@ -85,7 +85,7 @@ export async function POST() {
       .eq("route_id", route.id)
       .order("order_index");
 
-    if (punten && punten.length > 0) {
+    if (punten && punten.length >= 3) {
       const { count: aantalSessies } = await admin
         .from("player_sessions")
         .select("*", { count: "exact", head: true })
@@ -95,7 +95,51 @@ export async function POST() {
       const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
       const teamIndex = (aantalSessies ?? 0) % nTeams;
 
-      // Bereken cumulatieve afstand per punt
+      const hubStart = punten[0];
+      const hubEind = punten[punten.length - 1];
+      const middenpunten = punten.slice(1, -1);
+
+      // Bereken cumulatieve afstand over middenpunten
+      const cumulatief = [0];
+      for (let i = 1; i < middenpunten.length; i++) {
+        cumulatief.push(
+          cumulatief[i - 1] +
+          haversine(middenpunten[i - 1].latitude, middenpunten[i - 1].longitude,
+                    middenpunten[i].latitude,     middenpunten[i].longitude)
+        );
+      }
+      const totalMeters = cumulatief[cumulatief.length - 1];
+      const targetMeters = totalMeters > 0 ? (totalMeters / nTeams) * teamIndex : 0;
+
+      let offset = 0;
+      let minDelta = Infinity;
+      for (let i = 0; i < cumulatief.length; i++) {
+        const delta = Math.abs(cumulatief[i] - targetMeters);
+        if (delta < minDelta) { minDelta = delta; offset = i; }
+      }
+
+      const volgorde = [
+        { session_id: sessie.id, volgorde: 1, route_point_id: hubStart.id },
+        ...middenpunten.map((_, k) => ({
+          session_id: sessie.id,
+          volgorde: k + 2,
+          route_point_id: middenpunten[(offset + k) % middenpunten.length].id,
+        })),
+        { session_id: sessie.id, volgorde: middenpunten.length + 2, route_point_id: hubEind.id },
+      ];
+
+      await admin.from("session_point_order").insert(volgorde);
+    } else if (punten && punten.length > 0) {
+      // Fallback voor routes zonder hub (< 3 punten)
+      const { count: aantalSessies } = await admin
+        .from("player_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("route_id", route.id)
+        .neq("id", sessie.id);
+
+      const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
+      const teamIndex = (aantalSessies ?? 0) % nTeams;
+
       const cumulatief = [0];
       for (let i = 1; i < punten.length; i++) {
         cumulatief.push(
@@ -107,7 +151,6 @@ export async function POST() {
       const totalMeters = cumulatief[cumulatief.length - 1];
       const targetMeters = totalMeters > 0 ? (totalMeters / nTeams) * teamIndex : 0;
 
-      // Vind het dichtstbijzijnde punt bij de doelafstand
       let offset = 0;
       let minDelta = Infinity;
       for (let i = 0; i < cumulatief.length; i++) {

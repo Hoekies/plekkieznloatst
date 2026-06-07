@@ -44,12 +44,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Bereken de startpunten per team voor verspreid-modus
   const teamStartPunten = useMemo(() => {
-    if (route.modus !== "verspreid" || punten.length < 2 || verwachtTeams < 2) return [];
+    if (route.modus !== "verspreid" || punten.length < 4 || verwachtTeams < 2) return [];
+    const middenpunten = punten.slice(1, -1);
+    if (middenpunten.length < 2) return [];
     const cumulatief = [0];
-    for (let i = 1; i < punten.length; i++) {
+    for (let i = 1; i < middenpunten.length; i++) {
       cumulatief.push(
         cumulatief[i - 1] +
-        haversine(punten[i - 1].latitude, punten[i - 1].longitude, punten[i].latitude, punten[i].longitude)
+        haversine(middenpunten[i - 1].latitude, middenpunten[i - 1].longitude, middenpunten[i].latitude, middenpunten[i].longitude)
       );
     }
     const totalM = cumulatief[cumulatief.length - 1];
@@ -61,7 +63,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const delta = Math.abs(d - targetM);
         if (delta < minDelta) { minDelta = delta; offset = i; }
       });
-      return { lat: punten[offset].latitude, lng: punten[offset].longitude, teamIndex: k + 1 };
+      return { lat: middenpunten[offset].latitude, lng: middenpunten[offset].longitude, teamIndex: k + 1 };
     });
   }, [route.modus, punten, verwachtTeams]);
 
@@ -98,6 +100,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setPunten([]);
     setGeselecteerd(null);
     const nieuwePunten: RoutePunt[] = [];
+
+    // Hub start op middelpunt
+    const resStart = await fetch(`/api/admin/routes/${route.id}/punten`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "informatiepunt", name: "Hub", points: 0 }),
+    });
+    if (resStart.ok) nieuwePunten.push(await resStart.json());
+
+    // Circulaire vraagpunten
     for (const coord of coords) {
       const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
         method: "POST",
@@ -106,15 +118,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       });
       if (res.ok) nieuwePunten.push(await res.json());
     }
-    if (nieuwePunten.length > 0) {
-      const last = nieuwePunten[nieuwePunten.length - 1];
-      await fetch(`/api/admin/routes/${route.id}/punten/${last.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "eindpunt" }),
-      });
-      nieuwePunten[nieuwePunten.length - 1] = { ...last, type: "eindpunt" };
-    }
+
+    // Hub eind op middelpunt
+    const resEind = await fetch(`/api/admin/routes/${route.id}/punten`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Hub", points: 0 }),
+    });
+    if (resEind.ok) nieuwePunten.push(await resEind.json());
+
     setPunten(nieuwePunten);
   }
 
@@ -521,36 +533,45 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
                   Klik op &ldquo;Punt toevoegen&rdquo; en tik op de kaart om een punt te plaatsen.
                 </p>
-              ) : punten.map((pt, i) => (
-                <div key={pt.id}
-                  onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
-                  style={{
-                    padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                    background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
-                    borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
-                  }}>
-                  <div style={{
-                    width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                    background: pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)",
-                    color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "0.72rem", fontWeight: 700,
-                  }}>{pt.type === "eindpunt" ? "🏁" : i + 1}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
-                    <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                      {pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt"} · {pt.radius_meters}m
+              ) : punten.map((pt, i) => {
+                const isVerspreid = route.modus === "verspreid" && punten.length >= 3;
+                const isHubStart = isVerspreid && i === 0;
+                const isHubEind = isVerspreid && i === punten.length - 1;
+                const isHub = isHubStart || isHubEind;
+                const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
+                const badgeBg = isHubStart ? "var(--green)" : pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
+                const typeLabel = isHubStart ? "Start hub" : isHubEind ? "Finish hub" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
+                return (
+                  <div key={pt.id}
+                    onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                    style={{
+                      padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                      background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
+                      borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
+                    }}>
+                    <div style={{
+                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                      background: badgeBg,
+                      color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "0.72rem", fontWeight: 700,
+                    }}>{badge}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                        {typeLabel} · {pt.radius_meters}m
+                      </div>
                     </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === 0 || isHub) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
+                      <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === punten.length - 1 || isHub) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === 0 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
-                    <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === punten.length - 1 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
-                </div>
-              ))
+                );
+              })
             )}
 
             {/* Items-tab */}
