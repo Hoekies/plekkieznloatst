@@ -53,12 +53,6 @@ function LoginForm() {
           alt="PointRush"
           style={{ width: "67%", display: "block", margin: "0 auto 20px" }}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/help/inloggen.png"
-          alt="Inloggen"
-          style={{ width: "100%", borderRadius: 10, marginBottom: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
-        />
 
         <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
@@ -124,12 +118,9 @@ function LoginForm() {
             </div>
           )}
 
-          <button
-            className="btn btn-game"
-            type="submit"
-            style={{ width: "100%", padding: "14px 0", marginTop: "6px" }}
-          >
-            Inloggen
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%", marginTop: "6px" }}>
+            <img src="/help/inloggen.png" alt="Inloggen" style={{ width: "100%", borderRadius: 8, display: "block" }} />
           </button>
         </form>
       </div>
