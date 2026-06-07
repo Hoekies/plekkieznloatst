@@ -264,49 +264,100 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       {/* Topbar */}
-      <div className="admin-topbar" style={{ gap: 12 }}>
-        <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "7px 14px", flexShrink: 0 }}>← Routes</a>
-        {naamWijzig ? (
-          <div style={{ display: "flex", gap: 6, flex: 1 }}>
-            <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
-            <button className="btn btn-primary" onClick={slaRouteNaamOp}>Opslaan</button>
-            <button className="btn btn-ghost" onClick={() => setNaamWijzig(false)}>✕</button>
-          </div>
-        ) : (
-          <h1 style={{ flex: 1, cursor: "pointer" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
-            {route.name} <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>✏️</span>
-          </h1>
-        )}
-        <StatusPil status={route.status} isActief={route.is_active} />
-        {!route.is_active && (
-          <button className="btn btn-ghost" style={{ fontSize: "0.82rem" }}
-            onClick={async () => {
-              const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
-              const res = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
-              if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
-            }}>
-            {route.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
-          </button>
-        )}
-        {!route.is_active && route.status === "gepubliceerd" && (
-          <button className="btn btn-cyan" style={{ fontSize: "0.82rem" }}
-            onClick={async () => {
-              const res = await fetch(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
-              if (res.ok) setRoute((r) => ({ ...r, is_active: true }));
-            }}>▶ Activeer</button>
-        )}
-        {route.is_active && (
-          <button className="btn btn-danger" style={{ fontSize: "0.82rem" }}
-            onClick={async () => {
-              if (!confirm("Route deactiveren en terugzetten naar concept?")) return;
-              const res = await fetch(`/api/admin/routes/${route.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ is_active: false, status: "concept" }),
-              });
-              if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
-            }}>⏹ Deactiveer</button>
-        )}
+      <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 0, padding: "10px 16px" }}>
+        {/* Rij 1: navigatie + naam + status + acties */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Routes</a>
+          {naamWijzig ? (
+            <div style={{ display: "flex", gap: 6, flex: 1 }}>
+              <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
+              <button className="btn btn-primary" onClick={slaRouteNaamOp}>Opslaan</button>
+              <button className="btn btn-ghost" onClick={() => setNaamWijzig(false)}>✕</button>
+            </div>
+          ) : (
+            <h1 style={{ flex: 1, cursor: "pointer", fontSize: "1.1rem" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
+              {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
+            </h1>
+          )}
+          <StatusPil status={route.status} isActief={route.is_active} />
+          {!route.is_active && (
+            <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+              onClick={async () => {
+                const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
+                const res = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
+                if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
+              }}>
+              {route.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
+            </button>
+          )}
+          {!route.is_active && route.status === "gepubliceerd" && (
+            <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+              onClick={async () => {
+                const res = await fetch(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
+                if (res.ok) setRoute((r) => ({ ...r, is_active: true }));
+              }}>▶ Activeer</button>
+          )}
+          {route.is_active && (
+            <button className="btn btn-danger" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+              onClick={async () => {
+                if (!confirm("Route deactiveren en terugzetten naar concept?")) return;
+                const res = await fetch(`/api/admin/routes/${route.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ is_active: false, status: "concept" }),
+                });
+                if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
+              }}>⏹ Deactiveer</button>
+          )}
+        </div>
+
+        {/* Rij 2: modus + itemwaarden */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
+          {(["sequentieel", "verspreid"] as const).map((m) => (
+            <button key={m}
+              onClick={async () => {
+                if (route.modus === m) return;
+                const res = await fetch(`/api/admin/routes/${route.id}`, {
+                  method: "PATCH", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ modus: m }),
+                });
+                if (res.ok) setRoute((r) => ({ ...r, modus: m }));
+              }}
+              style={{
+                fontSize: "0.72rem", fontWeight: 600, padding: "4px 10px",
+                borderRadius: 7, border: "1px solid", cursor: "pointer",
+                background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
+                borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
+                color: route.modus === m ? "var(--cyan)" : "var(--muted)",
+              }}>
+              {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
+            </button>
+          ))}
+          <div style={{ flex: 1 }} />
+          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>⭐ Ster:</span>
+          <input
+            type="number" min={1} value={sterWaarde}
+            onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
+            onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+            style={{
+              width: 52, padding: "3px 7px", fontSize: "0.80rem", fontWeight: 700,
+              background: "rgba(255,217,59,0.07)", border: "1px solid rgba(255,217,59,0.3)",
+              borderRadius: 6, color: "var(--gold)", outline: "none",
+            }}
+          />
+          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>💣 Bom:</span>
+          <input
+            type="number" min={1} value={bomWaarde}
+            onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
+            onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+            style={{
+              width: 52, padding: "3px 7px", fontSize: "0.80rem", fontWeight: 700,
+              background: "rgba(255,59,92,0.07)", border: "1px solid rgba(255,59,92,0.3)",
+              borderRadius: 6, color: "var(--red)", outline: "none",
+            }}
+          />
+        </div>
       </div>
 
       {/* Hoofdindeling */}
@@ -314,32 +365,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Zijpaneel */}
         <div style={{ width: 300, background: "rgba(8,28,48,0.82)", backdropFilter: "blur(18px)", borderRight: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
-          {/* Routemodus + afstand */}
-          <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "0.72rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
-              {(["sequentieel", "verspreid"] as const).map((m) => (
-                <button key={m}
-                  onClick={async () => {
-                    if (route.modus === m) return;
-                    const res = await fetch(`/api/admin/routes/${route.id}`, {
-                      method: "PATCH", headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ modus: m }),
-                    });
-                    if (res.ok) setRoute((r) => ({ ...r, modus: m }));
-                  }}
-                  style={{
-                    flex: 1, fontSize: "0.72rem", fontWeight: 600, padding: "4px 6px",
-                    borderRadius: 7, border: "1px solid", cursor: "pointer",
-                    background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
-                    borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
-                    color: route.modus === m ? "var(--cyan)" : "var(--muted)",
-                  }}>
-                  {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
-                </button>
-              ))}
-            </div>
-
+          {/* Verspreid-instellingen / afstand */}
+          {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
             {route.modus === "verspreid" && (() => {
               const totaalM = punten.length >= 2 ? punten.reduce((som, pt, i) => {
                 if (i === 0) return som;
@@ -445,41 +472,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               }, 0);
               return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km</span>;
             })()}
-          </div>
-
-          {/* Itemwaarden */}
-          <div style={{ padding: "8px 14px", borderTop: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
-            <span style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Itemwaarden</span>
-            <div style={{ display: "flex", gap: 8 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: "0.68rem", color: "var(--muted)", display: "block", marginBottom: 3 }}>⭐ Sterwaarde</label>
-                <input
-                  type="number" min={1} value={sterWaarde}
-                  onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
-                  onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                  style={{
-                    width: "100%", padding: "4px 8px", fontSize: "0.82rem", fontWeight: 700,
-                    background: "rgba(255,217,59,0.07)", border: "1px solid rgba(255,217,59,0.3)",
-                    borderRadius: 6, color: "var(--gold)", outline: "none", boxSizing: "border-box",
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: "0.68rem", color: "var(--muted)", display: "block", marginBottom: 3 }}>💣 Bomwaarde</label>
-                <input
-                  type="number" min={1} value={bomWaarde}
-                  onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
-                  onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                  style={{
-                    width: "100%", padding: "4px 8px", fontSize: "0.82rem", fontWeight: 700,
-                    background: "rgba(255,59,92,0.07)", border: "1px solid rgba(255,59,92,0.3)",
-                    borderRadius: 6, color: "var(--red)", outline: "none", boxSizing: "border-box",
-                  }}
-                />
-              </div>
-            </div>
-            <span style={{ fontSize: "0.66rem", color: "var(--muted)" }}>Geldt voor alle ⭐ ster, 💣 bom en ❓ vraagteken items in deze route.</span>
-          </div>
+          </div>}
 
           {/* Tabbladen */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
