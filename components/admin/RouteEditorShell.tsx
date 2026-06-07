@@ -638,6 +638,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <SpeciaalItemForm
                 item={geselecteerdSpeciaal}
                 onOpslaan={(update) => slaSpeciaalItemOp(geselecteerdSpeciaal.id, update)}
+                onVerwijder={() => { verwijderSpeciaalItem(geselecteerdSpeciaal.id); setGeselecteerdSpeciaal(null); }}
                 onSluit={() => setGeselecteerdSpeciaal(null)}
               />
             )}
@@ -656,9 +657,10 @@ function StatusPil({ status, isActief }: { status: string; isActief: boolean }) 
 }
 
 // ── SpeciaalItemForm ──────────────────────────────────────────────────────────
-function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
+function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
   item: SpeciaalItem;
   onOpslaan: (u: Partial<SpeciaalItem>) => void;
+  onVerwijder: () => void;
   onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(item.name);
@@ -673,17 +675,30 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
   const heeftDuur = type === "plekzooi";
 
   return (
-    <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Speciaal item bewerken</span>
-        <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem" }}>✕</button>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <button
+            onClick={onVerwijder}
+            title="Verwijderen"
+            style={{ background: "var(--red-soft)", border: "1px solid var(--red)", borderRadius: 6, cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "3px 8px", lineHeight: 1 }}>
+            🗑️
+          </button>
+          <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem", lineHeight: 1 }}>✕</button>
+        </div>
       </div>
+
+      {/* Naam */}
       <div className="form-group">
         <label className="form-label">Naam</label>
         <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem" }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <div className="form-group">
+
+      {/* Type + Radius op één regel */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: 8, alignItems: "end" }}>
+        <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Type</label>
           <select className="form-select" value={type} onChange={(e) => setType(e.target.value as SpeciaalItemType)} style={{ fontSize: "0.85rem" }}>
             <option value="ster">⭐ Ster</option>
@@ -698,24 +713,28 @@ function SpeciaalItemForm({ item, onOpslaan, onSluit }: {
             <option value="vraagteken">❓ Vraagteken</option>
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Radius (m)</label>
-          <input className="form-input" type="number" min={1} value={radius} onChange={(e) => setRadius(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
+          <input className="form-input" type="number" min={1} value={radius}
+            onChange={(e) => setRadius(Number(e.target.value))}
+            style={{ fontSize: "0.85rem", width: "100%", boxSizing: "border-box" }} />
         </div>
       </div>
+
       {heeftDuur && (
         <div className="form-group">
           <label className="form-label">Blokkeer duur (seconden)</label>
           <input className="form-input" type="number" min={10} value={effect || 120} onChange={(e) => setEffect(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
-          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>bijv. 60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
         </div>
       )}
       {type === "plekzooi" && (
         <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>
-          ⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers — zij zien geen icoontje op de kaart.
+          ⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers.
         </div>
       )}
       {item.claimed && <div className="melding" style={{ fontSize: "0.78rem", background: "var(--gold-soft)", color: "var(--gold)" }}>✅ Dit item is al geclaimd</div>}
+
       <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.85rem" }}
         onClick={() => onOpslaan({ name: naam, type, radius_meters: radius, points_effect: effect })}>
         Opslaan
