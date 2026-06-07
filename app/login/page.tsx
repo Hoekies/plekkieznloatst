@@ -33,17 +33,18 @@ function LoginForm() {
 
   return (
     <div style={{
-      minHeight: "100vh",
+      height: "100dvh",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       background: "var(--game-gradient)",
-      padding: "24px",
+      padding: "16px",
+      overflow: "hidden",
     }}>
       {/* Glass card */}
       <div className="glass-card" style={{
-        padding: "40px 36px",
+        padding: "24px 28px",
         width: "100%",
         maxWidth: "400px",
       }}>
@@ -51,12 +52,12 @@ function LoginForm() {
         <img
           src="/logo.png"
           alt="PointRush"
-          style={{ width: "67%", display: "block", margin: "0 auto 20px" }}
+          style={{ width: "55%", display: "block", margin: "0 auto 16px" }}
         />
 
-        <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <label htmlFor="naam" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
               Naam
             </label>
@@ -71,7 +72,7 @@ function LoginForm() {
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <label htmlFor="wachtwoord" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
               Wachtwoord
             </label>
@@ -106,8 +107,8 @@ function LoginForm() {
               background: "rgba(239, 68, 68, 0.18)",
               border: "1px solid rgba(239, 68, 68, 0.35)",
               borderRadius: 12,
-              padding: "10px 14px",
-              fontSize: "0.85rem",
+              padding: "8px 12px",
+              fontSize: "0.82rem",
               color: "#FCA5A5",
               display: "flex",
               gap: 8,
@@ -119,13 +120,13 @@ function LoginForm() {
           )}
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%", marginTop: "6px" }}>
+          <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%" }}>
             <img src="/help/inloggen.png" alt="Inloggen" style={{ width: "50%", borderRadius: 8, display: "block", margin: "0 auto" }} />
           </button>
         </form>
       </div>
 
-      <footer style={{ marginTop: 24, color: "rgba(255,255,255,0.25)", fontSize: "0.72rem" }}>
+      <footer style={{ marginTop: 12, color: "rgba(255,255,255,0.25)", fontSize: "0.68rem" }}>
         Hoekies 2026
       </footer>
     </div>
