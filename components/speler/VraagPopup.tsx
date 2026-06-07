@@ -210,13 +210,19 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
   // ── Volledig scherm shell ─────────────────────────────────────────────────
   return (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 500,
+      position: "fixed", inset: 0, zIndex: 1000,
       background: "#ffffff",
       color: "#0A1B36",
       display: "flex", flexDirection: "column",
     }}>
+      {/* Logo header */}
+      <div style={{ padding: "10px 16px 8px", borderBottom: "1px solid #e5e7eb", background: "#ffffff", flexShrink: 0, display: "flex", alignItems: "center" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-breed.png" alt="PointRush" style={{ height: 32, width: "auto" }} />
+      </div>
+
       {/* Scrollbaar inhoudsgebied */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px 8px", display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 16px 8px", display: "flex", flexDirection: "column", gap: 16 }}>
 
         <TypeBadge type={punt.type} />
 
@@ -236,7 +242,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {/* Vraag beantwoorden */}
         {popupFase === "vraag" && vraag && (
           <>
-            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap" }}>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap", color: "#0A1B36" }}>
               {vraag.question_text}
             </h2>
 
@@ -493,7 +499,7 @@ function TypeBadge({ type }: { type: RoutePunt["type"] }) {
 function InfoInhoud({ punt }: { punt: RoutePunt }) {
   return (
     <>
-      <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700 }}>{punt.name}</h2>
+      <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700, color: "#0A1B36" }}>{punt.name}</h2>
       {punt.image_path && (
         <img
           src={`${SUPABASE_URL}/storage/v1/object/public/punt-afbeeldingen/${punt.image_path}`}
