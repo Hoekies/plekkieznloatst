@@ -45,7 +45,7 @@ type RouteExport = {
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") {
+  if (!user || user.app_metadata?.rol !== "admin") {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
@@ -58,6 +58,17 @@ export async function POST(request: Request) {
 
   if (body._version !== 1 || typeof body.route?.name !== "string" || !Array.isArray(body.route_punten)) {
     return NextResponse.json({ fout: "Ongeldig export-bestand (verkeerde versie of structuur)" }, { status: 400 });
+  }
+
+  const safePath = /^[\w\-\/]+\.(jpg|jpeg|png|mp3|webp)$/i;
+  for (const punt of body.route_punten) {
+    const lat = Number(punt.latitude); const lng = Number(punt.longitude);
+    if (isNaN(lat) || lat < -90 || lat > 90 || isNaN(lng) || lng < -180 || lng > 180) {
+      return NextResponse.json({ fout: `Ongeldig coördinaat bij punt: ${punt.name}` }, { status: 400 });
+    }
+    if (punt.image_path && !safePath.test(punt.image_path)) {
+      return NextResponse.json({ fout: `Ongeldig image_path bij punt: ${punt.name}` }, { status: 400 });
+    }
   }
 
   const admin = createAdminClient();

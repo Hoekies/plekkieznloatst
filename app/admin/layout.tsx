@@ -9,7 +9,7 @@ import SidebarToggle from "@/components/admin/SidebarToggle";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") redirect("/login");
+  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
 
   return (
     <div className="admin-shell">

@@ -223,7 +223,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {/* Laden */}
         {popupFase === "laden" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "48px 0" }}>
-            <div className="loading-spinner" />
+            <div className="spinner" />
             <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>Vraag ophalen…</span>
           </div>
         )}

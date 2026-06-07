@@ -121,7 +121,9 @@ function LoginForm() {
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%" }}>
-            <img src="/help/inloggen.png" alt="Inloggen" style={{ width: "50%", borderRadius: 8, display: "block", margin: "0 auto" }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/help/inloggen.png" alt="Inloggen" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.nextElementSibling as HTMLElement).style.display = "block"; }} style={{ width: "50%", borderRadius: 8, display: "block", margin: "0 auto" }} />
+            <span style={{ display: "none", color: "#fff", fontWeight: 700, fontSize: "1rem", textAlign: "center", padding: "12px 0" }}>Inloggen →</span>
           </button>
         </form>
       </div>

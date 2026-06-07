@@ -158,16 +158,28 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
   function printQr() {
     const el = document.getElementById("qr-print-zone");
     if (!el) return;
-    const html = `<!DOCTYPE html><html><head><title>QR — ${punt.name}</title><style>
+    const naam = document.createElement("div").appendChild(document.createTextNode(punt.name)).parentElement!.innerHTML;
+    const html = `<!DOCTYPE html><html><head><title>QR</title><style>
       body { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:sans-serif; }
       h2 { margin-bottom:16px; }
     </style></head><body>
-      <h2>${punt.name}</h2>
-      ${el.innerHTML}
+      <h2>${naam}</h2>
       <p style="margin-top:16px; font-size:14px; color:#555">Scan deze code om dit punt te ontgrendelen</p>
     </body></html>`;
-    const w = window.open("", "_blank");
-    if (w) { w.document.write(html); w.document.close(); w.print(); }
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, "_blank");
+    if (w) {
+      w.addEventListener("load", () => {
+        const container = w.document.body.querySelector("h2")?.parentElement;
+        if (container) {
+          const qr = el.cloneNode(true) as HTMLElement;
+          container.insertBefore(qr, container.querySelector("p"));
+        }
+        w.print();
+        URL.revokeObjectURL(url);
+      });
+    }
   }
 
   return (

@@ -40,7 +40,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
       backdropFilter: "blur(12px)",
       WebkitBackdropFilter: "blur(12px)",
       borderTop: "1px solid rgba(255,255,255,0.12)",
-      padding: "10px 12px",
+      padding: "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

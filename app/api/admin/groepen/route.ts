@@ -7,7 +7,7 @@ import { loginNaarEmail } from "@/lib/login-naam";
 export async function GET() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") {
+  if (!user || user.app_metadata?.rol !== "admin") {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") {
+  if (!user || user.app_metadata?.rol !== "admin") {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     email: internEmail,
     password: wachtwoord,
     email_confirm: true,
-    user_metadata: { rol: "speler" },
+    app_metadata: { rol: "speler" },
   });
 
   if (authFout || !authData.user) {

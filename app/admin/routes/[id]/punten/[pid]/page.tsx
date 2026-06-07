@@ -10,7 +10,7 @@ export default async function PuntEditorPage({
 }) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") redirect("/login");
+  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
 
   const admin = createAdminClient();
 

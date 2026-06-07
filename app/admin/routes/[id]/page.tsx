@@ -6,7 +6,7 @@ import RouteEditorShell from "@/components/admin/RouteEditorShell";
 export default async function RouteEditorPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.rol !== "admin") redirect("/login");
+  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
 
   const admin = createAdminClient();
   const { data: route } = await admin

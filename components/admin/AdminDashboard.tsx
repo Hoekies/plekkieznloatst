@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { formateerTijd } from "@/lib/geo";
-import { sessietijd } from "@/lib/admin-live";
+
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 
