@@ -817,14 +817,12 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
         onClick={() => onOpslaan({ name: naam, description: beschrijving, type, radius_meters: radius, points: punten })}>
         {opslaan ? "Opslaan…" : "Opslaan"}
       </button>
-      {type === "vraagpunt" && (
-        <a
-          href={`/admin/routes/${routeId}/punten/${punt.id}`}
-          className="btn btn-outline"
-          style={{ width: "100%", fontSize: "0.85rem", textAlign: "center", textDecoration: "none" }}>
-          Vraag bewerken →
-        </a>
-      )}
+      <a
+        href={`/admin/routes/${routeId}/punten/${punt.id}`}
+        className="btn btn-outline"
+        style={{ width: "100%", fontSize: "0.85rem", textAlign: "center", textDecoration: "none" }}>
+        Vraag bewerken →
+      </a>
     </div>
   );
 }
