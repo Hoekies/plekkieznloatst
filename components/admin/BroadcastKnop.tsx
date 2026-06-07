@@ -29,11 +29,11 @@ export default function BroadcastKnop() {
     <>
       <button
         className="admin-nav-link"
-        style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent", padding: 0 }}
+        style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
         onClick={() => setOpen(true)}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/berichten sturen.png" alt="Berichten sturen" style={{ width: "100%", borderRadius: 6, display: "block" }} />
+        <img src="/help/berichten sturen.png" alt="Berichten sturen" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} />
       </button>
 
       {open && createPortal(

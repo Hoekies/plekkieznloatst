@@ -14,10 +14,10 @@ export default function UitlogKnop() {
     <button
       onClick={uitloggen}
       className="admin-nav-link"
-      style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent", padding: 0 }}
+      style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/help/uitloggen.png" alt="Uitloggen" style={{ width: "100%", borderRadius: 6, display: "block" }} />
+      <img src="/help/uitloggen.png" alt="Uitloggen" style={{ height: 40, width: "auto", marginLeft: "auto", borderRadius: 6, display: "block" }} />
     </button>
   );
 }
