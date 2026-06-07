@@ -36,11 +36,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/live"><img src="/help/live kaart.png" alt="Live kaart" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           <BroadcastKnop />
         </nav>
-        <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Beheer</div>
+        <div style={{ padding: "6px 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Beheer</div>
           <SidebarActies />
         </div>
-        <div style={{ padding: "10px 14px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ padding: "0 10px 6px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
           <UitlogKnop />
         </div>
         <div style={{ padding: "8px 14px", textAlign: "center" }}>
