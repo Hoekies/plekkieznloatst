@@ -17,19 +17,6 @@ function LoginForm() {
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
 
-  useEffect(() => {
-    const audio = new Audio("/pointrush-pulse.mp3");
-    audio.loop = true;
-    audio.volume = 0.35;
-    const poging = audio.play();
-    if (poging !== undefined) {
-      poging.catch(() => {
-        const speel = () => { audio.play().catch(() => {}); };
-        document.addEventListener("click", speel, { once: true });
-      });
-    }
-    return () => { audio.pause(); audio.src = ""; };
-  }, []);
 
   return (
     <div style={{
