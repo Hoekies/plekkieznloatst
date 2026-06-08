@@ -335,7 +335,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           ))}
           {route.modus === "verspreid" && (
-            <button
+            <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
               onClick={async () => {
                 const nieuw = !route.item_respawn;
                 const res = await fetch(`/api/admin/routes/${route.id}`, {
@@ -343,16 +343,23 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   body: JSON.stringify({ item_respawn: nieuw }),
                 });
                 if (res.ok) setRoute((r) => ({ ...r, item_respawn: nieuw }));
-              }}
-              style={{
-                fontSize: "0.72rem", fontWeight: 600, padding: "4px 10px", borderRadius: 7,
-                border: "1px solid", cursor: "pointer",
-                background: route.item_respawn ? "rgba(34,197,94,0.12)" : "transparent",
-                borderColor: route.item_respawn ? "rgba(34,197,94,0.35)" : "rgba(255,255,255,0.12)",
-                color: route.item_respawn ? "var(--green)" : "var(--muted)",
               }}>
-              🔄 Respawn {route.item_respawn ? "aan" : "uit"}
-            </button>
+              <span style={{ fontSize: "0.70rem", color: route.item_respawn ? "var(--green)" : "var(--muted)", flexShrink: 0, userSelect: "none" }}>🔄 Respawn</span>
+              <div style={{
+                width: 36, height: 20, borderRadius: 10, flexShrink: 0,
+                background: route.item_respawn ? "var(--green)" : "rgba(255,255,255,0.15)",
+                transition: "background 0.2s",
+                position: "relative",
+              }}>
+                <div style={{
+                  position: "absolute", top: 3, left: route.item_respawn ? 19 : 3,
+                  width: 14, height: 14, borderRadius: "50%",
+                  background: "#fff",
+                  transition: "left 0.2s",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
+                }} />
+              </div>
+            </div>
           )}
           <div style={{ flex: 1 }} />
           <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>⭐ Ster:</span>
