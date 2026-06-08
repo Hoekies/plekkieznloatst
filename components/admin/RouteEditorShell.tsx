@@ -334,6 +334,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
             </button>
           ))}
+          {route.modus === "verspreid" && (
+            <button
+              onClick={async () => {
+                const nieuw = !route.item_respawn;
+                const res = await fetch(`/api/admin/routes/${route.id}`, {
+                  method: "PATCH", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ item_respawn: nieuw }),
+                });
+                if (res.ok) setRoute((r) => ({ ...r, item_respawn: nieuw }));
+              }}
+              style={{
+                fontSize: "0.72rem", fontWeight: 600, padding: "4px 10px", borderRadius: 7,
+                border: "1px solid", cursor: "pointer",
+                background: route.item_respawn ? "rgba(34,197,94,0.12)" : "transparent",
+                borderColor: route.item_respawn ? "rgba(34,197,94,0.35)" : "rgba(255,255,255,0.12)",
+                color: route.item_respawn ? "var(--green)" : "var(--muted)",
+              }}>
+              🔄 Respawn {route.item_respawn ? "aan" : "uit"}
+            </button>
+          )}
           <div style={{ flex: 1 }} />
           <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>⭐ Ster:</span>
           <input

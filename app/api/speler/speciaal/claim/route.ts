@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
   const { special_item_id } = body;
   if (!special_item_id) return NextResponse.json({ fout: "special_item_id ontbreekt" }, { status: 400 });
 
-  // Atomische claim: slaagt alleen als het item nog niet geclaimd is
   const { data: item, error } = await admin
     .from("special_items")
     .update({
@@ -39,6 +38,18 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   if (!item) return NextResponse.json({ status: "al_geclaimd" });
+
+  // Respawn inplannen als item_respawn aan staat in verspreid-modus
+  const { data: route } = await admin
+    .from("routes")
+    .select("modus, item_respawn")
+    .eq("id", sessie.route_id)
+    .maybeSingle();
+
+  if (route?.modus === "verspreid" && route.item_respawn) {
+    const respawnAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    await admin.from("special_items").update({ respawn_at: respawnAt }).eq("id", special_item_id);
+  }
 
   return NextResponse.json({ status: "geclaimd", item });
 }

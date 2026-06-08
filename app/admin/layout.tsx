@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="PointRush" style={{ width: "50%", objectFit: "contain", display: "block", margin: "0 auto" }} />
+          <img src="/logo.png" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto" }} />
         </div>
         <nav className="admin-nav">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -43,15 +43,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div style={{ padding: "0 10px 6px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
           <UitlogKnop />
         </div>
-        <div style={{ padding: "8px 14px", textAlign: "center" }}>
-          <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)" }}>Hoekies 2026</span>
-        </div>
       </aside>
       <div className="admin-main">
         {children}
-        <footer style={{ textAlign: "right", padding: "8px 24px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", borderTop: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
-          Hoekies 2026
-        </footer>
       </div>
     </div>
   );

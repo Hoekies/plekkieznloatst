@@ -29,9 +29,6 @@ export default async function SpelerLayout({ children }: { children: React.React
       <main className="speler-content">
         {children}
       </main>
-      <footer style={{ textAlign: "right", padding: "8px 16px", paddingBottom: "max(8px, env(safe-area-inset-bottom))", fontSize: "0.68rem", color: "rgba(255,255,255,0.25)", flexShrink: 0 }}>
-        Hoekies 2026
-      </footer>
     </div>
   );
 }

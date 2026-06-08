@@ -33,6 +33,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.doel_afstand_km === "number" && body.doel_afstand_km >= 0) toegestaan.doel_afstand_km = body.doel_afstand_km;
   if (typeof body.ster_waarde === "number" && body.ster_waarde >= 0) toegestaan.ster_waarde = body.ster_waarde;
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
+  if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

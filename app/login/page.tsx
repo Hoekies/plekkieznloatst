@@ -115,9 +115,6 @@ function LoginForm() {
         </form>
       </div>
 
-      <footer style={{ marginTop: 12, color: "rgba(255,255,255,0.25)", fontSize: "0.68rem" }}>
-        Hoekies 2026
-      </footer>
     </div>
   );
 }

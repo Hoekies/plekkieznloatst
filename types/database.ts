@@ -18,6 +18,8 @@ export interface Route {
   doel_afstand_km: number;
   ster_waarde: number;
   bom_waarde: number;
+  item_respawn: boolean;
+  items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -152,6 +154,7 @@ export interface SpeciaalItem {
   claimed_by_session_id: string | null;
   claimed_at: string | null;
   used_at: string | null;
+  respawn_at: string | null;
   created_at: string;
   updated_at: string;
 }
