@@ -14,6 +14,8 @@ const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
   wissel:       { kleur: "#1D4ED8", emoji: "🔄" },
   dief:         { kleur: "#7C2D12", emoji: "🦹" },
   radar:        { kleur: "#0369A1", emoji: "📡" },
+  banaan:       { kleur: "#CA8A04", emoji: "🍌" },
+  vraagteken:   { kleur: "#7C3AED", emoji: "❓" },
 };
 
 interface Props {
