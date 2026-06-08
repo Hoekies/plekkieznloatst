@@ -420,20 +420,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     />
                   </div>
 
-                  {/* Doelafstand input */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Doelafstand:</span>
+                  {/* Doelafstand + Aantal punten op één regel */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap" }}>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Afstand:</span>
                     <input
                       type="number" min={0} step={0.1} value={doelAfstandKm}
                       onChange={(e) => setDoelAfstandKm(Math.max(0, Number(e.target.value)))}
                       onBlur={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
                       style={{
-                        width: 66, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        width: 52, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
                         background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
-                        borderRadius: 6, color: "var(--cyan)", outline: "none",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none", flexShrink: 0,
                       }}
                     />
-                    <span style={{ fontSize: "0.70rem", color: "var(--muted)" }}>km</span>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>km</span>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0, marginLeft: 4 }}>Punten:</span>
+                    <input
+                      type="number" min={3} max={30} value={aantalPunten}
+                      onChange={(e) => setAantalPunten(Math.max(3, Math.min(30, Number(e.target.value))))}
+                      style={{
+                        width: 48, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none", flexShrink: 0,
+                      }}
+                    />
                   </div>
 
                   {/* Middelpunt kiezen */}
@@ -446,21 +456,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </button>
                   )}
 
-                  {/* Aantal punten + genereer */}
+                  {/* Genereer knop */}
                   {centrumPunt && doelAfstandKm > 0 && (
                     <>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal punten:</span>
-                        <input
-                          type="number" min={3} max={30} value={aantalPunten}
-                          onChange={(e) => setAantalPunten(Math.max(3, Math.min(30, Number(e.target.value))))}
-                          style={{
-                            width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
-                            background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
-                            borderRadius: 6, color: "var(--cyan)", outline: "none",
-                          }}
-                        />
-                      </div>
                       <button
                         className="btn btn-cyan"
                         style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
