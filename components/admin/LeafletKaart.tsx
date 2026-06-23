@@ -99,9 +99,10 @@ export default function LeafletKaart({
       if (!mounted || !containerRef.current || kaartRef.current) return;
 
       const kaart = L.map(containerRef.current).setView([52.3676, 4.9041], 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-        maxZoom: 19,
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        attribution: "© OpenStreetMap, © CARTO",
+        maxZoom: 20,
+        subdomains: "abcd",
       }).addTo(kaart);
 
       kaart.on("click", (e) => {

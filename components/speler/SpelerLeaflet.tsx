@@ -74,9 +74,10 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         attributionControl: false,
       });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-        maxZoom: 19,
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        attribution: "© OpenStreetMap, © CARTO",
+        maxZoom: 20,
+        subdomains: "abcd",
       }).addTo(map);
 
       mapRef.current = map;
