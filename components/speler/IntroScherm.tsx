@@ -7,7 +7,7 @@ type Fase = "profiel" | "melding" | "intro" | "permissie" | "gereed" | "geweiger
 
 const ICONEN = [
   "🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩",
-  "🐢", "🦉", "🐝", "🦔", "🐰", "🦓", "🐯", "🐨",
+  "🐢", "🦉", "🐝", "🦔", "🐰", "🦓",
 ];
 
 const INTRO_DUUR = 5000;
@@ -125,7 +125,7 @@ export default function IntroScherm() {
     <div className="pr-stage" style={{
       position: "fixed", inset: 0, zIndex: 200,
       display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "flex-start",
+      alignItems: "center", justifyContent: "center",
       overflowY: "auto",
     }}>
       {/* Kaartafbeelding */}
@@ -158,18 +158,20 @@ export default function IntroScherm() {
       <div style={{
         position: "relative",
         display: "flex", flexDirection: "column",
-        alignItems: "center", gap: 20,
-        padding: "clamp(24px, 8vh, 56px) 28px 40px",
+        alignItems: "center", gap: 0,
+        padding: "16px 28px",
         textAlign: "center",
         maxWidth: 380, width: "100%",
-        minHeight: "100%",
       }}>
         {/* Logo */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="PointRush" style={{
-          width: "clamp(140px, 55vw, 220px)", objectFit: "contain",
-          filter: "drop-shadow(0 14px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,217,59,0.2))",
-        }} />
+        <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />
+        <div className="pr-logo-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="PointRush" style={{
+            width: "clamp(110px, 36vw, 170px)", objectFit: "contain", display: "block",
+            filter: "drop-shadow(0 14px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,217,59,0.2))",
+          }} />
+        </div>
 
         {/* Profiel: groepsnaam en icoon kiezen */}
         {fase === "profiel" && (
@@ -182,11 +184,10 @@ export default function IntroScherm() {
                 value={groepsnaam}
                 onChange={(e) => setGroepsnaam(e.target.value)}
                 maxLength={30}
-                autoFocus
               />
 
               <label className="pr-field-label2" style={{ marginTop: 4 }}>Kies een icoon</label>
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 14 }}>
                 {ICONEN.map((icoon) => {
                   const inGebruik = gebruikteIconen.includes(icoon) && icoon !== gekozenIcono;
                   const geselecteerd = gekozenIcono === icoon;
@@ -251,7 +252,7 @@ export default function IntroScherm() {
 
         {/* Intro: aftellen */}
         {fase === "intro" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", marginTop: 24 }}>
             <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.95rem", margin: 0 }}>
               Klaar om te kapen? 🗺️
             </p>
@@ -271,7 +272,7 @@ export default function IntroScherm() {
 
         {/* Permissie ophalen */}
         {fase === "permissie" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 24 }}>
             <div className="loading-spinner" style={{ borderTopColor: "var(--pr-gold)" }} />
             <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.9rem", margin: 0 }}>
               Locatietoegang controleren…
@@ -281,7 +282,7 @@ export default function IntroScherm() {
 
         {/* Gereed om te starten */}
         {fase === "gereed" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", marginTop: 24 }}>
             <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.95rem", margin: 0 }}>
               Locatie gevonden. Druk op de knop om te starten.
             </p>
@@ -296,7 +297,7 @@ export default function IntroScherm() {
 
         {/* Bezig met starten */}
         {fase === "starten" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 24 }}>
             <div className="loading-spinner" style={{ borderTopColor: "var(--pr-gold)" }} />
             <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.9rem", margin: 0 }}>
               Spel wordt gestart…
