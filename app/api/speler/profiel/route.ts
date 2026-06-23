@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
+// Moet gelijk blijven aan ICONEN.length in components/speler/IntroScherm.tsx
+const AANTAL_ICONEN = 18;
+
 export async function PATCH(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -11,6 +14,25 @@ export async function PATCH(request: NextRequest) {
   if (!group_name?.trim() || !icon) return NextResponse.json({ fout: "Naam en icoon zijn verplicht" }, { status: 400 });
 
   const admin = createAdminClient();
+
+  // Icoon moet uniek zijn per team — check op andere niet-uitgeschakelde spelers met dit icoon.
+  // Als alle iconen al vergeven zijn (meer teams dan iconen), laat hergebruik toe i.p.v. iemand vast te zetten.
+  const { count: totaalActief } = await admin
+    .from("players")
+    .select("id", { count: "exact", head: true })
+    .eq("is_uitgeschakeld", false);
+
+  const { data: iconConflict } = await admin
+    .from("players")
+    .select("id")
+    .eq("icon", icon)
+    .eq("is_uitgeschakeld", false)
+    .neq("auth_user_id", user.id)
+    .maybeSingle();
+
+  if (iconConflict && (totaalActief ?? 0) <= AANTAL_ICONEN) {
+    return NextResponse.json({ fout: "Dit icoon is al gekozen door een ander team. Kies een ander icoon." }, { status: 409 });
+  }
 
   // Sla de spelernaam op als nickname (admin group_name blijft ongewijzigd)
   let { error } = await admin

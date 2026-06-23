@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import AudioUnlock from "@/components/speler/AudioUnlock";
 import IOSFixes from "@/components/speler/IOSFixes";
+import DeviceGuard from "@/components/speler/DeviceGuard";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -13,6 +14,7 @@ export default async function SpelerLayout({ children }: { children: React.React
     <div className="speler-shell">
       <AudioUnlock />
       <IOSFixes />
+      <DeviceGuard />
       <header className="speler-header" style={{ position: "relative" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{

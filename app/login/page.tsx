@@ -13,6 +13,8 @@ function LoginForm() {
       ? "Vul je naam en wachtwoord in."
       : fout === "uitgeschakeld"
       ? "Deze groep is uitgeschakeld. Neem contact op met de spelleider."
+      : fout === "apparaat"
+      ? "Deze groep is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
