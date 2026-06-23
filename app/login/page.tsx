@@ -19,60 +19,66 @@ function LoginForm() {
 
 
   return (
-    <div style={{
+    <div className="pr-stage" style={{
       height: "100dvh",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      background: "var(--game-gradient)",
       padding: "16px",
-      overflow: "hidden",
     }}>
-      {/* Glass card */}
-      <div className="glass-card" style={{
-        padding: "24px 28px",
-        width: "100%",
-        maxWidth: "400px",
-      }}>
+      {/* Zwevende sparkles */}
+      <div className="pr-sparkle" style={{ width: 6, height: 6, top: "12%", left: "18%" }} />
+      <div className="pr-sparkle" style={{ width: 4, height: 4, top: "22%", left: "75%", animationDelay: "1.2s" }} />
+      <div className="pr-sparkle" style={{ width: 8, height: 8, top: "68%", left: "12%", animationDelay: "2s" }} />
+      <div className="pr-sparkle" style={{ width: 5, height: 5, top: "75%", left: "82%", animationDelay: "0.6s" }} />
+
+      {/* Zwevende decor-icoontjes */}
+      <span className="pr-orb" style={{ top: "10%", left: "8%", animationDelay: "0.3s" }}>👻</span>
+      <span className="pr-orb" style={{ top: "14%", right: "8%", animationDelay: "1.1s" }}>⭐</span>
+      <span className="pr-orb" style={{ top: "78%", left: "9%", animationDelay: "0.8s" }}>💣</span>
+      <span className="pr-orb" style={{ top: "80%", right: "10%", animationDelay: "1.6s" }}>🍌</span>
+
+      <div className="pr-logo-glow" />
+      <div className="pr-logo-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
           alt="PointRush"
-          style={{ width: "55%", display: "block", margin: "0 auto 16px" }}
+          style={{ width: 230, display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
         />
+      </div>
 
-        <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div className="pr-panel">
+        <div className="pr-panel-inner">
+          <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column" }}>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label htmlFor="naam" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
+            <label htmlFor="naam" className="pr-field-label2">
               Naam
             </label>
             <input
               id="naam"
               name="naam"
-              className="glass-input"
+              className="pr-field-input2"
               type="text"
               placeholder="bijv. groep1"
               required
               autoComplete="username"
             />
-          </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label htmlFor="wachtwoord" style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
+            <label htmlFor="wachtwoord" className="pr-field-label2">
               Wachtwoord
             </label>
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", marginBottom: 16 }}>
               <input
                 id="wachtwoord"
                 name="wachtwoord"
-                className="glass-input"
+                className="pr-field-input2"
                 type={toonWachtwoord ? "text" : "password"}
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
-                style={{ paddingRight: "44px" }}
+                style={{ paddingRight: "44px", marginBottom: 0 }}
               />
               <button
                 type="button"
@@ -87,32 +93,30 @@ function LoginForm() {
                 {toonWachtwoord ? "🙈" : "👁️"}
               </button>
             </div>
-          </div>
 
-          {foutTekst && (
-            <div style={{
-              background: "rgba(239, 68, 68, 0.18)",
-              border: "1px solid rgba(239, 68, 68, 0.35)",
-              borderRadius: 12,
-              padding: "8px 12px",
-              fontSize: "0.82rem",
-              color: "#FCA5A5",
-              display: "flex",
-              gap: 8,
-              alignItems: "flex-start",
-            }}>
-              <span>⚠️</span>
-              <span>{foutTekst}</span>
-            </div>
-          )}
+            {foutTekst && (
+              <div style={{
+                background: "rgba(239, 68, 68, 0.18)",
+                border: "1.5px solid rgba(239, 68, 68, 0.4)",
+                borderRadius: 12,
+                padding: "8px 12px",
+                fontSize: "0.82rem",
+                color: "#FCA5A5",
+                display: "flex",
+                gap: 8,
+                alignItems: "flex-start",
+                marginBottom: 14,
+              }}>
+                <span>⚠️</span>
+                <span>{foutTekst}</span>
+              </div>
+            )}
 
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <button type="submit" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: "100%" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/help/inloggen.png" alt="Inloggen" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.nextElementSibling as HTMLElement).style.display = "block"; }} style={{ width: "50%", borderRadius: 8, display: "block", margin: "0 auto" }} />
-            <span style={{ display: "none", color: "#fff", fontWeight: 700, fontSize: "1rem", textAlign: "center", padding: "12px 0" }}>Inloggen →</span>
-          </button>
-        </form>
+            <button type="submit" className="btn-premium">
+              INLOGGEN →
+            </button>
+          </form>
+        </div>
       </div>
 
     </div>

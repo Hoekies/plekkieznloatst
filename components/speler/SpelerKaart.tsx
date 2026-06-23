@@ -424,23 +424,26 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         borderBottom: "1px solid rgba(255,255,255,0.08)",
         alignItems: "center",
       }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
+        <div className="pr-hud-gem pr-hud-gem--purple">
           <span style={{ fontSize: "1.2rem" }}>🗺️</span>
-          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
+          <span className="pr-hud-value" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1rem" }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: 14, padding: "12px" }}>
+        <div className="pr-hud-gem pr-hud-gem--orange">
           <span style={{ fontSize: "1.2rem" }}>⭐</span>
-          <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{score}</span>
+          <span className="pr-hud-value" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1rem" }}>{score}</span>
         </div>
         <button
           onClick={() => setLegendeOpen(true)}
           title="Wat doen de speciale items?"
           style={{
+            position: "relative", overflow: "hidden",
             width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
-            background: "rgba(0,217,255,0.12)", border: "1.5px solid rgba(0,217,255,0.35)",
-            color: "#00d9ff", fontSize: "1rem", cursor: "pointer",
+            background: "linear-gradient(180deg, #ffc24a 0%, var(--pr-orange) 48%, #e35d00 50%, #c44900 100%)",
+            border: "2px solid #000",
+            color: "#fff", fontSize: "1rem", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 700, fontFamily: "var(--font)",
+            fontWeight: 800, fontFamily: "var(--font-display)",
+            boxShadow: "inset 0 1px 1px rgba(255,255,255,0.5), 0 3px 0 #8a3300, 0 5px 10px rgba(0,0,0,0.4)",
           }}>
           i
         </button>
@@ -535,10 +538,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
             style={{
               position: "absolute", bottom: knoepBottomOffset, left: 16,
               zIndex: 1000,
-              width: 52, height: 52, borderRadius: "50%",
-              background: "rgba(30,64,175,0.9)", border: "none",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.35)",
-              fontSize: "22px", cursor: "pointer",
+              width: 60, height: 60, borderRadius: "50%",
+              background: "linear-gradient(180deg, #ffc24a 0%, var(--pr-orange) 48%, #e35d00 50%, #c44900 100%)",
+              border: "3px solid #000",
+              boxShadow: "inset 0 2px 1px rgba(255,255,255,0.55), 0 0 0 8px rgba(255,138,0,0.18), 0 4px 0 #8a3300, 0 8px 18px rgba(0,0,0,0.45)",
+              fontSize: "24px", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
             📍

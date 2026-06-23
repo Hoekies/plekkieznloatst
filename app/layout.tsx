@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Space_Grotesk, Baloo_2 } from "next/font/google";
 import "@/styles/globals.css";
 import GeenInternet from "@/components/shared/GeenInternet";
 import InAppBrowserWaarschuwing from "@/components/shared/InAppBrowserWaarschuwing";
@@ -9,6 +9,13 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+});
+
+const baloo2 = Baloo_2({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -40,7 +47,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl">
-      <body className={spaceGrotesk.variable}>
+      <body className={`${spaceGrotesk.variable} ${baloo2.variable}`}>
         <GeenInternet />
         <InAppBrowserWaarschuwing />
         {children}

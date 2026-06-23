@@ -70,11 +70,11 @@ export default function SidebarActies() {
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-stop")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/stop route.png" alt="Stop route" style={{ height: 32, width: "auto", borderRadius: 6, display: "block" }} />
+        <img src="/help/stop route.png" alt="Stop route" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} />
       </button>
       <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-reset")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/reset spel.png" alt="Reset spel" style={{ height: 32, width: "auto", borderRadius: 6, display: "block" }} />
+        <img src="/help/reset spel.png" alt="Reset spel" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} />
       </button>
     </div>
   );

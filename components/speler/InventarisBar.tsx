@@ -36,10 +36,10 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
       left: 0,
       right: 0,
       zIndex: 800,
-      background: "rgba(10, 20, 40, 0.82)",
+      background: "linear-gradient(180deg, rgba(28,12,69,0.85), rgba(12,3,34,0.92))",
       backdropFilter: "blur(12px)",
       WebkitBackdropFilter: "blur(12px)",
-      borderTop: "1px solid rgba(255,255,255,0.12)",
+      borderTop: "2px solid rgba(255,217,59,0.25)",
       padding: "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))",
       display: "flex",
       alignItems: "center",
@@ -55,49 +55,12 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
             key={type}
             onClick={() => onGebruik(items[0])}
             title={`${stijl.label} gebruiken`}
-            style={{
-              position: "relative",
-              width: 52,
-              height: 52,
-              borderRadius: "50%",
-              background: stijl.kleur,
-              border: "2.5px solid rgba(255,255,255,0.85)",
-              boxShadow: "0 3px 10px rgba(0,0,0,0.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              cursor: "pointer",
-              flexShrink: 0,
-              padding: 0,
-              transition: "transform 0.12s, box-shadow 0.12s",
-            }}
-            onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.92)"; }}
-            onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
-            onTouchStart={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.92)"; }}
-            onTouchEnd={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+            className="pr-hud-slot2"
+            style={{ background: `linear-gradient(180deg, ${stijl.kleur}ee, ${stijl.kleur}88 48%, ${stijl.kleur}cc 50%, ${stijl.kleur} 100%)` }}
           >
             {stijl.emoji}
             {count > 1 && (
-              <span style={{
-                position: "absolute",
-                top: -4,
-                right: -4,
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                background: "#fff",
-                color: stijl.kleur,
-                fontSize: 11,
-                fontWeight: 800,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: `2px solid ${stijl.kleur}`,
-                lineHeight: 1,
-              }}>
-                {count}
-              </span>
+              <span className="pr-hud-count">{count}</span>
             )}
           </button>
         );

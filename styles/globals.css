@@ -34,11 +34,11 @@
   --radius-xl: 18px;
   --font: "Space Grotesk", "Segoe UI", Verdana, sans-serif;
 
-  /* ── Game gradient ── */
-  --game-bg-start: #060e1a;
-  --game-bg-mid:   #091525;
-  --game-bg-end:   #0c1c30;
-  --game-gradient: linear-gradient(145deg, var(--game-bg-start) 0%, var(--game-bg-mid) 48%, var(--game-bg-end) 100%);
+  /* ── Game gradient (premium paars-thema) ── */
+  --game-bg-start: #3a1a73;
+  --game-bg-mid:   #1c0c45;
+  --game-bg-end:   #0c0322;
+  --game-gradient: radial-gradient(circle at 50% 0%, var(--game-bg-start) 0%, var(--game-bg-mid) 55%, var(--game-bg-end) 100%);
 
   /* ── Glassmorphism ── */
   --glass-bg:     rgba(14, 22, 38, 0.78);
@@ -57,6 +57,18 @@
   --accent-purple: #8b5cf6;
   --accent-green:  #22c55e;
   --glow-cyan:     0 0 14px rgba(0, 217, 255, 0.4);
+
+  /* ── PointRush game-stijl (logo-afgeleid) ── */
+  --pr-purple:      #7C3AED;
+  --pr-purple-dark: #5B21B6;
+  --pr-orange:      #FF8A00;
+  --pr-orange-dark: #E66E00;
+  --pr-gold:        #FFD93B;
+  --pr-gold-dark:   #E6B800;
+  --pr-cream:       #FFF8E8;
+  --pr-ink:         #1B0E33;
+  --pr-muted:       #9C8BC4;
+  --font-display: "Baloo 2", "Segoe UI", sans-serif;
 }
 
 *, *::before, *::after {
@@ -714,4 +726,557 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .stat-kaart {
     padding: 12px 14px 10px;
   }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PointRush — game-stijl componenten (logo-afgeleid)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Halftone + burst achtergrond (login, intro) ── */
+.pr-bg-burst {
+  position: relative;
+  overflow: hidden;
+}
+.pr-bg-burst::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ── Sticker-kaart: licht paneel met dikke outline + offset shadow ── */
+.pr-sticker {
+  background: var(--pr-cream);
+  color: var(--pr-ink);
+  border: 4px solid #000;
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.35), 7px 7px 0 rgba(0,0,0,0.45);
+}
+
+/* ── Comic badge (zoals +10 / +25 in het logo) ── */
+.pr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  padding: 5px 11px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+  line-height: 1.4;
+}
+.pr-badge--orange { background: linear-gradient(145deg, var(--pr-orange) 0%, var(--pr-orange-dark) 100%); }
+.pr-badge--purple { background: linear-gradient(145deg, var(--pr-purple) 0%, var(--pr-purple-dark) 100%); }
+.pr-badge--gold   { background: linear-gradient(145deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%); color: var(--pr-ink); }
+.pr-badge--green  { background: linear-gradient(145deg, #34d399 0%, #16a34a 100%); }
+.pr-badge--gray   { background: #6b6378; }
+
+/* ── Game-knop v2: oranje/goud 3D pers-knop ── */
+.btn-game2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  text-align: center;
+  padding: 14px 0;
+  border-radius: 16px;
+  border: 3px solid #000;
+  background: linear-gradient(145deg, var(--pr-orange) 0%, var(--pr-gold) 100%);
+  box-shadow: 0 5px 0 #000, 0 10px 22px rgba(255,138,0,0.4);
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-game2:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #000, 0 14px 28px rgba(255,138,0,0.45);
+}
+.btn-game2:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #000, 0 4px 12px rgba(255,138,0,0.3);
+}
+.btn-game2:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Comic reset-knop (rood, gevaar) ── */
+.btn-reset-comic {
+  background: linear-gradient(145deg, #FF3B5C, #b91c3c);
+  border: 3px solid #000;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 11px 20px;
+  border-radius: 14px;
+  box-shadow: 0 5px 0 #000;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-reset-comic:hover:not(:disabled) { transform: translateY(-2px); }
+.btn-reset-comic:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #000;
+}
+.btn-reset-comic:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Veld (login/intro op licht sticker-paneel) ── */
+.pr-field-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--pr-purple-dark);
+  margin-bottom: 4px;
+  display: block;
+}
+.pr-field-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2.5px solid #E4D9F7;
+  border-radius: 12px;
+  background: #fff;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  color: var(--pr-ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.pr-field-input:focus { border-color: var(--pr-purple); }
+
+/* ── Stat-tile: sticker-kaart met hoek-badge (admin dashboard) ── */
+.pr-stat-tile {
+  position: relative;
+  flex: 1;
+  min-width: 150px;
+  background: var(--pr-cream);
+  color: var(--pr-ink);
+  border: 4px solid #000;
+  border-radius: 20px;
+  padding: 14px 16px 12px;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.3), 6px 6px 0 rgba(0,0,0,0.4);
+}
+.pr-stat-tile .pr-corner-badge {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  transform: rotate(8deg);
+}
+.pr-stat-tile .pr-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--pr-purple-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pr-stat-tile .pr-stat-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--pr-ink);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Team-card (groepenlijst admin dashboard) ── */
+.pr-team-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(124,58,237,0.25);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.pr-team-card:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(124,58,237,0.4);
+}
+.pr-team-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--pr-purple), var(--pr-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  border: 2px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+.pr-xp-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  margin-top: 6px;
+  max-width: 220px;
+}
+.pr-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pr-gold), var(--pr-orange));
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* ── Admin nav-link actief: paars/oranje gradient pil ── */
+.admin-nav-link.actief {
+  color: #fff;
+  background: linear-gradient(180deg, #ffc24a 0%, #FF8A00 48%, #e35d00 50%, #c44900 100%);
+  border-color: rgba(0,0,0,0.35);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.5),
+    inset 0 -3px 6px rgba(0,0,0,0.25),
+    0 3px 0 #8a3300,
+    0 5px 10px rgba(0,0,0,0.4);
+}
+
+/* ── HUD (speler kaart) ── */
+.pr-hud-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+}
+.pr-hud-pill .pr-hud-value { color: var(--pr-gold); font-variant-numeric: tabular-nums; }
+
+.pr-hud-slot {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(124,58,237,0.35), rgba(255,138,0,0.25));
+  border: 2.5px solid rgba(255,255,255,0.6);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.pr-hud-slot:active { transform: scale(0.92); }
+.pr-hud-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  background: var(--pr-gold);
+  color: var(--pr-ink);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(0,0,0,0.3);
+  line-height: 1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PointRush — premium mobile-game stijl (Clash Royale-achtig)
+   ════════════════════════════════════════════════════════════ */
+
+.pr-stage {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 18%, rgba(255,138,0,0.25) 0%, transparent 60%),
+    radial-gradient(circle at 50% 100%, #4c1d95 0%, #2a0f5e 55%, #0c0322 100%);
+}
+.pr-stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
+  pointer-events: none;
+}
+
+.pr-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+  animation: pr-sparkle-float 4.5s ease-in-out infinite;
+}
+@keyframes pr-sparkle-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.25; }
+  50%      { transform: translateY(-18px) scale(1.4); opacity: 0.9; }
+}
+.pr-orb {
+  position: absolute;
+  font-size: 1.8rem;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+  animation: pr-orb-bob 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pr-orb-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-14px) rotate(4deg); }
+}
+
+.pr-logo-glow {
+  position: absolute;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,217,59,0.45) 0%, rgba(124,58,237,0.25) 45%, transparent 75%);
+  filter: blur(8px);
+  animation: pr-glow-pulse 2.6s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes pr-glow-pulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.7; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+
+.pr-logo-wrap {
+  position: relative; z-index: 3;
+  animation: pr-logo-idle 3.6s ease-in-out infinite;
+}
+@keyframes pr-logo-idle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(-1deg); }
+}
+
+.pr-panel {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 360px;
+  margin-top: -34px;
+  border-radius: 26px;
+  padding: 3px;
+  background: linear-gradient(160deg, #ffe9a8 0%, #C98800 50%, #8a5c00 100%);
+  box-shadow: 0 24px 50px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.4) inset;
+}
+.pr-panel-inner {
+  border-radius: 23px;
+  background: linear-gradient(165deg, #2f1769 0%, #1c0c45 60%, #150a36 100%);
+  padding: 46px 22px 24px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -30px 50px rgba(0,0,0,0.35);
+}
+
+.pr-field-label2 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 0.78rem; color: #C9B6FF; margin-bottom: 6px; display: block;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.pr-field-input2 {
+  width: 100%; padding: 13px 16px; margin-bottom: 16px;
+  border-radius: 12px; border: none;
+  background: #150a30;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), inset 0 0 0 1.5px rgba(124,58,237,0.4);
+  font-family: var(--font); font-size: 0.95rem; color: #fff;
+  outline: none;
+}
+.pr-field-input2::placeholder { color: rgba(255,255,255,0.32); }
+.pr-field-input2:focus { box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), inset 0 0 0 1.5px rgba(255,217,59,0.6); }
+
+/* glanzende 3D-knop met bewegende shine */
+.btn-premium {
+  position: relative;
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 17px 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.12rem;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffc24a 0%, #FF8A00 48%, #e35d00 50%, #c44900 100%);
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.55),
+    inset 0 -4px 8px rgba(0,0,0,0.25),
+    0 8px 0 #8a3300,
+    0 16px 26px rgba(0,0,0,0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-premium::after {
+  content: "";
+  position: absolute; top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+  animation: pr-shine-sweep 2.8s ease-in-out infinite;
+}
+@keyframes pr-shine-sweep {
+  0%   { left: -60%; }
+  35%  { left: 130%; }
+  100% { left: 130%; }
+}
+.btn-premium:active:not(:disabled) {
+  transform: translateY(5px);
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.4),
+    0 2px 0 #8a3300,
+    0 6px 14px rgba(0,0,0,0.4);
+}
+.btn-premium:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pr-gem-row { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+.pr-gem-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.2));
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 99px; padding: 5px 11px;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; color: #FFF1A8;
+}
+.pr-gem-chip--gray   { background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.25)); color: #B8AED6; }
+.pr-gem-chip--orange { background: linear-gradient(180deg, rgba(255,178,62,0.35), rgba(255,138,0,0.18)); border-color: rgba(255,138,0,0.4); color: #FFD9A0; }
+.pr-gem-chip--green  { background: linear-gradient(180deg, rgba(74,222,128,0.3), rgba(22,163,74,0.18)); border-color: rgba(34,197,94,0.4); color: #BBF7D0; }
+
+/* ── Gem-panel: gouden-rim tegel op donker paars (admin stat-tiles) ── */
+.pr-gem-panel {
+  position: relative;
+  flex: 1;
+  min-width: 150px;
+  border-radius: 18px;
+  padding: 2.5px;
+  background: linear-gradient(160deg, #ffe9a8 0%, #C98800 50%, #8a5c00 100%);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.45), 0 2px 0 rgba(255,255,255,0.35) inset;
+}
+.pr-gem-panel-inner {
+  border-radius: 16px;
+  background: linear-gradient(165deg, #2f1769 0%, #1c0c45 70%, #150a36 100%);
+  padding: 14px 16px 12px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -16px 28px rgba(0,0,0,0.35);
+}
+.pr-gem-panel .pr-corner-chip {
+  position: absolute;
+  top: -14px; right: -10px;
+  transform: rotate(8deg);
+  z-index: 2;
+}
+.pr-gem-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #C9B6FF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pr-gem-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Gem-card: groepenrij in dashboard ── */
+.pr-gem-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 16px;
+  padding: 2px;
+  margin-bottom: 12px;
+  background: linear-gradient(160deg, rgba(255,217,59,0.5), rgba(124,58,237,0.4));
+}
+.pr-gem-card-inner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: linear-gradient(165deg, #2f1769 0%, #1c0c45 75%, #150a36 100%);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.06), inset 0 -12px 24px rgba(0,0,0,0.3);
+}
+.pr-gem-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 35% 30%, #fff9e8 0%, #ffe9a8 35%, #2f1769 75%, #1c0c45 100%);
+  border: 2px solid rgba(255,217,59,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: inset 0 2px 1px rgba(255,255,255,0.5), inset 0 -4px 8px rgba(0,0,0,0.35), 0 3px 8px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+
+/* ── Premium reset-knop (rood gevaar-gem) ── */
+.btn-premium--danger {
+  position: relative;
+  border: none;
+  border-radius: 14px;
+  padding: 11px 20px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  cursor: pointer;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ff6b8a 0%, #FF3B5C 48%, #d61c3c 50%, #a3142d 100%);
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.45),
+    inset 0 -4px 8px rgba(0,0,0,0.25),
+    0 5px 0 #6e0f23,
+    0 10px 18px rgba(0,0,0,0.45);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-premium--danger:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 1px rgba(255,255,255,0.35), 0 2px 0 #6e0f23, 0 4px 10px rgba(0,0,0,0.35);
+}
+.btn-premium--danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── HUD gem-pil (speler topbalk km/punten) ── */
+.pr-hud-gem {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 14px;
+  padding: 11px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -10px 16px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.35);
+  border: 1.5px solid rgba(255,255,255,0.18);
+}
+.pr-hud-gem--purple { background: linear-gradient(180deg, rgba(124,58,237,0.4) 0%, rgba(124,58,237,0.12) 100%); border-color: rgba(124,58,237,0.5); }
+.pr-hud-gem--orange { background: linear-gradient(180deg, rgba(255,138,0,0.4) 0%, rgba(255,138,0,0.12) 100%); border-color: rgba(255,138,0,0.5); }
+
+/* ── HUD item-slot v2: glanzend gem-knopje (inventaris) ── */
+.pr-hud-slot2 {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  border: 2.5px solid rgba(255,255,255,0.55);
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.4),
+    inset 0 -8px 12px rgba(0,0,0,0.3),
+    0 4px 0 rgba(0,0,0,0.35),
+    0 8px 14px rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.pr-hud-slot2:active {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 1px rgba(255,255,255,0.3), 0 1px 0 rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.35);
 }

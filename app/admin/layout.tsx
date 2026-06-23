@@ -21,19 +21,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto" }} />
+          <img src="/logo.png" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
         </div>
         <nav className="admin-nav">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin" exact><img src="/help/dashboard.png" alt="Dashboard" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin" exact><img src="/help/dashboard.png" alt="Dashboard" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/routes"><img src="/help/routes.png" alt="Routes" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/routes"><img src="/help/routes.png" alt="Routes" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/groepen"><img src="/help/groepen.png" alt="Groepen" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/groepen"><img src="/help/groepen.png" alt="Groepen" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/leaderboard"><img src="/help/leaderboard.png" alt="Leaderboard" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/leaderboard"><img src="/help/leaderboard.png" alt="Leaderboard" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <AdminNavLink href="/admin/live"><img src="/help/live kaart.png" alt="Live kaart" style={{ height: 24, width: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
+          <AdminNavLink href="/admin/live"><img src="/help/live kaart.png" alt="Live kaart" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} /></AdminNavLink>
           <BroadcastKnop />
         </nav>
         <div style={{ padding: "6px 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
