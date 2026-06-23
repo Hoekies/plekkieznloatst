@@ -21,13 +21,14 @@ export async function GET() {
 
   const { data: route } = await admin
     .from("routes")
-    .select("modus, item_respawn")
+    .select("modus, item_respawn, respawn_minuten")
     .eq("id", sessie.route_id)
     .maybeSingle();
 
   if (route?.modus === "verspreid" && route.item_respawn) {
+    const respawnMin = route.respawn_minuten ?? 15;
     const now = new Date().toISOString();
-    const vijftienMinGeleden = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const vijftienMinGeleden = new Date(Date.now() - respawnMin * 60 * 1000).toISOString();
 
     // Reset verlopen respawns met willekeurig nieuw type
     const { data: teRespawnen } = await admin

@@ -26,6 +26,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [doelAfstandKm, setDoelAfstandKm] = useState(initRoute.doel_afstand_km ?? 0);
   const [sterWaarde, setSterWaarde] = useState(initRoute.ster_waarde ?? 50);
   const [bomWaarde, setBomWaarde] = useState(initRoute.bom_waarde ?? 30);
+  const [respawnMinuten, setRespawnMinuten] = useState(initRoute.respawn_minuten ?? 15);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -245,6 +246,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, ster_waarde: ster, bom_waarde: bom }));
   }
 
+  async function slaRespawnMinutenOp(minuten: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ respawn_minuten: minuten }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, respawn_minuten: minuten }));
+  }
+
   async function slaPuntOp(update: Partial<RoutePunt>) {
     if (!geselecteerd) return;
     setOpslaan(true); setFout("");
@@ -359,6 +369,21 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
                 }} />
               </div>
+            </div>
+          )}
+          {route.modus === "verspreid" && route.item_respawn && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <input
+                type="number" min={1} value={respawnMinuten}
+                onChange={(e) => setRespawnMinuten(Math.max(1, Number(e.target.value)))}
+                onBlur={() => slaRespawnMinutenOp(respawnMinuten)}
+                style={{
+                  width: 48, fontSize: "0.72rem", padding: "3px 6px", borderRadius: 6,
+                  border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.06)",
+                  color: "var(--green)", textAlign: "center",
+                }}
+              />
+              <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>min</span>
             </div>
           )}
           <div style={{ flex: 1 }} />

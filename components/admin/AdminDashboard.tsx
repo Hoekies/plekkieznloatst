@@ -164,8 +164,11 @@ function SpelerKaart({ speler: s, totaalPunten }: { speler: SpelerOverzicht; tot
         <div className="pr-gem-avatar">{teamIcoonVoor(s.player_id)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>
-            {s.display_name}
-            {s.nickname && <span style={{ color: "var(--muted)", fontWeight: 500, marginLeft: 6, fontFamily: "var(--font)" }}>{s.group_name}</span>}
+            {s.login_name}
+            <span style={{ color: "var(--muted)", fontWeight: 500, marginLeft: 6, fontFamily: "var(--font)" }}>{s.group_name}</span>
+          </div>
+          <div style={{ fontSize: "0.78rem", color: s.nickname ? "#fff" : "var(--muted)", fontStyle: s.nickname ? "normal" : "italic" }}>
+            {s.nickname ?? "nog geen naam gekozen"}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>
             {s.score} pt · {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}

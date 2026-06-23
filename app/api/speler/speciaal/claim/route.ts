@@ -42,12 +42,12 @@ export async function POST(request: NextRequest) {
   // Respawn inplannen als item_respawn aan staat in verspreid-modus
   const { data: route } = await admin
     .from("routes")
-    .select("modus, item_respawn")
+    .select("modus, item_respawn, respawn_minuten")
     .eq("id", sessie.route_id)
     .maybeSingle();
 
   if (route?.modus === "verspreid" && route.item_respawn) {
-    const respawnAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const respawnAt = new Date(Date.now() + (route.respawn_minuten ?? 15) * 60 * 1000).toISOString();
     await admin.from("special_items").update({ respawn_at: respawnAt }).eq("id", special_item_id);
   }
 

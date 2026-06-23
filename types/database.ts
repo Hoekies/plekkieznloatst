@@ -19,6 +19,7 @@ export interface Route {
   ster_waarde: number;
   bom_waarde: number;
   item_respawn: boolean;
+  respawn_minuten: number;
   items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;

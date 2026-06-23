@@ -4,6 +4,7 @@ import type { SpeciaalItem } from "@/types/database";
 export type SpelerOverzicht = {
   player_id: string;
   group_name: string;
+  login_name: string;
   nickname: string | null;
   display_name: string;
   sessie_id: string | null;
@@ -45,7 +46,7 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, group_name, nickname").order("group_name"),
+    admin.from("players").select("id, group_name, login_name, nickname").order("group_name"),
   ]);
 
   let specialeItems: SpeciaalItem[] = [];
@@ -129,6 +130,7 @@ export async function haalLiveData(): Promise<LiveData> {
     return {
       player_id: player.id,
       group_name: player.group_name,
+      login_name: player.login_name,
       nickname: player.nickname ?? null,
       display_name: player.nickname ?? player.group_name,
       sessie_id: sessie?.id ?? null,
