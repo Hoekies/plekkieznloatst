@@ -535,16 +535,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           <button
             onClick={controleerLocatie}
             title="Controleer locatie"
-            style={{
-              position: "absolute", bottom: knoepBottomOffset, left: 16,
-              zIndex: 1000,
-              width: 60, height: 60, borderRadius: "50%",
-              background: "linear-gradient(180deg, #ffc24a 0%, var(--pr-orange) 48%, #e35d00 50%, #c44900 100%)",
-              border: "3px solid #000",
-              boxShadow: "inset 0 2px 1px rgba(255,255,255,0.55), 0 0 0 8px rgba(255,138,0,0.18), 0 4px 0 #8a3300, 0 8px 18px rgba(0,0,0,0.45)",
-              fontSize: "24px", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
+            className="pr-loc-btn"
+            style={{ bottom: knoepBottomOffset, left: 16, zIndex: 1000 }}>
             📍
           </button>
         )}
