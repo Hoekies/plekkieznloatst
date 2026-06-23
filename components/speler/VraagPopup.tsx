@@ -216,7 +216,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
       display: "flex", flexDirection: "column",
     }}>
       {/* Logo header */}
-      <div style={{ padding: "10px 16px 8px", borderBottom: "1px solid #e5e7eb", background: "#ffffff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ padding: "max(10px, calc(env(safe-area-inset-top) + 8px)) 16px 8px", borderBottom: "1px solid #e5e7eb", background: "#ffffff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{ height: 96, width: "auto" }} />
       </div>

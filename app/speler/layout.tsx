@@ -18,8 +18,8 @@ export default async function SpelerLayout({ children }: { children: React.React
       <header className="speler-header" style={{ position: "relative" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{
-          height: "auto", width: "clamp(120px, 30vw, 200px)", objectFit: "contain",
-          position: "absolute", left: "50%", transform: "translateX(-50%)",
+          height: "auto", width: "clamp(240px, 60vw, 400px)", objectFit: "contain",
+          position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)",
         }} />
         <div style={{ flex: 1 }} />
         <form action="/api/auth/uitloggen" method="post">

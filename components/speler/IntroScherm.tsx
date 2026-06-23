@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 type Fase = "profiel" | "melding" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
 
 const ICONEN = [
-  "🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩",
-  "🐢", "🦉", "🐝", "🦔", "🐰", "🦓",
+  "🦊", "🐸", "🐧", "🦁", "🐙", "🐝",
+  "🦄", "🦓", "🐑", "🦙",
+  "🤡", "👽", "🤖", "🍕", "🦸",
 ];
 
 const INTRO_DUUR = 5000;

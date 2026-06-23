@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Moet gelijk blijven aan ICONEN.length in components/speler/IntroScherm.tsx
-const AANTAL_ICONEN = 16;
+const AANTAL_ICONEN = 15;
 
 export async function PATCH(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
