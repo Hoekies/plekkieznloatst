@@ -57,7 +57,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
         return;
       }
       setFase("bevestigd");
-      setTimeout(() => onVerwerkt(item.id, data.eigen_notificatie ?? undefined), 2000);
+      setTimeout(() => onVerwerkt(item.id, data.eigen_notificatie ?? undefined), 4000);
     } catch {
       setFoutMelding("Verbindingsfout. Probeer het opnieuw.");
       setFase("fout");

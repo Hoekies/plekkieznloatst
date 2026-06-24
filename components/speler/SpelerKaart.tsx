@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
-import { speelPuntBereikt, speelFinish } from "@/lib/sounds";
+import { speelPuntBereikt, speelFinish, speelAlarm } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende from "./SpeciaalItemLegende";
@@ -245,9 +245,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (data.notification && data.notification_at !== effectNotificatieAtRef.current) {
         effectNotificatieAtRef.current = data.notification_at;
         setEffectNotificatie(data.notification);
+        speelAlarm();
         haalScoreOp();
         if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
-        effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 8000);
+        effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 5000);
       }
 
       // Plek zooi actief: herstel afteltimer bij herverbinding
@@ -505,15 +506,20 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       {effectNotificatie && (
         <div style={{
           position: "absolute",
-          bottom: broadcastBericht ? knoepBottomOffset + 117 : knoepBottomOffset + 62,
+          bottom: broadcastBericht ? knoepBottomOffset + 130 : knoepBottomOffset + 70,
           left: "50%", transform: "translateX(-50%)",
-          zIndex: 900, maxWidth: "calc(100% - 32px)",
-          background: "rgba(124, 58, 237, 0.92)", backdropFilter: "blur(10px)",
-          color: "#fff", padding: "10px 20px", borderRadius: 30, fontSize: "0.85rem", fontWeight: 600,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", gap: 8,
+          zIndex: 900, maxWidth: "calc(100% - 24px)",
+          background: "linear-gradient(160deg, #9333EA 0%, #6D28D9 100%)",
+          border: "3px solid rgba(255,255,255,0.8)",
+          color: "#fff", padding: "16px 22px", borderRadius: 20, fontSize: "1.05rem", fontWeight: 800,
+          fontFamily: "var(--font-display)",
+          boxShadow: "0 8px 28px rgba(0,0,0,0.45), 0 0 0 6px rgba(147,51,234,0.25)",
+          display: "flex", alignItems: "center", gap: 10,
+          animation: "pr-effect-pop 0.4s ease",
         }}>
+          <span style={{ fontSize: "1.6rem", flexShrink: 0 }}>🚨</span>
           <span>{effectNotificatie}</span>
-          <button onClick={() => setEffectNotificatie(null)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 22, height: 22, color: "#fff", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 4 }}>✕</button>
+          <button onClick={() => setEffectNotificatie(null)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 26, height: 26, color: "#fff", fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 4 }}>✕</button>
         </div>
       )}
 

@@ -15,14 +15,13 @@ export default async function SpelerLayout({ children }: { children: React.React
       <AudioUnlock />
       <IOSFixes />
       <DeviceGuard />
-      <header className="speler-header" style={{ position: "relative" }}>
+      <header className="speler-header">
+        <div />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{
-          height: "auto", width: "clamp(240px, 60vw, 400px)", objectFit: "contain",
-          position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)",
+          height: "auto", width: "clamp(168px, 42vw, 280px)", objectFit: "contain", display: "block",
         }} />
-        <div style={{ flex: 1 }} />
-        <form action="/api/auth/uitloggen" method="post">
+        <form action="/api/auth/uitloggen" method="post" style={{ justifySelf: "end" }}>
           <button type="submit" className="speler-uitlog-btn">
             Uitloggen
           </button>

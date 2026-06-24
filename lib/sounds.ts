@@ -54,3 +54,8 @@ export function speelFinish() {
   // Triomfantelijke reeks
   speel([523, 659, 784, 659, 784, 1047], 0.9, "sine", 0.3);
 }
+
+export function speelAlarm() {
+  // Dringend alarm: snel afwisselende hoge tonen — een team is aangevallen
+  speel([880, 660, 880, 660, 880, 660], 0.9, "square", 0.32);
+}
