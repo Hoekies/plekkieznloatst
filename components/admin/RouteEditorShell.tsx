@@ -17,7 +17,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
-  const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
+  const [actieveTab, setActieveTab] = useState<"punten" | "items" | "instellingen">("punten");
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
@@ -27,6 +27,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [sterWaarde, setSterWaarde] = useState(initRoute.ster_waarde ?? 50);
   const [bomWaarde, setBomWaarde] = useState(initRoute.bom_waarde ?? 30);
   const [respawnMinuten, setRespawnMinuten] = useState(initRoute.respawn_minuten ?? 15);
+  const [plekzooiDuur, setPlekzooiDuur] = useState(initRoute.plekzooi_duur_seconden ?? 120);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -255,6 +256,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, respawn_minuten: minuten }));
   }
 
+  async function slaPlekzooiDuurOp(seconden: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plekzooi_duur_seconden: seconden }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, plekzooi_duur_seconden: seconden }));
+  }
+
   async function slaPuntOp(update: Partial<RoutePunt>) {
     if (!geselecteerd) return;
     setOpslaan(true); setFout("");
@@ -319,96 +329,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
               }}>⏹ Deactiveer</button>
           )}
-        </div>
-
-        {/* Rij 2: modus + itemwaarden */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Modus:</span>
-          {(["sequentieel", "verspreid"] as const).map((m) => (
-            <button key={m}
-              onClick={async () => {
-                if (route.modus === m) return;
-                const res = await fetch(`/api/admin/routes/${route.id}`, {
-                  method: "PATCH", headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ modus: m }),
-                });
-                if (res.ok) setRoute((r) => ({ ...r, modus: m }));
-              }}
-              style={{
-                fontSize: "0.72rem", fontWeight: 600, padding: "4px 10px",
-                borderRadius: 7, border: "1px solid", cursor: "pointer",
-                background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
-                borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
-                color: route.modus === m ? "var(--cyan)" : "var(--muted)",
-              }}>
-              {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
-            </button>
-          ))}
-          {route.modus === "verspreid" && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
-              onClick={async () => {
-                const nieuw = !route.item_respawn;
-                const res = await fetch(`/api/admin/routes/${route.id}`, {
-                  method: "PATCH", headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ item_respawn: nieuw }),
-                });
-                if (res.ok) setRoute((r) => ({ ...r, item_respawn: nieuw }));
-              }}>
-              <span style={{ fontSize: "0.70rem", color: route.item_respawn ? "var(--green)" : "var(--muted)", flexShrink: 0, userSelect: "none" }}>🔄 Respawn</span>
-              <div style={{
-                width: 36, height: 20, borderRadius: 10, flexShrink: 0,
-                background: route.item_respawn ? "var(--green)" : "rgba(255,255,255,0.15)",
-                transition: "background 0.2s",
-                position: "relative",
-              }}>
-                <div style={{
-                  position: "absolute", top: 3, left: route.item_respawn ? 19 : 3,
-                  width: 14, height: 14, borderRadius: "50%",
-                  background: "#fff",
-                  transition: "left 0.2s",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
-                }} />
-              </div>
-            </div>
-          )}
-          {route.modus === "verspreid" && route.item_respawn && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <input
-                type="number" min={1} value={respawnMinuten}
-                onChange={(e) => setRespawnMinuten(Math.max(1, Number(e.target.value)))}
-                onBlur={() => slaRespawnMinutenOp(respawnMinuten)}
-                style={{
-                  width: 48, fontSize: "0.72rem", padding: "3px 6px", borderRadius: 6,
-                  border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.06)",
-                  color: "var(--green)", textAlign: "center",
-                }}
-              />
-              <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>min</span>
-            </div>
-          )}
-          <div style={{ flex: 1 }} />
-          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>⭐ Ster:</span>
-          <input
-            type="number" min={1} value={sterWaarde}
-            onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
-            onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-            style={{
-              width: 52, padding: "3px 7px", fontSize: "0.80rem", fontWeight: 700,
-              background: "rgba(255,217,59,0.07)", border: "1px solid rgba(255,217,59,0.3)",
-              borderRadius: 6, color: "var(--gold)", outline: "none",
-            }}
-          />
-          <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>💣 Bom:</span>
-          <input
-            type="number" min={1} value={bomWaarde}
-            onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
-            onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-            style={{
-              width: 52, padding: "3px 7px", fontSize: "0.80rem", fontWeight: 700,
-              background: "rgba(255,59,92,0.07)", border: "1px solid rgba(255,59,92,0.3)",
-              borderRadius: 6, color: "var(--red)", outline: "none",
-            }}
-          />
         </div>
       </div>
 
@@ -546,26 +466,38 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               }}>
               ⭐ Items ({specialeItems.length})
             </button>
+            <button
+              onClick={() => { setActieveTab("instellingen"); setAddModus(false); setAddSpeciaalModus(false); }}
+              style={{
+                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
+                background: "transparent", border: "none", cursor: "pointer",
+                borderBottom: actieveTab === "instellingen" ? "2px solid var(--cyan)" : "2px solid transparent",
+                color: actieveTab === "instellingen" ? "var(--cyan)" : "var(--muted)",
+              }}>
+              ⚙️ Instellingen
+            </button>
           </div>
 
           {/* Toevoegen-knop */}
-          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
-            {actieveTab === "punten" ? (
-              <button
-                className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
-                style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
-                {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
-              </button>
-            ) : (
-              <button
-                className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
-                style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
-                {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
-              </button>
-            )}
-          </div>
+          {actieveTab !== "instellingen" && (
+            <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
+              {actieveTab === "punten" ? (
+                <button
+                  className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
+                  style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
+                  {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
+                </button>
+              ) : (
+                <button
+                  className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
+                  style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
+                  {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
@@ -645,6 +577,126 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 );
               })
+            )}
+
+            {/* Instellingen-tab */}
+            {actieveTab === "instellingen" && (
+              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 18 }}>
+
+                {/* Modus */}
+                <div className="form-group">
+                  <label className="form-label">Routemodus</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {(["sequentieel", "verspreid"] as const).map((m) => (
+                      <button key={m}
+                        onClick={async () => {
+                          if (route.modus === m) return;
+                          const res = await fetch(`/api/admin/routes/${route.id}`, {
+                            method: "PATCH", headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ modus: m }),
+                          });
+                          if (res.ok) setRoute((r) => ({ ...r, modus: m }));
+                        }}
+                        style={{
+                          flex: 1, fontSize: "0.78rem", fontWeight: 600, padding: "8px 10px",
+                          borderRadius: 7, border: "1px solid", cursor: "pointer",
+                          background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
+                          borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
+                          color: route.modus === m ? "var(--cyan)" : "var(--muted)",
+                        }}>
+                        {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Item-waarden */}
+                <div className="form-group">
+                  <label className="form-label">⭐ Item-waarden</label>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
+                      <input
+                        className="form-input" type="number" min={1} value={sterWaarde}
+                        onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
+                        onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                        style={{ color: "var(--gold)", fontWeight: 700 }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
+                      <input
+                        className="form-input" type="number" min={1} value={bomWaarde}
+                        onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
+                        onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                        style={{ color: "var(--red)", fontWeight: 700 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Plekzooi */}
+                <div className="form-group">
+                  <label className="form-label">⛔ Plekzooi — standaard blokkeerduur (seconden)</label>
+                  <input
+                    className="form-input" type="number" min={10} value={plekzooiDuur}
+                    onChange={(e) => setPlekzooiDuur(Math.max(10, Number(e.target.value)))}
+                    onBlur={() => slaPlekzooiDuurOp(plekzooiDuur)}
+                  />
+                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+                </div>
+
+                {/* Respawn */}
+                {route.modus === "verspreid" && (
+                  <div className="form-group">
+                    <label className="form-label">🔄 Respawn (verspreid-modus)</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                        onClick={async () => {
+                          const nieuw = !route.item_respawn;
+                          const res = await fetch(`/api/admin/routes/${route.id}`, {
+                            method: "PATCH", headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ item_respawn: nieuw }),
+                          });
+                          if (res.ok) setRoute((r) => ({ ...r, item_respawn: nieuw }));
+                        }}>
+                        <span style={{ fontSize: "0.78rem", color: route.item_respawn ? "var(--green)" : "var(--muted)", flexShrink: 0, userSelect: "none" }}>
+                          {route.item_respawn ? "Aan" : "Uit"}
+                        </span>
+                        <div style={{
+                          width: 36, height: 20, borderRadius: 10, flexShrink: 0,
+                          background: route.item_respawn ? "var(--green)" : "rgba(255,255,255,0.15)",
+                          transition: "background 0.2s",
+                          position: "relative",
+                        }}>
+                          <div style={{
+                            position: "absolute", top: 3, left: route.item_respawn ? 19 : 3,
+                            width: 14, height: 14, borderRadius: "50%",
+                            background: "#fff",
+                            transition: "left 0.2s",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
+                          }} />
+                        </div>
+                      </div>
+                      {route.item_respawn && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <input
+                            type="number" min={1} value={respawnMinuten}
+                            onChange={(e) => setRespawnMinuten(Math.max(1, Number(e.target.value)))}
+                            onBlur={() => slaRespawnMinutenOp(respawnMinuten)}
+                            style={{
+                              width: 56, fontSize: "0.78rem", padding: "5px 8px", borderRadius: 6,
+                              border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.06)",
+                              color: "var(--green)", textAlign: "center",
+                            }}
+                          />
+                          <span style={{ fontSize: "0.72rem", color: "var(--muted)", flexShrink: 0 }}>min</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

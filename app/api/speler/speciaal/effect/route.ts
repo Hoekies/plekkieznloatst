@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   const aanvallerNaam: string = (aanvallerData as { players?: { group_name?: string } } | null)?.players?.group_name ?? "Onbekend team";
 
-  // Route-niveau waarden ophalen voor ster/bom/vraagteken
+  // Route-niveau waarden ophalen voor ster/bom/vraagteken/plekzooi
   const { data: routeWaarden } = await admin
     .from("routes")
-    .select("ster_waarde, bom_waarde")
+    .select("ster_waarde, bom_waarde, plekzooi_duur_seconden")
     .eq("id", eigenSessie.route_id)
     .maybeSingle();
   const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;
@@ -271,8 +271,8 @@ export async function POST(request: NextRequest) {
     }
 
   } else if (item.type === "plekzooi") {
-    // Plek zooi treft de speler zelf — duur in seconden opgeslagen in points_effect
-    const duurSeconden = Math.max(10, item.points_effect);
+    // Plek zooi treft de speler zelf — route-brede standaardduur, met per-item als fallback
+    const duurSeconden = Math.max(10, routeWaarden?.plekzooi_duur_seconden ?? item.points_effect ?? 120);
     const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
     const { error } = await admin.from("special_item_effects").insert({
       special_item_id: item.id,
