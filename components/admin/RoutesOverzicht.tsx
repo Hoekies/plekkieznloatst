@@ -97,18 +97,19 @@ export default function RoutesOverzicht() {
   }
 
   return (
-    <div style={{ maxWidth: 700 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 20 }}>
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem", flex: 1, minWidth: 80 }}>
+    <div style={{ maxWidth: 760 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 22 }}>
+        <p style={{ color: "var(--muted)", fontSize: "0.9rem", fontWeight: 600, flex: 1, minWidth: 80 }}>
           {routes.length} route{routes.length !== 1 ? "s" : ""}
         </p>
-        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-          <button className="btn btn-ghost" style={{ fontSize: "0.82rem" }}
-            onClick={() => importRef.current?.click()} disabled={importBezig}>
+        <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+          <button className="btn-premium--ghost" onClick={() => importRef.current?.click()} disabled={importBezig}>
             {importBezig ? "Importeren…" : "📥 Importeer"}
           </button>
           <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
-          <button className="btn btn-primary" onClick={() => setAanmaken(true)}>+ Nieuwe route</button>
+          <button className="btn-premium" style={{ width: "auto", padding: "11px 22px", fontSize: "0.88rem" }} onClick={() => setAanmaken(true)}>
+            + NIEUWE ROUTE
+          </button>
         </div>
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
@@ -117,8 +118,8 @@ export default function RoutesOverzicht() {
         <form onSubmit={nieuwRoute} style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           <input className="form-input" style={{ flex: 1 }} placeholder="Naam van de route"
             value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus />
-          <button className="btn btn-ghost" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
-          <button className="btn btn-primary" type="submit" disabled={bezig}>
+          <button className="btn-premium--ghost" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
+          <button className="btn-premium" style={{ width: "auto", padding: "10px 20px" }} type="submit" disabled={bezig}>
             {bezig ? "…" : "Aanmaken"}
           </button>
         </form>
@@ -132,60 +133,44 @@ export default function RoutesOverzicht() {
           <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Maak een nieuwe route aan.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {routes.map((r) => (
-            <div key={r.id} className="card" style={{
-              borderLeft: r.is_active ? "4px solid var(--green)" : r.status === "gepubliceerd" ? "4px solid var(--cyan)" : "4px solid var(--line)",
-              padding: "12px 16px",
-              display: "flex", flexDirection: "column", gap: 8,
-            }}>
-              {/* Naam + status */}
-              <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
-                <span style={{ fontWeight: 700, fontSize: "1rem" }}>{r.name}</span>
-                {r.is_active && <StatusBadge kleur="green" label="✓ Actief" />}
-                {r.status === "gepubliceerd" && !r.is_active && <StatusBadge kleur="cyan" label="Gepubliceerd" />}
-                {r.status === "concept" && <StatusBadge kleur="muted" label="Concept" />}
-                {r.modus === "verspreid" && <StatusBadge kleur="cyan" label="Verspreid" />}
-              </div>
-              {/* Actieknoppen */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
-                  onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
-                <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 12px" }}
-                  onClick={() => exporteer(r.id, r.name)} title="Exporteer">📤</button>
-                {!r.is_active && (
-                  <button className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
-                    onClick={() => togglePubliceer(r)}>
-                    {r.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
-                  </button>
-                )}
-                {!r.is_active && r.status === "gepubliceerd" && (
-                  <button className="btn btn-cyan" style={{ fontSize: "0.82rem", padding: "7px 14px" }}
-                    onClick={() => activeer(r.id)}>▶ Activeer</button>
-                )}
-                {!r.is_active && (
-                  <button className="btn btn-danger" style={{ fontSize: "0.82rem", padding: "7px 12px" }}
-                    onClick={() => verwijder(r.id, r.name)} title="Verwijder">🗑️</button>
-                )}
+            <div key={r.id} className="pr-gem-card" style={{ marginBottom: 0 }}>
+              <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
+                {/* Naam + status */}
+                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
+                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{r.name}</span>
+                  {r.is_active && <span className="pr-gem-chip pr-gem-chip--green">✓ Actief</span>}
+                  {r.status === "gepubliceerd" && !r.is_active && <span className="pr-gem-chip pr-gem-chip--cyan">Gepubliceerd</span>}
+                  {r.status === "concept" && <span className="pr-gem-chip pr-gem-chip--gray">Concept</span>}
+                  {r.modus === "verspreid" && <span className="pr-gem-chip pr-gem-chip--cyan">Verspreid</span>}
+                </div>
+                {/* Actieknoppen */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <button className="btn-premium--ghost" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
+                    onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
+                  <button className="btn-premium--ghost" style={{ padding: "8px 14px", fontSize: "0.8rem" }}
+                    onClick={() => exporteer(r.id, r.name)} title="Exporteer">📤</button>
+                  {!r.is_active && (
+                    <button className="btn-premium--ghost" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
+                      onClick={() => togglePubliceer(r)}>
+                      {r.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
+                    </button>
+                  )}
+                  {!r.is_active && r.status === "gepubliceerd" && (
+                    <button className="btn-premium--cyan" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
+                      onClick={() => activeer(r.id)}>▶ Activeer</button>
+                  )}
+                  {!r.is_active && (
+                    <button className="btn-premium--danger" style={{ padding: "8px 14px", fontSize: "0.8rem" }}
+                      onClick={() => verwijder(r.id, r.name)} title="Verwijder">🗑️</button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
     </div>
-  );
-}
-
-function StatusBadge({ kleur, label }: { kleur: string; label: string }) {
-  const kleuren: Record<string, string> = {
-    green: "color:var(--green);background:var(--green-soft)",
-    cyan: "color:var(--cyan);background:var(--cyan-soft)",
-    muted: "color:var(--muted);background:var(--line)",
-  };
-  return (
-    <span style={{
-      ...(Object.fromEntries(kleuren[kleur].split(";").map((s) => s.split(":")))),
-      padding: "2px 8px", borderRadius: 99, fontSize: "0.72rem", fontWeight: 600,
-    }}>{label}</span>
   );
 }
