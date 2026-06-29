@@ -28,9 +28,16 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 
 ---
 
-### 2. Routemodus kiezen
+### 2. Routemodus en route-instellingen
 
-In de route-editor, boven de puntenlijst, staat een **Modus**-toggle:
+In de route-editor staat naast **📍 Punten** en **⭐ Items** een derde tabblad: **⚙️ Instellingen**. Hier staan alle route-brede instellingen gegroepeerd:
+
+- **Routemodus** — Sequentieel of Verspreid (zie hieronder)
+- **⭐ Item-waarden** — standaard ster- en bomwaarde voor de hele route
+- **⛔ Plekzooi** — standaard blokkeerduur in seconden voor nieuwe plekzooi-items
+- **🔄 Respawn** (alleen bij verspreid-modus) — zie hieronder
+
+#### Modus-toggle
 
 | Modus | Omschrijving |
 |---|---|
@@ -67,13 +74,22 @@ Team 3:  5 → 6 → 1 → 2 → 3 → 4   (start bij punt 5, ≈ 3.3 km)
 
 #### Instellingen voor Verspreid-modus
 
-Onder de modus-toggle verschijnen extra velden:
+In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus staat, extra velden boven de puntenlijst:
 
 | Instelling | Uitleg |
 |---|---|
 | **Aantal teams** | Verwacht aantal deelnemende groepen (min. 2). Bepaalt de startpuntberekening. |
 | **Doelafstand** | Totale routelengte in km. Wordt gebruikt voor de kaartcirkel en puntgenerator. |
 | **Aantal punten** | Aantal punten voor de automatische generator (zie hieronder). |
+
+#### Respawn (items opnieuw laten verschijnen)
+
+Alleen bij verspreid-modus, in te schakelen via **⚙️ Instellingen** → "🔄 Respawn":
+
+- **Uit (standaard)** — speciale items verdwijnen permanent zodra een team ze opraapt.
+- **Aan** — een opgeraapt item komt na een instelbaar aantal minuten weer beschikbaar, met een nieuw willekeurig type. Daarnaast rouleren alle nog-niet-opgeraapte items elke periode automatisch van type, zodat het speelveld dynamisch blijft.
+
+Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "Aan" staat.
 
 #### Punten automatisch genereren in cirkel
 
@@ -112,13 +128,23 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 | 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van het doelteam met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. De duur stel je in bij het item (in seconden). Kaart en voortgang zijn geblokkeerd tijdens de blokkade. |
+| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. Kaart en voortgang zijn geblokkeerd tijdens de blokkade. |
+| ❓ | Vraagteken | Geen doelteam — werkt direct op het opraapteam zelf én chaotisch op de rest. 40% dubbele ster, 20% ieder ander team krijgt willekeurig ster/bom, 10% jackpot (5× sterwaarde), 10% −200 punten, 20% bom op jezelf. |
 
 > **Dief-effect**: als een team een Dief op een ander team zet, worden de punten van het eerstvolgende goede antwoord van dat team gestolen. Als het antwoord fout is, is het Dief-effect toch verbruikt.
 
 > **Banaan-effect**: werkt alleen als het doelteam nog minimaal 2 onbezochte punten heeft. Bij minder punten geeft de app een foutmelding terug aan het aanvallende team.
 
 > **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam een melding met de naam van het aanvallende team.
+
+#### Plekzooi-duur instellen
+
+De blokkeerduur van Plek zooi kan op twee niveaus ingesteld worden:
+
+- **Route-breed standaard** (aanbevolen): tabblad **⚙️ Instellingen** → "Plekzooi — standaard blokkeerduur (seconden)". Geldt voor alle plekzooi-items in deze route die geen eigen duur hebben.
+- **Per item**: klik een geplaatst plekzooi-item aan in het **⭐ Items**-tabblad → veld "Blokkeer duur (seconden)". Overschrijft de route-standaard voor dat ene item.
+
+60 = 1 min · 120 = 2 min · 180 = 3 min.
 
 ---
 
@@ -174,7 +200,7 @@ Het **Dashboard** toont per groep:
 
 De **Live kaart** toont de actuele (globale) GPS-posities van alle groepen op de kaart.
 
-Het dashboard ververst automatisch elke 15 seconden en via realtime-database-updates.
+Het dashboard ververst automatisch elke 5 seconden en via realtime-database-updates; het leaderboard elke 4 seconden.
 
 ---
 
@@ -207,6 +233,8 @@ Routes, routepunten, vragen en groepen blijven bewaard. Gebruik dit om opnieuw t
 
 Het leaderboard toont de eindrangschikking op basis van score. Bij gelijke score is de kortste speeltijd bepalend. Het leaderboard is ook zichtbaar voor spelers.
 
+De tabel toont **Login** (loginnaam + groepsnaam — wat de groep gebruikt om in te loggen) los van **Teamnaam** (de naam die de groep zelf gekozen heeft via het interscherm; staat er "nog geen naam gekozen" dan heeft die groep het interscherm nog niet doorlopen).
+
 ---
 
 ## Aandachtspunten
@@ -216,3 +244,5 @@ Het leaderboard toont de eindrangschikking op basis van score. Bij gelijke score
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: zorg dat het laatste punt en het eerste punt geografisch dicht bij elkaar liggen, zodat de lus logisch aanvoelt voor alle groepen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
+- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen.
+- **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.

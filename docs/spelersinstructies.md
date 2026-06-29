@@ -10,7 +10,10 @@ PointRush is een GPS-speurtocht voor groepen. Jullie lopen een route door de omg
 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
 2. Vul de naam van je groep in en log in.
-3. Druk op **Start spel** — de kaart opent en jullie eerste locatie verschijnt.
+3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
+4. Geef locatietoegang en geluid toestemming, en druk op **Ga op pad** — de kaart opent en jullie eerste locatie verschijnt.
+
+> Een groep kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon.
 
 ---
 
@@ -69,6 +72,7 @@ Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
 | ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Als je er overheen loopt, wordt je scherm rood en kun je een ingestelde tijd niet verder. De kaart is niet zichtbaar tijdens de blokkade. |
+| ❓ | Vraagteken | Werkt direct op jou en je tegenstanders — geen team kiezen nodig. Geeft een willekeurig effect: 40% dubbele ster voor jou, 20% ieder ander team krijgt willekeurig een ster óf een bom, 10% jackpot (5× sterwaarde), 10% jij verliest 200 punten, 20% jij krijgt een bom op jezelf. Hoog risico, hoge beloning! |
 
 ### Hoe gebruik je een item?
 
@@ -91,6 +95,7 @@ Als een ander team een item op jou inzet, krijg je een melding met daarin de naa
 - Met de Radar zie je 2 minuten lang precies waar andere teams zijn. Handig als je wilt weten of iemand je inhaalt.
 - De Banaan kan het volgende punt van een tegenstander omgooien — gebruik hem als een team op het punt staat een makkelijk punt te halen.
 - Als je scherm bevriest of de app herlaadt, is je inventaris gewoon nog aanwezig.
+- Een Vraagteken is gokken: meestal levert het iets goeds op, maar je kunt ook zelf punten verliezen. Gebruik 'm als je toch al risico durft te nemen.
 
 ---
 
