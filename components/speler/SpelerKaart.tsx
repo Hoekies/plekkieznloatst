@@ -114,6 +114,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (positieRef.current) publiceerLocatie(positieRef.current);
     }, LOCATIE_PUBLICEER_INTERVAL_MS);
     return () => { if (locatieTimerRef.current) clearInterval(locatieTimerRef.current); };
+  // publiceerLocatie gebruikt enkel het meegegeven coords-argument + de stabiele router-ref
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Realtime + initiële data

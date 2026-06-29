@@ -114,12 +114,15 @@ export default function LeafletKaart({
       setKaartKlaar(true);
     });
 
+    const markers = markersRef.current;
+    const specialeItemMarkers = specialeItemMarkersRef.current;
+
     return () => {
       mounted = false;
       kaartRef.current?.remove();
       kaartRef.current = null;
-      markersRef.current.clear();
-      specialeItemMarkersRef.current.clear();
+      markers.clear();
+      specialeItemMarkers.clear();
       cirkelRef.current = null;
       startPolygoonRef.current = null;
       startMarkersRef.current = [];

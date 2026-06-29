@@ -85,12 +85,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
     init();
 
+    const puntMarkers = puntMarkersRef.current;
+    const specialeItemMarkers = specialeItemMarkersRef.current;
+
     return () => {
       mapRef.current?.remove();
       mapRef.current = null;
       LRef.current = null;
-      puntMarkersRef.current.clear();
-      specialeItemMarkersRef.current.clear();
+      puntMarkers.clear();
+      specialeItemMarkers.clear();
       gecenterRef.current = false;
     };
   }, []);

@@ -786,6 +786,8 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
 
   useEffect(() => {
     setNaam(item.name); setType(item.type); setRadius(item.radius_meters); setEffect(item.points_effect);
+  // Alleen resetten bij wisselen van item, niet bij elke prop-update (anders vecht dit met lokale invoer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
 
   const heeftDuur = type === "plekzooi";
@@ -873,6 +875,8 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
   useEffect(() => {
     setNaam(punt.name); setBeschrijving(punt.description ?? ""); setType(punt.type);
     setRadius(punt.radius_meters); setPunten(punt.points);
+  // Alleen resetten bij wisselen van punt, niet bij elke prop-update (anders vecht dit met lokale invoer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [punt.id]);
 
   return (

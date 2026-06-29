@@ -73,14 +73,18 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
     init();
 
+    const spelerMarkers = spelerMarkersRef.current;
+    const puntMarkers = puntMarkersRef.current;
+    const specialeItemMarkers = specialeItemMarkersRef.current;
+
     return () => {
       mounted = false;
       mapRef.current?.remove();
       mapRef.current = null;
       LRef.current = null;
-      spelerMarkersRef.current.clear();
-      puntMarkersRef.current.clear();
-      specialeItemMarkersRef.current.clear();
+      spelerMarkers.clear();
+      puntMarkers.clear();
+      specialeItemMarkers.clear();
       initBoundsRef.current = false;
     };
   }, []);
