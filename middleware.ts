@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
   // Admin-pagina's: alleen voor admins
   if (user && pad.startsWith("/admin")) {
-    const rol = user.user_metadata?.rol;
+    const rol = user.app_metadata?.rol;
     if (rol !== "admin") {
       return NextResponse.redirect(new URL("/speler", request.url));
     }
@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
 
   // Speler-pagina's: alleen voor spelers
   if (user && pad.startsWith("/speler")) {
-    const rol = user.user_metadata?.rol;
+    const rol = user.app_metadata?.rol;
     if (rol === "admin") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }

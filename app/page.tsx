@@ -7,7 +7,7 @@ export default async function HomePage() {
 
   if (!user) redirect("/login");
 
-  const rol = user.user_metadata?.rol;
+  const rol = user.app_metadata?.rol;
   if (rol === "admin") redirect("/admin");
   redirect("/speler");
 }

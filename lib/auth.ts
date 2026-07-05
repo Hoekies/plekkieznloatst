@@ -6,7 +6,7 @@ export async function getGebruikerRol(): Promise<Rol | null> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  return (user.user_metadata?.rol as Rol) ?? "speler";
+  return (user.app_metadata?.rol as Rol) ?? "speler";
 }
 
 export async function isIngelogd(): Promise<boolean> {

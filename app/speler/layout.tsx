@@ -8,7 +8,7 @@ export default async function SpelerLayout({ children }: { children: React.React
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  if (user.user_metadata?.rol === "admin") redirect("/admin");
+  if (user.app_metadata?.rol === "admin") redirect("/admin");
 
   return (
     <div className="speler-shell">

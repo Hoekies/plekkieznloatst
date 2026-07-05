@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 async function checkAdmin() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  return user?.user_metadata?.rol === "admin" ? user : null;
+  return user?.app_metadata?.rol === "admin" ? user : null;
 }
 
 const TOEGESTANE_VELDEN = [

@@ -37,7 +37,7 @@ export async function inloggenAction(
     return { fout: "Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord." };
   }
 
-  const rol = data.user.user_metadata?.rol;
+  const rol = data.user.app_metadata?.rol;
 
   if (rol === "admin") {
     redirect("/admin");

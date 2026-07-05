@@ -103,7 +103,7 @@ De app draait op [http://localhost:3000](http://localhost:3000).
 
 ### Admin-account aanmaken
 
-Maak een gebruiker aan in Supabase Authentication en zet in `user_metadata`:
+Maak een gebruiker aan in Supabase Authentication en zet in `app_metadata`:
 
 ```json
 { "rol": "admin" }

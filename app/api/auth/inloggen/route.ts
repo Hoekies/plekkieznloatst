@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });
   }
 
-  const rol = data.user.user_metadata?.rol;
+  const rol = data.user.app_metadata?.rol;
   const redirectNaar = rol === "admin" ? "/admin" : "/speler";
   const isDev = process.env.NODE_ENV === "development";
 

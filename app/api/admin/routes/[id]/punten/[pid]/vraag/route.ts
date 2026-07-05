@@ -7,7 +7,7 @@ type Params = { params: { id: string; pid: string } };
 async function checkAdmin() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const rol = user?.app_metadata?.rol ?? user?.user_metadata?.rol;
+  const rol = user?.app_metadata?.rol;
   return rol === "admin" ? user : null;
 }
 
