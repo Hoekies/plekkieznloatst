@@ -1,0 +1,17 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "0 8 */3 * *"   # elke 3 dagen, 08:00 UTC — ruim binnen 7-dagen-pauzegrens
+  workflow_dispatch:         # handmatig te starten voor test
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST (raakt database aan)
+        run: |
+          curl -fsS \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/routes?select=id&limit=1" > /dev/null
