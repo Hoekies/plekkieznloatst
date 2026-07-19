@@ -10,7 +10,8 @@ import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende from "./SpeciaalItemLegende";
 import InventarisBar from "./InventarisBar";
-import type { SpelerLocatie } from "@/lib/types";
+import TussenstandPopup from "./TussenstandPopup";
+import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
 import type { RoutePunt, SpelerSessie, SpelerPuntVoortgang, SpeciaalItem } from "@/types/database";
 
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {
@@ -63,6 +64,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [score, setScore] = useState(sessie.score);
   const [plekzooiActief, setPlekzooiActief] = useState(false);
   const [plekzooiSecondsLeft, setPlekzooiSecondsLeft] = useState(0);
+  const [tussenstand, setTussenstand] = useState<LeaderboardEntry[] | null>(null);
+  const [tussenstandResterend, setTussenstandResterend] = useState(0);
+  const tussenstandActiefRef = useRef(false);
   const effectNotificatieTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const opgehaaldTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plekzooiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -184,6 +188,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   useEffect(() => {
     if (spelAfgelopen) { speelFinish(); router.push("/speler/finish"); }
   }, [spelAfgelopen, router]);
+
+  // Tussenstand-poll: elke 3s checken of admin de tussenstand nu toont
+  useEffect(() => {
+    haalTussenstandOp();
+    const timer = setInterval(haalTussenstandOp, 3000);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function haalAndereSpelersOp() {
     try {
@@ -409,6 +421,27 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     setActiveSpeciaalItem(null);
   }
 
+  async function haalTussenstandOp() {
+    try {
+      const res = await fetch("/api/speler/tussenstand");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.zichtbaar) {
+        if (!tussenstandActiefRef.current) {
+          tussenstandActiefRef.current = true;
+          setTussenstand(data.tussenstand);
+          setTussenstandResterend(data.resterende_seconden);
+        }
+      } else {
+        tussenstandActiefRef.current = false;
+      }
+    } catch { /* verbindingsfout */ }
+  }
+
+  function sluitTussenstand() {
+    setTussenstand(null);
+  }
+
   function controleerLocatie() {
     if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt || plekzooiActief) return;
     const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
@@ -574,6 +607,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         <SpeciaalItemLegende
           onSluit={() => setLegendeOpen(false)}
           speciaalItems={specialeItems}
+        />
+      )}
+
+      {/* Tussenstand — door admin getoond */}
+      {tussenstand && (
+        <TussenstandPopup
+          tussenstand={tussenstand}
+          resterendeSeconden={tussenstandResterend}
+          onSluit={sluitTussenstand}
         />
       )}
 

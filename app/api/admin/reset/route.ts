@@ -27,5 +27,8 @@ export async function POST() {
     used_at: null,
   }).not("id", "is", null);
 
+  // Handmatige tussenstand-trigger leegmaken zodat 'ie niet doorspookt in de nieuwe game
+  await admin.from("routes").update({ tussenstand_trigger_at: null }).not("id", "is", null);
+
   return NextResponse.json({ ok: true });
 }

@@ -21,6 +21,9 @@ export interface Route {
   item_respawn: boolean;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;
+  tussenstand_interval_minuten: number;
+  tussenstand_duur_seconden: number;
+  tussenstand_trigger_at: string | null;
   items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;

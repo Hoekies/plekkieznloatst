@@ -36,6 +36,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (typeof body.respawn_minuten === "number" && body.respawn_minuten > 0) toegestaan.respawn_minuten = body.respawn_minuten;
   if (typeof body.plekzooi_duur_seconden === "number" && body.plekzooi_duur_seconden > 0) toegestaan.plekzooi_duur_seconden = body.plekzooi_duur_seconden;
+  if (typeof body.tussenstand_interval_minuten === "number" && body.tussenstand_interval_minuten >= 0) toegestaan.tussenstand_interval_minuten = body.tussenstand_interval_minuten;
+  if (typeof body.tussenstand_duur_seconden === "number" && body.tussenstand_duur_seconden > 0) toegestaan.tussenstand_duur_seconden = body.tussenstand_duur_seconden;
+  if (body.tussenstand_nu_tonen === true) toegestaan.tussenstand_trigger_at = new Date().toISOString();
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

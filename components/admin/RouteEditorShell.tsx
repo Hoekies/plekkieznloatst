@@ -28,6 +28,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [bomWaarde, setBomWaarde] = useState(initRoute.bom_waarde ?? 30);
   const [respawnMinuten, setRespawnMinuten] = useState(initRoute.respawn_minuten ?? 15);
   const [plekzooiDuur, setPlekzooiDuur] = useState(initRoute.plekzooi_duur_seconden ?? 120);
+  const [tussenstandInterval, setTussenstandInterval] = useState(initRoute.tussenstand_interval_minuten ?? 0);
+  const [tussenstandDuur, setTussenstandDuur] = useState(initRoute.tussenstand_duur_seconden ?? 10);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -263,6 +265,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       body: JSON.stringify({ plekzooi_duur_seconden: seconden }),
     });
     if (res.ok) setRoute((r) => ({ ...r, plekzooi_duur_seconden: seconden }));
+  }
+
+  async function slaTussenstandIntervalOp(minuten: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tussenstand_interval_minuten: minuten }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, tussenstand_interval_minuten: minuten }));
+  }
+
+  async function slaTussenstandDuurOp(seconden: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tussenstand_duur_seconden: seconden }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, tussenstand_duur_seconden: seconden }));
   }
 
   async function slaPuntOp(update: Partial<RoutePunt>) {
@@ -644,6 +664,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onBlur={() => slaPlekzooiDuurOp(plekzooiDuur)}
                   />
                   <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+                </div>
+
+                {/* Tussenstand */}
+                <div className="form-group">
+                  <label className="form-label">🏆 Tussenstand — automatische reveal</label>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … minuten (0 = uit)</span>
+                      <input
+                        className="form-input" type="number" min={0} value={tussenstandInterval}
+                        onChange={(e) => setTussenstandInterval(Math.max(0, Number(e.target.value)))}
+                        onBlur={() => slaTussenstandIntervalOp(tussenstandInterval)}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>… seconden zichtbaar</span>
+                      <input
+                        className="form-input" type="number" min={1} value={tussenstandDuur}
+                        onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
+                        onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
+                      />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
                 </div>
 
                 {/* Respawn */}

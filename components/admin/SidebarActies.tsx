@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type Fase = "idle" | "bevestig-stop" | "bevestig-reset" | "bezig" | "klaar-stop" | "klaar-reset";
+type Fase = "idle" | "bevestig-stop" | "bevestig-reset" | "bezig" | "klaar-stop" | "klaar-reset" | "klaar-tussenstand";
 
 export default function SidebarActies() {
   const [fase, setFase] = useState<Fase>("idle");
@@ -18,6 +18,13 @@ export default function SidebarActies() {
     setFase("bezig");
     await fetch("/api/admin/reset", { method: "POST" });
     setFase("klaar-reset");
+    setTimeout(() => setFase("idle"), 2500);
+  }
+
+  async function toonTussenstand() {
+    setFase("bezig");
+    await fetch("/api/admin/tussenstand/tonen", { method: "POST" });
+    setFase("klaar-tussenstand");
     setTimeout(() => setFase("idle"), 2500);
   }
 
@@ -66,8 +73,15 @@ export default function SidebarActies() {
     return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Spel gereset</div>;
   }
 
+  if (fase === "klaar-tussenstand") {
+    return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Tussenstand getoond</div>;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={toonTussenstand}>
+        <span aria-hidden>🏆</span> Toon tussenstand nu
+      </button>
       <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-stop")}>
         <span aria-hidden>🛑</span> Stop route
       </button>
