@@ -34,6 +34,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
   const [mobielPaneelOpen, setMobielPaneelOpen] = useState(false);
+  const [mobielTikPositie, setMobielTikPositie] = useState<{ lat: number; lng: number } | null>(null);
 
   // Sluit het mobiele overlay-paneel zodra de kaart iets te doen krijgt
   useEffect(() => {
@@ -142,26 +143,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setPunten(nieuwePunten);
   }
 
-  async function kaartKlik(lat: number, lng: number) {
-    if (centrumModus) {
-      setCentrumPunt({ lat, lng });
-      setCentrumModus(false);
-      return;
-    }
-    if (addSpeciaalModus) {
-      const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
-      });
-      if (res.ok) {
-        const nieuw: SpeciaalItem = await res.json();
-        setSpecialeItems((p) => [...p, nieuw]);
-        setGeselecteerdSpeciaal(nieuw);
-        setAddSpeciaalModus(false);
-      }
-      return;
-    }
+  async function voegPuntToeOp(lat: number, lng: number) {
     const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -172,6 +154,36 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       setPunten((p) => [...p, nieuw]);
       setGeselecteerd(nieuw);
       setAddModus(false);
+    }
+  }
+
+  async function voegSpeciaalItemToeOp(lat: number, lng: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
+    });
+    if (res.ok) {
+      const nieuw: SpeciaalItem = await res.json();
+      setSpecialeItems((p) => [...p, nieuw]);
+      setGeselecteerdSpeciaal(nieuw);
+      setAddSpeciaalModus(false);
+    }
+  }
+
+  async function kaartKlik(lat: number, lng: number) {
+    if (centrumModus) {
+      setCentrumPunt({ lat, lng });
+      setCentrumModus(false);
+      return;
+    }
+    if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
+    if (addModus) return voegPuntToeOp(lat, lng);
+
+    // Geen modus actief: op mobiel is er geen zichtbare "toevoegen"-knop (zit achter het
+    // overlay-paneel), dus vraag hier alsnog wat de tik moet worden i.p.v. niets te doen.
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches) {
+      setMobielTikPositie({ lat, lng });
     }
   }
 
@@ -752,6 +764,28 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
         {mobielPaneelOpen && (
           <div className="route-editor-backdrop" onClick={() => setMobielPaneelOpen(false)} />
+        )}
+
+        {/* Mobiel: kies wat een "kale" tik op de kaart moet worden */}
+        {mobielTikPositie && (
+          <>
+            <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
+            <div className="route-editor-tik-kiezer">
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 4 }}>Hier toevoegen:</div>
+              <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                📍 Punt
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                ⭐ Item
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => setMobielTikPositie(null)}>
+                Annuleer
+              </button>
+            </div>
+          </>
         )}
 
         {/* Mobiel: knop om het overlay-paneel te openen (kaart blijft altijd zichtbaar) */}

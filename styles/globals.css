@@ -830,6 +830,26 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   to   { transform: translateY(0); }
 }
 
+.route-editor-tik-kiezer {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 700;
+  background: rgba(8,28,48,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(85vw, 300px);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
 /* ════════════════════════════════════════════════════════════
    PointRush — game-stijl componenten (logo-afgeleid)
    ════════════════════════════════════════════════════════════ */
