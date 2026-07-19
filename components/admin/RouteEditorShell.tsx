@@ -211,11 +211,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
     if (addModus) return voegPuntToeOp(lat, lng);
 
-    // Geen modus actief: op mobiel is er geen zichtbare "toevoegen"-knop (zit achter het
-    // overlay-paneel), dus vraag hier alsnog wat de tik moet worden i.p.v. niets te doen.
-    if (typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches) {
-      setMobielTikPositie({ lat, lng });
-    }
+    // Geen modus actief: vraag alsnog wat de tik moet worden i.p.v. niets te doen.
+    setMobielTikPositie({ lat, lng });
   }
 
   async function verwijderSpeciaalItem(id: string) {
@@ -663,10 +660,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
         {mobielPaneelOpen && (
-          <div className="route-editor-backdrop" onClick={() => setMobielPaneelOpen(false)} />
+          <div className="route-editor-paneel-backdrop" onClick={() => setMobielPaneelOpen(false)} />
         )}
 
-        {/* Mobiel: kies wat een "kale" tik op de kaart moet worden */}
+        {/* Kies wat een "kale" tik op de kaart moet worden (geen modus vooraf geselecteerd) */}
         {mobielTikPositie && (
           <>
             <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />

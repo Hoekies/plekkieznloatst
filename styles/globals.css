@@ -763,8 +763,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   overflow-y: auto;
 }
 
-.route-editor-mobiel-toggle,
+/* Backdrop achter de tik-kiezer — geldt op elke schermbreedte */
 .route-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 550;
+}
+
+.route-editor-mobiel-toggle,
+.route-editor-paneel-backdrop {
   display: none;
 }
 
@@ -782,7 +790,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     transform: translateX(0);
   }
 
-  .route-editor-backdrop {
+  /* Backdrop achter het slide-in Zijpaneel — alleen relevant op mobiel, daar is het paneel een overlay */
+  .route-editor-paneel-backdrop {
     display: block;
     position: fixed;
     inset: 0;
