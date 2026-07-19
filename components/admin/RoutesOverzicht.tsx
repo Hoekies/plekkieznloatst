@@ -9,6 +9,9 @@ export default function RoutesOverzicht() {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [laden, setLaden] = useState(true);
   const [nieuweNaam, setNieuweNaam] = useState("");
+  const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid">("sequentieel");
+  const [nieuwAantalTeams, setNieuwAantalTeams] = useState(2);
+  const [nieuwePlaats, setNieuwePlaats] = useState("");
   const [aanmaken, setAanmaken] = useState(false);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
@@ -26,14 +29,24 @@ export default function RoutesOverzicht() {
   async function nieuwRoute(e: React.FormEvent) {
     e.preventDefault();
     setBezig(true); setFout("");
+
+    let plaats: { lat: number; lng: number } | null = null;
+    if (nieuwePlaats.trim()) {
+      const geoRes = await fetch(`/api/admin/geocode?q=${encodeURIComponent(nieuwePlaats.trim())}`);
+      const geoData = await geoRes.json();
+      if (!geoRes.ok) { setFout(geoData.fout ?? "Plaats niet gevonden"); setBezig(false); return; }
+      plaats = { lat: geoData.lat, lng: geoData.lng };
+    }
+
     const res = await fetch("/api/admin/routes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: nieuweNaam }),
+      body: JSON.stringify({ name: nieuweNaam, modus: nieuweModus, verwacht_aantal_teams: nieuwAantalTeams }),
     });
     if (!res.ok) { setFout("Kon route niet aanmaken"); setBezig(false); return; }
     const route = await res.json();
-    router.push(`/admin/routes/${route.id}`);
+    const query = plaats ? `?lat=${plaats.lat}&lng=${plaats.lng}` : "";
+    router.push(`/admin/routes/${route.id}${query}`);
   }
 
   async function exporteer(id: string, naam: string) {
@@ -115,13 +128,51 @@ export default function RoutesOverzicht() {
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
 
       {aanmaken && (
-        <form onSubmit={nieuwRoute} style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-          <input className="form-input" style={{ flex: 1 }} placeholder="Naam van de route"
-            value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus />
-          <button className="btn-premium--ghost" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
-          <button className="btn-premium" style={{ width: "auto", padding: "10px 20px" }} type="submit" disabled={bezig}>
-            {bezig ? "…" : "Aanmaken"}
-          </button>
+        <form onSubmit={nieuwRoute} className="card" style={{ marginBottom: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+          <div className="form-group">
+            <label className="form-label">Naam van de route</label>
+            <input className="form-input" placeholder="Bijv. Voorjaarsrit"
+              value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus />
+          </div>
+
+          <div style={{ display: "flex", gap: 10 }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">Routemodus</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {(["sequentieel", "verspreid"] as const).map((m) => (
+                  <button key={m} type="button"
+                    onClick={() => setNieuweModus(m)}
+                    style={{
+                      flex: 1, fontSize: "0.78rem", fontWeight: 600, padding: "8px 10px",
+                      borderRadius: 7, border: "1px solid", cursor: "pointer",
+                      background: nieuweModus === m ? "rgba(0,217,255,0.12)" : "transparent",
+                      borderColor: nieuweModus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
+                      color: nieuweModus === m ? "var(--cyan)" : "var(--muted)",
+                    }}>
+                    {m === "sequentieel" ? "Sequentieel" : "Verspreid"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="form-group" style={{ width: 90 }}>
+              <label className="form-label">Teams</label>
+              <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
+                onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Plaatsnaam (optioneel)</label>
+            <input className="form-input" placeholder="Bijv. Berghem — kaart start daar i.p.v. Amsterdam"
+              value={nieuwePlaats} onChange={(e) => setNieuwePlaats(e.target.value)} />
+          </div>
+
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <button className="btn-premium--ghost" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
+            <button className="btn-premium" style={{ width: "auto", padding: "10px 20px" }} type="submit" disabled={bezig}>
+              {bezig ? "…" : "Aanmaken"}
+            </button>
+          </div>
         </form>
       )}
       {fout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {fout}</div>}

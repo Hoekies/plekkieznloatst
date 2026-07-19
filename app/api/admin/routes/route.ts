@@ -22,13 +22,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const { name } = await request.json();
+  const body = await request.json();
+  const { name } = body;
   if (!name?.trim()) return NextResponse.json({ fout: "Naam is verplicht" }, { status: 400 });
+
+  const nieuweRoute: Record<string, unknown> = { name: name.trim(), status: "concept", is_active: false };
+  if (body.modus === "sequentieel" || body.modus === "verspreid") nieuweRoute.modus = body.modus;
+  if (typeof body.verwacht_aantal_teams === "number" && body.verwacht_aantal_teams >= 2) nieuweRoute.verwacht_aantal_teams = body.verwacht_aantal_teams;
 
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("routes")
-    .insert({ name: name.trim(), status: "concept", is_active: false })
+    .insert(nieuweRoute)
     .select()
     .single();
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });

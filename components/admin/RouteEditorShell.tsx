@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
@@ -10,6 +11,7 @@ const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loadi
 type RouteMetPunten = Route & { route_points: RoutePunt[] };
 
 export default function RouteEditorShell({ route: initRoute }: { route: RouteMetPunten }) {
+  const zoekParams = useSearchParams();
   const [route, setRoute] = useState(initRoute);
   const [punten, setPunten] = useState<RoutePunt[]>(initRoute.route_points ?? []);
   const [geselecteerd, setGeselecteerd] = useState<RoutePunt | null>(null);
@@ -17,7 +19,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
-  const [actieveTab, setActieveTab] = useState<"punten" | "items" | "instellingen">("punten");
+  const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
+  const [instellingenOpen, setInstellingenOpen] = useState(false);
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
@@ -35,6 +38,34 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [centrumModus, setCentrumModus] = useState(false);
   const [mobielPaneelOpen, setMobielPaneelOpen] = useState(false);
   const [mobielTikPositie, setMobielTikPositie] = useState<{ lat: number; lng: number } | null>(null);
+  const [plaatsZoekterm, setPlaatsZoekterm] = useState("");
+  const [plaatsBezig, setPlaatsBezig] = useState(false);
+  const [plaatsFout, setPlaatsFout] = useState("");
+  const [vliegNaar, setVliegNaar] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+
+  // Bij een net aangemaakte route: navigeer naar de opgegeven plaatsnaam i.p.v. Amsterdam
+  useEffect(() => {
+    const lat = zoekParams.get("lat");
+    const lng = zoekParams.get("lng");
+    if (lat && lng) setVliegNaar({ lat: parseFloat(lat), lng: parseFloat(lng), zoom: 14 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function zoekPlaats(e: React.FormEvent) {
+    e.preventDefault();
+    if (!plaatsZoekterm.trim()) return;
+    setPlaatsBezig(true); setPlaatsFout("");
+    try {
+      const res = await fetch(`/api/admin/geocode?q=${encodeURIComponent(plaatsZoekterm.trim())}`);
+      const data = await res.json();
+      if (!res.ok) { setPlaatsFout(data.fout ?? "Plaats niet gevonden"); return; }
+      setVliegNaar({ lat: data.lat, lng: data.lng, zoom: 14 });
+    } catch {
+      setPlaatsFout("Zoeken mislukt");
+    } finally {
+      setPlaatsBezig(false);
+    }
+  }
 
   // Sluit het mobiele overlay-paneel zodra de kaart iets te doen krijgt
   useEffect(() => {
@@ -322,7 +353,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Topbar */}
       <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 0, padding: "10px 16px" }}>
         {/* Rij 1: navigatie + naam + status + acties */}
@@ -340,6 +371,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </h1>
           )}
           <StatusPil status={route.status} isActief={route.is_active} />
+          <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
+            onClick={() => setInstellingenOpen(true)} title="Instellingen">
+            ⚙️
+          </button>
           {!route.is_active && (
             <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
               onClick={async () => {
@@ -371,6 +406,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           )}
         </div>
       </div>
+
+      {/* Plaatsnaam zoeken — navigeert de kaart erheen */}
+      <form onSubmit={zoekPlaats} style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 16px", borderBottom: "1px solid var(--line)", flexShrink: 0, background: "rgba(255,255,255,0.03)" }}>
+        <input
+          className="form-input" style={{ flex: 1, fontSize: "0.85rem" }}
+          placeholder="🔍 Zoek plaats…" value={plaatsZoekterm}
+          onChange={(e) => setPlaatsZoekterm(e.target.value)}
+        />
+        <button className="btn btn-ghost" type="submit" style={{ fontSize: "0.82rem", flexShrink: 0 }} disabled={plaatsBezig}>
+          {plaatsBezig ? "…" : "Ga"}
+        </button>
+        {plaatsFout && <span style={{ fontSize: "0.75rem", color: "var(--red)", flexShrink: 0 }}>{plaatsFout}</span>}
+      </form>
 
       {/* Hoofdindeling */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
@@ -506,38 +554,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               }}>
               ⭐ Items ({specialeItems.length})
             </button>
-            <button
-              onClick={() => { setActieveTab("instellingen"); setAddModus(false); setAddSpeciaalModus(false); }}
-              style={{
-                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
-                background: "transparent", border: "none", cursor: "pointer",
-                borderBottom: actieveTab === "instellingen" ? "2px solid var(--cyan)" : "2px solid transparent",
-                color: actieveTab === "instellingen" ? "var(--cyan)" : "var(--muted)",
-              }}>
-              ⚙️ Instellingen
-            </button>
           </div>
 
           {/* Toevoegen-knop */}
-          {actieveTab !== "instellingen" && (
-            <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
-              {actieveTab === "punten" ? (
-                <button
-                  className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
-                  style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
-                  {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
-                </button>
-              ) : (
-                <button
-                  className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
-                  style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
-                  {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
-                </button>
-              )}
-            </div>
-          )}
+          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
+            {actieveTab === "punten" ? (
+              <button
+                className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
+                style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
+                {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
+              </button>
+            ) : (
+              <button
+                className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
+                style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
+                {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
+              </button>
+            )}
+          </div>
 
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
@@ -619,9 +655,57 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               })
             )}
 
-            {/* Instellingen-tab */}
-            {actieveTab === "instellingen" && (
-              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 18 }}>
+          </div>
+
+        </div>
+
+        {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
+        {mobielPaneelOpen && (
+          <div className="route-editor-backdrop" onClick={() => setMobielPaneelOpen(false)} />
+        )}
+
+        {/* Mobiel: kies wat een "kale" tik op de kaart moet worden */}
+        {mobielTikPositie && (
+          <>
+            <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
+            <div className="route-editor-tik-kiezer">
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 4 }}>Hier toevoegen:</div>
+              <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                📍 Punt
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                ⭐ Item
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => setMobielTikPositie(null)}>
+                Annuleer
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Instellingen-modal, geopend via het tandwiel in de header */}
+        {instellingenOpen && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 800,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "16px",
+          }} onClick={() => setInstellingenOpen(false)}>
+            <div style={{
+              background: "#0f1c2e", color: "#e8f0ff",
+              borderRadius: 18, padding: 24,
+              maxWidth: 420, width: "100%", maxHeight: "90vh", overflowY: "auto",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
+            }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--cyan)" }}>⚙️ Instellingen</h2>
+                <button onClick={() => setInstellingenOpen(false)} style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 16, color: "#e8f0ff", fontWeight: 700 }}>✕</button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
                 {/* Modus */}
                 <div className="form-group">
@@ -756,36 +840,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
               </div>
-            )}
-          </div>
-
-        </div>
-
-        {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
-        {mobielPaneelOpen && (
-          <div className="route-editor-backdrop" onClick={() => setMobielPaneelOpen(false)} />
-        )}
-
-        {/* Mobiel: kies wat een "kale" tik op de kaart moet worden */}
-        {mobielTikPositie && (
-          <>
-            <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
-            <div className="route-editor-tik-kiezer">
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 4 }}>Hier toevoegen:</div>
-              <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                📍 Punt
-              </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                ⭐ Item
-              </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => setMobielTikPositie(null)}>
-                Annuleer
-              </button>
             </div>
-          </>
+          </div>
         )}
 
         {/* Mobiel: knop om het overlay-paneel te openen (kaart blijft altijd zichtbaar) */}
@@ -817,6 +873,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onSpeciaalItemVerplaatst={specialItemVerplaatst}
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
+          vliegNaar={vliegNaar}
         />
 
         {/* Rechter bewerkdrawer — op mobiel een bottom-sheet */}
@@ -879,14 +936,14 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Speciaal item bewerken</span>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <button
             onClick={onVerwijder}
             title="Verwijderen"
-            style={{ background: "var(--red-soft)", border: "1px solid var(--red)", borderRadius: 6, cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "3px 8px", lineHeight: 1 }}>
+            style={{ background: "var(--red-soft)", border: "1px solid var(--red)", borderRadius: 6, cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "5px 10px", lineHeight: 1 }}>
             🗑️
           </button>
-          <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem", lineHeight: 1 }}>✕</button>
+          <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
         </div>
       </div>
 
@@ -965,7 +1022,7 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
     <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Punt bewerken</span>
-        <button onClick={onSluit} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1rem" }}>✕</button>
+        <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
       </div>
       <div className="form-group">
         <label className="form-label">Naam</label>

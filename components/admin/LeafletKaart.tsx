@@ -43,6 +43,7 @@ interface Props {
   onSpeciaalItemVerplaatst?: (id: string, lat: number, lng: number) => void;
   onSpeciaalItemKlik?: (id: string) => void;
   geselecteerdSpeciaalId?: string | null;
+  vliegNaar?: { lat: number; lng: number; zoom?: number } | null;
 }
 
 export default function LeafletKaart({
@@ -51,6 +52,7 @@ export default function LeafletKaart({
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
+  vliegNaar = null,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -64,7 +66,6 @@ export default function LeafletKaart({
   const centrumMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const ghostMarkersRef = useRef<import("leaflet").Marker[]>([]);
   const ghostCirkelRef = useRef<import("leaflet").Circle | null>(null);
-  const addModusRef = useRef(addModus);
   const onKlikRef = useRef(onKlik);
   const onMarkerKlikRef = useRef(onMarkerKlik);
   const onMarkerVerplaatsdRef = useRef(onMarkerVerplaatst);
@@ -74,7 +75,6 @@ export default function LeafletKaart({
   const prevPuntenLenRef = useRef(-1);
   const [kaartKlaar, setKaartKlaar] = useState(false);
 
-  addModusRef.current = addModus;
   onKlikRef.current = onKlik;
   onMarkerKlikRef.current = onMarkerKlik;
   onMarkerVerplaatsdRef.current = onMarkerVerplaatst;
@@ -106,7 +106,6 @@ export default function LeafletKaart({
       }).addTo(kaart);
 
       kaart.on("click", (e) => {
-        if (!addModusRef.current) return;
         onKlikRef.current(e.latlng.lat, e.latlng.lng);
       });
 
@@ -410,6 +409,12 @@ export default function LeafletKaart({
       });
     });
   }, [centrumPunt, ghostPunten, ghostRadiusM, kaartKlaar]);
+
+  // Navigeer naar een opgezochte plaatsnaam
+  useEffect(() => {
+    if (!kaartRef.current || !vliegNaar) return;
+    kaartRef.current.setView([vliegNaar.lat, vliegNaar.lng], vliegNaar.zoom ?? 15);
+  }, [vliegNaar, kaartKlaar]);
 
   return (
     <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
