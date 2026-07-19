@@ -940,15 +940,7 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Speciaal item bewerken</span>
-        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <button
-            onClick={onVerwijder}
-            title="Verwijderen"
-            style={{ background: "var(--red-soft)", border: "1px solid var(--red)", borderRadius: 6, cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "5px 10px", lineHeight: 1 }}>
-            🗑️
-          </button>
-          <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
-        </div>
+        <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
       </div>
 
       {/* Naam */}
@@ -999,6 +991,9 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
       <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.85rem" }}
         onClick={() => onOpslaan({ name: naam, type, radius_meters: radius, points_effect: effect })}>
         Opslaan
+      </button>
+      <button className="btn btn-danger" style={{ width: "100%", fontSize: "0.85rem" }} onClick={onVerwijder}>
+        🗑️ Verwijderen
       </button>
     </div>
   );
