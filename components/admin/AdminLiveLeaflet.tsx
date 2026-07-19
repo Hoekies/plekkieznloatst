@@ -216,5 +216,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     });
   }, [speciale_items]);
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+  // position+zIndex vormen een eigen stacking-context, zodat Leaflet's interne panes
+  // (tot z-index 700) niet boven pagina-elementen als het admin-hamburgermenu lekken.
+  return <div ref={containerRef} style={{ width: "100%", height: "100%", position: "relative", zIndex: 0 }} />;
 }

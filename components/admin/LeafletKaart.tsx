@@ -417,7 +417,10 @@ export default function LeafletKaart({
   }, [vliegNaar, kaartKlaar]);
 
   return (
-    <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
+    // z-index hier is bewust gezet: position:relative zonder z-index vormt geen eigen
+    // stacking-context, waardoor Leaflet's interne panes (tot z-index 700 voor popups)
+    // zouden "lekken" en boven pagina-elementen als het admin-hamburgermenu komen te staan.
+    <div style={{ flex: 1, position: "relative", minWidth: 0, zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
     </div>
   );

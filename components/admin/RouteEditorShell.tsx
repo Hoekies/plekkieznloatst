@@ -889,6 +889,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 opslaan={opslaan}
                 fout={fout}
                 onOpslaan={slaPuntOp}
+                onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}
               />
             )}
@@ -1004,9 +1005,9 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
+function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onVerwijder, onSluit }: {
   punt: RoutePunt; routeId: string; opslaan: boolean; fout: string;
-  onOpslaan: (u: Partial<RoutePunt>) => void; onSluit: () => void;
+  onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
   const [beschrijving, setBeschrijving] = useState(punt.description ?? "");
@@ -1064,6 +1065,9 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onSluit }: {
         style={{ width: "100%", fontSize: "0.85rem", textAlign: "center", textDecoration: "none" }}>
         Vraag bewerken →
       </a>
+      <button className="btn btn-danger" style={{ width: "100%", fontSize: "0.85rem" }} onClick={onVerwijder}>
+        🗑️ Verwijderen
+      </button>
     </div>
   );
 }
