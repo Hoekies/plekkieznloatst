@@ -33,6 +33,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
+  const [mobielPaneelOpen, setMobielPaneelOpen] = useState(false);
+
+  // Sluit het mobiele overlay-paneel zodra de kaart iets te doen krijgt
+  useEffect(() => {
+    if (geselecteerd || geselecteerdSpeciaal || addModus || addSpeciaalModus || centrumModus) {
+      setMobielPaneelOpen(false);
+    }
+  }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus]);
 
   useEffect(() => {
     fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
@@ -354,8 +362,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
       {/* Hoofdindeling */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
-        {/* Zijpaneel */}
-        <div style={{ width: 300, background: "rgba(8,28,48,0.82)", backdropFilter: "blur(18px)", borderRight: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {/* Zijpaneel — op mobiel een overlay i.p.v. vaste kolom */}
+        <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}`}>
 
           {/* Verspreid-instellingen / afstand */}
           {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -741,6 +749,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         </div>
 
+        {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
+        {mobielPaneelOpen && (
+          <div className="route-editor-backdrop" onClick={() => setMobielPaneelOpen(false)} />
+        )}
+
+        {/* Mobiel: knop om het overlay-paneel te openen (kaart blijft altijd zichtbaar) */}
+        {!mobielPaneelOpen && (
+          <button className="route-editor-mobiel-toggle" onClick={() => setMobielPaneelOpen(true)}>
+            ☰ Lijst
+          </button>
+        )}
+
         {/* Kaart */}
         <LeafletKaart
           punten={punten}
@@ -765,20 +785,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
         />
 
-        {/* Rechter bewerkdrawer */}
+        {/* Rechter bewerkdrawer — op mobiel een bottom-sheet */}
         {(geselecteerd || (geselecteerdSpeciaal && !geselecteerd)) && (
-          <div style={{
-            position: "absolute",
-            right: 0, top: 0, bottom: 0,
-            width: 340,
-            zIndex: 500,
-            background: "rgba(8,28,48,0.97)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderLeft: "1px solid rgba(255,255,255,0.12)",
-            display: "flex", flexDirection: "column",
-            overflowY: "auto",
-          }}>
+          <div className="route-editor-drawer">
             {geselecteerd && (
               <PuntForm
                 punt={geselecteerd}

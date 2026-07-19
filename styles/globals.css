@@ -736,6 +736,100 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
 }
 
+/* ── Route-editor: zijpaneel + edit-drawer (mobiel: overlay i.p.v. vaste kolommen) ── */
+.route-editor-zijpaneel {
+  width: 300px;
+  flex-shrink: 0;
+  background: rgba(8,28,48,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.route-editor-drawer {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 340px;
+  z-index: 500;
+  background: rgba(8,28,48,0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.route-editor-mobiel-toggle,
+.route-editor-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .route-editor-zijpaneel {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: min(85vw, 320px);
+    z-index: 600;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 32px rgba(0,0,0,0.5);
+  }
+  .route-editor-zijpaneel--open {
+    transform: translateX(0);
+  }
+
+  .route-editor-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 550;
+  }
+
+  .route-editor-mobiel-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    z-index: 400;
+    background: rgba(8,28,48,0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    cursor: pointer;
+  }
+
+  .route-editor-drawer {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 80vh;
+    border-radius: 18px 18px 0 0;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    animation: route-editor-drawer-omhoog 0.25s ease;
+  }
+}
+
+@keyframes route-editor-drawer-omhoog {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
 /* ════════════════════════════════════════════════════════════
    PointRush — game-stijl componenten (logo-afgeleid)
    ════════════════════════════════════════════════════════════ */
