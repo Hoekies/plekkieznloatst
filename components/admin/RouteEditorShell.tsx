@@ -352,21 +352,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       {/* Topbar */}
-      <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 0, padding: "10px 16px" }}>
-        {/* Rij 1: navigatie + naam + status + acties */}
+      <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8, padding: "10px 16px" }}>
+        {/* Rij 1: navigatie + naam */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Routes</a>
           {naamWijzig ? (
-            <div style={{ display: "flex", gap: 6, flex: 1 }}>
+            <div style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
               <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
               <button className="btn btn-primary" onClick={slaRouteNaamOp}>Opslaan</button>
               <button className="btn btn-ghost" onClick={() => setNaamWijzig(false)}>✕</button>
             </div>
           ) : (
-            <h1 style={{ flex: 1, cursor: "pointer", fontSize: "1.1rem" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
+            <h1 style={{ flex: 1, minWidth: 0, cursor: "pointer", fontSize: "1.1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
+        </div>
+
+        {/* Rij 2: status + acties */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <StatusPil status={route.status} isActief={route.is_active} />
           <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
             onClick={() => setInstellingenOpen(true)} title="Instellingen">
