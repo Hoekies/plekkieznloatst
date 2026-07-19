@@ -210,8 +210,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
     if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
     if (addModus) return voegPuntToeOp(lat, lng);
+    if (geselecteerd || geselecteerdSpeciaal) return;
 
-    // Geen modus actief: vraag alsnog wat de tik moet worden i.p.v. niets te doen.
+    // Geen modus actief en geen open bewerkformulier: vraag wat de tik moet worden.
     setMobielTikPositie({ lat, lng });
   }
 
