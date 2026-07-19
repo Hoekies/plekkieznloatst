@@ -696,7 +696,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div style={{
               background: "#0f1c2e", color: "#e8f0ff",
               borderRadius: 18, padding: 24,
-              maxWidth: 420, width: "100%", maxHeight: "90vh", overflowY: "auto",
+              maxWidth: 420, width: "100%", boxSizing: "border-box", maxHeight: "90vh", overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
             }} onClick={(e) => e.stopPropagation()}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
@@ -737,22 +737,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <div className="form-group">
                   <label className="form-label">⭐ Item-waarden</label>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
                       <input
                         className="form-input" type="number" min={1} value={sterWaarde}
                         onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
                         onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                        style={{ color: "var(--gold)", fontWeight: 700 }}
+                        style={{ width: "100%", boxSizing: "border-box", color: "var(--gold)", fontWeight: 700 }}
                       />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
                       <input
                         className="form-input" type="number" min={1} value={bomWaarde}
                         onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
                         onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                        style={{ color: "var(--red)", fontWeight: 700 }}
+                        style={{ width: "100%", boxSizing: "border-box", color: "var(--red)", fontWeight: 700 }}
                       />
                     </div>
                   </div>
