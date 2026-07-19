@@ -16,8 +16,7 @@ export default function UitlogKnop() {
       className="admin-nav-link"
       style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/help/uitloggen.png" alt="Uitloggen" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} />
+      <span aria-hidden>🚪</span> Uitloggen
     </button>
   );
 }

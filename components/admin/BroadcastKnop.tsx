@@ -32,8 +32,7 @@ export default function BroadcastKnop() {
         style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
         onClick={() => setOpen(true)}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/berichten sturen.png" alt="Berichten sturen" style={{ width: "100%", height: "auto", borderRadius: 6, display: "block" }} />
+        <span aria-hidden>📢</span> Bericht sturen
       </button>
 
       {open && createPortal(

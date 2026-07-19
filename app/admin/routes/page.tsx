@@ -4,8 +4,7 @@ export default function RoutesPage() {
   return (
     <>
       <div className="admin-topbar">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/routes.png" alt="Routes" style={{ height: 36, borderRadius: 6 }} />
+        <span className="admin-topbar-titel">Routes</span>
       </div>
       <div className="admin-content">
         <RoutesOverzicht />

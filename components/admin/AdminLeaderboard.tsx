@@ -56,8 +56,7 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
   return (
     <>
       <div className="admin-topbar">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/help/leaderboard.png" alt="Leaderboard" style={{ height: 36, borderRadius: 6 }} />
+        <span className="admin-topbar-titel">Leaderboard</span>
         <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
           <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
           {realtimeOk ? "Live" : "Verbinding weg"}
