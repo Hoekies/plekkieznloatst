@@ -353,7 +353,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       {/* Topbar */}
       <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 0, padding: "10px 16px" }}>
         {/* Rij 1: navigatie + naam + status + acties */}
@@ -407,21 +407,23 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         </div>
       </div>
 
-      {/* Plaatsnaam zoeken — navigeert de kaart erheen */}
-      <form onSubmit={zoekPlaats} style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 16px", borderBottom: "1px solid var(--line)", flexShrink: 0, background: "rgba(255,255,255,0.03)" }}>
-        <input
-          className="form-input" style={{ flex: 1, fontSize: "0.85rem" }}
-          placeholder="🔍 Zoek plaats…" value={plaatsZoekterm}
-          onChange={(e) => setPlaatsZoekterm(e.target.value)}
-        />
-        <button className="btn btn-ghost" type="submit" style={{ fontSize: "0.82rem", flexShrink: 0 }} disabled={plaatsBezig}>
-          {plaatsBezig ? "…" : "Ga"}
-        </button>
-        {plaatsFout && <span style={{ fontSize: "0.75rem", color: "var(--red)", flexShrink: 0 }}>{plaatsFout}</span>}
-      </form>
+      {/* Plaatsnaam zoeken — alleen zinvol zolang de route nog geen eigen punten heeft om op te centreren */}
+      {punten.length === 0 && (
+        <form onSubmit={zoekPlaats} style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 16px", borderBottom: "1px solid var(--line)", flexShrink: 0, background: "rgba(255,255,255,0.03)" }}>
+          <input
+            className="form-input" style={{ flex: 1, fontSize: "0.85rem" }}
+            placeholder="🔍 Zoek plaats…" value={plaatsZoekterm}
+            onChange={(e) => setPlaatsZoekterm(e.target.value)}
+          />
+          <button className="btn btn-ghost" type="submit" style={{ fontSize: "0.82rem", flexShrink: 0 }} disabled={plaatsBezig}>
+            {plaatsBezig ? "…" : "Ga"}
+          </button>
+          {plaatsFout && <span style={{ fontSize: "0.75rem", color: "var(--red)", flexShrink: 0 }}>{plaatsFout}</span>}
+        </form>
+      )}
 
       {/* Hoofdindeling */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
+      <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel — op mobiel een overlay i.p.v. vaste kolom */}
         <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}`}>
 
