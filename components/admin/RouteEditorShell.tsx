@@ -669,24 +669,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {/* Tussenstand */}
                 <div className="form-group">
                   <label className="form-label">🏆 Tussenstand — automatische reveal</label>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … minuten (0 = uit)</span>
-                      <input
-                        className="form-input" type="number" min={0} value={tussenstandInterval}
-                        onChange={(e) => setTussenstandInterval(Math.max(0, Number(e.target.value)))}
-                        onBlur={() => slaTussenstandIntervalOp(tussenstandInterval)}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>… seconden zichtbaar</span>
-                      <input
-                        className="form-input" type="number" min={1} value={tussenstandDuur}
-                        onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
-                        onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
-                      />
-                    </div>
-                  </div>
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … minuten (0 = uit)</span>
+                  <input
+                    className="form-input" type="number" min={0} value={tussenstandInterval}
+                    onChange={(e) => setTussenstandInterval(Math.max(0, Number(e.target.value)))}
+                    onBlur={() => slaTussenstandIntervalOp(tussenstandInterval)}
+                  />
+                  <div style={{ height: 8 }} />
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>… seconden zichtbaar</span>
+                  <input
+                    className="form-input" type="number" min={1} value={tussenstandDuur}
+                    onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
+                    onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
+                  />
                   <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
                 </div>
 
