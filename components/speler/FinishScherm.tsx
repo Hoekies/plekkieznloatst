@@ -168,7 +168,7 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
           href="https://ko-fi.com/hoekies"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ display: "block", width: "100%" }}>
+          style={{ display: "block", width: "33%", margin: "0 auto" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/ko-fi.png" alt="Ko-fi — Steun het project" style={{ width: "100%", height: "auto", display: "block" }} />
         </a>
