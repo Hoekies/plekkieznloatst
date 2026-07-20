@@ -216,7 +216,10 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     });
   }, [speciale_items]);
 
-  // position+zIndex vormen een eigen stacking-context, zodat Leaflet's interne panes
-  // (tot z-index 700) niet boven pagina-elementen als het admin-hamburgermenu lekken.
-  return <div ref={containerRef} style={{ width: "100%", height: "100%", position: "relative", zIndex: 0 }} />;
+  // flex:1 i.p.v. height:100% — percentage-hoogtes door geneste containers bleken op
+  // sommige mobiele browsers niet betrouwbaar te resolven (zelfde klasse bug als de
+  // ontbrekende kaart in de route-editor). position+zIndex vormen een eigen stacking-
+  // context, zodat Leaflet's interne panes (tot z-index 700) niet boven pagina-
+  // elementen als het admin-hamburgermenu lekken.
+  return <div ref={containerRef} style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }} />;
 }
