@@ -162,6 +162,21 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
             }
           `}</style>
         </div>
+
+        {/* Ko-fi */}
+        <a
+          href="https://ko-fi.com/hoekies"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            width: "100%", boxSizing: "border-box",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "12px 0", borderRadius: 14,
+            background: "#29abe0", color: "#fff",
+            fontWeight: 700, fontSize: "0.9rem", textDecoration: "none",
+          }}>
+          ☕ Steun Hoekies op Ko-fi
+        </a>
       </div>
     </div>
   );
