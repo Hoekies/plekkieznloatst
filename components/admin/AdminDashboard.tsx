@@ -106,7 +106,7 @@ export default function AdminDashboard({ initData }: Props) {
         )}
 
         {/* Reset sectie */}
-        <div style={{
+        <div className="admin-reset-sectie" style={{
           marginTop: 32, padding: "18px 22px", borderRadius: 16,
           background: "rgba(255,59,92,0.08)", border: "2px dashed rgba(255,59,92,0.4)",
           display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16,

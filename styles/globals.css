@@ -758,6 +758,29 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     font-size: 0.75rem;
     top: -10px; right: -6px;
   }
+
+  /* Groepen- en routes-kaarten (delen .pr-gem-card) compacter op mobiel */
+  .pr-gem-card {
+    margin-bottom: 8px;
+  }
+  .pr-gem-card-inner {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .pr-gem-avatar {
+    width: 46px;
+    height: 46px;
+    font-size: 1.6rem;
+  }
+  .pr-gem-chip {
+    padding: 4px 9px;
+    font-size: 0.7rem;
+  }
+
+  .admin-reset-sectie {
+    margin-top: 20px !important;
+    padding: 12px 14px !important;
+  }
 }
 
 /* ── Route-editor: zijpaneel + edit-drawer (mobiel: overlay i.p.v. vaste kolommen) ── */
