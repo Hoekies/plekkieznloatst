@@ -168,9 +168,9 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
           href="https://ko-fi.com/hoekies"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-premium--kofi"
-          style={{ width: "100%", boxSizing: "border-box" }}>
-          ☕ Steun Hoekies op Ko-fi
+          style={{ display: "block", width: "100%" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/ko-fi.png" alt="Ko-fi — Steun het project" style={{ width: "100%", height: "auto", display: "block" }} />
         </a>
       </div>
     </div>
