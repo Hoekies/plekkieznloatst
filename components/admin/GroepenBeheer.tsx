@@ -35,11 +35,11 @@ export default function GroepenBeheer() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "640px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
           {groepen.length} groep{groepen.length !== 1 ? "en" : ""}
         </p>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           <button
             className="btn btn-ghost"
             style={{ fontSize: "0.8rem" }}
