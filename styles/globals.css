@@ -734,6 +734,30 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .stat-kaart {
     padding: 12px 14px 10px;
   }
+
+  /* Dashboard stat-kaarten: 2 kolommen + kleiner i.p.v. 4 gestapelde rijen */
+  .admin-stat-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+  .admin-stat-grid .pr-gem-panel {
+    min-width: 0;
+  }
+  .admin-stat-grid .pr-gem-panel-inner {
+    padding: 10px 12px 9px;
+  }
+  .admin-stat-grid .pr-gem-label {
+    font-size: 0.6rem;
+  }
+  .admin-stat-grid .pr-gem-value {
+    font-size: 1.15rem;
+  }
+  .admin-stat-grid .pr-corner-chip.pr-badge {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    top: -10px; right: -6px;
+  }
 }
 
 /* ── Route-editor: zijpaneel + edit-drawer (mobiel: overlay i.p.v. vaste kolommen) ── */

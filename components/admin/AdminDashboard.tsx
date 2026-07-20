@@ -84,7 +84,7 @@ export default function AdminDashboard({ initData }: Props) {
       <div className="admin-content">
 
         {/* Stat kaarten */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
+        <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
           <StatKaart label="Actieve route" waarde={route?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
           <StatKaart label="Bezig met spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
           <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} badgeKlas="pr-badge--green" badge="✓" />
