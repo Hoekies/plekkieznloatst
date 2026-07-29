@@ -207,15 +207,6 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
         </div>
       )}
 
-      {/* Tijdelijk debug-regeltje — helpt om GPS/onthullen te controleren tijdens het testen */}
-      <div style={{
-        position: "absolute", bottom: 8, left: 8, zIndex: 900,
-        background: "rgba(0,0,0,0.7)", color: "#0f0", fontFamily: "monospace",
-        fontSize: "0.65rem", padding: "4px 8px", borderRadius: 6, lineHeight: 1.5,
-      }}>
-        gps:{gpsStatus} · pos:{positie ? `${positie.latitude.toFixed(5)},${positie.longitude.toFixed(5)} (±${Math.round(positie.accuracy)}m)` : "geen"} · cellen:{cellen.length}
-      </div>
-
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>
         <MistLeaflet positie={positie} cellen={cellen} startLocatie={startLocatie} />
