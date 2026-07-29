@@ -71,6 +71,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie }: Props) {
           ctx.fillStyle = "rgba(18, 22, 40, 0.72)";
           ctx.fillRect(0, 0, size.x, size.y);
           ctx.globalCompositeOperation = "destination-out";
+          ctx.fillStyle = "#000";
 
           const nwPoint = coords.scaleBy(size);
           for (const cel of cellenLatLngRef.current) {
