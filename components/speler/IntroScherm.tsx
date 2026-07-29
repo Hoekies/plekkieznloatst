@@ -89,7 +89,9 @@ export default function IntroScherm() {
         setFase("gereed");
         return;
       }
-      router.push("/speler/kaart");
+      // /speler bepaalt zelf, op basis van de modus van de route, of dit naar
+      // /speler/kaart of /speler/mist moet doorsturen.
+      router.push("/speler");
     } catch {
       setFout("Geen verbinding. Controleer je internet en probeer opnieuw.");
       setFase("gereed");
