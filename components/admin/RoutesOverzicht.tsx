@@ -9,7 +9,7 @@ export default function RoutesOverzicht() {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [laden, setLaden] = useState(true);
   const [nieuweNaam, setNieuweNaam] = useState("");
-  const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid">("sequentieel");
+  const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid" | "mist">("sequentieel");
   const [nieuwAantalTeams, setNieuwAantalTeams] = useState(2);
   const [nieuwePlaats, setNieuwePlaats] = useState("");
   const [aanmaken, setAanmaken] = useState(false);
@@ -139,7 +139,7 @@ export default function RoutesOverzicht() {
             <div className="form-group" style={{ flex: 1 }}>
               <label className="form-label">Routemodus</label>
               <div style={{ display: "flex", gap: 8 }}>
-                {(["sequentieel", "verspreid"] as const).map((m) => (
+                {(["sequentieel", "verspreid", "mist"] as const).map((m) => (
                   <button key={m} type="button"
                     onClick={() => setNieuweModus(m)}
                     style={{
@@ -149,16 +149,18 @@ export default function RoutesOverzicht() {
                       borderColor: nieuweModus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
                       color: nieuweModus === m ? "var(--cyan)" : "var(--muted)",
                     }}>
-                    {m === "sequentieel" ? "Sequentieel" : "Verspreid"}
+                    {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid" : "🌫️ Mist"}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="form-group" style={{ width: 90 }}>
-              <label className="form-label">Teams</label>
-              <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
-                onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
-            </div>
+            {nieuweModus !== "mist" && (
+              <div className="form-group" style={{ width: 90 }}>
+                <label className="form-label">Teams</label>
+                <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
+                  onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
+              </div>
+            )}
           </div>
 
           <div className="form-group">

@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
-  if (body.modus === "sequentieel" || body.modus === "verspreid") toegestaan.modus = body.modus;
+  if (body.modus === "sequentieel" || body.modus === "verspreid" || body.modus === "mist") toegestaan.modus = body.modus;
   if (body.is_active === false) toegestaan.is_active = false;
   if (typeof body.verwacht_aantal_teams === "number" && body.verwacht_aantal_teams >= 2) toegestaan.verwacht_aantal_teams = body.verwacht_aantal_teams;
   if (typeof body.doel_afstand_km === "number" && body.doel_afstand_km >= 0) toegestaan.doel_afstand_km = body.doel_afstand_km;
@@ -39,6 +39,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.tussenstand_interval_minuten === "number" && body.tussenstand_interval_minuten >= 0) toegestaan.tussenstand_interval_minuten = body.tussenstand_interval_minuten;
   if (typeof body.tussenstand_duur_seconden === "number" && body.tussenstand_duur_seconden > 0) toegestaan.tussenstand_duur_seconden = body.tussenstand_duur_seconden;
   if (body.tussenstand_nu_tonen === true) toegestaan.tussenstand_trigger_at = new Date().toISOString();
+  if (typeof body.mist_m2_per_ster === "number" && body.mist_m2_per_ster > 0) toegestaan.mist_m2_per_ster = body.mist_m2_per_ster;
+  if (typeof body.start_latitude === "number" && typeof body.start_longitude === "number") {
+    toegestaan.start_latitude = body.start_latitude;
+    toegestaan.start_longitude = body.start_longitude;
+  }
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

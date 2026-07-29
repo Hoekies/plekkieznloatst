@@ -33,6 +33,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [plekzooiDuur, setPlekzooiDuur] = useState(initRoute.plekzooi_duur_seconden ?? 120);
   const [tussenstandInterval, setTussenstandInterval] = useState(initRoute.tussenstand_interval_minuten ?? 0);
   const [tussenstandDuur, setTussenstandDuur] = useState(initRoute.tussenstand_duur_seconden ?? 10);
+  const [mistM2PerSter, setMistM2PerSter] = useState(initRoute.mist_m2_per_ster ?? 2500);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -203,6 +204,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
+    if (route.modus === "mist") return slaStartLocatieOp(lat, lng);
     if (centrumModus) {
       setCentrumPunt({ lat, lng });
       setCentrumModus(false);
@@ -332,6 +334,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       body: JSON.stringify({ tussenstand_duur_seconden: seconden }),
     });
     if (res.ok) setRoute((r) => ({ ...r, tussenstand_duur_seconden: seconden }));
+  }
+
+  async function slaMistM2PerSterOp(m2: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mist_m2_per_ster: m2 }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, mist_m2_per_ster: m2 }));
+  }
+
+  async function slaStartLocatieOp(lat: number, lng: number) {
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ start_latitude: lat, start_longitude: lng }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, start_latitude: lat, start_longitude: lng }));
   }
 
   async function slaPuntOp(update: Partial<RoutePunt>) {
@@ -536,6 +556,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             })()}
           </div>}
 
+          {route.modus === "mist" ? (
+            <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 14 }}>
+              <div className="form-group">
+                <label className="form-label">🌫️ Startlocatie</label>
+                <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
+                  Klik op de kaart om de plek te zetten waar teams starten.
+                </p>
+                {route.start_latitude !== null && route.start_longitude !== null ? (
+                  <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
+                    📍 {route.start_latitude.toFixed(5)}, {route.start_longitude.toFixed(5)}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: "0.75rem", color: "var(--red)", marginTop: 6 }}>
+                    Nog geen startlocatie gezet
+                  </div>
+                )}
+              </div>
+              <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: 0 }}>
+                Deze modus heeft geen vaste punten of items — teams lopen vrij rond en spelen
+                zo mist weg. Stel de sterren-drempel in via het ⚙️-tandwiel hierboven.
+              </p>
+            </div>
+          ) : (
+          <>
           {/* Tabbladen */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
             <button
@@ -660,6 +704,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
 
           </div>
+          </>
+          )}
 
         </div>
 
@@ -715,7 +761,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <div className="form-group">
                   <label className="form-label">Routemodus</label>
                   <div style={{ display: "flex", gap: 8 }}>
-                    {(["sequentieel", "verspreid"] as const).map((m) => (
+                    {(["sequentieel", "verspreid", "mist"] as const).map((m) => (
                       <button key={m}
                         onClick={async () => {
                           if (route.modus === m) return;
@@ -732,47 +778,65 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                           borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
                           color: route.modus === m ? "var(--cyan)" : "var(--muted)",
                         }}>
-                        {m === "sequentieel" ? "Sequentieel" : "Verspreid (lus)"}
+                        {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid (lus)" : "🌫️ Mist"}
                       </button>
                     ))}
                   </div>
                 </div>
 
+                {/* Mist-instellingen */}
+                {route.modus === "mist" && (
+                  <div className="form-group">
+                    <label className="form-label">🌫️ Mist-instellingen</label>
+                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … m² weggespeelde mist = 1 ster</span>
+                    <input
+                      className="form-input" type="number" min={1} value={mistM2PerSter}
+                      onChange={(e) => setMistM2PerSter(Math.max(1, Number(e.target.value)))}
+                      onBlur={() => slaMistM2PerSterOp(mistM2PerSter)}
+                    />
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>2500 is een startwaarde — stel bij na een proefwandeling.</span>
+                  </div>
+                )}
+
                 {/* Item-waarden */}
-                <div className="form-group">
-                  <label className="form-label">⭐ Item-waarden</label>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
-                      <input
-                        className="form-input" type="number" min={1} value={sterWaarde}
-                        onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
-                        onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                        style={{ width: "100%", boxSizing: "border-box", color: "var(--gold)", fontWeight: 700 }}
-                      />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
-                      <input
-                        className="form-input" type="number" min={1} value={bomWaarde}
-                        onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
-                        onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                        style={{ width: "100%", boxSizing: "border-box", color: "var(--red)", fontWeight: 700 }}
-                      />
+                {route.modus !== "mist" && (
+                  <div className="form-group">
+                    <label className="form-label">⭐ Item-waarden</label>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
+                        <input
+                          className="form-input" type="number" min={1} value={sterWaarde}
+                          onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
+                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                          style={{ width: "100%", boxSizing: "border-box", color: "var(--gold)", fontWeight: 700 }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
+                        <input
+                          className="form-input" type="number" min={1} value={bomWaarde}
+                          onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
+                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                          style={{ width: "100%", boxSizing: "border-box", color: "var(--red)", fontWeight: 700 }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Plekzooi */}
-                <div className="form-group">
-                  <label className="form-label">⛔ Plekzooi — standaard blokkeerduur (seconden)</label>
-                  <input
-                    className="form-input" type="number" min={10} value={plekzooiDuur}
-                    onChange={(e) => setPlekzooiDuur(Math.max(10, Number(e.target.value)))}
-                    onBlur={() => slaPlekzooiDuurOp(plekzooiDuur)}
-                  />
-                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
-                </div>
+                {route.modus !== "mist" && (
+                  <div className="form-group">
+                    <label className="form-label">⛔ Plekzooi — standaard blokkeerduur (seconden)</label>
+                    <input
+                      className="form-input" type="number" min={10} value={plekzooiDuur}
+                      onChange={(e) => setPlekzooiDuur(Math.max(10, Number(e.target.value)))}
+                      onBlur={() => slaPlekzooiDuurOp(plekzooiDuur)}
+                    />
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+                  </div>
+                )}
 
                 {/* Tussenstand */}
                 <div className="form-group">
@@ -867,10 +931,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               : null
           }
           teamStartPunten={teamStartPunten}
-          centrumPunt={route.modus === "verspreid" && doelAfstandKm > 0 ? centrumPunt : null}
+          centrumPunt={
+            route.modus === "mist"
+              ? (route.start_latitude !== null && route.start_longitude !== null ? { lat: route.start_latitude, lng: route.start_longitude } : null)
+              : (route.modus === "verspreid" && doelAfstandKm > 0 ? centrumPunt : null)
+          }
           ghostPunten={ghostPunten}
           ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
-          onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
+          onCentrumVerplaatst={(lat, lng) => route.modus === "mist" ? slaStartLocatieOp(lat, lng) : setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}

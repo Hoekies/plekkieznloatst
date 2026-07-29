@@ -21,12 +21,16 @@ export default async function SpelerHomePage() {
   // Actieve sessie → direct doorgaan
   const { data: activeSessie } = await admin
     .from("player_sessions")
-    .select("id")
+    .select("id, route_id")
     .eq("player_id", speler.id)
     .eq("status", "actief")
     .maybeSingle();
 
-  if (activeSessie) redirect("/speler/kaart");
+  if (activeSessie) {
+    const { data: route } = await admin
+      .from("routes").select("modus").eq("id", activeSessie.route_id).maybeSingle();
+    redirect(route?.modus === "mist" ? "/speler/mist" : "/speler/kaart");
+  }
 
   return <IntroScherm />;
 }

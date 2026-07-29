@@ -6,7 +6,7 @@ export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
 export type FotoStatus = "wacht" | "goedgekeurd" | "afgekeurd";
 
-export type RouteModus = "sequentieel" | "verspreid";
+export type RouteModus = "sequentieel" | "verspreid" | "mist";
 
 export interface Route {
   id: string;
@@ -24,6 +24,9 @@ export interface Route {
   tussenstand_interval_minuten: number;
   tussenstand_duur_seconden: number;
   tussenstand_trigger_at: string | null;
+  mist_m2_per_ster: number;
+  start_latitude: number | null;
+  start_longitude: number | null;
   items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;
@@ -174,6 +177,14 @@ export interface SpeciaalItemEffect {
   notification: string | null;
 }
 
+export interface MistVoortgang {
+  id: string;
+  session_id: string;
+  cell_x: number;
+  cell_y: number;
+  revealed_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -196,6 +207,11 @@ export interface Database {
         Row: SpeciaalItemEffect;
         Insert: Omit<SpeciaalItemEffect, "id" | "applied_at">;
         Update: Partial<SpeciaalItemEffect>;
+      };
+      mist_voortgang: {
+        Row: MistVoortgang;
+        Insert: Omit<MistVoortgang, "id" | "revealed_at">;
+        Update: Partial<MistVoortgang>;
       };
     };
   };

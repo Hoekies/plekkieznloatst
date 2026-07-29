@@ -34,3 +34,48 @@ export function normaliserenNumeriek(invoer: string): number | null {
   const getal = parseFloat(genormaliseerd);
   return isNaN(getal) ? null : getal;
 }
+
+// ── Mist-modus: rastercellen voor het wegspelen van mist ────────────────────────
+const METERS_PER_GRAAD_LAT = 111320;
+function metersPerGraadLng(lat: number): number {
+  return METERS_PER_GRAAD_LAT * Math.cos((lat * Math.PI) / 180);
+}
+
+export const MIST_CEL_METER = 20;
+export const MIST_CEL_OPPERVLAK_M2 = MIST_CEL_METER * MIST_CEL_METER;
+export const MIST_ONTHUL_STRAAL_M = 25;
+
+export function naarMistCel(lat: number, lng: number): { x: number; y: number } {
+  return {
+    x: Math.floor((lng * metersPerGraadLng(lat)) / MIST_CEL_METER),
+    y: Math.floor((lat * METERS_PER_GRAAD_LAT) / MIST_CEL_METER),
+  };
+}
+
+export function mistCelNaarLatLng(x: number, y: number): { lat: number; lng: number } {
+  const lat = ((y + 0.5) * MIST_CEL_METER) / METERS_PER_GRAAD_LAT;
+  const lng = ((x + 0.5) * MIST_CEL_METER) / metersPerGraadLng(lat);
+  return { lat, lng };
+}
+
+// Alle celindices waarvan het middelpunt binnen MIST_ONTHUL_STRAAL_M van (lat,lng) valt.
+export function mistCellenBinnenStraal(lat: number, lng: number): { x: number; y: number }[] {
+  const schaalLng = metersPerGraadLng(lat);
+  const centrum = naarMistCel(lat, lng);
+  const centerXMeter = lng * schaalLng;
+  const centerYMeter = lat * METERS_PER_GRAAD_LAT;
+  const cellenRadius = Math.ceil(MIST_ONTHUL_STRAAL_M / MIST_CEL_METER);
+
+  const resultaat: { x: number; y: number }[] = [];
+  for (let dx = -cellenRadius; dx <= cellenRadius; dx++) {
+    for (let dy = -cellenRadius; dy <= cellenRadius; dy++) {
+      const x = centrum.x + dx;
+      const y = centrum.y + dy;
+      const celMidXMeter = (x + 0.5) * MIST_CEL_METER;
+      const celMidYMeter = (y + 0.5) * MIST_CEL_METER;
+      const afstand = Math.hypot(celMidXMeter - centerXMeter, celMidYMeter - centerYMeter);
+      if (afstand <= MIST_ONTHUL_STRAAL_M) resultaat.push({ x, y });
+    }
+  }
+  return resultaat;
+}
