@@ -33,6 +33,11 @@ export default function GroepenBeheer() {
 
   useEffect(() => { laadGroepen(); }, []);
 
+  async function resetApparaat(id: string) {
+    const res = await fetch(`/api/admin/groepen/${id}/apparaat`, { method: "PATCH" });
+    if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "640px" }}>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
@@ -143,7 +148,7 @@ export default function GroepenBeheer() {
                       {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
                     </span>
                   </div>
-                  <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
+                  <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "wrap" }}>
                     <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
                       onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}>
                       🔑 Wachtwoord
@@ -152,6 +157,12 @@ export default function GroepenBeheer() {
                       onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}>
                       ✏️ Loginnaam
                     </button>
+                    {g.active_device_id && (
+                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                        onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
+                        🔓 Apparaat resetten
+                      </button>
+                    )}
                   </div>
                 </div>
 
