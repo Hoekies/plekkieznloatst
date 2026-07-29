@@ -10,9 +10,15 @@ export async function createServerSupabaseClient() {
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // setAll wordt hier aangeroepen vanuit een Server Component, waar Next.js
+            // geen cookies laat zetten. Onschadelijk: middleware.ts verversed de sessie
+            // al bij elk request, dit is slechts een overbodige tweede poging.
+          }
         },
       },
     }
