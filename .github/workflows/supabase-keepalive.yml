@@ -9,9 +9,15 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST (raakt database aan)
+      # Een read-only SELECT via de anon-key bleek in de praktijk niet te voorkomen dat
+      # Supabase het project toch als inactief markeert en pauzeert. Een echte schrijfactie
+      # (UPDATE) via de service-role telt wel mee als activiteit.
+      - name: Update keepalive-rij (echte databaseschrijving)
         run: |
-          curl -fsS \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/routes?select=id&limit=1" > /dev/null
+          curl -fsS -X PATCH \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d "{\"pinged_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keepalive?id=eq.1"
