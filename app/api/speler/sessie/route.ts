@@ -168,5 +168,5 @@ export async function POST() {
     }
   }
 
-  return NextResponse.json(sessie);
+  return NextResponse.json({ ...sessie, modus: route.modus });
 }

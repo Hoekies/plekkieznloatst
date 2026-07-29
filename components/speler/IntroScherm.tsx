@@ -83,15 +83,13 @@ export default function IntroScherm() {
     setFout("");
     try {
       const res = await fetch("/api/speler/sessie", { method: "POST" });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         setFout(data.fout ?? "Starten mislukt. Probeer opnieuw.");
         setFase("gereed");
         return;
       }
-      // /speler bepaalt zelf, op basis van de modus van de route, of dit naar
-      // /speler/kaart of /speler/mist moet doorsturen.
-      router.push("/speler");
+      router.push(data.modus === "mist" ? "/speler/mist" : "/speler/kaart");
     } catch {
       setFout("Geen verbinding. Controleer je internet en probeer opnieuw.");
       setFase("gereed");
