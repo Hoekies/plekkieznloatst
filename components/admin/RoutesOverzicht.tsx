@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
+import { MODUS_INFO, ModusTegel } from "./RouteModus";
 
 export default function RoutesOverzicht() {
   const router = useRouter();
@@ -135,33 +136,41 @@ export default function RoutesOverzicht() {
               value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus />
           </div>
 
-          <div style={{ display: "flex", gap: 10 }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label">Routemodus</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                {(["sequentieel", "verspreid", "mist"] as const).map((m) => (
+          <div className="form-group">
+            <label className="form-label">Speltype</label>
+            <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+              {(["sequentieel", "verspreid", "mist"] as const).map((m) => {
+                const info = MODUS_INFO[m];
+                const gekozen = nieuweModus === m;
+                return (
                   <button key={m} type="button"
                     onClick={() => setNieuweModus(m)}
                     style={{
-                      flex: 1, fontSize: "0.78rem", fontWeight: 600, padding: "8px 10px",
-                      borderRadius: 7, border: "1px solid", cursor: "pointer",
-                      background: nieuweModus === m ? "rgba(0,217,255,0.12)" : "transparent",
-                      borderColor: nieuweModus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
-                      color: nieuweModus === m ? "var(--cyan)" : "var(--muted)",
+                      display: "flex", alignItems: "center", gap: 12, textAlign: "left",
+                      padding: "10px 12px", borderRadius: 10, cursor: "pointer",
+                      border: `1px solid ${gekozen ? `${info.kleur}88` : "rgba(255,255,255,0.12)"}`,
+                      background: gekozen ? info.tint : "transparent",
                     }}>
-                    {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid" : "Mist"}
+                    <ModusTegel modus={m} size={36} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: gekozen ? info.kleur : "var(--ink)" }}>{info.label}</div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>{info.omschrijving}</div>
+                    </div>
+                    {gekozen && <span style={{ color: info.kleur, fontWeight: 700, flexShrink: 0 }}>✓</span>}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-            {nieuweModus !== "mist" && (
-              <div className="form-group" style={{ width: 90 }}>
-                <label className="form-label">Teams</label>
-                <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
-                  onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
-              </div>
-            )}
           </div>
+
+          {nieuweModus !== "mist" && (
+            <div className="form-group" style={{ width: 90 }}>
+              <label className="form-label">Teams</label>
+              <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
+                onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label">Plaatsnaam (optioneel)</label>
@@ -188,24 +197,23 @@ export default function RoutesOverzicht() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {routes.map((r) => {
-            const modusInfo = {
-              sequentieel: { label: "Sequentieel", kleur: "#93C5FD" },
-              verspreid: { label: "Verspreid", kleur: "#67E8F9" },
-              mist: { label: "Mist", kleur: "#FDBA74" },
-            }[r.modus];
+            const info = MODUS_INFO[r.modus];
             const knopStijl = { padding: "8px 16px", fontSize: "0.8rem", whiteSpace: "nowrap" as const };
 
             return (
               <div key={r.id} className="pr-gem-card" style={{ marginBottom: 0 }}>
                 <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
-                  {/* Naam + type links, status rechts */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.72rem", fontWeight: 700, color: modusInfo.kleur, flexShrink: 0 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: modusInfo.kleur }} />
-                        {modusInfo.label}
-                      </span>
+                  {/* Kop: speltype-tegel + naam met speltype-subtitel, status rechts */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <ModusTegel modus={r.modus} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {r.name}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", marginTop: 2, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <span style={{ color: info.kleur, fontWeight: 700 }}>{info.label}</span>
+                        {" · "}{info.omschrijving}
+                      </div>
                     </div>
                     {r.is_active ? (
                       <span className="pr-gem-chip pr-gem-chip--green" style={{ flexShrink: 0 }}>✓ Actief</span>
@@ -215,6 +223,8 @@ export default function RoutesOverzicht() {
                       <span className="pr-gem-chip pr-gem-chip--gray" style={{ flexShrink: 0 }}>Concept</span>
                     )}
                   </div>
+
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)" }} />
 
                   {/* Actieknoppen */}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

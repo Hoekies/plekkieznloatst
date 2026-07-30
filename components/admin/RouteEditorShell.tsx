@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
+import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
@@ -396,19 +397,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Rij 2: status + acties */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <StatusPil status={route.status} isActief={route.is_active} />
-          {(() => {
-            const modusInfo = {
-              sequentieel: { label: "Sequentieel", kleur: "#93C5FD" },
-              verspreid: { label: "Verspreid", kleur: "#67E8F9" },
-              mist: { label: "Mist", kleur: "#FDBA74" },
-            }[route.modus];
-            return (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.78rem", fontWeight: 700, color: modusInfo.kleur }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: modusInfo.kleur }} />
-                {modusInfo.label}
-              </span>
-            );
-          })()}
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 7, flexShrink: 0,
+            padding: "4px 11px 4px 6px", borderRadius: 99,
+            background: MODUS_INFO[route.modus].tint,
+            border: `1px solid ${MODUS_INFO[route.modus].kleur}55`,
+            color: MODUS_INFO[route.modus].kleur, fontSize: "0.78rem", fontWeight: 700,
+          }}>
+            <ModusIcoon modus={route.modus} size={16} />
+            {MODUS_INFO[route.modus].label}
+          </span>
           <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
             onClick={() => setInstellingenOpen(true)} title="Instellingen">
             ⚙️
@@ -809,16 +807,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-                {/* Modus (vastgezet bij aanmaken, niet meer te wijzigen) */}
+                {/* Speltype (vastgezet bij aanmaken, niet meer te wijzigen) */}
                 <div className="form-group">
-                  <label className="form-label">Routemodus</label>
+                  <label className="form-label">Speltype</label>
                   <div style={{
-                    padding: "8px 12px", borderRadius: 7, fontSize: "0.82rem", fontWeight: 600,
-                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--ink)",
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 12px", borderRadius: 10,
+                    background: MODUS_INFO[route.modus].tint,
+                    border: `1px solid ${MODUS_INFO[route.modus].kleur}55`,
                   }}>
-                    {route.modus === "sequentieel" ? "Sequentieel" : route.modus === "verspreid" ? "Verspreid (lus)" : "Mist"}
+                    <ModusTegel modus={route.modus} size={36} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: MODUS_INFO[route.modus].kleur }}>
+                        {MODUS_INFO[route.modus].label}
+                      </div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                        {MODUS_INFO[route.modus].omschrijving}
+                      </div>
+                    </div>
                   </div>
-                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Speltype kan na aanmaken niet meer gewijzigd worden.</span>
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>
 
                 {/* Mist-instellingen */}
