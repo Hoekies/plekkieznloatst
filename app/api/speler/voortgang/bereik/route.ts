@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
     if (!spo || spo.volgorde !== aantalVerwerkt + 1) {
       return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
     }
+  } else if (route?.modus === "mist") {
+    // Mist: geen vaste volgorde — teams lopen vrij rond en vinden vragen in willekeurige volgorde
   } else {
     // Sequentieel: bestaande check
     if (punt.order_index !== aantalVerwerkt + 1) {

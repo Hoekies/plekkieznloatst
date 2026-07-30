@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
-  if (body.modus === "sequentieel" || body.modus === "verspreid" || body.modus === "mist") toegestaan.modus = body.modus;
+  // modus wordt alleen bij aanmaken gezet (zie /api/admin/routes) en kan hierna niet meer wijzigen.
   if (body.is_active === false) toegestaan.is_active = false;
   if (typeof body.verwacht_aantal_teams === "number" && body.verwacht_aantal_teams >= 2) toegestaan.verwacht_aantal_teams = body.verwacht_aantal_teams;
   if (typeof body.doel_afstand_km === "number" && body.doel_afstand_km >= 0) toegestaan.doel_afstand_km = body.doel_afstand_km;

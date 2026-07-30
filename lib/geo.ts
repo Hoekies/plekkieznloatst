@@ -44,6 +44,8 @@ function metersPerGraadLng(lat: number): number {
 export const MIST_CEL_METER = 20;
 export const MIST_CEL_OPPERVLAK_M2 = MIST_CEL_METER * MIST_CEL_METER;
 export const MIST_ONTHUL_STRAAL_M = 25;
+// Boven dit tempo (fietsen/rijden) telt bewegen niet meer mee als mist wegspelen — voorkomt vals spelen.
+export const MIST_MAX_SNELHEID_KMH = 6;
 
 export function naarMistCel(lat: number, lng: number): { x: number; y: number } {
   return {

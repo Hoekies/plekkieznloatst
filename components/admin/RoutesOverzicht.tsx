@@ -196,7 +196,9 @@ export default function RoutesOverzicht() {
                   {r.is_active && <span className="pr-gem-chip pr-gem-chip--green">✓ Actief</span>}
                   {r.status === "gepubliceerd" && !r.is_active && <span className="pr-gem-chip pr-gem-chip--cyan">Gepubliceerd</span>}
                   {r.status === "concept" && <span className="pr-gem-chip pr-gem-chip--gray">Concept</span>}
-                  {r.modus === "verspreid" && <span className="pr-gem-chip pr-gem-chip--cyan">Verspreid</span>}
+                  {r.modus === "sequentieel" && <span className="pr-gem-chip pr-gem-chip--gray">🎯 Sequentieel</span>}
+                  {r.modus === "verspreid" && <span className="pr-gem-chip pr-gem-chip--cyan">🎲 Verspreid</span>}
+                  {r.modus === "mist" && <span className="pr-gem-chip pr-gem-chip--orange">🌫️ Mist</span>}
                 </div>
                 {/* Actieknoppen */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

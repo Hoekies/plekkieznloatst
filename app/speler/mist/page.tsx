@@ -28,7 +28,7 @@ export default async function SpelerMistPage() {
 
   if (!sessie) redirect("/speler");
 
-  const [{ data: route }, { data: cellen }] = await Promise.all([
+  const [{ data: route }, { data: cellen }, { data: punten }, { data: puntVoortgang }] = await Promise.all([
     admin
       .from("routes")
       .select("mist_m2_per_ster, start_latitude, start_longitude")
@@ -37,6 +37,14 @@ export default async function SpelerMistPage() {
     admin
       .from("mist_voortgang")
       .select("cell_x, cell_y")
+      .eq("session_id", sessie.id),
+    admin
+      .from("route_points")
+      .select("*")
+      .eq("route_id", sessie.route_id),
+    admin
+      .from("player_point_progress")
+      .select("*")
       .eq("session_id", sessie.id),
   ]);
 
@@ -54,6 +62,8 @@ export default async function SpelerMistPage() {
         totaalM2: (cellen?.length ?? 0) * MIST_CEL_OPPERVLAK_M2,
         score: sessie.score,
       }}
+      punten={punten ?? []}
+      initPuntVoortgang={puntVoortgang ?? []}
     />
   );
 }

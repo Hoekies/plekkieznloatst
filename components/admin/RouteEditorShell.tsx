@@ -204,7 +204,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
-    if (route.modus === "mist") return slaStartLocatieOp(lat, lng);
+    if (route.modus === "mist") {
+      if (addModus) return voegPuntToeOp(lat, lng);
+      return slaStartLocatieOp(lat, lng);
+    }
     if (centrumModus) {
       setCentrumPunt({ lat, lng });
       setCentrumModus(false);
@@ -393,6 +396,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Rij 2: status + acties */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <StatusPil status={route.status} isActief={route.is_active} />
+          <span className={`pr-gem-chip ${route.modus === "verspreid" ? "pr-gem-chip--cyan" : route.modus === "mist" ? "pr-gem-chip--orange" : "pr-gem-chip--gray"}`}>
+            {route.modus === "sequentieel" ? "🎯 Sequentieel" : route.modus === "verspreid" ? "🎲 Verspreid" : "🌫️ Mist"}
+          </span>
           <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
             onClick={() => setInstellingenOpen(true)} title="Instellingen">
             ⚙️
@@ -557,26 +563,62 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </div>}
 
           {route.modus === "mist" ? (
-            <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 14 }}>
-              <div className="form-group">
-                <label className="form-label">🌫️ Startlocatie</label>
-                <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-                  Klik op de kaart om de plek te zetten waar teams starten.
-                </p>
-                {route.start_latitude !== null && route.start_longitude !== null ? (
-                  <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
-                    📍 {route.start_latitude.toFixed(5)}, {route.start_longitude.toFixed(5)}
-                  </div>
-                ) : (
-                  <div style={{ fontSize: "0.75rem", color: "var(--red)", marginTop: 6 }}>
-                    Nog geen startlocatie gezet
-                  </div>
-                )}
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div style={{ padding: "14px", borderBottom: "1px solid var(--line)" }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">🌫️ Startlocatie</label>
+                  <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
+                    Klik op de kaart (buiten &ldquo;Vraag toevoegen&rdquo;) om de plek te zetten waar teams starten.
+                  </p>
+                  {route.start_latitude !== null && route.start_longitude !== null ? (
+                    <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
+                      📍 {route.start_latitude.toFixed(5)}, {route.start_longitude.toFixed(5)}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: "0.75rem", color: "var(--red)", marginTop: 6 }}>
+                      Nog geen startlocatie gezet
+                    </div>
+                  )}
+                </div>
               </div>
-              <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: 0 }}>
-                Deze modus heeft geen vaste punten of items — teams lopen vrij rond en spelen
-                zo mist weg. Stel de sterren-drempel in via het ⚙️-tandwiel hierboven.
-              </p>
+
+              <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
+                <button
+                  className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
+                  style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => setAddModus((v) => !v)}>
+                  {addModus ? "✅ Klik op kaart om vraag te plaatsen…" : `❓ Vraag toevoegen (${punten.length})`}
+                </button>
+              </div>
+
+              <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+                {punten.length === 0 ? (
+                  <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
+                    Klik op &ldquo;Vraag toevoegen&rdquo; en tik op de kaart om een vraag te plaatsen. Teams krijgen &rsquo;m automatisch te zien zodra ze in de buurt lopen.
+                  </p>
+                ) : punten.map((pt) => (
+                  <div key={pt.id}
+                    onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                    style={{
+                      padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                      background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
+                      borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
+                    }}>
+                    <div style={{
+                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                      background: "var(--blue)",
+                      color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "0.72rem", fontWeight: 700,
+                    }}>❓</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Vraagpunt · {pt.radius_meters}m</div>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
           <>
@@ -757,31 +799,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-                {/* Modus */}
+                {/* Modus (vastgezet bij aanmaken, niet meer te wijzigen) */}
                 <div className="form-group">
                   <label className="form-label">Routemodus</label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {(["sequentieel", "verspreid", "mist"] as const).map((m) => (
-                      <button key={m}
-                        onClick={async () => {
-                          if (route.modus === m) return;
-                          const res = await fetch(`/api/admin/routes/${route.id}`, {
-                            method: "PATCH", headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ modus: m }),
-                          });
-                          if (res.ok) setRoute((r) => ({ ...r, modus: m }));
-                        }}
-                        style={{
-                          flex: 1, fontSize: "0.78rem", fontWeight: 600, padding: "8px 10px",
-                          borderRadius: 7, border: "1px solid", cursor: "pointer",
-                          background: route.modus === m ? "rgba(0,217,255,0.12)" : "transparent",
-                          borderColor: route.modus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
-                          color: route.modus === m ? "var(--cyan)" : "var(--muted)",
-                        }}>
-                        {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid (lus)" : "🌫️ Mist"}
-                      </button>
-                    ))}
+                  <div style={{
+                    padding: "8px 12px", borderRadius: 7, fontSize: "0.82rem", fontWeight: 600,
+                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--ink)",
+                  }}>
+                    {route.modus === "sequentieel" ? "🎯 Sequentieel" : route.modus === "verspreid" ? "🎲 Verspreid (lus)" : "🌫️ Mist"}
                   </div>
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Speltype kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>
 
                 {/* Mist-instellingen */}
@@ -957,6 +984,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 routeId={route.id}
                 opslaan={opslaan}
                 fout={fout}
+                alleenVraag={route.modus === "mist"}
                 onOpslaan={slaPuntOp}
                 onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}
@@ -1069,8 +1097,8 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onVerwijder, onSluit }: {
-  punt: RoutePunt; routeId: string; opslaan: boolean; fout: string;
+function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, onOpslaan, onVerwijder, onSluit }: {
+  punt: RoutePunt; routeId: string; opslaan: boolean; fout: string; alleenVraag?: boolean;
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
@@ -1103,11 +1131,17 @@ function PuntForm({ punt, routeId, opslaan, fout, onOpslaan, onVerwijder, onSlui
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <div className="form-group">
           <label className="form-label">Type</label>
-          <select className="form-select" value={type} onChange={(e) => setType(e.target.value as RoutePunt["type"])} style={{ fontSize: "0.85rem" }}>
-            <option value="vraagpunt">Vraagpunt</option>
-            <option value="informatiepunt">Infopunt</option>
-            <option value="eindpunt">Eindpunt</option>
-          </select>
+          {alleenVraag ? (
+            <div className="form-input" style={{ fontSize: "0.85rem", color: "var(--muted)", display: "flex", alignItems: "center" }}>
+              Vraagpunt
+            </div>
+          ) : (
+            <select className="form-select" value={type} onChange={(e) => setType(e.target.value as RoutePunt["type"])} style={{ fontSize: "0.85rem" }}>
+              <option value="vraagpunt">Vraagpunt</option>
+              <option value="informatiepunt">Infopunt</option>
+              <option value="eindpunt">Eindpunt</option>
+            </select>
+          )}
         </div>
         <div className="form-group">
           <label className="form-label">Radius (m)</label>

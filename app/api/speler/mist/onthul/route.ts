@@ -48,11 +48,21 @@ export async function POST(request: NextRequest) {
     .eq("session_id", sessie.id);
 
   const totaalM2 = (count ?? 0) * MIST_CEL_OPPERVLAK_M2;
-  const nieuweScore = Math.floor(totaalM2 / route.mist_m2_per_ster);
+  const mistSterren = Math.floor(totaalM2 / route.mist_m2_per_ster);
 
-  if (nieuweScore > sessie.score) {
+  // Score = mist-sterren + eventuele bonuspunten van vraagpunten — altijd herberekenen uit beide
+  // bronnen, zodat dit onthul-endpoint nooit bonuspunten overschrijft die elders zijn bijgeschreven.
+  const { data: beantwoord } = await admin
+    .from("player_point_progress")
+    .select("points_awarded")
+    .eq("session_id", sessie.id)
+    .not("answered_at", "is", null);
+  const vraagpuntPunten = (beantwoord ?? []).reduce((som, p) => som + (p.points_awarded ?? 0), 0);
+
+  const nieuweScore = mistSterren + vraagpuntPunten;
+  if (nieuweScore !== sessie.score) {
     await admin.from("player_sessions").update({ score: nieuweScore }).eq("id", sessie.id);
   }
 
-  return NextResponse.json({ totaalM2, score: Math.max(nieuweScore, sessie.score) });
+  return NextResponse.json({ totaalM2, score: nieuweScore });
 }

@@ -2,11 +2,15 @@
 
 import { useEffect, useRef } from "react";
 import { mistCelNaarLatLng, MIST_ONTHUL_STRAAL_M } from "@/lib/geo";
+import type { RoutePunt } from "@/types/database";
 
 interface Props {
   positie: GeolocationCoordinates | null;
   cellen: { cell_x: number; cell_y: number }[];
   startLocatie: { lat: number; lng: number } | null;
+  punten: RoutePunt[];
+  bereikteOfVerwerkteIds: Set<string>;
+  verwerkteIds: Set<string>;
 }
 
 const ZOOM_SPELER = 17;
@@ -17,7 +21,7 @@ function metersPerPixel(lat: number, zoom: number): number {
   return (156543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
 }
 
-export default function MistLeaflet({ positie, cellen, startLocatie }: Props) {
+export default function MistLeaflet({ positie, cellen, startLocatie, punten, bereikteOfVerwerkteIds, verwerkteIds }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);
@@ -25,6 +29,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie }: Props) {
   const accuracyCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const startMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const fogLayerRef = useRef<import("leaflet").GridLayer | null>(null);
+  const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const gecenterRef = useRef(false);
   const cellenLatLngRef = useRef<{ lat: number; lng: number }[]>([]);
 
@@ -114,6 +119,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie }: Props) {
       mapRef.current = null;
       LRef.current = null;
       fogLayerRef.current = null;
+      puntMarkersRef.current.clear();
       gecenterRef.current = false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,6 +130,46 @@ export default function MistLeaflet({ positie, cellen, startLocatie }: Props) {
     cellenLatLngRef.current = cellen.map((c) => mistCelNaarLatLng(c.cell_x, c.cell_y));
     fogLayerRef.current?.redraw();
   }, [cellen]);
+
+  // Vraagpunt-markers bijwerken — pas zichtbaar zodra een team dichtbij genoeg is gekomen.
+  useEffect(() => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    puntMarkersRef.current.forEach((marker, id) => {
+      if (!bereikteOfVerwerkteIds.has(id)) { marker.remove(); puntMarkersRef.current.delete(id); }
+    });
+
+    punten.forEach((punt) => {
+      if (!bereikteOfVerwerkteIds.has(punt.id)) return;
+      const isVerwerkt = verwerkteIds.has(punt.id);
+      const kleur = isVerwerkt ? "#16A34A" : "#F59E0B";
+      const label = isVerwerkt ? "✓" : "❓";
+
+      const bestaand = puntMarkersRef.current.get(punt.id);
+      if (bestaand) {
+        bestaand.setIcon(L.divIcon({
+          className: "",
+          html: `<div style="width:32px;height:32px;border-radius:50%;background:${kleur};border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;">${label}</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        }));
+        return;
+      }
+
+      const marker = L.marker([punt.latitude, punt.longitude], {
+        icon: L.divIcon({
+          className: "",
+          html: `<div style="width:32px;height:32px;border-radius:50%;background:${kleur};border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;">${label}</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        }),
+        interactive: false,
+      }).addTo(map);
+      puntMarkersRef.current.set(punt.id, marker);
+    });
+  }, [punten, bereikteOfVerwerkteIds, verwerkteIds]);
 
   // Spelermarker bijwerken bij positiewijziging
   useEffect(() => {

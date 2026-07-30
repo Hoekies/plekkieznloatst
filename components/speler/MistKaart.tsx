@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
-import { mistCellenBinnenStraal } from "@/lib/geo";
-import type { SpelerSessie } from "@/types/database";
+import { haversine, mistCellenBinnenStraal, MIST_MAX_SNELHEID_KMH } from "@/lib/geo";
+import { speelPuntBereikt } from "@/lib/sounds";
+import VraagPopup from "./VraagPopup";
+import type { RoutePunt, SpelerPuntVoortgang, SpelerSessie } from "@/types/database";
 import type { LeaderboardEntry } from "@/lib/types";
 
 const MistLeaflet = dynamic(() => import("./MistLeaflet"), {
@@ -22,6 +24,8 @@ interface Props {
   startLocatie: { lat: number; lng: number } | null;
   mistM2PerSter: number;
   initVoortgang: { cellen: { cell_x: number; cell_y: number }[]; totaalM2: number; score: number };
+  punten: RoutePunt[];
+  initPuntVoortgang: SpelerPuntVoortgang[];
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -29,8 +33,9 @@ type GpsStatus = "laden" | "ok" | "zwak" | "weg";
 const GPS_TIMEOUT_MS = 12000;
 const SLECHTE_NAUWKEURIGHEID_M = 30;
 const ONTHUL_INTERVAL_MS = 15000;
+const MIN_SNELHEID_INTERVAL_S = 4;
 
-export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoortgang }: Props) {
+export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoortgang, punten, initPuntVoortgang }: Props) {
   const router = useRouter();
   const [positie, setPositie] = useState<GeolocationCoordinates | null>(null);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("laden");
@@ -40,6 +45,8 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [gestopt, setGestopt] = useState(false);
+  const [puntVoortgang, setPuntVoortgang] = useState<SpelerPuntVoortgang[]>(initPuntVoortgang);
+  const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
 
   const positieRef = useRef<GeolocationCoordinates | null>(null);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,6 +54,11 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
   const onthulTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const locatieTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const celSetRef = useRef<Set<string>>(new Set(initVoortgang.cellen.map((c) => `${c.cell_x},${c.cell_y}`)));
+  const vorigePositieRef = useRef<{ lat: number; lng: number; tijd: number } | null>(null);
+  const snelheidOkRef = useRef(true);
+  const bezigPuntRef = useRef(false);
+
+  const bereikteOfVerwerkteIds = new Set(puntVoortgang.map((v) => v.route_point_id));
 
   // GPS starten
   useEffect(() => {
@@ -102,6 +114,31 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
     setPositie(pos.coords);
     setGpsStatus(pos.coords.accuracy <= SLECHTE_NAUWKEURIGHEID_M ? "ok" : "zwak");
 
+    // Snelheid bepalen t.o.v. de vorige (voldoende oude) positie — boven wandeltempo telt mist wegspelen niet mee.
+    const vorige = vorigePositieRef.current;
+    const nu = pos.timestamp;
+    if (!vorige) {
+      vorigePositieRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude, tijd: nu };
+    } else {
+      const tijdS = (nu - vorige.tijd) / 1000;
+      if (tijdS >= MIN_SNELHEID_INTERVAL_S) {
+        const afstandM = haversine(vorige.lat, vorige.lng, pos.coords.latitude, pos.coords.longitude);
+        snelheidOkRef.current = (afstandM / tijdS) * 3.6 <= MIST_MAX_SNELHEID_KMH;
+        vorigePositieRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude, tijd: nu };
+      }
+    }
+
+    // Vraagpunt-detectie: elk niet-bereikt vraagpunt binnen bereik triggert automatisch.
+    if (!bezigPuntRef.current && !popupPunt) {
+      for (const punt of punten) {
+        if (bereikteOfVerwerkteIds.has(punt.id)) continue;
+        const afstand = haversine(pos.coords.latitude, pos.coords.longitude, punt.latitude, punt.longitude);
+        if (afstand <= punt.radius_meters) { markeerBereikt(punt); break; }
+      }
+    }
+
+    if (!snelheidOkRef.current) return; // te snel bewogen — mist blijft liggen
+
     // Meteen lokaal onthullen voor directe visuele feedback, los van de periodieke serverronde.
     const nieuw = mistCellenBinnenStraal(pos.coords.latitude, pos.coords.longitude);
     const toegevoegd: { cell_x: number; cell_y: number }[] = [];
@@ -113,6 +150,36 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
       }
     });
     if (toegevoegd.length > 0) setCellen((prev) => [...prev, ...toegevoegd]);
+  }
+
+  async function markeerBereikt(punt: RoutePunt) {
+    if (bezigPuntRef.current) return;
+    bezigPuntRef.current = true;
+    try {
+      const res = await fetch("/api/speler/voortgang/bereik", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ route_point_id: punt.id }),
+      });
+      if (res.ok) {
+        const nieuweVoortgang: SpelerPuntVoortgang = await res.json();
+        setPuntVoortgang((v) => [...v, nieuweVoortgang]);
+        speelPuntBereikt();
+        setPopupPunt(punt);
+      }
+    } finally {
+      bezigPuntRef.current = false;
+    }
+  }
+
+  function puntVerwerkt(bijgewerkt: SpelerPuntVoortgang) {
+    setPuntVoortgang((v) =>
+      v.some((vp) => vp.route_point_id === bijgewerkt.route_point_id)
+        ? v.map((vp) => vp.route_point_id === bijgewerkt.route_point_id ? bijgewerkt : vp)
+        : [...v, bijgewerkt]
+    );
+    setPopupPunt(null);
+    if (bijgewerkt.points_awarded > 0) setScore((s) => s + bijgewerkt.points_awarded);
   }
 
   async function onthulMist(coords: GeolocationCoordinates) {
@@ -209,8 +276,17 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
 
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>
-        <MistLeaflet positie={positie} cellen={cellen} startLocatie={startLocatie} />
+        <MistLeaflet
+          positie={positie}
+          cellen={cellen}
+          startLocatie={startLocatie}
+          punten={punten}
+          bereikteOfVerwerkteIds={bereikteOfVerwerkteIds}
+          verwerkteIds={new Set(puntVoortgang.filter((v) => v.answered_at).map((v) => v.route_point_id))}
+        />
       </div>
+
+      {popupPunt && <VraagPopup punt={popupPunt} onVerwerkt={puntVerwerkt} />}
 
       {/* Leaderboard-modal */}
       {leaderboardOpen && (
