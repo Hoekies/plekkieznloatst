@@ -396,9 +396,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Rij 2: status + acties */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <StatusPil status={route.status} isActief={route.is_active} />
-          <span className={`pr-gem-chip ${route.modus === "verspreid" ? "pr-gem-chip--cyan" : route.modus === "mist" ? "pr-gem-chip--orange" : "pr-gem-chip--gray"}`}>
-            {route.modus === "sequentieel" ? "🎯 Sequentieel" : route.modus === "verspreid" ? "🎲 Verspreid" : "🌫️ Mist"}
-          </span>
+          {(() => {
+            const modusInfo = {
+              sequentieel: { label: "Sequentieel", kleur: "#93C5FD" },
+              verspreid: { label: "Verspreid", kleur: "#67E8F9" },
+              mist: { label: "Mist", kleur: "#FDBA74" },
+            }[route.modus];
+            return (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.78rem", fontWeight: 700, color: modusInfo.kleur }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: modusInfo.kleur }} />
+                {modusInfo.label}
+              </span>
+            );
+          })()}
           <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
             onClick={() => setInstellingenOpen(true)} title="Instellingen">
             ⚙️
@@ -806,7 +816,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     padding: "8px 12px", borderRadius: 7, fontSize: "0.82rem", fontWeight: 600,
                     background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--ink)",
                   }}>
-                    {route.modus === "sequentieel" ? "🎯 Sequentieel" : route.modus === "verspreid" ? "🎲 Verspreid (lus)" : "🌫️ Mist"}
+                    {route.modus === "sequentieel" ? "Sequentieel" : route.modus === "verspreid" ? "Verspreid (lus)" : "Mist"}
                   </div>
                   <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Speltype kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>

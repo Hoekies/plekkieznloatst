@@ -149,7 +149,7 @@ export default function RoutesOverzicht() {
                       borderColor: nieuweModus === m ? "rgba(0,217,255,0.35)" : "rgba(255,255,255,0.12)",
                       color: nieuweModus === m ? "var(--cyan)" : "var(--muted)",
                     }}>
-                    {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid" : "🌫️ Mist"}
+                    {m === "sequentieel" ? "Sequentieel" : m === "verspreid" ? "Verspreid" : "Mist"}
                   </button>
                 ))}
               </div>
@@ -187,43 +187,60 @@ export default function RoutesOverzicht() {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {routes.map((r) => (
-            <div key={r.id} className="pr-gem-card" style={{ marginBottom: 0 }}>
-              <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
-                {/* Naam + status */}
-                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
-                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{r.name}</span>
-                  {r.is_active && <span className="pr-gem-chip pr-gem-chip--green">✓ Actief</span>}
-                  {r.status === "gepubliceerd" && !r.is_active && <span className="pr-gem-chip pr-gem-chip--cyan">Gepubliceerd</span>}
-                  {r.status === "concept" && <span className="pr-gem-chip pr-gem-chip--gray">Concept</span>}
-                  {r.modus === "sequentieel" && <span className="pr-gem-chip pr-gem-chip--gray">🎯 Sequentieel</span>}
-                  {r.modus === "verspreid" && <span className="pr-gem-chip pr-gem-chip--cyan">🎲 Verspreid</span>}
-                  {r.modus === "mist" && <span className="pr-gem-chip pr-gem-chip--orange">🌫️ Mist</span>}
-                </div>
-                {/* Actieknoppen */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <button className="btn-premium--ghost" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
-                    onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
-                  <button className="btn-premium--ghost" style={{ padding: "8px 14px", fontSize: "0.8rem" }}
-                    onClick={() => exporteer(r.id, r.name)} title="Exporteer">📤</button>
-                  {!r.is_active && (
-                    <button className="btn-premium--ghost" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
-                      onClick={() => togglePubliceer(r)}>
-                      {r.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
-                    </button>
-                  )}
-                  {!r.is_active && r.status === "gepubliceerd" && (
-                    <button className="btn-premium--cyan" style={{ padding: "8px 16px", fontSize: "0.8rem" }}
-                      onClick={() => activeer(r.id)}>▶ Activeer</button>
-                  )}
-                  {!r.is_active && (
-                    <button className="btn-premium--danger" style={{ padding: "8px 14px", fontSize: "0.8rem" }}
-                      onClick={() => verwijder(r.id, r.name)} title="Verwijder">🗑️</button>
-                  )}
+          {routes.map((r) => {
+            const modusInfo = {
+              sequentieel: { label: "Sequentieel", kleur: "#93C5FD" },
+              verspreid: { label: "Verspreid", kleur: "#67E8F9" },
+              mist: { label: "Mist", kleur: "#FDBA74" },
+            }[r.modus];
+            const knopStijl = { padding: "8px 16px", fontSize: "0.8rem", whiteSpace: "nowrap" as const };
+
+            return (
+              <div key={r.id} className="pr-gem-card" style={{ marginBottom: 0 }}>
+                <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
+                  {/* Naam + type links, status rechts */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.72rem", fontWeight: 700, color: modusInfo.kleur, flexShrink: 0 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: modusInfo.kleur }} />
+                        {modusInfo.label}
+                      </span>
+                    </div>
+                    {r.is_active ? (
+                      <span className="pr-gem-chip pr-gem-chip--green" style={{ flexShrink: 0 }}>✓ Actief</span>
+                    ) : r.status === "gepubliceerd" ? (
+                      <span className="pr-gem-chip pr-gem-chip--cyan" style={{ flexShrink: 0 }}>Gepubliceerd</span>
+                    ) : (
+                      <span className="pr-gem-chip pr-gem-chip--gray" style={{ flexShrink: 0 }}>Concept</span>
+                    )}
+                  </div>
+
+                  {/* Actieknoppen */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    <button className="btn-premium--ghost" style={knopStijl}
+                      onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
+                    <button className="btn-premium--ghost" style={knopStijl}
+                      onClick={() => exporteer(r.id, r.name)}>📤 Exporteren</button>
+                    {!r.is_active && (
+                      <button className="btn-premium--ghost" style={knopStijl}
+                        onClick={() => togglePubliceer(r)}>
+                        {r.status === "gepubliceerd" ? "↩ Naar concept" : "📢 Publiceren"}
+                      </button>
+                    )}
+                    {!r.is_active && r.status === "gepubliceerd" && (
+                      <button className="btn-premium--cyan" style={knopStijl}
+                        onClick={() => activeer(r.id)}>▶ Activeren</button>
+                    )}
+                    {!r.is_active && (
+                      <button className="btn-premium--danger" style={{ ...knopStijl, marginLeft: "auto" }}
+                        onClick={() => verwijder(r.id, r.name)}>🗑️ Verwijderen</button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
