@@ -2,8 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { spelUitleg } from "@/lib/spelmodus-uitleg";
+import type { RouteModus } from "@/types/database";
 
 type Fase = "profiel" | "melding" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
+
+interface Props {
+  modus: RouteModus | null;
+  mistM2PerSter: number | null;
+  heeftVragen: boolean;
+}
 
 const ICONEN = [
   "🦊", "🐸", "🐧", "🦁", "🐙", "🐝",
@@ -13,8 +21,9 @@ const ICONEN = [
 
 const INTRO_DUUR = 5000;
 
-export default function IntroScherm() {
+export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props) {
   const router = useRouter();
+  const uitleg = spelUitleg(modus, { mistM2PerSter: mistM2PerSter ?? undefined, heeftVragen });
   const [fase, setFase] = useState<Fase>("profiel");
   const [voortgang, setVoortgang] = useState(0);
   const [fout, setFout] = useState("");
@@ -222,24 +231,42 @@ export default function IntroScherm() {
           <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
             <div className="pr-panel">
               <div className="pr-panel-inner" style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                {/* Uitleg van de spelsoort die nu actief is */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
+                  <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>{uitleg.emoji}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--pr-gold)", fontSize: "0.95rem", marginBottom: 3 }}>
+                      {uitleg.titel}
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5, marginBottom: 8 }}>
+                      {uitleg.samenvatting}
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 5 }}>
+                      {uitleg.regels.map((regel) => (
+                        <li key={regel} style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", lineHeight: 1.45 }}>
+                          {regel}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
                   <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>📍</span>
                   <div>
                     <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>GPS locatie</div>
                     <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
-                      Dit spel gebruikt je GPS-locatie om te bepalen wanneer je een routepunt bereikt.
-                      Locatietoegang is vereist om te spelen.
+                      {uitleg.gpsUitleg}
                     </div>
                   </div>
                 </div>
                 <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
                   <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>🔔</span>
                   <div>
                     <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>Geluid</div>
                     <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
-                      Bij het bereiken van punten en het beantwoorden van vragen worden geluiden afgespeeld.
-                      Zet je volume aan voor de beste ervaring.
+                      {uitleg.geluidUitleg}
                     </div>
                   </div>
                 </div>
@@ -255,7 +282,7 @@ export default function IntroScherm() {
         {fase === "intro" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", marginTop: 24 }}>
             <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.95rem", margin: 0 }}>
-              Klaar om te kapen? 🗺️
+              {uitleg.tagline}
             </p>
             <div style={{
               width: "100%", height: 8,

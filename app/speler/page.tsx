@@ -32,5 +32,28 @@ export default async function SpelerHomePage() {
     redirect(route?.modus === "mist" ? "/speler/mist" : "/speler/kaart");
   }
 
-  return <IntroScherm />;
+  // Actieve route ophalen zodat het introscherm de uitleg van de juiste spelsoort toont.
+  // Nog geen actieve route? Dan valt spelUitleg() terug op een algemene tekst.
+  const { data: actieveRoute } = await admin
+    .from("routes")
+    .select("id, modus, mist_m2_per_ster")
+    .eq("is_active", true)
+    .maybeSingle();
+
+  let heeftVragen = false;
+  if (actieveRoute) {
+    const { count } = await admin
+      .from("route_points")
+      .select("id", { count: "exact", head: true })
+      .eq("route_id", actieveRoute.id);
+    heeftVragen = (count ?? 0) > 0;
+  }
+
+  return (
+    <IntroScherm
+      modus={actieveRoute?.modus ?? null}
+      mistM2PerSter={actieveRoute?.mist_m2_per_ster ?? null}
+      heeftVragen={heeftVragen}
+    />
+  );
 }
