@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { mistCelNaarLatLng, MIST_ONTHUL_STRAAL_M } from "@/lib/geo";
+import { mistCelNaarLatLng, MIST_TEKEN_STRAAL_M } from "@/lib/geo";
 import type { RoutePunt } from "@/types/database";
 
 interface Props {
@@ -81,7 +81,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
           const nwPoint = coords.scaleBy(size);
           for (const cel of cellenLatLngRef.current) {
             const puntM = metersPerPixel(cel.lat, coords.z);
-            const straalPx = MIST_ONTHUL_STRAAL_M / puntM;
+            const straalPx = MIST_TEKEN_STRAAL_M / puntM;
             const layerPoint = map.project([cel.lat, cel.lng], coords.z);
             const tilePoint = layerPoint.subtract(nwPoint);
             if (

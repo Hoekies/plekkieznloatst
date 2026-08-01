@@ -43,7 +43,17 @@ function metersPerGraadLng(lat: number): number {
 
 export const MIST_CEL_METER = 20;
 export const MIST_CEL_OPPERVLAK_M2 = MIST_CEL_METER * MIST_CEL_METER;
-export const MIST_ONTHUL_STRAAL_M = 25;
+
+// Straal rond de speler waarbinnen cellen worden vrijgespeeld — bepaalt hoe snel je vordert.
+export const MIST_ONTHUL_STRAAL_M = 50;
+
+// Straal waarmee één vrijgespeelde cel op de kaart getekend wordt. Bewust losgekoppeld van
+// MIST_ONTHUL_STRAAL_M: als elke cel met de volle onthulstraal getekend zou worden, groeit de
+// zichtbaar vrijgespeelde vlek tot het dubbele van de onthulstraal en toont de kaart veel meer
+// vrijgespeeld gebied dan er voor sterren en badges geteld wordt.
+// Ondergrens is de halve celdiagonaal (14,1 m bij cellen van 20 m), anders vallen er gaatjes
+// tussen diagonaal aangrenzende cellen.
+export const MIST_TEKEN_STRAAL_M = 15;
 // Boven dit tempo (fietsen/rijden) telt bewegen niet meer mee als mist wegspelen — voorkomt vals spelen.
 export const MIST_MAX_SNELHEID_KMH = 6;
 
