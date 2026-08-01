@@ -104,6 +104,10 @@ export interface SpelerSessie {
   current_point_id: string | null;
   score: number;
   status: SessieStatus;
+  // Laatst bepaalde plaats (mist-modus), om herhaald reverse-geocoden te vermijden
+  mist_plaats: string | null;
+  mist_plaats_lat: number | null;
+  mist_plaats_lng: number | null;
 }
 
 export interface SpelerPuntVoortgang {
@@ -185,6 +189,28 @@ export interface MistVoortgang {
   revealed_at: string;
 }
 
+export interface MistPlaatsVoortgang {
+  id: string;
+  session_id: string;
+  plaats: string;
+  cellen: number;
+}
+
+export interface MistBadge {
+  id: string;
+  session_id: string;
+  code: string;
+  /** Lege string bij algemene badges — zie 022_mist_badges.sql voor het waarom. */
+  plaats: string;
+  behaald_op: string;
+}
+
+export interface PlaatsCache {
+  cel_key: string;
+  plaats: string | null;
+  opgehaald_op: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -212,6 +238,21 @@ export interface Database {
         Row: MistVoortgang;
         Insert: Omit<MistVoortgang, "id" | "revealed_at">;
         Update: Partial<MistVoortgang>;
+      };
+      mist_plaats_voortgang: {
+        Row: MistPlaatsVoortgang;
+        Insert: Omit<MistPlaatsVoortgang, "id">;
+        Update: Partial<MistPlaatsVoortgang>;
+      };
+      mist_badges: {
+        Row: MistBadge;
+        Insert: Omit<MistBadge, "id" | "behaald_op">;
+        Update: Partial<MistBadge>;
+      };
+      plaats_cache: {
+        Row: PlaatsCache;
+        Insert: Omit<PlaatsCache, "opgehaald_op">;
+        Update: Partial<PlaatsCache>;
       };
     };
   };

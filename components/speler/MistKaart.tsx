@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase-browser";
 import { haversine, mistCellenBinnenStraal, MIST_MAX_SNELHEID_KMH } from "@/lib/geo";
 import { speelPuntBereikt } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
+import MistBadgePopup, { type BadgeMelding } from "./MistBadgePopup";
+import MistBadgesModal from "./MistBadgesModal";
 import type { RoutePunt, SpelerPuntVoortgang, SpelerSessie } from "@/types/database";
 import type { LeaderboardEntry } from "@/lib/types";
 
@@ -47,6 +49,9 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
   const [gestopt, setGestopt] = useState(false);
   const [puntVoortgang, setPuntVoortgang] = useState<SpelerPuntVoortgang[]>(initPuntVoortgang);
   const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
+  const [badgesOpen, setBadgesOpen] = useState(false);
+  // Wachtrij zodat meerdere tegelijk behaalde badges na elkaar getoond worden i.p.v. over elkaar.
+  const [badgeWachtrij, setBadgeWachtrij] = useState<BadgeMelding[]>([]);
 
   const positieRef = useRef<GeolocationCoordinates | null>(null);
   const gpsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -194,6 +199,9 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
         const data = await res.json();
         setTotaalM2(data.totaalM2);
         setScore(data.score);
+        if (data.nieuweBadges?.length) {
+          setBadgeWachtrij((rij) => [...rij, ...data.nieuweBadges]);
+        }
       }
     } catch { /* verbindingsfout */ }
   }
@@ -244,6 +252,18 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
           </div>
         </div>
         <button
+          onClick={() => setBadgesOpen(true)}
+          title="Badges"
+          style={{
+            width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+            background: "linear-gradient(180deg, #a78bfa 0%, #7c3aed 48%, #6d28d9 50%, #4c1d95 100%)",
+            border: "2px solid #000", color: "#fff", fontSize: "1.1rem", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "inset 0 1px 1px rgba(255,255,255,0.5), 0 3px 0 #35116b, 0 5px 10px rgba(0,0,0,0.4)",
+          }}>
+          🎖️
+        </button>
+        <button
           onClick={() => { setLeaderboardOpen(true); haalLeaderboardOp(); }}
           title="Leaderboard"
           style={{
@@ -287,6 +307,16 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
       </div>
 
       {popupPunt && <VraagPopup punt={popupPunt} onVerwerkt={puntVerwerkt} />}
+
+      {/* Badge-felicitatie: één tegelijk uit de wachtrij */}
+      {badgeWachtrij.length > 0 && (
+        <MistBadgePopup
+          badge={badgeWachtrij[0]}
+          onSluit={() => setBadgeWachtrij((rij) => rij.slice(1))}
+        />
+      )}
+
+      {badgesOpen && <MistBadgesModal onSluit={() => setBadgesOpen(false)} />}
 
       {/* Leaderboard-modal */}
       {leaderboardOpen && (
