@@ -12,7 +12,7 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 
 1. Ga naar **Routes** in de zijbalk.
 2. Klik op **Nieuwe route**.
-3. Geef de route een naam.
+3. Geef de route een naam en **kies het speltype**: Sequentieel, Verspreid of Mist.
 4. Klik op **Punt toevoegen** en klik op de kaart om een punt te plaatsen.
 5. Herhaal voor alle punten in de gewenste volgorde.
 6. Klik op een punt in de lijst om het te bewerken:
@@ -26,23 +26,31 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 
 > Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd.
 
+> Bij een **Mist**-route werkt dit anders — zie [Mist-routes instellen](#mist-routes-instellen).
+
 ---
 
-### 2. Routemodus en route-instellingen
+### 2. Speltype en route-instellingen
 
-In de route-editor staat naast **📍 Punten** en **⭐ Items** een derde tabblad: **⚙️ Instellingen**. Hier staan alle route-brede instellingen gegroepeerd:
+Het speltype kies je **bij het aanmaken** van de route, en het kan daarna **niet meer gewijzigd worden**. De instellingen en de opbouw van een route verschillen te veel per speltype om halverwege om te schakelen zonder de route onbruikbaar te maken.
 
-- **Routemodus** — Sequentieel of Verspreid (zie hieronder)
-- **⭐ Item-waarden** — standaard ster- en bomwaarde voor de hele route
-- **⛔ Plekzooi** — standaard blokkeerduur in seconden voor nieuwe plekzooi-items
-- **🔄 Respawn** (alleen bij verspreid-modus) — zie hieronder
+Welk speltype een route heeft zie je overal terug: in de routeslijst staat het als gekleurd label onder de naam, en in de editor bovenin naast de status.
 
-#### Modus-toggle
-
-| Modus | Omschrijving |
+| Speltype | Omschrijving |
 |---|---|
-| **Sequentieel** | Alle groepen lopen de punten in dezelfde volgorde (standaard) |
-| **Verspreid (lus)** | Elke groep start op een ander punt en loopt de route als een lus — iedereen legt dezelfde afstand af, maar in een andere volgorde |
+| 🎯 **Sequentieel** | Alle groepen lopen de punten in dezelfde volgorde (standaard) |
+| 🎲 **Verspreid (lus)** | Elke groep start op een ander punt en loopt de route als een lus — iedereen legt dezelfde afstand af, maar in een andere volgorde |
+| ☁️ **Mist** | Geen vaste route: teams spelen door te lopen mist vrij op hun eigen kaart en verdienen sterren per vrijgespeeld oppervlak |
+
+In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar staan alleen de instellingen die bij het gekozen speltype horen:
+
+| Instelling | Bij welk speltype |
+|---|---|
+| **⭐ Item-waarden** — standaard ster- en bomwaarde | Sequentieel, Verspreid |
+| **⛔ Plekzooi** — standaard blokkeerduur in seconden | Sequentieel, Verspreid |
+| **🔄 Respawn** — items opnieuw laten verschijnen | Verspreid |
+| **☁️ Mist-instellingen** — m² per ster | Mist |
+| **🏆 Tussenstand** — automatische reveal | alle |
 
 #### Hoe werkt Verspreid?
 
@@ -108,7 +116,60 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 
 ---
 
+### Mist-routes instellen
+
+Een mist-route heeft **geen route en geen vaste punten**. De editor toont daarom geen Punten/Items-tabbladen, maar een eenvoudiger scherm.
+
+#### Startlocatie
+
+Klik op de kaart om de plek te zetten waar de teams beginnen. Die verschijnt als 🚩 op hun kaart. Je kunt de vlag daarna verslepen om 'm bij te stellen.
+
+De startlocatie is een aanwijzing, geen grens: teams mogen overal heen lopen. Het speelgebied is onbegrensd.
+
+#### Sterren instellen
+
+Via **⚙️ Instellingen** → "☁️ Mist-instellingen" stel je in hoeveel m² een team moet vrijspelen voor één ster. Standaard 2.500 m².
+
+Ter kalibratie: een uur stevig doorwandelen levert grofweg **40 tot 45 hectare** (400.000–450.000 m²) op. Bij 2.500 m² per ster zijn dat ruim 160 sterren per uur. Wil je dat sterren schaarser en waardevoller aanvoelen, zet de drempel dan flink hoger.
+
+#### Vragen plaatsen (optioneel)
+
+Klik op **❓ Vraag toevoegen** en tik daarna op de kaart. Anders dan bij de andere speltypen:
+
+- Vraagpunten hebben **geen vaste volgorde** — teams komen ze tegen in de volgorde waarin ze toevallig langslopen.
+- De vraag **verschijnt automatisch** zodra een team binnen de radius komt; er is geen 📍-knop om op te drukken.
+- Alleen het type *Vraagpunt* is beschikbaar (geen info- of eindpunt — een mist-route heeft immers geen einde).
+
+Laat je alle vragen weg, dan is het puur een verkenningsspel.
+
+#### Badges
+
+Teams verdienen automatisch badges, gekoppeld aan het dorp of de wijk waar ze lopen (bijvoorbeeld *Verkenner van Berghem*). De plaatsnaam wordt automatisch bepaald — je hoeft niets in te stellen.
+
+| Badge | Drempel |
+|---|---|
+| 👣 Bezoeker van … | 1 hectare |
+| 🗺️ Verkenner van … | 5 hectare |
+| 🧭 Ontdekker van … | 15 hectare |
+| 👑 Meester van … | 40 hectare |
+
+Daarnaast zijn er algemene badges: ☁️ Eerste stappen, 🏘️ Grensganger (in 2 plaatsen gespeeld), ⭐ Sterrenjager (5 sterren) en 🚶 Volhouder (een uur onderweg).
+
+> Badges gelden **per spel** en verdwijnen bij **🗑️ Reset spel**.
+
+#### Anti-valsspelen
+
+Mist wordt alleen vrijgespeeld op **wandeltempo** (tot ongeveer 6 km/u). Rijdt of fietst een team, dan telt dat niet mee — er verschijnt geen waarschuwing, de mist blijft daar simpelweg liggen.
+
+#### Het spel beëindigen
+
+Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar is** met **⏹ Deactiveer** of **Stop route**. Alle lopende sessies worden dan meteen afgerond en de teams krijgen hun eindscherm met eindstand en leaderboard te zien.
+
+---
+
 ### 3. Speciale items plaatsen (optioneel)
+
+> Speciale items bestaan alleen bij **Sequentieel** en **Verspreid**. Een mist-route heeft ze niet.
 
 1. Klik op **⭐ Item toevoegen** in de route-editor.
 2. Klik op de kaart waar het item moet liggen.
@@ -173,6 +234,14 @@ Handig bij een testgroep die niet meer mee moet doen, of om groepen tijdelijk te
 
 Via de knoppen **🔑 Wachtwoord** en **✏️ Loginnaam** op de groepskaart kun je deze gegevens aanpassen zonder de groep opnieuw aan te maken.
 
+#### Apparaat resetten
+
+Een groep kan maar op één apparaat tegelijk ingelogd zijn. Wordt de app weggedrukt zónder uit te loggen, dan blijft die koppeling hangen en kan de groep **op geen enkel apparaat meer inloggen** — ook niet op hetzelfde.
+
+Klik dan op **🔓 Apparaat resetten** op de groepskaart. De koppeling wordt losgelaten en de groep kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
+
+> Dit is de meest voorkomende storing tijdens een spel. Als een team belt met "we kunnen niet meer inloggen", is dit vrijwel altijd de oplossing.
+
 ---
 
 ## Het spel starten
@@ -180,8 +249,10 @@ Via de knoppen **🔑 Wachtwoord** en **✏️ Loginnaam** op de groepskaart kun
 1. Ga naar de gewenste route en klik op **▶ Activeer**.
    - Er kan maar één route tegelijk actief zijn.
    - De route moet op "Gepubliceerd" staan voordat je hem kunt activeren.
-2. Groepen kunnen nu via hun inloggegevens inloggen en op **Start spel** drukken.
+2. Groepen kunnen nu via hun inloggegevens inloggen en op **Ga op pad** drukken.
+   - Vóór het starten toont de app automatisch de **spelregels van het actieve speltype**, inclusief de sterdrempel bij een mist-route. Je hoeft dus niets vooraf uit te leggen.
 3. Bij een **verspreid**-route krijgt elke groep automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
+4. Bij een **mist**-route beginnen alle groepen met een volledig bedekte kaart. Wijs ze op de 🚩 als je een startlocatie hebt ingesteld.
 
 ---
 
@@ -198,9 +269,11 @@ Het **Dashboard** toont per groep:
 | Speeltijd | Totale tijd (alleen zichtbaar na finish) |
 | Laatste update | Hoe lang geleden de GPS-positie is bijgewerkt |
 
-De **Live kaart** toont de actuele (globale) GPS-posities van alle groepen op de kaart.
+De **Live kaart** toont de actuele (globale) GPS-posities van alle groepen op de kaart — ook bij een mist-route, zodat je ziet waar de teams lopen.
 
 Het dashboard ververst automatisch elke 5 seconden en via realtime-database-updates; het leaderboard elke 4 seconden.
+
+> **Bij een mist-route** zeggen de kolommen *Voortgang* en *Huidig punt* niets: er zijn geen routepunten om langs te gaan, dus de voortgangsbalk blijft op nul staan. Kijk daar naar de **Score** (het aantal verdiende sterren) en naar de **Live kaart**.
 
 ---
 
@@ -210,9 +283,20 @@ Het dashboard ververst automatisch elke 5 seconden en via realtime-database-upda
 
 Ga naar **Bericht sturen** om een notificatie naar alle actieve groepen te sturen. Handig voor aankondigingen of hints.
 
+### Tussenstand tonen
+
+Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:
+
+- **Handmatig** — via **🏆 Toon tussenstand nu** in de zijbalk.
+- **Automatisch** — via **⚙️ Instellingen** → "🏆 Tussenstand": stel een interval in minuten in (0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
+
+> Zet de zichtbaarheidsduur ruim boven 5 seconden — de spelerapp controleert elke 3 seconden of er een tussenstand klaarstaat, dus bij een te korte duur missen sommige teams 'm.
+
 ### Route stoppen
 
-In de route-editor staat een **⏹ Deactiveer**-knop. Hiermee haal je de route uit de actieve stand zonder gegevens te wissen.
+In de route-editor staat een **⏹ Deactiveer**-knop, en in de zijbalk **Stop route**. Hiermee haal je de route uit de actieve stand zonder gegevens te wissen.
+
+> Bij een **mist**-route worden alle lopende sessies hierdoor meteen afgerond en krijgen de teams hun eindscherm. Dit is de manier om een mist-spel te beëindigen — er is geen eindpunt dat het spel vanzelf afsluit.
 
 ### Spel resetten
 
@@ -222,6 +306,7 @@ Op het dashboard staat onderaan **🗑️ Reset spel**. Dit wist:
 - Alle locatiegeschiedenis
 - Alle voortgang en scores
 - Alle geclaimde speciale items
+- Alle vrijgespeelde mist en behaalde badges
 
 Routes, routepunten, vragen en groepen blijven bewaard. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
 
@@ -244,5 +329,8 @@ De tabel toont **Login** (loginnaam + groepsnaam — wat de groep gebruikt om in
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: zorg dat het laatste punt en het eerste punt geografisch dicht bij elkaar liggen, zodat de lus logisch aanvoelt voor alle groepen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
-- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen.
+- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, of gebruik **🔓 Apparaat resetten** als dat niet meer lukt.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
+- **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
+- **Mist-modus vergt geen voorbereiding**: geen punten uitzetten, geen route bedenken. Alleen een startlocatie en eventueel wat vragen. Handig als je weinig tijd hebt om iets uit te zetten.
+- **Mist stopt niet vanzelf**: spreek vooraf een eindtijd af met de teams, want alleen jij kunt het spel beëindigen.
