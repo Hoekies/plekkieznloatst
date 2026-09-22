@@ -242,6 +242,12 @@ Klik dan op **🔓 Apparaat resetten** op de groepskaart. De koppeling wordt los
 
 > Dit is de meest voorkomende storing tijdens een spel. Als een team belt met "we kunnen niet meer inloggen", is dit vrijwel altijd de oplossing.
 
+#### Een groep direct uitloggen
+
+Klik op **🚪 Uitloggen** op de groepskaart om een groep meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt de groep automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
+
+Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag, een verkeerd uitgedeelde inlog, of om iedereen gelijktijdig opnieuw te laten starten.
+
 ---
 
 ## Het spel starten
@@ -329,7 +335,7 @@ De tabel toont **Login** (loginnaam + groepsnaam — wat de groep gebruikt om in
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: zorg dat het laatste punt en het eerste punt geografisch dicht bij elkaar liggen, zodat de lus logisch aanvoelt voor alle groepen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
-- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, of gebruik **🔓 Apparaat resetten** als dat niet meer lukt.
+- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat resetten** als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
 - **Mist-modus vergt geen voorbereiding**: geen punten uitzetten, geen route bedenken. Alleen een startlocatie en eventueel wat vragen. Handig als je weinig tijd hebt om iets uit te zetten.

@@ -153,6 +153,15 @@ docs/             → Beheerdershandleiding, spelersinstructies
 
 - [Beheerdershandleiding](docs/beheerdershandleiding.md)
 - [Spelersinstructies](docs/spelersinstructies.md)
+- Speluitleg per speltype: [Sequentieel](docs/spel-sequentieel.md) · [Verspreid](docs/spel-verspreid.md) · [Mist](docs/spel-mist.md)
+- Technisch ontwerp: [technisch-ontwerp.md](docs/technisch-ontwerp.md)
+
+### Afbeelding-handleidingen genereren
+
+Voor elke speluitleg hierboven, plus de beheerdershandleiding, staat een kant-en-klare
+ChatGPT-prompt om er een geïllustreerde posterhandleiding van te laten maken:
+[Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md) · [Mist](docs/afbeelding-prompt-mist.md) · [Admin](docs/afbeelding-prompt-admin.md).
+Plak de codeblok uit zo'n bestand in ChatGPT (met beeldgeneratie) om de afbeelding te maken.
 
 ---
 
