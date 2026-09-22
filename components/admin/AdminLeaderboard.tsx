@@ -75,7 +75,7 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
-                  {["#", "Login", "Teamnaam", "Score", "Tijd", "Punten", "Status"].map((h) => (
+                  {["#", "Teamnaam", "Score", "Tijd", "Punten", "Status"].map((h) => (
                     <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
                   ))}
                 </tr>
@@ -85,10 +85,6 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
                   <tr key={s.player_id} style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "12px 16px", fontWeight: 700, fontSize: "1.2rem" }}>
                       {s.rang <= 3 ? ["🥇", "🥈", "🥉"][s.rang - 1] : s.rang}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ fontWeight: 700 }}>{s.login_name}</div>
-                      <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>{s.group_name}</div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       {s.nickname

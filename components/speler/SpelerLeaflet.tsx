@@ -218,7 +218,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
     guideLijnRef.current = L.polyline(
       [[positie.latitude, positie.longitude], [actiefPunt.latitude, actiefPunt.longitude]],
-      { color: "#F59E0B", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
+      { color: "#8b5cf6", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
     ).addTo(map);
   }, [positie, punten, activePuntId, ghostedPuntId]);
 
