@@ -9,18 +9,20 @@ PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route l
 ## Functies
 
 ### Voor spelers
-- GPS-navigatie naar opeenvolgende route-punten
+- GPS-navigatie naar opeenvolgende route-punten, met stippellijn naar het actieve punt zodra dat zichtbaar wordt
 - Vragen op locatie (meerkeuze, open antwoord, foto-opdracht)
 - Speciale items oppakken en inzetten op andere teams
 - Live kaart met globale posities van medespelers
 - Alias en icoon instellen voor herkenning
+- **Mist**-modus: mist wegspelen door te lopen, met plaatsgebonden badges
 
 ### Voor beheerders
 - Routes aanmaken met punten, vragen en speciale items
-- **Sequentieel** of **Verspreid (lus)** modus per route
+- **Sequentieel**, **Verspreid (lus)** of **Mist** modus per route
 - Verspreid-modus: automatische puntgenerator in cirkelpatroon, met versleepbaar middelpunt en ghost-voorvertoning
 - Teams starten gelijkmatig verspreid over de route op basis van GPS-afstand
 - Groepen aanmaken, in-/uitschakelen en inloggegevens beheren
+- Een groep direct uitloggen of hun gekoppelde apparaat resetten
 - Live dashboard met score, voortgang en GPS per team
 - Broadcast-berichten sturen naar alle actieve teams
 - Leaderboard na afloop
@@ -83,6 +85,10 @@ Voer de migraties uit in de Supabase SQL Editor (in volgorde):
 ```
 supabase/migrations/001_schema.sql
 supabase/migrations/002_rls.sql
+supabase/migrations/003_seed.sql
+supabase/migrations/20260522_players_icon_naam.sql
+supabase/migrations/add_login_name.sql
+supabase/migrations/add_nickname_column.sql
 supabase/migrations/003_extra_features.sql
 supabase/migrations/004_special_items.sql
 supabase/migrations/005_dief_radar.sql
@@ -91,6 +97,18 @@ supabase/migrations/008_landmijn.sql
 supabase/migrations/009_rls_fixes.sql
 supabase/migrations/010_verspreid_teams.sql
 supabase/migrations/011_speler_uitgeschakeld.sql
+supabase/migrations/012_vraagteken.sql
+supabase/migrations/013_route_waarden.sql
+supabase/migrations/014_vier_antwoorden.sql
+supabase/migrations/015_security_fixes.sql
+supabase/migrations/016_item_respawn.sql
+supabase/migrations/017_respawn_minuten.sql
+supabase/migrations/018_plekzooi_duur.sql
+supabase/migrations/019_tussenstand.sql
+supabase/migrations/020_keepalive.sql
+supabase/migrations/021_mist_modus.sql
+supabase/migrations/022_mist_badges.sql
+supabase/migrations/023_force_logout.sql
 ```
 
 ### Starten

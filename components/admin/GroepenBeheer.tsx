@@ -133,12 +133,10 @@ export default function GroepenBeheer() {
                 opacity: isUit ? 0.55 : 1,
                 borderLeft: isUit ? "3px solid var(--red)" : "3px solid transparent",
               }}>
-                {/* Icoon */}
-                <div style={{
-                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                {/* Icoon — zelfde formaat als de teamavatars op het dashboard */}
+                <div className="pr-gem-avatar" style={{
+                  borderRadius: "50%",
                   background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: g.icon ? "1.3rem" : "0.8rem",
                   fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
                 }}>
                   {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
