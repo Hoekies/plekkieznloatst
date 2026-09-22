@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
 import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
 
@@ -12,6 +12,9 @@ const KLEUR_RAND: Record<string, string> = {
   rood: "#EF4444",
   groen: "#16A34A",
 };
+// Vaste knop onderaan de popup — compact gehouden, was op mobiel onnodig log
+const KNOP_ONDERAAN_STIJL: CSSProperties = { width: "100%", padding: "13px 0", fontSize: "0.92rem", borderRadius: 13 };
+
 const KLEUR_ZACHT: Record<string, string> = {
   geel: "#FEF9C3",
   blauw: "#DBEAFE",
@@ -450,7 +453,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {popupFase === "informatie" && (
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            style={KNOP_ONDERAAN_STIJL}
             disabled={bezig}
             onClick={verwerkDirect}>
             {bezig ? "Even geduld…" : punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
@@ -459,7 +462,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {popupFase === "vraag" && vraag?.type === "open" && (
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            style={KNOP_ONDERAAN_STIJL}
             disabled={bezig}
             onClick={beantwoord}>
             {bezig ? "Controleren…" : "Bevestig antwoord"}
@@ -468,7 +471,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {popupFase === "vraag" && vraag?.type === "foto_opdracht" && (
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            style={KNOP_ONDERAAN_STIJL}
             disabled={bezig || !fotoBestand}
             onClick={uploadFoto}>
             {bezig ? "Uploaden…" : "📤 Foto insturen"}
@@ -477,7 +480,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
         {popupFase === "feedback" && (
           <button
             className="btn btn-primary"
-            style={{ width: "100%", padding: "16px 0", fontSize: "1.05rem", borderRadius: 14 }}
+            style={KNOP_ONDERAAN_STIJL}
             onClick={doorgaan}>
             Doorgaan →
           </button>
