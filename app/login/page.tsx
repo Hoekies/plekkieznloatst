@@ -15,6 +15,8 @@ function LoginForm() {
       ? "Deze groep is uitgeschakeld. Neem contact op met de spelleider."
       : fout === "apparaat"
       ? "Deze groep is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
+      : fout === "uitgelogd"
+      ? "Je bent door de beheerder uitgelogd."
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
@@ -114,7 +116,7 @@ function LoginForm() {
               </div>
             )}
 
-            <button type="submit" className="btn-premium">
+            <button type="submit" className="btn-premium--compact">
               INLOGGEN →
             </button>
           </form>
