@@ -56,10 +56,9 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
         attributionControl: false,
       });
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        attribution: "© OpenStreetMap, © CARTO",
-        maxZoom: 20,
-        subdomains: "abcd",
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19,
       }).addTo(map);
 
       // Mistlaag: elke tegel start ondoorzichtig en "ponst" gaten bij onthulde cellen.
