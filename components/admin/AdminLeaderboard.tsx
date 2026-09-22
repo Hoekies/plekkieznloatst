@@ -75,7 +75,7 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
-                  {["#", "Teamnaam", "Score", "Tijd", "Punten", "Status"].map((h) => (
+                  {["#", "Teamnaam", "Score", "Tijd", "Afstand", "Punten", "Status"].map((h) => (
                     <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
                   ))}
                 </tr>
@@ -94,6 +94,9 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
                     <td style={{ padding: "12px 16px", fontWeight: 800, fontSize: "1.1rem", color: "var(--blue)" }}>{s.score}</td>
                     <td style={{ padding: "12px 16px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
                       {s.started_at ? formateerTijd(sessietijd(s)) : "—"}
+                    </td>
+                    <td style={{ padding: "12px 16px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
+                      {s.afstand_m > 0 ? `${(s.afstand_m / 1000).toFixed(2)} km` : "—"}
                     </td>
                     <td style={{ padding: "12px 16px", fontSize: "0.85rem" }}>
                       {totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : s.bezochte_punten}

@@ -164,7 +164,6 @@ function SpelerKaart({ speler: s, totaalPunten }: { speler: SpelerOverzicht; tot
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>
             {s.login_name}
-            <span style={{ color: "var(--muted)", fontWeight: 500, marginLeft: 6, fontFamily: "var(--font)" }}>{s.group_name}</span>
           </div>
           <div style={{ fontSize: "0.78rem", color: s.nickname ? "#fff" : "var(--muted)", fontStyle: s.nickname ? "normal" : "italic" }}>
             {s.nickname ?? "nog geen naam gekozen"}

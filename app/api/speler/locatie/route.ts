@@ -22,25 +22,30 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
 
-  const { latitude, longitude, accuracy } = await request.json();
+  const { latitude, longitude, accuracy, afstandM } = await request.json();
   if (typeof latitude !== "number" || typeof longitude !== "number") {
     return NextResponse.json({ fout: "Ongeldige coördinaten" }, { status: 400 });
   }
 
   const publiek = afrondenOpRaster(latitude, longitude, 50);
 
-  const { data, error } = await admin
-    .from("location_updates")
-    .insert({
-      session_id: sessie.id,
-      latitude,
-      longitude,
-      accuracy_meters: accuracy ?? 0,
-      public_latitude: publiek.lat,
-      public_longitude: publiek.lng,
-    })
-    .select()
-    .single();
+  const [{ data, error }] = await Promise.all([
+    admin
+      .from("location_updates")
+      .insert({
+        session_id: sessie.id,
+        latitude,
+        longitude,
+        accuracy_meters: accuracy ?? 0,
+        public_latitude: publiek.lat,
+        public_longitude: publiek.lng,
+      })
+      .select()
+      .single(),
+    typeof afstandM === "number"
+      ? admin.from("player_sessions").update({ afstand_m: afstandM }).eq("id", sessie.id)
+      : Promise.resolve(),
+  ]);
 
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 

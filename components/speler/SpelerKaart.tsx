@@ -80,6 +80,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const locatieTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const radarPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const vorigePositieRef = useRef<GeolocationCoordinates | null>(null);
+  const kmAfgelegdRef = useRef(0);
 
   // Afgeleid uit voortgang
   const verwerktIds = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
@@ -118,7 +119,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (positieRef.current) publiceerLocatie(positieRef.current);
     }, LOCATIE_PUBLICEER_INTERVAL_MS);
     return () => { if (locatieTimerRef.current) clearInterval(locatieTimerRef.current); };
-  // publiceerLocatie gebruikt enkel het meegegeven coords-argument + de stabiele router-ref
+  // publiceerLocatie gebruikt enkel het meegegeven coords-argument + de stabiele router-ref/kmAfgelegdRef
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -359,7 +360,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       const res = await fetch("/api/speler/locatie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy }),
+        body: JSON.stringify({
+          latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy,
+          afstandM: kmAfgelegdRef.current,
+        }),
       });
       if (res.status === 403) router.push("/speler");
     } catch { /* verbindingsfout */ }
@@ -378,6 +382,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     if (vorigePositieRef.current) {
       const d = haversine(vorigePositieRef.current.latitude, vorigePositieRef.current.longitude, pos.coords.latitude, pos.coords.longitude);
       if (d > 5) {
+        kmAfgelegdRef.current += d;
         setKmAfgelegd(prev => prev + d);
         vorigePositieRef.current = pos.coords;
       }

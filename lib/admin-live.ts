@@ -12,6 +12,7 @@ export type SpelerOverzicht = {
   started_at: string | null;
   finished_at: string | null;
   score: number;
+  afstand_m: number;
   bezochte_punten: number;
   huidig_punt_naam: string | null;
   laatste_gezien: string | null;
@@ -78,7 +79,7 @@ export async function haalLiveData(): Promise<LiveData> {
   const sessiesResult = route
     ? await admin
         .from("player_sessions")
-        .select("id, player_id, status, started_at, finished_at, score, current_point_id")
+        .select("id, player_id, status, started_at, finished_at, score, afstand_m, current_point_id")
         .eq("route_id", route.id)
         .in("player_id", playerIds)
     : null;
@@ -138,6 +139,7 @@ export async function haalLiveData(): Promise<LiveData> {
       started_at: sessie?.started_at ?? null,
       finished_at: sessie?.finished_at ?? null,
       score: sessie?.score ?? 0,
+      afstand_m: sessie?.afstand_m ?? 0,
       bezochte_punten: sessie ? (progressMap.get(sessie.id) ?? 0) : 0,
       huidig_punt_naam: sessie?.current_point_id ? (puntNaam.get(sessie.current_point_id) ?? null) : null,
       laatste_gezien: locatie?.created_at ?? null,

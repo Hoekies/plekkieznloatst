@@ -104,6 +104,7 @@ export interface SpelerSessie {
   finished_at: string | null;
   current_point_id: string | null;
   score: number;
+  afstand_m: number;
   status: SessieStatus;
   // Laatst bepaalde plaats (mist-modus), om herhaald reverse-geocoden te vermijden
   mist_plaats: string | null;
