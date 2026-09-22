@@ -92,6 +92,7 @@ export interface Speler {
   auth_user_id: string;
   active_device_id: string | null;
   is_uitgeschakeld: boolean;
+  force_logout_at: string | null;
   created_at: string;
 }
 

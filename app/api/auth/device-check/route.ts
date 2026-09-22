@@ -13,18 +13,25 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: speler } = await admin
     .from("players")
-    .select("id, active_device_id")
+    .select("id, active_device_id, force_logout_at")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
   if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 404 });
+
+  // Door de beheerder uitgelogd
+  if (speler.force_logout_at) {
+    await supabase.auth.signOut();
+    await admin.from("players").update({ force_logout_at: null, active_device_id: null }).eq("id", speler.id);
+    return NextResponse.json({ fout: "Je bent door de beheerder uitgelogd.", reden: "uitgelogd" }, { status: 409 });
+  }
 
   // Tweede apparaat blokkeren
   if (speler.active_device_id && speler.active_device_id !== deviceId) {
     // Uitloggen zodat de sessie niet open blijft
     await supabase.auth.signOut();
     return NextResponse.json(
-      { fout: "Je groep is al actief op een ander apparaat. Sluit dat apparaat eerst af." },
+      { fout: "Je groep is al actief op een ander apparaat. Sluit dat apparaat eerst af.", reden: "apparaat" },
       { status: 409 }
     );
   }

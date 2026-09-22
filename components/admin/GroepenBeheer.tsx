@@ -38,6 +38,11 @@ export default function GroepenBeheer() {
     if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
   }
 
+  async function logGroepUit(id: string) {
+    const res = await fetch(`/api/admin/groepen/${id}/uitloggen`, { method: "PATCH" });
+    if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "640px" }}>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
@@ -158,10 +163,16 @@ export default function GroepenBeheer() {
                       ✏️ Loginnaam
                     </button>
                     {g.active_device_id && (
-                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
-                        onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
-                        🔓 Apparaat resetten
-                      </button>
+                      <>
+                        <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                          onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
+                          🔓 Apparaat resetten
+                        </button>
+                        <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
+                          onClick={() => logGroepUit(g.id)} title="Logt de groep direct uit op hun huidige apparaat">
+                          🚪 Uitloggen
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
