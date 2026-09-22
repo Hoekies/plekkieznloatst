@@ -163,17 +163,15 @@ export default function GroepenBeheer() {
                       ✏️ Loginnaam
                     </button>
                     {g.active_device_id && (
-                      <>
-                        <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
-                          onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
-                          🔓 Apparaat resetten
-                        </button>
-                        <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                          onClick={() => logGroepUit(g.id)} title="Logt de groep direct uit op hun huidige apparaat">
-                          🚪 Uitloggen
-                        </button>
-                      </>
+                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                        onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
+                        🔓 Apparaat resetten
+                      </button>
                     )}
+                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
+                      onClick={() => logGroepUit(g.id)} title="Logt de groep direct uit, ook als ze nu niet als actief staan (bv. bij een hangende sessie)">
+                      🚪 Uitloggen
+                    </button>
                   </div>
                 </div>
 

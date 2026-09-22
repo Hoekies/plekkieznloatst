@@ -53,6 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });
   }
 
+  // Een verse, geldige login mag nooit meteen gekelderd worden door een oude uitlog-vlag
+  const admin = createAdminClient();
+  await admin.from("players").update({ force_logout_at: null }).eq("auth_user_id", data.user.id);
+
   const rol = data.user.app_metadata?.rol;
   const redirectNaar = rol === "admin" ? "/admin" : "/speler";
   const isDev = process.env.NODE_ENV === "development";
