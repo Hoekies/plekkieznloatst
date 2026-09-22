@@ -42,6 +42,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
+  const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
 
   // Kaart initialiseren
@@ -93,6 +94,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       LRef.current = null;
       puntMarkers.clear();
       specialeItemMarkers.clear();
+      guideLijnRef.current = null;
       gecenterRef.current = false;
     };
   }, []);
@@ -201,6 +203,24 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       puntMarkersRef.current.set(punt.id, marker);
     });
   }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId]);
+
+  // Stippellijn naar het actieve punt, zodra dat punt zichtbaar is
+  useEffect(() => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    guideLijnRef.current?.remove();
+    guideLijnRef.current = null;
+
+    const actiefPunt = punten.find((p) => p.id === activePuntId);
+    if (!positie || !actiefPunt || activePuntId === ghostedPuntId) return;
+
+    guideLijnRef.current = L.polyline(
+      [[positie.latitude, positie.longitude], [actiefPunt.latitude, actiefPunt.longitude]],
+      { color: "#F59E0B", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
+    ).addTo(map);
+  }, [positie, punten, activePuntId, ghostedPuntId]);
 
   // Speciale item markers bijwerken
   useEffect(() => {
