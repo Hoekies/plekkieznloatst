@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
 
-type Fase = "profiel" | "melding" | "intro" | "permissie" | "gereed" | "geweigerd" | "starten";
+type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "starten";
 
 interface Props {
   modus: RouteModus | null;
@@ -19,15 +19,11 @@ const ICONEN = [
   "🤡", "👽", "🤖", "🍕", "🦸",
 ];
 
-const INTRO_DUUR = 5000;
-
 export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props) {
   const router = useRouter();
   const uitleg = spelUitleg(modus, { mistM2PerSter: mistM2PerSter ?? undefined, heeftVragen });
   const [fase, setFase] = useState<Fase>("profiel");
-  const [voortgang, setVoortgang] = useState(0);
   const [fout, setFout] = useState("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [groepsnaam, setGroepsnaam] = useState("");
   const [gekozenIcono, setGekozenIcono] = useState<string | null>(null);
   const [gebruikteIconen, setGebruikteIconen] = useState<string[]>([]);
@@ -53,21 +49,6 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
     })();
     return () => { actief = false; };
   }, []);
-
-  useEffect(() => {
-    if (fase !== "intro") return;
-    const start = Date.now();
-    intervalRef.current = setInterval(() => {
-      const pct = Math.min((Date.now() - start) / INTRO_DUUR, 1);
-      setVoortgang(pct);
-      if (pct >= 1) {
-        clearInterval(intervalRef.current!);
-        setFase("permissie");
-        vraagLocatiePermissie();
-      }
-    }, 80);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [fase]);
 
   async function vraagLocatiePermissie() {
     if (!navigator?.geolocation) {
@@ -217,7 +198,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
 
               {profielFout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: "0 0 14px" }}>{profielFout}</p>}
               <button
-                className="btn-premium"
+                className="btn-premium--compact"
                 disabled={!groepsnaam.trim() || !gekozenIcono || profielBezig}
                 onClick={slaProfielOp}>
                 {profielBezig ? "Opslaan…" : "DOORGAAN →"}
@@ -272,29 +253,9 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
                 </div>
               </div>
             </div>
-            <button className="btn-premium" onClick={() => setFase("intro")}>
+            <button className="btn-premium--compact" onClick={() => { setFase("permissie"); vraagLocatiePermissie(); }}>
               OK, BEGREPEN →
             </button>
-          </div>
-        )}
-
-        {/* Intro: aftellen */}
-        {fase === "intro" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", marginTop: 24 }}>
-            <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.95rem", margin: 0 }}>
-              {uitleg.tagline}
-            </p>
-            <div style={{
-              width: "100%", height: 8,
-              background: "rgba(255,255,255,0.18)", borderRadius: 99, overflow: "hidden",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)",
-            }}>
-              <div style={{
-                height: "100%", background: "linear-gradient(90deg, var(--pr-gold), var(--pr-orange))", borderRadius: 99,
-                width: `${voortgang * 100}%`,
-                transition: "width 0.08s linear",
-              }} />
-            </div>
           </div>
         )}
 
@@ -317,7 +278,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
             {fout && (
               <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{fout}</p>
             )}
-            <button className="btn-premium" onClick={startSpel}>
+            <button className="btn-premium--compact" onClick={startSpel}>
               GA OP PAD 🚀
             </button>
           </div>

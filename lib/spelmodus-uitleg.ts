@@ -9,7 +9,6 @@ export interface SpelUitleg {
   regels: string[];
   gpsUitleg: string;
   geluidUitleg: string;
-  tagline: string;
 }
 
 interface Opties {
@@ -40,7 +39,6 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
       regels,
       gpsUitleg: "Dit spel gebruikt je GPS-locatie om bij te houden waar je loopt en welke mist je daarmee vrijspeelt. Locatietoegang is vereist om te spelen.",
       geluidUitleg: "Bij het verdienen van een badge en het beantwoorden van vragen worden geluiden afgespeeld. Zet je volume aan voor de beste ervaring.",
-      tagline: "Klaar om de mist te verjagen? ☁️",
     };
   }
 
@@ -57,7 +55,6 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
       ],
       gpsUitleg: PUNTEN_GPS,
       geluidUitleg: PUNTEN_GELUID,
-      tagline: "Klaar om te kapen? 🗺️",
     };
   }
 
@@ -73,6 +70,5 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
     ],
     gpsUitleg: PUNTEN_GPS,
     geluidUitleg: PUNTEN_GELUID,
-    tagline: "Klaar om te kapen? 🗺️",
   };
 }
