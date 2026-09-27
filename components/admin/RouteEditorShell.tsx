@@ -11,6 +11,8 @@ const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loadi
 
 type RouteMetPunten = Route & { route_points: RoutePunt[] };
 
+const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#ec4899", "#14b8a6", "#00d9ff"];
+
 export default function RouteEditorShell({ route: initRoute }: { route: RouteMetPunten }) {
   const zoekParams = useSearchParams();
   const [route, setRoute] = useState(initRoute);
@@ -88,9 +90,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Bereken de startpunten per team voor verspreid-modus
-  const teamStartPunten = useMemo(() => {
+  // Looproute per team voor verspreid-modus — zelfde berekening als bij het starten
+  // van een sessie (app/api/speler/sessie/route.ts), zodat de preview klopt met het spel
+  const teamRoutes = useMemo(() => {
     if (route.modus !== "verspreid" || punten.length < 4 || verwachtTeams < 2) return [];
+    const hubStart = punten[0];
+    const hubEind = punten[punten.length - 1];
     const middenpunten = punten.slice(1, -1);
     if (middenpunten.length < 2) return [];
     const cumulatief = [0];
@@ -109,7 +114,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const delta = Math.abs(d - targetM);
         if (delta < minDelta) { minDelta = delta; offset = i; }
       });
-      return { lat: middenpunten[offset].latitude, lng: middenpunten[offset].longitude, teamIndex: k + 1 };
+      // Lus-punt j heeft in de lijst index j+1 en dus nummer j+1 (de start-hub is 🏠, geen nummer)
+      const lusIndices = middenpunten.map((_, j) => (offset + j) % middenpunten.length);
+      const volgorde = [hubStart, ...lusIndices.map((j) => middenpunten[j]), hubEind];
+      return {
+        teamIndex: k + 1,
+        kleur: TEAM_KLEUREN[k % TEAM_KLEUREN.length],
+        nummers: lusIndices.map((j) => j + 1),
+        coords: volgorde.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+      };
     });
   }, [route.modus, punten, verwachtTeams]);
 
@@ -155,12 +168,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     });
     if (resStart.ok) nieuwePunten.push(await resStart.json());
 
-    // Circulaire vraagpunten
-    for (const coord of coords) {
+    // Circulaire vraagpunten — genummerd vanaf 1, gelijk aan de nummers in lijst en kaart
+    for (const [n, coord] of coords.entries()) {
       const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latitude: coord.lat, longitude: coord.lng, points: 10 }),
+        body: JSON.stringify({ latitude: coord.lat, longitude: coord.lng, points: 10, name: `Punt ${n + 1}` }),
       });
       if (res.ok) nieuwePunten.push(await res.json());
     }
@@ -556,6 +569,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <div style={{ color: "rgba(0,217,255,0.7)" }}>⬤ Cirkel op kaart = aanbevolen afstand</div>
                     )}
                   </div>
+
+                  {/* Looproute per team, in dezelfde kleur als op de kaart */}
+                  {teamRoutes.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.68rem" }}>
+                      {teamRoutes.map((t) => (
+                        <div key={t.teamIndex} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                          <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0, alignSelf: "center" }} />
+                          <span style={{ color: t.kleur, fontWeight: 700, flexShrink: 0 }}>Team {t.teamIndex}</span>
+                          <span style={{ color: "var(--text)" }}>🏠 → {t.nummers.join(" → ")} → 🏁</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Waarschuwing */}
                   {teWeinigPunten && (
@@ -989,7 +1015,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               ? { lat: geselecteerd.latitude, lng: geselecteerd.longitude, radiusM: doelAfstandKm * 1000 / punten.length }
               : null
           }
-          teamStartPunten={teamStartPunten}
+          hubModus={route.modus === "verspreid" && punten.length >= 3}
+          teamRoutes={teamRoutes}
           centrumPunt={
             route.modus === "mist"
               ? (route.start_latitude !== null && route.start_longitude !== null ? { lat: route.start_latitude, lng: route.start_longitude } : null)

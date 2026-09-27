@@ -19,10 +19,11 @@ interface GuideCirkel {
   radiusM: number;
 }
 
-interface TeamStartPunt {
-  lat: number;
-  lng: number;
+export interface TeamRoute {
   teamIndex: number;
+  kleur: string;
+  // Volledige looproute: start-hub, lus-punten in teamvolgorde, finish-hub
+  coords: { lat: number; lng: number }[];
 }
 
 interface Props {
@@ -31,7 +32,9 @@ interface Props {
   geselecteerdId: string | null;
   specialeItems?: SpeciaalItem[];
   guideCirkel?: GuideCirkel | null;
-  teamStartPunten?: TeamStartPunt[];
+  // Verspreid: eerste punt = start-hub (🏠), lus-punten genummerd vanaf 1
+  hubModus?: boolean;
+  teamRoutes?: TeamRoute[];
   // Genereer-preview
   centrumPunt?: { lat: number; lng: number } | null;
   ghostPunten?: { lat: number; lng: number }[];
@@ -48,7 +51,7 @@ interface Props {
 
 export default function LeafletKaart({
   punten, addModus, geselecteerdId, specialeItems = [],
-  guideCirkel = null, teamStartPunten = [],
+  guideCirkel = null, hubModus = false, teamRoutes = [],
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
@@ -60,9 +63,8 @@ export default function LeafletKaart({
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const cirkelRef = useRef<import("leaflet").Circle | null>(null);
-  const startPolygoonRef = useRef<import("leaflet").Polygon | null>(null);
+  const teamLijnenRef = useRef<import("leaflet").Polyline[]>([]);
   const startMarkersRef = useRef<import("leaflet").Marker[]>([]);
-  const ontmoetingMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const centrumMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const ghostMarkersRef = useRef<import("leaflet").Marker[]>([]);
   const ghostCirkelRef = useRef<import("leaflet").Circle | null>(null);
@@ -122,9 +124,8 @@ export default function LeafletKaart({
       markers.clear();
       specialeItemMarkers.clear();
       cirkelRef.current = null;
-      startPolygoonRef.current = null;
+      teamLijnenRef.current = [];
       startMarkersRef.current = [];
-      ontmoetingMarkerRef.current = null;
       centrumMarkerRef.current = null;
       ghostMarkersRef.current = [];
       ghostCirkelRef.current = null;
@@ -147,7 +148,9 @@ export default function LeafletKaart({
 
       punten.forEach((pt, i) => {
         const isGeselecteerd = pt.id === geselecteerdId;
-        const icon = maakIcoon(L, pt.type, i + 1, isGeselecteerd);
+        const isHubStart = hubModus && i === 0;
+        const label = pt.type === "eindpunt" ? "🏁" : isHubStart ? "🏠" : String(hubModus ? i : i + 1);
+        const icon = maakIcoon(L, pt.type, label, isHubStart, isGeselecteerd);
 
         if (markersRef.current.has(pt.id)) {
           const marker = markersRef.current.get(pt.id)!;
@@ -171,9 +174,10 @@ export default function LeafletKaart({
         markersRef.current.delete(id);
       });
 
-      // Polyline
+      // Volgordelijn — bij verspreid tonen de gekleurde teamroutes de echte looproute
       polylineRef.current?.remove();
-      if (punten.length >= 2) {
+      polylineRef.current = null;
+      if (punten.length >= 2 && teamRoutes.length === 0) {
         polylineRef.current = L.polyline(
           punten.map((p) => [p.latitude, p.longitude] as [number, number]),
           { color: "#1E40AF", weight: 2.5, opacity: 0.7, dashArray: "6 4" }
@@ -190,7 +194,7 @@ export default function LeafletKaart({
         }
       }
     });
-  }, [punten, geselecteerdId, kaartKlaar]);
+  }, [punten, geselecteerdId, hubModus, teamRoutes.length, kaartKlaar]);
 
   // Speciale item markers
   useEffect(() => {
@@ -222,80 +226,48 @@ export default function LeafletKaart({
     });
   }, [specialeItems, geselecteerdSpeciaalId, kaartKlaar]);
 
-  // Teamstartpunten: verbindingspolygoon + T-markers + startlocatie
+  // Teamroutes: per team een gekleurde lijn (hub → lus in teamvolgorde → hub) + T-marker op het instappunt
   useEffect(() => {
     if (!kaartRef.current) return;
     import("leaflet").then((L) => {
-      startPolygoonRef.current?.remove();
-      startPolygoonRef.current = null;
+      teamLijnenRef.current.forEach((l) => l.remove());
+      teamLijnenRef.current = [];
       startMarkersRef.current.forEach((m) => m.remove());
       startMarkersRef.current = [];
-      ontmoetingMarkerRef.current?.remove();
-      ontmoetingMarkerRef.current = null;
 
-      if (teamStartPunten.length < 2) return;
+      if (teamRoutes.length === 0) return;
 
-      const coords = teamStartPunten.map((p) => [p.lat, p.lng] as [number, number]);
-      startPolygoonRef.current = L.polygon(coords, {
-        color: "#ffd93b",
-        weight: 2.5,
-        dashArray: "8 5",
-        fill: false,
-        opacity: 0.9,
-        interactive: false,
-      }).addTo(kaartRef.current!);
+      teamRoutes.forEach((t, k) => {
+        // Lijnen lopen over dezelfde randen; schuif ze radiaal uit elkaar zodat elk team zichtbaar blijft
+        const verschuivingM = (k - (teamRoutes.length - 1) / 2) * 4;
+        const lijn = L.polyline(
+          t.coords.map((c, i) => verschuifRadiaal(c, t.coords[0], i === 0 || i === t.coords.length - 1 ? 0 : verschuivingM)),
+          { color: t.kleur, weight: 3.5, opacity: 0.9, interactive: false },
+        ).addTo(kaartRef.current!);
+        teamLijnenRef.current.push(lijn);
 
-      teamStartPunten.forEach((p) => {
+        const instap = t.coords[1];
+        if (!instap) return;
         const icon = L.divIcon({
           className: "",
           html: `<div style="
             width:26px;height:26px;border-radius:50%;
-            background:#ffd93b;color:#060e1a;
+            background:${t.kleur};color:#fff;
             font-size:0.68rem;font-weight:800;
             display:flex;align-items:center;justify-content:center;
             border:2px solid #fff;
-            box-shadow:0 0 0 3px rgba(255,217,59,0.3),0 0 8px rgba(255,217,59,0.6);
-          ">T${p.teamIndex}</div>`,
+            text-shadow:0 1px 2px rgba(0,0,0,0.6);
+            box-shadow:0 0 8px ${t.kleur};
+          ">T${t.teamIndex}</div>`,
           iconSize: [26, 26],
-          iconAnchor: [13, 13],
+          iconAnchor: [13, 34],
         });
-        const marker = L.marker([p.lat, p.lng], { icon, interactive: false })
+        const marker = L.marker([instap.lat, instap.lng], { icon, interactive: false, zIndexOffset: 300 })
           .addTo(kaartRef.current!);
         startMarkersRef.current.push(marker);
       });
-
-      // Startlocatie = centroïde — groot icoon met gloed
-      const centLat = teamStartPunten.reduce((s, p) => s + p.lat, 0) / teamStartPunten.length;
-      const centLng = teamStartPunten.reduce((s, p) => s + p.lng, 0) / teamStartPunten.length;
-      const ontmoetingIcon = L.divIcon({
-        className: "",
-        html: `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-          <div style="
-            width:48px;height:48px;border-radius:50%;
-            background:rgba(255,217,59,0.2);
-            border:2.5px solid #ffd93b;
-            display:flex;align-items:center;justify-content:center;
-            font-size:22px;
-            box-shadow:0 0 0 5px rgba(255,217,59,0.12),0 0 18px rgba(255,217,59,0.45);
-          ">📍</div>
-          <div style="
-            background:rgba(6,14,26,0.85);
-            border:1px solid rgba(255,217,59,0.5);
-            border-radius:5px;
-            padding:2px 7px;
-            font-size:0.62rem;font-weight:700;
-            color:#ffd93b;
-            white-space:nowrap;
-            text-shadow:0 1px 3px rgba(0,0,0,0.8);
-          ">Startlocatie</div>
-        </div>`,
-        iconSize: [80, 68],
-        iconAnchor: [40, 30],
-      });
-      ontmoetingMarkerRef.current = L.marker([centLat, centLng], { icon: ontmoetingIcon, interactive: false, zIndexOffset: 500 })
-        .addTo(kaartRef.current!);
     });
-  }, [teamStartPunten, kaartKlaar]);
+  }, [teamRoutes, kaartKlaar]);
 
   // Aanbevolen-afstand cirkel bij geselecteerd punt
   useEffect(() => {
@@ -425,15 +397,34 @@ export default function LeafletKaart({
   );
 }
 
+// Schuift een punt `meters` weg van (of naar) het middelpunt; 0 = ongewijzigd
+function verschuifRadiaal(
+  p: { lat: number; lng: number },
+  midden: { lat: number; lng: number },
+  meters: number,
+): [number, number] {
+  if (meters === 0) return [p.lat, p.lng];
+  const mPerGraad = 111320;
+  const cosLat = Math.cos((p.lat * Math.PI) / 180);
+  const dx = (p.lng - midden.lng) * mPerGraad * cosLat;
+  const dy = (p.lat - midden.lat) * mPerGraad;
+  const lengte = Math.hypot(dx, dy);
+  if (lengte < 1) return [p.lat, p.lng];
+  return [
+    p.lat + ((dy / lengte) * meters) / mPerGraad,
+    p.lng + ((dx / lengte) * meters) / (mPerGraad * cosLat),
+  ];
+}
+
 function maakIcoon(
   L: typeof import("leaflet"),
   type: RoutePunt["type"],
-  nummer: number,
+  label: string,
+  isHubStart: boolean,
   geselecteerd: boolean
 ) {
-  const bg = type === "eindpunt" ? "#F59E0B" : type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
+  const bg = isHubStart ? "#16A34A" : type === "eindpunt" ? "#F59E0B" : type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
   const ring = geselecteerd ? `box-shadow:0 0 0 3px #fff,0 0 0 5px ${bg};` : "";
-  const label = type === "eindpunt" ? "🏁" : String(nummer);
   return L.divIcon({
     html: `<div style="width:32px;height:32px;border-radius:50%;background:${bg};color:#fff;
       display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;
