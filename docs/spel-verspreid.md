@@ -9,7 +9,7 @@ Een GPS-speurtocht voor groepen, net als Route op volgorde — met één belangr
 
 Iedereen loopt dezelfde totale afstand en bezoekt dezelfde punten, alleen in een andere volgorde. Zo staat er nooit een rij bij hetzelfde punt en heeft niemand voordeel van als eerste vertrekken.
 
-De route is een **lus**: je begint en eindigt bij dezelfde hub.
+Alle teams eindigen wel bij **hetzelfde, vaste eindpunt** — daar komt iedereen na zijn eigen rondje weer samen.
 
 ---
 
@@ -26,11 +26,11 @@ De route is een **lus**: je begint en eindigt bij dezelfde hub.
 
 ## Jouw eigen volgorde
 
-Bij het starten krijgt jouw team automatisch een eigen startpunt toegewezen, zo ver mogelijk van de andere teams. Vanaf daar loop je de lus rond tot je weer bij het begin bent.
+Bij het starten krijgt jouw team automatisch een eigen startpunt toegewezen, zo ver mogelijk van de andere teams. Vanaf daar loop je de lus rond.
 
 **Je hoeft dus niet te racen naar hetzelfde punt.** Een ander team dat je tegenkomt is waarschijnlijk ergens anders in de lus bezig.
 
-Het spel is klaar zodra je alle punten hebt gehad — voor jouw team is het laatste punt dat je bezoekt het eindpunt, ook al is dat voor een ander team het beginpunt geweest.
+Zodra je alle lus-punten hebt gehad, verschijnt als laatste het **gezamenlijke eindpunt** — hetzelfde punt voor elk team, ongeacht waar je begonnen bent. Daar is het spel voor jouw team afgerond.
 
 ---
 
