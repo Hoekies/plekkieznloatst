@@ -523,13 +523,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
 
                   {/* Middelpunt kiezen */}
-                  {doelAfstandKm > 0 && (
-                    <button
-                      className={`btn ${centrumModus ? "btn-cyan" : centrumPunt ? "btn-ghost" : "btn-primary"}`}
-                      style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
-                      onClick={() => { setCentrumModus((v) => !v); }}>
-                      {centrumModus ? "✅ Klik op kaart voor middelpunt…" : centrumPunt ? "📍 Verplaats middelpunt" : "📍 Kies middelpunt op kaart"}
-                    </button>
+                  <button
+                    className={`btn ${centrumModus ? "btn-cyan" : centrumPunt ? "btn-ghost" : "btn-primary"}`}
+                    style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                    onClick={() => { setCentrumModus((v) => !v); }}>
+                    {centrumModus ? "✅ Klik op kaart voor middelpunt…" : centrumPunt ? "📍 Verplaats middelpunt" : "📍 Kies middelpunt op kaart"}
+                  </button>
+                  {doelAfstandKm <= 0 && (
+                    <div style={{ fontSize: "0.68rem", color: "var(--gold)" }}>
+                      Vul een afstand in om het voorstel met {aantalPunten} punten op de kaart te zien.
+                    </div>
                   )}
 
                   {/* Genereer knop */}
@@ -775,6 +778,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
             <div className="route-editor-tik-kiezer">
               <div style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 4 }}>Hier toevoegen:</div>
+              {route.modus === "verspreid" && (
+                <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
+                  🏠 Middelpunt (start/finish-hub)
+                </button>
+              )}
               <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
                 📍 Punt
@@ -984,7 +993,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           centrumPunt={
             route.modus === "mist"
               ? (route.start_latitude !== null && route.start_longitude !== null ? { lat: route.start_latitude, lng: route.start_longitude } : null)
-              : (route.modus === "verspreid" && doelAfstandKm > 0 ? centrumPunt : null)
+              : (route.modus === "verspreid" ? centrumPunt : null)
           }
           ghostPunten={ghostPunten}
           ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
