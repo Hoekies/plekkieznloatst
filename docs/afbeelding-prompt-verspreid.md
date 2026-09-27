@@ -22,12 +22,11 @@ background. Flat vector illustration style, game-UI look, NOT photorealistic.
 TITLE (top banner, large): "🎲 Verspreide route — speluitleg"
 Subtitle beneath it: "Zelfde lus, ieder team een eigen startpunt."
 
-SECTION 1 — "Het idee" — a small circular diagram showing a loop of 5 numbered dots plus
-one distinct "finish flag" dot outside the loop, with 3 differently colored team markers
-starting at different dots around the loop, arrows showing each team looping around and
-then converging on the same finish dot. Caption: "Alle teams lopen dezelfde lus en dezelfde
-afstand — maar iedereen start ergens anders. Aan het eind komt iedereen samen bij hetzelfde
-eindpunt."
+SECTION 1 — "Het idee" — a small diagram showing a circular loop of 6 numbered dots with a
+house-and-flag "hub" icon (🏠🏁) in the center. Three differently colored team arrows leave
+the hub, each join the loop at a different dot, go around the loop, and return to the same
+central hub. Caption: "Iedereen start en finisht bij de hub. Daartussen loopt elk team
+dezelfde lus, maar vanaf een ander punt — je hoeft nooit te racen naar hetzelfde punt."
 
 SECTION 2 — "Hoe begin je?" (4 numbered steps, each with a small icon):
 1. 📱 Open de link en log in met je groep
@@ -56,7 +55,7 @@ SECTION 5 — "Tips" (short bullet list with a lightbulb icon 💡):
 - Staat respawn aan? Dan loont een tweede rondje langs een goede plek
 - Je inventaris blijft bewaard, ook als de app herlaadt
 
-FOOTER banner: "🏁 Bij het gezamenlijke eindpunt staat je score vast — bekijk het leaderboard!"
+FOOTER banner: "🏁 Terug bij de hub staat je score vast — bekijk het leaderboard!"
 
 Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
 photorealistic humans, no readable brand logos other than the "PointRush" title itself.

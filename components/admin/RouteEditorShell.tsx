@@ -88,17 +88,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Bereken de startpunten per team voor verspreid-modus (alles behalve het laatste
-  // punt is lus/instappunt — het laatste punt is het vaste, gedeelde eindpunt)
+  // Bereken de startpunten per team voor verspreid-modus
   const teamStartPunten = useMemo(() => {
-    if (route.modus !== "verspreid" || punten.length < 3 || verwachtTeams < 2) return [];
-    const lusPunten = punten.slice(0, -1);
-    if (lusPunten.length < 2) return [];
+    if (route.modus !== "verspreid" || punten.length < 4 || verwachtTeams < 2) return [];
+    const middenpunten = punten.slice(1, -1);
+    if (middenpunten.length < 2) return [];
     const cumulatief = [0];
-    for (let i = 1; i < lusPunten.length; i++) {
+    for (let i = 1; i < middenpunten.length; i++) {
       cumulatief.push(
         cumulatief[i - 1] +
-        haversine(lusPunten[i - 1].latitude, lusPunten[i - 1].longitude, lusPunten[i].latitude, lusPunten[i].longitude)
+        haversine(middenpunten[i - 1].latitude, middenpunten[i - 1].longitude, middenpunten[i].latitude, middenpunten[i].longitude)
       );
     }
     const totalM = cumulatief[cumulatief.length - 1];
@@ -110,7 +109,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const delta = Math.abs(d - targetM);
         if (delta < minDelta) { minDelta = delta; offset = i; }
       });
-      return { lat: lusPunten[offset].latitude, lng: lusPunten[offset].longitude, teamIndex: k + 1 };
+      return { lat: middenpunten[offset].latitude, lng: middenpunten[offset].longitude, teamIndex: k + 1 };
     });
   }, [route.modus, punten, verwachtTeams]);
 
@@ -148,7 +147,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setGeselecteerd(null);
     const nieuwePunten: RoutePunt[] = [];
 
-    // Circulaire vraagpunten — elk team start op zijn eigen positie in deze lus
+    // Hub start op middelpunt
+    const resStart = await fetch(`/api/admin/routes/${route.id}/punten`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "informatiepunt", name: "Hub", points: 0 }),
+    });
+    if (resStart.ok) nieuwePunten.push(await resStart.json());
+
+    // Circulaire vraagpunten
     for (const coord of coords) {
       const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
         method: "POST",
@@ -158,11 +165,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       if (res.ok) nieuwePunten.push(await res.json());
     }
 
-    // Gedeeld eindpunt op het middelpunt — hier komen alle teams samen na hun lus
+    // Hub eind op middelpunt
     const resEind = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Finish", points: 0 }),
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Hub", points: 0 }),
     });
     if (resEind.ok) nieuwePunten.push(await resEind.json());
 
@@ -259,8 +266,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const idx = punten.findIndex((p) => p.id === id);
     if (richting === "omhoog" && idx === 0) return;
     if (richting === "omlaag" && idx === punten.length - 1) return;
-    const nieuw = [...punten];
     const wissel = richting === "omhoog" ? idx - 1 : idx + 1;
+    // Bij verspreid liggen start- en finish-hub vast op de eerste en laatste plek
+    if (route.modus === "verspreid" && punten.length >= 3) {
+      const isHubPlek = (i: number) => i === 0 || i === punten.length - 1;
+      if (isHubPlek(idx) || isHubPlek(wissel)) return;
+    }
+    const nieuw = [...punten];
     [nieuw[idx], nieuw[wissel]] = [nieuw[wissel], nieuw[idx]];
     setPunten(nieuw);
     await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
@@ -676,11 +688,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   Klik op &ldquo;Punt toevoegen&rdquo; en tik op de kaart om een punt te plaatsen.
                 </p>
               ) : punten.map((pt, i) => {
-                const isVerspreid = route.modus === "verspreid" && punten.length >= 2;
-                const isGedeeldEindpunt = isVerspreid && i === punten.length - 1 && pt.type === "eindpunt";
-                const badge = pt.type === "eindpunt" ? "🏁" : i + 1;
-                const badgeBg = pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
-                const typeLabel = isGedeeldEindpunt ? "Eindpunt (gedeeld, alle teams)" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
+                const isVerspreid = route.modus === "verspreid" && punten.length >= 3;
+                const isHubStart = isVerspreid && i === 0;
+                const isHubEind = isVerspreid && i === punten.length - 1;
+                const isHub = isHubStart || isHubEind;
+                const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
+                const badgeBg = isHubStart ? "var(--green)" : pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
+                const typeLabel = isHubStart ? "Start hub" : isHubEind ? "Finish hub" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
                 return (
                   <div key={pt.id}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
@@ -703,9 +717,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
-                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === 0 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === 0 || isHub || (isVerspreid && i === 1)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
-                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: i === punten.length - 1 ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === punten.length - 1 || isHub || (isVerspreid && i === punten.length - 2)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>

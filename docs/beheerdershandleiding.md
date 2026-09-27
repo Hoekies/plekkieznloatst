@@ -54,32 +54,33 @@ In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar s
 
 #### Hoe werkt Verspreid?
 
-Het **laatste punt** in de lijst is het **gedeelde eindpunt** — daar komt elk team aan het eind samen, ongeacht waar ze begonnen zijn. De overige punten vormen samen een lus. Bij het starten van een sessie berekent het systeem automatisch de beste instapplek per groep op basis van GPS-afstand, zodat groepen gelijkmatig verspreid aan hun lus beginnen — niemand hoeft eerst naar een gezamenlijk startpunt te lopen.
+Een verspreide route bestaat uit drie delen:
+
+- **🏠 Start hub** — het **eerste** punt in de lijst. Hier checken alle teams in voordat ze vertrekken.
+- **De lus** — alle punten daartussen. Elk team krijgt een eigen instapplek in de lus, berekend op GPS-afstand, zodat groepen gelijkmatig verspreid lopen.
+- **🏁 Finish hub** — het **laatste** punt in de lijst, op dezelfde plek als de start hub. Hier komen alle teams na hun lus weer samen.
 
 ```
-Route met 6 punten (3 teams, doelafstand 5 km):
-Punt 6 is het gedeelde eindpunt. Punten 1–5 vormen de lus.
+Route met hub + 6 lus-punten (3 teams):
 
         [2]
        /   \
      [1]   [3]
-      |      |
-     [5]───[4]
-      \
-      [6]  ← gedeeld eindpunt
+      |  🏠🏁  |      ← start en finish op het middelpunt
+     [6]   [4]
+       \   /
+        [5]
 
-Team 1:  1 → 2 → 3 → 4 → 5 → 6   (start bij punt 1, ≈ 0 km)
-Team 2:  3 → 4 → 5 → 1 → 2 → 6   (start bij punt 3, ≈ 1.7 km)
-Team 3:  5 → 1 → 2 → 3 → 4 → 6   (start bij punt 5, ≈ 3.3 km)
+Team 1:  🏠 → 1 → 2 → 3 → 4 → 5 → 6 → 🏁
+Team 2:  🏠 → 3 → 4 → 5 → 6 → 1 → 2 → 🏁
+Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 
-✓ Iedereen bezoekt alle 5 lus-punten, in een eigen volgorde
-✓ Teams starten op gelijke GPS-afstand van elkaar
-✓ Iedereen eindigt bij hetzelfde, laatste punt (6)
+✓ Iedereen start en eindigt op dezelfde plek
+✓ Iedereen bezoekt alle lus-punten, in een eigen volgorde
+✓ Teams beginnen op gelijke GPS-afstand van elkaar aan de lus
 ```
 
-> **Belangrijk:** Het laatste punt in de lijst ligt vast als gedeeld eindpunt voor alle teams. Zet het op een plek die voor iedereen redelijk bereikbaar is vanuit de lus — bijvoorbeeld centraal, zoals de automatische generator hieronder doet.
-
-> **Eindpunt:** Bij verspreid-modus is het eindpunt **hetzelfde, vaste punt voor alle teams** — het laatste punt in de puntenlijst. De route is voor een team klaar zodra het al zijn lus-punten heeft afgerond en dit eindpunt heeft bereikt.
+> **Belangrijk:** De hub-punten herkent het systeem aan hun **positie in de lijst**: het eerste punt is altijd de start, het laatste altijd de finish. De ▲▼-knoppen zijn daarom uitgeschakeld voor deze twee punten. Plaats je punten handmatig, zet dan zelf een infopunt als eerste en een eindpunt als laatste — of gebruik de automatische generator hieronder, die dit voor je doet.
 
 #### Instellingen voor Verspreid-modus
 
@@ -111,7 +112,7 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 5. Het **middelpunt** (⊕) is versleepbaar — sleep het naar de gewenste locatie en de ghost-voorvertoning past zich direct aan.
 6. Sleep daarna elk punt afzonderlijk naar de exacte straat.
 
-> Naast de cirkelpunten plaatst de generator automatisch een extra punt op het middelpunt zelf, gemarkeerd als **Eindpunt** — dit is het gedeelde eindpunt waar alle teams na hun lus samenkomen. Je kunt het type en de positie daarna nog aanpassen.
+> Naast de cirkelpunten plaatst de generator automatisch een **🏠 Start hub** (infopunt, bovenaan de lijst) en een **🏁 Finish hub** (eindpunt, onderaan de lijst), allebei op het middelpunt. Sleep het middelpunt dus naar de plek waar je de teams wilt ontvangen en weer wilt opvangen.
 
 > De ghost-cirkel op de kaart (gestippeld, cyaan) toont een voorvertoning van de punten vóór je ze genereert. De gids-cirkel rondom een geselecteerd punt toont de aanbevolen afstand tot het volgende punt.
 
@@ -334,7 +335,7 @@ De tabel toont **Login** (loginnaam + groepsnaam — wat de groep gebruikt om in
 - **GPS-nauwkeurigheid** varieert per apparaat en locatie (bebouwing, bewolking). Stel de radius ruimer in op moeilijk te bereiken punten of in stedelijk gebied (50–80 m).
 - **Speciale items** worden pas actief zodra de route actief is.
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
-- **Verspreid-modus**: het laatste punt in de lijst is het vaste, gedeelde eindpunt voor alle teams — zet het op een centrale, goed bereikbare plek ten opzichte van de rest van de lus.
+- **Verspreid-modus**: het eerste punt is de start hub en het laatste de finish hub — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
 - **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat resetten** als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.

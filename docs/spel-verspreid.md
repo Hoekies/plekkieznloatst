@@ -5,11 +5,11 @@
 
 ## Wat is het spel?
 
-Een GPS-speurtocht voor groepen, net als Route op volgorde — met één belangrijk verschil: **alle teams lopen hetzelfde rondje, maar niemand start op dezelfde plek.**
+Een GPS-speurtocht voor groepen, net als Route op volgorde — met één belangrijk verschil: **alle teams lopen hetzelfde rondje, maar ieder team begint op een andere plek in dat rondje.**
 
 Iedereen loopt dezelfde totale afstand en bezoekt dezelfde punten, alleen in een andere volgorde. Zo staat er nooit een rij bij hetzelfde punt en heeft niemand voordeel van als eerste vertrekken.
 
-Alle teams eindigen wel bij **hetzelfde, vaste eindpunt** — daar komt iedereen na zijn eigen rondje weer samen.
+Alle teams **vertrekken en finishen bij dezelfde hub** 🏠 — de verzamelplek van de organisatie.
 
 ---
 
@@ -18,7 +18,7 @@ Alle teams eindigen wel bij **hetzelfde, vaste eindpunt** — daar komt iedereen
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
 2. Vul de naam van je groep in en log in.
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
-4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent met jullie eigen startpunt.
+4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent met de hub als eerste doel.
 
 > Een groep kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
 
@@ -26,11 +26,13 @@ Alle teams eindigen wel bij **hetzelfde, vaste eindpunt** — daar komt iedereen
 
 ## Jouw eigen volgorde
 
-Bij het starten krijgt jouw team automatisch een eigen startpunt toegewezen, zo ver mogelijk van de andere teams. Vanaf daar loop je de lus rond.
+Jullie route bestaat uit drie stukken:
+
+1. **🏠 Start bij de hub** — check eerst in bij de hub, de verzamelplek waar iedereen begint.
+2. **Jullie eigen rondje** — vanaf de hub loop je naar jullie eigen instappunt in de lus, zo ver mogelijk van de andere teams. Daarna loop je de lus rond.
+3. **🏁 Finish bij de hub** — heb je alle lus-punten gehad, dan verschijnt als laatste weer de hub. Daar is het spel voor jullie afgerond.
 
 **Je hoeft dus niet te racen naar hetzelfde punt.** Een ander team dat je tegenkomt is waarschijnlijk ergens anders in de lus bezig.
-
-Zodra je alle lus-punten hebt gehad, verschijnt als laatste het **gezamenlijke eindpunt** — hetzelfde punt voor elk team, ongeacht waar je begonnen bent. Daar is het spel voor jouw team afgerond.
 
 ---
 

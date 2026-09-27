@@ -48,7 +48,7 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
       titel: "Verspreide route",
       samenvatting: "Iedereen loopt hetzelfde rondje, maar niemand start op dezelfde plek.",
       regels: [
-        "Alle teams lopen hetzelfde rondje, maar jullie beginnen allemaal bij een ander punt.",
+        "Iedereen start en finisht bij dezelfde hub. Daartussen loopt elk team hetzelfde rondje, maar vanaf een ander punt.",
         "Bij elk punt krijg je een vraag. Een goed antwoord levert punten op.",
         "Onderweg liggen items verstopt. Pak ze op en zet ze in tegen de andere teams.",
         "Je hoeft niet te racen naar hetzelfde punt — je eigen volgorde staat vast.",
