@@ -32,7 +32,7 @@ Jullie route bestaat uit drie stukken:
 2. **Jullie eigen rondje** — vanaf de hub loop je naar jullie eigen instappunt in de lus, zo ver mogelijk van de andere teams. Daarna loop je de lus rond.
 3. **🏁 Finish bij de hub** — heb je alle lus-punten gehad, dan verschijnt als laatste weer de hub. Daar is het spel voor jullie afgerond.
 
-**Je hoeft dus niet te racen naar hetzelfde punt.** Een ander team dat je tegenkomt is waarschijnlijk ergens anders in de lus bezig.
+**Tijd telt niet.** Het gaat om je score; alleen als twee teams evenveel punten hebben, wint het team dat het snelst klaar was.
 
 ---
 

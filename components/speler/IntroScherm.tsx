@@ -216,10 +216,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
                   <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>{uitleg.emoji}</span>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--pr-gold)", fontSize: "0.95rem", marginBottom: 3 }}>
-                      {uitleg.titel}
-                    </div>
-                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5, marginBottom: 8 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--pr-gold)", fontSize: "0.95rem", lineHeight: 1.35, marginBottom: 8 }}>
                       {uitleg.samenvatting}
                     </div>
                     <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 5 }}>

@@ -4,7 +4,6 @@ import type { RouteModus } from "@/types/database";
 // dat is de korte omschrijving voor de admin, dit is de uitleg voor wie gaat spelen.
 export interface SpelUitleg {
   emoji: string;
-  titel: string;
   samenvatting: string;
   regels: string[];
   gpsUitleg: string;
@@ -16,8 +15,8 @@ interface Opties {
   heeftVragen?: boolean;
 }
 
-const PUNTEN_GPS = "Dit spel gebruikt je GPS-locatie om te bepalen wanneer je een routepunt bereikt. Locatietoegang is vereist om te spelen.";
-const PUNTEN_GELUID = "Bij het bereiken van punten en het beantwoorden van vragen worden geluiden afgespeeld. Zet je volume aan voor de beste ervaring.";
+const PUNTEN_GPS = "Nodig om te zien wanneer je bij een punt bent.";
+const PUNTEN_GELUID = "Zet je volume aan: je hoort een signaal bij punten en aanvallen.";
 
 export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelUitleg {
   if (modus === "mist") {
@@ -34,7 +33,6 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
     }
     return {
       emoji: "☁️",
-      titel: "Mist verjagen",
       samenvatting: "Loop rond en speel zo veel mogelijk mist vrij.",
       regels,
       gpsUitleg: "Dit spel gebruikt je GPS-locatie om bij te houden waar je loopt en welke mist je daarmee vrijspeelt. Locatietoegang is vereist om te spelen.",
@@ -45,13 +43,11 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
   if (modus === "verspreid") {
     return {
       emoji: "🎲",
-      titel: "Verspreide route",
-      samenvatting: "Iedereen loopt hetzelfde rondje, maar niemand start op dezelfde plek.",
+      samenvatting: "Loop langs alle punten en verzamel zoveel mogelijk punten.",
       regels: [
-        "Iedereen start en finisht bij dezelfde hub. Daartussen loopt elk team hetzelfde rondje, maar vanaf een ander punt.",
-        "Bij elk punt krijg je een vraag. Een goed antwoord levert punten op.",
-        "Onderweg liggen items verstopt. Pak ze op en zet ze in tegen de andere teams.",
-        "Je hoeft niet te racen naar hetzelfde punt — je eigen volgorde staat vast.",
+        "Bij elk punt een vraag: goed antwoord = punten.",
+        "Pak onderweg items op en zet ze in tegen andere teams.",
+        "Tijd telt niet — alleen bij een gelijke score wint het snelste team.",
       ],
       gpsUitleg: PUNTEN_GPS,
       geluidUitleg: PUNTEN_GELUID,
@@ -61,12 +57,12 @@ export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelU
   // sequentieel (en de terugval als er nog geen route actief is)
   return {
     emoji: "🎯",
-    titel: "Route op volgorde",
-    samenvatting: "Volg de route van punt naar punt en beantwoord onderweg de vragen.",
+    samenvatting: "Loop van punt naar punt en verzamel zoveel mogelijk punten.",
     regels: [
-      "Loop de punten in vaste volgorde af. Het volgende punt verschijnt pas als het vorige klaar is.",
-      "Bij elk punt krijg je een vraag. Een goed antwoord levert punten op.",
-      "Onderweg liggen items verstopt. Pak ze op en zet ze in tegen de andere teams.",
+      "Het volgende punt verschijnt pas als het vorige klaar is.",
+      "Bij elk punt een vraag: goed antwoord = punten.",
+      "Pak onderweg items op en zet ze in tegen andere teams.",
+      "Tijd telt niet — alleen bij een gelijke score wint het snelste team.",
     ],
     gpsUitleg: PUNTEN_GPS,
     geluidUitleg: PUNTEN_GELUID,
