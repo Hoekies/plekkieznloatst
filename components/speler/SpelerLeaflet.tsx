@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
@@ -26,6 +26,8 @@ const ZOOM_INIT = 14;
 export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
+  // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
+  const [kaartKlaar, setKaartKlaar] = useState(false);
   const LRef = useRef<typeof import("leaflet") | null>(null);
   const andereSpelersMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const spelerMarkerRef = useRef<import("leaflet").CircleMarker | null>(null);
@@ -72,6 +74,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       }).addTo(map);
 
       mapRef.current = map;
+      setKaartKlaar(true);
     }
 
     init();
@@ -126,7 +129,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       map.setView(latlng, ZOOM_SPELER);
       gecenterRef.current = true;
     }
-  }, [positie]);
+  }, [positie, kaartKlaar]);
 
   // Punt-markers en polyline bijwerken
   useEffect(() => {
@@ -193,7 +196,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const marker = L.marker([punt.latitude, punt.longitude], { icon, interactive: false }).addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId]);
+  }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId, kaartKlaar]);
 
   // Stippellijn naar het actieve punt, zodra dat punt zichtbaar is
   useEffect(() => {
@@ -211,7 +214,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       [[positie.latitude, positie.longitude], [actiefPunt.latitude, actiefPunt.longitude]],
       { color: "#8b5cf6", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
     ).addTo(map);
-  }, [positie, punten, activePuntId, ghostedPuntId]);
+  }, [positie, punten, activePuntId, ghostedPuntId, kaartKlaar]);
 
   // Speciale item markers bijwerken
   useEffect(() => {
@@ -243,7 +246,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false }).addTo(map);
       specialeItemMarkersRef.current.set(item.id, marker);
     });
-  }, [specialeItems]);
+  }, [specialeItems, kaartKlaar]);
 
   // Andere spelers bijwerken
   useEffect(() => {
@@ -295,7 +298,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         andereSpelersMarkersRef.current.set(speler.session_id, marker);
       }
     });
-  }, [andereSpelers]);
+  }, [andereSpelers, kaartKlaar]);
 
   return (
     <>

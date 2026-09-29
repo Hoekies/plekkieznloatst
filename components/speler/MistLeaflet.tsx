@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mistCelNaarLatLng, MIST_TEKEN_STRAAL_M } from "@/lib/geo";
 import type { RoutePunt } from "@/types/database";
 
@@ -24,6 +24,8 @@ function metersPerPixel(lat: number, zoom: number): number {
 export default function MistLeaflet({ positie, cellen, startLocatie, punten, bereikteOfVerwerkteIds, verwerkteIds }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
+  // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
+  const [kaartKlaar, setKaartKlaar] = useState(false);
   const LRef = useRef<typeof import("leaflet") | null>(null);
   const spelerMarkerRef = useRef<import("leaflet").CircleMarker | null>(null);
   const accuracyCirkelRef = useRef<import("leaflet").Circle | null>(null);
@@ -109,6 +111,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
       }
 
       mapRef.current = map;
+      setKaartKlaar(true);
     }
 
     init();
@@ -128,7 +131,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
   useEffect(() => {
     cellenLatLngRef.current = cellen.map((c) => mistCelNaarLatLng(c.cell_x, c.cell_y));
     fogLayerRef.current?.redraw();
-  }, [cellen]);
+  }, [cellen, kaartKlaar]);
 
   // Vraagpunt-markers bijwerken — pas zichtbaar zodra een team dichtbij genoeg is gekomen.
   useEffect(() => {
@@ -168,7 +171,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
       }).addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [punten, bereikteOfVerwerkteIds, verwerkteIds]);
+  }, [punten, bereikteOfVerwerkteIds, verwerkteIds, kaartKlaar]);
 
   // Spelermarker bijwerken bij positiewijziging
   useEffect(() => {
@@ -198,7 +201,7 @@ export default function MistLeaflet({ positie, cellen, startLocatie, punten, ber
       map.setView(latlng, ZOOM_SPELER);
       gecenterRef.current = true;
     }
-  }, [positie]);
+  }, [positie, kaartKlaar]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%", position: "relative", zIndex: 0 }} />;
 }

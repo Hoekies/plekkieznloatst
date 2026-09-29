@@ -11,7 +11,7 @@ interface ItemInfo {
 export const ITEM_INFO: Record<string, ItemInfo> = {
   spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Laat het volgende punt van een team een tijdje verdwijnen (standaard 10 minuten). Zij zien een groot spook met een aftelklok en kunnen het punt zolang niet halen." },
   bom:          { emoji: "💣", naam: "Bom",          beschrijving: (p) => `Trek ${p !== undefined ? p : "een aantal"} punten af van een team naar keuze.` },
-  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? p : "bonus"}punten aan jouw eigen team.` },
+  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? `${p} ` : ""}bonuspunten aan jouw eigen team.` },
   verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Jouw volgende behaalde vraagpunt levert dubbele punten op (eenmalig)." },
   wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Wissel de score van jouw team met die van een ander team. Alleen de vraag is: hoeveel punten heeft dat andere team? 😳" },
   dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Steel de punten van de eerstvolgende correct beantwoorde vraag van een ander team. De dief krijgt de punten; het andere team krijgt 0." },
@@ -46,7 +46,7 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems }: Props) {
 
   return (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 500,
+      position: "fixed", inset: 0, zIndex: 2000,
       background: "rgba(0,0,0,0.75)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "16px",
@@ -92,7 +92,8 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems }: Props) {
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
             >
-              <span style={{ fontSize: "30px", lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/items/${item.type}.png`} alt={item.emoji} style={{ width: 40, height: 40, flexShrink: 0 }} />
               <div>
                 <p style={{ margin: "0 0 3px", fontWeight: 700, fontSize: "14px", color: "#e8f0ff" }}>{item.naam}</p>
                 <p style={{ margin: 0, fontSize: "12px", color: "#6b84a8", lineHeight: "1.5" }}>
