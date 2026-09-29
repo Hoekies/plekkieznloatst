@@ -32,7 +32,8 @@ export const metadata: Metadata = {
     description: "Loop de route. Pak de punten. Saboteer je vrienden.",
     url: "https://plekkieznloatst.vercel.app",
     siteName: "PointRush",
-    images: [{ url: "https://plekkieznloatst.vercel.app/favicon.png", width: 512, height: 512, alt: "PointRush" }],
+    // Vergrote favicon: WhatsApp toont alleen een voorbeeld vanaf ~300px breed en onder ~600 KB
+    images: [{ url: "https://plekkieznloatst.vercel.app/og-image.jpg", width: 600, height: 600, type: "image/jpeg", alt: "PointRush" }],
     type: "website",
   },
 };
