@@ -6,17 +6,7 @@ import type { SpelerLocatie } from "@/lib/types";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 
-const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
-  spook:        { kleur: "#7C3AED", emoji: "👻" },
-  bom:          { kleur: "#DC2626", emoji: "💣" },
-  ster:         { kleur: "#D97706", emoji: "⭐" },
-  verdubbeling: { kleur: "#B91C1C", emoji: "🔴" },
-  wissel:       { kleur: "#1D4ED8", emoji: "🔄" },
-  dief:         { kleur: "#7C2D12", emoji: "🦹" },
-  radar:        { kleur: "#0369A1", emoji: "📡" },
-  banaan:       { kleur: "#CA8A04", emoji: "🍌" },
-  vraagteken:   { kleur: "#7C3AED", emoji: "❓" },
-};
+// Item-iconen staan als /items/<type>.png (zelfde stijl als de spelershandleiding)
 
 interface Props {
   positie: GeolocationCoordinates | null;
@@ -235,21 +225,18 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     specialeItems.forEach((item) => {
       if (item.claimed) return;
 
-      const stijl = SPECIAAL_ITEM_STIJL[item.type] ?? { kleur: "#555", emoji: "?" };
-
+      // Vraagteken iets groter en pulserend, zodat hij extra opvalt
+      const isVraagteken = item.type === "vraagteken";
+      const maat = isVraagteken ? 48 : 42;
       const icon = L.divIcon({
         className: "",
-        html: `<div style="
-          width:38px;height:38px;border-radius:50%;
-          background:radial-gradient(circle at 35% 30%, ${stijl.kleur}, ${stijl.kleur}cc 70%);
-          border:2.5px solid #fff;
-          box-shadow:0 3px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.15);
-          display:flex;align-items:center;justify-content:center;
-          font-size:22px;line-height:1;
-          filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));
-        ">${stijl.emoji}</div>`,
-        iconSize: [38, 38],
-        iconAnchor: [19, 19],
+        html: `<img src="/items/${item.type}.png" alt="" style="
+          width:${maat}px;height:${maat}px;display:block;
+          filter:drop-shadow(0 3px 5px rgba(0,0,0,0.55))${isVraagteken ? " drop-shadow(0 0 8px rgba(255,217,59,0.9))" : ""};
+          ${isVraagteken ? "animation:pr-vraagteken-puls 1.6s ease-in-out infinite;" : ""}
+        " />`,
+        iconSize: [maat, maat],
+        iconAnchor: [maat / 2, maat / 2],
       });
 
       const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false }).addTo(map);
@@ -312,6 +299,10 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   return (
     <>
       <style>{`
+        @keyframes pr-vraagteken-puls {
+          0%, 100% { transform: scale(1); }
+          50%      { transform: scale(1.12); }
+        }
         @keyframes puls {
           0%   { box-shadow: 0 0 0 0 rgba(30,64,175,0.5); }
           70%  { box-shadow: 0 0 0 14px rgba(30,64,175,0); }

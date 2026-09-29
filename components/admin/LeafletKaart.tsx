@@ -209,9 +209,9 @@ export default function LeafletKaart({
         const ring = isGeselecteerd ? "box-shadow:0 0 0 3px #fff,0 0 0 6px #00d9ff;" : "";
         const icon = L.divIcon({
           className: "",
-          html: `<div style="font-size:26px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};border-radius:50%;${ring}">${emoji}</div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14],
+          html: `<img src="/items/${item.type}.png" alt="" style="width:34px;height:34px;display:block;border-radius:50%;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};${ring}" />`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
         });
         const marker = L.marker([item.latitude, item.longitude], { icon, draggable: true, zIndexOffset: 200 })
           .bindTooltip(`${emoji} ${item.name}`, { permanent: false })
