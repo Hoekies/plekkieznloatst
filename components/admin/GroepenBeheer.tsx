@@ -142,7 +142,7 @@ export default function GroepenBeheer() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           {groepen.map((g) => {
-            const displayNaam = g.nickname ?? g.group_name;
+            const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe groep";
             const isUit = g.is_uitgeschakeld;
             return (
               <div key={g.id} className="card" style={{
@@ -162,7 +162,9 @@ export default function GroepenBeheer() {
 
                 {/* Tekst + knoppen */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--ink)" }}>{displayNaam}</div>
+                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: g.nickname ? "var(--ink)" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
+                    {g.nickname ?? "nog geen teamnaam gekozen"}
+                  </div>
                   <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
                     {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
                     <span style={{ color: isUit ? "var(--red)" : g.active_device_id ? "var(--green)" : "var(--muted)" }}>
@@ -171,11 +173,11 @@ export default function GroepenBeheer() {
                   </div>
                   <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "wrap" }}>
                     <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
-                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: g.group_name })}>
+                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam })}>
                       🔑 Wachtwoord
                     </button>
                     <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
-                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: g.group_name })}>
+                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam })}>
                       ✏️ Loginnaam
                     </button>
                     {g.active_device_id && (
@@ -240,7 +242,6 @@ export default function GroepenBeheer() {
 
 // ── Nieuwe groep formulier ────────────────────────────────────────────────────
 function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onAnnuleer: () => void }) {
-  const [groepNaam, setGroepNaam] = useState("");
   const [loginNaam, setLoginNaam] = useState("");
   const [wachtwoord, setWachtwoord] = useState("");
   const [fout, setFout] = useState("");
@@ -254,7 +255,7 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
     const res = await fetch("/api/admin/groepen", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ groepNaam, loginNaam, wachtwoord }),
+      body: JSON.stringify({ loginNaam, wachtwoord }),
     });
 
     if (!res.ok) {
@@ -270,11 +271,9 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
     <div className="card" style={{ border: "2px solid var(--blue)" }}>
       <h2 style={{ marginBottom: "16px", fontSize: "1rem" }}>Nieuwe groep aanmaken</h2>
       <form onSubmit={opslaan} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <div className="form-group">
-          <label className="form-label">Groepsnaam</label>
-          <input className="form-input" value={groepNaam} onChange={(e) => setGroepNaam(e.target.value)}
-            placeholder="bijv. Groep 1" required />
-        </div>
+        <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
+          De teamnaam kiest de groep zelf bij de start van het spel.
+        </p>
         <div className="form-group">
           <label className="form-label">Loginnaam (speler typt dit in bij inloggen)</label>
           <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}

@@ -31,12 +31,12 @@ export async function GET() {
   const puntIds = [...new Set(data.map((d) => d.route_point_id))];
 
   const [{ data: sessies }, { data: punten }, { data: vragen }] = await Promise.all([
-    admin.from("player_sessions").select("id, player_id, players!inner(group_name, nickname)").in("id", sessieIds),
+    admin.from("player_sessions").select("id, player_id, players!inner(login_name, nickname)").in("id", sessieIds),
     admin.from("route_points").select("id, name").in("id", puntIds),
     admin.from("questions").select("route_point_id, points").in("route_point_id", puntIds).eq("type", "foto_opdracht"),
   ]);
 
-  type SessieRaw = { id: string; player_id: string; players: { group_name: string; nickname: string | null } };
+  type SessieRaw = { id: string; player_id: string; players: { login_name: string; nickname: string | null } };
   const sessieMap = new Map((sessies as unknown as SessieRaw[] ?? []).map((s) => [s.id, s]));
   const puntMap = new Map((punten ?? []).map((p) => [p.id, p]));
   const vraagMap = new Map((vragen ?? []).map((v) => [v.route_point_id, v]));
@@ -49,7 +49,7 @@ export async function GET() {
       id: d.id,
       foto_pad: d.foto_pad,
       created_at: d.created_at,
-      group_name: sessie?.players.nickname ?? sessie?.players.group_name ?? "Onbekend",
+      teamnaam: sessie?.players.nickname ?? sessie?.players.login_name ?? "Onbekend",
       punt_naam: punt?.name ?? "Onbekend",
       max_punten: vraag?.points ?? 0,
       session_id: d.session_id,

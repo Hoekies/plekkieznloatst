@@ -153,17 +153,17 @@ export async function POST(request: NextRequest) {
 
           const { data: diefSpeler } = await admin
             .from("players")
-            .select("nickname, group_name")
+            .select("nickname, login_name")
             .eq("id", diefSessie?.player_id ?? "")
             .maybeSingle();
-          const diefNaam = diefSpeler?.nickname ?? diefSpeler?.group_name ?? "Een team";
+          const diefNaam = diefSpeler?.nickname ?? diefSpeler?.login_name ?? "Een team";
 
           const { data: slachtofferSpeler } = await admin
             .from("players")
-            .select("nickname, group_name")
+            .select("nickname, login_name")
             .eq("id", sessie.player_id)
             .maybeSingle();
-          const slachtofferNaam = slachtofferSpeler?.nickname ?? slachtofferSpeler?.group_name ?? "een team";
+          const slachtofferNaam = slachtofferSpeler?.nickname ?? slachtofferSpeler?.login_name ?? "een team";
 
           await admin.from("player_sessions")
             .update({ score: (diefSessie?.score ?? 0) + puntWaarde })

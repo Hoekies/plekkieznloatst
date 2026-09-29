@@ -27,10 +27,10 @@ export async function GET() {
   if (!eigenSessie) return NextResponse.json({ locaties: [] });
 
   // Andere sessies op dezelfde route (actief of zojuist gefinisht)
-  type SessieRij = { id: string; players: { group_name: string; nickname: string | null } };
+  type SessieRij = { id: string; players: { login_name: string; nickname: string | null } };
   const { data: andereSessies } = await admin
     .from("player_sessions")
-    .select("id, players!inner(group_name, nickname)")
+    .select("id, players!inner(login_name, nickname)")
     .eq("route_id", eigenSessie.route_id)
     .in("status", ["actief", "voltooid"])
     .neq("id", eigenSessie.id);
@@ -39,7 +39,7 @@ export async function GET() {
   if (rijen.length === 0) return NextResponse.json({ locaties: [] });
 
   const sessieIds = rijen.map((s) => s.id);
-  const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.nickname ?? s.players.group_name]));
+  const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.nickname ?? s.players.login_name]));
 
   // Radar check: heeft de speler een actief radar-effect?
   const { data: radarEffect } = await admin
@@ -68,7 +68,7 @@ export async function GET() {
       gezien.add(row.session_id);
       locaties.push({
         session_id: row.session_id,
-        group_name: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
+        teamnaam: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
         latitude: row.latitude,
         longitude: row.longitude,
         created_at: row.created_at,
@@ -90,7 +90,7 @@ export async function GET() {
       gezien.add(row.session_id);
       locaties.push({
         session_id: row.session_id,
-        group_name: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
+        teamnaam: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
         latitude: row.public_latitude,
         longitude: row.public_longitude,
         created_at: row.created_at,

@@ -214,14 +214,13 @@ Halve minuten mogen ook (bijv. 2,5). De duur geldt voor alle spook- en plekzooi-
 ### 4. Groepen aanmaken
 
 1. Ga naar **Groepen** in de zijbalk.
-2. Klik op **+ Nieuwe groep** en vul de **groepsnaam**, **loginnaam** en een **wachtwoord** in.
-   - De **groepsnaam** is de interne naam (bijv. "Groep 1") en wordt door de beheerder bepaald.
+2. Klik op **+ Nieuwe groep** en vul een **loginnaam** en een **wachtwoord** in.
    - De **loginnaam** is wat de speler typt bij het inloggen (bijv. "team1").
    - Het **wachtwoord** moet minimaal 8 tekens zijn.
 3. Deel de inloggegevens met de groep via de **WhatsApp-knop** bovenaan.
 4. De berichttekst is aanpasbaar via **✏️ Berichttekst** — opgeslagen per browser.
 
-> Spelers kunnen na het inloggen een **alias** (bijnaam) en een **icoon** instellen via het interscherm. De alias verschijnt als weergavenaam in de beheerderlijst en op de kaart van medespelers.
+> De **teamnaam** kiest de groep zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, het leaderboard en in de meldingen aan andere teams. Zolang een groep nog geen teamnaam heeft gekozen, zie je de loginnaam.
 
 #### Groepen aan- en uitzetten
 
@@ -337,7 +336,7 @@ Routes, routepunten, vragen en groepen blijven bewaard. Gebruik dit om opnieuw t
 
 Het leaderboard toont de eindrangschikking op basis van score. Bij gelijke score is de kortste speeltijd bepalend. Het leaderboard is ook zichtbaar voor spelers.
 
-De tabel toont **Login** (loginnaam + groepsnaam — wat de groep gebruikt om in te loggen) los van **Teamnaam** (de naam die de groep zelf gekozen heeft via het interscherm; staat er "nog geen naam gekozen" dan heeft die groep het interscherm nog niet doorlopen).
+De tabel toont per team de **Teamnaam** (de naam die de groep zelf gekozen heeft; staat er "nog geen naam gekozen", dan heeft die groep nog niet op "Ga op pad" gedrukt), de score, speeltijd, afgelegde afstand en voortgang.
 
 ---
 

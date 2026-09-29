@@ -14,7 +14,7 @@ export default async function FinishPage() {
 
   const { data: speler } = await admin
     .from("players")
-    .select("id, group_name, nickname")
+    .select("id, login_name, nickname")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -51,12 +51,12 @@ export default async function FinishPage() {
     score: number;
     started_at: string;
     finished_at: string;
-    players: { group_name: string; nickname: string | null };
+    players: { login_name: string; nickname: string | null };
   };
 
   const { data: alleSessies } = await admin
     .from("player_sessions")
-    .select("id, player_id, score, started_at, finished_at, players!inner(group_name, nickname)")
+    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname)")
     .eq("route_id", sessie.route_id)
     .eq("status", "voltooid")
     .not("finished_at", "is", null);
@@ -91,7 +91,7 @@ export default async function FinishPage() {
     .map((s) => ({
       sessie_id: s.id,
       player_id: s.player_id,
-      display_name: s.players.nickname ?? s.players.group_name,
+      display_name: s.players.nickname ?? s.players.login_name,
       score: s.score,
       tijd_seconden: Math.floor(
         (new Date(s.finished_at).getTime() - new Date(s.started_at).getTime()) / 1000
@@ -110,7 +110,7 @@ export default async function FinishPage() {
   }));
 
   const eigenAfstand = afstandMap.get(sessie.id) ?? 0;
-  const displayNaam = speler.nickname ?? speler.group_name;
+  const displayNaam = speler.nickname ?? speler.login_name;
 
   return (
     <FinishScherm

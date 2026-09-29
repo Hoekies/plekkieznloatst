@@ -24,7 +24,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
   const uitleg = spelUitleg(modus, { mistM2PerSter: mistM2PerSter ?? undefined, heeftVragen });
   const [fase, setFase] = useState<Fase>("profiel");
   const [fout, setFout] = useState("");
-  const [groepsnaam, setGroepsnaam] = useState("");
+  const [teamnaam, setTeamnaam] = useState("");
   const [gekozenIcono, setGekozenIcono] = useState<string | null>(null);
   const [gebruikteIconen, setGebruikteIconen] = useState<string[]>([]);
   const [profielFout, setProfielFout] = useState("");
@@ -87,14 +87,14 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
   }
 
   async function slaProfielOp() {
-    if (!groepsnaam.trim() || !gekozenIcono) return;
+    if (!teamnaam.trim() || !gekozenIcono) return;
     setProfielBezig(true);
     setProfielFout("");
     try {
       const res = await fetch("/api/speler/profiel", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ group_name: groepsnaam.trim(), icon: gekozenIcono }),
+        body: JSON.stringify({ teamnaam: teamnaam.trim(), icon: gekozenIcono }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -164,16 +164,16 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
           }} />
         </div>
 
-        {/* Profiel: groepsnaam en icoon kiezen */}
+        {/* Profiel: teamnaam en icoon kiezen */}
         {fase === "profiel" && (
           <div className="pr-panel">
             <div className="pr-panel-inner" style={{ paddingTop: 24 }}>
-              <label className="pr-field-label2">Groepsnaam</label>
+              <label className="pr-field-label2">Teamnaam</label>
               <input
                 className="pr-field-input2"
                 placeholder="Bijv. Team Turbo"
-                value={groepsnaam}
-                onChange={(e) => setGroepsnaam(e.target.value)}
+                value={teamnaam}
+                onChange={(e) => setTeamnaam(e.target.value)}
                 maxLength={30}
               />
 
@@ -199,7 +199,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
               {profielFout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: "0 0 14px" }}>{profielFout}</p>}
               <button
                 className="btn-premium--compact"
-                disabled={!groepsnaam.trim() || !gekozenIcono || profielBezig}
+                disabled={!teamnaam.trim() || !gekozenIcono || profielBezig}
                 onClick={slaProfielOp}>
                 {profielBezig ? "Opslaan…" : "DOORGAAN →"}
               </button>

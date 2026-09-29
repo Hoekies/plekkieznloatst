@@ -7,7 +7,7 @@ type Fase = "bevestig" | "kies_team" | "bezig" | "bevestigd" | "fout";
 
 interface AndereSpeler {
   session_id: string;
-  group_name: string;
+  teamnaam: string;
 }
 
 interface Props {
@@ -155,7 +155,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
                       cursor: "pointer",
                     }}
                   >
-                    {s.group_name}
+                    {s.teamnaam}
                   </button>
                 ))}
               </div>

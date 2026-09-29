@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
+import { escapeHtml } from "@/lib/html";
 
 const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
   spook:        { kleur: "#7C3AED", emoji: "👻" },
@@ -141,7 +142,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
       const isKlaar = speler.sessie_status === "voltooid";
       const kleur = isKlaar ? "#16A34A" : "#F97316";
-      const label = isKlaar ? "✓" : speler.group_name.charAt(0).toUpperCase();
+      const label = isKlaar ? "✓" : escapeHtml(speler.display_name.charAt(0).toUpperCase());
 
       const icon = L.divIcon({
         className: "",
@@ -157,7 +158,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
             background:rgba(0,0,0,0.7);color:#fff;
             font-size:10px;white-space:nowrap;
             padding:1px 5px;border-radius:4px;line-height:1.4;
-          ">${speler.group_name}</div>
+          ">${escapeHtml(speler.display_name)}</div>
         </div>`,
         iconSize: [34, 52],
         iconAnchor: [17, 17],

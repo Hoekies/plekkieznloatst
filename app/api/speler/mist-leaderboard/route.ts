@@ -36,12 +36,12 @@ export async function GET() {
     score: number;
     started_at: string;
     finished_at: string | null;
-    players: { group_name: string; nickname: string | null };
+    players: { login_name: string; nickname: string | null };
   };
 
   const { data: sessies } = await admin
     .from("player_sessions")
-    .select("id, player_id, score, started_at, finished_at, players!inner(group_name, nickname)")
+    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname)")
     .eq("route_id", routeId)
     .in("status", ["actief", "voltooid"]);
 
@@ -75,7 +75,7 @@ export async function GET() {
   const gesorteerd = rawSessies
     .map((s) => ({
       player_id: s.player_id,
-      display_name: s.players.nickname ?? s.players.group_name,
+      display_name: s.players.nickname ?? s.players.login_name,
       score: s.score,
       tijd_seconden: Math.floor(
         ((s.finished_at ? new Date(s.finished_at).getTime() : nu) - new Date(s.started_at).getTime()) / 1000

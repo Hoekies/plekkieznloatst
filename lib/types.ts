@@ -16,7 +16,7 @@ export type LeaderboardEntry = {
 
 export type SpelerLocatie = {
   session_id: string;
-  group_name: string;
+  teamnaam: string;
   latitude: number;
   longitude: number;
   created_at: string;

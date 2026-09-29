@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { groepNaam, loginNaam, wachtwoord } = await request.json();
+  const { loginNaam, wachtwoord } = await request.json();
 
-  if (!groepNaam?.trim() || !loginNaam?.trim() || !wachtwoord?.trim()) {
+  if (!loginNaam?.trim() || !wachtwoord?.trim()) {
     return NextResponse.json({ fout: "Vul alle velden in" }, { status: 400 });
   }
   if (wachtwoord.length < 8) {
@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
   // Players-rij aanmaken
   const { data: speler, error: spelerFout } = await admin
     .from("players")
-    .insert({ group_name: groepNaam.trim(), login_name: loginNaam.trim(), auth_user_id: authData.user.id })
+    // group_name is verplicht in de database maar wordt niet meer getoond; teams kiezen zelf een naam
+    .insert({ group_name: loginNaam.trim(), login_name: loginNaam.trim(), auth_user_id: authData.user.id })
     .select()
     .single();
 

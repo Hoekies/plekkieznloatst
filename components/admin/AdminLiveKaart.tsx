@@ -91,7 +91,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                 }} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {s.group_name}
+                    {s.display_name}
                   </div>
                   {s.laatste_lat === null && (
                     <div style={{ fontSize: "0.68rem", color: "var(--muted)" }}>geen locatie</div>

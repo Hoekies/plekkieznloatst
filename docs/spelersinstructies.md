@@ -16,7 +16,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 ## Geldt voor alle spellen
 
 **Inloggen**
-Open de link die je van de organisatie hebt gekregen, log in met je groepsnaam, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
+Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je groep, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
 
 **Eén apparaat per groep**
 Een groep kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude. Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.

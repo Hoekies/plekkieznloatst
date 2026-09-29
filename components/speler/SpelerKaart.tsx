@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
-import SpeciaalItemLegende from "./SpeciaalItemLegende";
+import SpeciaalItemLegende, { ITEM_INFO } from "./SpeciaalItemLegende";
 import InventarisBar from "./InventarisBar";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
@@ -35,11 +35,6 @@ const GPS_TIMEOUT_MS = 12000;
 const SLECHTE_NAUWKEURIGHEID_M = 30;
 const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 
-const ITEM_LABEL: Record<string, string> = {
-  spook: "👻 Spook", bom: "💣 Bom", ster: "⭐ Ster",
-  verdubbeling: "🔴 Verdubbeling", wissel: "🔄 Wissel",
-  dief: "🦹 Dief", radar: "📡 Radar", banaan: "🍌 Banaan",
-};
 
 export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const router = useRouter();
@@ -61,6 +56,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [ghostTot, setGhostTot] = useState<number | null>(null);
   const [ghostSecondsLeft, setGhostSecondsLeft] = useState(0);
   const gehadPlekzooiRef = useRef<Set<string>>(new Set());
+  const [opgepakt, setOpgepakt] = useState<{ item: SpeciaalItem; extra: string } | null>(null);
   const [hulpOpen, setHulpOpen] = useState(false);
   const hulpIdRef = useRef<string | null>(null);
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
@@ -392,6 +388,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       if (data.status === "geclaimd" && data.item) {
         setSpecialeItems((prev) => prev.map((i) => i.id === item.id ? { ...i, claimed: true } : i));
 
+        speelPuntBereikt();
         if (data.item.type === "ster") {
           // Direct inzetten: punten meteen bijschrijven
           const effectRes = await fetch("/api/speler/speciaal/effect", {
@@ -399,25 +396,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ special_item_id: data.item.id }),
           });
-          const pts = data.item.points_effect > 0 ? `+${data.item.points_effect}` : String(data.item.points_effect);
           if (effectRes.ok) {
             setScore((prev) => prev + data.item.points_effect);
-            setOpgehaaldToast(`⭐ ${pts} bonuspunten bijgeschreven!`);
-          } else {
-            setOpgehaaldToast(`⭐ Ster opgehaald!`);
+            haalScoreOp();
           }
+          setOpgepakt({ item: data.item, extra: effectRes.ok ? "De bonuspunten staan al op je score!" : "De bonuspunten komen eraan." });
         } else if (data.item.type === "wissel") {
           setInventaris((prev) => [...prev, data.item]);
-          setActiveSpeciaalItem(data.item);
-          setOpgehaaldToast(`🔄 Wissel opgehaald — kies een team!`);
+          setOpgepakt({ item: data.item, extra: "Kies zo meteen met welk team je van score wisselt." });
         } else {
           setInventaris((prev) => [...prev, data.item]);
-          const label = ITEM_LABEL[data.item.type] ?? data.item.type;
-          setOpgehaaldToast(`${label} opgehaald!`);
+          setOpgepakt({ item: data.item, extra: "Staat in je balk onderin — tik erop wanneer je hem wilt inzetten." });
         }
-
-        if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
-        opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 3000);
       }
     } finally {
       bezigSpeciaalRef.current = false;
@@ -701,7 +691,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       {activeSpeciaalItem && (
         <SpeciaalItemPopup
           item={activeSpeciaalItem}
-          andereSessies={andereSpelers.map((s) => ({ session_id: s.session_id, group_name: s.group_name }))}
+          andereSessies={andereSpelers.map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
           onVerwerkt={inventarisItemGebruikt}
           onSluit={bewaarItemVoorLater}
         />
@@ -714,6 +704,48 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           speciaalItems={legendeItems}
         />
       )}
+
+      {/* Item opgepakt — groot icoon dat de speler zelf wegtikt */}
+      {opgepakt && (() => {
+        const info = ITEM_INFO[opgepakt.item.type];
+        const sluit = () => {
+          if (opgepakt.item.type === "wissel") setActiveSpeciaalItem(opgepakt.item);
+          setOpgepakt(null);
+        };
+        return (
+          <div onClick={sluit} style={{
+            position: "fixed", inset: 0, zIndex: 2500,
+            background: "rgba(12,3,34,0.78)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+          }}>
+            <div onClick={(e) => e.stopPropagation()} className="pr-panel" style={{ maxWidth: 340, width: "100%" }}>
+              <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", paddingTop: 24 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/items/${opgepakt.item.type}.png`} alt="" style={{
+                  width: 150, height: 150,
+                  filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 24px rgba(255,217,59,0.45))",
+                  animation: "pr-item-pop 0.45s cubic-bezier(.2,1.6,.4,1)",
+                }} />
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: "#fff" }}>
+                  {info?.naam ?? opgepakt.item.name} opgepakt!
+                </div>
+                {info && (
+                  <p style={{ margin: 0, fontSize: "0.88rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.45 }}>
+                    {info.beschrijving(Math.abs(opgepakt.item.points_effect) || undefined)}
+                  </p>
+                )}
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--pr-gold)", fontWeight: 700 }}>
+                  {opgepakt.extra}
+                </p>
+                <button className="btn-premium--compact" style={{ marginTop: 6 }} onClick={sluit}>
+                  {opgepakt.item.type === "wissel" ? "KIES EEN TEAM →" : "TOP!"}
+                </button>
+              </div>
+            </div>
+            <style>{`@keyframes pr-item-pop { 0% { transform: scale(0.3) rotate(-12deg); opacity: 0 } 100% { transform: scale(1) rotate(0); opacity: 1 } }`}</style>
+          </div>
+        );
+      })()}
 
       {/* Spook — groot spook met aftelling; kaart blijft eronder bruikbaar voor items */}
       {ghostTot && (

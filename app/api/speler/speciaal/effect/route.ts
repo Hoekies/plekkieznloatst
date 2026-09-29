@@ -49,11 +49,11 @@ export async function POST(request: NextRequest) {
     if (target_session_id === eigenSessie.id) return NextResponse.json({ fout: "Je kunt jezelf niet targeten" }, { status: 400 });
   }
 
-  let doelSessie: { id: string; score: number } | null = null;
+  let doelSessie: { id: string; score: number; player_id: string } | null = null;
   if (TYPES_MET_DOEL.has(item.type)) {
     const { data: ds } = await admin
       .from("player_sessions")
-      .select("id, score")
+      .select("id, score, player_id")
       .eq("id", target_session_id)
       .eq("status", "actief")
       .maybeSingle();
@@ -61,13 +61,17 @@ export async function POST(request: NextRequest) {
     doelSessie = ds;
   }
 
-  // Naam van het aanvallende team ophalen voor notificaties
-  const { data: aanvallerData } = await admin
-    .from("player_sessions")
-    .select("players(group_name)")
-    .eq("id", eigenSessie.id)
-    .maybeSingle();
-  const aanvallerNaam: string = (aanvallerData as { players?: { group_name?: string } } | null)?.players?.group_name ?? "Onbekend team";
+  // Teamnamen voor de meldingen: gekozen naam, anders de loginnaam
+  const { data: namen } = await admin
+    .from("players")
+    .select("id, nickname, login_name")
+    .in("id", [speler.id, doelSessie?.player_id].filter(Boolean) as string[]);
+  const teamNaam = (id: string | undefined, standaard: string) => {
+    const p = (namen ?? []).find((n) => n.id === id);
+    return p?.nickname ?? p?.login_name ?? standaard;
+  };
+  const aanvallerNaam = teamNaam(speler.id, "Onbekend team");
+  const doelNaam = teamNaam(doelSessie?.player_id, "het doelteam");
 
   // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
   const { data: routeWaarden } = await admin
@@ -150,7 +154,7 @@ export async function POST(request: NextRequest) {
       expires_at: null,
       notification: `🔄 Team ${aanvallerNaam} wisselt scores met jou!`,
     });
-    eigenNotificatie = `🔄 Je score is gewisseld met team ${(doelSessie as { group_name?: string } | null)?.group_name ?? "het doelteam"}!`;
+    eigenNotificatie = `🔄 Je score is gewisseld met team ${doelNaam}!`;
 
   } else if (item.type === "dief") {
     const { error } = await admin.from("special_item_effects").insert({

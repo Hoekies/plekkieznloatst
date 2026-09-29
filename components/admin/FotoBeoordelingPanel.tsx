@@ -8,7 +8,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 type Inzending = {
   id: string;
   foto_pad: string;
-  group_name: string;
+  teamnaam: string;
   punt_naam: string;
   max_punten: number;
   session_id: string;
@@ -131,7 +131,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
                     <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                         <div>
-                          <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8f0ff" }}>{inz.group_name}</span>
+                          <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8f0ff" }}>{inz.teamnaam}</span>
                           <span style={{ color: "var(--muted)", fontSize: "0.78rem", marginLeft: 8 }}>@ {inz.punt_naam}</span>
                         </div>
                         <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>

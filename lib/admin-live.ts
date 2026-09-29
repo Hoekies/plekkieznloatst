@@ -3,9 +3,9 @@ import type { SpeciaalItem } from "@/types/database";
 
 export type SpelerOverzicht = {
   player_id: string;
-  group_name: string;
   login_name: string;
   nickname: string | null;
+  // Gekozen teamnaam, of de loginnaam zolang het team nog geen naam heeft gekozen
   display_name: string;
   sessie_id: string | null;
   sessie_status: "geen_sessie" | "actief" | "voltooid" | "vervallen";
@@ -49,7 +49,7 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name, modus").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, group_name, login_name, nickname").order("group_name"),
+    admin.from("players").select("id, login_name, nickname").order("login_name"),
   ]);
 
   let specialeItems: SpeciaalItem[] = [];
@@ -146,10 +146,9 @@ export async function haalLiveData(): Promise<LiveData> {
     const locatie = sessie ? locatieMap.get(sessie.id) : null;
     return {
       player_id: player.id,
-      group_name: player.group_name,
       login_name: player.login_name,
       nickname: player.nickname ?? null,
-      display_name: player.nickname ?? player.group_name,
+      display_name: player.nickname ?? player.login_name,
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
       started_at: sessie?.started_at ?? null,

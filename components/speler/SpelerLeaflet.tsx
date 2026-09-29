@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
+import { escapeHtml } from "@/lib/html";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 
@@ -261,8 +262,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     andereSpelers.forEach((speler) => {
       const isVerouderd = nu - new Date(speler.created_at).getTime() > VEROUDERD_MS;
       const kleur = isVerouderd ? "#9CA3AF" : "#F97316";
-      const label = isVerouderd ? "?" : speler.group_name.charAt(0).toUpperCase();
-      const naam = isVerouderd ? `${speler.group_name}\n>2 min` : speler.group_name;
+      const label = isVerouderd ? "?" : escapeHtml(speler.teamnaam.charAt(0).toUpperCase());
+      const naam = isVerouderd ? `${escapeHtml(speler.teamnaam)}\n>2 min` : escapeHtml(speler.teamnaam);
 
       const icon = L.divIcon({
         className: "",

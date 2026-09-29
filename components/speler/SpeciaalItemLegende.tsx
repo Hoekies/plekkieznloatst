@@ -8,7 +8,7 @@ interface ItemInfo {
   beschrijving: (punten?: number) => string;
 }
 
-const ITEM_INFO: Record<string, ItemInfo> = {
+export const ITEM_INFO: Record<string, ItemInfo> = {
   spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Laat het volgende punt van een team een tijdje verdwijnen (standaard 10 minuten). Zij zien een groot spook met een aftelklok en kunnen het punt zolang niet halen." },
   bom:          { emoji: "💣", naam: "Bom",          beschrijving: (p) => `Trek ${p !== undefined ? p : "een aantal"} punten af van een team naar keuze.` },
   ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? p : "bonus"}punten aan jouw eigen team.` },
