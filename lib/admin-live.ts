@@ -18,6 +18,8 @@ export type SpelerOverzicht = {
   laatste_gezien: string | null;
   laatste_lat: number | null;
   laatste_lng: number | null;
+  // Openstaande melding "volgende punt niet bereikbaar"
+  hulp: { id: string; punt_naam: string | null; sinds: string } | null;
 };
 
 export type RoutePuntKort = {
@@ -30,7 +32,7 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string } | null;
+  route: { id: string; name: string; modus: string } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -46,7 +48,7 @@ export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
-    admin.from("routes").select("id, name").eq("is_active", true).maybeSingle(),
+    admin.from("routes").select("id, name, modus").eq("is_active", true).maybeSingle(),
     admin.from("players").select("id, group_name, login_name, nickname").order("group_name"),
   ]);
 
@@ -125,6 +127,20 @@ export async function haalLiveData(): Promise<LiveData> {
     });
   }
 
+  const hulpMap = new Map<string, SpelerOverzicht["hulp"]>();
+  if (sessieIds.length) {
+    const { data: hulp } = await admin
+      .from("hulpverzoeken")
+      .select("id, session_id, created_at, route_points(name)")
+      .in("session_id", sessieIds)
+      .eq("status", "open");
+    (hulp ?? []).forEach((h) => {
+      const punt = h.route_points as { name?: string } | { name?: string }[] | null;
+      const naam = Array.isArray(punt) ? punt[0]?.name : punt?.name;
+      hulpMap.set(h.session_id, { id: h.id, punt_naam: naam ?? null, sinds: h.created_at });
+    });
+  }
+
   const spelers: SpelerOverzicht[] = allePlayers.map((player) => {
     const sessie = sessieMap.get(player.id);
     const locatie = sessie ? locatieMap.get(sessie.id) : null;
@@ -145,6 +161,7 @@ export async function haalLiveData(): Promise<LiveData> {
       laatste_gezien: locatie?.created_at ?? null,
       laatste_lat: locatie?.lat ?? null,
       laatste_lng: locatie?.lng ?? null,
+      hulp: sessie ? (hulpMap.get(sessie.id) ?? null) : null,
     };
   });
 

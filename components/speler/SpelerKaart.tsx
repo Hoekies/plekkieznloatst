@@ -61,6 +61,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const [ghostTot, setGhostTot] = useState<number | null>(null);
   const [ghostSecondsLeft, setGhostSecondsLeft] = useState(0);
   const gehadPlekzooiRef = useRef<Set<string>>(new Set());
+  const [hulpOpen, setHulpOpen] = useState(false);
+  const hulpIdRef = useRef<string | null>(null);
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
@@ -136,6 +138,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     haalEffectenOp();
     haalInventarisOp();
     haalScoreOp();
+    haalHulpOp();
     // Realtime mist soms een update; zo verdwijnt een item dat een ander team pakte binnen 5s
     const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5000);
     const sessieCheckTimer = setInterval(() => haalScoreOp(), 30 * 1000);
@@ -172,6 +175,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Openstaande melding "punt niet bereikbaar": elke 5s kijken of de organisatie al gereageerd heeft
+  useEffect(() => {
+    if (!hulpOpen) return;
+    const timer = setInterval(haalHulpOp, 5000);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hulpOpen]);
 
   // Spook: aftellen tot het verborgen punt weer terugkomt
   useEffect(() => {
@@ -262,6 +273,47 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         if (data === null) { router.push("/speler"); return; }
         if (data?.score !== undefined) setScore(data.score);
       }
+    } catch { /* verbindingsfout */ }
+  }
+
+  async function haalHulpOp() {
+    try {
+      const res = await fetch("/api/speler/hulp");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === "open") {
+        hulpIdRef.current = data.id;
+        setHulpOpen(true);
+        return;
+      }
+      // Alleen reageren op een melding die we in deze sessie open hebben zien staan
+      if (!hulpIdRef.current || data.id !== hulpIdRef.current) return;
+      hulpIdRef.current = null;
+      setHulpOpen(false);
+      if (data.status === "toegekend") {
+        // Punt is vrijgegeven: herladen zet het als bereikt en opent de vraag
+        speelPuntBereikt();
+        window.location.reload();
+      } else if (data.status === "genegeerd") {
+        setEffectNotificatie("📨 De organisatie heeft je melding bekeken: probeer het punt toch te bereiken.");
+      }
+    } catch { /* verbindingsfout */ }
+  }
+
+  async function meldOnbereikbaar() {
+    if (!confirm("Kunnen jullie het volgende punt echt niet bereiken, bijvoorbeeld omdat het afgesloten of onveilig is?\n\nDan krijgt de organisatie een melding en kan die het punt voor jullie vrijgeven.")) return;
+    try {
+      const res = await fetch("/api/speler/hulp", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setOpgehaaldToast(data.fout ?? "Melden lukte niet, probeer het opnieuw.");
+      } else {
+        hulpIdRef.current = data.id;
+        setHulpOpen(true);
+        setOpgehaaldToast("📨 De organisatie is gewaarschuwd");
+      }
+      if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
+      opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 3500);
     } catch { /* verbindingsfout */ }
   }
 
@@ -614,6 +666,24 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
             className="pr-loc-btn"
             style={{ bottom: knoepBottomOffset, left: 16, zIndex: 1000 }}>
             📍
+          </button>
+        )}
+
+        {/* Punt niet bereikbaar → organisatie waarschuwen */}
+        {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot && (
+          <button
+            onClick={hulpOpen ? undefined : meldOnbereikbaar}
+            disabled={hulpOpen}
+            title="Meld dat jullie het volgende punt niet kunnen bereiken"
+            style={{
+              position: "absolute", bottom: knoepBottomOffset + 68, left: 16, zIndex: 1000,
+              padding: "7px 12px", borderRadius: 99,
+              background: hulpOpen ? "rgba(15,23,42,0.85)" : "rgba(255,138,0,0.92)",
+              border: "2px solid #fff", color: "#fff",
+              fontSize: "0.75rem", fontWeight: 700, fontFamily: "var(--font-display)",
+              boxShadow: "0 3px 10px rgba(0,0,0,0.4)", cursor: hulpOpen ? "default" : "pointer",
+            }}>
+            {hulpOpen ? "⏳ Organisatie gewaarschuwd" : "⚠️ Niet bereikbaar?"}
           </button>
         )}
 

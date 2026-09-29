@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import { speelDong } from "@/lib/sounds";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
@@ -25,6 +26,36 @@ export default function AdminDashboard({ initData }: Props) {
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const gemeldRef = useRef<Set<string>>(new Set());
+
+  // Klokslag zodra een team meldt dat zijn volgende punt niet te bereiken is
+  useEffect(() => {
+    let nieuw = false;
+    for (const s of data.spelers) {
+      if (s.hulp && !gemeldRef.current.has(s.hulp.id)) {
+        gemeldRef.current.add(s.hulp.id);
+        nieuw = true;
+      }
+    }
+    if (nieuw) speelDong();
+  }, [data.spelers]);
+
+  async function geefPuntVrij(s: SpelerOverzicht) {
+    if (!s.sessie_id) return;
+    const naam = s.nickname ?? s.login_name;
+    if (!confirm(`Volgende punt van ${naam} vrijgeven?\nDe vraag van dat punt springt bij hen direct open, waar ze ook zijn.`)) return;
+    const res = await fetch(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, { method: "POST" });
+    if (!res.ok) {
+      const { fout } = await res.json().catch(() => ({ fout: null }));
+      alert(fout ?? "Vrijgeven mislukt");
+    }
+    ververs();
+  }
+
+  async function negeerHulp(hulpId: string) {
+    await fetch(`/api/admin/hulp/${hulpId}`, { method: "PATCH" });
+    ververs();
+  }
 
   async function ververs() {
     try {
@@ -100,7 +131,14 @@ export default function AdminDashboard({ initData }: Props) {
         ) : (
           <div>
             {spelers.map((s) => (
-              <SpelerKaart key={s.player_id} speler={s} totaalPunten={totaalPunten} />
+              <SpelerKaart
+                key={s.player_id}
+                speler={s}
+                totaalPunten={totaalPunten}
+                kanVrijgeven={route?.modus !== "mist"}
+                onVrijgeven={() => geefPuntVrij(s)}
+                onNegeer={negeerHulp}
+              />
             ))}
           </div>
         )}
@@ -155,10 +193,17 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ speler: s, totaalPunten }: { speler: SpelerOverzicht; totaalPunten: number }) {
+function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onNegeer }: {
+  speler: SpelerOverzicht;
+  totaalPunten: number;
+  kanVrijgeven: boolean;
+  onVrijgeven: () => void;
+  onNegeer: (hulpId: string) => void;
+}) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
+  const speelt = s.sessie_status === "actief";
   return (
-    <div className="pr-gem-card">
+    <div className="pr-gem-card" style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" } : undefined}>
       <div className="pr-gem-card-inner">
         <div className="pr-gem-avatar">{teamIcoonVoor(s.player_id)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -177,6 +222,29 @@ function SpelerKaart({ speler: s, totaalPunten }: { speler: SpelerOverzicht; tot
             {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)} geleden`}
           </div>
           <div className="pr-xp-bar"><div className="pr-xp-fill" style={{ width: `${pct}%` }} /></div>
+
+          {s.hulp && (
+            <div style={{
+              marginTop: 8, padding: "8px 10px", borderRadius: 10,
+              background: "rgba(255,138,0,0.18)", border: "1px solid rgba(255,138,0,0.6)",
+              fontSize: "0.8rem", color: "#FFD9A0", fontWeight: 600,
+            }}>
+              ⚠️ Kan {s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken
+              <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {tijdGeleden(s.hulp.sinds)} geleden</span>
+            </div>
+          )}
+          {speelt && kanVrijgeven && (
+            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              <button className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={onVrijgeven}>
+                ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
+              </button>
+              {s.hulp && (
+                <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={() => onNegeer(s.hulp!.id)}>
+                  Negeren
+                </button>
+              )}
+            </div>
+          )}
         </div>
         <StatusPil status={s.sessie_status} />
       </div>

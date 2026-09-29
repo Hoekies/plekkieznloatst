@@ -293,6 +293,15 @@ Het dashboard ververst automatisch elke 5 seconden en via realtime-database-upda
 
 Ga naar **Bericht sturen** om een notificatie naar alle actieve groepen te sturen. Handig voor aankondigingen of hints.
 
+### Punt vrijgeven voor een team
+
+Kan een team zijn volgende punt echt niet bereiken (afgesloten weg, bouwhek, onveilige plek), dan drukt het team in de app op **⚠️ Niet bereikbaar?**. Op het **Dashboard** krijgt dat team dan een oranje rand met de melding *"Kan … niet bereiken"*, en je hoort een klokslag.
+
+- **⏭️ Punt vrijgeven** — het punt telt als bereikt: bij het team springt de vraag van dat punt direct open, waar ze ook zijn. Daarna spelen ze gewoon verder.
+- **Negeren** — het team krijgt de melding dat het het punt toch zelf moet proberen te halen.
+
+Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken. Bij een mist-route bestaat deze knop niet, want daar is geen vaste volgorde.
+
 ### Tussenstand tonen
 
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:

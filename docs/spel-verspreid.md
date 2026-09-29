@@ -60,6 +60,8 @@ Navigeer naar het genummerde punt. Eenmaal ter plekke druk je op de **📍 knop*
 
 Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS is in de buurt van hoge gebouwen soms onnauwkeurig.
 
+**Kun je er echt niet komen?** Is het punt bijvoorbeeld afgesloten of onveilig, druk dan op **⚠️ Niet bereikbaar?** boven de 📍-knop. De organisatie krijgt een melding en kan het punt voor je vrijgeven: de vraag springt dan vanzelf open en je speelt gewoon verder.
+
 ---
 
 ## Punten verdienen
