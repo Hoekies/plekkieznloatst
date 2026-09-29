@@ -165,6 +165,7 @@ Voor elke speluitleg hierboven, plus de beheerdershandleiding, staat een kant-en
 ChatGPT-prompt om er een geïllustreerde posterhandleiding van te laten maken:
 [Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md) · [Mist](docs/afbeelding-prompt-mist.md) · [Admin](docs/afbeelding-prompt-admin.md).
 Plak de codeblok uit zo'n bestand in ChatGPT (met beeldgeneratie) om de afbeelding te maken.
+Voor een korte, printbare spelershandleiding op A5 met het logo: [spelers-a5](docs/afbeelding-prompt-spelers-a5.md).
 
 ---
 

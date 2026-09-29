@@ -198,7 +198,7 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 
 > **Banaan-effect**: werkt alleen als het doelteam nog minimaal 2 onbezochte punten heeft. Bij minder punten geeft de app een foutmelding terug aan het aanvallende team.
 
-> **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam een melding met de naam van het aanvallende team.
+> **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam binnen ongeveer 5 seconden een melding met de naam van het aanvallende team, met een klokslag (en trillen op Android; iPhones kunnen vanuit een webapp niet trillen). De melding blijft staan tot het team hem wegtikt.
 
 #### Duur van Spook en Plek zooi instellen
 
@@ -261,6 +261,8 @@ Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief 
    - Vóór het starten toont de app automatisch de **spelregels van het actieve speltype**, inclusief de sterdrempel bij een mist-route. Je hoeft dus niets vooraf uit te leggen.
 3. Bij een **verspreid**-route krijgt elke groep automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
 4. Bij een **mist**-route beginnen alle groepen met een volledig bedekte kaart. Wijs ze op de 🚩 als je een startlocatie hebt ingesteld.
+
+> **Wisselen van route of een route aanpassen.** Een groep die nog een lopende sessie heeft op een route die niet meer actief is, wordt bij het openen van de app automatisch afgemeld van die oude sessie en begint opnieuw bij naam en icoon, op de route die nu actief is. Hetzelfde gebeurt bij een **verspreid**-route als je er punten aan toevoegt of verwijdert nadat een groep al gestart is: de teamvolgorde klopt dan niet meer, dus die groep begint opnieuw. Pas een route daarom niet aan tijdens een echt spel. Tijdens het testen gebruik je het best **🗑️ Reset spel** na een wijziging.
 
 ---
 

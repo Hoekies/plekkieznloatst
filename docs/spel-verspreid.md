@@ -106,7 +106,9 @@ Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de
 
 ### Meldingen
 
-Als een ander team een item op jou inzet, krijg je een melding met daarin de naam van dat team — zodat je weet wie je heeft aangevallen.
+Als een ander team een item op jou inzet, hoor je een diepe klokslag (op Android trilt je telefoon ook) en krijg je een melding met de naam van dat team — zodat je weet wie je heeft aangevallen. De melding blijft staan tot je hem zelf wegtikt met ✕.
+
+Items die al zijn opgepakt verdwijnen binnen een paar seconden van je kaart. In de uitleg (ℹ️-knop) blijven wel alle soorten items staan die in deze route voorkomen.
 
 ---
 

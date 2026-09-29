@@ -22,7 +22,7 @@ Open de link die je van de organisatie hebt gekregen, log in met je groepsnaam, 
 Een groep kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude. Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
 
 **Locatie en geluid**
-Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Zet ook je geluid aan: de app speelt geluiden af bij vragen en bij het behalen van een prestatie.
+Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
 
 **Batterij**
 De app gebruikt continu GPS. Zorg dat je telefoon voldoende geladen is, of neem een powerbank mee.
