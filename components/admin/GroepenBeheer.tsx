@@ -8,12 +8,30 @@ const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://p
 
 type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
 
-function deelViaWhatsApp() {
-  const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
-  window.open(`https://wa.me/?text=${encodeURIComponent(template)}`, "_blank");
-}
+const HANDLEIDING_URL = "https://plekkieznloatst.vercel.app/handleiding.jpg";
 
 export default function GroepenBeheer() {
+  const [handleiding, setHandleiding] = useState<File | null>(null);
+
+  // Vooraf laden: delen moet direct in de klik gebeuren, anders blokkeert (vooral) Safari het
+  useEffect(() => {
+    fetch("/handleiding.jpg")
+      .then((r) => (r.ok ? r.blob() : null))
+      .then((blob) => blob && setHandleiding(new File([blob], "PointRush-handleiding.jpg", { type: "image/jpeg" })))
+      .catch(() => { /* dan valt delen terug op alleen tekst + link */ });
+  }, []);
+
+  function deelViaWhatsApp() {
+    const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
+    // wa.me kan geen afbeelding meesturen; het deelmenu van telefoon/Windows wel (kies daar WhatsApp)
+    if (handleiding && navigator.canShare?.({ files: [handleiding] })) {
+      navigator.share({ text: template, files: [handleiding] }).catch(() => { /* geannuleerd */ });
+      return;
+    }
+    const tekst = `${template}\n\n📖 Korte handleiding: ${HANDLEIDING_URL}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
+  }
+
   const [groepen, setGroepen] = useState<Speler[]>([]);
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
@@ -81,7 +99,7 @@ export default function GroepenBeheer() {
       {toonTemplate && (
         <div className="card" style={{ border: "1px solid var(--glass-border)" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 8 }}>
-            Standaard WhatsApp-berichttekst — wordt meegestuurd bij elke inloglink. De persoonlijke inloglink wordt er automatisch onder gezet.
+            Standaard WhatsApp-berichttekst. De korte handleiding gaat mee als afbeelding (via het deelmenu op telefoon of Windows) of anders als link onder het bericht.
           </p>
           <textarea
             className="form-textarea"
