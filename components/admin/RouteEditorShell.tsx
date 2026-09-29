@@ -33,7 +33,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [sterWaarde, setSterWaarde] = useState(initRoute.ster_waarde ?? 50);
   const [bomWaarde, setBomWaarde] = useState(initRoute.bom_waarde ?? 30);
   const [respawnMinuten, setRespawnMinuten] = useState(initRoute.respawn_minuten ?? 15);
-  const [plekzooiDuur, setPlekzooiDuur] = useState(initRoute.plekzooi_duur_seconden ?? 120);
+  const [plekzooiMinuten, setPlekzooiMinuten] = useState((initRoute.plekzooi_duur_seconden ?? 300) / 60);
+  const [spookMinuten, setSpookMinuten] = useState((initRoute.spook_duur_seconden ?? 600) / 60);
   const [tussenstandInterval, setTussenstandInterval] = useState(initRoute.tussenstand_interval_minuten ?? 0);
   const [tussenstandDuur, setTussenstandDuur] = useState(initRoute.tussenstand_duur_seconden ?? 10);
   const [mistM2PerSter, setMistM2PerSter] = useState(initRoute.mist_m2_per_ster ?? 2500);
@@ -154,7 +155,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
     const coords = puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
     for (const pt of punten) {
-      await fetch(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        alert(`"${pt.name}" kon niet verwijderd worden — de punten zijn niet opnieuw gegenereerd.`);
+        await herlaadPunten();
+        return;
+      }
     }
     setPunten([]);
     setGeselecteerd(null);
@@ -331,13 +337,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, respawn_minuten: minuten }));
   }
 
-  async function slaPlekzooiDuurOp(seconden: number) {
+  async function slaItemDuurOp(veld: "plekzooi_duur_seconden" | "spook_duur_seconden", minuten: number) {
+    const seconden = Math.round(minuten * 60);
     const res = await fetch(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plekzooi_duur_seconden: seconden }),
+      body: JSON.stringify({ [veld]: seconden }),
     });
-    if (res.ok) setRoute((r) => ({ ...r, plekzooi_duur_seconden: seconden }));
+    if (res.ok) setRoute((r) => ({ ...r, [veld]: seconden }));
   }
 
   async function slaTussenstandIntervalOp(minuten: number) {
@@ -910,16 +917,33 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
 
-                {/* Plekzooi */}
+                {/* Duur van spook en plekzooi */}
                 {route.modus !== "mist" && (
                   <div className="form-group">
-                    <label className="form-label">⛔ Plekzooi — standaard blokkeerduur (seconden)</label>
-                    <input
-                      className="form-input" type="number" min={10} value={plekzooiDuur}
-                      onChange={(e) => setPlekzooiDuur(Math.max(10, Number(e.target.value)))}
-                      onBlur={() => slaPlekzooiDuurOp(plekzooiDuur)}
-                    />
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
+                    <label className="form-label">⏱️ Duur van effecten (minuten)</label>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>👻 Spook</span>
+                        <input
+                          className="form-input" type="number" min={0.5} step={0.5} value={spookMinuten}
+                          onChange={(e) => setSpookMinuten(Math.max(0.5, Number(e.target.value)))}
+                          onBlur={() => slaItemDuurOp("spook_duur_seconden", spookMinuten)}
+                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>⛔ Plekzooi</span>
+                        <input
+                          className="form-input" type="number" min={0.5} step={0.5} value={plekzooiMinuten}
+                          onChange={(e) => setPlekzooiMinuten(Math.max(0.5, Number(e.target.value)))}
+                          onBlur={() => slaItemDuurOp("plekzooi_duur_seconden", plekzooiMinuten)}
+                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
+                        />
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      Spook: zo lang is het volgende punt van het getroffen team weg · Plekzooi: zo lang zit een team vast
+                    </span>
                   </div>
                 )}
 
@@ -1089,8 +1113,6 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
 
-  const heeftDuur = type === "plekzooi";
-
   return (
     <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Header */}
@@ -1130,12 +1152,10 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
         </div>
       </div>
 
-      {heeftDuur && (
-        <div className="form-group">
-          <label className="form-label">Blokkeer duur (seconden)</label>
-          <input className="form-input" type="number" min={10} value={effect || 120} onChange={(e) => setEffect(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
-          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>60 = 1 min · 120 = 2 min · 180 = 3 min</span>
-        </div>
+      {type === "plekzooi" && (
+        <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: 0 }}>
+          De blokkeerduur stel je in voor de hele route via ⚙️ Instellingen.
+        </p>
       )}
       {type === "plekzooi" && (
         <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>

@@ -40,7 +40,7 @@ export default async function SpelerKaartPage() {
       .order("reached_at"),
     admin
       .from("routes")
-      .select("modus")
+      .select("modus, is_active")
       .eq("id", sessie.route_id)
       .maybeSingle(),
     admin
@@ -50,9 +50,19 @@ export default async function SpelerKaartPage() {
       .order("volgorde"),
   ]);
 
+  // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw
+  if (!route?.is_active) redirect("/speler");
+
+  // Verspreid: is de route na de start van de sessie aangepast (punten toegevoegd of
+  // verwijderd), dan klopt de teamvolgorde niet meer. Sessie afsluiten en opnieuw starten.
+  if (route.modus === "verspreid" && (spo?.length ?? 0) !== (ruwePunten?.length ?? 0)) {
+    await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", sessie.id);
+    redirect("/speler");
+  }
+
   // Voor verspreid-modus: sorteer punten op de sessie-specifieke volgorde
   let punten = ruwePunten ?? [];
-  if (route?.modus === "verspreid" && spo && spo.length > 0) {
+  if (route.modus === "verspreid" && spo && spo.length > 0) {
     const puntenMap = new Map((ruwePunten ?? []).map((p) => [p.id, p]));
     punten = spo.map((s) => puntenMap.get(s.route_point_id)).filter(Boolean) as typeof punten;
   }

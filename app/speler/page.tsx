@@ -18,7 +18,14 @@ export default async function SpelerHomePage() {
 
   if (!speler) redirect("/login");
 
-  // Actieve sessie → direct doorgaan
+  // Actieve route ophalen: nodig om een sessie op een oude route te herkennen, en zodat het
+  // introscherm de uitleg van de juiste spelsoort toont (zonder route: algemene tekst).
+  const { data: actieveRoute } = await admin
+    .from("routes")
+    .select("id, modus, mist_m2_per_ster")
+    .eq("is_active", true)
+    .maybeSingle();
+
   const { data: activeSessie } = await admin
     .from("player_sessions")
     .select("id, route_id")
@@ -27,18 +34,13 @@ export default async function SpelerHomePage() {
     .maybeSingle();
 
   if (activeSessie) {
-    const { data: route } = await admin
-      .from("routes").select("modus").eq("id", activeSessie.route_id).maybeSingle();
-    redirect(route?.modus === "mist" ? "/speler/mist" : "/speler/kaart");
+    if (actieveRoute && activeSessie.route_id === actieveRoute.id) {
+      redirect(actieveRoute.modus === "mist" ? "/speler/mist" : "/speler/kaart");
+    }
+    // Sessie hoort bij een route die niet meer actief is: afsluiten, zodat de groep
+    // opnieuw via het introscherm op de huidige route start.
+    await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", activeSessie.id);
   }
-
-  // Actieve route ophalen zodat het introscherm de uitleg van de juiste spelsoort toont.
-  // Nog geen actieve route? Dan valt spelUitleg() terug op een algemene tekst.
-  const { data: actieveRoute } = await admin
-    .from("routes")
-    .select("id, modus, mist_m2_per_ster")
-    .eq("is_active", true)
-    .maybeSingle();
 
   let heeftVragen = false;
   if (actieveRoute) {

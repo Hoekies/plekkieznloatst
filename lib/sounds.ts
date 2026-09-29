@@ -55,7 +55,28 @@ export function speelFinish() {
   speel([523, 659, 784, 659, 784, 1047], 0.9, "sine", 0.3);
 }
 
-export function speelAlarm() {
-  // Dringend alarm: snel afwisselende hoge tonen — een team is aangevallen
-  speel([880, 660, 880, 660, 880, 660], 0.9, "square", 0.32);
+export function speelDong() {
+  // Diepe klokslag — een ander team heeft een item tegen jou ingezet.
+  // Grondtoon plus een paar niet-harmonische boventonen, zoals bij een echte klok.
+  try {
+    const ac = getCtx();
+    if (ac.state === "suspended") ac.resume();
+    const start = ac.currentTime;
+    const grondtoon = 262;
+    [[1, 0.5, 2.8], [2.4, 0.18, 1.6], [3.9, 0.08, 1.0]].forEach(([factor, volume, uitklinken]) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = "sine";
+      osc.frequency.value = grondtoon * factor;
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + uitklinken);
+      osc.start(start);
+      osc.stop(start + uitklinken + 0.05);
+    });
+  } catch {
+    // AudioContext niet beschikbaar
+  }
 }

@@ -71,13 +71,13 @@ Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de
 |---|---|---|
 | ⭐ | Ster | Geeft direct bonuspunten aan jouw team |
 | 🔴 | Verdubbeling | Jouw volgende correct beantwoorde vraag levert dubbele punten op |
-| 👻 | Spook | Verbergt het huidige doelpunt van een gekozen team 10 minuten — het punt kan tijdelijk niet bereikt worden |
+| 👻 | Spook | Het volgende punt van een gekozen team verdwijnt een tijdje (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 💣 | Bom | Trekt punten af van een gekozen team |
 | 🔄 | Wissel | Wisselt jouw score met die van een gekozen team |
 | 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van een gekozen team |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Als je er overheen loopt, wordt je scherm rood en kun je een ingestelde tijd niet verder. De kaart is niet zichtbaar tijdens de blokkade. |
+| ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |
 | ❓ | Vraagteken | Werkt direct op jou en je tegenstanders — geen team kiezen nodig. Geeft een willekeurig effect: 40% dubbele ster voor jou, 20% ieder ander team krijgt willekeurig een ster óf een bom, 10% jackpot (5× sterwaarde), 10% jij verliest 200 punten, 20% jij krijgt een bom op jezelf. Hoog risico, hoge beloning. |
 
 ### Hoe gebruik je een item?

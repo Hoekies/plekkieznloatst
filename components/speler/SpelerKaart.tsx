@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
-import { speelPuntBereikt, speelFinish, speelAlarm } from "@/lib/sounds";
+import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende from "./SpeciaalItemLegende";
@@ -43,6 +43,7 @@ const ITEM_LABEL: Record<string, string> = {
 
 export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const router = useRouter();
+  const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
   const [positie, setPositie] = useState<GeolocationCoordinates | null>(null);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("laden");
@@ -56,7 +57,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [inventaris, setInventaris] = useState<SpeciaalItem[]>([]);
-  const [ghostedPuntId, setGhostedPuntId] = useState<string | null>(null);
+  const [legendeItems, setLegendeItems] = useState<SpeciaalItem[]>([]);
+  const [ghostTot, setGhostTot] = useState<number | null>(null);
+  const [ghostSecondsLeft, setGhostSecondsLeft] = useState(0);
+  const gehadPlekzooiRef = useRef<Set<string>>(new Set());
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
@@ -125,13 +129,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
 
   // Realtime + initiële data
   useEffect(() => {
+    // Al getoonde aanval niet opnieuw laten piepen na herladen van de pagina
+    try { effectNotificatieAtRef.current = localStorage.getItem(effectGezienKey); } catch { /* geen opslag */ }
     haalAndereSpelersOp();
     haalSpecialeItemsOp();
     haalEffectenOp();
     haalInventarisOp();
     haalScoreOp();
-    const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5 * 60 * 1000);
+    // Realtime mist soms een update; zo verdwijnt een item dat een ander team pakte binnen 5s
+    const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5000);
     const sessieCheckTimer = setInterval(() => haalScoreOp(), 30 * 1000);
+    // Realtime mist soms een event; pollen zorgt dat een aanval altijd binnen 5s binnenkomt
+    const effectenTimer = setInterval(() => haalEffectenOp(), 5000);
 
     const supabase = createClient();
     const kanaal = supabase
@@ -154,6 +163,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       supabase.removeChannel(kanaal);
       clearInterval(itemsTimer);
       clearInterval(sessieCheckTimer);
+      clearInterval(effectenTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
@@ -163,9 +173,22 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Spook: aftellen tot het verborgen punt weer terugkomt
+  useEffect(() => {
+    if (!ghostTot) return;
+    const tik = () => {
+      const rem = Math.max(0, Math.ceil((ghostTot - Date.now()) / 1000));
+      setGhostSecondsLeft(rem);
+      if (rem <= 0) setGhostTot(null);
+    };
+    tik();
+    const timer = setInterval(tik, 1000);
+    return () => clearInterval(timer);
+  }, [ghostTot]);
+
   // Puntdetectie bij iedere positiewijziging
   useEffect(() => {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || bezigRef.current || popupPunt || plekzooiActief) return;
+    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || bezigRef.current || popupPunt || plekzooiActief || ghostTot) return;
     const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
     if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,7 +198,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   useEffect(() => {
     if (!positie || bezigSpeciaalRef.current || plekzooiActief) return;
     for (const item of specialeItems) {
-      if (item.claimed) continue;
+      if (item.claimed || gehadPlekzooiRef.current.has(item.id)) continue;
       const afstand = haversine(positie.latitude, positie.longitude, item.latitude, item.longitude);
       if (afstand <= item.radius_meters) {
         claimSpeciaalItem(item);
@@ -211,7 +234,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   async function haalSpecialeItemsOp() {
     try {
       const res = await fetch("/api/speler/speciaal");
-      if (res.ok) setSpecialeItems(await res.json());
+      if (!res.ok) return;
+      const items: SpeciaalItem[] = await res.json();
+      setSpecialeItems(items);
+      // Uitleg (ℹ️) onthoudt elk itemtype dat ooit in de route zat, ook na oppakken of respawn
+      setLegendeItems((prev) => {
+        const bekend = new Set(prev.map((i) => i.type));
+        const nieuw = items.filter((i) => !bekend.has(i.type) && bekend.add(i.type));
+        return nieuw.length > 0 ? [...prev, ...nieuw] : prev;
+      });
     } catch { /* verbindingsfout */ }
   }
 
@@ -256,14 +287,16 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       const res = await fetch("/api/speler/speciaal/effecten");
       if (!res.ok) return;
       const data = await res.json();
-      setGhostedPuntId(data.ghost?.active ? data.ghost.blocked_point_id : null);
+      setGhostTot(data.ghost?.active && data.ghost.expires_at ? new Date(data.ghost.expires_at).getTime() : null);
       if (data.notification && data.notification_at !== effectNotificatieAtRef.current) {
         effectNotificatieAtRef.current = data.notification_at;
-        setEffectNotificatie(data.notification);
-        speelAlarm();
-        haalScoreOp();
+        try { localStorage.setItem(effectGezienKey, data.notification_at); } catch { /* geen opslag */ }
+        // Aanval: blijft staan tot het team hem zelf wegklikt
         if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
-        effectNotificatieTimerRef.current = setTimeout(() => setEffectNotificatie(null), 5000);
+        setEffectNotificatie(data.notification);
+        speelDong();
+        navigator.vibrate?.([300, 120, 300, 120, 300]);
+        haalScoreOp();
       }
 
       // Plek zooi actief: herstel afteltimer bij herverbinding
@@ -296,21 +329,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       });
       if (!res.ok) return;
       const data = await res.json();
+
+      // Plek zooi blijft liggen voor andere teams; dit team kan hem maar één keer raken
+      if (data.status === "plekzooi" || data.status === "al_gehad") {
+        gehadPlekzooiRef.current.add(item.id);
+        if (data.status === "plekzooi" && data.expires_at) activeerPlekzooi(new Date(data.expires_at));
+        return;
+      }
+
       if (data.status === "geclaimd" && data.item) {
         setSpecialeItems((prev) => prev.map((i) => i.id === item.id ? { ...i, claimed: true } : i));
 
-        if (data.item.type === "plekzooi") {
-          // Onzichtbare val: direct effect op zichzelf, geen inventaris
-          const effectRes = await fetch("/api/speler/speciaal/effect", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ special_item_id: data.item.id }),
-          });
-          if (effectRes.ok) {
-            const effectData = await effectRes.json();
-            if (effectData.expires_at) activeerPlekzooi(new Date(effectData.expires_at));
-          }
-        } else if (data.item.type === "ster") {
+        if (data.item.type === "ster") {
           // Direct inzetten: punten meteen bijschrijven
           const effectRes = await fetch("/api/speler/speciaal/effect", {
             method: "POST",
@@ -548,7 +578,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           position: "absolute",
           bottom: broadcastBericht ? knoepBottomOffset + 130 : knoepBottomOffset + 70,
           left: "50%", transform: "translateX(-50%)",
-          zIndex: 900, maxWidth: "calc(100% - 24px)",
+          zIndex: 1600, maxWidth: "calc(100% - 24px)",
           background: "linear-gradient(160deg, #9333EA 0%, #6D28D9 100%)",
           border: "3px solid rgba(255,255,255,0.8)",
           color: "#fff", padding: "16px 22px", borderRadius: 20, fontSize: "1.05rem", fontWeight: 800,
@@ -573,7 +603,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           activePuntId={activePunt?.id ?? null}
           andereSpelers={andereSpelers}
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
-          ghostedPuntId={ghostedPuntId}
+          ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
         />
 
         {/* Controleer locatie-knop */}
@@ -611,8 +641,30 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       {legendeOpen && (
         <SpeciaalItemLegende
           onSluit={() => setLegendeOpen(false)}
-          speciaalItems={specialeItems}
+          speciaalItems={legendeItems}
         />
+      )}
+
+      {/* Spook — groot spook met aftelling; kaart blijft eronder bruikbaar voor items */}
+      {ghostTot && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 1500, pointerEvents: "none",
+          background: "radial-gradient(circle at 50% 45%, rgba(88,28,135,0.55) 0%, rgba(15,10,40,0.75) 70%)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          color: "#fff", gap: 10, textAlign: "center", padding: "0 24px",
+        }}>
+          <div style={{ fontSize: "9rem", lineHeight: 1, filter: "drop-shadow(0 0 30px rgba(196,181,253,0.8))", animation: "pr-spook-zweef 2.4s ease-in-out infinite" }}>👻</div>
+          <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: 900, letterSpacing: "0.05em", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
+            BOE! Je punt is weg
+          </h1>
+          <p style={{ margin: 0, fontSize: "0.95rem", opacity: 0.85 }}>
+            Een ander team heeft je volgende punt verstopt. Het komt terug over:
+          </p>
+          <div style={{ fontSize: "4.5rem", fontWeight: 800, fontVariantNumeric: "tabular-nums", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+            {String(Math.floor(ghostSecondsLeft / 60)).padStart(2, "0")}:{String(ghostSecondsLeft % 60).padStart(2, "0")}
+          </div>
+          <style>{`@keyframes pr-spook-zweef { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }`}</style>
+        </div>
       )}
 
       {/* Tussenstand — door admin getoond */}

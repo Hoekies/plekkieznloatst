@@ -85,11 +85,12 @@ export async function GET() {
     }
   }
 
+  // Ook opgepakte items meesturen: de kaart slaat die over (claimed), maar de uitleg (ℹ️)
+  // blijft zo elk itemtype tonen dat in deze route zit.
   const { data, error } = await admin
     .from("special_items")
     .select("*")
-    .eq("route_id", sessie.route_id)
-    .eq("claimed", false);
+    .eq("route_id", sessie.route_id);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

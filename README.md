@@ -109,6 +109,9 @@ supabase/migrations/020_keepalive.sql
 supabase/migrations/021_mist_modus.sql
 supabase/migrations/022_mist_badges.sql
 supabase/migrations/023_force_logout.sql
+supabase/migrations/024_afstand_afgelegd.sql
+supabase/migrations/025_punten_verwijderbaar_plekzooi_5min.sql
+supabase/migrations/026_spook_duur.sql
 ```
 
 ### Starten

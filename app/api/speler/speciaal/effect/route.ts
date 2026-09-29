@@ -4,6 +4,14 @@ import { createAdminClient } from "@/lib/supabase-admin";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
+function formatteerDuur(seconden: number): string {
+  const min = Math.floor(seconden / 60);
+  const sec = seconden % 60;
+  if (min === 0) return `${sec} seconden`;
+  if (sec === 0) return min === 1 ? "1 minuut" : `${min} minuten`;
+  return `${min}:${String(sec).padStart(2, "0")} minuten`;
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -61,10 +69,10 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   const aanvallerNaam: string = (aanvallerData as { players?: { group_name?: string } } | null)?.players?.group_name ?? "Onbekend team";
 
-  // Route-niveau waarden ophalen voor ster/bom/vraagteken/plekzooi
+  // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
   const { data: routeWaarden } = await admin
     .from("routes")
-    .select("ster_waarde, bom_waarde, plekzooi_duur_seconden")
+    .select("ster_waarde, bom_waarde, spook_duur_seconden")
     .eq("id", eigenSessie.route_id)
     .maybeSingle();
   const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;
@@ -101,13 +109,14 @@ export async function POST(request: NextRequest) {
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
   } else if (item.type === "spook") {
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const duurSeconden = routeWaarden?.spook_duur_seconden ?? 600;
+    const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
     const { error } = await admin.from("special_item_effects").insert({
       special_item_id: item.id,
       target_session_id: doelSessie!.id,
       effect_type: "ghost",
       expires_at: expiresAt,
-      notification: `👻 Spook aangeboden door team ${aanvallerNaam}! Je huidige doel is 10 minuten verborgen.`,
+      notification: `👻 Spook aangeboden door team ${aanvallerNaam}! Je volgende punt is ${formatteerDuur(duurSeconden)} verborgen.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
@@ -269,21 +278,6 @@ export async function POST(request: NextRequest) {
         .eq("id", eigenSessie.id);
       eigenNotificatie = `❓ Bom op jezelf! Je verliest ${Math.abs(sterWaarde)} punten. 💥`;
     }
-
-  } else if (item.type === "plekzooi") {
-    // Plek zooi treft de speler zelf — route-brede standaardduur, met per-item als fallback
-    const duurSeconden = Math.max(10, routeWaarden?.plekzooi_duur_seconden ?? item.points_effect ?? 120);
-    const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
-    const { error } = await admin.from("special_item_effects").insert({
-      special_item_id: item.id,
-      target_session_id: eigenSessie.id,
-      effect_type: "plekzooi",
-      expires_at: expiresAt,
-      notification: null,
-    });
-    if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
-    await admin.from("special_items").update({ used_at: usedAt }).eq("id", item.id);
-    return NextResponse.json({ ok: true, expires_at: expiresAt, eigen_notificatie: null });
 
   } else {
     return NextResponse.json({ fout: "Onbekend item type" }, { status: 400 });

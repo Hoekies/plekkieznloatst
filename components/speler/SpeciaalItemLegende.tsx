@@ -9,7 +9,7 @@ interface ItemInfo {
 }
 
 const ITEM_INFO: Record<string, ItemInfo> = {
-  spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Verberg het te halen GPS-punt van een team 10 minuten. Het punt kan tijdelijk niet gehaald worden." },
+  spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Laat het volgende punt van een team een tijdje verdwijnen (standaard 10 minuten). Zij zien een groot spook met een aftelklok en kunnen het punt zolang niet halen." },
   bom:          { emoji: "💣", naam: "Bom",          beschrijving: (p) => `Trek ${p !== undefined ? p : "een aantal"} punten af van een team naar keuze.` },
   ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? p : "bonus"}punten aan jouw eigen team.` },
   verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Jouw volgende behaalde vraagpunt levert dubbele punten op (eenmalig)." },
@@ -17,7 +17,7 @@ const ITEM_INFO: Record<string, ItemInfo> = {
   dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Steel de punten van de eerstvolgende correct beantwoorde vraag van een ander team. De dief krijgt de punten; het andere team krijgt 0." },
   radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten. De posities worden elke 15 seconden ververst." },
   banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Verwissel het eerstvolgende GPS-punt van een doelteam met een ander nog te bezoeken GPS-punt van dat team." },
-  plekzooi:     { emoji: "⛔", naam: "Plek zooi",     beschrijving: (p) => `Onzichtbare val — als je hier overheen loopt word je ${p !== undefined ? p : "een aantal"} seconden geblokkeerd. De kaart verdwijnt en een afteltimer verschijnt.` },
+  plekzooi:     { emoji: "⛔", naam: "Plek zooi",     beschrijving: () => "Onzichtbare val — loop je erover, dan zit je een paar minuten vast: de kaart verdwijnt en er verschijnt een afteltimer. De val blijft liggen voor de andere teams, maar raakt ieder team maar één keer." },
   vraagteken:   { emoji: "❓", naam: "Vraagteken",    beschrijving: () => "Willekeurig effect: 40% dubbele ster voor jezelf · 20% ieder ander team ster of bom (willekeurig per team) · 10% jackpot 5× ster · 10% −200 punten · 20% bom op jezelf." },
 };
 

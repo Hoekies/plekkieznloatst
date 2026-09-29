@@ -21,6 +21,7 @@ export interface Route {
   item_respawn: boolean;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;
+  spook_duur_seconden: number;
   tussenstand_interval_minuten: number;
   tussenstand_duur_seconden: number;
   tussenstand_trigger_at: string | null;

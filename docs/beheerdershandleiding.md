@@ -47,7 +47,7 @@ In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar s
 | Instelling | Bij welk speltype |
 |---|---|
 | **⭐ Item-waarden** — standaard ster- en bomwaarde | Sequentieel, Verspreid |
-| **⛔ Plekzooi** — standaard blokkeerduur in seconden | Sequentieel, Verspreid |
+| **⏱️ Duur van effecten** — hoe lang 👻 Spook en ⛔ Plekzooi duren (minuten) | Sequentieel, Verspreid |
 | **🔄 Respawn** — items opnieuw laten verschijnen | Verspreid |
 | **☁️ Mist-instellingen** — m² per ster | Mist |
 | **🏆 Tussenstand** — automatische reveal | alle |
@@ -185,13 +185,13 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 |---|---|---|
 | ⭐ | Ster | Geeft het opraapteam direct bonuspunten |
 | 🔴 | Verdubbeling | Volgende correct beantwoorde vraag van het opraapteam levert dubbele punten op |
-| 👻 | Spook | Verbergt het huidige doelpunt van het doelteam 10 minuten |
+| 👻 | Spook | Het volgende punt van het doelteam verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 💣 | Bom | Trekt een ingesteld aantal punten af van het doelteam |
 | 🔄 | Wissel | Wisselt de score van het opraapteam met die van het doelteam |
 | 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van het doelteam met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. Kaart en voortgang zijn geblokkeerd tijdens de blokkade. |
+| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. Kaart en voortgang zijn geblokkeerd tijdens de blokkade (standaard 5 minuten). De val blijft daarna liggen voor andere teams, maar raakt elk team maar één keer. |
 | ❓ | Vraagteken | Geen doelteam — werkt direct op het opraapteam zelf én chaotisch op de rest. 40% dubbele ster, 20% ieder ander team krijgt willekeurig ster/bom, 10% jackpot (5× sterwaarde), 10% −200 punten, 20% bom op jezelf. |
 
 > **Dief-effect**: als een team een Dief op een ander team zet, worden de punten van het eerstvolgende goede antwoord van dat team gestolen. Als het antwoord fout is, is het Dief-effect toch verbruikt.
@@ -200,14 +200,14 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 
 > **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam een melding met de naam van het aanvallende team.
 
-#### Plekzooi-duur instellen
+#### Duur van Spook en Plek zooi instellen
 
-De blokkeerduur van Plek zooi kan op twee niveaus ingesteld worden:
+Via **⚙️ Instellingen** → "⏱️ Duur van effecten" stel je per route in, in minuten:
 
-- **Route-breed standaard** (aanbevolen): tabblad **⚙️ Instellingen** → "Plekzooi — standaard blokkeerduur (seconden)". Geldt voor alle plekzooi-items in deze route die geen eigen duur hebben.
-- **Per item**: klik een geplaatst plekzooi-item aan in het **⭐ Items**-tabblad → veld "Blokkeer duur (seconden)". Overschrijft de route-standaard voor dat ene item.
+- **👻 Spook** — hoe lang het volgende punt van het getroffen team verdwenen is (standaard 10 minuten).
+- **⛔ Plekzooi** — hoe lang een team vastzit na het raken van een plekzooi (standaard 5 minuten).
 
-60 = 1 min · 120 = 2 min · 180 = 3 min.
+Halve minuten mogen ook (bijv. 2,5). De duur geldt voor alle spook- en plekzooi-items in de route.
 
 ---
 

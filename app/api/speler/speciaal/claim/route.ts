@@ -23,6 +23,32 @@ export async function POST(request: NextRequest) {
   const { special_item_id } = body;
   if (!special_item_id) return NextResponse.json({ fout: "special_item_id ontbreekt" }, { status: 400 });
 
+  // Plek zooi wordt niet opgepakt: de val blijft liggen voor de volgende teams.
+  // Elk team kan hem één keer raken (UNIQUE special_item_id + target_session_id).
+  const { data: val } = await admin
+    .from("special_items")
+    .select("id, type, points_effect")
+    .eq("id", special_item_id)
+    .eq("route_id", sessie.route_id)
+    .eq("type", "plekzooi")
+    .maybeSingle();
+
+  if (val) {
+    const { data: routeWaarden } = await admin
+      .from("routes").select("plekzooi_duur_seconden").eq("id", sessie.route_id).maybeSingle();
+    const duurSeconden = Math.max(10, routeWaarden?.plekzooi_duur_seconden ?? 300);
+    const expiresAt = new Date(Date.now() + duurSeconden * 1000).toISOString();
+    const { error: effectFout } = await admin.from("special_item_effects").insert({
+      special_item_id: val.id,
+      target_session_id: sessie.id,
+      effect_type: "plekzooi",
+      expires_at: expiresAt,
+      notification: null,
+    });
+    if (effectFout) return NextResponse.json({ status: "al_gehad" });
+    return NextResponse.json({ status: "plekzooi", expires_at: expiresAt });
+  }
+
   const { data: item, error } = await admin
     .from("special_items")
     .update({
