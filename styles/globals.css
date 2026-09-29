@@ -304,6 +304,35 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   color: #fff;
 }
 
+/* Desktop: de admin past in één scherm — alleen het werkgebied scrollt, nooit de hele pagina */
+@media (min-width: 769px) {
+  .admin-shell {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .admin-sidebar {
+    overflow-y: auto;
+    padding: 12px 0;
+  }
+  .admin-sidebar-logo {
+    padding-bottom: 10px;
+  }
+  .admin-sidebar-logo img {
+    width: auto !important;
+    max-width: 90%;
+    max-height: 110px;
+  }
+  .admin-nav-link {
+    padding: 7px 12px;
+  }
+  .admin-main {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 .card {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(14px) saturate(130%);

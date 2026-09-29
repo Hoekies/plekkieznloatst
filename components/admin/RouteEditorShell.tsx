@@ -735,30 +735,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <div key={pt.id}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
                     style={{
-                      padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                      padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7,
                       background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
                       borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
                     }}>
                     <div style={{
-                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                      width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
                       background: badgeBg,
                       color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "0.72rem", fontWeight: 700,
+                      fontSize: "0.68rem", fontWeight: 700,
                     }}>{badge}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                        {typeLabel} · {pt.radius_meters}m
-                      </div>
+                    <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
+                      {pt.name}
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      {typeLabel} · {pt.radius_meters}m
+                    </span>
+                    <div style={{ display: "flex", flexDirection: "row", gap: 0 }}>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === 0 || isHub || (isVerspreid && i === 1)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === punten.length - 1 || isHub || (isVerspreid && i === punten.length - 2)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
                   </div>
                 );
               })
@@ -771,24 +771,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
                 </p>
               ) : specialeItems.map((item) => {
-                const emoji = { spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡", banaan: "🍌", plekzooi: "⛔", vraagteken: "❓" }[item.type] ?? "?";
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
                     style={{
-                      padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                      padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7,
                       background: geselecteerdSpeciaal?.id === item.id ? "rgba(255,255,255,0.12)" : "transparent",
                       borderLeft: geselecteerdSpeciaal?.id === item.id ? "3px solid #60A5FA" : "3px solid transparent",
+                      opacity: item.claimed ? 0.55 : 1,
                     }}>
-                    <span style={{ fontSize: "18px", flexShrink: 0 }}>{emoji}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{item.name}</div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                        {item.type} · {item.radius_meters}m{item.claimed && " · geclaimd"}
-                      </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/items/${item.type}.png`} alt="" style={{ width: 22, height: 22, flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
+                      {item.name}
                     </div>
+                    <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      {item.radius_meters}m{item.claimed && " · gepakt"}
+                    </span>
                     <button onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
                   </div>
                 );
               })
