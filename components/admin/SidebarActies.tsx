@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 
-type Fase = "idle" | "bevestig-stop" | "bevestig-reset" | "bezig" | "klaar-stop" | "klaar-reset" | "klaar-tussenstand";
+type Fase = "idle" | "bevestig-stop" | "bevestig-reset" | "bezig" | "klaar-stop" | "klaar-reset";
 
 export default function SidebarActies() {
   const [fase, setFase] = useState<Fase>("idle");
+  // De tussenstand-knop toont zijn eigen status in de knop zelf
+  const [tussenstandFase, setTussenstandFase] = useState<"idle" | "bezig" | "klaar">("idle");
 
   async function stopRoute() {
     setFase("bezig");
@@ -22,10 +24,10 @@ export default function SidebarActies() {
   }
 
   async function toonTussenstand() {
-    setFase("bezig");
+    setTussenstandFase("bezig");
     await fetch("/api/admin/tussenstand/tonen", { method: "POST" });
-    setFase("klaar-tussenstand");
-    setTimeout(() => setFase("idle"), 2500);
+    setTussenstandFase("klaar");
+    setTimeout(() => setTussenstandFase("idle"), 2500);
   }
 
   if (fase === "bevestig-stop") {
@@ -73,14 +75,13 @@ export default function SidebarActies() {
     return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Spel gereset</div>;
   }
 
-  if (fase === "klaar-tussenstand") {
-    return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Tussenstand getoond</div>;
-  }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={toonTussenstand}>
-        <span aria-hidden>🏆</span> Toon tussenstand nu
+      <button
+        className={`sidebar-tussenstand-knop${tussenstandFase === "klaar" ? " sidebar-tussenstand-knop--klaar" : ""}`}
+        onClick={toonTussenstand}
+        disabled={tussenstandFase !== "idle"}>
+        {tussenstandFase === "bezig" ? "Bezig…" : tussenstandFase === "klaar" ? "✓ Getoond" : "🏆 Tussenstand"}
       </button>
       <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-stop")}>
         <span aria-hidden>🛑</span> Stop route

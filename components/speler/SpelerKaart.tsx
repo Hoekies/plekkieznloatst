@@ -687,14 +687,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
           </button>
         )}
 
-        {/* Punt niet bereikbaar → organisatie waarschuwen */}
+        {/* Punt niet bereikbaar → organisatie waarschuwen (rechtsonder, op één lijn met 📍) */}
         {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot && (
           <button
             onClick={hulpOpen ? undefined : meldOnbereikbaar}
             disabled={hulpOpen}
             title="Meld dat jullie het volgende punt niet kunnen bereiken"
             style={{
-              position: "absolute", bottom: knoepBottomOffset + 68, left: 16, zIndex: 1000,
+              position: "absolute", bottom: knoepBottomOffset, right: 16, zIndex: 1000,
               padding: "7px 12px", borderRadius: 99,
               background: hulpOpen ? "rgba(15,23,42,0.85)" : "rgba(255,138,0,0.92)",
               border: "2px solid #fff", color: "#fff",

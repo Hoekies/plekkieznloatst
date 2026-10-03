@@ -10,7 +10,10 @@ function formateerAfstand(meters: number): string {
 
 // Eén regel in de tussenstand en de eindstand: grote medaille (of plaatsnummer),
 // het teamicoon, de naam en een groot puntenaantal.
-export default function StandRij({ entry, eenheid = "punten" }: { entry: LeaderboardEntry; eenheid?: string }) {
+// compact (tussenstand): geen plaats, tijd of afstand — alleen team en punten
+export default function StandRij({ entry, eenheid = "punten", compact = false }: {
+  entry: LeaderboardEntry; eenheid?: string; compact?: boolean;
+}) {
   const isEigen = entry.is_eigen_team;
   const medaille = MEDAILLE[entry.rank - 1];
   return (
@@ -21,7 +24,7 @@ export default function StandRij({ entry, eenheid = "punten" }: { entry: Leaderb
       border: `2px solid ${isEigen ? "#00d9ff" : "rgba(255,255,255,0.1)"}`,
     }}>
       {/* Plaats */}
-      <div style={{ width: 46, flexShrink: 0, display: "flex", justifyContent: "center" }}>
+      {!compact && <div style={{ width: 46, flexShrink: 0, display: "flex", justifyContent: "center" }}>
         {medaille ? (
           <span style={{ fontSize: "2.5rem", lineHeight: 1, filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.45))" }}>{medaille}</span>
         ) : (
@@ -32,7 +35,7 @@ export default function StandRij({ entry, eenheid = "punten" }: { entry: Leaderb
             fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#e8f0ff",
           }}>{entry.rank}</span>
         )}
-      </div>
+      </div>}
 
       {/* Teamicoon */}
       <div style={{
@@ -53,10 +56,12 @@ export default function StandRij({ entry, eenheid = "punten" }: { entry: Leaderb
         }}>
           {entry.display_name}{isEigen && " (jij)"}
         </div>
-        <div style={{ fontSize: "0.8rem", color: "#9fb3d1", marginTop: 2, display: "flex", gap: 10, fontVariantNumeric: "tabular-nums" }}>
-          <span>⏱ {formateerTijd(entry.tijd_seconden)}</span>
-          {entry.distance_meters > 0 && <span>📍 {formateerAfstand(entry.distance_meters)}</span>}
-        </div>
+        {!compact && (
+          <div style={{ fontSize: "0.8rem", color: "#9fb3d1", marginTop: 2, display: "flex", gap: 10, fontVariantNumeric: "tabular-nums" }}>
+            <span>⏱ {formateerTijd(entry.tijd_seconden)}</span>
+            {entry.distance_meters > 0 && <span>📍 {formateerAfstand(entry.distance_meters)}</span>}
+          </div>
+        )}
       </div>
 
       {/* Score */}

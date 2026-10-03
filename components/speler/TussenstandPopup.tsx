@@ -56,7 +56,9 @@ export default function TussenstandPopup({ tussenstand, resterendeSeconden, onSl
           <p style={{ color: "#6b84a8", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {tussenstand.map((entry) => <StandRij key={entry.rank} entry={entry} />)}
+            {[...tussenstand].sort((a, b) => b.score - a.score).map((entry) => (
+              <StandRij key={entry.rank} entry={entry} compact />
+            ))}
           </div>
         )}
       </div>
