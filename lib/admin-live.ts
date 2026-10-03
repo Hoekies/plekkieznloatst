@@ -36,6 +36,8 @@ export type LiveData = {
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
+  // Gezet als de sessies niet opgehaald konden worden (bv. een migratie die nog niet gedraaid is)
+  fout?: string;
 };
 
 export function sessietijd(s: SpelerOverzicht): number {
@@ -86,6 +88,7 @@ export async function haalLiveData(): Promise<LiveData> {
         .in("player_id", playerIds)
     : null;
   const sessies = sessiesResult?.data ?? [];
+  const fout = sessiesResult?.error ? `Sessies konden niet geladen worden: ${sessiesResult.error.message}` : undefined;
 
   const sessieMap = new Map((sessies).map((s) => [s.player_id, s]));
   const sessieIds = (sessies).map((s) => s.id);
@@ -164,5 +167,5 @@ export async function haalLiveData(): Promise<LiveData> {
     };
   });
 
-  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems };
+  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems, fout };
 }

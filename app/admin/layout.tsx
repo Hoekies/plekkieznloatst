@@ -5,6 +5,7 @@ import AdminNavLink from "@/components/admin/AdminNavLink";
 import SidebarActies from "@/components/admin/SidebarActies";
 import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import SidebarToggle from "@/components/admin/SidebarToggle";
+import HulpMeldingen from "@/components/admin/HulpMeldingen";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -42,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="admin-main">
         {children}
       </div>
+      <HulpMeldingen />
     </div>
   );
 }

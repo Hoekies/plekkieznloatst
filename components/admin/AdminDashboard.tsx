@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
-import { speelDong } from "@/lib/sounds";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
@@ -26,20 +25,6 @@ export default function AdminDashboard({ initData }: Props) {
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const gemeldRef = useRef<Set<string>>(new Set());
-
-  // Klokslag zodra een team meldt dat zijn volgende punt niet te bereiken is
-  useEffect(() => {
-    let nieuw = false;
-    for (const s of data.spelers) {
-      if (s.hulp && !gemeldRef.current.has(s.hulp.id)) {
-        gemeldRef.current.add(s.hulp.id);
-        nieuw = true;
-      }
-    }
-    if (nieuw) speelDong();
-  }, [data.spelers]);
-
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
     const naam = s.nickname ?? s.login_name;
@@ -113,6 +98,16 @@ export default function AdminDashboard({ initData }: Props) {
       </div>
 
       <div className="admin-content">
+
+        {data.fout && (
+          <div style={{
+            marginBottom: 20, padding: "12px 16px", borderRadius: 12,
+            background: "rgba(255,59,92,0.15)", border: "2px solid var(--red)", color: "#fecaca",
+            fontSize: "0.85rem", fontWeight: 600,
+          }}>
+            ⚠️ Het dashboard is onvolledig: {data.fout}. Waarschijnlijk is er een database-migratie nog niet uitgevoerd.
+          </div>
+        )}
 
         {/* Stat kaarten */}
         <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
