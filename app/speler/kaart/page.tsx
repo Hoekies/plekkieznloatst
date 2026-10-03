@@ -77,6 +77,7 @@ export default async function SpelerKaartPage() {
       sessie={sessie}
       punten={punten}
       initVoortgang={voortgang ?? []}
+      modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
     />
   );
 }

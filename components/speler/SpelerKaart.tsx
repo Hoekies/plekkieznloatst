@@ -27,6 +27,7 @@ interface Props {
   sessie: SpelerSessie;
   punten: RoutePunt[];
   initVoortgang: SpelerPuntVoortgang[];
+  modus: "sequentieel" | "verspreid";
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -48,7 +49,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -730,6 +731,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         <SpeciaalItemLegende
           onSluit={() => setLegendeOpen(false)}
           speciaalItems={legendeItems}
+          modus={modus}
         />
       )}
 

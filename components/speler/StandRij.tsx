@@ -70,7 +70,7 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
           fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.7rem",
           color: isEigen ? "#00d9ff" : "#fff", fontVariantNumeric: "tabular-nums",
         }}>{entry.score}</div>
-        <div style={{ fontSize: "0.7rem", color: "#9fb3d1", marginTop: 3 }}>{eenheid}</div>
+        {!compact && <div style={{ fontSize: "0.7rem", color: "#9fb3d1", marginTop: 3 }}>{eenheid}</div>}
       </div>
     </div>
   );
