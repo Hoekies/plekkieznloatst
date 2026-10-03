@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import AudioUnlock from "@/components/speler/AudioUnlock";
 import IOSFixes from "@/components/speler/IOSFixes";
 import DeviceGuard from "@/components/speler/DeviceGuard";
+import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
+import SchermAanHouden from "@/components/speler/SchermAanHouden";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -15,8 +17,11 @@ export default async function SpelerLayout({ children }: { children: React.React
       <AudioUnlock />
       <IOSFixes />
       <DeviceGuard />
+      <SchermAanHouden />
       <header className="speler-header">
-        <div />
+        <div style={{ justifySelf: "start" }}>
+          <VolledigSchermKnop />
+        </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed.png" alt="PointRush" style={{
           height: "auto", width: "clamp(168px, 42vw, 280px)", objectFit: "contain", display: "block",

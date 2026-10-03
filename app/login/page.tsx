@@ -1,7 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 
 function LoginForm() {
   const params = useSearchParams();
@@ -30,7 +31,12 @@ function LoginForm() {
       alignItems: "center",
       justifyContent: "center",
       padding: "16px",
+      position: "relative",
     }}>
+      <div style={{ position: "absolute", top: "max(16px, env(safe-area-inset-top))", right: 16, zIndex: 5 }}>
+        <VolledigSchermKnop />
+      </div>
+
       {/* Zwevende sparkles */}
       <div className="pr-sparkle" style={{ width: 6, height: 6, top: "12%", left: "18%" }} />
       <div className="pr-sparkle" style={{ width: 4, height: 4, top: "22%", left: "75%", animationDelay: "1.2s" }} />
