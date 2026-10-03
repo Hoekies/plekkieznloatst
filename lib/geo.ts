@@ -23,10 +23,12 @@ export function afrondenOpRaster(lat: number, lng: number, rasterMeters = 50) {
   };
 }
 
+// mm:ss, of u:mm:ss vanaf een uur (anders werd het bv. "4803:36")
 export function formateerTijd(seconden: number): string {
-  const m = Math.floor(seconden / 60).toString().padStart(2, "0");
+  const u = Math.floor(seconden / 3600);
+  const m = Math.floor((seconden % 3600) / 60).toString().padStart(2, "0");
   const s = (seconden % 60).toString().padStart(2, "0");
-  return `${m}:${s}`;
+  return u > 0 ? `${u}:${m}:${s}` : `${m}:${s}`;
 }
 
 export function normaliserenNumeriek(invoer: string): number | null {

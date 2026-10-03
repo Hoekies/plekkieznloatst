@@ -181,8 +181,12 @@ export async function POST(request: NextRequest) {
       .eq("session_id", doelSessie!.id)
       .not("answered_at", "is", null);
 
+    // Het eindpunt (laatste in de volgorde) blijft altijd het laatste punt
     const verwerktIds = new Set((doelVerwerkt ?? []).map((v: { route_point_id: string }) => v.route_point_id));
-    const onbezochtSpo = (spo ?? []).filter((s: { route_point_id: string }) => !verwerktIds.has(s.route_point_id));
+    const laatsteVolgorde = Math.max(0, ...(spo ?? []).map((s) => s.volgorde));
+    const onbezochtSpo = (spo ?? []).filter(
+      (s) => !verwerktIds.has(s.route_point_id) && s.volgorde !== laatsteVolgorde,
+    );
 
     if (onbezochtSpo.length < 2) {
       return NextResponse.json({ fout: "Doelteam heeft niet genoeg punten over om te wisselen" }, { status: 400 });

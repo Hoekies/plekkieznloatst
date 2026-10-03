@@ -12,10 +12,15 @@ export async function GET() {
   }
 
   const admin = createAdminClient();
-  const { data, error } = await admin.from("players").select("*").order("created_at");
+  const [{ data, error }, { data: lopend }] = await Promise.all([
+    admin.from("players").select("*").order("created_at"),
+    admin.from("player_sessions").select("player_id").eq("status", "actief"),
+  ]);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
-  return NextResponse.json(data);
+  // Heeft de groep een lopend spel? (bepaalt of 'Spel stoppen' zichtbaar is)
+  const metSpel = new Set((lopend ?? []).map((s) => s.player_id));
+  return NextResponse.json((data ?? []).map((g) => ({ ...g, heeft_spel: metSpel.has(g.id) })));
 }
 
 // POST — nieuwe groep aanmaken

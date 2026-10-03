@@ -43,7 +43,8 @@ export async function GET() {
       const { data: alleItems } = await admin
         .from("special_items")
         .select("type")
-        .eq("route_id", sessie.route_id);
+        .eq("route_id", sessie.route_id)
+        .eq("is_startitem", false);
       const types = (alleItems ?? []).map((i) => i.type as string);
 
       for (const item of teRespawnen) {
@@ -86,11 +87,14 @@ export async function GET() {
   }
 
   // Ook opgepakte items meesturen: de kaart slaat die over (claimed), maar de uitleg (ℹ️)
-  // blijft zo elk itemtype tonen dat in deze route zit.
-  const { data, error } = await admin
+  // blijft zo elk itemtype tonen dat in deze route zit. Startitems zijn altijd geclaimd,
+  // dus ze komen alleen in de uitleg. Sequentieel: alleen plek zooi op de kaart.
+  let query = admin
     .from("special_items")
     .select("*")
     .eq("route_id", sessie.route_id);
+  if (route?.modus === "sequentieel") query = query.or("type.eq.plekzooi,is_startitem.eq.true");
+  const { data, error } = await query;
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

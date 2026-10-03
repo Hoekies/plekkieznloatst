@@ -19,14 +19,11 @@ export default async function SpelerLayout({ children }: { children: React.React
       <DeviceGuard />
       <SchermAanHouden />
       <header className="speler-header">
-        <div style={{ justifySelf: "start" }}>
-          <VolledigSchermKnop />
-        </div>
+        <VolledigSchermKnop />
+        {/* Logo zonder lege randen: vult de hoogte van de balk, links uitgelijnd */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-breed.png" alt="PointRush" style={{
-          height: "auto", width: "clamp(168px, 42vw, 280px)", objectFit: "contain", display: "block",
-        }} />
-        <form action="/api/auth/uitloggen" method="post" style={{ justifySelf: "end" }}>
+        <img src="/logo-breed-strak.webp" alt="PointRush" className="speler-header-logo" />
+        <form action="/api/auth/uitloggen" method="post" style={{ flexShrink: 0 }}>
           <button type="submit" className="speler-uitlog-btn">
             Uitloggen
           </button>

@@ -213,7 +213,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
+      // Sequentieel: alleen plek zooi op de kaart (teams krijgen een startbanaan in hun balk)
+      body: JSON.stringify(route.modus === "sequentieel"
+        ? { latitude: lat, longitude: lng, type: "plekzooi", name: "Plek zooi", points_effect: 0 }
+        : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
     });
     if (res.ok) {
       const nieuw: SpeciaalItem = await res.json();
@@ -709,7 +712,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
                 style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
-                {addSpeciaalModus ? "✅ Klik op kaart om item te plaatsen…" : "⭐ Item toevoegen"}
+                {addSpeciaalModus
+                  ? "✅ Klik op kaart om item te plaatsen…"
+                  : route.modus === "sequentieel" ? "⛔ Plek zooi toevoegen" : "⭐ Item toevoegen"}
               </button>
             )}
           </div>
@@ -765,6 +770,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
 
             {/* Items-tab */}
+            {actieveTab === "items" && route.modus === "sequentieel" && (
+              <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.45 }}>
+                🍌 Bij Sequentieel krijgt elk team bij de start één banaan in zijn balk. Op de kaart
+                plaats je alleen plek zooi.
+              </p>
+            )}
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
@@ -891,8 +902,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
 
-                {/* Item-waarden */}
-                {route.modus !== "mist" && (
+                {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
+                {route.modus === "verspreid" && (
                   <div className="form-group">
                     <label className="form-label">⭐ Item-waarden</label>
                     <div style={{ display: "flex", gap: 10 }}>
@@ -923,7 +934,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <div className="form-group">
                     <label className="form-label">⏱️ Duur van effecten (minuten)</label>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      {route.modus === "verspreid" && <div style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>👻 Spook</span>
                         <input
                           className="form-input" type="number" min={0.5} step={0.5} value={spookMinuten}
@@ -931,7 +942,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                           onBlur={() => slaItemDuurOp("spook_duur_seconden", spookMinuten)}
                           style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
                         />
-                      </div>
+                      </div>}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>⛔ Plekzooi</span>
                         <input
@@ -943,7 +954,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       </div>
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Spook: zo lang is het volgende punt van het getroffen team weg · Plekzooi: zo lang zit een team vast
+                      {route.modus === "verspreid" && "Spook: zo lang is het volgende punt van het getroffen team weg · "}Plekzooi: zo lang zit een team vast
                     </span>
                   </div>
                 )}
@@ -1077,6 +1088,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {geselecteerdSpeciaal && !geselecteerd && (
               <SpeciaalItemForm
                 item={geselecteerdSpeciaal}
+                alleenPlekzooi={route.modus === "sequentieel"}
                 onOpslaan={(update) => slaSpeciaalItemOp(geselecteerdSpeciaal.id, update)}
                 onVerwijder={() => { verwijderSpeciaalItem(geselecteerdSpeciaal.id); setGeselecteerdSpeciaal(null); }}
                 onSluit={() => setGeselecteerdSpeciaal(null)}
@@ -1097,8 +1109,9 @@ function StatusPil({ status, isActief }: { status: string; isActief: boolean }) 
 }
 
 // ── SpeciaalItemForm ──────────────────────────────────────────────────────────
-function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
+function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSluit }: {
   item: SpeciaalItem;
+  alleenPlekzooi: boolean;
   onOpslaan: (u: Partial<SpeciaalItem>) => void;
   onVerwijder: () => void;
   onSluit: () => void;
@@ -1132,7 +1145,8 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: 8, alignItems: "end" }}>
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Type</label>
-          <select className="form-select" value={type} onChange={(e) => setType(e.target.value as SpeciaalItemType)} style={{ fontSize: "0.85rem" }}>
+          <select className="form-select" value={type} onChange={(e) => setType(e.target.value as SpeciaalItemType)} style={{ fontSize: "0.85rem" }}
+            disabled={alleenPlekzooi && type === "plekzooi"}>
             <option value="ster">⭐ Ster</option>
             <option value="bom">💣 Bom</option>
             <option value="spook">👻 Spook</option>
@@ -1156,6 +1170,11 @@ function SpeciaalItemForm({ item, onOpslaan, onVerwijder, onSluit }: {
       {type === "plekzooi" && (
         <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: 0 }}>
           De blokkeerduur stel je in voor de hele route via ⚙️ Instellingen.
+        </p>
+      )}
+      {alleenPlekzooi && type !== "plekzooi" && (
+        <p style={{ fontSize: "0.72rem", color: "#F87171", margin: 0 }}>
+          Bij Sequentieel verschijnt alleen plek zooi op de kaart; dit item zien spelers niet.
         </p>
       )}
       {type === "plekzooi" && (

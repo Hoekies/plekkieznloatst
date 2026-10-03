@@ -15,6 +15,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
     .from("special_items")
     .select("*")
     .eq("route_id", params.id)
+    .eq("is_startitem", false)
     .order("created_at");
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json(data);

@@ -41,6 +41,13 @@ const SLECHTE_NAUWKEURIGHEID_M = 30;
 const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 
 
+// Getal in de statistiekhokjes zo groot mogelijk; bij meer cijfers iets kleiner zodat het past
+function hudGetalGrootte(tekst: string): string {
+  if (tekst.length <= 4) return "1.85rem";
+  if (tekst.length === 5) return "1.6rem";
+  return "1.35rem";
+}
+
 export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
@@ -349,6 +356,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         speelDong();
         navigator.vibrate?.([300, 120, 300, 120, 300]);
         haalScoreOp();
+        // Banaan: de puntvolgorde is op de server omgewisseld — kaart opnieuw laden met de nieuwe volgorde
+        if (data.notification.startsWith("🍌")) router.refresh();
       }
 
       // Plek zooi actief: herstel afteltimer bij herverbinding
@@ -541,13 +550,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         borderBottom: "1px solid rgba(255,255,255,0.08)",
         alignItems: "center",
       }}>
-        <div className="pr-hud-gem pr-hud-gem--purple">
-          <span style={{ fontSize: "1.2rem" }}>🗺️</span>
-          <span className="pr-hud-value" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1rem" }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
+        <div className="pr-hud-gem pr-hud-gem--purple pr-hud-gem--groot">
+          <span className="pr-hud-icoon">🗺️</span>
+          <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte((kmAfgelegd / 1000).toFixed(2)) }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
         </div>
-        <div className="pr-hud-gem pr-hud-gem--orange">
-          <span style={{ fontSize: "1.2rem" }}>⭐</span>
-          <span className="pr-hud-value" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1rem" }}>{score}</span>
+        <div className="pr-hud-gem pr-hud-gem--orange pr-hud-gem--groot">
+          <span className="pr-hud-icoon">⭐</span>
+          <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
         </div>
         <button
           onClick={() => setLegendeOpen(true)}

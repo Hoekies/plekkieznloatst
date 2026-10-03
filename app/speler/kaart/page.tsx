@@ -55,14 +55,19 @@ export default async function SpelerKaartPage() {
 
   // Verspreid: is de route na de start van de sessie aangepast (punten toegevoegd of
   // verwijderd), dan klopt de teamvolgorde niet meer. Sessie afsluiten en opnieuw starten.
-  if (route.modus === "verspreid" && (spo?.length ?? 0) !== (ruwePunten?.length ?? 0)) {
+  // Sequentieel heeft dezelfde teamvolgorde (voor de banaan); oudere sessies zonder volgorde lopen gewoon door.
+  const heeftVolgorde = (spo?.length ?? 0) > 0;
+  if (
+    (route.modus === "verspreid" || (route.modus === "sequentieel" && heeftVolgorde)) &&
+    (spo?.length ?? 0) !== (ruwePunten?.length ?? 0)
+  ) {
     await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", sessie.id);
     redirect("/speler");
   }
 
-  // Voor verspreid-modus: sorteer punten op de sessie-specifieke volgorde
+  // Sorteer punten op de teamvolgorde
   let punten = ruwePunten ?? [];
-  if (route.modus === "verspreid" && spo && spo.length > 0) {
+  if (route.modus !== "mist" && spo && heeftVolgorde) {
     const puntenMap = new Map((ruwePunten ?? []).map((p) => [p.id, p]));
     punten = spo.map((s) => puntenMap.get(s.route_point_id)).filter(Boolean) as typeof punten;
   }

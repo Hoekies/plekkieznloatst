@@ -43,12 +43,12 @@ export async function GET() {
     score: number;
     started_at: string;
     finished_at: string;
-    players: { login_name: string; nickname: string | null };
+    players: { login_name: string; nickname: string | null; icon: string | null };
   };
 
   const { data: sessies } = await admin
     .from("player_sessions")
-    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname)")
+    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname, icon)")
     .eq("route_id", routeId)
     .eq("status", "voltooid")
     .not("finished_at", "is", null);
@@ -85,6 +85,7 @@ export async function GET() {
       sessie_id: s.id,
       player_id: s.player_id,
       display_name: s.players.nickname ?? s.players.login_name,
+      icon: s.players.icon,
       score: s.score,
       tijd_seconden: Math.floor(
         (new Date(s.finished_at).getTime() - new Date(s.started_at).getTime()) / 1000
@@ -96,6 +97,7 @@ export async function GET() {
   const leaderboard: LeaderboardEntry[] = gesorteerd.map((s, i) => ({
     rank: i + 1,
     display_name: s.display_name,
+    icon: s.icon,
     score: s.score,
     tijd_seconden: s.tijd_seconden,
     distance_meters: s.distance_meters,

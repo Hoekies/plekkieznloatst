@@ -19,6 +19,24 @@ export default function RoutesOverzicht() {
   const [importBezig, setImportBezig] = useState(false);
   const [importFout, setImportFout] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Menu sluiten bij klik ernaast of Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    function klik(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(null);
+    }
+    function toets(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(null); }
+    document.addEventListener("mousedown", klik);
+    document.addEventListener("keydown", toets);
+    return () => { document.removeEventListener("mousedown", klik); document.removeEventListener("keydown", toets); };
+  }, [menuOpen]);
+
+  // Actief bovenaan, dan gepubliceerd, dan concepten
+  const rang = (r: Route) => (r.is_active ? 0 : r.status === "gepubliceerd" ? 1 : 2);
+  const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b));
 
   async function laad() {
     const res = await fetch("/api/admin/routes");
@@ -112,18 +130,16 @@ export default function RoutesOverzicht() {
 
   return (
     <div style={{ maxWidth: 760 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 22 }}>
-        <p style={{ color: "var(--muted)", fontSize: "0.9rem", fontWeight: 600, flex: 1, minWidth: 80 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 14 }}>
+        <p style={{ color: "var(--muted)", fontSize: "0.85rem", fontWeight: 600, flex: 1, minWidth: 80, margin: 0 }}>
           {routes.length} route{routes.length !== 1 ? "s" : ""}
         </p>
-        <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-          <button className="btn-premium--ghost" onClick={() => importRef.current?.click()} disabled={importBezig}>
-            {importBezig ? "Importeren…" : "📥 Importeer"}
+        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <button className="rl-knop" onClick={() => importRef.current?.click()} disabled={importBezig}>
+            {importBezig ? "Importeren…" : "Importeren"}
           </button>
           <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
-          <button className="btn-premium" style={{ width: "auto", padding: "11px 22px", fontSize: "0.88rem" }} onClick={() => setAanmaken(true)}>
-            + NIEUWE ROUTE
-          </button>
+          <button className="rl-knop rl-knop--cyan" onClick={() => setAanmaken(true)}>+ Nieuwe route</button>
         </div>
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
@@ -179,8 +195,8 @@ export default function RoutesOverzicht() {
           </div>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button className="btn-premium--ghost" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
-            <button className="btn-premium" style={{ width: "auto", padding: "10px 20px" }} type="submit" disabled={bezig}>
+            <button className="rl-knop" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
+            <button className="rl-knop rl-knop--cyan" type="submit" disabled={bezig}>
               {bezig ? "…" : "Aanmaken"}
             </button>
           </div>
@@ -195,56 +211,52 @@ export default function RoutesOverzicht() {
           <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Maak een nieuwe route aan.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {routes.map((r) => {
+        <div className="rl-lijst">
+          {gesorteerd.map((r) => {
             const info = MODUS_INFO[r.modus];
-            const knopStijl = { padding: "8px 16px", fontSize: "0.8rem", whiteSpace: "nowrap" as const };
+            const status = r.is_active
+              ? { tekst: "Actief", kleur: "#4ADE80" }
+              : r.status === "gepubliceerd"
+                ? { tekst: "Gepubliceerd", kleur: "#67E8F9" }
+                : { tekst: "Concept", kleur: "#94A3B8" };
 
             return (
-              <div key={r.id} className="pr-gem-card" style={{ marginBottom: 0 }}>
-                <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
-                  {/* Kop: speltype-tegel + naam met speltype-subtitel, status rechts */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <ModusTegel modus={r.modus} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.name}
-                      </div>
-                      <div style={{ fontSize: "0.75rem", marginTop: 2, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        <span style={{ color: info.kleur, fontWeight: 700 }}>{info.label}</span>
-                        {" · "}{info.omschrijving}
-                      </div>
-                    </div>
-                    {r.is_active ? (
-                      <span className="pr-gem-chip pr-gem-chip--green" style={{ flexShrink: 0 }}>✓ Actief</span>
-                    ) : r.status === "gepubliceerd" ? (
-                      <span className="pr-gem-chip pr-gem-chip--cyan" style={{ flexShrink: 0 }}>Gepubliceerd</span>
-                    ) : (
-                      <span className="pr-gem-chip pr-gem-chip--gray" style={{ flexShrink: 0 }}>Concept</span>
-                    )}
+              <div key={r.id} className={`rl-rij${r.is_active ? " rl-rij--actief" : ""}`}>
+                <ModusTegel modus={r.modus} size={38} />
+                <div style={{ minWidth: 0 }}>
+                  <div className="rl-naam">{r.name}</div>
+                  <div className="rl-sub">
+                    <span style={{ color: info.kleur, fontWeight: 600 }}>{info.label}</span>
+                    <span aria-hidden>·</span>
+                    <span className="rl-status" style={{ color: status.kleur }}>{status.tekst}</span>
                   </div>
+                </div>
 
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)" }} />
-
-                  {/* Actieknoppen */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    <button className="btn-premium--ghost" style={knopStijl}
-                      onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
-                    <button className="btn-premium--ghost" style={knopStijl}
-                      onClick={() => exporteer(r.id, r.name)}>📤 Exporteren</button>
-                    {!r.is_active && (
-                      <button className="btn-premium--ghost" style={knopStijl}
-                        onClick={() => togglePubliceer(r)}>
-                        {r.status === "gepubliceerd" ? "↩ Naar concept" : "📢 Publiceren"}
-                      </button>
-                    )}
-                    {!r.is_active && r.status === "gepubliceerd" && (
-                      <button className="btn-premium--cyan" style={knopStijl}
-                        onClick={() => activeer(r.id)}>▶ Activeren</button>
-                    )}
-                    {!r.is_active && (
-                      <button className="btn-premium--danger" style={{ ...knopStijl, marginLeft: "auto" }}
-                        onClick={() => verwijder(r.id, r.name)}>🗑️ Verwijderen</button>
+                <div className="rl-acties">
+                  {/* Alleen de volgende logische stap als knop: publiceren → activeren */}
+                  {!r.is_active && r.status !== "gepubliceerd" && (
+                    <button className="rl-knop" onClick={() => togglePubliceer(r)}>Publiceren</button>
+                  )}
+                  {!r.is_active && r.status === "gepubliceerd" && (
+                    <button className="rl-knop rl-knop--cyan" onClick={() => activeer(r.id)}>▶ Activeren</button>
+                  )}
+                  <button className="rl-knop" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
+                  <div className="rl-menu-wrap" ref={menuOpen === r.id ? menuRef : undefined}>
+                    <button className="rl-knop rl-knop--icoon" aria-label="Meer acties" title="Meer acties"
+                      onClick={() => setMenuOpen((m) => (m === r.id ? null : r.id))}>⋯</button>
+                    {menuOpen === r.id && (
+                      <div className="rl-menu" role="menu">
+                        <button onClick={() => { setMenuOpen(null); exporteer(r.id, r.name); }}>📤 Exporteren</button>
+                        {!r.is_active && r.status === "gepubliceerd" && (
+                          <button onClick={() => { setMenuOpen(null); togglePubliceer(r); }}>↩ Terug naar concept</button>
+                        )}
+                        {!r.is_active && (
+                          <>
+                            <hr />
+                            <button className="rl-menu-gevaar" onClick={() => { setMenuOpen(null); verwijder(r.id, r.name); }}>🗑️ Verwijderen</button>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

@@ -172,6 +172,7 @@ export interface SpeciaalItem {
   claimed_at: string | null;
   used_at: string | null;
   respawn_at: string | null;
+  is_startitem: boolean;
   created_at: string;
   updated_at: string;
 }

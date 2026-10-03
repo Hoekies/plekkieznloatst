@@ -11,6 +11,7 @@ import MistBadgePopup, { type BadgeMelding } from "./MistBadgePopup";
 import MistBadgesModal from "./MistBadgesModal";
 import type { RoutePunt, SpelerPuntVoortgang, SpelerSessie } from "@/types/database";
 import type { LeaderboardEntry } from "@/lib/types";
+import StandRij from "./StandRij";
 
 const MistLeaflet = dynamic(() => import("./MistLeaflet"), {
   ssr: false,
@@ -325,33 +326,21 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
           display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
         }} onClick={() => setLeaderboardOpen(false)}>
           <div style={{
-            background: "#0f1c2e", color: "#e8f0ff", borderRadius: 18, padding: 24,
-            maxWidth: 420, width: "100%", maxHeight: "90vh", overflowY: "auto",
+            background: "#0f1c2e", color: "#e8f0ff", borderRadius: 18, padding: "20px 16px",
+            maxWidth: 440, width: "100%", maxHeight: "90vh", overflowY: "auto",
             boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#00d9ff" }}>🏆 Leaderboard</h2>
+              <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, color: "#00d9ff" }}>
+                <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> Stand
+              </h2>
               <button onClick={() => setLeaderboardOpen(false)} style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", color: "#e8f0ff", fontWeight: 700 }}>✕</button>
             </div>
             {leaderboard.length === 0 ? (
               <p style={{ color: "#6b84a8", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {leaderboard.map((entry) => (
-                  <div key={entry.rank} style={{
-                    display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12,
-                    background: entry.is_eigen_team ? "rgba(0,217,255,0.12)" : "rgba(255,255,255,0.05)",
-                    border: `1.5px solid ${entry.is_eigen_team ? "#00d9ff" : "rgba(255,255,255,0.08)"}`,
-                  }}>
-                    <span style={{ fontSize: "1.2rem", width: 26, textAlign: "center" }}>{["🥇", "🥈", "🥉"][entry.rank - 1] ?? `${entry.rank}.`}</span>
-                    <div style={{ flex: 1, minWidth: 0, fontWeight: 700, fontSize: "0.9rem", color: entry.is_eigen_team ? "#00d9ff" : "#e8f0ff" }}>
-                      {entry.display_name}{entry.is_eigen_team && " (jij)"}
-                    </div>
-                    <div style={{ fontWeight: 800, color: entry.is_eigen_team ? "#00d9ff" : "#e8f0ff" }}>
-                      {entry.score} <span style={{ fontWeight: 400, fontSize: "0.72rem", color: "#6b84a8" }}>⭐</span>
-                    </div>
-                  </div>
-                ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {leaderboard.map((entry) => <StandRij key={entry.rank} entry={entry} eenheid="sterren" />)}
               </div>
             )}
           </div>

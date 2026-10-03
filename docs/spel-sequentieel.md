@@ -30,7 +30,7 @@ Op de kaart zie je:
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** — in een lichtere kleur (globale positie, niet exact)
-- **Speciale items** — emoji-icoontjes verspreid over de kaart (let op: Plek zooi-items zijn onzichtbaar)
+- Geen items om op te pakken — wel kunnen er onzichtbare **Plek zooi**-vallen liggen
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.
 
@@ -55,46 +55,25 @@ Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt
 | Situatie | Punten |
 |---|---|
 | Correct antwoord op vraagpunt | Zoals ingesteld per punt |
-| Fout antwoord | 0 punten |
-| Speciaal item: Ster ⭐ | Direct bonuspunten |
-| Speciaal item: Verdubbeling 🔴 | Volgend correct antwoord × 2 |
+| Fout antwoord | 0 punten — of minpunten als de organisatie dat zo heeft ingesteld |
 
 ---
 
-## Speciale items
+## Je startbanaan 🍌
 
-Speciale items verschijnen als emoji-icoontjes op de kaart. Het **eerste team dat het item bereikt** pakt het op. Dat kan een voordeel voor jezelf zijn of een nadeel voor een tegenstander.
+Bij Sequentieel liggen er geen items op de kaart. In plaats daarvan krijgt **elk team bij de start één banaan** in de balk onderin de kaart.
 
-Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de kaart).
+- Tik op de banaan en kies een tegenstander.
+- Het eerstvolgende punt van dat team wordt omgewisseld met een ander punt dat ze nog moeten bezoeken. Het eindpunt blijft altijd het laatste punt.
+- Je hebt er maar één: kies je moment goed. Je mag hem ook bewaren.
 
-### Overzicht van alle mogelijke items
+### Plek zooi ⛔
 
-| Item | Naam | Wat doet het? |
-|---|---|---|
-| ⭐ | Ster | Geeft direct bonuspunten aan jouw team |
-| 🔴 | Verdubbeling | Jouw volgende correct beantwoorde vraag levert dubbele punten op |
-| 👻 | Spook | Het volgende punt van een gekozen team verdwijnt een tijdje (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
-| 💣 | Bom | Trekt punten af van een gekozen team |
-| 🔄 | Wissel | Wisselt jouw score met die van een gekozen team |
-| 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van een gekozen team |
-| 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
-| 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |
-| ❓ | Vraagteken | Werkt direct op jou en je tegenstanders — geen team kiezen nodig. Geeft een willekeurig effect: 40% dubbele ster voor jou, 20% ieder ander team krijgt willekeurig een ster óf een bom, 10% jackpot (5× sterwaarde), 10% jij verliest 200 punten, 20% jij krijgt een bom op jezelf. Hoog risico, hoge beloning. |
-
-### Hoe gebruik je een item?
-
-- Items komen in de **inventarisbalk** onderin de kaart zodra je ze oppakt.
-- Tik op een item in de balk om het in te zetten.
-- Bij items die een doelteam vereisen (Spook, Bom, Wissel, Dief, Banaan) kies je het team na het aantikken.
-- Je mag items bewaren voor later, maar je kunt ze maar één keer gebruiken.
-- Meerdere items van hetzelfde type tonen een getal bij het icoontje.
+Op de kaart kunnen onzichtbare vallen liggen. Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer.
 
 ### Meldingen
 
-Als een ander team een item op jou inzet, hoor je een diepe klokslag (op Android trilt je telefoon ook) en krijg je een melding met de naam van dat team — zodat je weet wie je heeft aangevallen. De melding blijft staan tot je hem zelf wegtikt met ✕.
-
-Items die al zijn opgepakt verdwijnen binnen een paar seconden van je kaart. In de uitleg (ℹ️-knop) blijven wel alle soorten items staan die in deze route voorkomen.
+Gooit een ander team een banaan naar jou, dan hoor je een diepe klokslag (op Android trilt je telefoon ook) en krijg je een melding met de naam van dat team. Je kaart toont meteen je nieuwe volgende punt. De melding blijft staan tot je hem zelf wegtikt.
 
 ---
 
@@ -106,15 +85,6 @@ De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschij
 
 ## Tips
 
-- Kijk goed om je heen — speciale items liggen niet altijd precies op de route.
-- Houd je inventaris in de gaten. Een Dief of Bom op het juiste moment kan het verschil maken.
-- Met de Radar zie je 2 minuten lang precies waar andere teams zijn. Handig als je wilt weten of iemand je inhaalt.
-- De Banaan kan het volgende punt van een tegenstander omgooien — gebruik hem als een team op het punt staat een makkelijk punt te halen.
-- Als je scherm bevriest of de app herlaadt, is je inventaris gewoon nog aanwezig.
-- Een Vraagteken is gokken: meestal levert het iets goeds op, maar je kunt ook zelf punten verliezen.
-
----
-
-## Klaar?
-
-Na het eindpunt staat je totaalscore vast. Je kunt daarna je eigen antwoorden terugkijken. De organisatie kan een leaderboard tonen met alle teams. Veel succes!
+- Bewaar je banaan voor een team dat bijna bij een punt is: dan moeten ze omkeren.
+- Wordt een team vlak voor het einde geraakt? Het eindpunt verandert nooit, alleen de punten daarvoor.
+- Als je scherm bevriest of de app herlaadt, staat je banaan gewoon nog in de balk.

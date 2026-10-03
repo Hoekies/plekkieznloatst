@@ -28,16 +28,18 @@ PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route l
 - Leaderboard na afloop
 
 ### Speciale items
+Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
+
 | Item | Effect |
 |---|---|
 | ⭐ Ster | Geeft direct bonuspunten |
-| 🔴 Verdubbeling | Volgende correct antwoord levert dubbele punten op |
+| 🔴 Verdubbeling | Volgende vraag met pluspunten levert dubbele punten op (minpunten nooit) |
 | 👻 Spook | Verbergt het doelpunt van een team 10 minuten |
 | 💣 Bom | Trekt punten af van een doelteam |
 | 🔄 Wissel | Wisselt scores met een doelteam |
-| 🦹 Dief | Steelt punten van de volgende correcte vraag van een doelteam |
+| 🦹 Dief | Steelt de pluspunten van de volgende vraag van een doelteam (minpunten nooit) |
 | 📡 Radar | Onthult exacte GPS-posities van alle teams voor 2 minuten |
-| 🍌 Banaan | Verwisselt het eerstvolgende punt van een doelteam met een ander punt |
+| 🍌 Banaan | Verwisselt het eerstvolgende punt van een doelteam met een ander punt (nooit het eindpunt) |
 | ⛔ Plek zooi | Onzichtbare val — blokkeert kaart en voortgang bij betreden |
 
 ---
@@ -114,6 +116,7 @@ supabase/migrations/025_punten_verwijderbaar_plekzooi_5min.sql
 supabase/migrations/026_spook_duur.sql
 supabase/migrations/027_hulpverzoeken.sql
 supabase/migrations/028_punten_per_antwoord_en_leesrechten.sql
+supabase/migrations/029_startitems.sql
 ```
 
 ### Starten

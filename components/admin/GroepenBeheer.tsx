@@ -6,9 +6,19 @@ import type { Speler } from "@/types/database";
 const TEMPLATE_KEY = "pointrush_deel_template";
 const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
 
+// heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
+type Groep = Speler & { heeft_spel?: boolean };
+
 type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
 
 const HANDLEIDING_URL = "https://plekkieznloatst.vercel.app/handleiding.jpg";
+
+// Gaat altijd mee onder de (eventueel zelf aangepaste) berichttekst
+const BEGINSCHERM_UITLEG = [
+  "📲 Zet PointRush op je beginscherm (open de link eerst in je browser, niet in WhatsApp):",
+  "• Android (Chrome): tik op ⋮ rechtsboven → \"Toevoegen aan startscherm\" of \"App installeren\"",
+  "• iPhone (Safari): tik op de deelknop (vierkantje met pijl omhoog) → \"Zet op beginscherm\"",
+].join("\n");
 
 export default function GroepenBeheer() {
   const [handleiding, setHandleiding] = useState<File | null>(null);
@@ -22,7 +32,7 @@ export default function GroepenBeheer() {
   }, []);
 
   function deelViaWhatsApp() {
-    const template = localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT;
+    const template = `${localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT}\n\n${BEGINSCHERM_UITLEG}`;
     // wa.me kan geen afbeelding meesturen; het deelmenu van telefoon/Windows wel (kies daar WhatsApp)
     if (handleiding && navigator.canShare?.({ files: [handleiding] })) {
       navigator.share({ text: template, files: [handleiding] }).catch(() => { /* geannuleerd */ });
@@ -32,7 +42,7 @@ export default function GroepenBeheer() {
     window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
   }
 
-  const [groepen, setGroepen] = useState<Speler[]>([]);
+  const [groepen, setGroepen] = useState<Groep[]>([]);
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
   const [modal, setModal] = useState<BeheerModal | null>(null);
@@ -49,7 +59,12 @@ export default function GroepenBeheer() {
     setLaden(false);
   }
 
-  useEffect(() => { laadGroepen(); }, []);
+  // Elke 10 s verversen, zodat inloggen en starten van groepen vanzelf zichtbaar worden
+  useEffect(() => {
+    laadGroepen();
+    const timer = setInterval(laadGroepen, 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   async function resetApparaat(id: string) {
     const res = await fetch(`/api/admin/groepen/${id}/apparaat`, { method: "PATCH" });
@@ -65,8 +80,9 @@ export default function GroepenBeheer() {
     if (!confirm(`Het spel van ${naam} stoppen?\nHun score en voortgang vervallen; bij opnieuw starten beginnen ze een nieuw spel.`)) return;
     const res = await fetch(`/api/admin/groepen/${id}/spel-stoppen`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) alert(data.fout ?? "Stoppen mislukt");
-    else if (data.gestopt === 0) alert(`${naam} had geen lopend spel.`);
+    if (!res.ok) { alert(data.fout ?? "Stoppen mislukt"); return; }
+    if (data.gestopt === 0) alert(`${naam} had geen lopend spel.`);
+    setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, heeft_spel: false } : g));
   }
 
   return (
@@ -119,6 +135,10 @@ export default function GroepenBeheer() {
             rows={4}
             style={{ width: "100%", fontSize: "0.875rem", marginBottom: 8 }}
           />
+          <p style={{ fontSize: "0.75rem", color: "var(--muted)", margin: "0 0 4px" }}>Wordt altijd automatisch toegevoegd:</p>
+          <p style={{ fontSize: "0.8rem", color: "var(--text)", whiteSpace: "pre-line", margin: "0 0 10px", padding: "8px 10px", borderRadius: 8, background: "rgba(255,255,255,0.05)" }}>
+            {BEGINSCHERM_UITLEG}
+          </p>
           <button
             className="btn btn-ghost"
             style={{ fontSize: "0.8rem" }}
@@ -194,14 +214,19 @@ export default function GroepenBeheer() {
                         🔓 Apparaat resetten
                       </button>
                     )}
-                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                      onClick={() => logGroepUit(g.id)} title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
-                      🚪 Uitloggen
-                    </button>
-                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                      onClick={() => stopSpel(g.id, displayNaam)} title="Beëindigt het lopende spel van deze groep">
-                      ⏹️ Spel stoppen
-                    </button>
+                    {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
+                    {g.active_device_id && (
+                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
+                        onClick={() => logGroepUit(g.id)} title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
+                        🚪 Uitloggen
+                      </button>
+                    )}
+                    {g.heeft_spel && (
+                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
+                        onClick={() => stopSpel(g.id, displayNaam)} title="Beëindigt het lopende spel van deze groep">
+                        ⏹️ Spel stoppen
+                      </button>
+                    )}
                   </div>
                 </div>
 

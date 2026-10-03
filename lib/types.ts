@@ -8,6 +8,7 @@ export type SpeciaalItemClaimResult =
 export type LeaderboardEntry = {
   rank: number;
   display_name: string;
+  icon: string | null;
   score: number;
   tijd_seconden: number;
   distance_meters: number;

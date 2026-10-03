@@ -71,7 +71,7 @@ Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS 
 | Correct antwoord op vraagpunt | Zoals ingesteld per punt |
 | Fout antwoord | 0 punten |
 | Speciaal item: Ster ⭐ | Direct bonuspunten |
-| Speciaal item: Verdubbeling 🔴 | Volgend correct antwoord × 2 |
+| Speciaal item: Verdubbeling 🔴 | Volgende vraag met pluspunten × 2 |
 
 ---
 
@@ -88,11 +88,11 @@ Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de
 | Item | Naam | Wat doet het? |
 |---|---|---|
 | ⭐ | Ster | Geeft direct bonuspunten aan jouw team |
-| 🔴 | Verdubbeling | Jouw volgende correct beantwoorde vraag levert dubbele punten op |
+| 🔴 | Verdubbeling | Jouw volgende vraag waarmee je punten verdient, levert dubbele punten op. Minpunten worden nooit verdubbeld. |
 | 👻 | Spook | Het volgende punt van een gekozen team verdwijnt een tijdje (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 💣 | Bom | Trekt punten af van een gekozen team |
 | 🔄 | Wissel | Wisselt jouw score met die van een gekozen team |
-| 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van een gekozen team |
+| 🦹 | Dief | Steelt de punten van de eerstvolgende vraag waarmee een gekozen team punten verdient. Minpunten worden nooit gestolen. |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
 | ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |

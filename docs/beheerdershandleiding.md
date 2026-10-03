@@ -46,8 +46,8 @@ In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar s
 
 | Instelling | Bij welk speltype |
 |---|---|
-| **⭐ Item-waarden** — standaard ster- en bomwaarde | Sequentieel, Verspreid |
-| **⏱️ Duur van effecten** — hoe lang 👻 Spook en ⛔ Plekzooi duren (minuten) | Sequentieel, Verspreid |
+| **⭐ Item-waarden** — standaard ster- en bomwaarde | Verspreid |
+| **⏱️ Duur van effecten** — hoe lang 👻 Spook (Verspreid) en ⛔ Plekzooi duren (minuten) | Sequentieel, Verspreid |
 | **🔄 Respawn** — items opnieuw laten verschijnen | Verspreid |
 | **☁️ Mist-instellingen** — m² per ster | Mist |
 | **🏆 Tussenstand** — automatische reveal | alle |
@@ -172,6 +172,10 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 ### 3. Speciale items plaatsen (optioneel)
 
 > Speciale items bestaan alleen bij **Sequentieel** en **Verspreid**. Een mist-route heeft ze niet.
+>
+> **Sequentieel:** op de kaart plaats je alleen **⛔ Plek zooi**. Elk team krijgt bij de start automatisch
+> één **🍌 banaan** in de balk, die ze op een tegenstander kunnen gooien. Die startbananen zie je niet in de
+> editor en ze worden bij *Reset spel* opgeruimd.
 
 1. Klik op **⭐ Item toevoegen** in de route-editor.
 2. Klik op de kaart waar het item moet liggen.
@@ -184,11 +188,11 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 | Item | Naam | Effect |
 |---|---|---|
 | ⭐ | Ster | Geeft het opraapteam direct bonuspunten |
-| 🔴 | Verdubbeling | Volgende correct beantwoorde vraag van het opraapteam levert dubbele punten op |
+| 🔴 | Verdubbeling | Volgende vraag waarmee het opraapteam punten verdient, levert dubbele punten op (minpunten nooit) |
 | 👻 | Spook | Het volgende punt van het doelteam verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 💣 | Bom | Trekt een ingesteld aantal punten af van het doelteam |
 | 🔄 | Wissel | Wisselt de score van het opraapteam met die van het doelteam |
-| 🦹 | Dief | Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam |
+| 🦹 | Dief | Steelt de punten van de eerstvolgende vraag waarmee het doelteam punten verdient (minpunten nooit) |
 | 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
 | 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van het doelteam met een ander nog te bezoeken punt |
 | ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. Kaart en voortgang zijn geblokkeerd tijdens de blokkade (standaard 5 minuten). De val blijft daarna liggen voor andere teams, maar raakt elk team maar één keer. |

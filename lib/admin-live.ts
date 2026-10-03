@@ -58,11 +58,14 @@ export async function haalLiveData(): Promise<LiveData> {
 
   let specialeItems: SpeciaalItem[] = [];
   if (route) {
-    const { data: items } = await admin
+    // Startitems liggen niet op de kaart; sequentieel heeft alleen plek zooi op de kaart
+    let query = admin
       .from("special_items")
       .select("*")
       .eq("route_id", route.id)
-      .order("created_at");
+      .eq("is_startitem", false);
+    if (route.modus === "sequentieel") query = query.eq("type", "plekzooi");
+    const { data: items } = await query.order("created_at");
     specialeItems = (items ?? []) as SpeciaalItem[];
   }
 

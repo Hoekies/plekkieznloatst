@@ -49,6 +49,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "plekzooi", expires_at: expiresAt });
   }
 
+  const { data: route } = await admin
+    .from("routes")
+    .select("modus, item_respawn, respawn_minuten")
+    .eq("id", sessie.route_id)
+    .maybeSingle();
+
+  // Sequentieel: op de kaart liggen alleen plek-zooi-vallen, er valt niets op te pakken
+  if (route?.modus === "sequentieel") return NextResponse.json({ status: "al_geclaimd" });
+
   const { data: item, error } = await admin
     .from("special_items")
     .update({
@@ -59,6 +68,7 @@ export async function POST(request: NextRequest) {
     .eq("id", special_item_id)
     .eq("route_id", sessie.route_id)
     .eq("claimed", false)
+    .eq("is_startitem", false)
     .select()
     .maybeSingle();
 
@@ -66,12 +76,6 @@ export async function POST(request: NextRequest) {
   if (!item) return NextResponse.json({ status: "al_geclaimd" });
 
   // Respawn inplannen als item_respawn aan staat in verspreid-modus
-  const { data: route } = await admin
-    .from("routes")
-    .select("modus, item_respawn, respawn_minuten")
-    .eq("id", sessie.route_id)
-    .maybeSingle();
-
   if (route?.modus === "verspreid" && route.item_respawn) {
     const respawnAt = new Date(Date.now() + (route.respawn_minuten ?? 15) * 60 * 1000).toISOString();
     await admin.from("special_items").update({ respawn_at: respawnAt }).eq("id", special_item_id);

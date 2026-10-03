@@ -168,5 +168,34 @@ export async function POST() {
     }
   }
 
+  if (route.modus === "sequentieel") {
+    const { data: punten } = await admin
+      .from("route_points")
+      .select("id, latitude, longitude")
+      .eq("route_id", route.id)
+      .order("order_index");
+
+    if (punten && punten.length > 0) {
+      // Eigen volgorde per team (gewoon de routevolgorde), zodat een banaan punten kan omwisselen
+      await admin.from("session_point_order").insert(
+        punten.map((p, k) => ({ session_id: sessie.id, volgorde: k + 1, route_point_id: p.id })),
+      );
+
+      // Ieder team begint met één banaan in de balk; startitems staan nooit op de kaart
+      await admin.from("special_items").insert({
+        route_id: route.id,
+        type: "banaan",
+        name: "Startbanaan",
+        latitude: punten[0].latitude,
+        longitude: punten[0].longitude,
+        points_effect: 0,
+        claimed: true,
+        claimed_by_session_id: sessie.id,
+        claimed_at: new Date().toISOString(),
+        is_startitem: true,
+      });
+    }
+  }
+
   return NextResponse.json({ ...sessie, modus: route.modus });
 }

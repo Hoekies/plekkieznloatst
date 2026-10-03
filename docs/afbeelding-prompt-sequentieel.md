@@ -37,18 +37,15 @@ SECTION 2 — "De kaart" (a small stylized map illustration with a legend of 5 m
 Caption under the map: "Toekomstige punten zijn onzichtbaar — pas als je het huidige punt
 hebt afgerond, verschijnt het volgende."
 
-SECTION 3 — "Speciale items" as a 3x3 icon grid, each cell = emoji + short Dutch label:
-⭐ Ster — bonuspunten · 🔴 Verdubbeling — dubbele punten · 👻 Spook — verbergt doelpunt
-💣 Bom — trekt punten af · 🔄 Wissel — wissel scores · 🦹 Dief — steelt punten
-📡 Radar — toont alle teams · 🍌 Banaan — verwisselt punt · ⛔ Plek zooi — onzichtbare val
-Small note under the grid: "Eerste team dat een item bereikt, pakt het op. Gebruik via de
-inventarisbalk onderin de kaart."
+SECTION 3 — "Je startbanaan" with two icon cards side by side:
+🍌 Banaan — "Elk team krijgt er één bij de start. Gooi hem naar een tegenstander: hun volgende
+punt wordt omgewisseld (het eindpunt nooit)."
+⛔ Plek zooi — "Onzichtbare val op de kaart. Loop je erover, dan sta je een paar minuten stil."
 
 SECTION 4 — "Tips" (short bullet list with a lightbulb icon 💡):
-- Kijk goed om je heen, items liggen niet altijd op de route
-- Radar toont 2 minuten lang alle teams
-- Banaan gooit het volgende punt van een tegenstander om
-- Je inventaris blijft bewaard, ook als de app herlaadt
+- Je hebt maar één banaan: bewaar hem voor het juiste moment
+- Gooi hem naar een team dat bijna bij een punt is
+- Je banaan blijft bewaard, ook als de app herlaadt
 
 FOOTER banner: "🏁 Bij het eindpunt staat je score vast — bekijk het leaderboard!"
 

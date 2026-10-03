@@ -107,8 +107,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Verdubbeling check: actief effect op eigen sessie?
-  if (isCorrect && puntWaarde > 0) {
+  // Verdubbeling en dief werken alleen op een positieve score. Bij 0 of minpunten blijven
+  // ze gewoon klaarstaan voor de volgende vraag waarmee wél punten worden verdiend.
+  if (puntWaarde > 0) {
     const { data: dubbel } = await admin
       .from("special_item_effects")
       .select("id")
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Diefstal check: actief effect op eigen sessie? (alleen voor vraagpunten)
-  if (punt.type === "vraagpunt") {
+  if (punt.type === "vraagpunt" && puntWaarde > 0) {
     const { data: diefstal } = await admin
       .from("special_item_effects")
       .select("id, special_item_id")
@@ -138,57 +139,57 @@ export async function POST(request: NextRequest) {
     if (diefstal) {
       await admin.from("special_item_effects").delete().eq("id", diefstal.id);
 
-      if (isCorrect && puntWaarde > 0) {
-        const { data: diefItem } = await admin
-          .from("special_items")
-          .select("claimed_by_session_id")
-          .eq("id", diefstal.special_item_id)
+      const { data: diefItem } = await admin
+        .from("special_items")
+        .select("claimed_by_session_id")
+        .eq("id", diefstal.special_item_id)
+        .maybeSingle();
+
+      if (diefItem?.claimed_by_session_id) {
+        const { data: diefSessie } = await admin
+          .from("player_sessions")
+          .select("score, player_id")
+          .eq("id", diefItem.claimed_by_session_id)
           .maybeSingle();
 
-        if (diefItem?.claimed_by_session_id) {
-          const { data: diefSessie } = await admin
-            .from("player_sessions")
-            .select("score, player_id")
-            .eq("id", diefItem.claimed_by_session_id)
-            .maybeSingle();
+        const { data: diefSpeler } = await admin
+          .from("players")
+          .select("nickname, login_name")
+          .eq("id", diefSessie?.player_id ?? "")
+          .maybeSingle();
+        const diefNaam = diefSpeler?.nickname ?? diefSpeler?.login_name ?? "Een team";
 
-          const { data: diefSpeler } = await admin
-            .from("players")
-            .select("nickname, login_name")
-            .eq("id", diefSessie?.player_id ?? "")
-            .maybeSingle();
-          const diefNaam = diefSpeler?.nickname ?? diefSpeler?.login_name ?? "Een team";
+        const { data: slachtofferSpeler } = await admin
+          .from("players")
+          .select("nickname, login_name")
+          .eq("id", sessie.player_id)
+          .maybeSingle();
+        const slachtofferNaam = slachtofferSpeler?.nickname ?? slachtofferSpeler?.login_name ?? "een team";
 
-          const { data: slachtofferSpeler } = await admin
-            .from("players")
-            .select("nickname, login_name")
-            .eq("id", sessie.player_id)
-            .maybeSingle();
-          const slachtofferNaam = slachtofferSpeler?.nickname ?? slachtofferSpeler?.login_name ?? "een team";
+        await admin.from("player_sessions")
+          .update({ score: (diefSessie?.score ?? 0) + puntWaarde })
+          .eq("id", diefItem.claimed_by_session_id);
 
-          await admin.from("player_sessions")
-            .update({ score: (diefSessie?.score ?? 0) + puntWaarde })
-            .eq("id", diefItem.claimed_by_session_id);
+        // Meldingen als punt_aftrek (alleen melding): met type "diefstal" zou zo'n melding
+        // bij de volgende vraag zelf weer als actieve dief worden gevonden
+        await Promise.all([
+          admin.from("special_item_effects").insert({
+            special_item_id: diefstal.special_item_id,
+            target_session_id: sessie.id,
+            effect_type: "punt_aftrek",
+            expires_at: null,
+            notification: `🦹 ${diefNaam} heeft je ${puntWaarde} punten gestolen!`,
+          }),
+          admin.from("special_item_effects").insert({
+            special_item_id: diefstal.special_item_id,
+            target_session_id: diefItem.claimed_by_session_id,
+            effect_type: "punt_aftrek",
+            expires_at: null,
+            notification: `🦹 Je hebt ${puntWaarde} punten gestolen van ${slachtofferNaam}!`,
+          }),
+        ]);
 
-          await Promise.all([
-            admin.from("special_item_effects").insert({
-              special_item_id: diefstal.special_item_id,
-              target_session_id: sessie.id,
-              effect_type: "diefstal",
-              expires_at: null,
-              notification: `🦹 ${diefNaam} heeft je ${puntWaarde} punten gestolen!`,
-            }),
-            admin.from("special_item_effects").insert({
-              special_item_id: diefstal.special_item_id,
-              target_session_id: diefItem.claimed_by_session_id,
-              effect_type: "diefstal",
-              expires_at: null,
-              notification: `🦹 Je hebt ${puntWaarde} punten gestolen van ${slachtofferNaam}!`,
-            }),
-          ]);
-
-          puntWaarde = 0;
-        }
+        puntWaarde = 0;
       }
     }
   }

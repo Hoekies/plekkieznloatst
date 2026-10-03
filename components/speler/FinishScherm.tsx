@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formateerTijd } from "@/lib/geo";
 import type { LeaderboardEntry } from "@/lib/types";
+import StandRij from "./StandRij";
 
 interface Props {
   groepNaam: string;
@@ -16,7 +17,6 @@ interface Props {
 const CONFETTI_KLEUREN = ["#F59E0B", "#1E40AF", "#EF4444", "#10B981", "#8B5CF6", "#F97316", "#06B6D4"];
 const CONFETTI_AANTAL = 70;
 const POLL_INTERVAL_MS = 10000;
-const RANK_EMOJI = ["🥇", "🥈", "🥉"];
 
 type ConfettiStuk = {
   id: number;
@@ -126,13 +126,15 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
 
         {/* Leaderboard */}
         <div style={{ width: "100%" }}>
-          <h2 style={{ fontSize: "1rem", marginBottom: 12, color: "var(--ink)" }}>🏆 Leaderboard</h2>
+          <h2 style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, marginBottom: 14, color: "#00d9ff" }}>
+            <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> Eindstand
+          </h2>
           {leaderboard.length === 0 ? (
             <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {leaderboard.map((entry) => (
-                <LeaderboardRij key={entry.rank} entry={entry} />
+                <StandRij key={entry.rank} entry={entry} />
               ))}
             </div>
           )}
@@ -191,42 +193,6 @@ function StatKaart({ waarde, label, kleur, tabular }: { waarde: string; label: s
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>{waarde}</div>
       <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>{label}</div>
-    </div>
-  );
-}
-
-// ── LeaderboardRij ─────────────────────────────────────────────────────────────
-function LeaderboardRij({ entry }: { entry: LeaderboardEntry }) {
-  const isEigen = entry.is_eigen_team;
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 10,
-      padding: "10px 14px", borderRadius: 12,
-      background: isEigen ? "var(--blue-soft)" : "rgba(255,255,255,0.06)",
-      border: `1.5px solid ${isEigen ? "var(--blue)" : "var(--line)"}`,
-    }}>
-      <span style={{ fontSize: "1.3rem", flexShrink: 0, width: 28, textAlign: "center" }}>
-        {RANK_EMOJI[entry.rank - 1] ?? `${entry.rank}.`}
-      </span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontWeight: 700, fontSize: "0.9rem",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          color: isEigen ? "var(--blue)" : "var(--ink)",
-        }}>
-          {entry.display_name}{isEigen && " (jij)"}
-        </div>
-        <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1, display: "flex", gap: 8 }}>
-          <span>{formateerTijd(entry.tijd_seconden)}</span>
-          {entry.distance_meters > 0 && <span>{formateerAfstand(entry.distance_meters)}</span>}
-        </div>
-      </div>
-      <div style={{
-        fontWeight: 800, fontSize: "1.05rem",
-        color: isEigen ? "var(--blue)" : "var(--ink)", flexShrink: 0,
-      }}>
-        {entry.score} <span style={{ fontWeight: 400, fontSize: "0.72rem", color: "var(--muted)" }}>pt</span>
-      </div>
     </div>
   );
 }
