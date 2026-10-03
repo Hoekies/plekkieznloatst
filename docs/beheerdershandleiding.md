@@ -20,7 +20,7 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
    - **Type** — Vraagpunt, Infopunt of Eindpunt
    - **Radius** — hoeveel meter een speler van het punt mag staan (standaard 30–50 m)
    - **Punten** — hoeveel punten een correct antwoord oplevert
-   - **Vraag** — klik op "Vraag bewerken" voor de vraag, antwoorden en afbeelding
+   - **Vraag** — klik op "Vraag bewerken" voor de vraag, antwoorden en afbeelding. Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
 8. Klik op **Publiceer** als de route klaar is.
 

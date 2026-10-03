@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
       if (!gekozen) return NextResponse.json({ fout: "Ongeldig antwoord" }, { status: 400 });
 
       isCorrect = gekozen.is_correct;
-      puntWaarde = isCorrect ? vraag.points : 0;
+      // Eigen punten per antwoord (kan negatief zijn); anders goed = vraagpunten, fout = 0
+      puntWaarde = typeof gekozen.punten === "number" ? gekozen.punten : (isCorrect ? vraag.points : 0);
       correctAnswerId = vraag.answer_options.find((a: { is_correct: boolean }) => a.is_correct)?.id ?? null;
     } else if (vraag.type === "open") {
       if (open_answer_text === undefined || open_answer_text === null) {
@@ -208,10 +209,11 @@ export async function POST(request: NextRequest) {
 
   if (error || !bijgewerkt) return NextResponse.json({ fout: error?.message }, { status: 500 });
 
-  // Score bijwerken — lees huidige score opnieuw om stale read te vermijden
-  if (puntWaarde > 0) {
+  // Score bijwerken — lees huidige score opnieuw om stale read te vermijden.
+  // Negatieve antwoordpunten trekken af, maar nooit onder 0 (net als de bom).
+  if (puntWaarde !== 0) {
     const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", sessie.id).maybeSingle();
-    await admin.from("player_sessions").update({ score: (huidig?.score ?? sessie.score) + puntWaarde }).eq("id", sessie.id);
+    await admin.from("player_sessions").update({ score: Math.max(0, (huidig?.score ?? sessie.score) + puntWaarde) }).eq("id", sessie.id);
   }
 
   // Eindpunt → sessie sluiten

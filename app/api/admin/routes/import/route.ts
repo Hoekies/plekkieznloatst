@@ -9,6 +9,7 @@ type AntwoordOptieImport = {
   text: string | null;
   image_path: string | null;
   is_correct: boolean;
+  punten?: number | null;
 };
 
 type VraagImport = {
@@ -134,6 +135,7 @@ export async function POST(request: Request) {
           text: opt.text ?? null,
           image_path: opt.image_path ?? null,
           is_correct: opt.is_correct ?? false,
+          ...(typeof opt.punten === "number" && Number.isFinite(opt.punten) ? { punten: Math.round(opt.punten) } : {}),
         }))
       );
     }

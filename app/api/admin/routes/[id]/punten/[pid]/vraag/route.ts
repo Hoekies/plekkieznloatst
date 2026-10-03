@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   // Antwoorden invoegen (alleen bij meerkeuzevragen)
   if (body.type !== "open" && body.type !== "foto_opdracht" && body.antwoorden?.length) {
     const { error: insertFout } = await admin.from("answer_options").insert(
-      body.antwoorden.map((a: { color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean }, i: number) => ({
+      body.antwoorden.map((a: { color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; punten?: number | null }, i: number) => ({
         question_id: vraagId,
         order_index: i + 1,
         color: a.color,
@@ -95,6 +95,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         text: a.text ?? null,
         image_path: a.image_path ?? null,
         is_correct: a.is_correct,
+        punten: typeof a.punten === "number" && Number.isFinite(a.punten) ? Math.round(a.punten) : null,
       }))
     );
     if (insertFout) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${insertFout.message}` }, { status: 500 });

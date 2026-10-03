@@ -9,6 +9,7 @@ type AntwoordOptieRij = {
   text: string | null;
   image_path: string | null;
   is_correct: boolean;
+  punten?: number | null;
 };
 
 type VraagRij = {
@@ -59,7 +60,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
       order_index, type, name, description, latitude, longitude, radius_meters, points, image_path, sound_path,
       questions(
         type, question_text, question_image_path, points, correct_text_answers, numeric_answer, numeric_tolerance,
-        answer_options(order_index, color, answer_type, text, image_path, is_correct)
+        answer_options(*)
       )
     `)
     .eq("route_id", params.id)
@@ -96,6 +97,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
             text: opt.text,
             image_path: opt.image_path,
             is_correct: opt.is_correct,
+            punten: opt.punten ?? null,
           })),
         } : null,
       };

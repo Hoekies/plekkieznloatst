@@ -156,7 +156,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
         if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
         broadcastTimerRef.current = setTimeout(() => setBroadcastBericht(null), 8000);
       })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "special_items" }, () => { haalSpecialeItemsOp(); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "special_item_effects" }, () => { haalEffectenOp(); })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "player_sessions", filter: `id=eq.${sessie.id}` }, () => {
         router.push("/speler");

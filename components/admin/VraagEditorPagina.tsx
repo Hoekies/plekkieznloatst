@@ -16,6 +16,10 @@ const KLEUREN = ["geel", "blauw", "rood", "groen"] as const;
 const KLEUR_STIJL: Record<string, string> = {
   geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A",
 };
+// Lichtere varianten voor tekst en rondjes op de donkere admin-achtergrond (#1E40AF was onleesbaar)
+const LABEL_KLEUR: Record<string, string> = {
+  geel: "#F59E0B", blauw: "#60A5FA", rood: "#F87171", groen: "#22C55E",
+};
 const KLEUR_ZACHT: Record<string, string> = {
   geel: "#FEF9C3", blauw: "#DBEAFE", rood: "#FEE2E2", groen: "#DCFCE7",
 };
@@ -38,6 +42,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
     text: string;
     image_path: string | null;
     is_correct: boolean;
+    // Leeg = standaard (goed antwoord krijgt de vraagpunten, fout 0); mag negatief zijn
+    punten: string;
   }[]>(
     bestaandeVraag?.answer_options.length === 4
       ? bestaandeVraag.answer_options.map((a) => ({
@@ -45,8 +51,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
           text: a.text ?? "",
           image_path: a.image_path,
           is_correct: a.is_correct,
+          punten: a.punten === null || a.punten === undefined ? "" : String(a.punten),
         }))
-      : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel" }))
+      : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" }))
   );
 
   const [openAntwoorden, setOpenAntwoorden] = useState(
@@ -108,12 +115,16 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
       if (antwoordType === "afbeelding" && antwoorden.some((a) => !a.image_path)) {
         setFout("Upload een afbeelding voor elk antwoord"); setOpslaan(false); return;
       }
+      if (antwoorden.some((a) => a.punten.trim() !== "" && !Number.isFinite(Number(a.punten)))) {
+        setFout("Vul bij de punten per antwoord een getal in (of laat het leeg)"); setOpslaan(false); return;
+      }
       body.antwoorden = antwoorden.map((a) => ({
         color: a.color,
         answer_type: antwoordType,
         text: antwoordType === "tekst" ? a.text.trim() : null,
         image_path: antwoordType === "afbeelding" ? a.image_path : null,
         is_correct: a.is_correct,
+        punten: a.punten.trim() === "" ? null : Math.round(Number(a.punten)),
       }));
     }
 
@@ -247,26 +258,27 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
               <div className="card">
                 <h3 style={{ marginBottom: 16 }}>Antwoorden</h3>
                 <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginBottom: 16 }}>
-                  Klik op het rondje om het juiste antwoord te markeren.
+                  Klik op het rondje om het juiste antwoord te markeren. Bij <strong style={{ color: "var(--text)" }}>punten</strong> kun je per antwoord een eigen
+                  waarde invullen, ook negatief. Leeg laten = het goede antwoord krijgt de punten hierboven, de andere 0.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {antwoorden.map((ant, i) => (
                     <div key={ant.color} style={{
                       display: "flex", alignItems: "center", gap: 10,
                       padding: "10px 14px", borderRadius: "var(--radius-md)",
-                      border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "var(--line)"}`,
-                      background: ant.is_correct ? `${KLEUR_STIJL[ant.color]}12` : "transparent",
+                      border: `2px solid ${ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)"}`,
+                      background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : "transparent",
                     }}>
                       <button type="button" onClick={() => setCorrect(i)}
                         style={{
                           width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                          border: `2px solid ${KLEUR_STIJL[ant.color]}`,
-                          background: ant.is_correct ? KLEUR_STIJL[ant.color] : "transparent",
+                          border: `2px solid ${LABEL_KLEUR[ant.color]}`,
+                          background: ant.is_correct ? LABEL_KLEUR[ant.color] : "transparent",
                           cursor: "pointer",
                         }} />
                       <span style={{
                         width: 54, fontSize: "0.75rem", fontWeight: 700,
-                        color: KLEUR_STIJL[ant.color], flexShrink: 0, textTransform: "capitalize",
+                        color: LABEL_KLEUR[ant.color], flexShrink: 0, textTransform: "capitalize",
                       }}>{ant.color}</span>
                       {type === "meerkeuze_tekst" ? (
                         <input className="form-input" style={{ flex: 1, fontSize: "0.88rem" }}
@@ -282,6 +294,14 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                           compact
                         />
                       )}
+                      <input className="form-input" type="number" step={1}
+                        title="Punten voor dit antwoord (leeg = standaard, mag negatief)"
+                        aria-label={`Punten voor antwoord ${ant.color}`}
+                        value={ant.punten}
+                        placeholder={ant.is_correct ? String(punten) : "0"}
+                        onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, punten: e.target.value } : x))}
+                        style={{ width: 84, flexShrink: 0, fontSize: "0.88rem", textAlign: "right" }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)", flexShrink: 0 }}>pt</span>
                     </div>
                   ))}
                 </div>

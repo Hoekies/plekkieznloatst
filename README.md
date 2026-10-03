@@ -113,6 +113,7 @@ supabase/migrations/024_afstand_afgelegd.sql
 supabase/migrations/025_punten_verwijderbaar_plekzooi_5min.sql
 supabase/migrations/026_spook_duur.sql
 supabase/migrations/027_hulpverzoeken.sql
+supabase/migrations/028_punten_per_antwoord_en_leesrechten.sql
 ```
 
 ### Starten

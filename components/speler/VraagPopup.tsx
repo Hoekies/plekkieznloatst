@@ -547,6 +547,11 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
             +{feedback.points_awarded} punt{feedback.points_awarded !== 1 ? "en" : ""} verdiend
           </div>
         )}
+        {feedback.points_awarded < 0 && (
+          <div style={{ fontSize: "0.9rem", color: "#B91C1C", fontWeight: 700 }}>
+            {feedback.points_awarded} punt{feedback.points_awarded !== -1 ? "en" : ""} — die gaan van je score af
+          </div>
+        )}
       </div>
 
       {!feedback.is_correct && (

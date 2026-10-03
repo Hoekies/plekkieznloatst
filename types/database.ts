@@ -82,6 +82,8 @@ export interface AntwoordOptie {
   text: string | null;
   image_path: string | null;
   is_correct: boolean;
+  // Punten voor dit antwoord; null = goed antwoord krijgt de vraagpunten, fout 0
+  punten: number | null;
 }
 
 export interface Speler {
