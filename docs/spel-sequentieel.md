@@ -63,23 +63,31 @@ Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt
 
 Bij Sequentieel liggen er geen items op de kaart. In plaats daarvan krijgt **elk team bij de start één banaan** in de balk onderin de kaart.
 
-- Tik op de banaan en kies een tegenstander.
-- Het eerstvolgende punt van dat team wordt omgewisseld met een ander punt dat ze nog moeten bezoeken. Het eindpunt blijft altijd het laatste punt.
+- Tik op de banaan en kies een **tegenstander**.
+- Hun volgende punt wordt omgewisseld met een ander punt dat ze nog moeten halen. Het eindpunt blijft altijd als laatste.
 - Je hebt er maar één: kies je moment goed. Je mag hem ook bewaren.
 
 ### Plek zooi ⛔
 
-Op de kaart kunnen onzichtbare vallen liggen. Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer.
+Op de kaart kunnen onzichtbare vallen liggen. Loop je erover, dan sta je een tijdje stil (standaard 5 minuten): je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer.
 
 ### Meldingen
 
-Gooit een ander team een banaan naar jou, dan hoor je een diepe klokslag (op Android trilt je telefoon ook) en krijg je een melding met de naam van dat team. Je kaart toont meteen je nieuwe volgende punt. De melding blijft staan tot je hem zelf wegtikt.
+Gooit een tegenstander een banaan naar jullie, dan hoor je een diepe klokslag (op Android trilt je telefoon ook) en zie je een groot venster met de naam van dat team. Je kaart toont meteen je nieuwe volgende punt. Het venster blijft staan tot je op **OK, BEGREPEN** tikt.
+
+---
+
+## Uitleg in de app (i)
+
+Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
 
 ---
 
 ## Tussenstand
 
-De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschijnt vanzelf een aantal seconden in beeld bij alle teams tegelijk, zodat iedereen weet hoe het ervoor staat.
+De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschijnt een paar seconden bij alle teams tegelijk: elk team met zijn icoon, naam en punten, de meeste punten bovenaan.
+
+Aan het eind zie je op je eindscherm de **eindstand** van alle teams, met medailles voor de top 3.
 
 ---
 

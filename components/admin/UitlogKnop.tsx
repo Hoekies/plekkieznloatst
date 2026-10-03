@@ -11,11 +11,7 @@ export default function UitlogKnop() {
   }
 
   return (
-    <button
-      onClick={uitloggen}
-      className="admin-nav-link"
-      style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
-    >
+    <button onClick={uitloggen} className="admin-nav-link">
       <span aria-hidden>🚪</span> Uitloggen
     </button>
   );

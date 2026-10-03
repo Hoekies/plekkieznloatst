@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
-import SpeciaalItemLegende, { ITEM_INFO } from "./SpeciaalItemLegende";
+import SpeciaalItemLegende, { ITEM_INFO, type RouteWaarden } from "./SpeciaalItemLegende";
 import InventarisBar from "./InventarisBar";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
@@ -28,6 +28,7 @@ interface Props {
   punten: RoutePunt[];
   initVoortgang: SpelerPuntVoortgang[];
   modus: "sequentieel" | "verspreid";
+  waarden: RouteWaarden;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -49,7 +50,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -721,6 +722,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus }: Pr
         <SpeciaalItemPopup
           item={activeSpeciaalItem}
           andereSessies={andereSpelers.map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
+          waarden={waarden}
           onVerwerkt={inventarisItemGebruikt}
           onSluit={bewaarItemVoorLater}
         />
@@ -732,6 +734,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus }: Pr
           onSluit={() => setLegendeOpen(false)}
           speciaalItems={legendeItems}
           modus={modus}
+          waarden={waarden}
         />
       )}
 
@@ -761,7 +764,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus }: Pr
                 </div>
                 {info && (
                   <p style={{ margin: 0, fontSize: "0.88rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.45 }}>
-                    {info.beschrijving(Math.abs(opgepakt.item.points_effect) || undefined)}
+                    {info.beschrijving(waarden)}
                   </p>
                 )}
                 <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--pr-gold)", fontWeight: 700 }}>

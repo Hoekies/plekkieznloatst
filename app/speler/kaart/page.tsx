@@ -40,7 +40,7 @@ export default async function SpelerKaartPage() {
       .order("reached_at"),
     admin
       .from("routes")
-      .select("modus, is_active")
+      .select("modus, is_active, ster_waarde, bom_waarde, spook_duur_seconden, plekzooi_duur_seconden")
       .eq("id", sessie.route_id)
       .maybeSingle(),
     admin
@@ -78,6 +78,12 @@ export default async function SpelerKaartPage() {
       punten={punten}
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
+      waarden={{
+        ster: route.ster_waarde ?? 50,
+        bom: route.bom_waarde ?? 30,
+        spookSec: route.spook_duur_seconden ?? 600,
+        plekzooiSec: route.plekzooi_duur_seconden ?? 300,
+      }}
     />
   );
 }

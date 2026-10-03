@@ -43,19 +43,23 @@ SECTION 3 — "De kaart" (small stylized map illustration with legend of map sym
 Caption: "Kom je een ander team tegen? Die is ergens anders in de lus bezig, jullie
 volgorde is niet gelijk."
 
-SECTION 4 — "Speciale items" as a 3x3 icon grid, each cell = emoji + short Dutch label:
-⭐ Ster — bonuspunten · 🔴 Verdubbeling — dubbele punten · 👻 Spook — verbergt doelpunt
-💣 Bom — trekt punten af · 🔄 Wissel — wissel scores · 🦹 Dief — steelt punten
-📡 Radar — toont alle teams · 🍌 Banaan — verwisselt punt · ⛔ Plek zooi — onzichtbare val
-Small note with a "🔄 respawn" badge icon: "Kan de organisatie respawn aanzetten hebben —
-opgeraapte items komen dan later weer terug op de kaart."
+SECTION 4 — "Speciale items" as an icon grid of 2 columns × 5 rows, in exactly this order,
+each cell = emoji + short Dutch label:
+⭐ Ster — extra punten cadeau · 🔴 Verdubbeling — volgende vraag telt dubbel
+📡 Radar — zie alle tegenstanders · 💣 Bom — tegenstander verliest punten
+👻 Spook — hun volgende punt verdwijnt · 🦹 Dief — steel hun volgende punten
+🍌 Banaan — gooi hun volgende punt om · 🔄 Wissel — ruil je score
+❓ Vraagteken — gok: winst of pech · ⛔ Plek zooi — onzichtbare val
+Small note: "Tik een item onderin aan en kies een tegenstander. Uitleg staat onder de i-knop."
+Small note with a "🔄 respawn" badge icon: "Staat respawn aan? Dan komen opgeraapte items
+later weer terug op de kaart."
 
 SECTION 5 — "Tips" (short bullet list with a lightbulb icon 💡):
 - Ga niet achter een ander team aan, hun volgorde is anders dan die van jou
 - Staat respawn aan? Dan loont een tweede rondje langs een goede plek
-- Je inventaris blijft bewaard, ook als de app herlaadt
+- Je items blijven in je balk, ook als de app herlaadt
 
-FOOTER banner: "🏁 Terug bij de hub staat je score vast — bekijk het leaderboard!"
+FOOTER banner: "🏁 Terug bij de hub staat je score vast — bekijk de eindstand!"
 
 Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
 photorealistic humans, no readable brand logos other than the "PointRush" title itself.

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SpeciaalItem } from "@/types/database";
+import { ITEM_INFO as UITLEG, type RouteWaarden } from "./SpeciaalItemLegende";
 
 type Fase = "bevestig" | "kies_team" | "bezig" | "bevestigd" | "fout";
 
@@ -12,32 +13,34 @@ interface AndereSpeler {
 
 interface Props {
   item: SpeciaalItem;
+  waarden: RouteWaarden;
   andereSessies: AndereSpeler[];
   onVerwerkt: (itemId: string, eigenNotificatie?: string) => void;
   onSluit?: () => void;
 }
 
-const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string; beschrijving: string }> = {
-  spook:        { emoji: "👻", kleur: "#7C3AED", label: "Spook",        beschrijving: "Verbergt het huidige doel van een team voor 10 minuten." },
-  bom:          { emoji: "💣", kleur: "#DC2626", label: "Bom",          beschrijving: "Trekt punten af van een team." },
-  ster:         { emoji: "⭐", kleur: "#D97706", label: "Ster",         beschrijving: "Geeft direct bonuspunten aan jouw team!" },
-  verdubbeling: { emoji: "🔴", kleur: "#B91C1C", label: "Verdubbeling", beschrijving: "Jouw volgende vraagpunt levert dubbele punten op!" },
-  wissel:       { emoji: "🔄", kleur: "#1D4ED8", label: "Wissel",       beschrijving: "Wisselt jouw score met die van een ander team." },
-  dief:         { emoji: "🦹", kleur: "#7C2D12", label: "Dief",         beschrijving: "Steelt de punten van de eerstvolgende correct beantwoorde vraag van het doelteam." },
-  radar:        { emoji: "📡", kleur: "#0369A1", label: "Radar",        beschrijving: "Onthult de exacte GPS-positie van alle teams gedurende 2 minuten." },
-  banaan:       { emoji: "🍌", kleur: "#CA8A04", label: "Banaan",       beschrijving: "Verwisselt het volgende punt van het doelteam met een verrassing." },
-  plekzooi:     { emoji: "⛔", kleur: "#991B1B", label: "Plek zooi",     beschrijving: "Onzichtbare val — blokkeert een team als ze er overheen lopen." },
-  vraagteken:   { emoji: "❓", kleur: "#7C3AED", label: "Vraagteken",    beschrijving: "Willekeurig effect: 40% dubbele ster · 20% jackpot/verlies · 20% chaos voor iedereen · 20% bom op jezelf." },
+const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string }> = {
+  spook:        { emoji: "👻", kleur: "#7C3AED", label: "Spook" },
+  bom:          { emoji: "💣", kleur: "#DC2626", label: "Bom" },
+  ster:         { emoji: "⭐", kleur: "#D97706", label: "Ster" },
+  verdubbeling: { emoji: "🔴", kleur: "#B91C1C", label: "Verdubbeling" },
+  wissel:       { emoji: "🔄", kleur: "#1D4ED8", label: "Wissel" },
+  dief:         { emoji: "🦹", kleur: "#7C2D12", label: "Dief" },
+  radar:        { emoji: "📡", kleur: "#0369A1", label: "Radar" },
+  banaan:       { emoji: "🍌", kleur: "#CA8A04", label: "Banaan" },
+  plekzooi:     { emoji: "⛔", kleur: "#991B1B", label: "Plek zooi" },
+  vraagteken:   { emoji: "❓", kleur: "#7C3AED", label: "Vraagteken" },
 };
 
 const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar", "vraagteken"]);
 
-export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onSluit }: Props) {
+export default function SpeciaalItemPopup({ item, waarden, andereSessies, onVerwerkt, onSluit }: Props) {
   const startFase: Fase = TYPES_ZONDER_DOEL.has(item.type) ? "bevestig" : "kies_team";
   const [fase, setFase] = useState<Fase>(startFase);
   const [foutMelding, setFoutMelding] = useState("");
 
-  const info = ITEM_INFO[item.type] ?? { emoji: "?", kleur: "#555", label: item.type, beschrijving: "" };
+  const info = ITEM_INFO[item.type] ?? { emoji: "?", kleur: "#555", label: item.type };
+  const beschrijving = UITLEG[item.type]?.beschrijving(waarden) ?? "";
 
   async function pasEffectToe(targetSessionId?: string) {
     setFase("bezig");
@@ -84,12 +87,7 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
         <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <div style={{ fontSize: "56px", lineHeight: 1, marginBottom: "10px" }}>{info.emoji}</div>
           <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700, color: info.kleur }}>{info.label}</h2>
-          <p style={{ margin: "8px 0 0", fontSize: "14px", color: "#555", lineHeight: 1.4 }}>{info.beschrijving}</p>
-          {(item.type === "ster" || item.type === "bom") && item.points_effect !== 0 && (
-            <p style={{ margin: "8px 0 0", fontWeight: 700, color: info.kleur, fontSize: "17px" }}>
-              {item.type === "ster" ? "+" : "-"}{Math.abs(item.points_effect)} punten
-            </p>
-          )}
+          <p style={{ margin: "8px 0 0", fontSize: "14px", color: "#555", lineHeight: 1.4 }}>{beschrijving}</p>
         </div>
 
         {/* Fase: bevestig (voor items zonder doelkeuze) */}
@@ -132,11 +130,11 @@ export default function SpeciaalItemPopup({ item, andereSessies, onVerwerkt, onS
         {fase === "kies_team" && (
           <div>
             <p style={{ margin: "0 0 12px", fontWeight: 600, textAlign: "center", fontSize: "15px" }}>
-              Kies een team om te targeten:
+              Kies een tegenstander:
             </p>
             {andereSessies.length === 0 ? (
               <p style={{ textAlign: "center", color: "#888", fontSize: "14px" }}>
-                Geen andere actieve teams gevonden.
+                Er zijn nu geen tegenstanders actief.
               </p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

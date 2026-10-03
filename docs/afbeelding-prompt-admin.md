@@ -37,7 +37,7 @@ SECTION 2 — "Drie speltypen" as three side-by-side small cards:
 
 SECTION 3 — "2. Groepen beheren" (icon row with short labels):
 ➕ Nieuwe groep aanmaken · 🔑 Wachtwoord wijzigen · ✏️ Loginnaam wijzigen ·
-🔓 Apparaat resetten · 🚪 Groep direct uitloggen · 🟢🔴 Groep aan/uit zetten
+🔓 Apparaat resetten · 🚪 Groep direct uitloggen · ⏹️ Spel van één groep stoppen · 🟢🔴 Groep aan/uit zetten
 Small note: "🔓 Apparaat resetten lost de meestvoorkomende storing op: een groep die niet
 meer kan inloggen omdat de app is weggedrukt zonder uit te loggen. 🚪 Uitloggen logt een
 groep meteen uit, ook als hun sessie nog open staat."
@@ -46,6 +46,7 @@ SECTION 4 — "3. Spel starten" (numbered steps):
 1. ▶️ Activeer de route
 2. 📲 Groepen loggen in en drukken op "Ga op pad"
 3. 📡 Verspreid-modus wijst automatisch startpunten toe
+4. 🍌 Route op volgorde: elk team krijgt bij de start één banaan
 
 SECTION 5 — "4. Live volgen" — a small mock dashboard widget showing a table with columns:
 Score · Voortgang · Gestart · Huidig punt · Laatste update, plus a small live map icon

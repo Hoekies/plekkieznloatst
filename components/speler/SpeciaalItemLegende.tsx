@@ -3,23 +3,35 @@
 import { useState } from "react";
 import type { SpeciaalItem } from "@/types/database";
 
+// Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
+export type RouteWaarden = { ster: number; bom: number; spookSec: number; plekzooiSec: number };
+
+function duur(seconden: number): string {
+  if (seconden < 60) return `${seconden} seconden`;
+  const min = Math.round((seconden / 60) * 2) / 2; // op halve minuten
+  if (min === 1) return "1 minuut";
+  return `${String(min).replace(".", ",")} minuten`;
+}
+
 interface ItemInfo {
   emoji: string;
   naam: string;
-  beschrijving: (punten?: number) => string;
+  beschrijving: (w: RouteWaarden) => string;
 }
 
+// Eén plek voor alle itemteksten, geschreven vanuit de speler.
+// Volgorde = volgorde in de uitleg; plek zooi staat bewust onderaan.
 export const ITEM_INFO: Record<string, ItemInfo> = {
-  spook:        { emoji: "👻", naam: "Spook",        beschrijving: () => "Laat het volgende punt van een team een tijdje verdwijnen (standaard 10 minuten). Zij zien een groot spook met een aftelklok en kunnen het punt zolang niet halen." },
-  bom:          { emoji: "💣", naam: "Bom",          beschrijving: (p) => `Trek ${p !== undefined ? p : "een aantal"} punten af van een team naar keuze.` },
-  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (p) => `Geeft ${p !== undefined ? `${p} ` : ""}bonuspunten aan jouw eigen team.` },
-  verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Jouw volgende behaalde vraagpunt levert dubbele punten op (eenmalig)." },
-  wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Wissel de score van jouw team met die van een ander team. Alleen de vraag is: hoeveel punten heeft dat andere team? 😳" },
-  dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Steel de punten van de eerstvolgende correct beantwoorde vraag van een ander team. De dief krijgt de punten; het andere team krijgt 0." },
-  radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Onthult de exacte GPS-positie van alle andere teams gedurende 2 minuten. De posities worden elke 15 seconden ververst." },
-  banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Verwissel het eerstvolgende GPS-punt van een doelteam met een ander nog te bezoeken GPS-punt van dat team." },
-  plekzooi:     { emoji: "⛔", naam: "Plek zooi",     beschrijving: () => "Onzichtbare val — loop je erover, dan zit je een paar minuten vast: de kaart verdwijnt en er verschijnt een afteltimer. De val blijft liggen voor de andere teams, maar raakt ieder team maar één keer." },
-  vraagteken:   { emoji: "❓", naam: "Vraagteken",    beschrijving: () => "Willekeurig effect: 40% dubbele ster voor jezelf · 20% ieder ander team ster of bom (willekeurig per team) · 10% jackpot 5× ster · 10% −200 punten · 20% bom op jezelf." },
+  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (w) => `Je krijgt meteen ${w.ster} punten extra cadeau!` },
+  verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Je volgende vraag waarmee je punten verdient, telt dubbel." },
+  radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Je ziet 2 minuten lang precies waar alle tegenstanders lopen." },
+  bom:          { emoji: "💣", naam: "Bom",          beschrijving: (w) => `Gooi hem naar een tegenstander: die verliest ${w.bom} punten.` },
+  spook:        { emoji: "👻", naam: "Spook",        beschrijving: (w) => `Stuur een spook naar een tegenstander: hun volgende punt verdwijnt ${duur(w.spookSec)} van de kaart en is zolang niet te halen.` },
+  dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie." },
+  banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Gooi hem naar een tegenstander: hun volgende punt wordt omgewisseld met een ander punt dat ze nog moeten halen. Het eindpunt blijft altijd als laatste." },
+  wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳" },
+  vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Een gok! Je krijgt ${w.ster * 2} punten (40%) of zelfs ${w.ster * 5} punten als jackpot (10%). Je kunt ook ${w.ster} punten verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig ${w.ster} punten bij of af (20%).` },
+  plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val op de kaart. Loop je erover, dan sta je ${duur(w.plekzooiSec)} stil: je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer.` },
 };
 
 // Korte speluitleg bovenaan het info-venster, per speltype
@@ -40,29 +52,19 @@ interface Props {
   onSluit: () => void;
   speciaalItems?: SpeciaalItem[];
   modus: "sequentieel" | "verspreid";
+  waarden: RouteWaarden;
 }
 
-export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus }: Props) {
+export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden }: Props) {
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
 
-  // Bepaal welke types zichtbaar zijn + hun puntenwaarde
-  const zichtbaarMap = new Map<string, number | undefined>();
-  if (speciaalItems && speciaalItems.length > 0) {
-    for (const item of speciaalItems) {
-      if (!zichtbaarMap.has(item.type)) {
-        zichtbaarMap.set(item.type, Math.abs(item.points_effect) || undefined);
-      }
-    }
-  } else {
-    // Geen filter: toon alles zonder puntwaarde
-    Object.keys(ITEM_INFO).forEach((k) => zichtbaarMap.set(k, undefined));
-  }
-
-  const items = [...zichtbaarMap.entries()]
-    .map(([type, punten]) => ({ ...ITEM_INFO[type], type, punten }))
-    .filter((i) => i.emoji);
+  // Alleen itemtypen die in deze route voorkomen (zonder lijst: alles), in de vaste volgorde
+  const inRoute = new Set<string>((speciaalItems ?? []).map((i) => i.type));
+  const items = Object.entries(ITEM_INFO)
+    .filter(([type]) => !speciaalItems?.length || inRoute.has(type))
+    .map(([type, info]) => ({ ...info, type }));
 
   return (
     <div onClick={onSluit} style={{
@@ -127,7 +129,7 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus }: P
               open={open === item.type}
               onTik={() => wissel(item.type)}
             >
-              {item.beschrijving(item.punten)}
+              {item.beschrijving(waarden)}
             </Regel>
           ))}
         </div>
@@ -162,7 +164,8 @@ function Regel({ icoon, titel, open, onTik, children }: {
         }}>▼</span>
       </button>
       {open && (
-        <div style={{ padding: "0 14px 12px 60px", fontSize: "0.85rem", color: "#b8cce0", lineHeight: 1.5 }}>
+        // Tik op de uitleg zelf klapt de regel ook weer in
+        <div onClick={onTik} style={{ padding: "0 14px 12px 60px", fontSize: "0.85rem", color: "#b8cce0", lineHeight: 1.5, cursor: "pointer" }}>
           {children}
         </div>
       )}

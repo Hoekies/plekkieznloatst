@@ -22,7 +22,9 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
    - **Punten** — hoeveel punten een correct antwoord oplevert
    - **Vraag** — klik op "Vraag bewerken" voor de vraag, antwoorden en afbeelding. Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
-8. Klik op **Publiceer** als de route klaar is.
+8. Ga terug naar **Routes** en klik bij de route op **Publiceren** als hij klaar is, daarna op **▶ Activeren**.
+
+> **Routes-overzicht**: elke route staat als één regel met speltype en status (● Actief, Gepubliceerd of Concept). Rechts staat alleen de volgende stap als knop (Publiceren → ▶ Activeren) en **Bewerken**. Onder **⋯** vind je Exporteren, Terug naar concept en Verwijderen. De actieve route staat altijd bovenaan.
 
 > Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd.
 
@@ -185,24 +187,26 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 
 #### Beschikbare itemtypen
 
+De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), ingeklapt per item en met de echte waarden uit jouw route-instellingen. In de spelersapp heet het andere team altijd de **tegenstander**.
+
 | Item | Naam | Effect |
 |---|---|---|
-| ⭐ | Ster | Geeft het opraapteam direct bonuspunten |
-| 🔴 | Verdubbeling | Volgende vraag waarmee het opraapteam punten verdient, levert dubbele punten op (minpunten nooit) |
-| 👻 | Spook | Het volgende punt van het doelteam verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
-| 💣 | Bom | Trekt een ingesteld aantal punten af van het doelteam |
-| 🔄 | Wissel | Wisselt de score van het opraapteam met die van het doelteam |
-| 🦹 | Dief | Steelt de punten van de eerstvolgende vraag waarmee het doelteam punten verdient (minpunten nooit) |
-| 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
-| 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van het doelteam met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Als een speler de radius betreedt, verschijnt er een rood scherm met afteltimer. Kaart en voortgang zijn geblokkeerd tijdens de blokkade (standaard 5 minuten). De val blijft daarna liggen voor andere teams, maar raakt elk team maar één keer. |
-| ❓ | Vraagteken | Geen doelteam — werkt direct op het opraapteam zelf én chaotisch op de rest. 40% dubbele ster, 20% ieder ander team krijgt willekeurig ster/bom, 10% jackpot (5× sterwaarde), 10% −200 punten, 20% bom op jezelf. |
+| ⭐ | Ster | Het team krijgt meteen de sterwaarde aan punten (⚙️ Item-waarden, standaard 50) |
+| 🔴 | Verdubbeling | De volgende vraag waarmee het team punten verdient, telt dubbel (minpunten nooit) |
+| 📡 | Radar | Het team ziet 2 minuten lang precies waar alle tegenstanders lopen |
+| 💣 | Bom | Een tegenstander verliest de bomwaarde aan punten (standaard 30) |
+| 👻 | Spook | Het volgende punt van een tegenstander verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
+| 🦹 | Dief | De punten van het volgende goede antwoord van een tegenstander gaan naar het team (minpunten nooit) |
+| 🍌 | Banaan | Het volgende punt van een tegenstander wordt omgewisseld met een ander punt dat ze nog moeten halen; het eindpunt blijft altijd als laatste |
+| 🔄 | Wissel | Het team ruilt zijn score met die van een tegenstander |
+| ❓ | Vraagteken | Geen tegenstander kiezen. 40% 2× sterwaarde, 10% jackpot (5× sterwaarde), 20% −1× sterwaarde, 10% −200 punten, 20% iedere tegenstander krijgt willekeurig 1× sterwaarde erbij of eraf |
+| ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Wie de radius betreedt, staat stil: de kaart verdwijnt en er loopt een afteltimer (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |
 
-> **Dief-effect**: als een team een Dief op een ander team zet, worden de punten van het eerstvolgende goede antwoord van dat team gestolen. Als het antwoord fout is, is het Dief-effect toch verbruikt.
+> **Dief-effect**: de dief wacht tot de tegenstander een vraag beantwoordt waarmee ze punten verdienen. Bij een fout antwoord (0 of minpunten) blijft de dief gewoon klaarstaan.
 
-> **Banaan-effect**: werkt alleen als het doelteam nog minimaal 2 onbezochte punten heeft. Bij minder punten geeft de app een foutmelding terug aan het aanvallende team.
+> **Banaan-effect**: werkt alleen als de tegenstander nog minimaal 2 punten vóór het eindpunt te gaan heeft. Anders krijgt het aanvallende team een melding en blijft de banaan bewaard.
 
-> **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt het doelteam binnen ongeveer 5 seconden een melding met de naam van het aanvallende team, met een klokslag (en trillen op Android; iPhones kunnen vanuit een webapp niet trillen). De melding blijft staan tot het team hem wegtikt.
+> **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt de tegenstander binnen ongeveer 5 seconden een groot venster met de naam van het aanvallende team en een klokslag (en trillen op Android; iPhones kunnen vanuit een webapp niet trillen). Het venster blijft staan tot het team op **OK, BEGREPEN** tikt.
 
 #### Duur van Spook en Plek zooi instellen
 
@@ -222,7 +226,7 @@ Halve minuten mogen ook (bijv. 2,5). De duur geldt voor alle spook- en plekzooi-
    - De **loginnaam** is wat de speler typt bij het inloggen (bijv. "team1").
    - Het **wachtwoord** moet minimaal 8 tekens zijn.
 3. Deel de inloggegevens met de groep via de **WhatsApp-knop** bovenaan.
-4. De berichttekst is aanpasbaar via **✏️ Berichttekst** — opgeslagen per browser.
+4. De berichttekst is aanpasbaar via **✏️ Berichttekst** — opgeslagen per browser. Onder je eigen tekst komt altijd automatisch de uitleg hoe je de app op je beginscherm zet (eerst Android, dan iPhone).
 
 > De **teamnaam** kiest de groep zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, het leaderboard en in de meldingen aan andere teams. Zolang een groep nog geen teamnaam heeft gekozen, zie je de loginnaam.
 
@@ -249,7 +253,7 @@ Klik dan op **🔓 Apparaat resetten** op de groepskaart. De koppeling wordt los
 
 #### Een groep direct uitloggen
 
-Klik op **🚪 Uitloggen** op de groepskaart om een groep meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt de groep automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
+De knop **🚪 Uitloggen** staat alleen op de groepskaart zolang de groep ingelogd is (groen "Actief"). Klik erop om een groep meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt de groep automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
 
 Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
 
@@ -257,7 +261,9 @@ Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief 
 
 #### Het spel van een groep stoppen
 
-Met **⏹️ Spel stoppen** (bij Groepen of op het Dashboard) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**.
+Met **⏹️ Spel stoppen** (bij Groepen of op het Dashboard) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**. Bij Groepen staat deze knop alleen bij een groep die nu een spel speelt.
+
+> De Groepen-pagina ververst zichzelf elke 10 seconden, dus knoppen verschijnen vanzelf zodra een groep inlogt of begint.
 
 ---
 
@@ -315,8 +321,10 @@ Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeve
 
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:
 
-- **Handmatig** — via **🏆 Toon tussenstand nu** in de zijbalk.
-- **Automatisch** — via **⚙️ Instellingen** → "🏆 Tussenstand": stel een interval in minuten in (0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
+- **Handmatig** — via de gele knop **🏆 Tussenstand** bovenaan de acties in de zijbalk. De knop laat zelf "✓ Getoond" zien als het gelukt is. Opnieuw tonen kan zodra de vorige tussenstand weer weg is.
+- **Automatisch** — via **⚙️ Instellingen** → "🏆 Tussenstand": stel een interval in hele minuten in (minimaal 1, 0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
+
+De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste punten bovenaan. Plaatsnummers, tijd en afstand staan er bewust niet bij. Aan het eind zien ze de volledige **eindstand** met medailles, speeltijd en afstand.
 
 > Zet de zichtbaarheidsduur ruim boven 5 seconden — de spelerapp controleert elke 3 seconden of er een tussenstand klaarstaat, dus bij een te korte duur missen sommige teams 'm.
 

@@ -27,11 +27,7 @@ export default function BroadcastKnop() {
 
   return (
     <>
-      <button
-        className="admin-nav-link"
-        style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }}
-        onClick={() => setOpen(true)}
-      >
+      <button className="admin-nav-link" onClick={() => setOpen(true)}>
         <span aria-hidden>📢</span> Bericht sturen
       </button>
 

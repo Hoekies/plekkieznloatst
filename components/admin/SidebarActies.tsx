@@ -30,15 +30,19 @@ export default function SidebarActies() {
     setTimeout(() => setTussenstandFase("idle"), 2500);
   }
 
+  // Alle knoppen gebruiken dezelfde box als de menu-items (admin-nav-link)
+  const lijst = { display: "flex", flexDirection: "column" as const, gap: 6 };
+  const vraag = { fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", margin: "2px 0" };
+
   if (fase === "bevestig-stop") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", marginBottom: 2 }}>Route stoppen?</div>
-        <button className="sidebar-actie-knop sidebar-actie-knop--gevaar sidebar-actie-knop--groot" onClick={stopRoute}>
-          Ja, stop route
+      <div style={lijst}>
+        <div style={vraag}>Route stoppen?</div>
+        <button className="admin-nav-link admin-nav-link--rood" onClick={stopRoute}>
+          <span aria-hidden>⏹️</span> Ja, stop
         </button>
-        <button className="sidebar-actie-knop sidebar-actie-knop--groot" onClick={() => setFase("idle")}>
-          Annuleer
+        <button className="admin-nav-link" onClick={() => setFase("idle")}>
+          <span aria-hidden>↩️</span> Annuleer
         </button>
       </div>
     );
@@ -46,47 +50,42 @@ export default function SidebarActies() {
 
   if (fase === "bevestig-reset") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", marginBottom: 2 }}>Alles wissen?</div>
-        <button className="sidebar-actie-knop sidebar-actie-knop--gevaar sidebar-actie-knop--groot" onClick={resetSpel}>
-          Ja, reset spel
+      <div style={lijst}>
+        <div style={vraag}>Alles wissen?</div>
+        <button className="admin-nav-link admin-nav-link--rood" onClick={resetSpel}>
+          <span aria-hidden>🗑️</span> Ja, reset
         </button>
-        <button className="sidebar-actie-knop sidebar-actie-knop--groot" onClick={() => setFase("idle")}>
-          Annuleer
+        <button className="admin-nav-link" onClick={() => setFase("idle")}>
+          <span aria-hidden>↩️</span> Annuleer
         </button>
       </div>
     );
   }
 
-  if (fase === "bezig") {
+  if (fase !== "idle") {
+    const tekst = fase === "bezig" ? "Bezig…" : fase === "klaar-stop" ? "Gestopt" : "Gereset";
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 2, fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}>
-        <div className="spinner" style={{ borderTopColor: "rgba(255,255,255,0.6)", borderColor: "rgba(255,255,255,0.15)", width: 16, height: 16 }} />
-        Bezig…
+      <div style={lijst}>
+        <button className={`admin-nav-link${fase === "bezig" ? "" : " admin-nav-link--groen"}`} disabled>
+          <span aria-hidden>{fase === "bezig" ? "⏳" : "✅"}</span> {tekst}
+        </button>
       </div>
     );
-  }
-
-  if (fase === "klaar-stop") {
-    return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Route gestopt</div>;
-  }
-
-  if (fase === "klaar-reset") {
-    return <div style={{ fontSize: "0.82rem", color: "var(--green, #22c55e)", fontWeight: 600 }}>✓ Spel gereset</div>;
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <div style={lijst}>
       <button
-        className={`sidebar-tussenstand-knop${tussenstandFase === "klaar" ? " sidebar-tussenstand-knop--klaar" : ""}`}
+        className={`admin-nav-link ${tussenstandFase === "klaar" ? "admin-nav-link--groen" : "admin-nav-link--goud"}`}
         onClick={toonTussenstand}
         disabled={tussenstandFase !== "idle"}>
-        {tussenstandFase === "bezig" ? "Bezig…" : tussenstandFase === "klaar" ? "✓ Getoond" : "🏆 Tussenstand"}
+        <span aria-hidden>{tussenstandFase === "bezig" ? "⏳" : tussenstandFase === "klaar" ? "✅" : "🏆"}</span>
+        {tussenstandFase === "bezig" ? "Bezig…" : tussenstandFase === "klaar" ? "Getoond" : "Tussenstand"}
       </button>
-      <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-stop")}>
+      <button className="admin-nav-link admin-nav-link--rood" onClick={() => setFase("bevestig-stop")}>
         <span aria-hidden>🛑</span> Stop route
       </button>
-      <button className="admin-nav-link" style={{ cursor: "pointer", width: "100%", background: "transparent", border: "1px solid transparent" }} onClick={() => setFase("bevestig-reset")}>
+      <button className="admin-nav-link admin-nav-link--rood" onClick={() => setFase("bevestig-reset")}>
         <span aria-hidden>🗑️</span> Reset spel
       </button>
     </div>

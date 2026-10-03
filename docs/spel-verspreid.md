@@ -44,7 +44,7 @@ Op de kaart zie je:
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** — in een lichtere kleur (globale positie, niet exact)
-- **Speciale items** — emoji-icoontjes verspreid over de kaart (let op: Plek zooi-items zijn onzichtbaar)
+- **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende.
 
@@ -69,54 +69,65 @@ Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS 
 | Situatie | Punten |
 |---|---|
 | Correct antwoord op vraagpunt | Zoals ingesteld per punt |
-| Fout antwoord | 0 punten |
-| Speciaal item: Ster ⭐ | Direct bonuspunten |
-| Speciaal item: Verdubbeling 🔴 | Volgende vraag met pluspunten × 2 |
+| Fout antwoord | 0 punten — of minpunten als de organisatie dat zo heeft ingesteld |
+| Item: Ster ⭐ | Direct extra punten |
+| Item: Verdubbeling 🔴 | Je volgende vraag met pluspunten telt dubbel |
+
+---
+
+## Uitleg in de app (i)
+
+Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**:
+
+- **🎯 Het spel** — de spelregels in drie zinnen.
+- **Items** — alle items die in jullie route voorkomen.
+
+Alles staat ingeklapt. Tik op een regel om de uitleg te openen, en nog een keer (op de titel of op de uitleg zelf) om hem weer in te klappen.
 
 ---
 
 ## Speciale items
 
-Speciale items verschijnen als emoji-icoontjes op de kaart. Het **eerste team dat het item bereikt** pakt het op. Dat kan een voordeel voor jezelf zijn of een nadeel voor een tegenstander.
+Items liggen als icoontjes op de kaart. Het **eerste team dat erover loopt** pakt het item op. Je krijgt dan een groot scherm met het item en wat het doet.
 
-Welke items in jouw route zitten zie je in de **legende** (vraagteken-knop op de kaart).
+> Bij dit spel kan de organisatie **respawn** aanzetten: opgepakte items komen dan na een ingestelde tijd terug op de kaart. Een plek waar je al een item hebt gepakt, kan later dus opnieuw de moeite waard zijn.
 
-> Bij dit spel kan de organisatie **respawn** aanzetten: opgepakte items komen dan na een ingestelde tijd weer terug op de kaart. Een plek waar je eerder al een item hebt gepakt kan dus later opnieuw de moeite waard zijn.
+### Wat doet elk item?
 
-### Overzicht van alle mogelijke items
+De aantallen en tijden hangen af van de instellingen van de route; de app toont altijd de echte waarden.
 
-| Item | Naam | Wat doet het? |
+| Item | Naam | Wat doet het voor jou? |
 |---|---|---|
-| ⭐ | Ster | Geeft direct bonuspunten aan jouw team |
-| 🔴 | Verdubbeling | Jouw volgende vraag waarmee je punten verdient, levert dubbele punten op. Minpunten worden nooit verdubbeld. |
-| 👻 | Spook | Het volgende punt van een gekozen team verdwijnt een tijdje (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
-| 💣 | Bom | Trekt punten af van een gekozen team |
-| 🔄 | Wissel | Wisselt jouw score met die van een gekozen team |
-| 🦹 | Dief | Steelt de punten van de eerstvolgende vraag waarmee een gekozen team punten verdient. Minpunten worden nooit gestolen. |
-| 📡 | Radar | Onthult de exacte GPS-positie van alle teams gedurende 2 minuten |
-| 🍌 | Banaan | Verwisselt het eerstvolgende onbezochte punt van een gekozen team met een ander nog te bezoeken punt |
-| ⛔ | Plek zooi | **Onzichtbaar op de kaart.** Loop je erover, dan wordt je scherm rood en zit je een tijdje vast (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |
-| ❓ | Vraagteken | Werkt direct op jou en je tegenstanders — geen team kiezen nodig. Geeft een willekeurig effect: 40% dubbele ster voor jou, 20% ieder ander team krijgt willekeurig een ster óf een bom, 10% jackpot (5× sterwaarde), 10% jij verliest 200 punten, 20% jij krijgt een bom op jezelf. Hoog risico, hoge beloning. |
+| ⭐ | Ster | Je krijgt meteen extra punten cadeau (standaard 50). |
+| 🔴 | Verdubbeling | Je volgende vraag waarmee je punten verdient, telt dubbel. |
+| 📡 | Radar | Je ziet 2 minuten lang precies waar alle tegenstanders lopen. |
+| 💣 | Bom | Gooi hem naar een tegenstander: die verliest punten (standaard 30). |
+| 👻 | Spook | Stuur een spook naar een tegenstander: hun volgende punt verdwijnt een tijdje van de kaart (standaard 10 minuten) en is zolang niet te halen. |
+| 🦹 | Dief | Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie. |
+| 🍌 | Banaan | Gooi hem naar een tegenstander: hun volgende punt wordt omgewisseld met een ander punt dat ze nog moeten halen. Het eindpunt blijft altijd als laatste. |
+| 🔄 | Wissel | Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳 |
+| ❓ | Vraagteken | Een gok! Je krijgt 2× de sterwaarde (40%) of zelfs 5× als jackpot (10%). Je kunt ook 1× de sterwaarde verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig 1× de sterwaarde bij of af (20%). |
+| ⛔ | Plek zooi | Een onzichtbare val op de kaart. Loop je erover, dan sta je een tijdje stil (standaard 5 minuten): je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer. |
 
 ### Hoe gebruik je een item?
 
-- Items komen in de **inventarisbalk** onderin de kaart zodra je ze oppakt.
+- Opgepakte items komen in de **balk onderin** de kaart.
 - Tik op een item in de balk om het in te zetten.
-- Bij items die een doelteam vereisen (Spook, Bom, Wissel, Dief, Banaan) kies je het team na het aantikken.
-- Je mag items bewaren voor later, maar je kunt ze maar één keer gebruiken.
-- Meerdere items van hetzelfde type tonen een getal bij het icoontje.
+- Bij Bom, Spook, Dief, Banaan en Wissel kies je daarna een **tegenstander**.
+- Je mag items bewaren voor later; elk item gebruik je één keer.
+- Heb je meerdere van hetzelfde item, dan staat er een getal bij.
 
 ### Meldingen
 
-Als een ander team een item op jou inzet, hoor je een diepe klokslag (op Android trilt je telefoon ook) en krijg je een melding met de naam van dat team — zodat je weet wie je heeft aangevallen. De melding blijft staan tot je hem zelf wegtikt met ✕.
+Zet een tegenstander een item op jullie in, dan hoor je een diepe klokslag (op Android trilt je telefoon ook) en zie je een groot venster met het item en de naam van dat team. Het venster blijft staan tot je op **OK, BEGREPEN** tikt.
 
-Items die al zijn opgepakt verdwijnen binnen een paar seconden van je kaart. In de uitleg (ℹ️-knop) blijven wel alle soorten items staan die in deze route voorkomen.
+Items die al zijn opgepakt, verdwijnen binnen een paar seconden van je kaart.
 
 ---
 
 ## Tussenstand
 
-De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschijnt vanzelf een aantal seconden in beeld bij alle teams tegelijk. Extra spannend bij dit spel, omdat je aan de kaart niet kunt zien hoe ver de anderen zijn.
+De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschijnt een paar seconden bij alle teams tegelijk: elk team met zijn icoon, naam en punten, de meeste punten bovenaan. Extra spannend bij dit spel, omdat je op de kaart niet ziet hoe ver de anderen zijn.
 
 ---
 
@@ -127,10 +138,10 @@ De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschij
 - Staat respawn aan, dan loont het om later nog eens langs een goede itemplek te komen.
 - Met de Radar zie je 2 minuten lang precies waar andere teams zijn.
 - De Banaan gooit het volgende punt van een tegenstander om — extra vervelend als ze net op weg zijn.
-- Als je scherm bevriest of de app herlaadt, is je inventaris gewoon nog aanwezig.
+- Als je scherm bevriest of de app herlaadt, staan je items gewoon nog in de balk.
 
 ---
 
 ## Klaar?
 
-Zodra je de lus rond bent staat je totaalscore vast. Je kunt daarna je eigen antwoorden terugkijken. De organisatie kan een leaderboard tonen met alle teams. Veel succes!
+Zodra je de lus rond bent staat je totaalscore vast. Je kunt daarna je eigen antwoorden terugkijken. Op je eindscherm zie je de **eindstand** van alle teams, met medailles voor de top 3. Veel succes!

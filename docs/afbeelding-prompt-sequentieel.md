@@ -47,7 +47,7 @@ SECTION 4 — "Tips" (short bullet list with a lightbulb icon 💡):
 - Gooi hem naar een team dat bijna bij een punt is
 - Je banaan blijft bewaard, ook als de app herlaadt
 
-FOOTER banner: "🏁 Bij het eindpunt staat je score vast — bekijk het leaderboard!"
+FOOTER banner: "🏁 Bij het eindpunt staat je score vast — bekijk de eindstand!"
 
 Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
 photorealistic humans, no readable brand logos other than the "PointRush" title itself.

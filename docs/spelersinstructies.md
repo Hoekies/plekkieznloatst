@@ -18,6 +18,11 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 **Inloggen**
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je groep, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
 
+**Op je beginscherm zetten**
+Open de link eerst in je browser (niet in WhatsApp) en zet PointRush op je beginscherm. Dan opent de app voortaan zonder adresbalk.
+- **Android (Chrome):** tik op ⋮ rechtsboven → "Toevoegen aan startscherm" of "App installeren".
+- **iPhone (Safari):** tik op de deelknop (vierkantje met pijl omhoog) → "Zet op beginscherm".
+
 **Eén apparaat per groep**
 Een groep kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude. Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
 

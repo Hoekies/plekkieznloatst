@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       .eq("id", target_session_id)
       .eq("status", "actief")
       .maybeSingle();
-    if (!ds) return NextResponse.json({ fout: "Doelteam heeft geen actieve sessie" }, { status: 400 });
+    if (!ds) return NextResponse.json({ fout: "Deze tegenstander speelt niet meer mee" }, { status: 400 });
     doelSessie = ds;
   }
 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     return p?.nickname ?? p?.login_name ?? standaard;
   };
   const aanvallerNaam = teamNaam(speler.id, "Onbekend team");
-  const doelNaam = teamNaam(doelSessie?.player_id, "het doelteam");
+  const doelNaam = teamNaam(doelSessie?.player_id, "de tegenstander");
 
   // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
   const { data: routeWaarden } = await admin
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (onbezochtSpo.length < 2) {
-      return NextResponse.json({ fout: "Doelteam heeft niet genoeg punten over om te wisselen" }, { status: 400 });
+      return NextResponse.json({ fout: "Deze tegenstander heeft niet genoeg punten over om te wisselen" }, { status: 400 });
     }
 
     // Wissel het eerste onbezochte punt met een willekeurig ander onbezocht punt

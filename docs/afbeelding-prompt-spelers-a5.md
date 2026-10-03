@@ -51,30 +51,33 @@ LAYOUT (top to bottom):
    🔵 Jij
    🟣 Stippellijn = weg naar je volgende punt
    📍 Bij het punt? Druk op de 📍-knop en beantwoord de vraag
+   ⓘ Oranje i-knop = uitleg van het spel en alle items
    (Layout note, do not print: keep this panel small so the items panel gets the most space.)
 
 4. Panel "Items op de kaart" — the largest panel. First one short line:
-   "Loop over een item om het te pakken. Tik het onderin aan om het in te zetten."
-   Then a compact grid of 10 items: 2 columns × 5 rows. Each item: a small round glossy icon
-   (the item emoji on a colored circle, like map markers) + bold item name + a short
-   explanation:
-   ⭐ Ster — direct bonuspunten
+   "Loop over een item om het te pakken. Tik het onderin aan en kies een tegenstander."
+   Then a compact grid of 10 items: 2 columns × 5 rows, in exactly this order. Each item: a
+   small round glossy icon (the item emoji on a colored circle, like map markers) + bold
+   item name + a short explanation:
+   ⭐ Ster — je krijgt meteen extra punten cadeau
    🔴 Verdubbeling — je volgende vraag telt dubbel
-   👻 Spook — laat het punt van een ander team verdwijnen
-   💣 Bom — een ander team verliest punten
-   🔄 Wissel — ruil je score met een ander team
-   🦹 Dief — steel de volgende punten van een team
-   📡 Radar — zie 2 minuten waar alle teams zijn
-   🍌 Banaan — gooi het volgende punt van een team om
-   ⛔ Plek zooi — onzichtbare val: je zit even vast
+   📡 Radar — zie 2 minuten waar alle tegenstanders lopen
+   💣 Bom — een tegenstander verliest punten
+   👻 Spook — het volgende punt van een tegenstander verdwijnt even
+   🦹 Dief — de punten van hun volgende goede antwoord zijn voor jou
+   🍌 Banaan — gooi het volgende punt van een tegenstander om
+   🔄 Wissel — ruil je score met een tegenstander
    ❓ Vraagteken — gokken: grote winst of pech!
+   ⛔ Plek zooi — onzichtbare val: je staat even stil
+   Under the grid, one small line in gold: "Route op volgorde? Dan krijg je bij de start
+   één 🍌 banaan en liggen er alleen plek-zooi-vallen."
    Draw the ❓ Vraagteken icon differently from the others: a rainbow-colored circle with a
    bold white "?" and a gold glow — exactly how it looks on the game map.
 
 5. Panel "Tips" — three short lines with small icons:
-   🔔 Hoor je een klokslag? Een ander team valt je aan!
+   🔔 Hoor je een klokslag? Een tegenstander valt je aan!
+   ⚠️ Kun je een punt echt niet bereiken? Tik rechtsonder op "Niet bereikbaar?"
    📲 Houd de app open, dan mis je niets
-   🔋 Neem een volle batterij mee
 
 6. Bottom: a wide glossy orange banner with bold white text: "VEEL PLEZIER — EN PAK DIE PUNTEN!"
 
