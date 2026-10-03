@@ -61,6 +61,14 @@ export default function GroepenBeheer() {
     if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
   }
 
+  async function stopSpel(id: string, naam: string) {
+    if (!confirm(`Het spel van ${naam} stoppen?\nHun score en voortgang vervallen; bij opnieuw starten beginnen ze een nieuw spel.`)) return;
+    const res = await fetch(`/api/admin/groepen/${id}/spel-stoppen`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) alert(data.fout ?? "Stoppen mislukt");
+    else if (data.gestopt === 0) alert(`${naam} had geen lopend spel.`);
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "640px" }}>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
@@ -187,8 +195,12 @@ export default function GroepenBeheer() {
                       </button>
                     )}
                     <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                      onClick={() => logGroepUit(g.id)} title="Logt de groep direct uit, ook als ze nu niet als actief staan (bv. bij een hangende sessie)">
+                      onClick={() => logGroepUit(g.id)} title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
                       🚪 Uitloggen
+                    </button>
+                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
+                      onClick={() => stopSpel(g.id, displayNaam)} title="Beëindigt het lopende spel van deze groep">
+                      ⏹️ Spel stoppen
                     </button>
                   </div>
                 </div>

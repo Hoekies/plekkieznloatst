@@ -37,6 +37,17 @@ export default function AdminDashboard({ initData }: Props) {
     ververs();
   }
 
+  async function stopSpel(s: SpelerOverzicht) {
+    const naam = s.display_name;
+    if (!confirm(`Het spel van ${naam} stoppen?\nHun score en voortgang vervallen; bij opnieuw starten beginnen ze een nieuw spel.`)) return;
+    const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
+    if (!res.ok) {
+      const { fout } = await res.json().catch(() => ({ fout: null }));
+      alert(fout ?? "Stoppen mislukt");
+    }
+    ververs();
+  }
+
   async function negeerHulp(hulpId: string) {
     await fetch(`/api/admin/hulp/${hulpId}`, { method: "PATCH" });
     ververs();
@@ -132,6 +143,7 @@ export default function AdminDashboard({ initData }: Props) {
                 totaalPunten={totaalPunten}
                 kanVrijgeven={route?.modus !== "mist"}
                 onVrijgeven={() => geefPuntVrij(s)}
+                onStop={() => stopSpel(s)}
                 onNegeer={negeerHulp}
               />
             ))}
@@ -188,11 +200,12 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onNegeer }: {
+function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onStop, onNegeer }: {
   speler: SpelerOverzicht;
   totaalPunten: number;
   kanVrijgeven: boolean;
   onVrijgeven: () => void;
+  onStop: () => void;
   onNegeer: (hulpId: string) => void;
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
@@ -228,20 +241,25 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onNeg
               <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {tijdGeleden(s.hulp.sinds)} geleden</span>
             </div>
           )}
-          {speelt && kanVrijgeven && (
+          {speelt && (
             <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-              <button className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={onVrijgeven}>
-                ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
-              </button>
+              {kanVrijgeven && (
+                <button className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={onVrijgeven}>
+                  ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
+                </button>
+              )}
               {s.hulp && (
                 <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={() => onNegeer(s.hulp!.id)}>
                   Negeren
                 </button>
               )}
+              <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px", color: "var(--red)" }} onClick={onStop}>
+                ⏹️ Spel stoppen
+              </button>
             </div>
           )}
         </div>
-        <StatusPil status={s.sessie_status} />
+        <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
       </div>
     </div>
   );
@@ -259,10 +277,11 @@ function StatKaart({ label, waarde, badge, badgeKlas }: { label: string; waarde:
   );
 }
 
-function StatusPil({ status }: { status: SpelerOverzicht["sessie_status"] }) {
+function StatusPil({ status, ingelogd }: { status: SpelerOverzicht["sessie_status"]; ingelogd: boolean }) {
   const cfg = {
     geen_sessie: { label: "Niet gestart", cls: "pr-gem-chip--gray" },
-    actief:      { label: "Actief",       cls: "pr-gem-chip--orange" },
+    // Spel loopt nog, maar de groep is uitgelogd: kan verder na opnieuw inloggen
+    actief:      ingelogd ? { label: "Actief", cls: "pr-gem-chip--orange" } : { label: "Uitgelogd", cls: "pr-gem-chip--gray" },
     voltooid:    { label: "Voltooid",     cls: "pr-gem-chip--green" },
     vervallen:   { label: "Vervallen",    cls: "pr-gem-chip--gray" },
   }[status];

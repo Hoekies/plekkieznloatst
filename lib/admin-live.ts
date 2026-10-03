@@ -7,6 +7,8 @@ export type SpelerOverzicht = {
   nickname: string | null;
   // Gekozen teamnaam, of de loginnaam zolang het team nog geen naam heeft gekozen
   display_name: string;
+  // Heeft de groep nu een telefoon gekoppeld (= ingelogd)?
+  ingelogd: boolean;
   sessie_id: string | null;
   sessie_status: "geen_sessie" | "actief" | "voltooid" | "vervallen";
   started_at: string | null;
@@ -51,7 +53,7 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name, modus").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, login_name, nickname").order("login_name"),
+    admin.from("players").select("id, login_name, nickname, active_device_id").order("login_name"),
   ]);
 
   let specialeItems: SpeciaalItem[] = [];
@@ -83,7 +85,9 @@ export async function haalLiveData(): Promise<LiveData> {
   const sessiesResult = route
     ? await admin
         .from("player_sessions")
-        .select("id, player_id, status, started_at, finished_at, score, afstand_m, current_point_id")
+        // "*" i.p.v. losse kolommen: een kolom uit een nog niet gedraaide migratie (zoals afstand_m)
+        // mag nooit het hele dashboard leeg maken
+        .select("*")
         .eq("route_id", route.id)
         .in("player_id", playerIds)
     : null;
@@ -152,6 +156,7 @@ export async function haalLiveData(): Promise<LiveData> {
       login_name: player.login_name,
       nickname: player.nickname ?? null,
       display_name: player.nickname ?? player.login_name,
+      ingelogd: !!player.active_device_id,
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
       started_at: sessie?.started_at ?? null,

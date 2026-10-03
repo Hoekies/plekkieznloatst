@@ -247,7 +247,13 @@ Klik dan op **🔓 Apparaat resetten** op de groepskaart. De koppeling wordt los
 
 Klik op **🚪 Uitloggen** op de groepskaart om een groep meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt de groep automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
 
-Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag, een verkeerd uitgedeelde inlog, of om iedereen gelijktijdig opnieuw te laten starten.
+Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
+
+> **Uitloggen laat het spel staan.** Logt de groep opnieuw in, dan spelen ze verder met dezelfde score en voortgang. Op het dashboard staan ze zolang als **"Uitgelogd"**.
+
+#### Het spel van een groep stoppen
+
+Met **⏹️ Spel stoppen** (bij Groepen of op het Dashboard) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**.
 
 ---
 

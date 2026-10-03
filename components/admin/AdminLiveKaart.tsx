@@ -71,13 +71,14 @@ export default function AdminLiveKaart({ initData }: Props) {
         {/* Overlay: spelerslijst */}
         <div style={{
           position: "absolute", top: 36, right: 36, zIndex: 1000,
-          background: "rgba(255,255,255,0.95)", borderRadius: 10,
-          border: "1px solid var(--line)", padding: "12px 14px",
-          minWidth: 170, maxHeight: "calc(100% - 72px)", overflowY: "auto",
-          backdropFilter: "blur(4px)",
-          boxShadow: "var(--shadow-sm)",
+          background: "rgba(8,17,32,0.92)", borderRadius: 12,
+          border: "1px solid var(--glass-border)", padding: "12px 14px",
+          minWidth: 190, maxHeight: "calc(100% - 72px)", overflowY: "auto",
+          backdropFilter: "blur(8px)",
+          boxShadow: "var(--shadow)",
+          color: "#fff",
         }}>
-          <div style={{ fontSize: "0.72rem", color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--cyan)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>
             {aantalActief} bezig · {aantalKlaar} klaar
           </div>
           {spelersOpKaart.length === 0 ? (
@@ -90,11 +91,13 @@ export default function AdminLiveKaart({ initData }: Props) {
                   background: s.sessie_status === "voltooid" ? "var(--green, #16A34A)" : "#F97316",
                 }} />
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {s.display_name}
                   </div>
-                  {s.laatste_lat === null && (
-                    <div style={{ fontSize: "0.68rem", color: "var(--muted)" }}>geen locatie</div>
+                  {(!s.ingelogd || s.laatste_lat === null) && (
+                    <div style={{ fontSize: "0.7rem", color: "var(--text)" }}>
+                      {!s.ingelogd ? "uitgelogd" : "nog geen locatie"}
+                    </div>
                   )}
                 </div>
               </div>
