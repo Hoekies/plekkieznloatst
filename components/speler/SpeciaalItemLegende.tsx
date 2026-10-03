@@ -35,7 +35,7 @@ export const ITEM_INFO: Record<string, ItemInfo> = {
 };
 
 // Korte speluitleg bovenaan het info-venster, per speltype
-const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
+export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
   sequentieel: [
     "Loop de punten op volgorde af. Je ziet steeds alleen het volgende punt; de paarse stippellijn wijst de weg.",
     "Ben je er? Tik linksonder op 📍 en beantwoord de vraag. Het team met de meeste punten wint.",
@@ -46,6 +46,12 @@ const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
     "Ben je er? Tik linksonder op 📍 en beantwoord de vraag. Het team met de meeste punten wint.",
     "Loop over items op de kaart om ze op te pakken; ze komen in je balk onderin.",
   ],
+};
+
+// Afsluiting van het welkomstscherm op het startpunt
+export const START_AFSLUITING = {
+  afsluiting: "Veel succes! En onthoud: wie het laatst lacht, heeft waarschijnlijk net een banaan gegooid. 🍌",
+  ondertekening: "— René",
 };
 
 interface Props {

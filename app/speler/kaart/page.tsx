@@ -40,7 +40,7 @@ export default async function SpelerKaartPage() {
       .order("reached_at"),
     admin
       .from("routes")
-      .select("modus, is_active, ster_waarde, bom_waarde, spook_duur_seconden, plekzooi_duur_seconden")
+      .select("*") // alles: een ontbrekende instellingskolom mag de kaart nooit blokkeren
       .eq("id", sessie.route_id)
       .maybeSingle(),
     admin

@@ -21,7 +21,7 @@ export async function GET() {
 
   const { data: route } = await admin
     .from("routes")
-    .select("modus, item_respawn, respawn_minuten")
+    .select("*") // "*": een ontbrekende kolom laat anders de hele query mislukken
     .eq("id", sessie.route_id)
     .maybeSingle();
 

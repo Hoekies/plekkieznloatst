@@ -166,11 +166,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setGeselecteerd(null);
     const nieuwePunten: RoutePunt[] = [];
 
-    // Hub start op middelpunt
+    // Startpunt op het middelpunt
     const resStart = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "informatiepunt", name: "Hub", points: 0 }),
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "informatiepunt", name: "Startpunt", points: 0 }),
     });
     if (resStart.ok) nieuwePunten.push(await resStart.json());
 
@@ -184,11 +184,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       if (res.ok) nieuwePunten.push(await res.json());
     }
 
-    // Hub eind op middelpunt
+    // Finish op het middelpunt
     const resEind = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Hub", points: 0 }),
+      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Finish", points: 0 }),
     });
     if (resEind.ok) nieuwePunten.push(await resEind.json());
 
@@ -735,7 +735,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const isHub = isHubStart || isHubEind;
                 const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
                 const badgeBg = isHubStart ? "var(--green)" : pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
-                const typeLabel = isHubStart ? "Start hub" : isHubEind ? "Finish hub" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
+                const typeLabel = isHubStart ? "Startpunt" : isHubEind ? "Finish" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
                 return (
                   <div key={pt.id}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
@@ -826,7 +826,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.modus === "verspreid" && (
                 <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
                   onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
-                  🏠 Middelpunt (start/finish-hub)
+                  🏠 Middelpunt (start en finish)
                 </button>
               )}
               <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}

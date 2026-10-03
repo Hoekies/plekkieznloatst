@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
   // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
   const { data: routeWaarden } = await admin
     .from("routes")
-    .select("ster_waarde, bom_waarde, spook_duur_seconden")
+    .select("*") // "*": een ontbrekende kolom laat anders de hele query mislukken
     .eq("id", eigenSessie.route_id)
     .maybeSingle();
   const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;

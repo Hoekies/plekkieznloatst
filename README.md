@@ -117,6 +117,7 @@ supabase/migrations/026_spook_duur.sql
 supabase/migrations/027_hulpverzoeken.sql
 supabase/migrations/028_punten_per_antwoord_en_leesrechten.sql
 supabase/migrations/029_startitems.sql
+supabase/migrations/030_ontbrekende_kolommen.sql
 ```
 
 ### Starten

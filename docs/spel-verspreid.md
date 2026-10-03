@@ -9,7 +9,7 @@ Een GPS-speurtocht voor groepen, net als Route op volgorde — met één belangr
 
 Iedereen loopt dezelfde totale afstand en bezoekt dezelfde punten, alleen in een andere volgorde. Zo staat er nooit een rij bij hetzelfde punt en heeft niemand voordeel van als eerste vertrekken.
 
-Alle teams **vertrekken en finishen bij dezelfde hub** 🏠 — de verzamelplek van de organisatie.
+Alle teams **starten en finishen op dezelfde plek** 🏠 — de verzamelplek van de organisatie.
 
 ---
 
@@ -18,7 +18,7 @@ Alle teams **vertrekken en finishen bij dezelfde hub** 🏠 — de verzamelplek 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
 2. Vul de naam van je groep in en log in.
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
-4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent met de hub als eerste doel.
+4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent met het startpunt als eerste doel.
 
 > Een groep kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
 
@@ -28,9 +28,9 @@ Alle teams **vertrekken en finishen bij dezelfde hub** 🏠 — de verzamelplek 
 
 Jullie route bestaat uit drie stukken:
 
-1. **🏠 Start bij de hub** — check eerst in bij de hub, de verzamelplek waar iedereen begint.
-2. **Jullie eigen rondje** — vanaf de hub loop je naar jullie eigen instappunt in de lus, zo ver mogelijk van de andere teams. Daarna loop je de lus rond.
-3. **🏁 Finish bij de hub** — heb je alle lus-punten gehad, dan verschijnt als laatste weer de hub. Daar is het spel voor jullie afgerond.
+1. **🚩 Startpunt** — de verzamelplek waar iedereen begint. Daar krijg je een korte uitleg van het spel. Tik op **🚀 Op pad!** en loop 25 meter: dan krijg je je eerste vraag.
+2. **Jullie eigen rondje** — daarna loop je naar jullie eigen instappunt in het rondje, zo ver mogelijk van de andere teams, en loop je het rondje rond.
+3. **🏁 Finish** — heb je alle punten van het rondje gehad, dan verschijnt als laatste de finish, op dezelfde plek als de start. Daar is het spel voor jullie afgerond.
 
 **Tijd telt niet.** Het gaat om je score; alleen als twee teams evenveel punten hebben, wint het team dat het snelst klaar was.
 

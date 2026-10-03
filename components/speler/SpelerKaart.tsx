@@ -8,7 +8,10 @@ import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
-import SpeciaalItemLegende, { ITEM_INFO, type RouteWaarden } from "./SpeciaalItemLegende";
+import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
+
+// Na het welkomstscherm op het startpunt: zoveel meter lopen voordat de startvraag komt
+const STARTVRAAG_NA_METER = 25;
 import InventarisBar from "./InventarisBar";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
@@ -57,6 +60,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [positie, setPositie] = useState<GeolocationCoordinates | null>(null);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("laden");
   const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
+  // Startvraag: afgelegde meters op het moment dat het team "Op pad!" tikte (null = niet aan het wachten)
+  const [startVraagVanaf, setStartVraagVanaf] = useState<number | null>(null);
+  const [startVraagKlaar, setStartVraagKlaar] = useState(false);
   const [andereSpelers, setAndereSpelers] = useState<SpelerLocatie[]>([]);
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
@@ -103,6 +109,23 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
   const spelAfgelopen = verwerktIds.size >= punten.length;
+
+  // Verspreid: het eerste punt is het startpunt (start en finish op dezelfde plek)
+  const startPunt = modus === "verspreid" && punten.length >= 3 ? punten[0] : null;
+  const wachtOpStartVraag = startVraagVanaf !== null;
+  const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(STARTVRAAG_NA_METER - (kmAfgelegd - startVraagVanaf))) : 0;
+
+  // 25 meter gelopen na het welkomstscherm → de vraag van het startpunt verschijnt
+  useEffect(() => {
+    if (startVraagVanaf === null || !startPunt) return;
+    if (kmAfgelegd - startVraagVanaf >= STARTVRAAG_NA_METER) {
+      setStartVraagVanaf(null);
+      setStartVraagKlaar(true);
+      speelPuntBereikt();
+      setPopupPunt(startPunt);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kmAfgelegd, startVraagVanaf]);
 
   const heeftInventaris = inventaris.length > 0;
   const knoepBottomOffset = heeftInventaris ? 92 : 28;
@@ -506,6 +529,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         : [...v, bijgewerktVoortgang]
     );
     setPopupPunt(null);
+    setStartVraagKlaar(false);
     haalScoreOp();
   }
 
@@ -576,6 +600,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           i
         </button>
       </div>
+
+      {/* Na het welkomstscherm: eerst 25 meter lopen voor de startvraag */}
+      {wachtOpStartVraag && (
+        <div style={{
+          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 950,
+          maxWidth: "calc(100% - 32px)", width: "max-content",
+          background: "rgba(124,58,237,0.95)", color: "#fff", padding: "12px 20px", borderRadius: 16,
+          fontSize: "0.95rem", fontWeight: 700, textAlign: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
+        }}>
+          🚶 Loop nog {nogTeLopen} meter, dan krijg je je eerste vraag!
+        </div>
+      )}
 
       {/* GPS / realtime toasts */}
       {!realtimeVerbonden && (
@@ -672,7 +708,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           punten={punten}
           verwerktIds={verwerktIds}
           bereiktIds={bereiktIds}
-          activePuntId={activePunt?.id ?? null}
+          activePuntId={wachtOpStartVraag ? null : activePunt?.id ?? null}
           andereSpelers={andereSpelers}
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
           ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
@@ -714,7 +750,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
       {/* Punt bereikt → vraag/info popup */}
       {popupPunt && (
-        <VraagPopup punt={popupPunt} onVerwerkt={puntVerwerkt} />
+        <VraagPopup
+          punt={popupPunt}
+          onVerwerkt={puntVerwerkt}
+          start={startPunt && popupPunt.id === startPunt.id ? (startVraagKlaar ? "vraag" : "uitleg") : undefined}
+          startUitleg={{ regels: SPELUITLEG[modus], ...START_AFSLUITING }}
+          onStartVraagLater={() => { setPopupPunt(null); setStartVraagVanaf(kmAfgelegdRef.current); }}
+        />
       )}
 
       {/* Speciaal item gebruiken */}

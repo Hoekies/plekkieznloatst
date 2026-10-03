@@ -49,16 +49,21 @@ type Feedback = {
   numeric_tolerance: number | null;
 };
 
-type PopupFase = "laden" | "informatie" | "vraag" | "wachten" | "feedback";
+type PopupFase = "laden" | "start" | "informatie" | "vraag" | "wachten" | "feedback";
 
 interface Props {
   punt: RoutePunt;
   onVerwerkt: (voortgang: SpelerPuntVoortgang) => void;
+  // Startpunt: eerst een welkomstscherm met speluitleg ("uitleg"); heeft het startpunt een
+  // vraag, dan komt die pas later na een stukje lopen ("vraag").
+  start?: "uitleg" | "vraag";
+  startUitleg?: { regels: string[]; afsluiting: string; ondertekening: string };
+  onStartVraagLater?: () => void;
 }
 
-export default function VraagPopup({ punt, onVerwerkt }: Props) {
+export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onStartVraagLater }: Props) {
   const [popupFase, setPopupFase] = useState<PopupFase>(
-    punt.type === "vraagpunt" ? "laden" : "informatie"
+    punt.type === "vraagpunt" || start ? "laden" : "informatie"
   );
   const [vraag, setVraag] = useState<VraagData | null>(null);
   const [gekozenId, setGekozenId] = useState<string | null>(null);
@@ -74,15 +79,16 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (punt.type !== "vraagpunt") return;
+    if (punt.type !== "vraagpunt" && !start) return;
     fetch(`/api/speler/vraag/${punt.id}`)
       .then((r) => r.json())
       .then((data: VraagData | null) => {
-        if (data) { setVraag(data); setPopupFase("vraag"); }
-        else setPopupFase("informatie");
+        if (data) setVraag(data);
+        if (start === "uitleg") setPopupFase("start");
+        else setPopupFase(data ? "vraag" : "informatie");
       })
-      .catch(() => setPopupFase("informatie"));
-  }, [punt]);
+      .catch(() => setPopupFase(start === "uitleg" ? "start" : "informatie"));
+  }, [punt, start]);
 
   async function verwerkDirect() {
     setBezig(true);
@@ -227,7 +233,7 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
       {/* Scrollbaar inhoudsgebied */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 16px 8px", display: "flex", flexDirection: "column", gap: 16 }}>
 
-        <TypeBadge type={punt.type} />
+        {start ? <StartBadge /> : <TypeBadge type={punt.type} />}
 
         {/* Laden */}
         {popupFase === "laden" && (
@@ -235,6 +241,21 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
             <div className="spinner" />
             <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>Vraag ophalen…</span>
           </div>
+        )}
+
+        {/* Startpunt: welkom + korte speluitleg */}
+        {popupFase === "start" && startUitleg && (
+          <>
+            <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#0A1B36" }}>Welkom bij de start! 🚩</h2>
+            <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 10, fontSize: "1rem", lineHeight: 1.55, color: "#0A1B36" }}>
+              {startUitleg.regels.map((r) => <li key={r}>{r}</li>)}
+              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen.</strong></li>}
+            </ul>
+            <div style={{ background: "#FEF9C3", border: "1px solid #FDE68A", borderRadius: 14, padding: "14px 16px", color: "#713F12" }}>
+              <div style={{ fontWeight: 700, fontSize: "1rem", lineHeight: 1.5 }}>{startUitleg.afsluiting}</div>
+              <div style={{ marginTop: 6, fontStyle: "italic" }}>{startUitleg.ondertekening}</div>
+            </div>
+          </>
         )}
 
         {/* Informatie / eindpunt */}
@@ -450,6 +471,15 @@ export default function VraagPopup({ punt, onVerwerkt }: Props) {
 
       {/* Vaste knop onderaan */}
       <div style={{ padding: "12px 16px 28px", borderTop: "1px solid #e5e7eb", background: "#ffffff" }}>
+        {popupFase === "start" && (
+          <button
+            className="btn btn-primary"
+            style={KNOP_ONDERAAN_STIJL}
+            disabled={bezig}
+            onClick={() => (vraag && onStartVraagLater ? onStartVraagLater() : verwerkDirect())}>
+            {bezig ? "Even geduld…" : "🚀 Op pad!"}
+          </button>
+        )}
         {popupFase === "informatie" && (
           <button
             className="btn btn-primary"
@@ -503,6 +533,16 @@ function TypeBadge({ type }: { type: RoutePunt["type"] }) {
       background: cfg.bg, color: cfg.kleur,
       padding: "4px 12px", borderRadius: 99, alignSelf: "flex-start",
     }}>{cfg.label}</span>
+  );
+}
+
+function StartBadge() {
+  return (
+    <span style={{
+      fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em",
+      background: "#DCFCE7", color: "#15803D",
+      padding: "4px 12px", borderRadius: 99, alignSelf: "flex-start",
+    }}>🚩 STARTPUNT</span>
   );
 }
 

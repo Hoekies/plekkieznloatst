@@ -58,12 +58,12 @@ In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar s
 
 Een verspreide route bestaat uit drie delen:
 
-- **🏠 Start hub** — het **eerste** punt in de lijst. Hier checken alle teams in voordat ze vertrekken.
+- **🏠 Startpunt** — het **eerste** punt in de lijst. Hier krijgen alle teams een welkomstscherm met de korte speluitleg. Zet je een vraag op het startpunt, dan krijgen ze die pas nadat ze 25 meter gelopen hebben.
 - **De lus** — alle punten daartussen. Elk team krijgt een eigen instapplek in de lus, berekend op GPS-afstand, zodat groepen gelijkmatig verspreid lopen.
-- **🏁 Finish hub** — het **laatste** punt in de lijst, op dezelfde plek als de start hub. Hier komen alle teams na hun lus weer samen.
+- **🏁 Finish** — het **laatste** punt in de lijst, op dezelfde plek als het startpunt. Hier komen alle teams na hun lus weer samen.
 
 ```
-Route met hub + 6 lus-punten (3 teams):
+Route met startpunt/finish + 6 lus-punten (3 teams):
 
         [2]
        /   \
@@ -82,7 +82,7 @@ Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 ✓ Teams beginnen op gelijke GPS-afstand van elkaar aan de lus
 ```
 
-> **Belangrijk:** De hub-punten herkent het systeem aan hun **positie in de lijst**: het eerste punt is altijd de start, het laatste altijd de finish. De ▲▼-knoppen zijn daarom uitgeschakeld voor deze twee punten. Plaats je punten handmatig, zet dan zelf een infopunt als eerste en een eindpunt als laatste — of gebruik de automatische generator hieronder, die dit voor je doet.
+> **Belangrijk:** Het startpunt en de finish herkent het systeem aan hun **positie in de lijst**: het eerste punt is altijd de start, het laatste altijd de finish. De ▲▼-knoppen zijn daarom uitgeschakeld voor deze twee punten. Plaats je punten handmatig, zet dan zelf een infopunt als eerste en een eindpunt als laatste — of gebruik de automatische generator hieronder, die dit voor je doet.
 
 #### Instellingen voor Verspreid-modus
 
@@ -114,7 +114,7 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 5. Het **middelpunt** (⊕) is versleepbaar — sleep het naar de gewenste locatie en de ghost-voorvertoning past zich direct aan.
 6. Sleep daarna elk punt afzonderlijk naar de exacte straat.
 
-> Naast de cirkelpunten plaatst de generator automatisch een **🏠 Start hub** (infopunt, bovenaan de lijst) en een **🏁 Finish hub** (eindpunt, onderaan de lijst), allebei op het middelpunt. Sleep het middelpunt dus naar de plek waar je de teams wilt ontvangen en weer wilt opvangen.
+> Naast de cirkelpunten plaatst de generator automatisch een **🏠 Startpunt** (infopunt, bovenaan de lijst) en een **🏁 Finish** (eindpunt, onderaan de lijst), allebei op het middelpunt. Sleep het middelpunt dus naar de plek waar je de teams wilt ontvangen en weer wilt opvangen.
 
 > De ghost-cirkel op de kaart (gestippeld, cyaan) toont een voorvertoning van de punten vóór je ze genereert. De gids-cirkel rondom een geselecteerd punt toont de aanbevolen afstand tot het volgende punt.
 
@@ -363,7 +363,7 @@ De tabel toont per team de **Teamnaam** (de naam die de groep zelf gekozen heeft
 - **GPS-nauwkeurigheid** varieert per apparaat en locatie (bebouwing, bewolking). Stel de radius ruimer in op moeilijk te bereiken punten of in stedelijk gebied (50–80 m).
 - **Speciale items** worden pas actief zodra de route actief is.
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
-- **Verspreid-modus**: het eerste punt is de start hub en het laatste de finish hub — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
+- **Verspreid-modus**: het eerste punt is het startpunt en het laatste de finish — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
 - **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Groepen) als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.

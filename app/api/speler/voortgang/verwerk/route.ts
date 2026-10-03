@@ -58,7 +58,10 @@ export async function POST(request: NextRequest) {
   let numericAnswer: number | null = null;
   let numericTolerance: number | null = null;
 
-  if (punt.type === "informatiepunt" || punt.type === "eindpunt") {
+  // Een informatiepunt mét vraag (zoals het startpunt) telt als vraag zodra er een antwoord
+  // wordt meegestuurd; zonder antwoord blijft het gewoon informatie.
+  const heeftAntwoord = selected_answer_id != null || open_answer_text != null;
+  if (punt.type === "eindpunt" || (punt.type === "informatiepunt" && !heeftAntwoord)) {
     isCorrect = true;
     puntWaarde = punt.points;
   } else {
