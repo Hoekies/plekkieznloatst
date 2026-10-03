@@ -181,7 +181,7 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
 function StatKaart({ waarde, label, kleur, tabular }: { waarde: string; label: string; kleur: string; tabular?: boolean }) {
   return (
     <div style={{
-      flex: 1, background: "var(--paper)", borderRadius: 16,
+      flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: 16,
       padding: "16px 12px", textAlign: "center",
       border: "1px solid var(--line)",
     }}>
@@ -202,7 +202,7 @@ function LeaderboardRij({ entry }: { entry: LeaderboardEntry }) {
     <div style={{
       display: "flex", alignItems: "center", gap: 10,
       padding: "10px 14px", borderRadius: 12,
-      background: isEigen ? "var(--blue-soft)" : "var(--paper)",
+      background: isEigen ? "var(--blue-soft)" : "rgba(255,255,255,0.06)",
       border: `1.5px solid ${isEigen ? "var(--blue)" : "var(--line)"}`,
     }}>
       <span style={{ fontSize: "1.3rem", flexShrink: 0, width: 28, textAlign: "center" }}>

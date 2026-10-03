@@ -154,12 +154,13 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
       padding: 16,
     }}>
       <div style={{
-        background: "#fff", borderRadius: 16, padding: 24,
+        background: "#0f1c2e", borderRadius: 16, padding: 24,
+        border: "1px solid var(--glass-border)",
         display: "flex", flexDirection: "column", gap: 16,
         maxWidth: 420, width: "100%", maxHeight: "90vh", overflow: "auto",
-        boxShadow: "0 24px 48px rgba(0,0,0,0.35)",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
       }}>
-        <div style={{ fontWeight: 700, fontSize: "1rem", color: "#1e293b" }}>
+        <div style={{ fontWeight: 700, fontSize: "1rem", color: "#e8f0ff" }}>
           Afbeelding bijsnijden
         </div>
 
@@ -167,7 +168,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
         <div
           style={{
             width: CROP_W, height: CROP_H, overflow: "hidden",
-            borderRadius: 10, border: "2px solid #e2e8f0",
+            borderRadius: 10, border: "2px solid var(--line)",
             position: "relative", cursor: "grab",
             userSelect: "none", touchAction: "none", alignSelf: "center",
           }}
@@ -205,17 +206,17 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
 
         {/* Zoomschuif */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: "0.78rem", color: "#64748b", minWidth: 20 }}>1×</span>
+          <span style={{ fontSize: "0.78rem", color: "var(--text)", minWidth: 20 }}>1×</span>
           <input
             type="range" min={1} max={3} step={0.05}
             value={zoom}
             onChange={(e) => onZoomWijzig(parseFloat(e.target.value))}
             style={{ flex: 1 }}
           />
-          <span style={{ fontSize: "0.78rem", color: "#64748b", minWidth: 20 }}>3×</span>
+          <span style={{ fontSize: "0.78rem", color: "var(--text)", minWidth: 20 }}>3×</span>
         </div>
 
-        <p style={{ margin: 0, fontSize: "0.78rem", color: "#94a3b8", textAlign: "center" }}>
+        <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--muted)", textAlign: "center" }}>
           Sleep om te verschuiven · schuif om in/uit te zoomen
         </p>
 
