@@ -247,7 +247,7 @@ Via de knoppen **🔑 Wachtwoord** en **✏️ Loginnaam** op de groepskaart kun
 
 Een groep kan maar op één apparaat tegelijk ingelogd zijn. Wordt de app weggedrukt zónder uit te loggen, dan blijft die koppeling hangen en kan de groep **op geen enkel apparaat meer inloggen** — ook niet op hetzelfde.
 
-Klik dan op **🔓 Apparaat resetten** op de groepskaart. De koppeling wordt losgelaten en de groep kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
+Klik dan op **🔓 Apparaat** op de groepskaart (alleen zichtbaar zolang er een toestel gekoppeld is). De koppeling wordt losgelaten en de groep kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
 
 > Dit is de meest voorkomende storing tijdens een spel. Als een team belt met "we kunnen niet meer inloggen", is dit vrijwel altijd de oplossing.
 
@@ -261,7 +261,7 @@ Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief 
 
 #### Het spel van een groep stoppen
 
-Met **⏹️ Spel stoppen** (bij Groepen of op het Dashboard) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**. Bij Groepen staat deze knop alleen bij een groep die nu een spel speelt.
+Met **⏹️ Stop spel** bij Groepen (op het Dashboard heet de knop **Spel stoppen**) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**. Bij Groepen staat deze knop alleen bij een groep die nu een spel speelt.
 
 > De Groepen-pagina ververst zichzelf elke 10 seconden, dus knoppen verschijnen vanzelf zodra een groep inlogt of begint.
 
@@ -365,7 +365,7 @@ De tabel toont per team de **Teamnaam** (de naam die de groep zelf gekozen heeft
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: het eerste punt is de start hub en het laatste de finish hub — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
-- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat resetten** als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
+- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Groepen) als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
 - **Mist-modus vergt geen voorbereiding**: geen punten uitzetten, geen route bedenken. Alleen een startlocatie en eventueel wat vragen. Handig als je weinig tijd hebt om iets uit te zetten.

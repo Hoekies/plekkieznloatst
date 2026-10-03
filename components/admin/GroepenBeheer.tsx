@@ -86,7 +86,7 @@ export default function GroepenBeheer() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "640px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "760px" }}>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
           {groepen.length} groep{groepen.length !== 1 ? "en" : ""}
@@ -199,32 +199,33 @@ export default function GroepenBeheer() {
                       {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
                     </span>
                   </div>
-                  <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "wrap" }}>
-                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                  {/* Knoppen op één regel, zelfde stijl als het routes-overzicht */}
+                  <div className="gb-knoppen">
+                    <button className="rl-knop" title="Wachtwoord wijzigen"
                       onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam })}>
                       🔑 Wachtwoord
                     </button>
-                    <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
+                    <button className="rl-knop" title="Loginnaam wijzigen"
                       onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam })}>
                       ✏️ Loginnaam
                     </button>
                     {g.active_device_id && (
-                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px" }}
-                        onClick={() => resetApparaat(g.id)} title="Ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
-                        🔓 Apparaat resetten
+                      <button className="rl-knop" onClick={() => resetApparaat(g.id)}
+                        title="Apparaat resetten: ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
+                        🔓 Apparaat
                       </button>
                     )}
                     {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
                     {g.active_device_id && (
-                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                        onClick={() => logGroepUit(g.id)} title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
+                      <button className="rl-knop rl-knop--rood" onClick={() => logGroepUit(g.id)}
+                        title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
                         🚪 Uitloggen
                       </button>
                     )}
                     {g.heeft_spel && (
-                      <button className="btn btn-ghost" style={{ fontSize: "0.72rem", padding: "4px 10px", color: "var(--red)" }}
-                        onClick={() => stopSpel(g.id, displayNaam)} title="Beëindigt het lopende spel van deze groep">
-                        ⏹️ Spel stoppen
+                      <button className="rl-knop rl-knop--rood" onClick={() => stopSpel(g.id, displayNaam)}
+                        title="Spel stoppen: beëindigt het lopende spel van deze groep">
+                        ⏹️ Stop spel
                       </button>
                     )}
                   </div>

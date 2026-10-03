@@ -1690,6 +1690,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .rl-knop:hover { background: rgba(255,255,255,0.12); }
 .rl-knop--cyan { background: rgba(0,217,255,0.16); border-color: rgba(0,217,255,0.5); color: #A5F3FC; }
 .rl-knop--cyan:hover { background: rgba(0,217,255,0.26); }
+.rl-knop--rood { color: #FCA5A5; border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.1); }
+.rl-knop--rood:hover { background: rgba(239,68,68,0.2); }
+/* Groepen: actieknoppen op één regel; op smalle schermen mogen ze doorlopen */
+.gb-knoppen { display: flex; gap: 6px; margin-top: 8px; flex-wrap: nowrap; }
+@media (max-width: 700px) { .gb-knoppen { flex-wrap: wrap; } }
 .rl-knop--icoon { width: 34px; padding: 0; font-size: 1.1rem; line-height: 1; }
 .rl-menu-wrap { position: relative; }
 .rl-menu {
