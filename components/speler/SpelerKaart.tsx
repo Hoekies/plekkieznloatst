@@ -32,6 +32,11 @@ interface Props {
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
 
 const GPS_TIMEOUT_MS = 12000;
+
+// Het emoji waarmee een aanvalsmelding begint → item-icoon in /items
+const MELDING_ITEM_TYPE: Record<string, string> = {
+  "👻": "spook", "💣": "bom", "🔄": "wissel", "🦹": "dief", "🍌": "banaan", "❓": "vraagteken",
+};
 const SLECHTE_NAUWKEURIGHEID_M = 30;
 const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 
@@ -615,25 +620,40 @@ export default function SpelerKaart({ sessie, punten, initVoortgang }: Props) {
       )}
 
       {/* Effect notificatie */}
-      {effectNotificatie && (
-        <div style={{
-          position: "absolute",
-          bottom: broadcastBericht ? knoepBottomOffset + 130 : knoepBottomOffset + 70,
-          left: "50%", transform: "translateX(-50%)",
-          zIndex: 1600, maxWidth: "calc(100% - 24px)",
-          background: "linear-gradient(160deg, #9333EA 0%, #6D28D9 100%)",
-          border: "3px solid rgba(255,255,255,0.8)",
-          color: "#fff", padding: "16px 22px", borderRadius: 20, fontSize: "1.05rem", fontWeight: 800,
-          fontFamily: "var(--font-display)",
-          boxShadow: "0 8px 28px rgba(0,0,0,0.45), 0 0 0 6px rgba(147,51,234,0.25)",
-          display: "flex", alignItems: "center", gap: 10,
-          animation: "pr-effect-pop 0.4s ease",
-        }}>
-          <span style={{ fontSize: "1.6rem", flexShrink: 0 }}>🚨</span>
-          <span>{effectNotificatie}</span>
-          <button onClick={() => setEffectNotificatie(null)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 26, height: 26, color: "#fff", fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 4 }}>✕</button>
-        </div>
-      )}
+      {effectNotificatie && (() => {
+        // Meldingen beginnen met het emoji van het item (of 📨 van de organisatie): toon dat groot als icoon
+        const [eerste, ...rest] = effectNotificatie.split(" ");
+        const itemType = MELDING_ITEM_TYPE[eerste];
+        const isIcoon = !!itemType || /\p{Extended_Pictographic}/u.test(eerste);
+        const tekst = isIcoon ? rest.join(" ") : effectNotificatie;
+        return (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 1600,
+            background: "rgba(12,3,34,0.72)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+          }}>
+            <div className="pr-panel" style={{ maxWidth: 360, width: "100%", animation: "pr-effect-pop 0.4s ease" }}>
+              <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", paddingTop: 22 }}>
+                {itemType ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`/items/${itemType}.png`} alt="" style={{ width: 110, height: 110, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.6))" }} />
+                ) : (
+                  <span style={{ fontSize: "4rem", lineHeight: 1 }}>{isIcoon ? eerste : "🚨"}</span>
+                )}
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>
+                  {itemType ? "Let op!" : "Bericht"}
+                </div>
+                <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
+                  {tekst}
+                </p>
+                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => setEffectNotificatie(null)}>
+                  OK, BEGREPEN
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>

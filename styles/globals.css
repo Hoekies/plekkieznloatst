@@ -454,9 +454,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 @keyframes pr-effect-pop {
-  0%   { transform: translateX(-50%) scale(0.6); opacity: 0; }
-  60%  { transform: translateX(-50%) scale(1.08); opacity: 1; }
-  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ── Stat-kaart ── */
