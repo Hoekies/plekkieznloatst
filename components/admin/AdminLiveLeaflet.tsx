@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
-
-const SPECIAAL_ITEM_STIJL: Record<string, { kleur: string; emoji: string }> = {
-  spook:        { kleur: "#7C3AED", emoji: "👻" },
-  bom:          { kleur: "#DC2626", emoji: "💣" },
-  ster:         { kleur: "#D97706", emoji: "⭐" },
-  verdubbeling: { kleur: "#B91C1C", emoji: "🔴" },
-  wissel:       { kleur: "#1D4ED8", emoji: "🔄" },
-  dief:         { kleur: "#7C2D12", emoji: "🦹" },
-  radar:        { kleur: "#0369A1", emoji: "📡" },
-};
 
 interface Props {
   spelers: SpelerOverzicht[];
@@ -28,7 +18,11 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   const spelerMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
-  const initBoundsRef = useRef(false);
+  const routeGetoondRef = useRef(false);
+  // Gegevens kunnen binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
+  const [kaartKlaar, setKaartKlaar] = useState(false);
+  // Kaart volgt de spelers tot de admin hem zelf versleept
+  const [volgen, setVolgen] = useState(true);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -68,7 +62,10 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         maxZoom: 19,
       }).addTo(map);
 
+      map.on("dragstart", () => setVolgen(false));
+
       mapRef.current = map;
+      setKaartKlaar(true);
     }
 
     init();
@@ -85,7 +82,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       spelerMarkers.clear();
       puntMarkers.clear();
       specialeItemMarkers.clear();
-      initBoundsRef.current = false;
+      routeGetoondRef.current = false;
     };
   }, []);
 
@@ -118,7 +115,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         .addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [route_punten]);
+  }, [route_punten, kaartKlaar]);
 
   // Spelermarkers bijwerken
   useEffect(() => {
@@ -174,16 +171,15 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       }
     });
 
-    // Eerste keer bounds fitten op alle markers samen
-    if (!initBoundsRef.current && nieuwePosities.length > 0) {
-      initBoundsRef.current = true;
-      const alleLatlngs: [number, number][] = [
-        ...nieuwePosities,
-        ...route_punten.map((p): [number, number] => [p.latitude, p.longitude]),
-      ];
-      map.fitBounds(L.latLngBounds(alleLatlngs), { padding: [40, 40] });
+    if (volgen && nieuwePosities.length > 0) {
+      // Spelers volgen: bij elke update alle teams in beeld houden
+      map.fitBounds(L.latLngBounds(nieuwePosities), { padding: [60, 60], maxZoom: 17, animate: true });
+    } else if (!routeGetoondRef.current && route_punten.length > 0) {
+      // Nog geen spelers op pad: toon de route i.p.v. de standaardplek
+      routeGetoondRef.current = true;
+      map.fitBounds(L.latLngBounds(route_punten.map((p): [number, number] => [p.latitude, p.longitude])), { padding: [40, 40] });
     }
-  }, [spelers, route_punten]);
+  }, [spelers, route_punten, volgen, kaartKlaar]);
 
   // Speciale item markers bijwerken (admin ziet geclaimd = transparant)
   useEffect(() => {
@@ -195,31 +191,35 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     specialeItemMarkersRef.current.clear();
 
     speciale_items.forEach((item) => {
-      const stijl = SPECIAAL_ITEM_STIJL[item.type] ?? { kleur: "#555", emoji: "?" };
-      const opaciteit = item.claimed ? 0.3 : 1.0;
       const icon = L.divIcon({
         className: "",
-        html: `<div style="
-          width:36px;height:36px;border-radius:10px;
-          background:${stijl.kleur};border:2px solid #fff;
-          box-shadow:0 2px 8px rgba(0,0,0,0.3);
-          display:flex;align-items:center;justify-content:center;
-          font-size:18px;opacity:${opaciteit};
-        ">${stijl.emoji}</div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
+        html: `<img src="/items/${item.type}.png" alt="" style="width:32px;height:32px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));opacity:${item.claimed ? 0.3 : 1}" />`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
       const marker = L.marker([item.latitude, item.longitude], { icon })
         .bindTooltip(`${item.name}${item.claimed ? " (geclaimd)" : ""}`, { permanent: false })
         .addTo(map);
       specialeItemMarkersRef.current.set(item.id, marker);
     });
-  }, [speciale_items]);
+  }, [speciale_items, kaartKlaar]);
 
   // flex:1 i.p.v. height:100% — percentage-hoogtes door geneste containers bleken op
   // sommige mobiele browsers niet betrouwbaar te resolven (zelfde klasse bug als de
   // ontbrekende kaart in de route-editor). position+zIndex vormen een eigen stacking-
   // context, zodat Leaflet's interne panes (tot z-index 700) niet boven pagina-
   // elementen als het admin-hamburgermenu lekken.
-  return <div ref={containerRef} style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }} />;
+  return (
+    <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
+      <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      {!volgen && (
+        <button
+          onClick={() => setVolgen(true)}
+          className="btn-premium--cyan"
+          style={{ position: "absolute", top: 12, right: 12, zIndex: 1000, fontSize: "0.8rem", padding: "8px 14px" }}>
+          📍 Volg spelers
+        </button>
+      )}
+    </div>
+  );
 }
