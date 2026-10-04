@@ -763,7 +763,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {activeSpeciaalItem && (
         <SpeciaalItemPopup
           item={activeSpeciaalItem}
-          andereSessies={andereSpelers.map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
+          // Gefinishte teams zijn geen tegenstander meer (geen wissel, bom enz. met hen)
+          andereSessies={andereSpelers.filter((s) => !s.gefinisht).map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
           waarden={waarden}
           onVerwerkt={inventarisItemGebruikt}
           onSluit={bewaarItemVoorLater}

@@ -27,10 +27,10 @@ export async function GET() {
   if (!eigenSessie) return NextResponse.json({ locaties: [] });
 
   // Andere sessies op dezelfde route (actief of zojuist gefinisht)
-  type SessieRij = { id: string; players: { login_name: string; nickname: string | null } };
+  type SessieRij = { id: string; status: string; players: { login_name: string; nickname: string | null } };
   const { data: andereSessies } = await admin
     .from("player_sessions")
-    .select("id, players!inner(login_name, nickname)")
+    .select("id, status, players!inner(login_name, nickname)")
     .eq("route_id", eigenSessie.route_id)
     .in("status", ["actief", "voltooid"])
     .neq("id", eigenSessie.id);
@@ -40,6 +40,7 @@ export async function GET() {
 
   const sessieIds = rijen.map((s) => s.id);
   const sessieNaarGroep = new Map(rijen.map((s) => [s.id, s.players.nickname ?? s.players.login_name]));
+  const gefinisht = new Set(rijen.filter((s) => s.status === "voltooid").map((s) => s.id));
 
   // Radar check: heeft de speler een actief radar-effect?
   const { data: radarEffect } = await admin
@@ -72,6 +73,7 @@ export async function GET() {
         latitude: row.latitude,
         longitude: row.longitude,
         created_at: row.created_at,
+        gefinisht: gefinisht.has(row.session_id),
       });
     }
   } else {
@@ -94,6 +96,7 @@ export async function GET() {
         latitude: row.public_latitude,
         longitude: row.public_longitude,
         created_at: row.created_at,
+        gefinisht: gefinisht.has(row.session_id),
       });
     }
   }

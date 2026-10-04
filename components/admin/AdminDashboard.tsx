@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
+import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 
 const POLL_INTERVAL_MS = 5000;
@@ -213,7 +214,7 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
   return (
     <div className="pr-gem-card" style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" } : undefined}>
       <div className="pr-gem-card-inner">
-        <div className="pr-gem-avatar">{teamIcoonVoor(s.player_id)}</div>
+        <div className="pr-gem-avatar">{s.icon ?? teamIcoonVoor(s.player_id)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem",
@@ -230,6 +231,21 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
             {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)} geleden`}
           </div>
           <div className="pr-xp-bar"><div className="pr-xp-fill" style={{ width: `${pct}%` }} /></div>
+
+          {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
+              {s.items.in_balk.length > 0 && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  In de balk: <ItemIcoontjes types={s.items.in_balk} />
+                </span>
+              )}
+              {s.items.ingezet.length > 0 && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  Ingezet: <ItemIcoontjes types={s.items.ingezet} vaag />
+                </span>
+              )}
+            </div>
+          )}
 
           {s.hulp && (
             <div style={{
@@ -262,6 +278,24 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
         <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
       </div>
     </div>
+  );
+}
+
+// Item-icoontjes, gegroepeerd per type met een aantal (bv. 2× bom)
+function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolean }) {
+  const aantallen = new Map<string, number>();
+  types.forEach((t) => aantallen.set(t, (aantallen.get(t) ?? 0) + 1));
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+      {[...aantallen].map(([type, n]) => (
+        <span key={type} title={`${ITEM_INFO[type]?.naam ?? type}${n > 1 ? ` (${n}×)` : ""}`}
+          style={{ display: "inline-flex", alignItems: "center", opacity: vaag ? 0.45 : 1 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/items/${type}.png`} alt={ITEM_INFO[type]?.naam ?? type} style={{ width: 22, height: 22 }} />
+          {n > 1 && <span style={{ fontWeight: 700, color: "var(--ink)", marginLeft: 1 }}>{n}</span>}
+        </span>
+      ))}
+    </span>
   );
 }
 

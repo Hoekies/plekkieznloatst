@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { laatItemsVervallen } from "@/lib/items-vervallen";
 
 export async function PATCH(
   request: NextRequest,
@@ -80,6 +81,7 @@ export async function PATCH(
         status: "voltooid",
         finished_at: new Date().toISOString(),
       }).eq("id", inzending.session_id);
+      await laatItemsVervallen(admin, [inzending.session_id]);
     }
   }
 

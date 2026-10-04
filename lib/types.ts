@@ -21,4 +21,6 @@ export type SpelerLocatie = {
   latitude: number;
   longitude: number;
   created_at: string;
+  // Al gefinisht: blijft op de kaart, maar is geen tegenstander meer voor items
+  gefinisht: boolean;
 };

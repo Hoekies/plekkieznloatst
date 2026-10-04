@@ -7,6 +7,8 @@ export type SpelerOverzicht = {
   nickname: string | null;
   // Gekozen teamnaam, of de loginnaam zolang het team nog geen naam heeft gekozen
   display_name: string;
+  // Door het team gekozen icoon (emoji)
+  icon: string | null;
   // Heeft de groep nu een telefoon gekoppeld (= ingelogd)?
   ingelogd: boolean;
   sessie_id: string | null;
@@ -22,6 +24,8 @@ export type SpelerOverzicht = {
   laatste_lng: number | null;
   // Openstaande melding "volgende punt niet bereikbaar"
   hulp: { id: string; punt_naam: string | null; sinds: string } | null;
+  // Itemtypes die het team nog in de balk heeft, en die het al heeft ingezet
+  items: { in_balk: string[]; ingezet: string[] };
 };
 
 export type RoutePuntKort = {
@@ -53,7 +57,7 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name, modus").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, login_name, nickname, active_device_id").order("login_name"),
+    admin.from("players").select("id, login_name, nickname, icon, active_device_id").order("login_name"),
   ]);
 
   let specialeItems: SpeciaalItem[] = [];
@@ -151,6 +155,21 @@ export async function haalLiveData(): Promise<LiveData> {
     });
   }
 
+  // Items per team: opgepakt (of startitem) en nog niet gebruikt = in de balk
+  const itemMap = new Map<string, SpelerOverzicht["items"]>();
+  if (sessieIds.length) {
+    const { data: teamItems } = await admin
+      .from("special_items")
+      .select("type, used_at, claimed_by_session_id")
+      .in("claimed_by_session_id", sessieIds);
+    (teamItems ?? []).forEach((i) => {
+      if (!i.claimed_by_session_id) return;
+      const m = itemMap.get(i.claimed_by_session_id) ?? { in_balk: [], ingezet: [] };
+      (i.used_at ? m.ingezet : m.in_balk).push(i.type);
+      itemMap.set(i.claimed_by_session_id, m);
+    });
+  }
+
   const spelers: SpelerOverzicht[] = allePlayers.map((player) => {
     const sessie = sessieMap.get(player.id);
     const locatie = sessie ? locatieMap.get(sessie.id) : null;
@@ -159,6 +178,7 @@ export async function haalLiveData(): Promise<LiveData> {
       login_name: player.login_name,
       nickname: player.nickname ?? null,
       display_name: player.nickname ?? player.login_name,
+      icon: player.icon ?? null,
       ingelogd: !!player.active_device_id,
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
@@ -172,6 +192,7 @@ export async function haalLiveData(): Promise<LiveData> {
       laatste_lat: locatie?.lat ?? null,
       laatste_lng: locatie?.lng ?? null,
       hulp: sessie ? (hulpMap.get(sessie.id) ?? null) : null,
+      items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
     };
   });
 

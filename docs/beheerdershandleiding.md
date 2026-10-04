@@ -216,6 +216,8 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 > **Dief-effect**: de dief wacht tot de tegenstander een vraag beantwoordt waarmee ze punten verdienen. Bij een fout antwoord (0 of minpunten) blijft de dief gewoon klaarstaan.
 
+> **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Een gefinisht team is ook geen tegenstander meer: er kan niet meer mee gewisseld worden, en het kan niet meer gebombardeerd of beroofd worden.
+
 > **Banaan-effect**: werkt alleen als de tegenstander nog minimaal 2 punten vóór het eindpunt te gaan heeft. Anders krijgt het aanvallende team een melding en blijft de banaan bewaard.
 
 > **"Aangeboden door"-melding**: bij alle aanvals-items (Spook, Bom, Wissel, Dief, Banaan) krijgt de tegenstander binnen ongeveer 5 seconden een groot venster met de naam van het aanvallende team en een klokslag (en trillen op Android; iPhones kunnen vanuit een webapp niet trillen). Het venster blijft staan tot het team op **OK, BEGREPEN** tikt.
