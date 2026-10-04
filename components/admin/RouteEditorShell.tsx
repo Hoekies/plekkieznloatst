@@ -10,7 +10,7 @@ import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
-type RouteMetPunten = Route & { route_points: RoutePunt[] };
+type RouteMetPunten = Route & { route_points: (RoutePunt & { questions?: { id: string }[] })[] };
 
 const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#ec4899", "#14b8a6", "#00d9ff"];
 
@@ -18,6 +18,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const zoekParams = useSearchParams();
   const [route, setRoute] = useState(initRoute);
   const [punten, setPunten] = useState<RoutePunt[]>(initRoute.route_points ?? []);
+  // Welke punten een vraag hebben (de pagina laadt opnieuw na het bewerken van een vraag)
+  const [vraagPuntIds] = useState(() => new Set(
+    (initRoute.route_points ?? []).filter((p) => (p.questions?.length ?? 0) > 0).map((p) => p.id),
+  ));
   const [geselecteerd, setGeselecteerd] = useState<RoutePunt | null>(null);
   const [addModus, setAddModus] = useState(false);
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
@@ -754,6 +758,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {pt.name}
                     </div>
+                    {vraagPuntIds.has(pt.id) ? (
+                      <span title="Aan dit punt hangt een vraag" style={{ fontSize: "0.66rem", fontWeight: 700, color: "#93C5FD", whiteSpace: "nowrap", flexShrink: 0 }}>❓ vraag</span>
+                    ) : pt.type === "vraagpunt" ? (
+                      <span title="Vraagpunt zonder vraag: spelers krijgen hier alleen informatie" style={{ fontSize: "0.66rem", fontWeight: 700, color: "#FBBF24", whiteSpace: "nowrap", flexShrink: 0 }}>⚠️ geen vraag</span>
+                    ) : null}
                     <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
                       {typeLabel} · {pt.radius_meters}m
                     </span>
@@ -1131,6 +1140,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 opslaan={opslaan}
                 fout={fout}
                 alleenVraag={route.modus === "mist"}
+                heeftVraag={vraagPuntIds.has(geselecteerd.id)}
                 onOpslaan={slaPuntOp}
                 onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}
@@ -1247,8 +1257,8 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, onOpslaan, onVerwijder, onSluit }: {
-  punt: RoutePunt; routeId: string; opslaan: boolean; fout: string; alleenVraag?: boolean;
+function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOpslaan, onVerwijder, onSluit }: {
+  punt: RoutePunt; routeId: string; opslaan: boolean; fout: string; alleenVraag?: boolean; heeftVraag: boolean;
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
@@ -1307,11 +1317,14 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, onOpslaan, onVerw
         onClick={() => onOpslaan({ name: naam, description: beschrijving, type, radius_meters: radius, points: punten })}>
         {opslaan ? "Opslaan…" : "Opslaan"}
       </button>
+      <div style={{ fontSize: "0.75rem", fontWeight: 600, color: heeftVraag ? "#93C5FD" : punt.type === "vraagpunt" ? "#FBBF24" : "var(--muted)" }}>
+        {heeftVraag ? "❓ Aan dit punt hangt een vraag." : punt.type === "vraagpunt" ? "⚠️ Dit vraagpunt heeft nog geen vraag." : "Aan dit punt hangt geen vraag."}
+      </div>
       <a
         href={`/admin/routes/${routeId}/punten/${punt.id}`}
         className="btn btn-outline"
         style={{ width: "100%", fontSize: "0.85rem", textAlign: "center", textDecoration: "none" }}>
-        Vraag bewerken →
+        {heeftVraag ? "Vraag bewerken →" : "➕ Vraag toevoegen →"}
       </a>
       <button className="btn btn-danger" style={{ width: "100%", fontSize: "0.85rem" }} onClick={onVerwijder}>
         🗑️ Verwijderen
