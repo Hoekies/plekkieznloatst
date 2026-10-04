@@ -99,9 +99,21 @@ In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus st
 Alleen bij verspreid-modus, in te schakelen via **⚙️ Instellingen** → "🔄 Respawn":
 
 - **Uit (standaard)** — speciale items verdwijnen permanent zodra een team ze opraapt.
-- **Aan** — een opgeraapt item komt na een instelbaar aantal minuten weer beschikbaar, met een nieuw willekeurig type. Daarnaast rouleren alle nog-niet-opgeraapte items elke periode automatisch van type, zodat het speelveld dynamisch blijft.
+- **Aan** — een opgeraapt item komt na een instelbaar aantal minuten terug op de kaart, zodra het team dat het opraapte het heeft gebruikt. Het komt terug als **precies hetzelfde item op dezelfde plek**: de app verandert nooit zelf het type of de plek van een item.
 
 Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "Aan" staat.
+
+#### Hoeveel items? (advies)
+
+Bij Verspreid toont het tabblad **Items** een geel adviesblok. Het rekent met de lengte van het rondje, het aantal teams en of respawn aan staat, en zet naast elk soort item hoeveel er nu liggen (groen = goed, oranje = te weinig, rood = te veel).
+
+- **Afstand** — ongeveer elke 300 m iets om op te pakken, zodat elk team onderweg regelmatig iets tegenkomt.
+- **Teams** — minimaal 2 en hoogstens 3 items per team: het eerste team pakt een item weg, dus latere teams moeten ook kans maken, maar items mogen de uitslag niet meer bepalen dan de vragen.
+- **Respawn aan** — ongeveer 30% minder, want items komen terug.
+- **Verdeling** — ongeveer 40% aanvalsitems, 1 à 2 vraagtekens, de rest voordeel. Plek zooi: ongeveer 1 per km, nooit meer dan het aantal teams.
+- **Plaatsing** — verdeel de items gelijkmatig over het rondje, niet vlak bij het startpunt of de finish, minstens 50 m van een vraagpunt, en plek zooi niet op een plek waar iedereen langs móet.
+
+Het blijft een advies: de app plaatst of wijzigt nooit zelf items.
 
 #### Punten automatisch genereren in cirkel
 

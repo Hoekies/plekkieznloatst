@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
+import { itemAdvies, ITEM_GROEPEN } from "@/lib/item-advies";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -776,6 +777,56 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 plaats je alleen plek zooi.
               </p>
             )}
+            {actieveTab === "items" && route.modus === "verspreid" && (() => {
+              // Lengte van het rondje: de punten tussen startpunt en finish, als gesloten lus
+              const lus = punten.length >= 3 ? punten.slice(1, -1) : punten;
+              let lusMeter = 0;
+              for (let i = 0; i < lus.length; i++) {
+                const a = lus[i], b = lus[(i + 1) % lus.length];
+                if (lus.length > 1) lusMeter += haversine(a.latitude, a.longitude, b.latitude, b.longitude);
+              }
+              if (lusMeter < 100) lusMeter = doelAfstandKm * 1000;
+              if (lusMeter < 100) {
+                return (
+                  <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)" }}>
+                    💡 Plaats eerst de punten (of vul de doelafstand in), dan krijg je hier een advies voor het aantal items.
+                  </p>
+                );
+              }
+              const advies = itemAdvies(lusMeter, verwachtTeams, !!route.item_respawn);
+              const tel = (types: readonly string[]) => specialeItems.filter((i) => types.includes(i.type)).length;
+              const regels: { label: string; advies: number; nu: number; maxOk: boolean }[] = [
+                { label: "⭐ Voordeel (ster, verdubbeling, radar)", advies: advies.voordeel, nu: tel(ITEM_GROEPEN.voordeel), maxOk: false },
+                { label: "💣 Aanval (bom, spook, dief, banaan, wissel)", advies: advies.aanval, nu: tel(ITEM_GROEPEN.aanval), maxOk: true },
+                { label: "❓ Vraagteken", advies: advies.vraagteken, nu: tel(ITEM_GROEPEN.vraagteken), maxOk: true },
+                { label: "⛔ Plek zooi", advies: advies.plekzooi, nu: tel(ITEM_GROEPEN.plekzooi), maxOk: true },
+              ];
+              return (
+                <div style={{ margin: "0 10px 10px", padding: "10px 12px", borderRadius: 10, background: "rgba(255,217,59,0.08)", border: "1px solid rgba(255,217,59,0.35)", fontSize: "0.74rem", color: "var(--text)", lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 700, color: "#FFE680", marginBottom: 4 }}>💡 Advies voor een eerlijk spel</div>
+                  <div style={{ color: "var(--muted)", marginBottom: 6 }}>
+                    Rondje ≈ {(lusMeter / 1000).toFixed(1).replace(".", ",")} km · {verwachtTeams} teams · respawn {route.item_respawn ? "aan" : "uit"}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", columnGap: 10, rowGap: 2 }}>
+                    <span style={{ color: "var(--muted)" }}>Soort</span><span style={{ color: "var(--muted)" }}>advies</span><span style={{ color: "var(--muted)" }}>nu</span>
+                    {regels.map((r) => {
+                      const teVeel = r.nu > r.advies + (r.maxOk ? 0 : 1);
+                      const teWeinig = r.nu < r.advies - 1;
+                      return [
+                        <span key={r.label + "l"}>{r.label}</span>,
+                        <span key={r.label + "a"} style={{ textAlign: "right", fontWeight: 700 }}>{r.advies}</span>,
+                        <span key={r.label + "n"} style={{ textAlign: "right", fontWeight: 700, color: teVeel ? "#F87171" : teWeinig ? "#FBBF24" : "#4ADE80" }}>{r.nu}</span>,
+                      ];
+                    })}
+                  </div>
+                  <ul style={{ margin: "8px 0 0", paddingLeft: 16, color: "var(--muted)" }}>
+                    <li>Verdeel de items gelijkmatig over het rondje, ongeveer om de {advies.tussenafstandM} m. Elk team start ergens anders, zo komt iedereen er evenveel tegen.</li>
+                    <li>Leg geen items vlak bij het startpunt of de finish: daar komen alle teams langs, dus wie het eerst start, pakt ze weg.</li>
+                    <li>Houd items minstens 50 m van een vraagpunt, en plek zooi niet op een plek waar iedereen langs móet.</li>
+                  </ul>
+                </div>
+              );
+            })()}
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
