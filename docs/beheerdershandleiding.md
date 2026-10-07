@@ -372,7 +372,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
 - **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
-- **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op "Opslaan als PDF / afdrukken" en kies in het printvenster "Opslaan als PDF" om het te versturen. Is de stand nog niet definitief, dan staat dat er bovenaan bij.
+- **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op "Opslaan als PDF / afdrukken" en kies in het printvenster "Opslaan als PDF" om het te versturen. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 
 Bij het activeren van een route en bij **Reset spel** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 

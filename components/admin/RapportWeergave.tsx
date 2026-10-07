@@ -52,15 +52,27 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
         .rapport-papier td { border-top: 1px solid rgba(255,255,255,0.08); padding: 7px 10px; vertical-align: top; }
         .rapport-kop { display: flex; align-items: center; gap: 14px; }
         .rapport-kaart { height: 360px; margin-top: 8px; border-radius: 14px; overflow: hidden; border: 2px solid rgba(255,255,255,0.15); }
+        .rapport-kaart > div { min-height: 0 !important; height: 100% !important; }
+        .rapport-blok { break-inside: avoid; page-break-inside: avoid; }
         @media print {
           @page { size: A4; margin: 0; }
           .admin-sidebar, .admin-mobile-topbar, .admin-topbar, .rapport-knoppen { display: none !important; }
-          html, body, .admin-shell, .admin-main { background: #0c0322 !important; height: auto !important; overflow: visible !important; }
+          /* Donkere achtergrond op de hele pagina, ook waar de inhoud ophoudt: geen witte stukken */
+          html, body, .admin-shell, .admin-main {
+            background: #1c0c45 !important; height: auto !important; overflow: visible !important;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          }
           .rapport-wrap { padding: 0; }
-          .rapport-papier { max-width: none; margin: 0; border-radius: 0; border: none; box-shadow: none; padding: 12mm 14mm; min-height: 100vh; }
-          .rapport-team { break-before: page; }
+          .rapport-papier {
+            max-width: none; margin: 0; border-radius: 0; border: none; box-shadow: none;
+            padding: 12mm 14mm; background: #1c0c45;
+            -webkit-box-decoration-break: clone; box-decoration-break: clone;
+          }
+          .rapport-team, .rapport-slot { break-before: page; page-break-before: always; }
           .leaflet-control-container { display: none; }
-          tr, .rapport-item { break-inside: avoid; }
+          tr, .rapport-item { break-inside: avoid; page-break-inside: avoid; }
+          thead { display: table-header-group; }
+          .rapport-kaart { height: 300px; }
         }
       `}</style>
 
@@ -88,6 +100,25 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
             {data.teams.some((t) => t.status !== "voltooid") && " niet alle teams zijn gefinisht."}
             {data.wachtende_fotos > 0 && ` Er ${data.wachtende_fotos === 1 ? "is" : "zijn"} nog ${data.wachtende_fotos} foto${data.wachtende_fotos === 1 ? "" : "'s"} niet gekeurd.`}
             {!data.uitslag_vrijgegeven && " De uitslag is nog niet vrijgegeven."}
+          </div>
+        )}
+
+        {stand[0] && (
+          <div className="rapport-blok" style={{
+            marginTop: 20, padding: "22px 16px", borderRadius: 18, textAlign: "center",
+            background: "radial-gradient(circle at 50% 0%, rgba(255,217,59,0.35), rgba(255,138,0,0.12) 60%, rgba(0,0,0,0.15))",
+            border: "2px solid rgba(255,217,59,0.7)", boxShadow: "0 0 30px rgba(255,217,59,0.25)",
+          }}>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "0.12em", color: "#FFE680", fontSize: "0.95rem" }}>
+              {voorlopig ? "AAN KOP (VOORLOPIG)" : "🏆 DE WINNAAR 🏆"}
+            </div>
+            <div style={{ fontSize: "4.5rem", lineHeight: 1.1, marginTop: 6 }}>{stand[0].icon ?? "🥇"}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2.6rem", lineHeight: 1.1, color: "#fff", textShadow: "0 3px 0 rgba(0,0,0,0.35)" }}>
+              {stand[0].naam}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.6rem", color: "#00d9ff", marginTop: 4 }}>
+              {stand[0].score} punten
+            </div>
           </div>
         )}
 
@@ -191,6 +222,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
               </table>
             )}
 
+            <div className="rapport-blok">
             <h3 style={{ fontSize: "1.05rem", marginTop: 18 }}>🗺️ Gelopen route</h3>
             <div style={{ fontSize: "0.75rem", color: "#B8AED6" }}>
               Paars = GPS-spoor · groen = punten in volgorde · blauwe rand = item ingezet · oranje rand = item ontvangen
@@ -201,9 +233,34 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
                     items={v.items.filter((x) => x.lat != null && x.lng != null).map((x) => ({ soort: x.soort, type: x.type, ander: x.ander, lat: x.lat!, lng: x.lng! }))} />
                 : <p style={{ fontSize: "0.85rem", color: "#B8AED6" }}>Geen GPS-spoor opgeslagen.</p>}
             </div>
+            </div>
           </div>
         );
       })}
+
+      {/* ── Dankwoord van de organisatie ── */}
+      <div className="rapport-papier rapport-slot">
+        <div className="rapport-blok" style={{ textAlign: "center", padding: "30px 10px" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 90, width: "auto" }} />
+          <div style={{ fontSize: "3rem", marginTop: 18 }}>🍌🙏</div>
+          <h2 style={{ fontSize: "1.7rem", marginTop: 8 }}>Bedankt voor het spelen!</h2>
+          <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 560, margin: "14px auto 0" }}>
+            En natuurlijk bedankt voor al het dwarszitten van jullie tegenspelers: elke bom, elk spook en elke
+            gestolen vraag is met liefde ontvangen. 😇
+          </p>
+          <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 560, margin: "12px auto 0" }}>
+            Hebben jullie nog een banaan over? Die mag je nu zelf opeten. 🍌<br />
+            Wie nog in een plek zooi staat: je mag weer bewegen.
+          </p>
+          <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#FFE680", marginTop: 22 }}>
+            Bedankt en tot de volgende keer!
+          </p>
+          <p style={{ fontSize: "1rem", color: "#fff", margin: "4px 0 0", fontStyle: "italic" }}>
+            Hoekies (alias René)
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
