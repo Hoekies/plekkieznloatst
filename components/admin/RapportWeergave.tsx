@@ -245,13 +245,9 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
           <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 90, width: "auto" }} />
           <div style={{ fontSize: "3rem", marginTop: 18 }}>🍌🙏</div>
           <h2 style={{ fontSize: "1.7rem", marginTop: 8 }}>Bedankt voor het spelen!</h2>
-          <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 560, margin: "14px auto 0" }}>
-            En natuurlijk bedankt voor al het dwarszitten van jullie tegenspelers: elke bom, elk spook en elke
-            gestolen vraag is met liefde ontvangen. 😇
-          </p>
-          <p style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 560, margin: "12px auto 0" }}>
-            Hebben jullie nog een banaan over? Die mag je nu zelf opeten. 🍌<br />
-            Wie nog in een plek zooi staat: je mag weer bewegen.
+          <p style={{ fontSize: "1.1rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 520, margin: "14px auto 0" }}>
+            En voor al het dwarszitten. We weten heus wie die bommen gooide. 👀<br />
+            Nog een banaan over? Opeten. Nu. 🍌
           </p>
           <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#FFE680", marginTop: 22 }}>
             Bedankt en tot de volgende keer!
