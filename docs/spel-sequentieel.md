@@ -64,7 +64,7 @@ Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt
 Bij Sequentieel liggen er geen items op de kaart. In plaats daarvan krijgt **elk team bij de start één banaan** in de balk onderin de kaart.
 
 - Tik op de banaan en kies een **tegenstander**.
-- Hun volgende punt wordt omgewisseld met een ander punt dat ze nog moeten halen. Het eindpunt blijft altijd als laatste.
+- Hun volgende punt ruilt van plek met het punt daarna (1-2-3 wordt 2-1-3): ze moeten eerst naar punt 2, dan terug naar 1, en dan verder naar 3. Het eindpunt blijft altijd als laatste.
 - Je hebt er maar één: kies je moment goed. Je mag hem ook bewaren.
 
 ### Plek zooi ⛔
@@ -87,7 +87,7 @@ Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt
 
 De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschijnt een paar seconden bij alle teams tegelijk: elk team met zijn icoon, naam en punten, de meeste punten bovenaan.
 
-Aan het eind zie je op je eindscherm de **eindstand** van alle teams, met medailles voor de top 3.
+Aan het eind zie je op je eindscherm de **eindstand** van alle teams, met medailles voor de top 3 — zodra de organisatie de uitslag vrijgeeft (na het keuren van de foto's). Via **📖 Terugkijken** zie je je antwoorden en items, via **🗺️ Jullie gelopen route** je route op de kaart.
 
 ---
 

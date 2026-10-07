@@ -39,15 +39,21 @@ export async function PATCH(
     beoordeeld_op: new Date().toISOString(),
   }).eq("id", params.id);
 
-  // Update player_point_progress: beantwoord markeren
-  await admin.from("player_point_progress").upsert({
-    session_id: inzending.session_id,
-    route_point_id: inzending.route_point_id,
-    reached_at: new Date().toISOString(),
-    answered_at: new Date().toISOString(),
-    is_correct: status === "goedgekeurd",
-    points_awarded: puntentoekenend,
-  }, { onConflict: "session_id,route_point_id" });
+  // Voortgang bijwerken. Het punt is normaal al afgerond bij het insturen (het team speelde
+  // meteen door); alleen bij oudere inzendingen zetten we answered_at hier alsnog.
+  const { data: rij } = await admin
+    .from("player_point_progress")
+    .select("id, answered_at")
+    .eq("session_id", inzending.session_id)
+    .eq("route_point_id", inzending.route_point_id)
+    .maybeSingle();
+  if (rij) {
+    await admin.from("player_point_progress").update({
+      is_correct: status === "goedgekeurd",
+      points_awarded: puntentoekenend,
+      ...(rij.answered_at ? {} : { answered_at: new Date().toISOString() }),
+    }).eq("id", rij.id);
+  }
 
   // Update sessie score
   if (status === "goedgekeurd" && puntentoekenend > 0) {
@@ -77,10 +83,11 @@ export async function PATCH(
         .eq("session_id", inzending.session_id).not("answered_at", "is", null),
     ]);
     if (totaal && beantwoord && beantwoord >= totaal) {
+      // Alleen een sessie die nog loopt afronden — anders zou de finishtijd verschuiven
       await admin.from("player_sessions").update({
         status: "voltooid",
         finished_at: new Date().toISOString(),
-      }).eq("id", inzending.session_id);
+      }).eq("id", inzending.session_id).eq("status", "actief");
       await laatItemsVervallen(admin, [inzending.session_id]);
     }
   }

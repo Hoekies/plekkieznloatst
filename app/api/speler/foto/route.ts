@@ -52,6 +52,16 @@ export async function POST(request: NextRequest) {
 
   if (!punt) return NextResponse.json({ fout: "Ongeldig punt" }, { status: 400 });
 
+  // Alleen een punt dat het team bereikt heeft en nog niet afgerond is
+  const { data: voortgangRij } = await admin
+    .from("player_point_progress")
+    .select("id, answered_at")
+    .eq("session_id", sessie.id)
+    .eq("route_point_id", routePointId)
+    .maybeSingle();
+  if (!voortgangRij) return NextResponse.json({ fout: "Je bent nog niet bij dit punt" }, { status: 400 });
+  if (voortgangRij.answered_at) return NextResponse.json({ fout: "Dit punt is al afgerond" }, { status: 409 });
+
   // Controleer of er al een inzending is
   const { data: bestaandeInzending } = await admin
     .from("foto_inzendingen")
@@ -73,14 +83,6 @@ export async function POST(request: NextRequest) {
 
   if (uploadFout) return NextResponse.json({ fout: uploadFout.message }, { status: 500 });
 
-  // Player_point_progress aanmaken als die er nog niet is
-  await admin.from("player_point_progress").upsert({
-    session_id: sessie.id,
-    route_point_id: routePointId,
-    reached_at: new Date().toISOString(),
-    points_awarded: 0,
-  }, { onConflict: "session_id,route_point_id", ignoreDuplicates: true });
-
   // Sessie bijwerken
   await admin.from("player_sessions").update({ current_point_id: routePointId }).eq("id", sessie.id);
 
@@ -99,5 +101,14 @@ export async function POST(request: NextRequest) {
 
   if (inzendingFout) return NextResponse.json({ fout: inzendingFout.message }, { status: 500 });
 
-  return NextResponse.json({ foto_id: inzending.id });
+  // Het team speelt meteen door: het punt is afgerond, de punten komen erbij zodra de
+  // beheerder de foto heeft goedgekeurd (vóór de uitslag wordt vrijgegeven).
+  const { data: voortgang } = await admin
+    .from("player_point_progress")
+    .update({ answered_at: new Date().toISOString(), is_correct: null, points_awarded: 0 })
+    .eq("id", voortgangRij.id)
+    .select()
+    .single();
+
+  return NextResponse.json({ foto_id: inzending.id, voortgang });
 }

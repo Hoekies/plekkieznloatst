@@ -209,7 +209,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 | 💣 | Bom | Een tegenstander verliest de bomwaarde aan punten (standaard 30) |
 | 👻 | Spook | Het volgende punt van een tegenstander verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 🦹 | Dief | De punten van het volgende goede antwoord van een tegenstander gaan naar het team (minpunten nooit) |
-| 🍌 | Banaan | Het volgende punt van een tegenstander wordt omgewisseld met een ander punt dat ze nog moeten halen; het eindpunt blijft altijd als laatste |
+| 🍌 | Banaan | Het volgende punt van een tegenstander ruilt van plek met het punt daarna (1-2-3 wordt 2-1-3); startpunt en eindpunt blijven op hun plek |
 | 🔄 | Wissel | Het team ruilt zijn score met die van een tegenstander |
 | ❓ | Vraagteken | Geen tegenstander kiezen. 40% 2× sterwaarde, 10% jackpot (5× sterwaarde), 20% −1× sterwaarde, 10% −200 punten, 20% iedere tegenstander krijgt willekeurig 1× sterwaarde erbij of eraf |
 | ⛔ | Plek zooi | **Onzichtbaar voor spelers** — geen icoontje op de kaart. Wie de radius betreedt, staat stil: de kaart verdwijnt en er loopt een afteltimer (standaard 5 minuten). De val blijft liggen voor andere teams, maar raakt elk team maar één keer. |
@@ -361,6 +361,20 @@ Op het dashboard staat onderaan **🗑️ Reset spel**. Dit wist:
 Routes, routepunten, vragen en groepen blijven bewaard. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
 
 > Klik tweemaal (bevestiging vereist) om te voorkomen dat je per ongeluk reset.
+
+---
+
+## Antwoorden & uitslag
+
+Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag in de volgorde waarin ze gelopen zijn: het gegeven antwoord, het goede antwoord en de punten.
+
+- **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
+- **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
+- **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
+
+- **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op "Opslaan als PDF / afdrukken" en kies in het printvenster "Opslaan als PDF" om het te versturen. Is de stand nog niet definitief, dan staat dat er bovenaan bij.
+
+Bij het activeren van een route en bij **Reset spel** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 
 ---
 

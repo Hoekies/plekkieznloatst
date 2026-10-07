@@ -12,6 +12,9 @@ interface Props {
   tijdSeconden: number;
   distanceMeters: number;
   initLeaderboard: LeaderboardEntry[];
+  // De eindstand is pas te zien als de beheerder de uitslag vrijgeeft (na het keuren van foto's)
+  uitslagVrij: boolean;
+  wachtendeFotos: number;
 }
 
 const CONFETTI_KLEUREN = ["#F59E0B", "#1E40AF", "#EF4444", "#10B981", "#8B5CF6", "#F97316", "#06B6D4"];
@@ -48,9 +51,11 @@ function formateerAfstand(meters: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceMeters, initLeaderboard }: Props) {
+export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos }: Props) {
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
+  const [vrij, setVrij] = useState(uitslagVrij);
+  const [score, setScore] = useState(initScore);
   const [confetti] = useState<ConfettiStuk[]>(maakConfetti);
   const [confettiZichtbaar, setConfettiZichtbaar] = useState(true);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -63,6 +68,8 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
         const res = await fetch("/api/speler/leaderboard");
         if (res.ok) {
           const data = await res.json();
+          if (typeof data.score === "number") setScore(data.score);
+          if (typeof data.vrijgegeven === "boolean") setVrij(data.vrijgegeven);
           // Houd de laatste bekende staat als de server leeg teruggeeft (bijv. na reset)
           if (data.leaderboard?.length) setLeaderboard(data.leaderboard);
         }
@@ -119,9 +126,25 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
 
         {/* Score + tijd + afstand */}
         <div style={{ display: "flex", gap: 12, width: "100%" }}>
-          <StatKaart waarde={String(score)} label="punten" kleur="var(--blue)" />
+          <StatKaart waarde={String(score)} label={vrij ? "punten" : "punten (voorlopig)"} kleur="var(--blue)" />
           <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
           <StatKaart waarde={formateerAfstand(distanceMeters)} label="afstand" kleur="var(--green, #16A34A)" />
+        </div>
+
+        {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push("/speler/terugkijk")}
+            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
+            📖 Antwoorden &amp; items
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push("/speler/terugkijk/route")}
+            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
+            🗺️ Gelopen route
+          </button>
         </div>
 
         {/* Leaderboard */}
@@ -129,7 +152,21 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
           <h2 style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, marginBottom: 14, color: "#00d9ff" }}>
             <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> Eindstand
           </h2>
-          {leaderboard.length === 0 ? (
+          {!vrij ? (
+            <div style={{
+              borderRadius: 16, padding: "18px 16px", textAlign: "center",
+              background: "rgba(255,217,59,0.1)", border: "1px solid rgba(255,217,59,0.45)",
+            }}>
+              <div style={{ fontSize: "2rem", lineHeight: 1 }}>⏳</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#FFE680", marginTop: 8 }}>
+                Even geduld…
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.5 }}>
+                Zodra alle teams binnen zijn en de organisatie de foto&apos;s heeft gekeurd, verschijnt hier de eindstand.
+                {wachtendeFotos > 0 && <><br />Jullie hebben nog {wachtendeFotos} foto{wachtendeFotos !== 1 ? "'s" : ""} in de keuring; de punten komen er dan bij.</>}
+              </p>
+            </div>
+          ) : leaderboard.length === 0 ? (
             <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -140,14 +177,6 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
           )}
         </div>
 
-        {/* Terugkijken */}
-        <button
-          className="btn btn-ghost"
-          onClick={() => router.push("/speler/terugkijk")}
-          style={{ width: "100%", fontSize: "0.9rem", padding: "12px 0", borderRadius: 14 }}>
-          📖 Terugkijken — alle vragen &amp; antwoorden
-        </button>
-
         {/* Live-indicator */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: "0.75rem" }}>
           <span style={{
@@ -156,7 +185,7 @@ export default function FinishScherm({ groepNaam, score, tijdSeconden, distanceM
             display: "inline-block",
             animation: "puls-dot 1.5s ease-in-out infinite",
           }} />
-          Leaderboard wordt live bijgewerkt
+          {vrij ? "Eindstand wordt live bijgewerkt" : "Deze pagina ververst vanzelf"}
           <style>{`
             @keyframes puls-dot {
               0%, 100% { opacity: 1; }

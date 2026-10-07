@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { logItem } from "@/lib/item-log";
 
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -21,7 +22,20 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const { special_item_id } = body;
+  const plek = typeof body.latitude === "number" && typeof body.longitude === "number"
+    ? { lat: body.latitude, lng: body.longitude } : null;
   if (!special_item_id) return NextResponse.json({ fout: "special_item_id ontbreekt" }, { status: 400 });
+
+  // Zolang een plek zooi of spook op dit team actief is, kan het niets oppakken
+  const { data: blokkade } = await admin
+    .from("special_item_effects")
+    .select("id")
+    .eq("target_session_id", sessie.id)
+    .in("effect_type", ["plekzooi", "ghost"])
+    .gt("expires_at", new Date().toISOString())
+    .limit(1)
+    .maybeSingle();
+  if (blokkade) return NextResponse.json({ status: "geblokkeerd" });
 
   // Plek zooi wordt niet opgepakt: de val blijft liggen voor de volgende teams.
   // Elk team kan hem één keer raken (UNIQUE special_item_id + target_session_id).
@@ -46,6 +60,7 @@ export async function POST(request: NextRequest) {
       notification: null,
     });
     if (effectFout) return NextResponse.json({ status: "al_gehad" });
+    await logItem(admin, { gebruiker: null, doel: sessie.id, type: "plekzooi", omschrijving: null, plek });
     return NextResponse.json({ status: "plekzooi", expires_at: expiresAt });
   }
 

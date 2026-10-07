@@ -20,9 +20,19 @@ export type TerugkijkItem = {
   juiste_antwoord_afbeelding: string | null;
   // Open
   open_antwoord: string | null;
-  // Foto
+  // Foto (tijdelijke link: de opslag is afgeschermd)
   foto_pad: string | null;
   foto_status: FotoStatus | null;
+  tijd: string;
+};
+
+// Een ingezet of ontvangen item, tussen de punten door in tijdsvolgorde
+export type TerugkijkGebeurtenis = {
+  soort: "ingezet" | "ontvangen";
+  item_type: string;
+  ander_team: string | null;   // op wie (ingezet) of van wie (ontvangen); null = geen ander team
+  omschrijving: string | null;
+  tijd: string;
 };
 
 export default async function TerugkijkPage() {
@@ -101,6 +111,40 @@ export default async function TerugkijkPage() {
 
   const fotoMap = new Map((fotos ?? []).map((f) => [f.route_point_id, f]));
 
+  // Eigen foto's via een tijdelijke link tonen (de opslag is niet openbaar)
+  const fotoUrls = new Map<string, string>();
+  for (const f of fotos ?? []) {
+    const { data: getekend } = await admin.storage.from("foto-inzendingen").createSignedUrl(f.foto_pad, 60 * 60);
+    if (getekend?.signedUrl) fotoUrls.set(f.route_point_id, getekend.signedUrl);
+  }
+
+  // Items: wat dit team inzette en wat het van anderen kreeg
+  const { data: logRijen } = await admin
+    .from("item_log")
+    .select("gebruiker_session_id, doel_session_id, item_type, omschrijving, created_at")
+    .or(`gebruiker_session_id.eq.${sessie.id},doel_session_id.eq.${sessie.id}`)
+    .order("created_at");
+  const andereIds = [...new Set((logRijen ?? []).flatMap((r) => [r.gebruiker_session_id, r.doel_session_id])
+    .filter((id): id is string => !!id && id !== sessie.id))];
+  const teamNamen = new Map<string, string>();
+  if (andereIds.length) {
+    const { data: anderen } = await admin.from("player_sessions").select("id, players!inner(login_name, nickname)").in("id", andereIds);
+    for (const a of (anderen ?? []) as unknown as { id: string; players: { login_name: string; nickname: string | null } }[]) {
+      teamNamen.set(a.id, a.players.nickname ?? a.players.login_name);
+    }
+  }
+  const gebeurtenissen: TerugkijkGebeurtenis[] = (logRijen ?? []).map((r) => {
+    const ingezet = r.gebruiker_session_id === sessie.id;
+    const ander = ingezet ? r.doel_session_id : r.gebruiker_session_id;
+    return {
+      soort: ingezet ? "ingezet" : "ontvangen",
+      item_type: r.item_type,
+      ander_team: ander ? (teamNamen.get(ander) ?? "een ander team") : null,
+      omschrijving: r.omschrijving,
+      tijd: r.created_at,
+    };
+  });
+
   // Samenstellen
   const items: TerugkijkItem[] = (voortgang ?? []).map((v) => {
     const punt = puntMap.get(v.route_point_id);
@@ -139,10 +183,11 @@ export default async function TerugkijkPage() {
       juiste_antwoord_tekst: juisteTekst,
       juiste_antwoord_afbeelding: juisteAfbeelding,
       open_antwoord: v.open_answer_text,
-      foto_pad: foto?.foto_pad ?? null,
+      foto_pad: fotoUrls.get(v.route_point_id) ?? null,
       foto_status: (foto?.status as FotoStatus) ?? null,
+      tijd: v.answered_at ?? v.reached_at,
     };
   });
 
-  return <TerugkijkScherm items={items} />;
+  return <TerugkijkScherm items={items} gebeurtenissen={gebeurtenissen} />;
 }

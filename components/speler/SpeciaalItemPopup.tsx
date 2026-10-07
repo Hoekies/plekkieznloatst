@@ -13,6 +13,8 @@ interface AndereSpeler {
 
 interface Props {
   item: SpeciaalItem;
+  // Huidige plek van het team: het item komt op die plek in het verslag en op de routekaart
+  plek?: { lat: number; lng: number } | null;
   waarden: RouteWaarden;
   andereSessies: AndereSpeler[];
   onVerwerkt: (itemId: string, eigenNotificatie?: string) => void;
@@ -34,7 +36,7 @@ const ITEM_INFO: Record<string, { emoji: string; kleur: string; label: string }>
 
 const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar", "vraagteken"]);
 
-export default function SpeciaalItemPopup({ item, waarden, andereSessies, onVerwerkt, onSluit }: Props) {
+export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, onVerwerkt, onSluit }: Props) {
   const startFase: Fase = TYPES_ZONDER_DOEL.has(item.type) ? "bevestig" : "kies_team";
   const [fase, setFase] = useState<Fase>(startFase);
   const [foutMelding, setFoutMelding] = useState("");
@@ -45,8 +47,9 @@ export default function SpeciaalItemPopup({ item, waarden, andereSessies, onVerw
   async function pasEffectToe(targetSessionId?: string) {
     setFase("bezig");
     try {
-      const body: Record<string, string> = { special_item_id: item.id };
+      const body: Record<string, string | number> = { special_item_id: item.id };
       if (targetSessionId) body.target_session_id = targetSessionId;
+      if (plek) { body.latitude = plek.lat; body.longitude = plek.lng; }
 
       const res = await fetch("/api/speler/speciaal/effect", {
         method: "POST",

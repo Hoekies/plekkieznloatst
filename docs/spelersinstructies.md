@@ -19,7 +19,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je groep, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
 
 **Op je beginscherm zetten**
-Open de link eerst in je browser (niet in WhatsApp) en zet PointRush op je beginscherm. Dan opent de app voortaan zonder adresbalk.
+Open de link uit WhatsApp en zet PointRush als app op je beginscherm. Dan opent de app voortaan zonder adresbalk.
 - **Android (Chrome):** tik op ⋮ rechtsboven → "Toevoegen aan startscherm" of "App installeren".
 - **iPhone (Safari):** tik op de deelknop (vierkantje met pijl omhoog) → "Zet op beginscherm".
 

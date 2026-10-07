@@ -44,6 +44,9 @@ const MELDING_ITEM_TYPE: Record<string, string> = {
 };
 const SLECHTE_NAUWKEURIGHEID_M = 30;
 const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
+// Voor de "gelopen route" na de finish: ook tussendoor opslaan zodra de speler een stukje verder is
+const SPOOR_STAP_M = 10;
+const SPOOR_MIN_INTERVAL_MS = 4000;
 
 
 // Getal in de statistiekhokjes zo groot mogelijk; bij meer cijfers iets kleiner zodat het past
@@ -67,8 +70,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
   const [kmAfgelegd, setKmAfgelegd] = useState(0);
-  const [broadcastBericht, setBroadcastBericht] = useState<string | null>(null);
-  const broadcastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [inventaris, setInventaris] = useState<SpeciaalItem[]>([]);
@@ -103,6 +104,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const radarPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const vorigePositieRef = useRef<GeolocationCoordinates | null>(null);
   const kmAfgelegdRef = useRef(0);
+  const laatstGepubliceerdRef = useRef<{ lat: number; lng: number; tijd: number } | null>(null);
 
   // Afgeleid uit voortgang
   const verwerktIds = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
@@ -174,20 +176,17 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     haalHulpOp();
     // Realtime mist soms een update; zo verdwijnt een item dat een ander team pakte binnen 5s
     const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5000);
-    const sessieCheckTimer = setInterval(() => haalScoreOp(), 30 * 1000);
+    // Score vaak verversen: punten van items (ook van anderen) moeten snel zichtbaar zijn
+    const sessieCheckTimer = setInterval(() => haalScoreOp(), 5000);
     // Realtime mist soms een event; pollen zorgt dat een aanval altijd binnen 5s binnenkomt
-    const effectenTimer = setInterval(() => haalEffectenOp(), 5000);
+    const effectenTimer = setInterval(() => haalEffectenOp(), 3000);
+    haalBerichtenOp();
+    const berichtenTimer = setInterval(() => haalBerichtenOp(), 5000);
 
     const supabase = createClient();
     const kanaal = supabase
       .channel("locaties-en-broadcasts")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "location_updates" }, () => { haalAndereSpelersOp(); })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "broadcasts" }, (payload) => {
-        const bericht = (payload.new as { bericht: string }).bericht;
-        setBroadcastBericht(bericht);
-        if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
-        broadcastTimerRef.current = setTimeout(() => setBroadcastBericht(null), 8000);
-      })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "special_item_effects" }, () => { haalEffectenOp(); })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "player_sessions", filter: `id=eq.${sessie.id}` }, () => {
         router.push("/speler");
@@ -199,9 +198,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       clearInterval(itemsTimer);
       clearInterval(sessieCheckTimer);
       clearInterval(effectenTimer);
+      clearInterval(berichtenTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
-      if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
       if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
     };
@@ -239,7 +238,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Speciale item detectie bij positiewijziging
   useEffect(() => {
-    if (!positie || bezigSpeciaalRef.current || plekzooiActief) return;
+    // Tijdens plek zooi of spook geen items oppakken (de server weigert het ook)
+    if (!positie || bezigSpeciaalRef.current || plekzooiActief || ghostTot) return;
     for (const item of specialeItems) {
       if (item.claimed || gehadPlekzooiRef.current.has(item.id)) continue;
       const afstand = haversine(positie.latitude, positie.longitude, item.latitude, item.longitude);
@@ -305,6 +305,27 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         if (data === null) { router.push("/speler"); return; }
         if (data?.score !== undefined) setScore(data.score);
       }
+    } catch { /* verbindingsfout */ }
+  }
+
+  // Berichten van de organisatie: elk nieuw bericht één keer tonen, als groot venster dat
+  // blijft staan tot het team het wegtikt (gezien-lijst per sessie in localStorage)
+  async function haalBerichtenOp() {
+    try {
+      const res = await fetch("/api/speler/berichten");
+      if (!res.ok) return;
+      const { berichten } = await res.json() as { berichten: { id: string; bericht: string }[] };
+      const sleutel = `pr_berichten_gezien_${sessie.id}`;
+      let gezien: string[] = [];
+      try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
+      const nieuw = berichten.filter((b) => !gezien.includes(b.id));
+      if (nieuw.length === 0) return;
+      try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...nieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
+      const laatste = nieuw[nieuw.length - 1];
+      if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
+      setEffectNotificatie(`📢 ${laatste.bericht}`);
+      speelDong();
+      navigator.vibrate?.([200, 100, 200]);
     } catch { /* verbindingsfout */ }
   }
 
@@ -404,6 +425,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     } catch { /* verbindingsfout */ }
   }
 
+  // Plek van het team nu, meegestuurd bij oppakken/inzetten (voor het verslag en de routekaart)
+  function huidigePlek() {
+    const p = positieRef.current;
+    return p ? { latitude: p.latitude, longitude: p.longitude } : {};
+  }
+
   async function claimSpeciaalItem(item: SpeciaalItem) {
     if (bezigSpeciaalRef.current) return;
     bezigSpeciaalRef.current = true;
@@ -411,7 +438,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       const res = await fetch("/api/speler/speciaal/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ special_item_id: item.id }),
+        body: JSON.stringify({ special_item_id: item.id, ...huidigePlek() }),
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -432,7 +459,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           const effectRes = await fetch("/api/speler/speciaal/effect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ special_item_id: data.item.id }),
+            body: JSON.stringify({ special_item_id: data.item.id, ...huidigePlek() }),
           });
           if (effectRes.ok) {
             setScore((prev) => prev + data.item.points_effect);
@@ -454,6 +481,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   function inventarisItemGebruikt(itemId: string, eigenNotificatie?: string) {
     setActiveSpeciaalItem(null);
+    haalScoreOp(); // wissel, vraagteken enz. veranderen je eigen score meteen
     setInventaris((prev) => {
       const idx = prev.findIndex((i) => i.id === itemId);
       return idx === -1 ? prev : [...prev.slice(0, idx), ...prev.slice(idx + 1)];
@@ -466,6 +494,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   }
 
   async function publiceerLocatie(coords: GeolocationCoordinates) {
+    laatstGepubliceerdRef.current = { lat: coords.latitude, lng: coords.longitude, tijd: Date.now() };
     try {
       const res = await fetch("/api/speler/locatie", {
         method: "POST",
@@ -498,6 +527,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       }
     } else {
       vorigePositieRef.current = pos.coords;
+    }
+    // Spoor bijhouden: 10 m verder dan de laatst opgeslagen plek (en niet vaker dan elke 4 s)
+    const laatst = laatstGepubliceerdRef.current;
+    if (!laatst || (Date.now() - laatst.tijd >= SPOOR_MIN_INTERVAL_MS &&
+        haversine(laatst.lat, laatst.lng, pos.coords.latitude, pos.coords.longitude) >= SPOOR_STAP_M)) {
+      publiceerLocatie(pos.coords);
     }
   }
 
@@ -650,20 +685,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </div>
       )}
 
-      {/* Broadcast bericht van admin */}
-      {broadcastBericht && (
-        <div style={{
-          position: "absolute", bottom: knoepBottomOffset + 62, left: "50%", transform: "translateX(-50%)",
-          zIndex: 900, maxWidth: "calc(100% - 32px)",
-          background: "rgba(6, 182, 212, 0.92)", backdropFilter: "blur(10px)",
-          color: "#fff", padding: "10px 20px", borderRadius: 30, fontSize: "0.85rem", fontWeight: 600,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <span style={{ flexShrink: 0 }}>📢</span>
-          <span>{broadcastBericht}</span>
-          <button onClick={() => setBroadcastBericht(null)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 22, height: 22, color: "#fff", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 4 }}>✕</button>
-        </div>
-      )}
 
       {/* Effect notificatie */}
       {effectNotificatie && (() => {
@@ -766,6 +787,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           // Gefinishte teams zijn geen tegenstander meer (geen wissel, bom enz. met hen)
           andereSessies={andereSpelers.filter((s) => !s.gefinisht).map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
           waarden={waarden}
+          plek={positie ? { lat: positie.latitude, lng: positie.longitude } : null}
           onVerwerkt={inventarisItemGebruikt}
           onSluit={bewaarItemVoorLater}
         />

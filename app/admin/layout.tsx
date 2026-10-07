@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
           <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>
           <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Groepen</AdminNavLink>
+          <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
           <AdminNavLink href="/admin/leaderboard"><span aria-hidden>🏆</span> Leaderboard</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           <BroadcastKnop />

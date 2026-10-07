@@ -19,10 +19,13 @@ function detecteerInAppBrowser(): boolean {
 export default function InAppBrowserWaarschuwing() {
   const [toon, setToon] = useState(false);
   const [huidigUrl, setHuidigUrl] = useState("");
+  // iPhone → Safari, Android en de rest → Chrome / je eigen browser
+  const [browser, setBrowser] = useState("je browser");
 
   useEffect(() => {
     if (detecteerInAppBrowser()) {
       setHuidigUrl(window.location.href);
+      setBrowser(/iPhone|iPad|iPod/i.test(navigator.userAgent) ? "Safari" : /Android/i.test(navigator.userAgent) ? "Chrome" : "je browser");
       setToon(true);
     }
   }, []);
@@ -42,12 +45,12 @@ export default function InAppBrowserWaarschuwing() {
       <img src="/logo.png" alt="PointRush" style={{ width: 140, objectFit: "contain", marginBottom: 4 }} />
 
       <h2 style={{ color: "#00d9ff", fontWeight: 700, fontSize: "1.2rem", margin: 0, textAlign: "center" }}>
-        Open in Safari
+        Open in {browser}
       </h2>
 
       <p style={{ color: "#b8cce0", fontSize: "0.9rem", textAlign: "center", lineHeight: 1.65, margin: 0, maxWidth: 300 }}>
-        PointRush werkt alleen goed als de pagina is geopend in <strong style={{ color: "#fff" }}>Safari</strong>.
-        Tik op de knop hieronder om door te gaan.
+        Deze link is geopend in de ingebouwde browser van de app. PointRush werkt het best in <strong style={{ color: "#fff" }}>{browser}</strong>;
+        daar kun je hem ook als app op je beginscherm zetten. Tik op de knop hieronder.
       </p>
 
       <a
@@ -67,7 +70,7 @@ export default function InAppBrowserWaarschuwing() {
           boxShadow: "0 4px 20px rgba(0,217,255,0.3)",
         }}
       >
-        🧭 Open in Safari
+        🧭 Open in {browser}
       </a>
 
       <button

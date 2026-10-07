@@ -13,7 +13,7 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
   // Activeer deze route
   const { data, error } = await admin
     .from("routes")
-    .update({ is_active: true, status: "gepubliceerd" })
+    .update({ is_active: true, status: "gepubliceerd", uitslag_vrijgegeven: false })
     .eq("id", params.id)
     .select()
     .single();

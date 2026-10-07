@@ -42,6 +42,20 @@ export default async function SpelerHomePage() {
     await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", activeSessie.id);
   }
 
+  // Al gefinisht op de actieve route? Dan naar de finish (wachten op / bekijken van de uitslag),
+  // niet terug naar het teamnaam-scherm. Na "Stop route" of "Reset spel" vervalt dit vanzelf.
+  if (actieveRoute) {
+    const { data: klaar } = await admin
+      .from("player_sessions")
+      .select("id")
+      .eq("player_id", speler.id)
+      .eq("route_id", actieveRoute.id)
+      .eq("status", "voltooid")
+      .limit(1)
+      .maybeSingle();
+    if (klaar) redirect(actieveRoute.modus === "mist" ? "/speler/mist" : "/speler/finish");
+  }
+
   let heeftVragen = false;
   if (actieveRoute) {
     const { count } = await admin

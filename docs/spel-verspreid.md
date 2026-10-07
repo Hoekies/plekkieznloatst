@@ -104,7 +104,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 | 💣 | Bom | Gooi hem naar een tegenstander: die verliest punten (standaard 30). |
 | 👻 | Spook | Stuur een spook naar een tegenstander: hun volgende punt verdwijnt een tijdje van de kaart (standaard 10 minuten) en is zolang niet te halen. |
 | 🦹 | Dief | Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie. |
-| 🍌 | Banaan | Gooi hem naar een tegenstander: hun volgende punt wordt omgewisseld met een ander punt dat ze nog moeten halen. Het eindpunt blijft altijd als laatste. |
+| 🍌 | Banaan | Gooi hem naar een tegenstander: hun volgende punt ruilt van plek met het punt daarna. Ze moeten eerst naar dat punt, dan terug naar hun oude volgende punt, en dan verder. Het eindpunt blijft altijd als laatste. |
 | 🔄 | Wissel | Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳 |
 | ❓ | Vraagteken | Een gok! Je krijgt 2× de sterwaarde (40%) of zelfs 5× als jackpot (10%). Je kunt ook 1× de sterwaarde verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig 1× de sterwaarde bij of af (20%). |
 | ⛔ | Plek zooi | Een onzichtbare val op de kaart. Loop je erover, dan sta je een tijdje stil (standaard 5 minuten): je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer. |
@@ -145,4 +145,9 @@ De organisatie kan tijdens het spel een **tussenstand** laten zien. Die verschij
 
 ## Klaar?
 
-Zodra je de lus rond bent staat je totaalscore vast. Je kunt daarna je eigen antwoorden terugkijken. Op je eindscherm zie je de **eindstand** van alle teams, met medailles voor de top 3. Veel succes!
+Bij de finish zie je je eigen tijd, afstand en (voorlopige) punten. De **eindstand** verschijnt pas als alle teams binnen zijn en de organisatie de foto's heeft gekeurd; tot dan staat er "Even geduld…" en ververst het scherm vanzelf.
+
+- **📖 Terugkijken** — al je vragen en antwoorden, met daartussen welke items jullie inzetten (en op wie) en welke je van andere teams kreeg, in de volgorde waarin het gebeurde.
+- **🗺️ Jullie gelopen route** — een kaart met jullie GPS-spoor en de punten in de volgorde waarin jullie ze haalden.
+
+Dit blijft te zien tot de organisatie de route stopt. Veel succes!

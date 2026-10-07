@@ -39,7 +39,7 @@ Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk tea
 | 🔄 Wissel | Wisselt scores met een doelteam |
 | 🦹 Dief | Steelt de pluspunten van de volgende vraag van een doelteam (minpunten nooit) |
 | 📡 Radar | Onthult exacte GPS-posities van alle teams voor 2 minuten |
-| 🍌 Banaan | Verwisselt het eerstvolgende punt van een doelteam met een ander punt (nooit het eindpunt) |
+| 🍌 Banaan | Het volgende punt van een tegenstander ruilt van plek met het punt daarna (nooit start of eindpunt) |
 | ⛔ Plek zooi | Onzichtbare val — blokkeert kaart en voortgang bij betreden |
 
 ---
@@ -118,6 +118,8 @@ supabase/migrations/027_hulpverzoeken.sql
 supabase/migrations/028_punten_per_antwoord_en_leesrechten.sql
 supabase/migrations/029_startitems.sql
 supabase/migrations/030_ontbrekende_kolommen.sql
+supabase/migrations/031_uitslag_en_itemlog.sql
+supabase/migrations/032_itemlog_plek.sql
 ```
 
 ### Starten

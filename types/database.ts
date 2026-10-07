@@ -25,6 +25,7 @@ export interface Route {
   tussenstand_interval_minuten: number;
   tussenstand_duur_seconden: number;
   tussenstand_trigger_at: string | null;
+  uitslag_vrijgegeven: boolean;
   mist_m2_per_ster: number;
   start_latitude: number | null;
   start_longitude: number | null;

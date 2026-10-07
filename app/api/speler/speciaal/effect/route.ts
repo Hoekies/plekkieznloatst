@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { logItem } from "@/lib/item-log";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const { special_item_id, target_session_id } = body;
+  const plek = typeof body.latitude === "number" && typeof body.longitude === "number"
+    ? { lat: body.latitude, lng: body.longitude } : null;
   if (!special_item_id) return NextResponse.json({ fout: "special_item_id ontbreekt" }, { status: 400 });
 
   // Controleer dat dit item door onze sessie geclaimd is en nog niet gebruikt
@@ -174,29 +177,28 @@ export async function POST(request: NextRequest) {
       .eq("session_id", doelSessie!.id)
       .order("volgorde");
 
-    // Hoeveel punten heeft het doelteam al verwerkt?
-    const { data: doelVerwerkt } = await admin
+    // Welke punten heeft het doelteam al bereikt? (ook als ze er nu staan met de vraag open)
+    const { data: doelBereikt } = await admin
       .from("player_point_progress")
       .select("route_point_id")
-      .eq("session_id", doelSessie!.id)
-      .not("answered_at", "is", null);
+      .eq("session_id", doelSessie!.id);
 
-    // Het eindpunt (laatste in de volgorde) blijft altijd het laatste punt
-    const verwerktIds = new Set((doelVerwerkt ?? []).map((v: { route_point_id: string }) => v.route_point_id));
+    // Het eindpunt (laatste) blijft altijd als laatste, en bij Verspreid blijft het startpunt (eerste) staan
+    const bereiktIds = new Set((doelBereikt ?? []).map((v: { route_point_id: string }) => v.route_point_id));
     const laatsteVolgorde = Math.max(0, ...(spo ?? []).map((s) => s.volgorde));
+    const isVerspreid = routeWaarden?.modus === "verspreid" && (spo ?? []).length >= 3;
     const onbezochtSpo = (spo ?? []).filter(
-      (s) => !verwerktIds.has(s.route_point_id) && s.volgorde !== laatsteVolgorde,
+      (s) => !bereiktIds.has(s.route_point_id) && s.volgorde !== laatsteVolgorde && !(isVerspreid && s.volgorde === 1),
     );
 
     if (onbezochtSpo.length < 2) {
       return NextResponse.json({ fout: "Deze tegenstander heeft niet genoeg punten over om te wisselen" }, { status: 400 });
     }
 
-    // Wissel het eerste onbezochte punt met een willekeurig ander onbezocht punt
-    const eersteIdx = 0;
-    const anderIdx = Math.floor(Math.random() * (onbezochtSpo.length - 1)) + 1;
-    const eerste = onbezochtSpo[eersteIdx];
-    const ander = onbezochtSpo[anderIdx];
+    // Het volgende punt ruilt van plek met het punt daarna: 1-2-3 wordt 2-1-3.
+    // Het team moet dus eerst naar het volgende punt, daarna terug naar het oude, en dan verder.
+    const eerste = onbezochtSpo[0];
+    const ander = onbezochtSpo[1];
 
     await Promise.all([
       admin.from("session_point_order")
@@ -214,7 +216,7 @@ export async function POST(request: NextRequest) {
       target_session_id: doelSessie!.id,
       effect_type: "banaan",
       expires_at: null,
-      notification: `🍌 Banaan van team ${aanvallerNaam}! Je volgende punt is omgewisseld.`,
+      notification: `🍌 Banaan van team ${aanvallerNaam}! Je volgende punt is omgewisseld met het punt daarna: je loopt eerst naar dat punt en daarna pas terug.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
@@ -293,6 +295,7 @@ export async function POST(request: NextRequest) {
 
   // Markeer item als gebruikt
   await admin.from("special_items").update({ used_at: usedAt }).eq("id", item.id);
+  await logItem(admin, { gebruiker: eigenSessie.id, doel: doelSessie?.id ?? null, type: item.type, omschrijving: eigenNotificatie ?? null, plek });
 
   return NextResponse.json({ ok: true, eigen_notificatie: eigenNotificatie });
 }

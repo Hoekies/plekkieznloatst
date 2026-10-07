@@ -15,7 +15,7 @@ const HANDLEIDING_URL = "https://plekkieznloatst.vercel.app/handleiding.jpg";
 
 // Gaat altijd mee onder de (eventueel zelf aangepaste) berichttekst
 const BEGINSCHERM_UITLEG = [
-  "📲 Zet PointRush op je beginscherm (open de link eerst in je browser, niet in WhatsApp):",
+  "📲 Zet PointRush als app op je beginscherm (dat kan gewoon vanuit de link in WhatsApp):",
   "• Android (Chrome): tik op ⋮ rechtsboven → \"Toevoegen aan startscherm\" of \"App installeren\"",
   "• iPhone (Safari): tik op de deelknop (vierkantje met pijl omhoog) → \"Zet op beginscherm\"",
 ].join("\n");

@@ -48,6 +48,7 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [gestopt, setGestopt] = useState(false);
+  const [bericht, setBericht] = useState<string | null>(null);
   const [puntVoortgang, setPuntVoortgang] = useState<SpelerPuntVoortgang[]>(initPuntVoortgang);
   const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
   const [badgesOpen, setBadgesOpen] = useState(false);
@@ -92,6 +93,28 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
   // onthulMist/publiceerLocatie gebruiken enkel de stabiele positieRef, niet reactieve state
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Berichten van de organisatie ophalen (elke 5 s); elk bericht één keer, tot het wordt weggetikt
+  useEffect(() => {
+    const sleutel = `pr_berichten_gezien_${sessie.id}`;
+    async function haal() {
+      try {
+        const res = await fetch("/api/speler/berichten");
+        if (!res.ok) return;
+        const { berichten } = await res.json() as { berichten: { id: string; bericht: string }[] };
+        let gezien: string[] = [];
+        try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
+        const nieuw = berichten.filter((b) => !gezien.includes(b.id));
+        if (!nieuw.length) return;
+        try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...nieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
+        setBericht(nieuw[nieuw.length - 1].bericht);
+        navigator.vibrate?.([200, 100, 200]);
+      } catch { /* verbindingsfout */ }
+    }
+    haal();
+    const t = setInterval(haal, 5000);
+    return () => clearInterval(t);
+  }, [sessie.id]);
 
   // Einde detecteren: admin heeft de route gestopt → sessie wordt voltooid
   useEffect(() => {
@@ -343,6 +366,20 @@ export default function MistKaart({ sessie, startLocatie, mistM2PerSter, initVoo
                 {leaderboard.map((entry) => <StandRij key={entry.rank} entry={entry} eenheid="sterren" />)}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Bericht van de organisatie */}
+      {bericht && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 2400, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div className="pr-panel" style={{ maxWidth: 360, width: "100%" }}>
+            <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", paddingTop: 22 }}>
+              <span style={{ fontSize: "4rem", lineHeight: 1 }}>📢</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>Bericht</div>
+              <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>{bericht}</p>
+              <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => setBericht(null)}>OK, BEGREPEN</button>
+            </div>
           </div>
         </div>
       )}

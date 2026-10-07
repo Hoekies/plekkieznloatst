@@ -37,6 +37,16 @@ export async function GET() {
 
   if (!routeId) return NextResponse.json({ leaderboard: [] });
 
+  // Uitslag pas tonen als de beheerder hem heeft vrijgegeven (na het keuren van de foto's).
+  // Tot die tijd alleen de eigen, voorlopige score (die stijgt als foto's goedgekeurd worden).
+  const { data: route } = await admin.from("routes").select("*").eq("id", routeId).maybeSingle();
+  const { data: eigenScore } = eigenSessie
+    ? await admin.from("player_sessions").select("score").eq("id", eigenSessie.id).maybeSingle()
+    : { data: null };
+  if (!route?.uitslag_vrijgegeven) {
+    return NextResponse.json({ vrijgegeven: false, leaderboard: [], score: eigenScore?.score ?? null });
+  }
+
   type RawSessie = {
     id: string;
     player_id: string;
@@ -104,5 +114,5 @@ export async function GET() {
     is_eigen_team: s.player_id === speler.id,
   }));
 
-  return NextResponse.json({ leaderboard });
+  return NextResponse.json({ vrijgegeven: true, leaderboard, score: eigenScore?.score ?? null });
 }

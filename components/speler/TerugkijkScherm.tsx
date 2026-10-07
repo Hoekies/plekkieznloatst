@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { TerugkijkItem } from "@/app/speler/terugkijk/page";
+import type { TerugkijkItem, TerugkijkGebeurtenis } from "@/app/speler/terugkijk/page";
+import { ITEM_INFO } from "./SpeciaalItemLegende";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -16,8 +17,13 @@ const TYPE_LABEL: Record<string, string> = {
   foto_opdracht: "Foto-opdracht",
 };
 
-export default function TerugkijkScherm({ items }: { items: TerugkijkItem[] }) {
+export default function TerugkijkScherm({ items, gebeurtenissen }: { items: TerugkijkItem[]; gebeurtenissen: TerugkijkGebeurtenis[] }) {
   const router = useRouter();
+  // Punten en items samen in de volgorde waarin het gebeurde
+  const tijdlijn = [
+    ...items.map((item, i) => ({ soort: "punt" as const, tijd: item.tijd, item, nr: i + 1 })),
+    ...gebeurtenissen.map((g) => ({ soort: "item" as const, tijd: g.tijd, g })),
+  ].sort((a, b) => new Date(a.tijd).getTime() - new Date(b.tijd).getTime());
   const totaalPunten = items.reduce((s, i) => s + i.punten_behaald, 0);
   const maxPunten = items.reduce((s, i) => s + i.max_punten, 0);
 
@@ -45,14 +51,14 @@ export default function TerugkijkScherm({ items }: { items: TerugkijkItem[] }) {
           </h1>
         </div>
         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", marginBottom: 24, marginTop: 0 }}>
-          {totaalPunten} van {maxPunten} punten behaald
+          {totaalPunten} van {maxPunten} punten uit de vragen (items tellen apart mee in je score)
         </p>
 
         {/* Punt-kaarten */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {items.map((item, idx) => (
-            <PuntKaart key={item.punt_id} item={item} nr={idx + 1} />
-          ))}
+          {tijdlijn.map((t, i) => t.soort === "punt"
+            ? <PuntKaart key={t.item.punt_id} item={t.item} nr={t.nr} />
+            : <ItemKaart key={`item-${i}`} g={t.g} />)}
         </div>
       </div>
     </div>
@@ -163,7 +169,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
       {isFoto && item.foto_pad && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <img
-            src={afbeeldingUrl("foto-inzendingen", item.foto_pad)}
+            src={item.foto_pad}
             alt="Ingediende foto"
             style={{ borderRadius: 10, width: "100%", maxHeight: 220, objectFit: "cover" }}
           />
@@ -207,6 +213,37 @@ function AntwoordRij({
         <span style={{ fontWeight: 600, fontSize: "0.88rem", color: kleur, flex: 1 }}>{tekst ?? "—"}</span>
       )}
       <span style={{ fontSize: "1rem", marginLeft: "auto" }}>{goed ? "✅" : fout ? "❌" : ""}</span>
+    </div>
+  );
+}
+
+// Een ingezet of ontvangen item in de tijdlijn, met altijd tegen wie of van wie
+function ItemKaart({ g }: { g: TerugkijkGebeurtenis }) {
+  const naam = ITEM_INFO[g.item_type]?.naam ?? g.item_type;
+  const ingezet = g.soort === "ingezet";
+  const wie = ingezet
+    ? g.ander_team
+      ? `🎯 Tegen: ${g.ander_team}`
+      : g.item_type === "vraagteken" ? "🎲 Gok — kon jullie zelf én de andere teams raken" : "✨ Voor jullie zelf"
+    : g.item_type === "plekzooi"
+      ? "⛔ Een verborgen val op de kaart"
+      : `📨 Van: ${g.ander_team ?? "een ander team"}`;
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 14,
+      background: ingezet ? "rgba(0,217,255,0.08)" : "rgba(255,138,0,0.1)",
+      border: `1px dashed ${ingezet ? "rgba(0,217,255,0.45)" : "rgba(255,138,0,0.55)"}`,
+    }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/items/${g.item_type}.png`} alt="" style={{ width: 40, height: 40, flexShrink: 0 }} />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.05em", color: ingezet ? "#67E8F9" : "#FDBA74" }}>
+          {ingezet ? "ITEM INGEZET" : "ITEM ONTVANGEN"}
+        </div>
+        <div style={{ color: "#fff", fontWeight: 700, fontSize: "0.95rem" }}>{naam}</div>
+        <div style={{ color: "#fff", fontSize: "0.88rem", marginTop: 1 }}>{wie}</div>
+        {g.omschrijving && <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.8rem", marginTop: 2 }}>{g.omschrijving}</div>}
+      </div>
     </div>
   );
 }

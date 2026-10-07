@@ -30,7 +30,7 @@ export async function POST() {
   await admin.from("player_sessions").delete().not("id", "is", null);
 
   // Handmatige tussenstand-trigger leegmaken zodat 'ie niet doorspookt in de nieuwe game
-  await admin.from("routes").update({ tussenstand_trigger_at: null }).not("id", "is", null);
+  await admin.from("routes").update({ tussenstand_trigger_at: null, uitslag_vrijgegeven: false }).not("id", "is", null);
 
   return NextResponse.json({ ok: true });
 }

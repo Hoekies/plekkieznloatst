@@ -41,6 +41,16 @@ export default async function FinishPage() {
     redirect(bezig ? "/speler/kaart" : "/speler");
   }
 
+  // De finish blijft te zien zolang de route actief is; na "Stop route" terug naar het begin
+  const { data: route } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
+  if (!route?.is_active) redirect("/speler");
+  const uitslagVrij = !!route.uitslag_vrijgegeven;
+  const { count: wachtendeFotos } = await admin
+    .from("foto_inzendingen")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", sessie.id)
+    .eq("status", "wacht");
+
   const tijdSeconden = sessie.finished_at
     ? Math.floor((new Date(sessie.finished_at).getTime() - new Date(sessie.started_at).getTime()) / 1000)
     : 0;
@@ -120,7 +130,9 @@ export default async function FinishPage() {
       score={sessie.score}
       tijdSeconden={tijdSeconden}
       distanceMeters={eigenAfstand}
-      initLeaderboard={initLeaderboard}
+      initLeaderboard={uitslagVrij ? initLeaderboard : []}
+      uitslagVrij={uitslagVrij}
+      wachtendeFotos={wachtendeFotos ?? 0}
     />
   );
 }

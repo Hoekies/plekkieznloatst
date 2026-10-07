@@ -59,10 +59,9 @@ export async function POST(request: NextRequest) {
   let numericAnswer: number | null = null;
   let numericTolerance: number | null = null;
 
-  // Een informatiepunt mét vraag (zoals het startpunt) telt als vraag zodra er een antwoord
-  // wordt meegestuurd; zonder antwoord blijft het gewoon informatie.
-  const heeftAntwoord = selected_answer_id != null || open_answer_text != null;
-  if (punt.type === "eindpunt" || (punt.type === "informatiepunt" && !heeftAntwoord)) {
+  // Hangt er een vraag aan het punt (ook aan een informatiepunt, zoals het startpunt), dan
+  // moet die beantwoord worden: zonder antwoord wordt het punt niet verwerkt.
+  if (punt.type === "eindpunt") {
     isCorrect = true;
     puntWaarde = punt.points;
   } else {
@@ -89,8 +88,8 @@ export async function POST(request: NextRequest) {
       puntWaarde = typeof gekozen.punten === "number" ? gekozen.punten : (isCorrect ? vraag.points : 0);
       correctAnswerId = vraag.answer_options.find((a: { is_correct: boolean }) => a.is_correct)?.id ?? null;
     } else if (vraag.type === "open") {
-      if (open_answer_text === undefined || open_answer_text === null) {
-        return NextResponse.json({ fout: "Geen antwoord opgegeven" }, { status: 400 });
+      if (typeof open_answer_text !== "string" || !open_answer_text.trim()) {
+        return NextResponse.json({ fout: "Vul eerst een antwoord in" }, { status: 400 });
       }
 
       if (vraag.numeric_answer !== null) {
@@ -108,6 +107,9 @@ export async function POST(request: NextRequest) {
         correctTextAnswers = vraag.correct_text_answers ?? [];
       }
       puntWaarde = isCorrect ? vraag.points : 0;
+    } else if (vraag.type === "foto_opdracht") {
+      // Een foto-opdracht wordt verwerkt via het insturen van de foto (/api/speler/foto)
+      return NextResponse.json({ fout: "Stuur eerst een foto in" }, { status: 400 });
     }
   }
 
