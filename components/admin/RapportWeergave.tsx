@@ -247,7 +247,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
           <h2 style={{ fontSize: "1.7rem", marginTop: 8 }}>Bedankt voor het spelen!</h2>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 520, margin: "14px auto 0" }}>
             En voor al het dwarszitten. We weten heus wie die bommen gooide. 👀<br />
-            Nog een banaan over? Opeten. Nu. 🍌
+            Nog een banaan over? Eet hem lekker zelf op. Of leg hem stiekem bij de buren op de stoep, gewoon voor de gezelligheid. 🍌
           </p>
           <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#FFE680", marginTop: 22 }}>
             Bedankt en tot de volgende keer!
