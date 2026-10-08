@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
+import { startitemsVan } from "@/lib/startitems";
 
 async function getSpeler() {
   const supabase = await createServerSupabaseClient();
@@ -40,7 +41,7 @@ export async function POST() {
   // Actieve route ophalen
   const { data: route } = await admin
     .from("routes")
-    .select("id, modus, verwacht_aantal_teams")
+    .select("*")
     .eq("is_active", true)
     .maybeSingle();
 
@@ -181,20 +182,29 @@ export async function POST() {
         punten.map((p, k) => ({ session_id: sessie.id, volgorde: k + 1, route_point_id: p.id })),
       );
 
-      // Ieder team begint met één banaan in de balk; startitems staan nooit op de kaart
-      await admin.from("special_items").insert({
+    }
+  }
+
+  // Startitems: wat de beheerder heeft ingesteld komt meteen in de balk van het team.
+  // Ze staan nooit op de kaart en worden bij "Reset spel" opgeruimd.
+  if (route.modus !== "mist") {
+    const startitems = startitemsVan(route);
+    const { data: eerstePunt } = await admin
+      .from("route_points").select("latitude, longitude").eq("route_id", route.id).order("order_index").limit(1).maybeSingle();
+    const rijen = Object.entries(startitems).flatMap(([type, aantal]) =>
+      Array.from({ length: aantal }, () => ({
         route_id: route.id,
-        type: "banaan",
-        name: "Startbanaan",
-        latitude: punten[0].latitude,
-        longitude: punten[0].longitude,
+        type,
+        name: `Start${type}`,
+        latitude: eerstePunt?.latitude ?? 0,
+        longitude: eerstePunt?.longitude ?? 0,
         points_effect: 0,
         claimed: true,
         claimed_by_session_id: sessie.id,
         claimed_at: new Date().toISOString(),
         is_startitem: true,
-      });
-    }
+      })));
+    if (rijen.length) await admin.from("special_items").insert(rijen);
   }
 
   return NextResponse.json({ ...sessie, modus: route.modus });

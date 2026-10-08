@@ -61,7 +61,7 @@ Hoe dichter je bij het punt staat, hoe groter de kans dat de locatiecheck slaagt
 
 ## Je startbanaan 🍌
 
-Bij Sequentieel liggen er geen items op de kaart. In plaats daarvan krijgt **elk team bij de start één banaan** in de balk onderin de kaart.
+Bij Sequentieel liggen er geen items op de kaart. In plaats daarvan krijgt **elk team bij de start items** in de balk onderin de kaart: standaard één banaan, maar de organisatie kan ook andere of meer items meegeven.
 
 - Tik op de banaan en kies een **tegenstander**.
 - Hun volgende punt ruilt van plek met het punt daarna (1-2-3 wordt 2-1-3): ze moeten eerst naar punt 2, dan terug naar 1, en dan verder naar 3. Het eindpunt blijft altijd als laatste.

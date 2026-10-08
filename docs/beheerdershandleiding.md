@@ -226,6 +226,8 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 > **Dief-effect**: de dief wacht tot de tegenstander een vraag beantwoordt waarmee ze punten verdienen. Bij een fout antwoord (0 of minpunten) blijft de dief gewoon klaarstaan.
 
+> **🎒 Startitems**: in de route-instellingen kies je per soort item (banaan, bom, spook, dief, wissel, vraagteken, verdubbeling, radar, ster) hoeveel elk team bij de start gratis in de balk krijgt, 0 tot 5 per soort. Bij Sequentieel staat standaard één banaan aan, bij Verspreid niets. Een wijziging geldt voor teams die daarna beginnen. Startitems staan nooit op de kaart en worden bij *Reset spel* opgeruimd.
+
 > **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Zet je in de route-instellingen **🎁 Items inzetten na de finish** aan, dan houdt een gefinisht team zijn bom, spook, dief, banaan, wissel en vraagteken en kan het die vanaf het finishscherm nog inzetten op teams die onderweg zijn — tot jij de uitslag vrijgeeft; dan vervalt de rest. Verdubbeling en radar vervallen altijd bij de finish. Een gefinisht team is zelf geen tegenstander meer: er kan niet meer mee gewisseld worden, en het kan niet meer gebombardeerd of beroofd worden.
 
 > **Andere teams op de kaart**: spelers zien andere teams niet op hun kaart. Alleen wie een 📡 Radar inzet, ziet 2 minuten lang waar de anderen lopen — en daarna verdwijnen ze weer. De anderen zien het radarteam niet. Op jouw live kaart zie je als beheerder iedereen altijd.

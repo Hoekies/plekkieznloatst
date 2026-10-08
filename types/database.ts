@@ -27,6 +27,8 @@ export interface Route {
   tussenstand_trigger_at: string | null;
   uitslag_vrijgegeven: boolean;
   items_na_finish: boolean;
+  // Items die elk team bij de start gratis krijgt, per type het aantal (null = standaard)
+  startitems: Record<string, number> | null;
   mist_m2_per_ster: number;
   start_latitude: number | null;
   start_longitude: number | null;

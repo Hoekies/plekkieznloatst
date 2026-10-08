@@ -7,6 +7,7 @@ import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/d
 import { haversine } from "@/lib/geo";
 import { itemAdvies, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, formateerMinuten } from "@/lib/tijd-schatting";
+import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -152,6 +153,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }));
   }, [teamRoutes, specialeItems, vraagPuntIds, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
+  // Startitems: wat elk team bij de start gratis in de balk krijgt
+  const [startitems, setStartitems] = useState<Record<string, number>>(() => startitemsVan(initRoute));
+  async function wijzigStartitem(type: string, delta: number) {
+    const nieuw = { ...startitems, [type]: Math.max(0, Math.min(MAX_PER_STARTITEM, (startitems[type] ?? 0) + delta)) };
+    setStartitems(nieuw);
+    await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ startitems: nieuw }),
+    });
+  }
 
   function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number) {
     const R = 6371000;
@@ -803,8 +814,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* Items-tab */}
             {actieveTab === "items" && route.modus === "sequentieel" && (
               <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.45 }}>
-                🍌 Bij Sequentieel krijgt elk team bij de start één banaan in zijn balk. Op de kaart
-                plaats je alleen plek zooi.
+                🎒 Bij Sequentieel krijgen teams hun items bij de start (standaard één banaan; instellen via
+                ⚙️ Startitems). Op de kaart plaats je alleen plek zooi.
               </p>
             )}
             {actieveTab === "items" && route.modus === "verspreid" && (() => {
@@ -1058,6 +1069,36 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   />
                   <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
                 </div>
+
+                {/* Startitems */}
+                {route.modus !== "mist" && (
+                  <div className="form-group">
+                    <label className="form-label">🎒 Startitems — gratis bij de start</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px, 1fr))", gap: 6 }}>
+                      {STARTITEM_TYPES.map((type) => {
+                        const n = startitems[type] ?? 0;
+                        return (
+                          <div key={type} style={{
+                            display: "flex", alignItems: "center", gap: 4, padding: "3px 4px 3px 3px", borderRadius: 8,
+                            border: `1px solid ${n > 0 ? "rgba(34,197,94,0.55)" : "rgba(255,255,255,0.12)"}`,
+                            background: n > 0 ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.04)",
+                          }} title={type}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={`/items/${type}.png`} alt={type} style={{ width: 24, height: 24, flexShrink: 0 }} />
+                            <button type="button" onClick={() => wijzigStartitem(type, -1)} disabled={n === 0}
+                              style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>−</button>
+                            <span style={{ minWidth: 14, textAlign: "center", fontWeight: 700, color: n > 0 ? "var(--green)" : "var(--muted)" }}>{n}</span>
+                            <button type="button" onClick={() => wijzigStartitem(type, 1)} disabled={n >= MAX_PER_STARTITEM}
+                              style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>+</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      Elk team krijgt deze items bij de start meteen in de balk. Geldt voor teams die beginnen nadat je dit hebt aangepast.
+                    </span>
+                  </div>
+                )}
 
                 {/* Items na de finish */}
                 {route.modus !== "mist" && (

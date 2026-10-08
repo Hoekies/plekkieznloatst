@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { schoonStartitems } from "@/lib/startitems";
 
 async function checkAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -35,6 +36,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (typeof body.items_na_finish === "boolean") toegestaan.items_na_finish = body.items_na_finish;
+  if ("startitems" in body) toegestaan.startitems = schoonStartitems(body.startitems);
   if (typeof body.respawn_minuten === "number" && body.respawn_minuten > 0) toegestaan.respawn_minuten = body.respawn_minuten;
   if (typeof body.plekzooi_duur_seconden === "number" && body.plekzooi_duur_seconden > 0) toegestaan.plekzooi_duur_seconden = body.plekzooi_duur_seconden;
   if (typeof body.spook_duur_seconden === "number" && body.spook_duur_seconden > 0) toegestaan.spook_duur_seconden = body.spook_duur_seconden;
