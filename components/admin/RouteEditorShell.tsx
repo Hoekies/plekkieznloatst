@@ -457,6 +457,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
+          {/* Instellingen: goed zichtbaar rechts bovenaan */}
+          <button className="rl-knop rl-knop--goud" style={{ flexShrink: 0 }}
+            onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
+            ⚙️ Instellingen
+          </button>
         </div>
 
         {/* Rij 2: status + acties */}
@@ -472,10 +477,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <ModusIcoon modus={route.modus} size={16} />
             {MODUS_INFO[route.modus].label}
           </span>
-          <button className="btn btn-ghost" style={{ fontSize: "0.9rem", padding: "6px 10px", flexShrink: 0 }}
-            onClick={() => setInstellingenOpen(true)} title="Instellingen">
-            ⚙️
-          </button>
           {!route.is_active && (
             <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
               onClick={async () => {
