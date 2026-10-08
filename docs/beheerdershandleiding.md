@@ -86,11 +86,15 @@ Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 
 #### Afstand en speeltijd per team
 
-Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand & tijd per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt en hoe lang het ongeveer duurt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
+Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand, tijd & punten per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt, hoe lang het ongeveer duurt en hoeveel punten het ongeveer haalt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min · ≈ 310 pt*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
 
 - **Lopen** — 4,5 km/u, het wandeltempo van een groep.
 - **Vragen** — ongeveer 2 minuten per vraag en een halve minuut per infopunt.
 - **Items** — omlopen naar items die binnen 150 m van de route liggen, de vastzittijd van plek zooi die op de route ligt, en de verwachte vertraging door spoken en bananen van tegenstanders. Met respawn aan telt dat zwaarder.
+
+- **Punten** — de maximale punten per vraag (of per antwoord) bij ongeveer 70% goed, plus de punten van punten zonder vraag. Items: sterren en verdubbelingen die het team waarschijnlijk pakt, gemiddeld iets plus voor een vraagteken, en een deel van de bommen van tegenstanders eraf. Wissel en dief middelen over alle teams uit en tellen niet mee.
+
+Onderaan het paneel staat, klein, hoeveel items je van elke soort hebt geplaatst.
 
 Het blijft een schatting: verplaats een punt of item, of verander het aantal teams of de duur van spook en plek zooi, en de tijden rekenen meteen opnieuw.
 

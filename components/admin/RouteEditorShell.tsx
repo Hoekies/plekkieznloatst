@@ -6,13 +6,15 @@ import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
 import { itemAdvies, ITEM_GROEPEN } from "@/lib/item-advies";
-import { schatTeamTijd, formateerMinuten } from "@/lib/tijd-schatting";
+import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
-type RouteMetPunten = Route & { route_points: (RoutePunt & { questions?: { id: string }[] })[] };
+type RouteMetPunten = Route & {
+  route_points: (RoutePunt & { questions?: { id: string; points?: number; answer_options?: { punten: number | null }[] }[] })[];
+};
 
 const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#ec4899", "#14b8a6", "#00d9ff"];
 
@@ -23,6 +25,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Welke punten een vraag hebben (de pagina laadt opnieuw na het bewerken van een vraag)
   const [vraagPuntIds] = useState(() => new Set(
     (initRoute.route_points ?? []).filter((p) => (p.questions?.length ?? 0) > 0).map((p) => p.id),
+  ));
+  // Maximaal te halen punten per vraag (hoogste van de vraagpunten en de punten per antwoord)
+  const [vraagMaxPunten] = useState(() => new Map(
+    (initRoute.route_points ?? []).filter((p) => p.questions?.length).map((p) => {
+      const v = p.questions![0];
+      const perAntwoord = (v.answer_options ?? []).map((o) => o.punten).filter((n): n is number => typeof n === "number");
+      return [p.id, Math.max(v.points ?? 0, ...perAntwoord)] as const;
+    }),
   ));
   const [geselecteerd, setGeselecteerd] = useState<RoutePunt | null>(null);
   const [addModus, setAddModus] = useState(false);
@@ -150,8 +160,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         spookMin: spookMinuten,
         plekzooiMin: plekzooiMinuten,
       }),
+      punten: schatTeamPunten(t.coords, {
+        vraagPunten: t.punten.filter((p) => vraagPuntIds.has(p.id)).map((p) => vraagMaxPunten.get(p.id) ?? 0),
+        overigePunten: t.punten.filter((p) => !vraagPuntIds.has(p.id)).reduce((som, p) => som + (p.points ?? 0), 0),
+        items: schattingItems,
+        teams: verwachtTeams,
+        respawn: !!route.item_respawn,
+        sterWaarde,
+        bomWaarde,
+      }),
     }));
-  }, [teamRoutes, specialeItems, vraagPuntIds, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten]);
+  }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
   // Startitems: wat elk team bij de start gratis in de balk krijgt
   const [startitems, setStartitems] = useState<Record<string, number>>(() => startitemsVan(initRoute));
@@ -1228,23 +1247,43 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         />
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
-        {route.modus === "verspreid" && teamSchattingen.length > 0 && (
+        {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0) && (
           <div className={`route-editor-tijden${geselecteerd || geselecteerdSpeciaal ? " route-editor-tijden--drawer" : ""}`}>
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
-              ⏱️ Afstand &amp; tijd per team <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{tijdenOpen ? "▾" : "▸"}</span>
+              ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{tijdenOpen ? "▾" : "▸"}</span>
             </button>
             {tijdenOpen && (
               <>
                 {teamSchattingen.map((s) => (
                   <div key={s.teamIndex} className="route-editor-tijden-rij"
-                    title={`Lopen ≈ ${formateerMinuten(s.lopenMin)} · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}`}>
+                    title={`Tijd: lopen ≈ ${formateerMinuten(s.lopenMin)} · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}
+Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed) · items ≈ ${s.punten.items >= 0 ? "+" : ""}${s.punten.items}`}>
                     <span style={{ width: 9, height: 9, borderRadius: 3, background: s.kleur, flexShrink: 0 }} />
                     <span style={{ color: s.kleur, fontWeight: 700 }}>Team {s.teamIndex}</span>
                     <span style={{ marginLeft: "auto" }}>{(s.afstandM / 1000).toFixed(2).replace(".", ",")} km</span>
                     <span style={{ fontWeight: 700, minWidth: 54, textAlign: "right" }}>≈ {formateerMinuten(s.totaalMin)}</span>
+                    <span style={{ fontWeight: 700, minWidth: 50, textAlign: "right", color: "#FFE680" }}>≈ {s.punten.totaal} pt</span>
                   </div>
                 ))}
-                <div className="route-editor-tijden-voet">4,5 km/u · ±2 min per vraag · items meegerekend. Ga met de muis over een team voor de opbouw.</div>
+                {teamSchattingen.length > 0 && (
+                  <div className="route-editor-tijden-voet">4,5 km/u · ±2 min per vraag · punten bij ~70% goed · items meegerekend. Ga met de muis over een team voor de opbouw.</div>
+                )}
+                {/* Geplaatste items per soort (bewust klein en ingetogen) */}
+                {specialeItems.length > 0 && (() => {
+                  const perType = new Map<string, number>();
+                  specialeItems.forEach((i) => perType.set(i.type, (perType.get(i.type) ?? 0) + 1));
+                  return (
+                    <div className="route-editor-tijden-items" title="Geplaatste items op de kaart">
+                      {[...perType].sort((a, b) => b[1] - a[1]).map(([type, n]) => (
+                        <span key={type} style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`/items/${type}.png`} alt={type} style={{ width: 16, height: 16, opacity: 0.85 }} />
+                          {n}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
               </>
             )}
           </div>

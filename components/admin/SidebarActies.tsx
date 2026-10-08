@@ -31,7 +31,7 @@ export default function SidebarActies() {
   }
 
   // Alle knoppen gebruiken dezelfde box als de menu-items (admin-nav-link)
-  const lijst = { display: "flex", flexDirection: "column" as const, gap: 6 };
+  const lijst = { display: "flex", flexDirection: "column" as const, gap: "clamp(3px, 0.7vh, 6px)" };
   const vraag = { fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", margin: "2px 0" };
 
   if (fase === "bevestig-stop") {

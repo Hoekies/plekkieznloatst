@@ -85,3 +85,43 @@ export function formateerMinuten(min: number): string {
   if (m < 60) return `${m} min`;
   return `${Math.floor(m / 60)} u ${String(m % 60).padStart(2, "0")}`;
 }
+
+// ── Puntenschatting ──────────────────────────────────────────────────────────
+const KANS_GOED = 0.7; // aanname: een team beantwoordt ongeveer 70% van de vragen goed
+
+export type PuntenSchatting = {
+  maxVragen: number;   // alles goed
+  vragen: number;      // verwacht bij ~70% goed
+  items: number;       // verwacht saldo van items (kan negatief zijn)
+  totaal: number;
+};
+
+export function schatTeamPunten(route: Plek[], o: {
+  vraagPunten: number[];   // max punten per vraag op de route
+  overigePunten: number;   // punten van punten zonder vraag (info, eindpunt)
+  items: SchattingItem[];
+  teams: number;
+  respawn: boolean;
+  sterWaarde: number;
+  bomWaarde: number;
+}): PuntenSchatting {
+  const teams = Math.max(1, o.teams);
+  const maxVragen = o.vraagPunten.reduce((a, b) => a + b, 0) + o.overigePunten;
+  const vragen = o.vraagPunten.reduce((a, b) => a + b, 0) * KANS_GOED + o.overigePunten;
+  const gemVraag = o.vraagPunten.length ? (o.vraagPunten.reduce((a, b) => a + b, 0) / o.vraagPunten.length) * KANS_GOED : 0;
+
+  let items = 0;
+  for (const it of o.items) {
+    if (it.type === "plekzooi") continue;
+    const dichtbij = afstandTotRoute(it, route) <= ITEM_BEREIK_M;
+    const pakKans = dichtbij ? (o.respawn ? 1 : 1 / teams) : 0;
+    const ontvangKans = (o.respawn ? 2 : 1) / teams;
+    if (it.type === "ster") items += pakKans * o.sterWaarde;
+    if (it.type === "verdubbeling") items += pakKans * gemVraag;
+    // Vraagteken: 40% 2×ster, 10% 5×ster, 20% −ster, 10% −200 (en 20% iets voor de anderen)
+    if (it.type === "vraagteken") items += pakKans * (0.4 * 2 * o.sterWaarde + 0.1 * 5 * o.sterWaarde - 0.2 * o.sterWaarde - 0.1 * 200);
+    // Een bom raakt één tegenstander: gemiddeld verliest elk team 1/teams bom per gebruikte bom
+    if (it.type === "bom") items -= ontvangKans * o.bomWaarde;
+  }
+  return { maxVragen: Math.round(maxVragen), vragen: Math.round(vragen), items: Math.round(items), totaal: Math.max(0, Math.round(vragen + items)) };
+}

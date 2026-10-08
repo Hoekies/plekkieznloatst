@@ -303,18 +303,29 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     min-height: 0;
     overflow: hidden;
   }
+  /* De zijbalk past altijd in beeld: op een lager scherm worden logo en knoppen kleiner in
+     plaats van te scrollen (de scrollbalk at ook ruimte weg, waardoor tekst werd afgekapt).
+     11 knoppen + kopjes: per knop is er ongeveer (schermhoogte - 190px) / 12 beschikbaar. */
   .admin-sidebar {
     overflow-y: auto;
-    padding: 12px 0;
+    padding: 10px 0;
+    scrollbar-width: none;
   }
+  .admin-sidebar::-webkit-scrollbar { display: none; }
   .admin-sidebar-logo {
-    padding-bottom: 10px;
+    padding-bottom: clamp(4px, 1vh, 10px);
   }
   .admin-sidebar-logo img {
     width: auto !important;
     max-width: 90%;
-    max-height: 110px;
+    max-height: clamp(52px, 13vh, 110px);
   }
+  .admin-nav { gap: clamp(3px, 0.7vh, 6px); padding-top: clamp(4px, 0.8vh, 8px); padding-bottom: clamp(4px, 0.8vh, 8px); }
+  .admin-nav-link {
+    height: clamp(30px, calc((100dvh - 190px) / 12), 42px);
+    font-size: clamp(14px, calc((100dvh - 190px) / 12 * 0.42), 17px);
+  }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 190px) / 12 * 0.48), 20px); }
   .admin-main {
     min-height: 0;
     overflow-y: auto;
@@ -824,7 +835,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Afstand & tijd per team: klein paneel rechtsboven op de editorkaart */
 .route-editor-tijden {
   position: absolute; top: 12px; right: 12px; z-index: 450;
-  width: 250px; padding: 6px 10px 8px; border-radius: 12px;
+  width: 300px; padding: 6px 10px 8px; border-radius: 12px;
   background: rgba(8,28,48,0.84); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   color: var(--ink); font-size: 0.74rem;
@@ -835,9 +846,13 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   background: none; border: none; color: #fff; font-weight: 700; font-size: 0.76rem; cursor: pointer; text-align: left;
 }
 .route-editor-tijden-rij { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.route-editor-tijden-items {
+  display: flex; flex-wrap: wrap; gap: 4px 9px; margin-top: 6px; padding-top: 5px;
+  border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.66rem; color: var(--muted);
+}
 .route-editor-tijden-voet { margin-top: 4px; font-size: 0.64rem; color: var(--muted); line-height: 1.35; }
 @media (max-width: 768px) {
-  .route-editor-tijden, .route-editor-tijden--drawer { right: 10px; top: 10px; width: 220px; }
+  .route-editor-tijden, .route-editor-tijden--drawer { right: 10px; top: 10px; width: 270px; }
 }
 .route-editor-drawer {
   position: absolute;
