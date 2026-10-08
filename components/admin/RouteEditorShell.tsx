@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
 import { itemAdvies, ITEM_GROEPEN } from "@/lib/item-advies";
+import { schatTeamTijd, formateerMinuten } from "@/lib/tijd-schatting";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -128,6 +129,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         kleur: TEAM_KLEUREN[k % TEAM_KLEUREN.length],
         nummers: lusIndices.map((j) => j + 1),
         coords: volgorde.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+        punten: volgorde,
       };
     });
   }, [route.modus, punten, verwachtTeams]);
@@ -586,17 +588,45 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
 
                   {/* Looproute per team, in dezelfde kleur als op de kaart */}
-                  {teamRoutes.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.68rem" }}>
-                      {teamRoutes.map((t) => (
-                        <div key={t.teamIndex} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0, alignSelf: "center" }} />
-                          <span style={{ color: t.kleur, fontWeight: 700, flexShrink: 0 }}>Team {t.teamIndex}</span>
-                          <span style={{ color: "var(--text)" }}>🏠 → {t.nummers.join(" → ")} → 🏁</span>
+                  {teamRoutes.length > 0 && (() => {
+                    // Afstand en geschatte speeltijd per team (lopen + vragen + items)
+                    const schattingItems = specialeItems.map((i) => ({ lat: i.latitude, lng: i.longitude, type: i.type, radius: i.radius_meters }));
+                    const schattingen = teamRoutes.map((t) => schatTeamTijd(t.coords, {
+                      vragen: t.punten.filter((p) => vraagPuntIds.has(p.id)).length,
+                      infopunten: t.punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "eindpunt").length,
+                      items: schattingItems,
+                      teams: verwachtTeams,
+                      respawn: !!route.item_respawn,
+                      spookMin: spookMinuten,
+                      plekzooiMin: plekzooiMinuten,
+                    }));
+                    const km = (m: number) => `${(m / 1000).toFixed(2).replace(".", ",")} km`;
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.68rem" }}>
+                        {teamRoutes.map((t, i) => {
+                          const s = schattingen[i];
+                          return (
+                            <div key={t.teamIndex} style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                                <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0, alignSelf: "center" }} />
+                                <span style={{ color: t.kleur, fontWeight: 700, flexShrink: 0 }}>Team {t.teamIndex}</span>
+                                <span style={{ color: "var(--text)" }}>🏠 → {t.nummers.join(" → ")} → 🏁</span>
+                              </div>
+                              <div style={{ paddingLeft: 16, color: "var(--ink)", fontWeight: 600 }}
+                                title={`Lopen ≈ ${formateerMinuten(s.lopenMin)} (4,5 km/u) · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}`}>
+                                🚶 {km(s.afstandM)} · ⏱️ ≈ {formateerMinuten(s.totaalMin)}
+                                <span style={{ color: "var(--muted)", fontWeight: 400 }}> (lopen {formateerMinuten(s.lopenMin)} · vragen {formateerMinuten(s.vragenMin)} · items {formateerMinuten(s.itemsMin)})</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div style={{ color: "var(--muted)", marginTop: 2, lineHeight: 1.4 }}>
+                          Schatting: 4,5 km/u lopen, ±2 min per vraag. Items: omlopen naar items vlak bij de route, plek zooi op de route
+                          ({formateerMinuten(plekzooiMinuten)} vast) en verwachte spoken en bananen van tegenstanders.
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    );
+                  })()}
 
                   {/* Waarschuwing */}
                   {teWeinigPunten && (

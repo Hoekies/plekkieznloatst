@@ -84,6 +84,16 @@ Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 
 > **Belangrijk:** Het startpunt en de finish herkent het systeem aan hun **positie in de lijst**: het eerste punt is altijd de start, het laatste altijd de finish. De ▲▼-knoppen zijn daarom uitgeschakeld voor deze twee punten. Plaats je punten handmatig, zet dan zelf een infopunt als eerste en een eindpunt als laatste — of gebruik de automatische generator hieronder, die dit voor je doet.
 
+#### Afstand en speeltijd per team
+
+Onder de puntenlijst staat per team de looproute in de kleur van de kaart, met daaronder hoeveel kilometer dat team loopt en een schatting van de speeltijd, bijvoorbeeld *🚶 2,35 km · ⏱️ ≈ 52 min (lopen 31 min · vragen 12 min · items 9 min)*.
+
+- **Lopen** — 4,5 km/u, het wandeltempo van een groep.
+- **Vragen** — ongeveer 2 minuten per vraag en een halve minuut per infopunt.
+- **Items** — omlopen naar items die binnen 150 m van de route liggen, de vastzittijd van plek zooi die op de route ligt, en de verwachte vertraging door spoken en bananen van tegenstanders. Met respawn aan telt dat zwaarder.
+
+Het blijft een schatting: verplaats een punt of item, of verander het aantal teams of de duur van spook en plek zooi, en de tijden rekenen meteen opnieuw.
+
 #### Instellingen voor Verspreid-modus
 
 In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus staat, extra velden boven de puntenlijst:
