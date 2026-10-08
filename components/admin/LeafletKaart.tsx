@@ -47,6 +47,9 @@ interface Props {
   onSpeciaalItemKlik?: (id: string) => void;
   geselecteerdSpeciaalId?: string | null;
   vliegNaar?: { lat: number; lng: number; zoom?: number } | null;
+  // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
+  itemVoorstellen?: { lat: number; lng: number; type: string }[];
+  onItemVoorstelKlik?: (v: { lat: number; lng: number; type: string }) => void;
 }
 
 export default function LeafletKaart({
@@ -55,7 +58,7 @@ export default function LeafletKaart({
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null,
+  vliegNaar = null, itemVoorstellen = [], onItemVoorstelKlik,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -67,6 +70,8 @@ export default function LeafletKaart({
   const startMarkersRef = useRef<import("leaflet").Marker[]>([]);
   const centrumMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const ghostMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const voorstelMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const onItemVoorstelKlikRef = useRef(onItemVoorstelKlik);
   const ghostCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const onKlikRef = useRef(onKlik);
   const onMarkerKlikRef = useRef(onMarkerKlik);
@@ -78,6 +83,7 @@ export default function LeafletKaart({
   const [kaartKlaar, setKaartKlaar] = useState(false);
 
   onKlikRef.current = onKlik;
+  onItemVoorstelKlikRef.current = onItemVoorstelKlik;
   onMarkerKlikRef.current = onMarkerKlik;
   onMarkerVerplaatsdRef.current = onMarkerVerplaatst;
   onCentrumVerplaatsdRef.current = onCentrumVerplaatst;
@@ -298,6 +304,34 @@ export default function LeafletKaart({
         .addTo(kaartRef.current!);
     });
   }, [guideCirkel, kaartKlaar]);
+
+  // Voorgestelde plekken voor extra items (gouden stippelcirkel met ➕); klik = item plaatsen
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      voorstelMarkersRef.current.forEach((m) => m.remove());
+      voorstelMarkersRef.current = [];
+      itemVoorstellen.forEach((v) => {
+        const icon = L.divIcon({
+          className: "",
+          html: `<div title="Voorstel: klik om hier een item te plaatsen" style="
+            width:34px;height:34px;border-radius:50%;cursor:pointer;
+            background:rgba(255,217,59,0.15);border:2px dashed rgba(255,217,59,0.9);
+            display:flex;align-items:center;justify-content:center;position:relative;
+            box-shadow:0 0 10px rgba(255,217,59,0.35);">
+            <img src="/items/${v.type}.png" style="width:22px;height:22px;opacity:0.6" alt="">
+            <span style="position:absolute;right:-4px;top:-6px;font-size:13px;font-weight:900;color:#FFE680;text-shadow:0 1px 2px #000">+</span>
+          </div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+        });
+        const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: 400 })
+          .on("click", () => onItemVoorstelKlikRef.current?.(v))
+          .addTo(kaartRef.current!);
+        voorstelMarkersRef.current.push(m);
+      });
+    });
+  }, [itemVoorstellen, kaartKlaar]);
 
   // Genereer-preview: draggable centerpunt + ghost markers + ghost cirkel
   useEffect(() => {

@@ -122,12 +122,15 @@ Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "A
 Bij Verspreid toont het tabblad **Items** een geel adviesblok. Het rekent met de lengte van het rondje, het aantal teams en of respawn aan staat, en zet naast elk soort item hoeveel er nu liggen (groen = goed, oranje = te weinig, rood = te veel).
 
 - **Afstand** — ongeveer elke 300 m iets om op te pakken, zodat elk team onderweg regelmatig iets tegenkomt.
+- **Speeltijd** — ongeveer één item per 6 minuten speeltijd (de geschatte tijd uit het paneel op de kaart), zodat een lang spel spannend blijft.
 - **Teams** — minimaal 2 en hoogstens 3 items per team: het eerste team pakt een item weg, dus latere teams moeten ook kans maken, maar items mogen de uitslag niet meer bepalen dan de vragen.
 - **Respawn aan** — ongeveer 30% minder, want items komen terug.
 - **Verdeling** — ongeveer 40% aanvalsitems, 1 à 2 vraagtekens, de rest voordeel. Plek zooi: ongeveer 1 per km, nooit meer dan het aantal teams.
 - **Plaatsing** — verdeel de items gelijkmatig over het rondje, niet vlak bij het startpunt of de finish, minstens 50 m van een vraagpunt, en plek zooi niet op een plek waar iedereen langs móet.
 
-Het blijft een advies: de app plaatst of wijzigt nooit zelf items.
+**Check en voorstellen op de kaart**: in het paneel rechtsboven op de kaart staat of er genoeg items liggen (groen), te weinig (oranje: "plaats er nog 3") of te veel (rood). Ontbreken er items, dan staan er **gouden ➕-cirkels** op de kaart: de grootste lege stukken langs het rondje, minstens 50 m van een punt en 120 m van het startpunt. In de cirkel zie je welk item daar zou passen (de soort waar je het minst van hebt). Klik erop en het item wordt geplaatst; daarna kun je het verslepen of een ander type kiezen. Met "Voorstellen op de kaart verbergen" haal je de cirkels weg.
+
+Het blijft een advies: de app plaatst of wijzigt nooit zelf items — alleen als jij op een voorstel klikt.
 
 #### Punten automatisch genereren in cirkel
 

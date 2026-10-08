@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
-import { itemAdvies, ITEM_GROEPEN } from "@/lib/item-advies";
+import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
@@ -172,6 +172,49 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }));
   }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
+  const gemSpeelMinuten = teamSchattingen.length
+    ? teamSchattingen.reduce((som, s) => som + s.totaalMin, 0) / teamSchattingen.length : 0;
+
+  // Check: zijn er genoeg items voor de lengte en speeltijd? En waar zouden extra items goed liggen?
+  const [toonVoorstellen, setToonVoorstellen] = useState(true);
+  const itemCheck = useMemo(() => {
+    if (route.modus !== "verspreid" || punten.length < 3) return null;
+    const lus = punten.slice(1, -1).map((p) => ({ lat: p.latitude, lng: p.longitude }));
+    let lusMeter = 0;
+    for (let i = 0; i < lus.length && lus.length > 1; i++) {
+      const a = lus[i], b = lus[(i + 1) % lus.length];
+      lusMeter += haversine(a.lat, a.lng, b.lat, b.lng);
+    }
+    if (lusMeter < 100) return null;
+    const advies = itemAdvies(lusMeter, verwachtTeams, !!route.item_respawn, gemSpeelMinuten);
+    const tel = (types: readonly string[]) => specialeItems.filter((i) => types.includes(i.type)).length;
+    const nuOppakbaar = specialeItems.filter((i) => i.type !== "plekzooi").length;
+    // Welke items ontbreken er? Per groep het minst gebruikte type eerst
+    const tekortTypes: string[] = [];
+    const vul = (groep: readonly string[], tekort: number) => {
+      const aantallen = new Map(groep.map((t) => [t, specialeItems.filter((i) => i.type === t).length]));
+      for (let k = 0; k < tekort; k++) {
+        const minst = [...aantallen].sort((a, b) => a[1] - b[1])[0][0];
+        tekortTypes.push(minst);
+        aantallen.set(minst, (aantallen.get(minst) ?? 0) + 1);
+      }
+    };
+    vul(ITEM_GROEPEN.voordeel, Math.max(0, advies.voordeel - tel(ITEM_GROEPEN.voordeel)));
+    vul(ITEM_GROEPEN.aanval, Math.max(0, advies.aanval - tel(ITEM_GROEPEN.aanval)));
+    vul(ITEM_GROEPEN.vraagteken, Math.max(0, advies.vraagteken - tel(ITEM_GROEPEN.vraagteken)));
+    vul(ITEM_GROEPEN.plekzooi, Math.max(0, advies.plekzooi - tel(ITEM_GROEPEN.plekzooi)));
+    const vermijd = [
+      ...punten.map((p) => ({ lat: p.latitude, lng: p.longitude, r: 50 })),
+      { lat: punten[0].latitude, lng: punten[0].longitude, r: 120 }, // niet vlak bij start/finish
+    ];
+    const plekken = voorgesteldePlekken(lus, specialeItems.map((i) => ({ lat: i.latitude, lng: i.longitude })), vermijd, tekortTypes.length);
+    return {
+      advies, nuOppakbaar,
+      tekort: Math.max(0, advies.oppakbaar - nuOppakbaar) + Math.max(0, advies.plekzooi - tel(ITEM_GROEPEN.plekzooi)),
+      teVeel: nuOppakbaar > advies.oppakbaar + 1,
+      voorstellen: plekken.map((p, i) => ({ ...p, type: tekortTypes[i] })),
+    };
+  }, [route.modus, punten, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems]);
   // Startitems: wat elk team bij de start gratis in de balk krijgt
   const [startitems, setStartitems] = useState<Record<string, number>>(() => startitemsVan(initRoute));
   async function wijzigStartitem(type: string, delta: number) {
@@ -265,12 +308,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
   }
 
-  async function voegSpeciaalItemToeOp(lat: number, lng: number) {
+  async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string) {
     const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // Sequentieel: alleen plek zooi op de kaart (teams krijgen een startbanaan in hun balk)
-      body: JSON.stringify(route.modus === "sequentieel"
+      body: JSON.stringify(voorstelType
+        ? { latitude: lat, longitude: lng, type: voorstelType, name: voorstelType === "plekzooi" ? "Plek zooi" : "Speciaal item", points_effect: voorstelType === "ster" ? 50 : 0 }
+        : route.modus === "sequentieel"
         ? { latitude: lat, longitude: lng, type: "plekzooi", name: "Plek zooi", points_effect: 0 }
         : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
     });
@@ -854,7 +899,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </p>
                 );
               }
-              const advies = itemAdvies(lusMeter, verwachtTeams, !!route.item_respawn);
+              const advies = itemAdvies(lusMeter, verwachtTeams, !!route.item_respawn, gemSpeelMinuten);
               const tel = (types: readonly string[]) => specialeItems.filter((i) => types.includes(i.type)).length;
               const regels: { label: string; advies: number; nu: number; maxOk: boolean }[] = [
                 { label: "⭐ Voordeel (ster, verdubbeling, radar)", advies: advies.voordeel, nu: tel(ITEM_GROEPEN.voordeel), maxOk: false },
@@ -1244,10 +1289,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
+          itemVoorstellen={toonVoorstellen && itemCheck ? itemCheck.voorstellen : []}
+          onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
-        {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0) && (
+        {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
           <div className={`route-editor-tijden${geselecteerd || geselecteerdSpeciaal ? " route-editor-tijden--drawer" : ""}`}>
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
               ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{tijdenOpen ? "▾" : "▸"}</span>
@@ -1267,6 +1314,27 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 ))}
                 {teamSchattingen.length > 0 && (
                   <div className="route-editor-tijden-voet">4,5 km/u · ±2 min per vraag · punten bij ~70% goed · items meegerekend. Ga met de muis over een team voor de opbouw.</div>
+                )}
+                {/* Check: genoeg items voor deze lengte en speeltijd? */}
+                {itemCheck && (
+                  <div style={{ marginTop: 6, paddingTop: 5, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: "0.7rem", lineHeight: 1.4 }}>
+                    {itemCheck.tekort > 0 ? (
+                      <span style={{ color: "#FBBF24" }}>
+                        🎁 {itemCheck.nuOppakbaar} van ±{itemCheck.advies.oppakbaar} items (+ {itemCheck.advies.plekzooi} plek zooi) — plaats er nog {itemCheck.tekort}.
+                        {itemCheck.voorstellen.length > 0 && " Klik op een gouden ➕ op de kaart."}
+                      </span>
+                    ) : itemCheck.teVeel ? (
+                      <span style={{ color: "#F87171" }}>🎁 {itemCheck.nuOppakbaar} items, advies ±{itemCheck.advies.oppakbaar}: items gaan de uitslag meer bepalen dan de vragen.</span>
+                    ) : (
+                      <span style={{ color: "#4ADE80" }}>🎁 Genoeg items voor deze lengte en speeltijd (±{itemCheck.advies.oppakbaar} + {itemCheck.advies.plekzooi} plek zooi).</span>
+                    )}
+                    {itemCheck.voorstellen.length > 0 && (
+                      <button onClick={() => setToonVoorstellen((v) => !v)}
+                        style={{ display: "block", marginTop: 3, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
+                        {toonVoorstellen ? "Voorstellen op de kaart verbergen" : "Voorstellen op de kaart tonen"}
+                      </button>
+                    )}
+                  </div>
                 )}
                 {/* Geplaatste items per soort (bewust klein en ingetogen) */}
                 {specialeItems.length > 0 && (() => {
