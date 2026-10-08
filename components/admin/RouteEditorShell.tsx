@@ -1429,24 +1429,32 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
         <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem" }} />
       </div>
 
-      {/* Type + Radius op één regel */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: 8, alignItems: "end" }}>
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Type</label>
-          <select className="form-select" value={type} onChange={(e) => setType(e.target.value as SpeciaalItemType)} style={{ fontSize: "0.85rem" }}
-            disabled={alleenPlekzooi && type === "plekzooi"}>
-            <option value="ster">⭐ Ster</option>
-            <option value="bom">💣 Bom</option>
-            <option value="spook">👻 Spook</option>
-            <option value="verdubbeling">🔴 Verdubbeling</option>
-            <option value="wissel">🔄 Wissel</option>
-            <option value="dief">🦹 Dief</option>
-            <option value="radar">📡 Radar</option>
-            <option value="banaan">🍌 Banaan</option>
-            <option value="plekzooi">⛔ Plek zooi</option>
-            <option value="vraagteken">❓ Vraagteken</option>
-          </select>
+      {/* Type: icoonknoppen in plaats van een uitklaplijst */}
+      <div className="form-group" style={{ margin: 0 }}>
+        <label className="form-label">Type</label>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
+          {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+            const gekozen = type === t;
+            const uit = alleenPlekzooi && t !== "plekzooi";
+            return (
+              <button key={t} type="button" disabled={uit} onClick={() => setType(t)} title={t}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
+                  borderRadius: 8, cursor: uit ? "not-allowed" : "pointer", opacity: uit ? 0.3 : 1,
+                  border: `2px solid ${gekozen ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                  background: gekozen ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
+                  color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
+                }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/items/${t}.png`} alt="" style={{ width: 26, height: 26 }} />
+                {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
+              </button>
+            );
+          })}
         </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "80px", gap: 8 }}>
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Radius (m)</label>
           <input className="form-input" type="number" min={1} value={radius}
@@ -1515,7 +1523,7 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOps
         <label className="form-label">Beschrijving</label>
         <textarea className="form-textarea" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 52 }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
         <div className="form-group">
           <label className="form-label">Type</label>
           {alleenVraag ? (
@@ -1523,11 +1531,19 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOps
               Vraagpunt
             </div>
           ) : (
-            <select className="form-select" value={type} onChange={(e) => setType(e.target.value as RoutePunt["type"])} style={{ fontSize: "0.85rem" }}>
-              <option value="vraagpunt">Vraagpunt</option>
-              <option value="informatiepunt">Infopunt</option>
-              <option value="eindpunt">Eindpunt</option>
-            </select>
+            <div style={{ display: "flex", gap: 3 }}>
+              {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
+                <button key={t} type="button" onClick={() => setType(t)}
+                  style={{
+                    flex: 1, padding: "7px 2px", borderRadius: 8, cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+                    border: `2px solid ${type === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                    background: type === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
+                    color: type === t ? "#fff" : "var(--muted)", whiteSpace: "nowrap",
+                  }}>
+                  {label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
         <div className="form-group">

@@ -19,21 +19,6 @@ export default function RoutesOverzicht() {
   const [importBezig, setImportBezig] = useState(false);
   const [importFout, setImportFout] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
-  const [menuOpen, setMenuOpen] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Menu sluiten bij klik ernaast of Escape
-  useEffect(() => {
-    if (!menuOpen) return;
-    function klik(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(null);
-    }
-    function toets(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(null); }
-    document.addEventListener("mousedown", klik);
-    document.addEventListener("keydown", toets);
-    return () => { document.removeEventListener("mousedown", klik); document.removeEventListener("keydown", toets); };
-  }, [menuOpen]);
-
   // Actief bovenaan, dan gepubliceerd, dan concepten
   const rang = (r: Route) => (r.is_active ? 0 : r.status === "gepubliceerd" ? 1 : 2);
   const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b));
@@ -241,24 +226,17 @@ export default function RoutesOverzicht() {
                     <button className="rl-knop rl-knop--cyan" onClick={() => activeer(r.id)}>▶ Activeren</button>
                   )}
                   <button className="rl-knop" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
-                  <div className="rl-menu-wrap" ref={menuOpen === r.id ? menuRef : undefined}>
-                    <button className="rl-knop rl-knop--icoon" aria-label="Meer acties" title="Meer acties"
-                      onClick={() => setMenuOpen((m) => (m === r.id ? null : r.id))}>⋯</button>
-                    {menuOpen === r.id && (
-                      <div className="rl-menu" role="menu">
-                        <button onClick={() => { setMenuOpen(null); exporteer(r.id, r.name); }}>📤 Exporteren</button>
-                        {!r.is_active && r.status === "gepubliceerd" && (
-                          <button onClick={() => { setMenuOpen(null); togglePubliceer(r); }}>↩ Terug naar concept</button>
-                        )}
-                        {!r.is_active && (
-                          <>
-                            <hr />
-                            <button className="rl-menu-gevaar" onClick={() => { setMenuOpen(null); verwijder(r.id, r.name); }}>🗑️ Verwijderen</button>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  {/* Overige acties als directe icoonknoppen (geen uitklapmenu) */}
+                  <button className="rl-knop rl-knop--icoon" title="Exporteren (JSON-bestand)" aria-label="Exporteren"
+                    onClick={() => exporteer(r.id, r.name)}>📤</button>
+                  {!r.is_active && r.status === "gepubliceerd" && (
+                    <button className="rl-knop rl-knop--icoon" title="Terug naar concept" aria-label="Terug naar concept"
+                      onClick={() => togglePubliceer(r)}>↩</button>
+                  )}
+                  {!r.is_active && (
+                    <button className="rl-knop rl-knop--icoon rl-knop--rood" title="Verwijderen" aria-label="Verwijderen"
+                      onClick={() => verwijder(r.id, r.name)}>🗑️</button>
+                  )}
                 </div>
               </div>
             );
