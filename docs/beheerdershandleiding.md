@@ -226,7 +226,9 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 > **Dief-effect**: de dief wacht tot de tegenstander een vraag beantwoordt waarmee ze punten verdienen. Bij een fout antwoord (0 of minpunten) blijft de dief gewoon klaarstaan.
 
-> **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Een gefinisht team is ook geen tegenstander meer: er kan niet meer mee gewisseld worden, en het kan niet meer gebombardeerd of beroofd worden.
+> **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Zet je in de route-instellingen **🎁 Items inzetten na de finish** aan, dan houdt een gefinisht team zijn bom, spook, dief, banaan, wissel en vraagteken en kan het die vanaf het finishscherm nog inzetten op teams die onderweg zijn — tot jij de uitslag vrijgeeft; dan vervalt de rest. Verdubbeling en radar vervallen altijd bij de finish. Een gefinisht team is zelf geen tegenstander meer: er kan niet meer mee gewisseld worden, en het kan niet meer gebombardeerd of beroofd worden.
+
+> **Andere teams op de kaart**: spelers zien andere teams niet op hun kaart. Alleen wie een 📡 Radar inzet, ziet 2 minuten lang waar de anderen lopen — en daarna verdwijnen ze weer. De anderen zien het radarteam niet. Op jouw live kaart zie je als beheerder iedereen altijd.
 
 > **Banaan-effect**: werkt alleen als de tegenstander nog minimaal 2 punten vóór het eindpunt te gaan heeft. Anders krijgt het aanvallende team een melding en blijft de banaan bewaard.
 

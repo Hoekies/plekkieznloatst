@@ -256,14 +256,16 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
     const nu = Date.now();
 
-    // Verwijder markers die niet meer in de lijst staan
-    const actieveIds = new Set(andereSpelers.map((s) => s.session_id));
+    // Alleen teams met een plek tonen (dat is alleen tijdens een eigen radar). Wat geen plek
+    // meer heeft (radar afgelopen), verdwijnt meteen van de kaart.
+    const zichtbaar = andereSpelers.filter((s) => s.latitude != null && s.longitude != null && s.created_at);
+    const actieveIds = new Set(zichtbaar.map((s) => s.session_id));
     andereSpelersMarkersRef.current.forEach((marker, id) => {
       if (!actieveIds.has(id)) { marker.remove(); andereSpelersMarkersRef.current.delete(id); }
     });
 
-    andereSpelers.forEach((speler) => {
-      const isVerouderd = nu - new Date(speler.created_at).getTime() > VEROUDERD_MS;
+    zichtbaar.forEach((speler) => {
+      const isVerouderd = nu - new Date(speler.created_at!).getTime() > VEROUDERD_MS;
       const kleur = isVerouderd ? "#9CA3AF" : "#F97316";
       const label = isVerouderd ? "?" : escapeHtml(speler.teamnaam.charAt(0).toUpperCase());
       const naam = isVerouderd ? `${escapeHtml(speler.teamnaam)}\n>2 min` : escapeHtml(speler.teamnaam);
@@ -291,10 +293,10 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
       const bestaand = andereSpelersMarkersRef.current.get(speler.session_id);
       if (bestaand) {
-        bestaand.setLatLng([speler.latitude, speler.longitude]);
+        bestaand.setLatLng([speler.latitude!, speler.longitude!]);
         bestaand.setIcon(icon);
       } else {
-        const marker = L.marker([speler.latitude, speler.longitude], { icon, interactive: false }).addTo(map);
+        const marker = L.marker([speler.latitude!, speler.longitude!], { icon, interactive: false }).addTo(map);
         andereSpelersMarkersRef.current.set(speler.session_id, marker);
       }
     });

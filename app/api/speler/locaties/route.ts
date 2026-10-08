@@ -76,28 +76,44 @@ export async function GET() {
         gefinisht: gefinisht.has(row.session_id),
       });
     }
+    for (const r of rijen) {
+      if (!gezien.has(r.id)) locaties.push({ session_id: r.id, teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend", latitude: null, longitude: null, created_at: null, gefinisht: gefinisht.has(r.id) });
+    }
   } else {
-    // Standaard: afgeronde posities uit public_locaties
-    const { data: locatieRows } = await admin
-      .from("location_updates")
-      .select("session_id, public_latitude, public_longitude, created_at")
-      .in("session_id", sessieIds)
-      .order("created_at", { ascending: false })
-      .limit(sessieIds.length * 5);
-
-    const gezien = new Set<string>();
-    locaties = [];
-    for (const row of locatieRows ?? []) {
-      if (gezien.has(row.session_id)) continue;
-      gezien.add(row.session_id);
-      locaties.push({
-        session_id: row.session_id,
-        teamnaam: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
-        latitude: row.public_latitude,
-        longitude: row.public_longitude,
-        created_at: row.created_at,
-        gefinisht: gefinisht.has(row.session_id),
-      });
+    const { data: route } = await admin.from("routes").select("modus").eq("id", eigenSessie.route_id).maybeSingle();
+    if (route?.modus === "mist") {
+      // Mist: geen items of radar — globale (afgeronde) posities zoals altijd
+      const { data: locatieRows } = await admin
+        .from("location_updates")
+        .select("session_id, public_latitude, public_longitude, created_at")
+        .in("session_id", sessieIds)
+        .order("created_at", { ascending: false })
+        .limit(sessieIds.length * 5);
+      const gezien = new Set<string>();
+      locaties = [];
+      for (const row of locatieRows ?? []) {
+        if (gezien.has(row.session_id)) continue;
+        gezien.add(row.session_id);
+        locaties.push({
+          session_id: row.session_id,
+          teamnaam: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
+          latitude: row.public_latitude,
+          longitude: row.public_longitude,
+          created_at: row.created_at,
+          gefinisht: gefinisht.has(row.session_id),
+        });
+      }
+    } else {
+      // Zonder radar zie je andere teams niet op de kaart: alleen de namen, voor het kiezen
+      // van een tegenstander bij een item
+      locaties = rijen.map((r) => ({
+        session_id: r.id,
+        teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend",
+        latitude: null,
+        longitude: null,
+        created_at: null,
+        gefinisht: gefinisht.has(r.id),
+      }));
     }
   }
 

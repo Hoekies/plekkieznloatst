@@ -229,7 +229,8 @@ export async function POST(request: NextRequest) {
       .from("player_sessions")
       .update({ status: "voltooid", finished_at: new Date().toISOString() })
       .eq("id", sessie.id);
-    await laatItemsVervallen(admin, [sessie.id]);
+    const { data: finishRoute } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
+    await laatItemsVervallen(admin, [sessie.id], { naFinishToegestaan: !!finishRoute?.items_na_finish });
   }
 
   return NextResponse.json({

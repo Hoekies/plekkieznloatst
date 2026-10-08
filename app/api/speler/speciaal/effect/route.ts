@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
+import { haalItemSessie, ITEMS_NA_FINISH } from "@/lib/item-sessie";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -22,13 +23,10 @@ export async function POST(request: NextRequest) {
   const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
   if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 403 });
 
-  const { data: eigenSessie } = await admin
-    .from("player_sessions")
-    .select("id, score, route_id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
-  if (!eigenSessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  // Lopend spel, of na de finish als de route "items na de finish" toestaat (tot de uitslag vrij is)
+  const itemSessie = await haalItemSessie(admin, speler.id);
+  if (!itemSessie) return NextResponse.json({ fout: "Je kunt nu geen items meer inzetten" }, { status: 403 });
+  const eigenSessie = itemSessie.sessie;
 
   const body = await request.json();
   const { special_item_id, target_session_id } = body;
@@ -45,6 +43,10 @@ export async function POST(request: NextRequest) {
     .is("used_at", null)
     .maybeSingle();
   if (!item) return NextResponse.json({ fout: "Item niet gevonden, niet door jou geclaimd of al gebruikt" }, { status: 403 });
+
+  if (itemSessie.naFinish && !ITEMS_NA_FINISH.includes(item.type)) {
+    return NextResponse.json({ fout: "Dit item heeft na de finish geen nut meer" }, { status: 400 });
+  }
 
   // Items met doelkeuze vereisen target_session_id
   if (TYPES_MET_DOEL.has(item.type)) {

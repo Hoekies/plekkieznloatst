@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { haalItemSessie } from "@/lib/item-sessie";
 
 export async function GET() {
   const supabase = await createServerSupabaseClient();
@@ -11,13 +12,10 @@ export async function GET() {
   const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
   if (!speler) return NextResponse.json([]);
 
-  const { data: sessie } = await admin
-    .from("player_sessions")
-    .select("id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
-  if (!sessie) return NextResponse.json([]);
+  // Lopend spel, of na de finish als de route dat toestaat (tot de uitslag vrij is)
+  const itemSessie = await haalItemSessie(admin, speler.id);
+  if (!itemSessie) return NextResponse.json([]);
+  const sessie = itemSessie.sessie;
 
   const { data: items } = await admin
     .from("special_items")

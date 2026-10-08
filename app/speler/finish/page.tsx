@@ -133,6 +133,13 @@ export default async function FinishPage() {
       initLeaderboard={uitslagVrij ? initLeaderboard : []}
       uitslagVrij={uitslagVrij}
       wachtendeFotos={wachtendeFotos ?? 0}
+      itemsNaFinish={!!route.items_na_finish && !uitslagVrij}
+      waarden={{
+        ster: route.ster_waarde ?? 50,
+        bom: route.bom_waarde ?? 30,
+        spookSec: route.spook_duur_seconden ?? 600,
+        plekzooiSec: route.plekzooi_duur_seconden ?? 300,
+      }}
     />
   );
 }

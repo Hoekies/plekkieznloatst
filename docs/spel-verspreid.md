@@ -43,7 +43,7 @@ Op de kaart zie je:
 - **Jouw locatie** — blauwe stip
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
-- **Andere teams** — in een lichtere kleur (globale positie, niet exact)
+- **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen; zij zien jou niet.
 - **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende.
@@ -115,7 +115,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 - Tik op een item in de balk om het in te zetten.
 - Bij Bom, Spook, Dief, Banaan en Wissel kies je daarna een **tegenstander**.
 - Je mag items bewaren voor later; elk item gebruik je één keer.
-- Ben je gefinisht, dan vervallen de items die je nog in je balk had. Teams die al gefinisht zijn, kun je niet meer als tegenstander kiezen.
+- Ben je gefinisht, dan vervallen de items die je nog in je balk had — tenzij de organisatie "items na de finish" heeft aangezet: dan kun je ze op je finishscherm nog inzetten op teams die onderweg zijn, tot de uitslag bekend is. Teams die al gefinisht zijn, kun je niet meer als tegenstander kiezen.
 - Heb je meerdere van hetzelfde item, dan staat er een getal bij.
 
 ### Meldingen

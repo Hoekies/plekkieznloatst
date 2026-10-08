@@ -18,9 +18,10 @@ export type LeaderboardEntry = {
 export type SpelerLocatie = {
   session_id: string;
   teamnaam: string;
-  latitude: number;
-  longitude: number;
-  created_at: string;
+  // null = niet zichtbaar (alleen met een actieve radar zie je waar andere teams lopen)
+  latitude: number | null;
+  longitude: number | null;
+  created_at: string | null;
   // Al gefinisht: blijft op de kaart, maar is geen tegenstander meer voor items
   gefinisht: boolean;
 };

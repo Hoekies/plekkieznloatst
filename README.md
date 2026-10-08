@@ -120,6 +120,7 @@ supabase/migrations/029_startitems.sql
 supabase/migrations/030_ontbrekende_kolommen.sql
 supabase/migrations/031_uitslag_en_itemlog.sql
 supabase/migrations/032_itemlog_plek.sql
+supabase/migrations/033_items_na_finish.sql
 ```
 
 ### Starten

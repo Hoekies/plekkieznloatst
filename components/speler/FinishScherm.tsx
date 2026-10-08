@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formateerTijd } from "@/lib/geo";
-import type { LeaderboardEntry } from "@/lib/types";
+import type { LeaderboardEntry, SpelerLocatie } from "@/lib/types";
+import type { SpeciaalItem } from "@/types/database";
+import type { RouteWaarden } from "./SpeciaalItemLegende";
+import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import StandRij from "./StandRij";
 
 interface Props {
@@ -15,6 +18,9 @@ interface Props {
   // De eindstand is pas te zien als de beheerder de uitslag vrijgeeft (na het keuren van foto's)
   uitslagVrij: boolean;
   wachtendeFotos: number;
+  // Route staat "items na de finish" toe en de uitslag is nog niet vrij
+  itemsNaFinish: boolean;
+  waarden: RouteWaarden;
 }
 
 const CONFETTI_KLEUREN = ["#F59E0B", "#1E40AF", "#EF4444", "#10B981", "#8B5CF6", "#F97316", "#06B6D4"];
@@ -51,11 +57,34 @@ function formateerAfstand(meters: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos }: Props) {
+export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
   const [score, setScore] = useState(initScore);
+  // Items die na de finish nog ingezet mogen worden (tot de uitslag vrij is)
+  const [items, setItems] = useState<SpeciaalItem[]>([]);
+  const [tegenstanders, setTegenstanders] = useState<{ session_id: string; teamnaam: string }[]>([]);
+  const [actiefItem, setActiefItem] = useState<SpeciaalItem | null>(null);
+  const [itemMelding, setItemMelding] = useState<string | null>(null);
+
+  async function haalItemsOp() {
+    try {
+      const [inv, loc] = await Promise.all([fetch("/api/speler/speciaal/inventaris"), fetch("/api/speler/locaties")]);
+      if (inv.ok) setItems(await inv.json());
+      if (loc.ok) {
+        const { locaties } = await loc.json() as { locaties: SpelerLocatie[] };
+        setTegenstanders((locaties ?? []).filter((l) => !l.gefinisht).map((l) => ({ session_id: l.session_id, teamnaam: l.teamnaam })));
+      }
+    } catch { /* verbindingsfout */ }
+  }
+  useEffect(() => {
+    if (!itemsNaFinish) return;
+    haalItemsOp();
+    const t = setInterval(haalItemsOp, 10000);
+    return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsNaFinish]);
   const [confetti] = useState<ConfettiStuk[]>(maakConfetti);
   const [confettiZichtbaar, setConfettiZichtbaar] = useState(true);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -146,6 +175,58 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
             🗺️ Gelopen route
           </button>
         </div>
+
+        {/* Items na de finish: nog inzetten op teams die onderweg zijn, tot de uitslag vrij is */}
+        {itemsNaFinish && !vrij && items.length > 0 && (
+          <div style={{
+            width: "100%", borderRadius: 16, padding: "14px 16px",
+            background: "rgba(0,217,255,0.08)", border: "1px solid rgba(0,217,255,0.4)",
+          }}>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#67E8F9" }}>
+              🎁 Je hebt nog items!
+            </div>
+            <p style={{ margin: "4px 0 10px", fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.45 }}>
+              Zet ze in op teams die nog onderweg zijn, zolang de uitslag nog niet bekend is.
+              {tegenstanders.length === 0 && " Op dit moment is er niemand meer onderweg."}
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {items.map((it) => (
+                <button key={it.id} onClick={() => setActiefItem(it)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6, padding: "6px 12px 6px 6px", borderRadius: 99,
+                    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff",
+                    fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+                  }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/items/${it.type}.png`} alt="" style={{ width: 30, height: 30 }} />
+                  {it.name && it.name !== "Speciaal item" ? it.name : it.type.charAt(0).toUpperCase() + it.type.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {itemMelding && (
+          <div onClick={() => setItemMelding(null)} style={{
+            width: "100%", borderRadius: 14, padding: "12px 14px", cursor: "pointer",
+            background: "rgba(34,197,94,0.14)", border: "1px solid rgba(34,197,94,0.5)", color: "#BBF7D0", fontSize: "0.9rem",
+          }}>
+            {itemMelding} <span style={{ color: "var(--muted)", fontSize: "0.75rem" }}>(tik om te sluiten)</span>
+          </div>
+        )}
+        {actiefItem && (
+          <SpeciaalItemPopup
+            item={actiefItem}
+            waarden={waarden}
+            andereSessies={tegenstanders}
+            onVerwerkt={(itemId, notificatie) => {
+              setActiefItem(null);
+              setItems((prev) => prev.filter((i) => i.id !== itemId));
+              setItemMelding(notificatie ?? "✅ Item ingezet!");
+              haalItemsOp();
+            }}
+            onSluit={() => setActiefItem(null)}
+          />
+        )}
 
         {/* Leaderboard */}
         <div style={{ width: "100%" }}>

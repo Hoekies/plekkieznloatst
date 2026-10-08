@@ -420,6 +420,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         if (radarPollRef.current) {
           clearInterval(radarPollRef.current);
           radarPollRef.current = null;
+          haalAndereSpelersOp(); // radar afgelopen: de andere teams verdwijnen weer van de kaart
         }
       }
     } catch { /* verbindingsfout */ }

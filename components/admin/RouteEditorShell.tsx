@@ -1068,6 +1068,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
                 </div>
 
+                {/* Items na de finish */}
+                {route.modus !== "mist" && (
+                  <div className="form-group">
+                    <label className="form-label">🎁 Items inzetten na de finish</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                      onClick={async () => {
+                        const nieuw = !route.items_na_finish;
+                        const res = await fetch(`/api/admin/routes/${route.id}`, {
+                          method: "PATCH", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ items_na_finish: nieuw }),
+                        });
+                        if (res.ok) setRoute((r) => ({ ...r, items_na_finish: nieuw }));
+                      }}>
+                      <span style={{ fontSize: "0.78rem", color: route.items_na_finish ? "var(--green)" : "var(--muted)", flexShrink: 0, userSelect: "none" }}>
+                        {route.items_na_finish ? "Aan" : "Uit"}
+                      </span>
+                      <div style={{
+                        width: 36, height: 20, borderRadius: 10, flexShrink: 0, position: "relative",
+                        background: route.items_na_finish ? "var(--green)" : "rgba(255,255,255,0.15)", transition: "background 0.2s",
+                      }}>
+                        <div style={{
+                          position: "absolute", top: 3, left: route.items_na_finish ? 19 : 3, width: 14, height: 14, borderRadius: "50%",
+                          background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
+                        }} />
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      {route.items_na_finish
+                        ? "Gefinishte teams kunnen hun items (bom, spook, dief, banaan, wissel, vraagteken) nog inzetten op teams die onderweg zijn, tot jij de uitslag vrijgeeft."
+                        : "Bij de finish vervallen de items die een team nog had."}
+                    </span>
+                  </div>
+                )}
+
                 {/* Respawn */}
                 {route.modus === "verspreid" && (
                   <div className="form-group">
