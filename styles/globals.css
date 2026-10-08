@@ -821,6 +821,24 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   overflow: hidden;
 }
 
+/* Afstand & tijd per team: klein paneel rechtsboven op de editorkaart */
+.route-editor-tijden {
+  position: absolute; top: 12px; right: 12px; z-index: 450;
+  width: 250px; padding: 6px 10px 8px; border-radius: 12px;
+  background: rgba(8,28,48,0.84); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  color: var(--ink); font-size: 0.74rem;
+}
+.route-editor-tijden--drawer { right: 352px; }
+.route-editor-tijden-kop {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding: 2px 0 4px;
+  background: none; border: none; color: #fff; font-weight: 700; font-size: 0.76rem; cursor: pointer; text-align: left;
+}
+.route-editor-tijden-rij { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.route-editor-tijden-voet { margin-top: 4px; font-size: 0.64rem; color: var(--muted); line-height: 1.35; }
+@media (max-width: 768px) {
+  .route-editor-tijden, .route-editor-tijden--drawer { right: 10px; top: 10px; width: 220px; }
+}
 .route-editor-drawer {
   position: absolute;
   right: 0; top: 0; bottom: 0;

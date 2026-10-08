@@ -86,7 +86,7 @@ Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 
 #### Afstand en speeltijd per team
 
-Onder de puntenlijst staat per team de looproute in de kleur van de kaart, met daaronder hoeveel kilometer dat team loopt en een schatting van de speeltijd, bijvoorbeeld *🚶 2,35 km · ⏱️ ≈ 52 min (lopen 31 min · vragen 12 min · items 9 min)*.
+Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand & tijd per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt en hoe lang het ongeveer duurt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
 
 - **Lopen** — 4,5 km/u, het wandeltempo van een groep.
 - **Vragen** — ongeveer 2 minuten per vraag en een halve minuut per infopunt.
