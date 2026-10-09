@@ -13,15 +13,15 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 1. Ga naar **Routes** in de zijbalk.
 2. Klik op **Nieuwe route**.
 3. Geef de route een naam en **kies het speltype**: Sequentieel, Verspreid of Mist.
-4. Klik op **Punt toevoegen** en klik op de kaart om een punt te plaatsen.
-5. Herhaal voor alle punten in de gewenste volgorde.
-6. Klik op een punt in de lijst om het te bewerken:
+4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Toevoegen gaat altijd via de kaart; een nieuw punt komt vóór de finish in de lijst.)
+5. Herhaal voor alle punten. De volgorde pas je aan met ▲▼ in de lijst.
+6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
+   - **Vraag bewerken / toevoegen** — bovenaan, voor de vraag, antwoorden en afbeelding
    - **Naam** — zichtbaar voor de speler
-   - **Type** — Vraagpunt, Infopunt of Eindpunt
-   - **Radius** — hoeveel meter een speler van het punt mag staan (standaard 30–50 m)
-   - **Punten** — hoeveel punten een correct antwoord oplevert
-   - **Vraag** — klik op "Vraag bewerken" voor de vraag, antwoorden en afbeelding. Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
+   - **Type** — knoppen ❓ Vraag, ℹ️ Info of 🏁 Eind
+   - Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
+   **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Ga terug naar **Routes** en klik bij de route op **Publiceren** als hij klaar is, daarna op **▶ Activeren**.
 
 > **Routes-overzicht**: elke route staat als één regel met speltype en status (● Actief, Gepubliceerd of Concept). Rechts staat alleen de volgende stap als knop (Publiceren → ▶ Activeren) en **Bewerken**. Daarnaast staan icoonknoppen: 📤 Exporteren, ↩ Terug naar concept en 🗑️ Verwijderen (houd de muis erboven voor de uitleg). De actieve route staat altijd bovenaan.
@@ -167,7 +167,7 @@ Ter kalibratie: een uur stevig doorwandelen levert grofweg **40 tot 45 hectare**
 
 #### Vragen plaatsen (optioneel)
 
-Klik op **❓ Vraag toevoegen** en tik daarna op de kaart. Anders dan bij de andere speltypen:
+Tik op de kaart en kies **❓ Vraagpunt** (of **🚩 Startlocatie** om de startplek te zetten). Anders dan bij de andere speltypen:
 
 - Vraagpunten hebben **geen vaste volgorde** — teams komen ze tegen in de volgorde waarin ze toevallig langslopen.
 - De vraag **verschijnt automatisch** zodra een team binnen de radius komt; er is geen 📍-knop om op te drukken.
@@ -208,9 +208,9 @@ Een mist-route heeft geen natuurlijk eindpunt. **Jij bepaalt wanneer het klaar i
 > één **🍌 banaan** in de balk, die ze op een tegenstander kunnen gooien. Die startbananen zie je niet in de
 > editor en ze worden bij *Reset spel* opgeruimd.
 
-1. Klik op **⭐ Item toevoegen** in de route-editor.
-2. Klik op de kaart waar het item moet liggen.
-3. Stel het **type**, **naam**, **radius** en (voor Ster/Bom) de **puntwaarde** in.
+1. **Tik op de kaart** waar het item moet liggen en kies **🎁 Item** (bij Sequentieel: ⛔ Plek zooi).
+2. Linksboven op de kaart opent het itempaneel: kies het **type** met de icoonknoppen — het wordt meteen opgeslagen.
+3. De **radius** van items en de waarde van ster en bom stel je in voor de hele route bij ⚙️ Instellingen → **🎁 Items**.
 4. Items zijn zichtbaar op de kaart voor alle spelers zodra de route actief is — **behalve de Plek zooi, die is altijd onzichtbaar**.
 5. De **legende** in de spelerapp toont automatisch alleen de itemtypen die je in de route hebt geplaatst.
 

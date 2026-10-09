@@ -840,7 +840,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   color: var(--ink); font-size: 0.74rem;
 }
-.route-editor-tijden--drawer { right: 352px; }
 .route-editor-tijden-kop {
   display: flex; align-items: center; gap: 6px; width: 100%; padding: 2px 0 4px;
   background: none; border: none; color: #fff; font-weight: 700; font-size: 0.76rem; cursor: pointer; text-align: left;
@@ -852,21 +851,32 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .route-editor-tijden-voet { margin-top: 4px; font-size: 0.64rem; color: var(--muted); line-height: 1.35; }
 @media (max-width: 768px) {
-  .route-editor-tijden, .route-editor-tijden--drawer { right: 10px; top: 10px; width: 270px; }
+  .route-editor-tijden { right: 10px; top: 10px; width: 270px; }
 }
+/* Bewerkpaneel voor een punt of item: zwevend linksboven op de kaart, zelfde stijl als het
+   paneel "afstand, tijd & punten" rechtsboven (op mobiel een paneel van onderen) */
 .route-editor-drawer {
   position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 340px;
+  left: 58px; top: 12px;
+  width: 310px; max-height: calc(100% - 24px);
   z-index: 500;
-  background: rgba(8,28,48,0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(255,255,255,0.12);
+  background: rgba(8,28,48,0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
+.editor-paneel-inhoud { display: flex; flex-direction: column; gap: 9px; padding: 8px 12px 12px; color: var(--ink); }
+.editor-paneel-kop { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #fff; }
+.editor-paneel-sluit {
+  margin-left: auto; width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--muted); font-size: 0.85rem;
+}
+.editor-paneel-noot { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
 
 /* Backdrop achter de tik-kiezer — geldt op elke schermbreedte */
 .route-editor-backdrop {
@@ -950,11 +960,12 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   bottom: 24px;
   transform: translateX(-50%);
   z-index: 700;
-  background: rgba(8,28,48,0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 16px;
+  background: rgba(8,28,48,0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   padding: 14px;
   display: flex;
   flex-direction: column;

@@ -41,6 +41,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   const [instellingenOpen, setInstellingenOpen] = useState(false);
+  const [instellingenTab, setInstellingenTab] = useState<"algemeen" | "punten" | "items">("algemeen");
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
@@ -172,6 +173,38 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }));
   }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
+  const [openTeamRoutes, setOpenTeamRoutes] = useState<Set<number>>(new Set());
+
+  // Radius en punten staan in de instellingen en gelden voor de hele route.
+  // Startwaarde: wat het meest voorkomt bij de bestaande punten/items.
+  const meestVoorkomend = (waarden: number[], standaard: number) => {
+    const tel = new Map<number, number>();
+    waarden.forEach((w) => tel.set(w, (tel.get(w) ?? 0) + 1));
+    return [...tel].sort((a, b) => b[1] - a[1])[0]?.[0] ?? standaard;
+  };
+  const [puntRadius, setPuntRadius] = useState(() => meestVoorkomend((initRoute.route_points ?? []).map((p) => p.radius_meters), 15));
+  const [puntPunten, setPuntPunten] = useState(() => meestVoorkomend((initRoute.route_points ?? []).filter((p) => !p.questions?.length).map((p) => p.points), 10));
+  const [itemRadius, setItemRadius] = useState(15);
+  useEffect(() => {
+    if (specialeItems.length) setItemRadius(meestVoorkomend(specialeItems.map((i) => i.radius_meters), 15));
+  // Alleen bij het laden van de items de startwaarde bepalen
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [specialeItems.length > 0]);
+
+  // Pas een waarde toe op alle punten van de route (radius, of punten voor punten zonder vraag)
+  async function pasAllePuntenAan(update: { radius_meters?: number; points?: number }) {
+    const doel = punten.filter((p) => update.points === undefined || !vraagPuntIds.has(p.id));
+    setPunten((ps) => ps.map((p) => (doel.some((d) => d.id === p.id) ? { ...p, ...update } : p)));
+    await Promise.all(doel.map((p) => fetch(`/api/admin/routes/${route.id}/punten/${p.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(update),
+    })));
+  }
+  async function pasAlleItemsAan(radius: number) {
+    setSpecialeItems((its) => its.map((i) => ({ ...i, radius_meters: radius })));
+    await Promise.all(specialeItems.map((i) => fetch(`/api/admin/routes/${route.id}/speciaal/${i.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ radius_meters: radius }),
+    })));
+  }
   const gemSpeelMinuten = teamSchattingen.length
     ? teamSchattingen.reduce((som, s) => som + s.totaalMin, 0) / teamSchattingen.length : 0;
 
@@ -298,11 +331,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: lat, longitude: lng, points: 10 }),
+      body: JSON.stringify({ latitude: lat, longitude: lng, points: puntPunten, radius_meters: puntRadius }),
     });
     if (res.ok) {
       const nieuw: RoutePunt = await res.json();
-      setPunten((p) => [...p, nieuw]);
+      // Is het laatste punt de finish (eindpunt), dan komt het nieuwe punt ervóór, niet erachter
+      const laatste = punten[punten.length - 1];
+      if (laatste && laatste.type === "eindpunt") {
+        const volgorde = [...punten.slice(0, -1), nieuw, laatste];
+        setPunten(volgorde);
+        await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ volgorde: volgorde.map((p) => p.id) }),
+        });
+      } else {
+        setPunten((p) => [...p, nieuw]);
+      }
       setGeselecteerd(nieuw);
       setAddModus(false);
     }
@@ -314,10 +358,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       headers: { "Content-Type": "application/json" },
       // Sequentieel: alleen plek zooi op de kaart (teams krijgen een startbanaan in hun balk)
       body: JSON.stringify(voorstelType
-        ? { latitude: lat, longitude: lng, type: voorstelType, name: voorstelType === "plekzooi" ? "Plek zooi" : "Speciaal item", points_effect: voorstelType === "ster" ? 50 : 0 }
+        ? { latitude: lat, longitude: lng, type: voorstelType, name: voorstelType === "plekzooi" ? "Plek zooi" : "Speciaal item", points_effect: voorstelType === "ster" ? 50 : 0, radius_meters: itemRadius }
         : route.modus === "sequentieel"
-        ? { latitude: lat, longitude: lng, type: "plekzooi", name: "Plek zooi", points_effect: 0 }
-        : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50 }),
+        ? { latitude: lat, longitude: lng, type: "plekzooi", name: "Plek zooi", points_effect: 0, radius_meters: itemRadius }
+        : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50, radius_meters: itemRadius }),
     });
     if (res.ok) {
       const nieuw: SpeciaalItem = await res.json();
@@ -328,10 +372,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
-    if (route.modus === "mist") {
-      if (addModus) return voegPuntToeOp(lat, lng);
-      return slaStartLocatieOp(lat, lng);
-    }
     if (centrumModus) {
       setCentrumPunt({ lat, lng });
       setCentrumModus(false);
@@ -339,9 +379,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
     if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
     if (addModus) return voegPuntToeOp(lat, lng);
-    if (geselecteerd || geselecteerdSpeciaal) return;
+    // Staat er een bewerkpaneel open, dan sluit een tik ernaast dat paneel
+    if (geselecteerd || geselecteerdSpeciaal) { setGeselecteerd(null); setGeselecteerdSpeciaal(null); return; }
 
-    // Geen modus actief en geen open bewerkformulier: vraag wat de tik moet worden.
+    // Vraag wat de tik moet worden.
     setMobielTikPositie({ lat, lng });
   }
 
@@ -361,7 +402,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) {
       const bijgewerkt: SpeciaalItem = await res.json();
       setSpecialeItems((p) => p.map((i) => i.id === id ? bijgewerkt : i));
-      setGeselecteerdSpeciaal(null);
+      setGeselecteerdSpeciaal((g) => (g?.id === id ? bijgewerkt : g));
     }
   }
 
@@ -684,14 +725,28 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                   {/* Looproute per team, in dezelfde kleur als op de kaart */}
                   {teamRoutes.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.68rem" }}>
-                      {teamRoutes.map((t) => (
-                        <div key={t.teamIndex} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0, alignSelf: "center" }} />
-                          <span style={{ color: t.kleur, fontWeight: 700, flexShrink: 0 }}>Team {t.teamIndex}</span>
-                          <span style={{ color: "var(--text)" }}>🏠 → {t.nummers.join(" → ")} → 🏁</span>
-                        </div>
-                      ))}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "0.7rem" }}>
+                      {teamRoutes.map((t) => {
+                        const open = openTeamRoutes.has(t.teamIndex);
+                        return (
+                          <div key={t.teamIndex}>
+                            {/* Per team inklapbaar: standaard alleen de kop */}
+                            <button type="button"
+                              onClick={() => setOpenTeamRoutes((s) => { const n = new Set(s); if (n.has(t.teamIndex)) n.delete(t.teamIndex); else n.add(t.teamIndex); return n; })}
+                              style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 0", background: "none", border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left" }}>
+                              <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
+                              <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
+                              <span style={{ color: "var(--muted)" }}>start bij punt {t.nummers[0]} · {t.nummers.length} punten</span>
+                              <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{open ? "▾" : "▸"}</span>
+                            </button>
+                            {open && (
+                              <div style={{ paddingLeft: 16, color: "var(--text)", lineHeight: 1.5, paddingBottom: 3 }}>
+                                🏠 → {t.nummers.join(" → ")} → 🏁
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
@@ -722,7 +777,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">🌫️ Startlocatie</label>
                   <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-                    Klik op de kaart (buiten &ldquo;Vraag toevoegen&rdquo;) om de plek te zetten waar teams starten.
+                    Tik op de kaart en kies &ldquo;Startlocatie&rdquo; om de plek te zetten waar teams starten.
                   </p>
                   {route.start_latitude !== null && route.start_longitude !== null ? (
                     <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
@@ -736,19 +791,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </div>
               </div>
 
-              <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
-                <button
-                  className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
-                  style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => setAddModus((v) => !v)}>
-                  {addModus ? "✅ Klik op kaart om vraag te plaatsen…" : `❓ Vraag toevoegen (${punten.length})`}
-                </button>
+              <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
+                👆 Tik op de kaart om een vraagpunt of de startlocatie te plaatsen. Sleep op de kaart om te verplaatsen. ({punten.length} vragen)
               </div>
 
               <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
                 {punten.length === 0 ? (
                   <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                    Klik op &ldquo;Vraag toevoegen&rdquo; en tik op de kaart om een vraag te plaatsen. Teams krijgen &rsquo;m automatisch te zien zodra ze in de buurt lopen.
+                    Tik op de kaart en kies &ldquo;Vraagpunt&rdquo; om een vraag te plaatsen. Teams krijgen &rsquo;m automatisch te zien zodra ze in de buurt lopen.
                   </p>
                 ) : punten.map((pt) => (
                   <div key={pt.id}
@@ -800,25 +850,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           </div>
 
-          {/* Toevoegen-knop */}
-          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
-            {actieveTab === "punten" ? (
-              <button
-                className={`btn ${addModus ? "btn-cyan" : "btn-primary"}`}
-                style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { setAddModus((v) => !v); setAddSpeciaalModus(false); }}>
-                {addModus ? "✅ Klik op kaart om punt te plaatsen…" : "📍 Punt toevoegen"}
-              </button>
-            ) : (
-              <button
-                className={`btn ${addSpeciaalModus ? "btn-cyan" : "btn-ghost"}`}
-                style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { setAddSpeciaalModus((v) => !v); setAddModus(false); }}>
-                {addSpeciaalModus
-                  ? "✅ Klik op kaart om item te plaatsen…"
-                  : route.modus === "sequentieel" ? "⛔ Plek zooi toevoegen" : "⭐ Item toevoegen"}
-              </button>
-            )}
+          {/* Toevoegen gaat via de kaart: tik op een plek en kies wat het wordt */}
+          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
+            👆 Tik op de kaart om een punt of item toe te voegen. Sleep op de kaart om te verplaatsen.
           </div>
 
           {/* Tab-inhoud */}
@@ -828,7 +862,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {actieveTab === "punten" && (
               punten.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  Klik op &ldquo;Punt toevoegen&rdquo; en tik op de kaart om een punt te plaatsen.
+                  Tik op de kaart en kies &ldquo;Punt&rdquo; om een punt te plaatsen.
                 </p>
               ) : punten.map((pt, i) => {
                 const isVerspreid = route.modus === "verspreid" && punten.length >= 3;
@@ -936,7 +970,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  Klik op &ldquo;Item toevoegen&rdquo; en tik op de kaart om een item te plaatsen.
+                  Tik op de kaart en kies &ldquo;Item&rdquo; om een item te plaatsen.
                 </p>
               ) : specialeItems.map((item) => {
                 return (
@@ -988,12 +1022,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               )}
               <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                📍 Punt
+                {route.modus === "mist" ? "❓ Vraagpunt" : "📍 Punt"}
               </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                ⭐ Item
-              </button>
+              {route.modus === "mist" ? (
+                <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { slaStartLocatieOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                  🚩 Startlocatie
+                </button>
+              ) : (
+                <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                  {route.modus === "sequentieel" ? "⛔ Plek zooi" : "🎁 Item"}
+                </button>
+              )}
               <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => setMobielTikPositie(null)}>
                 Annuleer
@@ -1023,6 +1064,21 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
+                {/* Onderwerpen als knoppen */}
+                <div style={{ display: "flex", gap: 4 }}>
+                  {([["algemeen", "⚙️ Algemeen"], ["punten", "📍 Punten & vragen"], ...(route.modus !== "mist" ? [["items", "🎁 Items"]] : [])] as [typeof instellingenTab, string][]).map(([t, label]) => (
+                    <button key={t} type="button" onClick={() => setInstellingenTab(t)}
+                      style={{
+                        flex: 1, padding: "8px 4px", borderRadius: 9, cursor: "pointer", fontSize: "0.78rem", fontWeight: 700,
+                        border: `2px solid ${instellingenTab === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                        background: instellingenTab === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
+                        color: instellingenTab === t ? "#fff" : "var(--muted)",
+                      }}>{label}</button>
+                  ))}
+                </div>
+
+                {instellingenTab === "algemeen" && (
+                  <>
                 {/* Speltype (vastgezet bij aanmaken, niet meer te wijzigen) */}
                 <div className="form-group">
                   <label className="form-label">Speltype</label>
@@ -1059,6 +1115,56 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
 
+                {/* Tussenstand */}
+                <div className="form-group">
+                  <label className="form-label">🏆 Tussenstand — automatische reveal</label>
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … minuten (0 = uit)</span>
+                  <input
+                    className="form-input" type="number" min={0} value={tussenstandInterval}
+                    onChange={(e) => setTussenstandInterval(Math.max(0, Number(e.target.value)))}
+                    onBlur={() => slaTussenstandIntervalOp(tussenstandInterval)}
+                  />
+                  <div style={{ height: 8 }} />
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>… seconden zichtbaar</span>
+                  <input
+                    className="form-input" type="number" min={1} value={tussenstandDuur}
+                    onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
+                    onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
+                  />
+                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
+                </div>
+
+                  </>
+                )}
+
+                {instellingenTab === "punten" && (
+                  <>
+                    <div className="form-group">
+                      <label className="form-label">📏 Radius van de punten (m)</label>
+                      <input className="form-input" type="number" min={3} value={puntRadius}
+                        onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
+                        onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle {punten.length} punten en voor nieuwe punten.</span>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
+                      <input className="form-input" type="number" min={0} value={puntPunten}
+                        onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
+                        onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor infopunten en punten zonder vraag. De punten van een vraag stel je in bij de vraag zelf (en per antwoord).</span>
+                    </div>
+                  </>
+                )}
+
+                {instellingenTab === "items" && (
+                  <>
+                    <div className="form-group">
+                      <label className="form-label">📏 Radius van de items (m)</label>
+                      <input className="form-input" type="number" min={3} value={itemRadius}
+                        onChange={(e) => setItemRadius(Math.max(3, Number(e.target.value)))}
+                        onBlur={() => pasAlleItemsAan(itemRadius)} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen om een item op te pakken (of in een plek zooi te lopen). Geldt voor alle items en voor nieuwe items.</span>
+                    </div>
                 {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
                 {route.modus === "verspreid" && (
                   <div className="form-group">
@@ -1115,25 +1221,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </span>
                   </div>
                 )}
-
-                {/* Tussenstand */}
-                <div className="form-group">
-                  <label className="form-label">🏆 Tussenstand — automatische reveal</label>
-                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … minuten (0 = uit)</span>
-                  <input
-                    className="form-input" type="number" min={0} value={tussenstandInterval}
-                    onChange={(e) => setTussenstandInterval(Math.max(0, Number(e.target.value)))}
-                    onBlur={() => slaTussenstandIntervalOp(tussenstandInterval)}
-                  />
-                  <div style={{ height: 8 }} />
-                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>… seconden zichtbaar</span>
-                  <input
-                    className="form-input" type="number" min={1} value={tussenstandDuur}
-                    onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
-                    onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
-                  />
-                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
-                </div>
 
                 {/* Startitems */}
                 {route.modus !== "mist" && (
@@ -1248,7 +1335,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       )}
                     </div>
                   </div>
+                )}                  </>
                 )}
+
               </div>
             </div>
           </div>
@@ -1295,7 +1384,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
-          <div className={`route-editor-tijden${geselecteerd || geselecteerdSpeciaal ? " route-editor-tijden--drawer" : ""}`}>
+          <div className="route-editor-tijden">
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
               ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{tijdenOpen ? "▾" : "▸"}</span>
             </button>
@@ -1404,89 +1493,49 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
   onVerwijder: () => void;
   onSluit: () => void;
 }) {
-  const [naam, setNaam] = useState(item.name);
-  const [type, setType] = useState<SpeciaalItemType>(item.type);
-  const [radius, setRadius] = useState(item.radius_meters);
-  const [effect, setEffect] = useState(item.points_effect);
-
-  useEffect(() => {
-    setNaam(item.name); setType(item.type); setRadius(item.radius_meters); setEffect(item.points_effect);
-  // Alleen resetten bij wisselen van item, niet bij elke prop-update (anders vecht dit met lokale invoer)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.id]);
-
+  // Een klik op een type slaat meteen op; radius staat in ⚙️ Instellingen → Items
+  const type = item.type;
   return (
-    <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 10 }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Speciaal item bewerken</span>
-        <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
+    <div className="editor-paneel-inhoud">
+      <div className="editor-paneel-kop">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`/items/${type}.png`} alt="" style={{ width: 22, height: 22 }} />
+        <span>Item</span>
+        <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
 
-      {/* Naam */}
-      <div className="form-group">
-        <label className="form-label">Naam</label>
-        <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem" }} />
-      </div>
-
-      {/* Type: icoonknoppen in plaats van een uitklaplijst */}
-      <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Type</label>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
-          {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
-            const gekozen = type === t;
-            const uit = alleenPlekzooi && t !== "plekzooi";
-            return (
-              <button key={t} type="button" disabled={uit} onClick={() => setType(t)} title={t}
-                style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
-                  borderRadius: 8, cursor: uit ? "not-allowed" : "pointer", opacity: uit ? 0.3 : 1,
-                  border: `2px solid ${gekozen ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                  background: gekozen ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                  color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
-                }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/items/${t}.png`} alt="" style={{ width: 26, height: 26 }} />
-                {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "80px", gap: 8 }}>
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Radius (m)</label>
-          <input className="form-input" type="number" min={1} value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
-            style={{ fontSize: "0.85rem", width: "100%", boxSizing: "border-box" }} />
-        </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
+        {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+          const gekozen = type === t;
+          const uit = alleenPlekzooi && t !== "plekzooi";
+          return (
+            <button key={t} type="button" disabled={uit} title={t}
+              onClick={() => { if (!gekozen) onOpslaan({ type: t, points_effect: t === "ster" ? 50 : 0, name: t === "plekzooi" ? "Plek zooi" : "Speciaal item" }); }}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
+                borderRadius: 8, cursor: uit ? "not-allowed" : "pointer", opacity: uit ? 0.3 : 1,
+                border: `2px solid ${gekozen ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                background: gekozen ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
+                color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
+              }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/items/${t}.png`} alt="" style={{ width: 26, height: 26 }} />
+              {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
+            </button>
+          );
+        })}
       </div>
 
       {type === "plekzooi" && (
-        <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: 0 }}>
-          De blokkeerduur stel je in voor de hele route via ⚙️ Instellingen.
-        </p>
+        <div className="editor-paneel-noot">⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers. De duur stel je in bij ⚙️ Instellingen → Items.</div>
       )}
       {alleenPlekzooi && type !== "plekzooi" && (
-        <p style={{ fontSize: "0.72rem", color: "#F87171", margin: 0 }}>
-          Bij Sequentieel verschijnt alleen plek zooi op de kaart; dit item zien spelers niet.
-        </p>
+        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Bij Sequentieel verschijnt alleen plek zooi op de kaart; dit item zien spelers niet.</div>
       )}
-      {type === "plekzooi" && (
-        <div style={{ fontSize: "0.72rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "8px 10px", borderRadius: 8 }}>
-          ⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers.
-        </div>
-      )}
-      {item.claimed && <div className="melding" style={{ fontSize: "0.78rem", background: "var(--gold-soft)", color: "var(--gold)" }}>✅ Dit item is al geclaimd</div>}
+      {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
+      <div className="editor-paneel-noot">Sleep het item op de kaart om het te verplaatsen.</div>
 
-      <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.85rem" }}
-        onClick={() => onOpslaan({ name: naam, type, radius_meters: radius, points_effect: effect })}>
-        Opslaan
-      </button>
-      <button className="btn btn-danger" style={{ width: "100%", fontSize: "0.85rem" }} onClick={onVerwijder}>
-        🗑️ Verwijderen
-      </button>
+      <button className="rl-knop rl-knop--rood" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Verwijderen</button>
     </div>
   );
 }
@@ -1499,79 +1548,65 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOps
   const [naam, setNaam] = useState(punt.name);
   const [beschrijving, setBeschrijving] = useState(punt.description ?? "");
   const [type, setType] = useState(punt.type);
-  const [radius, setRadius] = useState(punt.radius_meters);
-  const [punten, setPunten] = useState(punt.points);
 
   useEffect(() => {
     setNaam(punt.name); setBeschrijving(punt.description ?? ""); setType(punt.type);
-    setRadius(punt.radius_meters); setPunten(punt.points);
   // Alleen resetten bij wisselen van punt, niet bij elke prop-update (anders vecht dit met lokale invoer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [punt.id]);
 
   return (
-    <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: 10 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--ink)" }}>Punt bewerken</span>
-        <button onClick={onSluit} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--muted)", fontSize: "0.95rem", padding: "5px 10px", lineHeight: 1 }}>✕</button>
+    <div className="editor-paneel-inhoud">
+      <div className="editor-paneel-kop">
+        <span style={{ fontSize: "1.1rem" }}>{type === "eindpunt" ? "🏁" : type === "informatiepunt" ? "ℹ️" : "📍"}</span>
+        <span>Punt</span>
+        <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
-      <div className="form-group">
+
+      {/* Vraag: het belangrijkste, dus bovenaan */}
+      <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#93C5FD" : punt.type === "vraagpunt" ? "#FBBF24" : "var(--muted)" }}>
+        {heeftVraag ? "❓ Aan dit punt hangt een vraag." : punt.type === "vraagpunt" ? "⚠️ Dit vraagpunt heeft nog geen vraag." : "Aan dit punt hangt geen vraag."}
+      </div>
+      <a href={`/admin/routes/${routeId}/punten/${punt.id}`} className="rl-knop rl-knop--cyan"
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+        {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag toevoegen →"}
+      </a>
+
+      <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Naam</label>
         <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem" }} />
       </div>
-      <div className="form-group">
+      <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Beschrijving</label>
-        <textarea className="form-textarea" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 52 }} />
+        <textarea className="form-textarea" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 48 }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
-        <div className="form-group">
+      {!alleenVraag && (
+        <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">Type</label>
-          {alleenVraag ? (
-            <div className="form-input" style={{ fontSize: "0.85rem", color: "var(--muted)", display: "flex", alignItems: "center" }}>
-              Vraagpunt
-            </div>
-          ) : (
-            <div style={{ display: "flex", gap: 3 }}>
-              {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
-                <button key={t} type="button" onClick={() => setType(t)}
-                  style={{
-                    flex: 1, padding: "7px 2px", borderRadius: 8, cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
-                    border: `2px solid ${type === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                    background: type === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                    color: type === t ? "#fff" : "var(--muted)", whiteSpace: "nowrap",
-                  }}>
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
+          <div style={{ display: "flex", gap: 3 }}>
+            {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
+              <button key={t} type="button" onClick={() => setType(t)}
+                style={{
+                  flex: 1, padding: "7px 2px", borderRadius: 8, cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
+                  border: `2px solid ${type === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                  background: type === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
+                  color: type === t ? "#fff" : "var(--muted)", whiteSpace: "nowrap",
+                }}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="form-group">
-          <label className="form-label">Radius (m)</label>
-          <input className="form-input" type="number" min={1} value={radius} onChange={(e) => setRadius(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
-        </div>
-      </div>
-      <div className="form-group">
-        <label className="form-label">Punten</label>
-        <input className="form-input" type="number" min={0} value={punten} onChange={(e) => setPunten(Number(e.target.value))} style={{ fontSize: "0.85rem" }} />
-      </div>
+      )}
+      <div className="editor-paneel-noot">Radius en punten stel je in voor de hele route bij ⚙️ Instellingen → Punten &amp; vragen. Sleep het punt op de kaart om het te verplaatsen.</div>
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
-      <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.85rem" }} disabled={opslaan}
-        onClick={() => onOpslaan({ name: naam, description: beschrijving, type, radius_meters: radius, points: punten })}>
-        {opslaan ? "Opslaan…" : "Opslaan"}
-      </button>
-      <div style={{ fontSize: "0.75rem", fontWeight: 600, color: heeftVraag ? "#93C5FD" : punt.type === "vraagpunt" ? "#FBBF24" : "var(--muted)" }}>
-        {heeftVraag ? "❓ Aan dit punt hangt een vraag." : punt.type === "vraagpunt" ? "⚠️ Dit vraagpunt heeft nog geen vraag." : "Aan dit punt hangt geen vraag."}
+      <div style={{ display: "flex", gap: 6 }}>
+        <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}
+          onClick={() => onOpslaan({ name: naam, description: beschrijving, type })}>
+          {opslaan ? "Opslaan…" : "Opslaan"}
+        </button>
+        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={onVerwijder}>🗑️</button>
       </div>
-      <a
-        href={`/admin/routes/${routeId}/punten/${punt.id}`}
-        className="btn btn-outline"
-        style={{ width: "100%", fontSize: "0.85rem", textAlign: "center", textDecoration: "none" }}>
-        {heeftVraag ? "Vraag bewerken →" : "➕ Vraag toevoegen →"}
-      </a>
-      <button className="btn btn-danger" style={{ width: "100%", fontSize: "0.85rem" }} onClick={onVerwijder}>
-        🗑️ Verwijderen
-      </button>
     </div>
   );
 }
