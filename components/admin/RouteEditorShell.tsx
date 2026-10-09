@@ -41,6 +41,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   const [instellingenOpen, setInstellingenOpen] = useState(false);
+  // Verspreid: teams die het rondje andersom lopen
+  const [omgekeerdeTeams, setOmgekeerdeTeams] = useState<number[]>(initRoute.omgekeerde_teams ?? []);
+  async function wisselAndersom(team: number) {
+    const nieuw = omgekeerdeTeams.includes(team) ? omgekeerdeTeams.filter((t) => t !== team) : [...omgekeerdeTeams, team];
+    setOmgekeerdeTeams(nieuw);
+    await fetch(`/api/admin/routes/${initRoute.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ omgekeerde_teams: nieuw }),
+    });
+  }
+  // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
+  const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"algemeen" | "punten" | "items">("algemeen");
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
@@ -133,8 +144,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const delta = Math.abs(d - targetM);
         if (delta < minDelta) { minDelta = delta; offset = i; }
       });
-      // Lus-punt j heeft in de lijst index j+1 en dus nummer j+1 (de start-hub is 🏠, geen nummer)
-      const lusIndices = middenpunten.map((_, j) => (offset + j) % middenpunten.length);
+      // Lus-punt j heeft in de lijst index j+1 en dus nummer j+1 (de start-hub is 🏠, geen nummer).
+      // Een team dat "andersom" loopt, gaat vanaf hetzelfde instappunt de andere kant op.
+      const andersom = omgekeerdeTeams.includes(k + 1);
+      const n = middenpunten.length;
+      const lusIndices = middenpunten.map((_, j) => (((andersom ? offset - j : offset + j) % n) + n) % n);
       const volgorde = [hubStart, ...lusIndices.map((j) => middenpunten[j]), hubEind];
       return {
         teamIndex: k + 1,
@@ -144,7 +158,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         punten: volgorde,
       };
     });
-  }, [route.modus, punten, verwachtTeams]);
+  }, [route.modus, punten, verwachtTeams, omgekeerdeTeams]);
 
   // Afstand en geschatte speeltijd per team (lopen + vragen + items), getoond als paneel op de kaart
   const teamSchattingen = useMemo(() => {
@@ -783,16 +797,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                           <div key={t.teamIndex}>
                             {/* Per team inklapbaar: standaard alleen de kop */}
                             <button type="button"
-                              onClick={() => setOpenTeamRoutes((s) => { const n = new Set(s); if (n.has(t.teamIndex)) n.delete(t.teamIndex); else n.add(t.teamIndex); return n; })}
+                              onClick={() => {
+                                const wordtOpen = !openTeamRoutes.has(t.teamIndex);
+                                setOpenTeamRoutes((s) => { const n = new Set(s); if (n.has(t.teamIndex)) n.delete(t.teamIndex); else n.add(t.teamIndex); return n; });
+                                setUitgelichtTeam(wordtOpen ? t.teamIndex : (uitgelichtTeam === t.teamIndex ? null : uitgelichtTeam));
+                              }}
                               style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 0", background: "none", border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left" }}>
                               <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
                               <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
-                              <span style={{ color: "var(--muted)" }}>start bij punt {t.nummers[0]} · {t.nummers.length} punten</span>
+                              <span style={{ color: "var(--muted)" }}>start bij punt {t.nummers[0]} · {t.nummers.length} punten{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺ andersom" : ""}</span>
                               <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{open ? "▾" : "▸"}</span>
                             </button>
                             {open && (
-                              <div style={{ paddingLeft: 16, color: "var(--text)", lineHeight: 1.5, paddingBottom: 3 }}>
+                              <div style={{ paddingLeft: 16, color: "var(--text)", lineHeight: 1.5, paddingBottom: 4 }}>
                                 🏠 → {t.nummers.join(" → ")} → 🏁
+                                <button type="button" onClick={() => wisselAndersom(t.teamIndex)}
+                                  className={`rl-knop${omgekeerdeTeams.includes(t.teamIndex) ? " rl-knop--cyan" : ""}`}
+                                  style={{ display: "flex", marginTop: 4, height: 28, fontSize: "0.72rem" }}
+                                  title="Dit team loopt het rondje in tegengestelde richting, vanaf hetzelfde instappunt">
+                                  ↺ Andersom lopen: {omgekeerdeTeams.includes(t.teamIndex) ? "aan" : "uit"}
+                                </button>
                               </div>
                             )}
                           </div>
@@ -1430,6 +1454,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
           itemVoorstellen={toonVoorstellen && itemCheck ? itemCheck.voorstellen : []}
+          uitgelichtTeam={uitgelichtTeam}
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
 

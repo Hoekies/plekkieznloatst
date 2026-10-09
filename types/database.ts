@@ -29,6 +29,8 @@ export interface Route {
   items_na_finish: boolean;
   // Items die elk team bij de start gratis krijgt, per type het aantal (null = standaard)
   startitems: Record<string, number> | null;
+  // Verspreid: teamnummers die het rondje andersom lopen
+  omgekeerde_teams: number[] | null;
   mist_m2_per_ster: number;
   start_latitude: number | null;
   start_longitude: number | null;

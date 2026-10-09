@@ -49,6 +49,8 @@ interface Props {
   vliegNaar?: { lat: number; lng: number; zoom?: number } | null;
   // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
   itemVoorstellen?: { lat: number; lng: number; type: string }[];
+  // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
+  uitgelichtTeam?: number | null;
   onItemVoorstelKlik?: (v: { lat: number; lng: number; type: string }) => void;
 }
 
@@ -58,7 +60,7 @@ export default function LeafletKaart({
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, itemVoorstellen = [], onItemVoorstelKlik,
+  vliegNaar = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -244,13 +246,37 @@ export default function LeafletKaart({
       if (teamRoutes.length === 0) return;
 
       teamRoutes.forEach((t, k) => {
+        const uitgelicht = uitgelichtTeam === t.teamIndex;
+        const vaag = uitgelichtTeam != null && !uitgelicht;
         // Lijnen lopen over dezelfde randen; schuif ze radiaal uit elkaar zodat elk team zichtbaar blijft
-        const verschuivingM = (k - (teamRoutes.length - 1) / 2) * 4;
-        const lijn = L.polyline(
-          t.coords.map((c, i) => verschuifRadiaal(c, t.coords[0], i === 0 || i === t.coords.length - 1 ? 0 : verschuivingM)),
-          { color: t.kleur, weight: 3.5, opacity: 0.9, interactive: false },
-        ).addTo(kaartRef.current!);
+        const verschuivingM = uitgelicht ? 0 : (k - (teamRoutes.length - 1) / 2) * 4;
+        const lijnCoords = t.coords.map((c, i) => verschuifRadiaal(c, t.coords[0], i === 0 || i === t.coords.length - 1 ? 0 : verschuivingM));
+        const lijn = L.polyline(lijnCoords, {
+          color: t.kleur, weight: uitgelicht ? 6 : 3.5, opacity: vaag ? 0.15 : uitgelicht ? 1 : 0.9, interactive: false,
+        }).addTo(kaartRef.current!);
+        if (uitgelicht) lijn.bringToFront();
         teamLijnenRef.current.push(lijn);
+
+        // Looprichting: een pijl halverwege elk stuk
+        if (uitgelicht) {
+          for (let i = 1; i < lijnCoords.length; i++) {
+            const [aLat, aLng] = lijnCoords[i - 1], [bLat, bLng] = lijnCoords[i];
+            const dx = (bLng - aLng) * Math.cos((aLat * Math.PI) / 180), dy = bLat - aLat;
+            if (dx === 0 && dy === 0) continue;
+            const hoek = (-Math.atan2(dy, dx) * 180) / Math.PI; // 0° = naar rechts (oost), met de klok mee
+            const pijl = L.divIcon({
+              className: "",
+              html: `<div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;transform:rotate(${hoek}deg)">
+                <div style="width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:13px solid ${t.kleur};filter:drop-shadow(0 0 2px #000)"></div>
+              </div>`,
+              iconSize: [22, 22], iconAnchor: [11, 11],
+            });
+            const m = L.marker([(aLat + bLat) / 2, (aLng + bLng) / 2], { icon: pijl, interactive: false, zIndexOffset: 250 })
+              .addTo(kaartRef.current!);
+            startMarkersRef.current.push(m);
+          }
+        }
+        if (vaag) return;
 
         const instap = t.coords[1];
         if (!instap) return;
@@ -273,7 +299,7 @@ export default function LeafletKaart({
         startMarkersRef.current.push(marker);
       });
     });
-  }, [teamRoutes, kaartKlaar]);
+  }, [teamRoutes, kaartKlaar, uitgelichtTeam]);
 
   // Aanbevolen-afstand cirkel bij geselecteerd punt
   useEffect(() => {

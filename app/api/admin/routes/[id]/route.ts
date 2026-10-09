@@ -37,6 +37,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (typeof body.items_na_finish === "boolean") toegestaan.items_na_finish = body.items_na_finish;
   if ("startitems" in body) toegestaan.startitems = schoonStartitems(body.startitems);
+  if (Array.isArray(body.omgekeerde_teams)) {
+    toegestaan.omgekeerde_teams = [...new Set(body.omgekeerde_teams.filter((n: unknown) => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 50))];
+  }
   if (typeof body.respawn_minuten === "number" && body.respawn_minuten > 0) toegestaan.respawn_minuten = body.respawn_minuten;
   if (typeof body.plekzooi_duur_seconden === "number" && body.plekzooi_duur_seconden > 0) toegestaan.plekzooi_duur_seconden = body.plekzooi_duur_seconden;
   if (typeof body.spook_duur_seconden === "number" && body.spook_duur_seconden > 0) toegestaan.spook_duur_seconden = body.spook_duur_seconden;

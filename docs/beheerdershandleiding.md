@@ -84,6 +84,12 @@ Team 3:  🏠 → 5 → 6 → 1 → 2 → 3 → 4 → 🏁
 
 > **Belangrijk:** Het startpunt en de finish herkent het systeem aan hun **positie in de lijst**: het eerste punt is altijd de start, het laatste altijd de finish. De ▲▼-knoppen zijn daarom uitgeschakeld voor deze twee punten. Plaats je punten handmatig, zet dan zelf een infopunt als eerste en een eindpunt als laatste — of gebruik de automatische generator hieronder, die dit voor je doet.
 
+#### Looproute per team bekijken en omdraaien
+
+Onder de puntenlijst staat per team één regel (*Team 2 · start bij punt 8 · 22 punten*). Klik erop om de volgorde open te klappen: op de kaart wordt dat team dan **uitgelicht** — een dikke lijn met pijlen in de looprichting, de andere teams worden vaag.
+
+Met **↺ Andersom lopen** (onder de opengeklapte volgorde) loopt dat team het rondje in **tegengestelde richting**, vanaf hetzelfde instappunt. Handig om teams elkaar tegen te laten komen, of om drukte op één stuk te spreiden. Het geldt voor teams die daarna starten. Let op: "Team 1" is het eerste team dat begint, "Team 2" het tweede, enzovoort.
+
 #### Afstand en speeltijd per team
 
 Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand, tijd & punten per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt, hoe lang het ongeveer duurt en hoeveel punten het ongeveer haalt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min · ≈ 310 pt*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.

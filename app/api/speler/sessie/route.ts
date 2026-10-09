@@ -95,6 +95,8 @@ export async function POST() {
 
       const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
       const teamIndex = (aantalSessies ?? 0) % nTeams;
+      // Dit team loopt het rondje andersom (ingesteld per team in de editor)
+      const andersom = Array.isArray(route.omgekeerde_teams) && route.omgekeerde_teams.includes(teamIndex + 1);
 
       const hubStart = punten[0];
       const hubEind = punten[punten.length - 1];
@@ -124,7 +126,7 @@ export async function POST() {
         ...middenpunten.map((_, k) => ({
           session_id: sessie.id,
           volgorde: k + 2,
-          route_point_id: middenpunten[(offset + k) % middenpunten.length].id,
+          route_point_id: middenpunten[((andersom ? offset - k : offset + k) % middenpunten.length + middenpunten.length) % middenpunten.length].id,
         })),
         { session_id: sessie.id, volgorde: middenpunten.length + 2, route_point_id: hubEind.id },
       ];
@@ -140,6 +142,8 @@ export async function POST() {
 
       const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
       const teamIndex = (aantalSessies ?? 0) % nTeams;
+      // Dit team loopt het rondje andersom (ingesteld per team in de editor)
+      const andersom = Array.isArray(route.omgekeerde_teams) && route.omgekeerde_teams.includes(teamIndex + 1);
 
       const cumulatief = [0];
       for (let i = 1; i < punten.length; i++) {
@@ -162,7 +166,7 @@ export async function POST() {
       const volgorde = punten.map((p, k) => ({
         session_id: sessie.id,
         volgorde: k + 1,
-        route_point_id: punten[(offset + k) % punten.length].id,
+        route_point_id: punten[((andersom ? offset - k : offset + k) % punten.length + punten.length) % punten.length].id,
       }));
 
       await admin.from("session_point_order").insert(volgorde);
