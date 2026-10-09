@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
-import { haalItemSessie, ITEMS_NA_FINISH } from "@/lib/item-sessie";
+import { haalItemSessie } from "@/lib/item-sessie";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (!item) return NextResponse.json({ fout: "Item niet gevonden, niet door jou geclaimd of al gebruikt" }, { status: 403 });
 
-  if (itemSessie.naFinish && !ITEMS_NA_FINISH.includes(item.type)) {
-    return NextResponse.json({ fout: "Dit item heeft na de finish geen nut meer" }, { status: 400 });
+  if (itemSessie.naFinish && !itemSessie.toegestaan.includes(item.type)) {
+    return NextResponse.json({ fout: "Dit item mag na de finish niet meer worden ingezet" }, { status: 400 });
   }
 
   // Items met doelkeuze vereisen target_session_id

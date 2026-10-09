@@ -23,5 +23,6 @@ export async function GET() {
     .eq("claimed_by_session_id", sessie.id)
     .is("used_at", null);
 
-  return NextResponse.json(items ?? []);
+  // Na de finish alleen de items die de beheerder daarvoor heeft aangezet
+  return NextResponse.json((items ?? []).filter((i) => !itemSessie.naFinish || itemSessie.toegestaan.includes(i.type)));
 }

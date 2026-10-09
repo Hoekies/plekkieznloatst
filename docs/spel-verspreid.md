@@ -106,7 +106,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 | 🦹 | Dief | Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie. |
 | 🍌 | Banaan | Gooi hem naar een tegenstander: hun volgende punt ruilt van plek met het punt daarna. Ze moeten eerst naar dat punt, dan terug naar hun oude volgende punt, en dan verder. Het eindpunt blijft altijd als laatste. |
 | 🔄 | Wissel | Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳 |
-| ❓ | Vraagteken | Een gok! Je krijgt 2× de sterwaarde (40%) of zelfs 5× als jackpot (10%). Je kunt ook 1× de sterwaarde verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig 1× de sterwaarde bij of af (20%). |
+| ❓ | Vraagteken | Wordt meteen gespeeld als je hem oppakt. Een gok! Je krijgt 2× de sterwaarde (40%) of zelfs 5× als jackpot (10%). Je kunt ook 1× de sterwaarde verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig 1× de sterwaarde bij of af (20%). |
 | ⛔ | Plek zooi | Een onzichtbare val op de kaart. Loop je erover, dan sta je een tijdje stil (standaard 5 minuten): je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer. |
 
 ### Hoe gebruik je een item?
@@ -115,7 +115,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 - Tik op een item in de balk om het in te zetten.
 - Bij Bom, Spook, Dief, Banaan en Wissel kies je daarna een **tegenstander**.
 - Je mag items bewaren voor later; elk item gebruik je één keer.
-- Ben je gefinisht, dan vervallen de items die je nog in je balk had — tenzij de organisatie "items na de finish" heeft aangezet: dan kun je ze op je finishscherm nog inzetten op teams die onderweg zijn, tot de uitslag bekend is. Teams die al gefinisht zijn, kun je niet meer als tegenstander kiezen.
+- Ben je gefinisht, dan vervallen de items die je nog in je balk had — behalve de items die de organisatie voor na de finish heeft aangezet: die kun je op je finishscherm nog inzetten op teams die onderweg zijn, tot de uitslag bekend is. Teams die al gefinisht zijn, kun je niet meer als tegenstander kiezen.
 - Heb je meerdere van hetzelfde item, dan staat er een getal bij.
 
 ### Meldingen

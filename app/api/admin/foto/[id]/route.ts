@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
+import { itemsNaFinishVan } from "@/lib/item-sessie";
 
 export async function PATCH(
   request: NextRequest,
@@ -88,7 +89,8 @@ export async function PATCH(
         status: "voltooid",
         finished_at: new Date().toISOString(),
       }).eq("id", inzending.session_id).eq("status", "actief");
-      await laatItemsVervallen(admin, [inzending.session_id]);
+      const { data: fotoRoute } = await admin.from("routes").select("*").eq("id", allePunten.route_id).maybeSingle();
+      await laatItemsVervallen(admin, [inzending.session_id], { naFinishTypes: itemsNaFinishVan(fotoRoute) });
     }
   }
 

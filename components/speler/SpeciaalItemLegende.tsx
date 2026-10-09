@@ -30,7 +30,7 @@ export const ITEM_INFO: Record<string, ItemInfo> = {
   dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie." },
   banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Gooi hem naar een tegenstander: hun volgende punt ruilt van plek met het punt daarna. Ze moeten eerst naar dat punt, dan terug, en dan verder." },
   wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳" },
-  vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Een gok! Je krijgt ${w.ster * 2} punten (40%) of zelfs ${w.ster * 5} punten als jackpot (10%). Je kunt ook ${w.ster} punten verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig ${w.ster} punten bij of af (20%).` },
+  vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Wordt meteen gespeeld als je hem oppakt. Een gok! Je krijgt ${w.ster * 2} punten (40%) of zelfs ${w.ster * 5} punten als jackpot (10%). Je kunt ook ${w.ster} punten verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig ${w.ster} punten bij of af (20%).` },
   plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val op de kaart. Loop je erover, dan sta je ${duur(w.plekzooiSec)} stil: je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer.` },
 };
 

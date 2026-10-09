@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
+import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { normaliserenNumeriek } from "@/lib/geo";
 
 async function getActieveSessie() {
@@ -230,7 +231,7 @@ export async function POST(request: NextRequest) {
       .update({ status: "voltooid", finished_at: new Date().toISOString() })
       .eq("id", sessie.id);
     const { data: finishRoute } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
-    await laatItemsVervallen(admin, [sessie.id], { naFinishToegestaan: !!finishRoute?.items_na_finish });
+    await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(finishRoute) });
   }
 
   return NextResponse.json({

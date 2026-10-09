@@ -467,6 +467,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             haalScoreOp();
           }
           setOpgepakt({ item: data.item, extra: effectRes.ok ? "De bonuspunten staan al op je score!" : "De bonuspunten komen eraan." });
+        } else if (data.item.type === "vraagteken") {
+          // Een vraagteken komt niet in de balk: hij wordt meteen gespeeld
+          const effectRes = await fetch("/api/speler/speciaal/effect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ special_item_id: data.item.id, ...huidigePlek() }),
+          });
+          const effect = effectRes.ok ? await effectRes.json() : null;
+          if (effect?.ok) {
+            inventarisItemGebruikt(data.item.id, effect.eigen_notificatie ?? "❓ Vraagteken gespeeld!");
+          } else {
+            // Lukte het niet, dan toch in de balk zodat hij niet verloren gaat
+            setInventaris((prev) => [...prev, data.item]);
+            setOpgepakt({ item: data.item, extra: "Tik erop in je balk om hem te spelen." });
+          }
         } else if (data.item.type === "wissel") {
           setInventaris((prev) => [...prev, data.item]);
           setOpgepakt({ item: data.item, extra: "Kies zo meteen met welk team je van score wisselt." });

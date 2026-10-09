@@ -1,10 +1,11 @@
-// Items die een beheerder als startitem kan geven (plek zooi is een val, geen item voor de balk)
-export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "vraagteken", "verdubbeling", "radar", "ster"] as const;
+// Items die een beheerder als startitem kan geven (plek zooi is een val en een vraagteken
+// wordt meteen gespeeld: die komen nooit in de balk)
+export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "verdubbeling", "radar", "ster"] as const;
 export const MAX_PER_STARTITEM = 5;
 
 // Ingestelde startitems van een route; zonder instelling: Sequentieel één banaan, anders niets
 export function startitemsVan(route: { modus: string; startitems?: Record<string, number> | null }): Record<string, number> {
-  if (route.startitems && typeof route.startitems === "object") return route.startitems;
+  if (route.startitems && typeof route.startitems === "object") return schoonStartitems(route.startitems) ?? {};
   return route.modus === "sequentieel" ? { banaan: 1 } : {};
 }
 

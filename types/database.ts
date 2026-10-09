@@ -27,6 +27,8 @@ export interface Route {
   tussenstand_trigger_at: string | null;
   uitslag_vrijgegeven: boolean;
   items_na_finish: boolean;
+  // Items die een gefinisht team nog mag inzetten (null = oude schakelaar: alles of niets)
+  items_na_finish_types: string[] | null;
   // Items die elk team bij de start gratis krijgt, per type het aantal (null = standaard)
   startitems: Record<string, number> | null;
   // Verspreid: teamnummers die het rondje andersom lopen

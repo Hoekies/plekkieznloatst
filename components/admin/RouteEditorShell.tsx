@@ -8,6 +8,7 @@ import { haversine } from "@/lib/geo";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
+import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
 import { naamUitVraag, isStandaardNaam } from "@/lib/punt-naam";
 import { kiesInstappunten } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
@@ -24,7 +25,7 @@ const ITEM_UITLEG: Record<string, string> = {
   dief: "Dief: de punten van het volgende goede antwoord van een tegenstander gaan naar dit team.",
   banaan: "Banaan: het volgende punt van een tegenstander ruilt met het punt daarna.",
   wissel: "Wissel: het team ruilt zijn score met een tegenstander.",
-  vraagteken: "Vraagteken: een gok, van een jackpot tot punten kwijt.",
+  vraagteken: "Vraagteken: meteen gespeeld bij oppakken. Een gok, van jackpot tot punten kwijt.",
   plekzooi: "Plek zooi: onzichtbare val; wie erin loopt, staat even stil.",
 };
 
@@ -351,6 +352,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ startitems: nieuw }),
     });
+  }
+  // Per item: mag een gefinisht team dit nog inzetten (tot de uitslag vrij is)
+  const naFinishTypes = itemsNaFinishVan(route);
+  async function wisselNaFinish(type: string) {
+    const nieuw = naFinishTypes.includes(type) ? naFinishTypes.filter((t) => t !== type) : [...naFinishTypes, type];
+    const res = await fetch(`/api/admin/routes/${route.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items_na_finish_types: nieuw }),
+    });
+    if (res.ok) setRoute((r) => ({ ...r, items_na_finish_types: nieuw, items_na_finish: nieuw.length > 0 }));
+    else alert("Opslaan mislukt. Is migratie 036 al uitgevoerd?");
   }
 
   function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number) {
@@ -1423,32 +1435,28 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {route.modus !== "mist" && (
                   <div className="form-group">
                     <label className="form-label">🎁 Items inzetten na de finish</label>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
-                      onClick={async () => {
-                        const nieuw = !route.items_na_finish;
-                        const res = await fetch(`/api/admin/routes/${route.id}`, {
-                          method: "PATCH", headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ items_na_finish: nieuw }),
-                        });
-                        if (res.ok) setRoute((r) => ({ ...r, items_na_finish: nieuw }));
-                      }}>
-                      <span style={{ fontSize: "0.78rem", color: route.items_na_finish ? "var(--green)" : "var(--muted)", flexShrink: 0, userSelect: "none" }}>
-                        {route.items_na_finish ? "Aan" : "Uit"}
-                      </span>
-                      <div style={{
-                        width: 36, height: 20, borderRadius: 10, flexShrink: 0, position: "relative",
-                        background: route.items_na_finish ? "var(--green)" : "rgba(255,255,255,0.15)", transition: "background 0.2s",
-                      }}>
-                        <div style={{
-                          position: "absolute", top: 3, left: route.items_na_finish ? 19 : 3, width: 14, height: 14, borderRadius: "50%",
-                          background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
-                        }} />
-                      </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {ITEMS_NA_FINISH.map((type) => {
+                        const aan = naFinishTypes.includes(type);
+                        return (
+                          <button key={type} type="button" onClick={() => wisselNaFinish(type)}
+                            title={`${ITEM_UITLEG[type] ?? type}${aan ? " (mag na de finish)" : ""}`}
+                            style={{
+                              width: 40, height: 40, borderRadius: 8, cursor: "pointer", padding: 0,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              border: `1px solid ${aan ? "rgba(34,197,94,0.7)" : "rgba(255,255,255,0.12)"}`,
+                              background: aan ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+                            }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={`/items/${type}.png`} alt={type} style={{ width: 26, height: 26, opacity: aan ? 1 : 0.35, filter: aan ? "none" : "grayscale(1)" }} />
+                          </button>
+                        );
+                      })}
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      {route.items_na_finish
-                        ? "Gefinishte teams zetten hun items nog in op teams die onderweg zijn, tot de uitslag vrij is."
-                        : "Items vervallen bij de finish."}
+                      {naFinishTypes.length
+                        ? "Groen = mag een gefinisht team nog inzetten, tot de uitslag vrij is. De rest vervalt bij de finish."
+                        : "Tik items aan die na de finish nog mogen. Nu vervalt alles bij de finish."}
                     </span>
                   </div>
                 )}

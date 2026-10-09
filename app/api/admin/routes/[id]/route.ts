@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { schoonStartitems } from "@/lib/startitems";
+import { ITEMS_NA_FINISH } from "@/lib/item-sessie";
 
 async function checkAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -36,6 +37,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (typeof body.items_na_finish === "boolean") toegestaan.items_na_finish = body.items_na_finish;
+  if (Array.isArray(body.items_na_finish_types)) {
+    // Keuze per item; de oude schakelaar staat aan zolang er minstens één item aan staat
+    toegestaan.items_na_finish_types = ITEMS_NA_FINISH.filter((t) => body.items_na_finish_types.includes(t));
+    toegestaan.items_na_finish = (toegestaan.items_na_finish_types as string[]).length > 0;
+  }
   if ("startitems" in body) toegestaan.startitems = schoonStartitems(body.startitems);
   if (Array.isArray(body.omgekeerde_teams)) {
     toegestaan.omgekeerde_teams = [...new Set(body.omgekeerde_teams.filter((n: unknown) => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 50))];

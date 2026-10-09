@@ -123,6 +123,7 @@ supabase/migrations/032_itemlog_plek.sql
 supabase/migrations/033_items_na_finish.sql
 supabase/migrations/034_startitems_instelbaar.sql
 supabase/migrations/035_omgekeerde_teams.sql
+supabase/migrations/036_items_na_finish_per_item.sql
 ```
 
 ### Starten

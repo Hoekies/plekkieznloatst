@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import FinishScherm from "@/components/speler/FinishScherm";
+import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 
 export default async function FinishPage() {
@@ -133,7 +134,7 @@ export default async function FinishPage() {
       initLeaderboard={uitslagVrij ? initLeaderboard : []}
       uitslagVrij={uitslagVrij}
       wachtendeFotos={wachtendeFotos ?? 0}
-      itemsNaFinish={!!route.items_na_finish && !uitslagVrij}
+      itemsNaFinish={itemsNaFinishVan(route).length > 0 && !uitslagVrij}
       waarden={{
         ster: route.ster_waarde ?? 50,
         bom: route.bom_waarde ?? 30,
