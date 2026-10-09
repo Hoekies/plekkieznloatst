@@ -13,6 +13,20 @@ import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
+// Korte uitleg per item (tooltip in de editor)
+const ITEM_UITLEG: Record<string, string> = {
+  ster: "Ster: het team krijgt meteen extra punten (sterwaarde).",
+  verdubbeling: "Verdubbeling: de volgende vraag met punten telt dubbel.",
+  radar: "Radar: 2 minuten zien waar de andere teams lopen.",
+  bom: "Bom: een tegenstander verliest punten (bomwaarde).",
+  spook: "Spook: het volgende punt van een tegenstander verdwijnt een tijdje.",
+  dief: "Dief: de punten van het volgende goede antwoord van een tegenstander gaan naar dit team.",
+  banaan: "Banaan: het volgende punt van een tegenstander ruilt met het punt daarna.",
+  wissel: "Wissel: het team ruilt zijn score met een tegenstander.",
+  vraagteken: "Vraagteken: een gok, van een jackpot tot punten kwijt.",
+  plekzooi: "Plek zooi: onzichtbare val; wie erin loopt, staat even stil.",
+};
+
 type RouteMetPunten = Route & {
   route_points: (RoutePunt & { questions?: {
     id: string; points?: number; type?: string; question_text?: string | null;
@@ -1335,7 +1349,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                             display: "flex", alignItems: "center", gap: 4, padding: "3px 4px 3px 3px", borderRadius: 8,
                             border: `1px solid ${n > 0 ? "rgba(34,197,94,0.55)" : "rgba(255,255,255,0.12)"}`,
                             background: n > 0 ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.04)",
-                          }} title={type}>
+                          }} title={ITEM_UITLEG[type] ?? type}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={`/items/${type}.png`} alt={type} style={{ width: 24, height: 24, flexShrink: 0 }} />
                             <button type="button" onClick={() => wijzigStartitem(type, -1)} disabled={n === 0}
@@ -1613,7 +1627,7 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
           const gekozen = type === t;
           const uit = alleenPlekzooi && t !== "plekzooi";
           return (
-            <button key={t} type="button" disabled={uit} title={t}
+            <button key={t} type="button" disabled={uit} title={ITEM_UITLEG[t] ?? t}
               onClick={() => { if (!gekozen) onOpslaan({ type: t, points_effect: t === "ster" ? 50 : 0, name: t === "plekzooi" ? "Plek zooi" : "Speciaal item" }); }}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
