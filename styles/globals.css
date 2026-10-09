@@ -857,7 +857,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
    paneel "afstand, tijd & punten" rechtsboven (op mobiel een paneel van onderen) */
 .route-editor-drawer {
   position: absolute;
-  left: 58px; top: 12px;
+  left: 358px; top: 12px; /* standaard op de kaart: naast het linkerpaneel (300px) en de zoomknoppen */
   width: 310px; max-height: calc(100% - 24px);
   z-index: 500;
   background: rgba(8,28,48,0.9);
@@ -871,7 +871,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   overflow-y: auto;
 }
 .editor-paneel-inhoud { display: flex; flex-direction: column; gap: 9px; padding: 8px 12px 12px; color: var(--ink); }
-.editor-paneel-kop { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #fff; }
+.editor-paneel-kop { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #fff; cursor: move; user-select: none; touch-action: none; }
+.editor-paneel-kop::after { content: "⠿"; order: -1; color: var(--muted); font-size: 0.9rem; margin-right: -2px; }
+.editor-paneel-inhoud button { user-select: none; }
+@media (max-width: 768px) {
+  .editor-paneel-kop { cursor: default; }
+  .editor-paneel-kop::after { content: none; }
+  .route-editor-drawer { left: 0 !important; top: auto !important; }
+}
 .editor-paneel-sluit {
   margin-left: auto; width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--muted); font-size: 0.85rem;

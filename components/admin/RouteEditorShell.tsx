@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
@@ -174,6 +174,41 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
   const [openTeamRoutes, setOpenTeamRoutes] = useState<Set<number>>(new Set());
+  // Rondje-instellingen (teams, afstand, genereren): dicht zodra er punten staan
+  const [rondjeOpen, setRondjeOpen] = useState(false);
+
+  // Bewerkpaneel versleepbaar aan de kop; de plek wordt onthouden (alleen op een groot scherm)
+  const paneelRef = useRef<HTMLDivElement>(null);
+  const [paneelPlek, setPaneelPlek] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    try {
+      const p = JSON.parse(localStorage.getItem("pr_editor_paneel_plek") ?? "null");
+      if (p && typeof p.x === "number" && typeof p.y === "number") setPaneelPlek(p);
+    } catch { /* geen opslag */ }
+  }, []);
+  function startPaneelSlepen(e: React.PointerEvent<HTMLDivElement>) {
+    const doel = e.target as HTMLElement;
+    if (!doel.closest(".editor-paneel-kop") || doel.closest("button") || window.innerWidth <= 768) return;
+    const paneel = paneelRef.current, ouder = paneel?.offsetParent as HTMLElement | null;
+    if (!paneel || !ouder) return;
+    e.preventDefault();
+    const start = { muisX: e.clientX, muisY: e.clientY, x: paneel.offsetLeft, y: paneel.offsetTop };
+    let laatste = { x: start.x, y: start.y };
+    const beweeg = (ev: PointerEvent) => {
+      // Binnen het kaartvlak houden
+      const x = Math.min(Math.max(0, start.x + ev.clientX - start.muisX), ouder.clientWidth - paneel.offsetWidth);
+      const y = Math.min(Math.max(0, start.y + ev.clientY - start.muisY), ouder.clientHeight - 40);
+      laatste = { x, y };
+      setPaneelPlek(laatste);
+    };
+    const los = () => {
+      window.removeEventListener("pointermove", beweeg);
+      window.removeEventListener("pointerup", los);
+      try { localStorage.setItem("pr_editor_paneel_plek", JSON.stringify(laatste)); } catch { /* geen opslag */ }
+    };
+    window.addEventListener("pointermove", beweeg);
+    window.addEventListener("pointerup", los);
+  }
 
   // Radius en punten staan in de instellingen en gelden voor de hele route.
   // Startwaarde: wat het meest voorkomt bij de bestaande punten/items.
@@ -647,6 +682,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
               return (
                 <>
+                  {/* Staan er punten, dan kan dit blok dicht: één regel als samenvatting */}
+                  {punten.length > 0 && (
+                    <button type="button" onClick={() => setRondjeOpen((v) => !v)}
+                      style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "2px 0", background: "none", border: "none", cursor: "pointer", color: "var(--ink)", fontSize: "0.74rem", fontWeight: 700, textAlign: "left" }}>
+                      🔄 Rondje
+                      <span style={{ color: "var(--muted)", fontWeight: 400 }}>
+                        {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
+                      </span>
+                      <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{rondjeOpen ? "▾" : "▸"}</span>
+                    </button>
+                  )}
+                  {(rondjeOpen || punten.length === 0) && (
+                    <>
                   {/* Teams input */}
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal teams:</span>
@@ -722,6 +770,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <div style={{ color: "rgba(0,217,255,0.7)" }}>⬤ Cirkel op kaart = aanbevolen afstand</div>
                     )}
                   </div>
+
+                    </>
+                  )}
 
                   {/* Looproute per team, in dezelfde kleur als op de kaart */}
                   {teamRoutes.length > 0 && (
@@ -1448,7 +1499,8 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
 
         {/* Rechter bewerkdrawer — op mobiel een bottom-sheet */}
         {(geselecteerd || (geselecteerdSpeciaal && !geselecteerd)) && (
-          <div className="route-editor-drawer">
+          <div className="route-editor-drawer" ref={paneelRef} onPointerDown={startPaneelSlepen}
+            style={paneelPlek ? { left: paneelPlek.x, top: paneelPlek.y } : undefined}>
             {geselecteerd && (
               <PuntForm
                 punt={geselecteerd}
