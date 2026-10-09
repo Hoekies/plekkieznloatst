@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import { startitemsVan } from "@/lib/startitems";
+import { kiesInstappunten } from "@/lib/instappunten";
 
 async function getSpeler() {
   const supabase = await createServerSupabaseClient();
@@ -102,24 +103,13 @@ export async function POST() {
       const hubEind = punten[punten.length - 1];
       const middenpunten = punten.slice(1, -1);
 
-      // Bereken cumulatieve afstand over middenpunten
-      const cumulatief = [0];
-      for (let i = 1; i < middenpunten.length; i++) {
-        cumulatief.push(
-          cumulatief[i - 1] +
-          haversine(middenpunten[i - 1].latitude, middenpunten[i - 1].longitude,
-                    middenpunten[i].latitude,     middenpunten[i].longitude)
-        );
-      }
-      const totalMeters = cumulatief[cumulatief.length - 1];
-      const targetMeters = totalMeters > 0 ? (totalMeters / nTeams) * teamIndex : 0;
-
-      let offset = 0;
-      let minDelta = Infinity;
-      for (let i = 0; i < cumulatief.length; i++) {
-        const delta = Math.abs(cumulatief[i] - targetMeters);
-        if (delta < minDelta) { minDelta = delta; offset = i; }
-      }
+      // Instappunt: zo gekozen dat elk team ongeveer even ver van de startplek begint
+      // (zelfde berekening als het voorbeeld in de route-editor)
+      const offset = kiesInstappunten(
+        { lat: hubStart.latitude, lng: hubStart.longitude },
+        middenpunten.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+        nTeams,
+      )[teamIndex] ?? 0;
 
       const volgorde = [
         { session_id: sessie.id, volgorde: 1, route_point_id: hubStart.id },

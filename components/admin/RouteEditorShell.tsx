@@ -9,6 +9,7 @@ import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { naamUitVraag, isStandaardNaam } from "@/lib/punt-naam";
+import { kiesInstappunten } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -163,13 +164,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
     const totalM = cumulatief[cumulatief.length - 1];
     if (totalM === 0) return [];
+    // Instappunten met ongeveer gelijke aanloop vanaf de startplek (zelfde berekening als in het spel)
+    const instap = kiesInstappunten(
+      { lat: hubStart.latitude, lng: hubStart.longitude },
+      middenpunten.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+      verwachtTeams,
+    );
     return Array.from({ length: verwachtTeams }, (_, k) => {
-      const targetM = (totalM / verwachtTeams) * k;
-      let offset = 0, minDelta = Infinity;
-      cumulatief.forEach((d, i) => {
-        const delta = Math.abs(d - targetM);
-        if (delta < minDelta) { minDelta = delta; offset = i; }
-      });
+      const offset = instap[k] ?? 0;
       // Lus-punt j heeft in de lijst index j+1 en dus nummer j+1 (de start-hub is 🏠, geen nummer).
       // Een team dat "andersom" loopt, gaat vanaf hetzelfde instappunt de andere kant op.
       const andersom = omgekeerdeTeams.includes(k + 1);
