@@ -1,6 +1,6 @@
-// Items die een beheerder als startitem kan geven (plek zooi is een val en een vraagteken
-// wordt meteen gespeeld: die komen nooit in de balk)
-export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "verdubbeling", "radar", "ster"] as const;
+// Items die een beheerder als startitem kan geven. Niet: plek zooi (een val), vraagteken
+// (wordt meteen gespeeld) en ster (punten worden meteen bijgeschreven): die komen nooit in de balk
+export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "verdubbeling", "radar"] as const;
 export const MAX_PER_STARTITEM = 5;
 
 // Ingestelde startitems van een route; zonder instelling: Sequentieel één banaan, anders niets

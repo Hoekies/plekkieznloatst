@@ -216,7 +216,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }));
   }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
-  const [openTeamRoutes, setOpenTeamRoutes] = useState<Set<number>>(new Set());
 
   // Standaardnamen ("Punt 8") volgen het nummer op de kaart, ook na verschuiven of verwijderen.
   // Zelfgekozen namen blijven staan.
@@ -235,6 +234,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [volgordeSleutel, route.modus]);
   // Rondje-instellingen (teams, afstand, genereren): dicht zodra er punten staan
   const [rondjeOpen, setRondjeOpen] = useState(false);
+  // Uitleg "tik op de kaart…" zit achter een ⓘ
+  const [tikUitlegOpen, setTikUitlegOpen] = useState(false);
   const [adviesOpen, setAdviesOpen] = useState(false);
 
   // Bewerkpaneel versleepbaar aan de kop; de plek wordt onthouden (alleen op een groot scherm)
@@ -870,34 +871,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {teamRoutes.length > 0 && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "0.7rem" }}>
                       {teamRoutes.map((t) => {
-                        const open = openTeamRoutes.has(t.teamIndex);
+                        const open = uitgelichtTeam === t.teamIndex;
                         return (
-                          <div key={t.teamIndex}>
-                            {/* Per team inklapbaar: standaard alleen de kop */}
-                            <button type="button"
-                              onClick={() => {
-                                const wordtOpen = !openTeamRoutes.has(t.teamIndex);
-                                setOpenTeamRoutes((s) => { const n = new Set(s); if (n.has(t.teamIndex)) n.delete(t.teamIndex); else n.add(t.teamIndex); return n; });
-                                setUitgelichtTeam(wordtOpen ? t.teamIndex : (uitgelichtTeam === t.teamIndex ? null : uitgelichtTeam));
-                              }}
-                              style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 0", background: "none", border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left" }}>
-                              <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
-                              <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
-                              <span style={{ color: "var(--muted)" }}>start bij punt {t.nummers[0]} · {t.nummers.length} punten{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺ andersom" : ""}</span>
-                              <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{open ? "▾" : "▸"}</span>
-                            </button>
-                            {open && (
-                              <div style={{ paddingLeft: 16, color: "var(--text)", lineHeight: 1.5, paddingBottom: 4 }}>
-                                🏠 → {t.nummers.join(" → ")} → 🏁
-                                <button type="button" onClick={() => wisselAndersom(t.teamIndex)}
-                                  className={`rl-knop${omgekeerdeTeams.includes(t.teamIndex) ? " rl-knop--cyan" : ""}`}
-                                  style={{ display: "flex", marginTop: 4, height: 28, fontSize: "0.72rem" }}
-                                  title="Dit team loopt het rondje in tegengestelde richting, vanaf hetzelfde instappunt">
-                                  ↺ Andersom lopen: {omgekeerdeTeams.includes(t.teamIndex) ? "aan" : "uit"}
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          // Kort: team en instappunt. Tik = venster op de kaart met de hele looproute
+                          <button key={t.teamIndex} type="button"
+                            onClick={() => setUitgelichtTeam(open ? null : t.teamIndex)}
+                            style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 4px", borderRadius: 6, border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left",
+                              background: open ? "rgba(255,255,255,0.08)" : "none" }}>
+                            <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
+                            <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
+                            <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
+                            <span style={{ marginLeft: "auto", color: "var(--muted)" }}>▸</span>
+                          </button>
                         );
                       })}
                     </div>
@@ -1000,12 +985,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               }}>
               ⭐ Items ({specialeItems.length})
             </button>
+            {/* Toevoegen gaat via de kaart: uitleg achter de ⓘ */}
+            <button type="button" onClick={() => setTikUitlegOpen((v) => !v)} title="Tik op de kaart om toe te voegen · sleep om te verplaatsen" aria-expanded={tikUitlegOpen}
+              style={{ alignSelf: "center", margin: "0 10px 0 4px", width: 22, height: 22, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
+                border: `1px solid ${tikUitlegOpen ? "#FFE680" : "rgba(255,255,255,0.25)"}`, background: tikUitlegOpen ? "rgba(255,217,59,0.15)" : "transparent",
+                color: tikUitlegOpen ? "#FFE680" : "var(--muted)", fontWeight: 800, fontSize: "0.75rem", fontStyle: "italic", fontFamily: "Georgia, serif" }}>
+              i
+            </button>
           </div>
-
-          {/* Toevoegen gaat via de kaart: tik op een plek en kies wat het wordt */}
-          <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
-            👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen
-          </div>
+          {tikUitlegOpen && (
+            <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
+              👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen
+            </div>
+          )}
 
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
@@ -1540,6 +1532,36 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             ☰ Lijst
           </button>
         )}
+
+        {/* Looproute van één team: venster op de kaart, sluiten met de X */}
+        {(() => {
+          const t = teamRoutes.find((r) => r.teamIndex === uitgelichtTeam);
+          if (!t) return null;
+          const andersom = omgekeerdeTeams.includes(t.teamIndex);
+          return (
+            <div style={{
+              // Rechtsonder, zodat het tijdenpaneel rechtsboven zichtbaar blijft
+              position: "absolute", bottom: 28, right: 12, zIndex: 500, width: 260, maxHeight: "calc(100% - 24px)", overflowY: "auto",
+              background: "rgba(8,28,48,0.92)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+              border: `1px solid ${t.kleur}`, borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+              padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8, fontSize: "0.78rem", color: "var(--text)",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 12, height: 12, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
+                <span style={{ color: t.kleur, fontWeight: 800, fontSize: "0.9rem" }}>Team {t.teamIndex}</span>
+                <button type="button" className="editor-paneel-sluit" onClick={() => setUitgelichtTeam(null)} title="Sluiten">✕</button>
+              </div>
+              <div style={{ color: "var(--muted)" }}>Start bij punt {t.nummers[0]} · {t.nummers.length} punten{andersom ? " · ↺ andersom" : ""}</div>
+              <div style={{ lineHeight: 1.6 }}>🏠 → {t.nummers.join(" → ")} → 🏁</div>
+              <button type="button" onClick={() => wisselAndersom(t.teamIndex)}
+                className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`}
+                style={{ display: "flex", height: 28, fontSize: "0.72rem" }}
+                title="Dit team loopt het rondje in tegengestelde richting, vanaf hetzelfde instappunt">
+                ↺ Andersom lopen: {andersom ? "aan" : "uit"}
+              </button>
+            </div>
+          );
+        })()}
 
         {/* Kaart */}
         <LeafletKaart

@@ -821,7 +821,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* ── Route-editor: zijpaneel + edit-drawer (mobiel: overlay i.p.v. vaste kolommen) ── */
 .route-editor-zijpaneel {
-  width: 300px;
+  width: 260px;
   flex-shrink: 0;
   background: rgba(8,28,48,0.82);
   backdrop-filter: blur(18px);
@@ -857,7 +857,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
    paneel "afstand, tijd & punten" rechtsboven (op mobiel een paneel van onderen) */
 .route-editor-drawer {
   position: absolute;
-  left: 358px; top: 12px; /* standaard op de kaart: naast het linkerpaneel (300px) en de zoomknoppen */
+  left: 318px; top: 12px; /* standaard op de kaart: naast het linkerpaneel (260px) en de zoomknoppen */
   width: 310px; max-height: calc(100% - 24px);
   z-index: 500;
   background: rgba(8,28,48,0.9);
