@@ -234,7 +234,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
 
             <div className="form-group">
               <label className="form-label">Vraagstelling</label>
-              <textarea className="form-textarea" value={tekst} onChange={(e) => setTekst(e.target.value)}
+              <textarea className="form-textarea" spellCheck lang="nl" value={tekst} onChange={(e) => setTekst(e.target.value)}
                 placeholder="Typ hier de vraag…" required style={{ minHeight: 80 }} />
             </div>
 
@@ -280,7 +280,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                         color: LABEL_KLEUR[ant.color], flexShrink: 0, textTransform: "capitalize",
                       }}>{ant.color}</span>
                       {type === "meerkeuze_tekst" ? (
-                        <input className="form-input" style={{ flex: 1, fontSize: "0.88rem" }}
+                        <input className="form-input" spellCheck lang="nl" style={{ flex: 1, fontSize: "0.88rem" }}
                           value={ant.text}
                           onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
                           placeholder={`Antwoord ${ant.color}`} />
@@ -319,7 +319,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
                 {!isNumeriek ? (
                   <div className="form-group">
                     <label className="form-label">Correcte antwoorden (één per regel, hoofdletterongevoelig)</label>
-                    <textarea className="form-textarea" value={openAntwoorden}
+                    <textarea className="form-textarea" spellCheck lang="nl" value={openAntwoorden}
                       onChange={(e) => setOpenAntwoorden(e.target.value)}
                       placeholder={"Amsterdam\namsterdam\nAmsterDAM"} style={{ minHeight: 90 }} />
                   </div>

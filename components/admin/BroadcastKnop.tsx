@@ -43,6 +43,8 @@ export default function BroadcastKnop() {
             </p>
             <textarea
               className="form-textarea"
+              spellCheck
+              lang="nl"
               placeholder="Bijv. Over 5 minuten pauze bij de vijver!"
               value={tekst}
               onChange={(e) => setTekst(e.target.value)}

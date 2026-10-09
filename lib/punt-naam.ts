@@ -1,11 +1,11 @@
-// Bedenkt een korte puntnaam uit de vraag (voor de admin-lijst, de kaart en het terugkijken).
-// Spelers zien de naam van een vraagpunt niet tijdens het spel, dus het antwoord verraadt niets.
+// Bedenkt een korte puntnaam uit de vraag (voorstel via de 💡-knop in de route-editor).
 
 const STOPWOORDEN = new Set([
   "de", "het", "een", "van", "in", "op", "met", "en", "of", "is", "zijn", "wat", "wie", "welk", "welke",
   "waar", "hoe", "hoeveel", "wanneer", "waarom", "we", "wij", "je", "jij", "jullie", "u", "dit", "deze",
   "die", "dat", "er", "noem", "maak", "neem", "foto", "1", "één", "tot", "voor", "bij", "naar", "aan",
   "werden", "werd", "staat", "staan", "heet", "heten", "hier", "daar", "graag", "had", "hebben", "heeft",
+  "gehad", "kun", "kunnen", "kan", "jou", "jouw", "ons", "onze", "zie", "ziet", "zien", "vind", "vindt", "gaat", "nog",
 ]);
 
 // Standaardnamen die de app zelf geeft; alleen die worden automatisch vervangen
@@ -30,6 +30,8 @@ function kernUitVraag(vraag: string): string | null {
   return kern.slice(-2).join(" ");
 }
 
+// Naamvoorstel: een kernwoord uit de vraag ("Welke gemeente zijn we?" → "Gemeente").
+// Alleen als de vraag niets bruikbaars oplevert, het goede antwoord als reserve.
 export function naamUitVraag(v: {
   type: string;
   question_text?: string | null;
@@ -37,14 +39,8 @@ export function naamUitVraag(v: {
   numeric_answer?: number | null;
   answer_options?: { text?: string | null; is_correct?: boolean }[] | null;
 }): string | null {
-  if (v.type === "meerkeuze_tekst" || v.type === "meerkeuze_afbeelding") {
-    const goed = v.answer_options?.find((o) => o.is_correct)?.text;
-    if (goed?.trim() && !isGetal(goed)) return netjes(goed);
-  }
-  if (v.type === "open" && v.numeric_answer == null) {
-    const goed = v.correct_text_answers?.find((a) => a?.trim());
-    if (goed && !isGetal(goed)) return netjes(goed);
-  }
   const kern = v.question_text ? kernUitVraag(v.question_text) : null;
-  return kern ? netjes(kern) : null;
+  if (kern) return netjes(kern);
+  const goed = v.answer_options?.find((o) => o.is_correct)?.text ?? v.correct_text_answers?.find((a) => a?.trim());
+  return goed?.trim() && !isGetal(goed) ? netjes(goed) : null;
 }

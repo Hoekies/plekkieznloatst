@@ -1679,7 +1679,7 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, naamV
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Naam</label>
         <div style={{ display: "flex", gap: 6 }}>
-          <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem", flex: 1, minWidth: 0 }} />
+          <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem", flex: 1, minWidth: 0 }} />
           {/* Naamvoorstel uit de vraag: alleen invullen als je erop klikt */}
           {naamVoorstel && naamVoorstel !== naam && (
             <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
@@ -1689,7 +1689,7 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, naamV
       </div>
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Beschrijving</label>
-        <textarea className="form-textarea" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 48 }} />
+        <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 48 }} />
       </div>
       {!alleenVraag && (
         <div className="form-group" style={{ margin: 0 }}>
