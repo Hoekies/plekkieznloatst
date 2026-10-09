@@ -518,6 +518,27 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     await herlaadPunten();
   }
 
+  // Slepen in de puntenlijst: een punt in één keer naar een andere plek
+  const [sleepId, setSleepId] = useState<string | null>(null);
+  const [sleepDoel, setSleepDoel] = useState<number | null>(null);
+  async function verplaatsNaar(id: string, doel: number) {
+    const van = punten.findIndex((p) => p.id === id);
+    if (van < 0 || van === doel) return;
+    const lijst = [...punten];
+    const [punt] = lijst.splice(van, 1);
+    // Start (verspreid) en finish blijven vast op de eerste en laatste plek
+    const hub = route.modus === "verspreid" && punten.length >= 3;
+    const laag = hub ? 1 : 0;
+    const laatsteIsEind = lijst[lijst.length - 1]?.type === "eindpunt";
+    const hoog = laatsteIsEind || hub ? lijst.length - 1 : lijst.length;
+    lijst.splice(Math.min(Math.max(doel, laag), hoog), 0, punt);
+    setPunten(lijst);
+    await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ volgorde: lijst.map((p) => p.id) }),
+    });
+  }
+
   async function verplaatsVolgorde(id: string, richting: "omhoog" | "omlaag") {
     const idx = punten.findIndex((p) => p.id === id);
     if (richting === "omhoog" && idx === 0) return;
@@ -989,13 +1010,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
                 // Zelfde kleuren als de markers op de kaart
                 const badgeBg = isHubStart ? "#16A34A" : pt.type === "eindpunt" ? "#F59E0B" : pt.type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
+                // Slepen: start en finish (en een eindpunt achteraan) liggen vast
+                const vast = isHub || (pt.type === "eindpunt" && i === punten.length - 1);
+                const isDoel = sleepId !== null && sleepDoel === i && sleepId !== pt.id;
                 return (
                   <div key={pt.id}
+                    draggable={!vast}
+                    onDragStart={(e) => { setSleepId(pt.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", pt.id); }}
+                    onDragOver={(e) => { if (sleepId) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; if (sleepDoel !== i) setSleepDoel(i); } }}
+                    onDrop={(e) => { e.preventDefault(); if (sleepId) verplaatsNaar(sleepId, i); setSleepId(null); setSleepDoel(null); }}
+                    onDragEnd={() => { setSleepId(null); setSleepDoel(null); }}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                    title={vast ? undefined : "Sleep om de volgorde te veranderen"}
                     style={{
-                      padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7,
+                      padding: "4px 10px", cursor: vast ? "pointer" : "grab", display: "flex", alignItems: "center", gap: 7,
                       background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
                       borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
+                      // Blauwe lijn waar het gesleepte punt terechtkomt
+                      boxShadow: isDoel ? `inset 0 ${(punten.findIndex((p) => p.id === sleepId) < i) ? "-3px" : "3px"} 0 var(--cyan)` : undefined,
+                      opacity: sleepId === pt.id ? 0.4 : 1,
                     }}>
                     <div style={{
                       width: 27, height: 27, borderRadius: "50%", flexShrink: 0,

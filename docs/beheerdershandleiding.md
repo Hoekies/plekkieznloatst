@@ -14,7 +14,7 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 2. Klik op **Nieuwe route**.
 3. Geef de route een naam en **kies het speltype**: Sequentieel, Verspreid of Mist.
 4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Toevoegen gaat altijd via de kaart; een nieuw punt komt vóór de finish in de lijst.)
-5. Herhaal voor alle punten. De volgorde pas je aan met ▲▼ in de lijst.
+5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
    - **Vraag bewerken / toevoegen** — bovenaan, voor de vraag, antwoorden en afbeelding
    - **Naam** — met de knop **💡** ernaast vul je een voorstel in, bedacht uit de vraag of het goede antwoord (spelers zien de naam van een vraagpunt pas na afloop)
