@@ -2,9 +2,10 @@ import type { createAdminClient } from "@/lib/supabase-admin";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-// Items die na de finish nog zin hebben en die de beheerder per stuk kan aanzetten
-// (verdubbeling en radar niet: geen vragen of kaart meer; vraagteken gaat nooit in de balk)
-export const ITEMS_NA_FINISH = ["bom", "spook", "dief", "banaan", "wissel", "ster"];
+// Items die na de finish nog zin hebben en die de beheerder per stuk kan aanzetten: alleen
+// items die je op een team inzet dat nog onderweg is. Niet: verdubbeling en radar (geen vragen
+// of kaart meer), ster (wordt meteen bijgeschreven) en vraagteken (wordt meteen gespeeld).
+export const ITEMS_NA_FINISH = ["bom", "spook", "dief", "banaan", "wissel"];
 
 // Welke items een gefinisht team nog mag inzetten. Zonder keuze per item (oude routes)
 // geldt de oude schakelaar: aan = alle items hierboven.
