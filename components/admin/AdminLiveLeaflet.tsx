@@ -9,9 +9,11 @@ interface Props {
   spelers: SpelerOverzicht[];
   route_punten: RoutePuntKort[];
   speciale_items?: SpeciaalItem[];
+  // Speltype: bij Verspreid is het eerste punt het startpunt (🏠), net als in de route-editor
+  modus?: string | null;
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [] }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);
@@ -95,9 +97,11 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     puntMarkersRef.current.forEach((m) => m.remove());
     puntMarkersRef.current.clear();
 
-    route_punten.forEach((punt) => {
+    // Zelfde nummering als de route-editor: bij Verspreid 🏠 = startpunt en het rondje vanaf 1
+    const hubModus = modus === "verspreid" && route_punten.length >= 3;
+    route_punten.forEach((punt, i) => {
       const isEind = punt.type === "eindpunt";
-      const label = isEind ? "🏁" : String(punt.order_index);
+      const label = isEind ? "🏁" : hubModus && i === 0 ? "🏠" : String(hubModus ? i : i + 1);
       const icon = L.divIcon({
         className: "",
         html: `<div style="
@@ -115,7 +119,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         .addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [route_punten, kaartKlaar]);
+  }, [route_punten, kaartKlaar, modus]);
 
   // Spelermarkers bijwerken
   useEffect(() => {

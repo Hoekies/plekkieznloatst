@@ -8,7 +8,7 @@ import { haversine } from "@/lib/geo";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
-import { naamUitVraag } from "@/lib/punt-naam";
+import { naamUitVraag, isStandaardNaam } from "@/lib/punt-naam";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -214,6 +214,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
   const [openTeamRoutes, setOpenTeamRoutes] = useState<Set<number>>(new Set());
+
+  // Standaardnamen ("Punt 8") volgen het nummer op de kaart, ook na verschuiven of verwijderen.
+  // Zelfgekozen namen blijven staan.
+  const volgordeSleutel = punten.map((p) => `${p.id}:${p.name}`).join("|");
+  useEffect(() => {
+    const hub = route.modus === "verspreid" && punten.length >= 3;
+    const fout = punten
+      .map((p, i) => ({ p, juist: `Punt ${hub ? i : i + 1}`, i }))
+      .filter(({ p, juist, i }) => p.type !== "eindpunt" && !(hub && i === 0) && isStandaardNaam(p.name) && p.name !== juist);
+    if (!fout.length) return;
+    setPunten((ps) => ps.map((p) => fout.find((f) => f.p.id === p.id) ? { ...p, name: fout.find((f) => f.p.id === p.id)!.juist } : p));
+    fout.forEach((f) => fetch(`/api/admin/routes/${route.id}/punten/${f.p.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: f.juist }),
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volgordeSleutel, route.modus]);
   // Rondje-instellingen (teams, afstand, genereren): dicht zodra er punten staan
   const [rondjeOpen, setRondjeOpen] = useState(false);
   const [adviesOpen, setAdviesOpen] = useState(false);
@@ -971,7 +987,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const isHubEind = isVerspreid && i === punten.length - 1;
                 const isHub = isHubStart || isHubEind;
                 const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
-                const badgeBg = isHubStart ? "var(--green)" : pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
+                // Zelfde kleuren als de markers op de kaart
+                const badgeBg = isHubStart ? "#16A34A" : pt.type === "eindpunt" ? "#F59E0B" : pt.type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
                 return (
                   <div key={pt.id}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
@@ -981,10 +998,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
                     }}>
                     <div style={{
-                      width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                      background: badgeBg,
+                      width: 27, height: 27, borderRadius: "50%", flexShrink: 0,
+                      background: badgeBg, border: "2px solid #fff", boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
                       color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "0.68rem", fontWeight: 700,
+                      fontSize: "0.82rem", fontWeight: 800,
                     }}>{badge}</div>
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {pt.name}

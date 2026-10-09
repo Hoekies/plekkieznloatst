@@ -65,7 +65,7 @@ export default function AdminLiveKaart({ initData }: Props) {
       <div style={{ flex: 1, minHeight: 0, position: "relative", padding: 24, display: "flex" }}>
         {/* Kaart */}
         <div style={{ flex: 1, minHeight: 0, display: "flex", borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)" }}>
-          <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} />
+          <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null} />
         </div>
 
         {/* Overlay: spelerslijst */}
