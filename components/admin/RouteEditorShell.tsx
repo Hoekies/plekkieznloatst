@@ -904,7 +904,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     }}>❓</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Vraagpunt · {pt.radius_meters}m</div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
@@ -959,7 +958,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const isHub = isHubStart || isHubEind;
                 const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
                 const badgeBg = isHubStart ? "var(--green)" : pt.type === "eindpunt" ? "var(--gold)" : pt.type === "informatiepunt" ? "var(--cyan)" : "var(--blue)";
-                const typeLabel = isHubStart ? "Startpunt" : isHubEind ? "Finish" : pt.type === "vraagpunt" ? "Vraagpunt" : pt.type === "informatiepunt" ? "Infopunt" : "Eindpunt";
                 return (
                   <div key={pt.id}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
@@ -982,9 +980,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     ) : pt.type === "vraagpunt" ? (
                       <span title="Vraagpunt zonder vraag: spelers krijgen hier alleen informatie" style={{ fontSize: "0.8rem", flexShrink: 0 }}>⚠️</span>
                     ) : null}
-                    <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
-                      {typeLabel} · {pt.radius_meters}m
-                    </span>
                     <div style={{ display: "flex", flexDirection: "row", gap: 0 }}>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === 0 || isHub || (isVerspreid && i === 1)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
@@ -1093,9 +1088,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {item.name}
                     </div>
-                    <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
-                      {item.radius_meters}m{item.claimed && " · gepakt"}
-                    </span>
+                    {item.claimed && (
+                      <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>gepakt</span>
+                    )}
                     <button onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
                   </div>
