@@ -67,6 +67,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [startVraagVanaf, setStartVraagVanaf] = useState<number | null>(null);
   const [startVraagKlaar, setStartVraagKlaar] = useState(false);
   const [andereSpelers, setAndereSpelers] = useState<SpelerLocatie[]>([]);
+  // Items waarmee je een al gefinisht team nog mag raken (instelling van de beheerder)
+  const [doelNaFinish, setDoelNaFinish] = useState<string[]>([]);
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
   const [kmAfgelegd, setKmAfgelegd] = useState(0);
@@ -270,6 +272,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (res.ok) {
         const data = await res.json();
         setAndereSpelers(data.locaties ?? []);
+        setDoelNaFinish(data.doelNaFinish ?? []);
       }
     } catch { /* verbindingsfout */ }
   }
@@ -800,8 +803,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {activeSpeciaalItem && (
         <SpeciaalItemPopup
           item={activeSpeciaalItem}
-          // Gefinishte teams zijn geen tegenstander meer (geen wissel, bom enz. met hen)
-          andereSessies={andereSpelers.filter((s) => !s.gefinisht).map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam }))}
+          // Gefinishte teams alleen met de items die de beheerder voor na de finish heeft aangezet
+          andereSessies={andereSpelers
+            .filter((s) => !s.gefinisht || doelNaFinish.includes(activeSpeciaalItem.type))
+            .map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam, gefinisht: s.gefinisht }))}
           waarden={waarden}
           plek={positie ? { lat: positie.latitude, lng: positie.longitude } : null}
           onVerwerkt={inventarisItemGebruikt}

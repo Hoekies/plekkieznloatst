@@ -1405,28 +1405,44 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {route.modus !== "mist" && (
                   <div className="form-group">
                     <label className="form-label">🎒 Startitems — gratis bij de start</label>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px, 1fr))", gap: 6 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: "6px 6px 6px 0" }}>
                       {STARTITEM_TYPES.map((type) => {
                         const n = startitems[type] ?? 0;
                         return (
-                          <div key={type} style={{
-                            display: "flex", alignItems: "center", gap: 4, padding: "3px 4px 3px 3px", borderRadius: 8,
-                            border: `1px solid ${n > 0 ? "rgba(34,197,94,0.55)" : "rgba(255,255,255,0.12)"}`,
-                            background: n > 0 ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.04)",
-                          }} title={ITEM_UITLEG[type] ?? type}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={`/items/${type}.png`} alt={type} style={{ width: 24, height: 24, flexShrink: 0 }} />
-                            <button type="button" onClick={() => wijzigStartitem(type, -1)} disabled={n === 0}
-                              style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>−</button>
-                            <span style={{ minWidth: 14, textAlign: "center", fontWeight: 700, color: n > 0 ? "var(--green)" : "var(--muted)" }}>{n}</span>
+                          // Tik = er één bij; het rode − haalt er één af
+                          <div key={type} style={{ position: "relative" }}>
                             <button type="button" onClick={() => wijzigStartitem(type, 1)} disabled={n >= MAX_PER_STARTITEM}
-                              style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>+</button>
+                              title={`${ITEM_UITLEG[type] ?? type} Tik = +1 (max ${MAX_PER_STARTITEM}).`}
+                              style={{
+                                width: 40, height: 40, borderRadius: 8, cursor: n >= MAX_PER_STARTITEM ? "default" : "pointer", padding: 0,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                border: `1px solid ${n > 0 ? "rgba(34,197,94,0.7)" : "rgba(255,255,255,0.12)"}`,
+                                background: n > 0 ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+                              }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={`/items/${type}.png`} alt={type} style={{ width: 26, height: 26, opacity: n > 0 ? 1 : 0.35, filter: n > 0 ? "none" : "grayscale(1)" }} />
+                            </button>
+                            {n > 0 && (
+                              <>
+                                <span style={{
+                                  position: "absolute", top: -6, right: -6, minWidth: 17, height: 17, borderRadius: 9, padding: "0 4px",
+                                  background: "var(--green)", color: "#06240f", fontSize: "0.7rem", fontWeight: 800,
+                                  display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none",
+                                }}>{n}</span>
+                                <button type="button" onClick={() => wijzigStartitem(type, -1)} title="Eén minder"
+                                  style={{
+                                    position: "absolute", bottom: -6, right: -6, width: 17, height: 17, borderRadius: 9, padding: 0,
+                                    border: "none", background: "#ef4444", color: "#fff", fontSize: "0.8rem", fontWeight: 800, lineHeight: 1,
+                                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                                  }}>−</button>
+                              </>
+                            )}
                           </div>
                         );
                       })}
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Elk team krijgt dit bij de start in de balk.
+                      Tik op een item voor +1; elk team krijgt dit bij de start in de balk.
                     </span>
                   </div>
                 )}
@@ -1455,7 +1471,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
                       {naFinishTypes.length
-                        ? "Groen = mag een gefinisht team nog inzetten, tot de uitslag vrij is. De rest vervalt bij de finish."
+                        ? "Groen = mag na de finish nog, tot de uitslag vrij is. Een gefinisht team inzetten én raken (bom, wissel); de rest vervalt bij de finish."
                         : "Tik items aan die na de finish nog mogen. Nu vervalt alles bij de finish."}
                     </span>
                   </div>

@@ -36,7 +36,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.ster_waarde === "number" && body.ster_waarde >= 0) toegestaan.ster_waarde = body.ster_waarde;
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
-  if (typeof body.items_na_finish === "boolean") toegestaan.items_na_finish = body.items_na_finish;
   if (Array.isArray(body.items_na_finish_types)) {
     // Keuze per item; de oude schakelaar staat aan zolang er minstens één item aan staat
     toegestaan.items_na_finish_types = ITEMS_NA_FINISH.filter((t) => body.items_na_finish_types.includes(t));

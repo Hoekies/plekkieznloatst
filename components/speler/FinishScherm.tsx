@@ -64,7 +64,8 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
   const [score, setScore] = useState(initScore);
   // Items die na de finish nog ingezet mogen worden (tot de uitslag vrij is)
   const [items, setItems] = useState<SpeciaalItem[]>([]);
-  const [tegenstanders, setTegenstanders] = useState<{ session_id: string; teamnaam: string }[]>([]);
+  const [tegenstanders, setTegenstanders] = useState<{ session_id: string; teamnaam: string; gefinisht: boolean }[]>([]);
+  const [doelNaFinish, setDoelNaFinish] = useState<string[]>([]);
   const [actiefItem, setActiefItem] = useState<SpeciaalItem | null>(null);
   const [itemMelding, setItemMelding] = useState<string | null>(null);
 
@@ -73,8 +74,9 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
       const [inv, loc] = await Promise.all([fetch("/api/speler/speciaal/inventaris"), fetch("/api/speler/locaties")]);
       if (inv.ok) setItems(await inv.json());
       if (loc.ok) {
-        const { locaties } = await loc.json() as { locaties: SpelerLocatie[] };
-        setTegenstanders((locaties ?? []).filter((l) => !l.gefinisht).map((l) => ({ session_id: l.session_id, teamnaam: l.teamnaam })));
+        const { locaties, doelNaFinish: dnf } = await loc.json() as { locaties: SpelerLocatie[]; doelNaFinish?: string[] };
+        setTegenstanders((locaties ?? []).map((l) => ({ session_id: l.session_id, teamnaam: l.teamnaam, gefinisht: l.gefinisht })));
+        setDoelNaFinish(dnf ?? []);
       }
     } catch { /* verbindingsfout */ }
   }
@@ -187,7 +189,7 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
             </div>
             <p style={{ margin: "4px 0 10px", fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.45 }}>
               Zet ze in op teams die nog onderweg zijn, zolang de uitslag nog niet bekend is.
-              {tegenstanders.length === 0 && " Op dit moment is er niemand meer onderweg."}
+              {!tegenstanders.some((t) => !t.gefinisht) && " Op dit moment is er niemand meer onderweg."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {items.map((it) => (
@@ -217,7 +219,7 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
           <SpeciaalItemPopup
             item={actiefItem}
             waarden={waarden}
-            andereSessies={tegenstanders}
+            andereSessies={tegenstanders.filter((t) => !t.gefinisht || doelNaFinish.includes(actiefItem.type))}
             onVerwerkt={(itemId, notificatie) => {
               setActiefItem(null);
               setItems((prev) => prev.filter((i) => i.id !== itemId));

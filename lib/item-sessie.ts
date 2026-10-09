@@ -14,6 +14,14 @@ export function itemsNaFinishVan(route: { items_na_finish?: boolean | null; item
   return route.items_na_finish ? ITEMS_NA_FINISH : [];
 }
 
+// Items die een gefinisht team nog raken: alleen wat de beheerder voor na de finish heeft
+// aangezet, en alleen als het iets doet (spook, dief en banaan werken op punten die nog komen)
+const RAAKT_GEFINISHT = ["bom", "wissel"];
+export function doelwitNaFinishVan(route: Parameters<typeof itemsNaFinishVan>[0] & { uitslag_vrijgegeven?: boolean | null }): string[] {
+  if (!route || route.uitslag_vrijgegeven) return [];
+  return itemsNaFinishVan(route).filter((t) => RAAKT_GEFINISHT.includes(t));
+}
+
 // De sessie waarmee een speler items mag inzetten: het lopende spel, of — als de route
 // items na de finish toestaat — het afgeronde spel zolang de uitslag nog niet is vrijgegeven.
 // Na de finish staat in `toegestaan` welke soorten nog mogen.

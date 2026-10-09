@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { doelwitNaFinishVan } from "@/lib/item-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
 
@@ -117,5 +118,7 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ locaties });
+  // Welke items gefinishte teams nog mogen raken (instelling "items na de finish")
+  const { data: routeInst } = await admin.from("routes").select("*").eq("id", eigenSessie.route_id).maybeSingle();
+  return NextResponse.json({ locaties, doelNaFinish: doelwitNaFinishVan(routeInst) });
 }

@@ -115,7 +115,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 - Tik op een item in de balk om het in te zetten.
 - Bij Bom, Spook, Dief, Banaan en Wissel kies je daarna een **tegenstander**.
 - Je mag items bewaren voor later; elk item gebruik je één keer.
-- Ben je gefinisht, dan vervallen de items die je nog in je balk had — behalve de items die de organisatie voor na de finish heeft aangezet: die kun je op je finishscherm nog inzetten op teams die onderweg zijn, tot de uitslag bekend is. Teams die al gefinisht zijn, kun je niet meer als tegenstander kiezen.
+- Ben je gefinisht, dan vervallen de items die je nog in je balk had — behalve de items die de organisatie voor na de finish heeft aangezet: die kun je op je finishscherm nog inzetten op teams die onderweg zijn, tot de uitslag bekend is. Teams die al gefinisht zijn (🏁), kun je alleen nog raken met een bom of wissel, en alleen als de organisatie die voor na de finish heeft aangezet.
 - Heb je meerdere van hetzelfde item, dan staat er een getal bij.
 
 ### Meldingen

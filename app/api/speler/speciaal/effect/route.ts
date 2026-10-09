@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
-import { haalItemSessie } from "@/lib/item-sessie";
+import { haalItemSessie, doelwitNaFinishVan } from "@/lib/item-sessie";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -54,15 +54,28 @@ export async function POST(request: NextRequest) {
     if (target_session_id === eigenSessie.id) return NextResponse.json({ fout: "Je kunt jezelf niet targeten" }, { status: 400 });
   }
 
+  // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
+  const { data: routeWaarden } = await admin
+    .from("routes")
+    .select("*") // "*": een ontbrekende kolom laat anders de hele query mislukken
+    .eq("id", eigenSessie.route_id)
+    .maybeSingle();
+
+  // Doel: een team dat nog onderweg is, of een gefinisht team — dat laatste alleen met
+  // de items die de beheerder voor na de finish heeft aangezet (tot de uitslag vrij is)
   let doelSessie: { id: string; score: number; player_id: string } | null = null;
   if (TYPES_MET_DOEL.has(item.type)) {
     const { data: ds } = await admin
       .from("player_sessions")
-      .select("id, score, player_id")
+      .select("id, score, player_id, status")
       .eq("id", target_session_id)
-      .eq("status", "actief")
+      .eq("route_id", eigenSessie.route_id)
+      .in("status", ["actief", "voltooid"])
       .maybeSingle();
     if (!ds) return NextResponse.json({ fout: "Deze tegenstander speelt niet meer mee" }, { status: 400 });
+    if (ds.status === "voltooid" && !doelwitNaFinishVan(routeWaarden).includes(item.type)) {
+      return NextResponse.json({ fout: "Dit team is al gefinisht: dit item kun je niet meer op hen inzetten" }, { status: 400 });
+    }
     doelSessie = ds;
   }
 
@@ -78,12 +91,6 @@ export async function POST(request: NextRequest) {
   const aanvallerNaam = teamNaam(speler.id, "Onbekend team");
   const doelNaam = teamNaam(doelSessie?.player_id, "de tegenstander");
 
-  // Route-niveau waarden ophalen voor ster/bom/vraagteken/spook
-  const { data: routeWaarden } = await admin
-    .from("routes")
-    .select("*") // "*": een ontbrekende kolom laat anders de hele query mislukken
-    .eq("id", eigenSessie.route_id)
-    .maybeSingle();
   const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;
   const routeBomWaarde = routeWaarden?.bom_waarde ?? item.points_effect ?? 30;
 
