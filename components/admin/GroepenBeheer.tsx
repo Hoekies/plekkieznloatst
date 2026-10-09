@@ -77,7 +77,7 @@ export default function GroepenBeheer() {
   }
 
   async function stopSpel(id: string, naam: string) {
-    if (!confirm(`Het spel van ${naam} stoppen?\nHun score en voortgang vervallen; bij opnieuw starten beginnen ze een nieuw spel.`)) return;
+    if (!confirm(`Het spel van ${naam} stoppen?\nScore en voortgang vervallen.`)) return;
     const res = await fetch(`/api/admin/groepen/${id}/spel-stoppen`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { alert(data.fout ?? "Stoppen mislukt"); return; }
@@ -123,7 +123,7 @@ export default function GroepenBeheer() {
       {toonTemplate && (
         <div className="card" style={{ border: "1px solid var(--glass-border)" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 8 }}>
-            Standaard WhatsApp-berichttekst. De korte handleiding gaat mee als afbeelding (via het deelmenu op telefoon of Windows) of anders als link onder het bericht.
+            Tekst voor WhatsApp. De handleiding gaat mee als afbeelding (of als link).
           </p>
           <textarea
             className="form-textarea"
@@ -211,14 +211,14 @@ export default function GroepenBeheer() {
                     </button>
                     {g.active_device_id && (
                       <button className="rl-knop" onClick={() => resetApparaat(g.id)}
-                        title="Apparaat resetten: ontkoppelt het toestel zodat de groep elders opnieuw kan inloggen">
+                        title="Toestel ontkoppelen, zodat de groep elders kan inloggen">
                         🔓 Apparaat
                       </button>
                     )}
                     {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
                     {g.active_device_id && (
                       <button className="rl-knop rl-knop--rood" onClick={() => logGroepUit(g.id)}
-                        title="Logt de groep uit; hun spel blijft staan en ze kunnen verder na opnieuw inloggen">
+                        title="Uitloggen; het spel blijft staan">
                         🚪 Uitloggen
                       </button>
                     )}

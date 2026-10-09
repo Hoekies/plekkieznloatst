@@ -258,8 +258,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
               <div className="card">
                 <h3 style={{ marginBottom: 16 }}>Antwoorden</h3>
                 <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginBottom: 16 }}>
-                  Klik op het rondje om het juiste antwoord te markeren. Bij <strong style={{ color: "var(--text)" }}>punten</strong> kun je per antwoord een eigen
-                  waarde invullen, ook negatief. Leeg laten = het goede antwoord krijgt de punten hierboven, de andere 0.
+                  Rondje = goed antwoord. <strong style={{ color: "var(--text)" }}>Punten</strong> per antwoord mag (ook negatief); leeg = goed krijgt de vraagpunten, fout 0.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {antwoorden.map((ant, i) => (
@@ -365,7 +364,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
               <div>
                 <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 2 }}>📱 QR-code ontgrendeling</div>
                 <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                  Spelers kunnen dit punt ontgrendelen door een QR-code te scannen in plaats van GPS.
+                  Ontgrendelen met een QR-code in plaats van GPS.
                 </div>
               </div>
               <button

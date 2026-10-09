@@ -79,7 +79,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
       <div className="rapport-knoppen" style={{ maxWidth: 860, margin: "0 auto 16px", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
         <button className="rl-knop rl-knop--cyan" onClick={() => window.print()}>🖨️ Opslaan als PDF / afdrukken</button>
         <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-          Kies in het printvenster &quot;Opslaan als PDF&quot;. Wacht even tot alle kaarten geladen zijn.
+          Kies &quot;Opslaan als PDF&quot;. Wacht tot de kaarten geladen zijn.
         </span>
       </div>
 

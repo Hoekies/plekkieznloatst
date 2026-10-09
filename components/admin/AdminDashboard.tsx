@@ -29,7 +29,7 @@ export default function AdminDashboard({ initData }: Props) {
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
     const naam = s.nickname ?? s.login_name;
-    if (!confirm(`Volgende punt van ${naam} vrijgeven?\nDe vraag van dat punt springt bij hen direct open, waar ze ook zijn.`)) return;
+    if (!confirm(`Volgende punt van ${naam} vrijgeven?\nDe vraag gaat bij hen direct open.`)) return;
     const res = await fetch(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
@@ -40,7 +40,7 @@ export default function AdminDashboard({ initData }: Props) {
 
   async function stopSpel(s: SpelerOverzicht) {
     const naam = s.display_name;
-    if (!confirm(`Het spel van ${naam} stoppen?\nHun score en voortgang vervallen; bij opnieuw starten beginnen ze een nieuw spel.`)) return;
+    if (!confirm(`Het spel van ${naam} stoppen?\nScore en voortgang vervallen.`)) return;
     const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
@@ -160,7 +160,7 @@ export default function AdminDashboard({ initData }: Props) {
           <div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>💣 Spel resetten</div>
             <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 2 }}>
-              Wist alle sessies, locaties en voortgang. Groepen en routes blijven behouden.
+              Wist alle spellen en scores. Groepen en routes blijven.
             </div>
           </div>
           <div style={{ flexShrink: 0 }}>

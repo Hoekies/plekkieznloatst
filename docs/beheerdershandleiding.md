@@ -17,7 +17,7 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 5. Herhaal voor alle punten. De volgorde pas je aan met ▲▼ in de lijst.
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
    - **Vraag bewerken / toevoegen** — bovenaan, voor de vraag, antwoorden en afbeelding
-   - **Naam** — zichtbaar voor de speler
+   - **Naam** — met de knop **💡** ernaast vul je een voorstel in, bedacht uit de vraag of het goede antwoord (spelers zien de naam van een vraagpunt pas na afloop)
    - **Type** — knoppen ❓ Vraag, ℹ️ Info of 🏁 Eind
    - Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
 7. Sleep een punt op de kaart om de positie fijn te stellen.

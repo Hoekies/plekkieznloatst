@@ -11,7 +11,7 @@ export default async function RouteEditorPage({ params }: { params: { id: string
   const admin = createAdminClient();
   const { data: route } = await admin
     .from("routes")
-    .select("*, route_points(*, questions(id, points, answer_options(punten)))") // vragen: tonen welke punten een vraag hebben + puntenschatting
+    .select("*, route_points(*, questions(id, points, type, question_text, correct_text_answers, numeric_answer, answer_options(punten, text, is_correct)))") // vragen: ❓-markering, puntenschatting en naamvoorstel
     .eq("id", params.id)
     .order("order_index", { referencedTable: "route_points" })
     .single();

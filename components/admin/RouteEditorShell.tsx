@@ -8,12 +8,17 @@ import { haversine } from "@/lib/geo";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
+import { naamUitVraag } from "@/lib/punt-naam";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
 type RouteMetPunten = Route & {
-  route_points: (RoutePunt & { questions?: { id: string; points?: number; answer_options?: { punten: number | null }[] }[] })[];
+  route_points: (RoutePunt & { questions?: {
+    id: string; points?: number; type?: string; question_text?: string | null;
+    correct_text_answers?: string[] | null; numeric_answer?: number | null;
+    answer_options?: { punten: number | null; text?: string | null; is_correct?: boolean }[];
+  }[] })[];
 };
 
 const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#ec4899", "#14b8a6", "#00d9ff"];
@@ -25,6 +30,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Welke punten een vraag hebben (de pagina laadt opnieuw na het bewerken van een vraag)
   const [vraagPuntIds] = useState(() => new Set(
     (initRoute.route_points ?? []).filter((p) => (p.questions?.length ?? 0) > 0).map((p) => p.id),
+  ));
+  // Naamvoorstel per punt, bedacht uit de vraag of het goede antwoord (knop 💡 in het puntpaneel)
+  const [naamVoorstellen] = useState(() => new Map(
+    (initRoute.route_points ?? []).filter((p) => p.questions?.length && p.questions[0].type).map((p) => {
+      const v = p.questions![0];
+      return [p.id, naamUitVraag({ ...v, type: v.type! })] as const;
+    }),
   ));
   // Maximaal te halen punten per vraag (hoogste van de vraagpunten en de punten per antwoord)
   const [vraagMaxPunten] = useState(() => new Map(
@@ -190,6 +202,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [openTeamRoutes, setOpenTeamRoutes] = useState<Set<number>>(new Set());
   // Rondje-instellingen (teams, afstand, genereren): dicht zodra er punten staan
   const [rondjeOpen, setRondjeOpen] = useState(false);
+  const [adviesOpen, setAdviesOpen] = useState(false);
 
   // Bewerkpaneel versleepbaar aan de kop; de plek wordt onthouden (alleen op een groot scherm)
   const paneelRef = useRef<HTMLDivElement>(null);
@@ -852,7 +865,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">🌫️ Startlocatie</label>
                   <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-                    Tik op de kaart en kies &ldquo;Startlocatie&rdquo; om de plek te zetten waar teams starten.
+                    Nog geen startlocatie. Tik op de kaart → 🚩 Startlocatie.
                   </p>
                   {route.start_latitude !== null && route.start_longitude !== null ? (
                     <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
@@ -867,13 +880,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               </div>
 
               <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
-                👆 Tik op de kaart om een vraagpunt of de startlocatie te plaatsen. Sleep op de kaart om te verplaatsen. ({punten.length} vragen)
+                👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen ({punten.length} vragen)
               </div>
 
               <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
                 {punten.length === 0 ? (
                   <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                    Tik op de kaart en kies &ldquo;Vraagpunt&rdquo; om een vraag te plaatsen. Teams krijgen &rsquo;m automatisch te zien zodra ze in de buurt lopen.
+                    Nog geen vragen. Tik op de kaart → ❓ Vraagpunt.
                   </p>
                 ) : punten.map((pt) => (
                   <div key={pt.id}
@@ -927,7 +940,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
           {/* Toevoegen gaat via de kaart: tik op een plek en kies wat het wordt */}
           <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
-            👆 Tik op de kaart om een punt of item toe te voegen. Sleep op de kaart om te verplaatsen.
+            👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen
           </div>
 
           {/* Tab-inhoud */}
@@ -937,7 +950,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {actieveTab === "punten" && (
               punten.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  Tik op de kaart en kies &ldquo;Punt&rdquo; om een punt te plaatsen.
+                  Nog geen punten. Tik op de kaart → 📍 Punt.
                 </p>
               ) : punten.map((pt, i) => {
                 const isVerspreid = route.modus === "verspreid" && punten.length >= 3;
@@ -965,9 +978,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       {pt.name}
                     </div>
                     {vraagPuntIds.has(pt.id) ? (
-                      <span title="Aan dit punt hangt een vraag" style={{ fontSize: "0.66rem", fontWeight: 700, color: "#93C5FD", whiteSpace: "nowrap", flexShrink: 0 }}>❓ vraag</span>
+                      <span title="Aan dit punt hangt een vraag" style={{ fontSize: "0.8rem", flexShrink: 0 }}>❓</span>
                     ) : pt.type === "vraagpunt" ? (
-                      <span title="Vraagpunt zonder vraag: spelers krijgen hier alleen informatie" style={{ fontSize: "0.66rem", fontWeight: 700, color: "#FBBF24", whiteSpace: "nowrap", flexShrink: 0 }}>⚠️ geen vraag</span>
+                      <span title="Vraagpunt zonder vraag: spelers krijgen hier alleen informatie" style={{ fontSize: "0.8rem", flexShrink: 0 }}>⚠️</span>
                     ) : null}
                     <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
                       {typeLabel} · {pt.radius_meters}m
@@ -988,8 +1001,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* Items-tab */}
             {actieveTab === "items" && route.modus === "sequentieel" && (
               <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.45 }}>
-                🎒 Bij Sequentieel krijgen teams hun items bij de start (standaard één banaan; instellen via
-                ⚙️ Startitems). Op de kaart plaats je alleen plek zooi.
+                🎒 Startitems stel je in bij ⚙️ Instellingen. Op de kaart alleen plek zooi.
               </p>
             )}
             {actieveTab === "items" && route.modus === "verspreid" && (() => {
@@ -1004,7 +1016,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               if (lusMeter < 100) {
                 return (
                   <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)" }}>
-                    💡 Plaats eerst de punten (of vul de doelafstand in), dan krijg je hier een advies voor het aantal items.
+                    💡 Advies volgt zodra er punten staan.
                   </p>
                 );
               }
@@ -1016,7 +1028,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 { label: "❓ Vraagteken", advies: advies.vraagteken, nu: tel(ITEM_GROEPEN.vraagteken), maxOk: true },
                 { label: "⛔ Plek zooi", advies: advies.plekzooi, nu: tel(ITEM_GROEPEN.plekzooi), maxOk: true },
               ];
+              // Compacte stand; de volledige tabel en tips zitten achter de ⓘ
+              const totaalAdvies = advies.oppakbaar + advies.plekzooi;
+              const totaalNu = specialeItems.length;
+              const stand = totaalNu > totaalAdvies + 1 ? { tekst: "te veel", kleur: "#F87171" }
+                : totaalNu < totaalAdvies - 1 ? { tekst: "te weinig", kleur: "#FBBF24" }
+                : { tekst: "goed", kleur: "#4ADE80" };
               return (
+                <>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)" }}>
+                    <span>💡 Advies: ±{totaalAdvies} items · nu {totaalNu} — <span style={{ color: stand.kleur, fontWeight: 700 }}>{stand.tekst}</span></span>
+                    <button type="button" onClick={() => setAdviesOpen((v) => !v)} title="Advies voor een eerlijk spel" aria-expanded={adviesOpen}
+                      style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
+                        border: `1px solid ${adviesOpen ? "#FFE680" : "rgba(255,255,255,0.25)"}`, background: adviesOpen ? "rgba(255,217,59,0.15)" : "transparent",
+                        color: adviesOpen ? "#FFE680" : "var(--muted)", fontWeight: 800, fontSize: "0.75rem", fontStyle: "italic", fontFamily: "Georgia, serif" }}>
+                      i
+                    </button>
+                  </div>
+                  {adviesOpen && (
                 <div style={{ margin: "0 10px 10px", padding: "10px 12px", borderRadius: 10, background: "rgba(255,217,59,0.08)", border: "1px solid rgba(255,217,59,0.35)", fontSize: "0.74rem", color: "var(--text)", lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 700, color: "#FFE680", marginBottom: 4 }}>💡 Advies voor een eerlijk spel</div>
                   <div style={{ color: "var(--muted)", marginBottom: 6 }}>
@@ -1035,17 +1064,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     })}
                   </div>
                   <ul style={{ margin: "8px 0 0", paddingLeft: 16, color: "var(--muted)" }}>
-                    <li>Verdeel de items gelijkmatig over het rondje, ongeveer om de {advies.tussenafstandM} m. Elk team start ergens anders, zo komt iedereen er evenveel tegen.</li>
-                    <li>Leg geen items vlak bij het startpunt of de finish: daar komen alle teams langs, dus wie het eerst start, pakt ze weg.</li>
-                    <li>Houd items minstens 50 m van een vraagpunt, en plek zooi niet op een plek waar iedereen langs móet.</li>
+                    <li>Gelijkmatig verdelen: ±1 item per {advies.tussenafstandM} m.</li>
+                    <li>Niet vlak bij start of finish.</li>
+                    <li>Minstens 50 m van een vraagpunt; plek zooi niet op een plek waar iedereen langs moet.</li>
                   </ul>
                 </div>
+                  )}
+                </>
               );
             })()}
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  Tik op de kaart en kies &ldquo;Item&rdquo; om een item te plaatsen.
+                  Nog geen items. Tik op de kaart → 🎁 Item.
                 </p>
               ) : specialeItems.map((item) => {
                 return (
@@ -1186,7 +1217,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       onChange={(e) => setMistM2PerSter(Math.max(1, Number(e.target.value)))}
                       onBlur={() => slaMistM2PerSterOp(mistM2PerSter)}
                     />
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>2500 is een startwaarde — stel bij na een proefwandeling.</span>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Startwaarde; stel bij na een proefronde.</span>
                   </div>
                 )}
 
@@ -1206,7 +1237,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onChange={(e) => setTussenstandDuur(Math.max(1, Number(e.target.value)))}
                     onBlur={() => slaTussenstandDuurOp(tussenstandDuur)}
                   />
-                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Wordt geteld sinds de start van de eerste sessie. Zet duur ruim boven 5s voor een betrouwbare pop-up.</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Telt vanaf de eerste start. Duur liefst meer dan 5 s.</span>
                 </div>
 
                   </>
@@ -1219,14 +1250,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <input className="form-input" type="number" min={3} value={puntRadius}
                         onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
                         onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle {punten.length} punten en voor nieuwe punten.</span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
                     </div>
                     <div className="form-group">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
                       <input className="form-input" type="number" min={0} value={puntPunten}
                         onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
                         onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor infopunten en punten zonder vraag. De punten van een vraag stel je in bij de vraag zelf (en per antwoord).</span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
                     </div>
                   </>
                 )}
@@ -1238,7 +1269,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <input className="form-input" type="number" min={3} value={itemRadius}
                         onChange={(e) => setItemRadius(Math.max(3, Number(e.target.value)))}
                         onBlur={() => pasAlleItemsAan(itemRadius)} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen om een item op te pakken (of in een plek zooi te lopen). Geldt voor alle items en voor nieuwe items.</span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle items.</span>
                     </div>
                 {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
                 {route.modus === "verspreid" && (
@@ -1292,7 +1323,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       </div>
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      {route.modus === "verspreid" && "Spook: zo lang is het volgende punt van het getroffen team weg · "}Plekzooi: zo lang zit een team vast
+                      {route.modus === "verspreid" && "Spook: punt onzichtbaar · "}Plek zooi: team staat stil
                     </span>
                   </div>
                 )}
@@ -1322,7 +1353,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       })}
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Elk team krijgt deze items bij de start meteen in de balk. Geldt voor teams die beginnen nadat je dit hebt aangepast.
+                      Elk team krijgt dit bij de start in de balk.
                     </span>
                   </div>
                 )}
@@ -1355,8 +1386,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
                       {route.items_na_finish
-                        ? "Gefinishte teams kunnen hun items (bom, spook, dief, banaan, wissel, vraagteken) nog inzetten op teams die onderweg zijn, tot jij de uitslag vrijgeeft."
-                        : "Bij de finish vervallen de items die een team nog had."}
+                        ? "Gefinishte teams zetten hun items nog in op teams die onderweg zijn, tot de uitslag vrij is."
+                        : "Items vervallen bij de finish."}
                     </span>
                   </div>
                 )}
@@ -1478,25 +1509,25 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                   </div>
                 ))}
                 {teamSchattingen.length > 0 && (
-                  <div className="route-editor-tijden-voet">4,5 km/u · ±2 min per vraag · punten bij ~70% goed · items meegerekend. Ga met de muis over een team voor de opbouw.</div>
+                  <div className="route-editor-tijden-voet">4,5 km/u · 2 min/vraag · 70% goed · items meegerekend</div>
                 )}
                 {/* Check: genoeg items voor deze lengte en speeltijd? */}
                 {itemCheck && (
                   <div style={{ marginTop: 6, paddingTop: 5, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: "0.7rem", lineHeight: 1.4 }}>
                     {itemCheck.tekort > 0 ? (
                       <span style={{ color: "#FBBF24" }}>
-                        🎁 {itemCheck.nuOppakbaar} van ±{itemCheck.advies.oppakbaar} items (+ {itemCheck.advies.plekzooi} plek zooi) — plaats er nog {itemCheck.tekort}.
-                        {itemCheck.voorstellen.length > 0 && " Klik op een gouden ➕ op de kaart."}
+                        🎁 {itemCheck.nuOppakbaar}/±{itemCheck.advies.oppakbaar} items (+{itemCheck.advies.plekzooi} plek zooi) — nog {itemCheck.tekort}
+                        {itemCheck.voorstellen.length > 0 && ", zie gouden ➕"}
                       </span>
                     ) : itemCheck.teVeel ? (
-                      <span style={{ color: "#F87171" }}>🎁 {itemCheck.nuOppakbaar} items, advies ±{itemCheck.advies.oppakbaar}: items gaan de uitslag meer bepalen dan de vragen.</span>
+                      <span style={{ color: "#F87171" }}>🎁 {itemCheck.nuOppakbaar} items, advies ±{itemCheck.advies.oppakbaar}: te veel</span>
                     ) : (
-                      <span style={{ color: "#4ADE80" }}>🎁 Genoeg items voor deze lengte en speeltijd (±{itemCheck.advies.oppakbaar} + {itemCheck.advies.plekzooi} plek zooi).</span>
+                      <span style={{ color: "#4ADE80" }}>🎁 Genoeg items (±{itemCheck.advies.oppakbaar} + {itemCheck.advies.plekzooi} plek zooi)</span>
                     )}
                     {itemCheck.voorstellen.length > 0 && (
                       <button onClick={() => setToonVoorstellen((v) => !v)}
                         style={{ display: "block", marginTop: 3, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
-                        {toonVoorstellen ? "Voorstellen op de kaart verbergen" : "Voorstellen op de kaart tonen"}
+                        {toonVoorstellen ? "Voorstellen verbergen" : "Voorstellen tonen"}
                       </button>
                     )}
                   </div>
@@ -1534,6 +1565,7 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 fout={fout}
                 alleenVraag={route.modus === "mist"}
                 heeftVraag={vraagPuntIds.has(geselecteerd.id)}
+                naamVoorstel={naamVoorstellen.get(geselecteerd.id) ?? null}
                 onOpslaan={slaPuntOp}
                 onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}
@@ -1604,13 +1636,12 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
       </div>
 
       {type === "plekzooi" && (
-        <div className="editor-paneel-noot">⚠️ Plek zooi is <strong>onzichtbaar</strong> voor spelers. De duur stel je in bij ⚙️ Instellingen → Items.</div>
+        <div className="editor-paneel-noot">⚠️ Onzichtbaar voor spelers. Duur: ⚙️ Instellingen.</div>
       )}
       {alleenPlekzooi && type !== "plekzooi" && (
-        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Bij Sequentieel verschijnt alleen plek zooi op de kaart; dit item zien spelers niet.</div>
+        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Sequentieel toont alleen plek zooi; dit item ziet niemand.</div>
       )}
       {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
-      <div className="editor-paneel-noot">Sleep het item op de kaart om het te verplaatsen.</div>
 
       <button className="rl-knop rl-knop--rood" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Verwijderen</button>
     </div>
@@ -1618,8 +1649,9 @@ function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSlui
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOpslaan, onVerwijder, onSluit }: {
+function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, naamVoorstel, onOpslaan, onVerwijder, onSluit }: {
   punt: RoutePunt; routeId: string; opslaan: boolean; fout: string; alleenVraag?: boolean; heeftVraag: boolean;
+  naamVoorstel: string | null;
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
@@ -1651,7 +1683,14 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOps
 
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Naam</label>
-        <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem" }} />
+        <div style={{ display: "flex", gap: 6 }}>
+          <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem", flex: 1, minWidth: 0 }} />
+          {/* Naamvoorstel uit de vraag: alleen invullen als je erop klikt */}
+          {naamVoorstel && naamVoorstel !== naam && (
+            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
+              title={`Voorstel: "${naamVoorstel}" (uit de vraag)`} aria-label="Naam voorstellen" style={{ height: 38, width: 38 }}>💡</button>
+          )}
+        </div>
       </div>
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Beschrijving</label>
@@ -1675,7 +1714,7 @@ function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, onOps
           </div>
         </div>
       )}
-      <div className="editor-paneel-noot">Radius en punten stel je in voor de hele route bij ⚙️ Instellingen → Punten &amp; vragen. Sleep het punt op de kaart om het te verplaatsen.</div>
+      <div className="editor-paneel-noot">Radius en punten: ⚙️ Instellingen.</div>
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
       <div style={{ display: "flex", gap: 6 }}>
         <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}

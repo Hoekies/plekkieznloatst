@@ -67,7 +67,7 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
         {leaderboard.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
-              Nog geen actieve sessies. Start een route om het leaderboard te activeren.
+              Nog geen teams aan het spelen.
             </p>
           </div>
         ) : (

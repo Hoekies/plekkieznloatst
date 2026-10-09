@@ -39,7 +39,7 @@ export default function BroadcastKnop() {
               <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1.1rem", lineHeight: 1 }}>✕</button>
             </div>
             <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
-              Verschijnt als melding op het scherm van alle actieve spelers.
+              Verschijnt bij alle spelers in beeld.
             </p>
             <textarea
               className="form-textarea"
