@@ -88,6 +88,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [geselecteerd, setGeselecteerd] = useState<RoutePunt | null>(null);
   const [addModus, setAddModus] = useState(false);
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
+  // Snel plaatsen: gekozen itemsoort; elke klik op de kaart zet er één neer (Esc of nogmaals klikken = stoppen)
+  const [plaatsType, setPlaatsType] = useState<SpeciaalItemType | null>(null);
+  useEffect(() => {
+    if (!plaatsType) return;
+    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setPlaatsType(null); };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [plaatsType]);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
@@ -153,10 +161,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Sluit het mobiele overlay-paneel zodra de kaart iets te doen krijgt
   useEffect(() => {
-    if (geselecteerd || geselecteerdSpeciaal || addModus || addSpeciaalModus || centrumModus) {
+    if (geselecteerd || geselecteerdSpeciaal || addModus || addSpeciaalModus || centrumModus || plaatsType) {
       setMobielPaneelOpen(false);
     }
-  }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus]);
+  }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus, plaatsType]);
 
   useEffect(() => {
     api(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
@@ -493,7 +501,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
   }
 
-  async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string) {
+  async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string, openPaneel = true) {
     const res = await api(`/api/admin/routes/${route.id}/speciaal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -508,7 +516,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       const nieuw: SpeciaalItem = await res.json();
       onthoud({ soort: "item-erbij", id: nieuw.id });
       setSpecialeItems((p) => [...p, nieuw]);
-      setGeselecteerdSpeciaal(nieuw);
+      if (openPaneel) setGeselecteerdSpeciaal(nieuw);
       setAddSpeciaalModus(false);
     }
   }
@@ -519,6 +527,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       setCentrumModus(false);
       return;
     }
+    if (plaatsType) return voegSpeciaalItemToeOp(lat, lng, plaatsType, false);
     if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
     if (addModus) return voegPuntToeOp(lat, lng);
     // Staat er een bewerkpaneel open, dan sluit een tik ernaast dat paneel
@@ -1124,7 +1133,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* Tabbladen */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
             <button
-              onClick={() => { setActieveTab("punten"); setAddSpeciaalModus(false); }}
+              onClick={() => { setActieveTab("punten"); setAddSpeciaalModus(false); setPlaatsType(null); }}
               style={{
                 flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
                 background: "transparent", border: "none", cursor: "pointer",
@@ -1222,6 +1231,28 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
 
             {/* Items-tab */}
+            {/* Snel plaatsen: item aanklikken, daarna op de kaart klikken (zo vaak als je wilt) */}
+            {actieveTab === "items" && (
+              <div style={{ margin: "0 10px 8px", display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(route.modus === "sequentieel" ? ["plekzooi"] : ["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+                  const actief = plaatsType === t;
+                  return (
+                    <button key={t} type="button" onClick={() => { setPlaatsType(actief ? null : t as SpeciaalItemType); setGeselecteerdSpeciaal(null); setGeselecteerd(null); }}
+                      title={`${ITEM_UITLEG[t] ?? t}\nKlik en zet hem daarna op de kaart.`}
+                      style={{
+                        width: 34, height: 34, borderRadius: 8, padding: 0, cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: `1px solid ${actief ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
+                        background: actief ? "rgba(0,217,255,0.2)" : "rgba(255,255,255,0.04)",
+                        boxShadow: actief ? "0 0 0 2px rgba(0,217,255,0.35)" : "none",
+                      }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`/items/${t}.png`} alt={t} style={{ width: 24, height: 24 }} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             {actieveTab === "items" && route.modus === "sequentieel" && (
               <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.45 }}>
                 🎒 Startitems stel je in bij ⚙️ Instellingen. Op de kaart alleen plek zooi.
@@ -1685,6 +1716,21 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </div>
         )}
 
+        {/* Snel plaatsen actief */}
+        {plaatsType && (
+          <div style={{
+            position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
+            display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
+            background: "rgba(8,28,48,0.95)", border: "1px solid var(--cyan)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/items/${plaatsType}.png`} alt="" style={{ width: 22, height: 22 }} />
+            Klik op de kaart om te plaatsen · Esc = stoppen
+            <button type="button" className="editor-paneel-sluit" style={{ marginLeft: 0 }} onClick={() => setPlaatsType(null)} title="Stoppen">✕</button>
+          </div>
+        )}
+
         {/* Net verwijderd: een paar seconden terug te halen */}
         {herstelToast && stappen.length > 0 && (
           <div style={{
@@ -1735,7 +1781,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Kaart */}
         <LeafletKaart
           punten={punten}
-          addModus={addModus || addSpeciaalModus || centrumModus}
+          addModus={addModus || addSpeciaalModus || centrumModus || !!plaatsType}
           geselecteerdId={geselecteerd?.id ?? null}
           specialeItems={specialeItems}
           guideCirkel={
