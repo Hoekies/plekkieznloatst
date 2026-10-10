@@ -18,6 +18,7 @@ import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
 import ControleVenster from "./editor/ControleVenster";
+import AlleVragenVenster from "./editor/AlleVragenVenster";
 import { routeControle } from "@/lib/route-controle";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -539,6 +540,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Vraag bewerken in een venster boven de editor (geen herladen, alles blijft open)
   const [vraagVenster, setVraagVenster] = useState<{ punt: RoutePunt; vraag: VraagMetAntwoorden | null } | null>(null);
+  // Alle vragen achter elkaar invullen (knop 📝 Alle vragen)
+  const [alleVragenOpen, setAlleVragenOpen] = useState(false);
+  const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
+  const kaartNummer = (p: RoutePunt) => {
+    const i = punten.findIndex((x) => x.id === p.id);
+    return String(route.modus === "verspreid" && punten.length >= 3 ? i : i + 1);
+  };
   async function openVraag(punt: RoutePunt) {
     const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}/vraag`);
     setVraagVenster({ punt, vraag: res.ok ? await res.json() : null });
@@ -924,6 +932,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
               onClick={() => setControleOpen(true)}>▶ Activeer</button>
           )}
+          <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} disabled={!vraagpunten.length}
+            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
+            📝 Alle vragen ({vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length})
+          </button>
           {!route.is_active && (
             <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} onClick={() => setControleOpen(true)}
               title="Klaar om te spelen? Controleer de route vóór het activeren">
@@ -1703,6 +1715,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {controleOpen && (
           <ControleVenster controle={controle} status={route.status} actief={route.is_active}
             onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} />
+        )}
+
+        {/* Alle vragen achter elkaar */}
+        {alleVragenOpen && (
+          <AlleVragenVenster routeId={route.id} punten={vraagpunten} nummer={kaartNummer}
+            heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt}
+            onSluit={() => setAlleVragenOpen(false)} />
         )}
 
         {/* Vraag bewerken als venster over de hele editor */}

@@ -32,9 +32,11 @@ interface Props {
   // Geopend als venster in de route-editor: sluiten zonder de pagina te herladen.
   // Krijgt de opgeslagen vraag mee, null na verwijderen, of undefined bij gewoon terug.
   onSluit?: (vraag: VraagMetAntwoorden | null | undefined) => void;
+  // Andere tekst op de opslaanknop, bijvoorbeeld "Opslaan & volgende →" bij alle vragen achter elkaar
+  opslaanLabel?: string;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -362,7 +364,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 ← Terug
               </button>
               <button type="submit" className="btn btn-primary" disabled={opslaan} style={{ flex: 2 }}>
-                {opslaan ? "Opslaan…" : bestaandeVraag ? "Vraag bijwerken" : "Vraag opslaan"}
+                {opslaan ? "Opslaan…" : opslaanLabel ?? (bestaandeVraag ? "Vraag bijwerken" : "Vraag opslaan")}
               </button>
             </div>
           </form>
