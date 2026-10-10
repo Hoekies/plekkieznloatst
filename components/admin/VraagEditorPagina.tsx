@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
+import BevestigKnop from "./BevestigKnop";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
-type VraagMetAntwoorden = Vraag & { answer_options: AntwoordOptie[] };
+export type VraagMetAntwoorden = Vraag & { answer_options: AntwoordOptie[] };
 
 const KLEUREN = ["geel", "blauw", "rood", "groen"] as const;
 const KLEUR_STIJL: Record<string, string> = {
@@ -28,10 +29,15 @@ interface Props {
   routeId: string;
   punt: RoutePunt;
   bestaandeVraag: VraagMetAntwoorden | null;
+  // Geopend als venster in de route-editor: sluiten zonder de pagina te herladen.
+  // Krijgt de opgeslagen vraag mee, null na verwijderen, of undefined bij gewoon terug.
+  onSluit?: (vraag: VraagMetAntwoorden | null | undefined) => void;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit }: Props) {
   const router = useRouter();
+  // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
+  const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
   const [type, setType] = useState<VraagType>(bestaandeVraag?.type ?? "meerkeuze_tekst");
   const [tekst, setTekst] = useState(bestaandeVraag?.question_text ?? "");
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
@@ -137,6 +143,10 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
     if (!res.ok) {
       const { fout: f } = await res.json();
       setFout(f ?? "Opslaan mislukt");
+    } else if (onSluit) {
+      // Als venster: na opslaan meteen terug naar de kaart
+      onSluit(await res.json());
+      return;
     } else {
       setOpgeslagen(true);
       setTimeout(() => setOpgeslagen(false), 2000);
@@ -146,9 +156,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
 
   async function verwijderVraag() {
     if (!bestaandeVraag) return;
-    if (!confirm("Vraag verwijderen?")) return;
     await fetch(`/api/admin/routes/${routeId}/punten/${punt.id}/vraag`, { method: "DELETE" });
-    router.push(`/admin/routes/${routeId}`);
+    terug(null);
   }
 
   async function toggleQr(inschakelen: boolean) {
@@ -194,17 +203,17 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: onSluit ? "100%" : "100vh" }}>
       {/* Topbar */}
       <div className="admin-topbar" style={{ gap: 12 }}>
-        <a href={`/admin/routes/${routeId}`} style={{ color: "var(--muted)", fontSize: "0.85rem", textDecoration: "none", flexShrink: 0 }}>
+        <button type="button" onClick={() => terug()} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--muted)", fontSize: "0.85rem", flexShrink: 0 }}>
           ← Route
-        </a>
+        </button>
         <h1 style={{ flex: 1 }}>Vraag — {punt.name}</h1>
         {bestaandeVraag && (
-          <button className="btn btn-danger" style={{ fontSize: "0.82rem" }} onClick={verwijderVraag}>
+          <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.82rem" }} vraag="Vraag verwijderen?" ja="Ja, verwijder" onBevestig={verwijderVraag}>
             Vraag verwijderen
-          </button>
+          </BevestigKnop>
         )}
       </div>
 
@@ -349,9 +358,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag }: Pro
             {opgeslagen && <div className="melding melding-ok">✅ Vraag opgeslagen</div>}
 
             <div style={{ display: "flex", gap: 10 }}>
-              <a href={`/admin/routes/${routeId}`} className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={() => terug()} className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}>
                 ← Terug
-              </a>
+              </button>
               <button type="submit" className="btn btn-primary" disabled={opslaan} style={{ flex: 2 }}>
                 {opslaan ? "Opslaan…" : bestaandeVraag ? "Vraag bijwerken" : "Vraag opslaan"}
               </button>

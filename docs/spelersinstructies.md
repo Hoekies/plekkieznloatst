@@ -7,7 +7,6 @@ PointRush kent drie spelsoorten. De organisatie kiest er één per spel, en dat 
 |---|---|---|
 | 🎯 **Route op volgorde** | Vaste route, punten op volgorde, bij elk punt een vraag | [spel-sequentieel.md](spel-sequentieel.md) |
 | 🎲 **Verspreide route** | Hetzelfde rondje, maar elk team start op een andere plek | [spel-verspreid.md](spel-verspreid.md) |
-| ☁️ **Mist verjagen** | Loop rond en speel de mist op je kaart vrij | [spel-mist.md](spel-mist.md) |
 
 Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pad" drukt toont de app de spelregels van het spel dat nu actief is.**
 

@@ -6,7 +6,7 @@ export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
 export type FotoStatus = "wacht" | "goedgekeurd" | "afgekeurd";
 
-export type RouteModus = "sequentieel" | "verspreid" | "mist";
+export type RouteModus = "sequentieel" | "verspreid";
 
 export interface Route {
   id: string;
@@ -33,9 +33,6 @@ export interface Route {
   startitems: Record<string, number> | null;
   // Verspreid: teamnummers die het rondje andersom lopen
   omgekeerde_teams: number[] | null;
-  mist_m2_per_ster: number;
-  start_latitude: number | null;
-  start_longitude: number | null;
   items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;
@@ -117,10 +114,6 @@ export interface SpelerSessie {
   score: number;
   afstand_m: number;
   status: SessieStatus;
-  // Laatst bepaalde plaats (mist-modus), om herhaald reverse-geocoden te vermijden
-  mist_plaats: string | null;
-  mist_plaats_lat: number | null;
-  mist_plaats_lng: number | null;
 }
 
 export interface SpelerPuntVoortgang {
@@ -195,36 +188,6 @@ export interface SpeciaalItemEffect {
   notification: string | null;
 }
 
-export interface MistVoortgang {
-  id: string;
-  session_id: string;
-  cell_x: number;
-  cell_y: number;
-  revealed_at: string;
-}
-
-export interface MistPlaatsVoortgang {
-  id: string;
-  session_id: string;
-  plaats: string;
-  cellen: number;
-}
-
-export interface MistBadge {
-  id: string;
-  session_id: string;
-  code: string;
-  /** Lege string bij algemene badges — zie 022_mist_badges.sql voor het waarom. */
-  plaats: string;
-  behaald_op: string;
-}
-
-export interface PlaatsCache {
-  cel_key: string;
-  plaats: string | null;
-  opgehaald_op: string;
-}
-
 export interface Database {
   public: {
     Tables: {
@@ -247,26 +210,6 @@ export interface Database {
         Row: SpeciaalItemEffect;
         Insert: Omit<SpeciaalItemEffect, "id" | "applied_at">;
         Update: Partial<SpeciaalItemEffect>;
-      };
-      mist_voortgang: {
-        Row: MistVoortgang;
-        Insert: Omit<MistVoortgang, "id" | "revealed_at">;
-        Update: Partial<MistVoortgang>;
-      };
-      mist_plaats_voortgang: {
-        Row: MistPlaatsVoortgang;
-        Insert: Omit<MistPlaatsVoortgang, "id">;
-        Update: Partial<MistPlaatsVoortgang>;
-      };
-      mist_badges: {
-        Row: MistBadge;
-        Insert: Omit<MistBadge, "id" | "behaald_op">;
-        Update: Partial<MistBadge>;
-      };
-      plaats_cache: {
-        Row: PlaatsCache;
-        Insert: Omit<PlaatsCache, "opgehaald_op">;
-        Update: Partial<PlaatsCache>;
       };
     };
   };

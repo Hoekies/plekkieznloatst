@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { Speler } from "@/types/database";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
 const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
@@ -77,11 +79,10 @@ export default function GroepenBeheer() {
   }
 
   async function stopSpel(id: string, naam: string) {
-    if (!confirm(`Het spel van ${naam} stoppen?\nScore en voortgang vervallen.`)) return;
     const res = await fetch(`/api/admin/groepen/${id}/spel-stoppen`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) { alert(data.fout ?? "Stoppen mislukt"); return; }
-    if (data.gestopt === 0) alert(`${naam} had geen lopend spel.`);
+    if (!res.ok) { toonMelding(data.fout ?? "Stoppen mislukt", "fout"); return; }
+    toonMelding(data.gestopt === 0 ? `${naam} had geen lopend spel.` : `Spel van ${naam} gestopt`, data.gestopt === 0 ? "info" : "ok");
     setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, heeft_spel: false } : g));
   }
 
@@ -223,10 +224,10 @@ export default function GroepenBeheer() {
                       </button>
                     )}
                     {g.heeft_spel && (
-                      <button className="rl-knop rl-knop--rood" onClick={() => stopSpel(g.id, displayNaam)}
-                        title="Spel stoppen: beëindigt het lopende spel van deze groep">
+                      <BevestigKnop className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
+                        title="Spel stoppen: beëindigt het lopende spel van deze groep" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
                         ⏹️ Stop spel
-                      </button>
+                      </BevestigKnop>
                     )}
                   </div>
                 </div>

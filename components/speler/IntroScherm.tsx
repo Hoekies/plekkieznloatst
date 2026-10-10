@@ -9,8 +9,6 @@ type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "star
 
 interface Props {
   modus: RouteModus | null;
-  mistM2PerSter: number | null;
-  heeftVragen: boolean;
 }
 
 const ICONEN = [
@@ -19,9 +17,9 @@ const ICONEN = [
   "🤡", "👽", "🤖", "🍕", "🦸",
 ];
 
-export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props) {
+export default function IntroScherm({ modus }: Props) {
   const router = useRouter();
-  const uitleg = spelUitleg(modus, { mistM2PerSter: mistM2PerSter ?? undefined, heeftVragen });
+  const uitleg = spelUitleg(modus);
   const [fase, setFase] = useState<Fase>("profiel");
   const [fout, setFout] = useState("");
   const [teamnaam, setTeamnaam] = useState("");
@@ -79,7 +77,7 @@ export default function IntroScherm({ modus, mistM2PerSter, heeftVragen }: Props
         setFase("gereed");
         return;
       }
-      router.push(data.modus === "mist" ? "/speler/mist" : "/speler/kaart");
+      router.push("/speler/kaart");
     } catch {
       setFout("Geen verbinding. Controleer je internet en probeer opnieuw.");
       setFase("gereed");

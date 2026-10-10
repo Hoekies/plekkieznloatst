@@ -10,36 +10,10 @@ export interface SpelUitleg {
   geluidUitleg: string;
 }
 
-interface Opties {
-  mistM2PerSter?: number;
-  heeftVragen?: boolean;
-}
-
 const PUNTEN_GPS = "Nodig om te zien wanneer je bij een punt bent.";
 const PUNTEN_GELUID = "Zet je volume aan: je hoort een signaal bij punten en aanvallen.";
 
-export function spelUitleg(modus: RouteModus | null, opties: Opties = {}): SpelUitleg {
-  if (modus === "mist") {
-    const regels = [
-      "Je kaart zit helemaal onder de mist. Door rond te lopen speel je die vrij.",
-      opties.mistM2PerSter
-        ? `Elke ${opties.mistM2PerSter.toLocaleString("nl-NL")} m² die je vrijspeelt levert een ster op.`
-        : "Hoe meer je vrijspeelt, hoe meer sterren je verdient.",
-      "Alleen wandeltempo telt mee — rennen of fietsen speelt geen mist vrij.",
-      "Verdien badges voor elk dorp of elke wijk die je verkent.",
-    ];
-    if (opties.heeftVragen) {
-      regels.push("Kom je langs een vraag, dan verschijnt die vanzelf. Goed antwoord = extra punten.");
-    }
-    return {
-      emoji: "☁️",
-      samenvatting: "Loop rond en speel zo veel mogelijk mist vrij.",
-      regels,
-      gpsUitleg: "Dit spel gebruikt je GPS-locatie om bij te houden waar je loopt en welke mist je daarmee vrijspeelt. Locatietoegang is vereist om te spelen.",
-      geluidUitleg: "Bij het verdienen van een badge en het beantwoorden van vragen worden geluiden afgespeeld. Zet je volume aan voor de beste ervaring.",
-    };
-  }
-
+export function spelUitleg(modus: RouteModus | null): SpelUitleg {
   if (modus === "verspreid") {
     return {
       emoji: "🎲",

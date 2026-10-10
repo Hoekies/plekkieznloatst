@@ -9,25 +9,18 @@ import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import VraagEditorPagina, { type VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
+import { toonMelding } from "@/components/admin/Melding";
 import { naamUitVraag, isStandaardNaam } from "@/lib/punt-naam";
 import { kiesInstappunten } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
+import { ITEM_UITLEG } from "./editor/item-uitleg";
+import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
+import ControleVenster from "./editor/ControleVenster";
+import { routeControle } from "@/lib/route-controle";
 
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
-
-// Korte uitleg per item (tooltip in de editor)
-const ITEM_UITLEG: Record<string, string> = {
-  ster: "Ster: het team krijgt meteen extra punten (sterwaarde).",
-  verdubbeling: "Verdubbeling: de volgende vraag met punten telt dubbel.",
-  radar: "Radar: 2 minuten zien waar de andere teams lopen.",
-  bom: "Bom: een tegenstander verliest punten (bomwaarde).",
-  spook: "Spook: het volgende punt van een tegenstander verdwijnt een tijdje.",
-  dief: "Dief: de punten van het volgende goede antwoord van een tegenstander gaan naar dit team.",
-  banaan: "Banaan: het volgende punt van een tegenstander ruilt met het punt daarna.",
-  wissel: "Wissel: het team ruilt zijn score met een tegenstander.",
-  vraagteken: "Vraagteken: meteen gespeeld bij oppakken. Een gok, van jackpot tot punten kwijt.",
-  plekzooi: "Plek zooi: onzichtbare val; wie erin loopt, staat even stil.",
-};
 
 type RouteMetPunten = Route & {
   route_points: (RoutePunt & { questions?: {
@@ -41,21 +34,51 @@ const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#e
 
 export default function RouteEditorShell({ route: initRoute }: { route: RouteMetPunten }) {
   const zoekParams = useSearchParams();
+
+  // Opslaan zichtbaar maken: elke wijziging toont "Opslaan…", daarna ✓ Opgeslagen of ⚠ Niet opgeslagen
+  const [opslag, setOpslag] = useState<"rust" | "bezig" | "ok" | "fout">("rust");
+  const lopendRef = useRef(0);
+  const misluktRef = useRef(false);
+  const opslagTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  async function api(url: string, init?: RequestInit): Promise<Response> {
+    if (!init?.method || init.method === "GET") return fetch(url, init);
+    lopendRef.current++;
+    if (opslagTimerRef.current) clearTimeout(opslagTimerRef.current);
+    setOpslag("bezig");
+    let gelukt = false;
+    try {
+      const res = await fetch(url, init);
+      gelukt = res.ok;
+      return res;
+    } catch {
+      return new Response(JSON.stringify({ fout: "Geen verbinding" }), { status: 503 });
+    } finally {
+      lopendRef.current--;
+      if (!gelukt) misluktRef.current = true;
+      if (lopendRef.current === 0) {
+        const fout = misluktRef.current;
+        misluktRef.current = false;
+        setOpslag(fout ? "fout" : "ok");
+        if (fout) toonMelding("Niet opgeslagen. Controleer de verbinding en probeer het opnieuw.", "fout");
+        else opslagTimerRef.current = setTimeout(() => setOpslag("rust"), 2500);
+      }
+    }
+  }
   const [route, setRoute] = useState(initRoute);
   const [punten, setPunten] = useState<RoutePunt[]>(initRoute.route_points ?? []);
-  // Welke punten een vraag hebben (de pagina laadt opnieuw na het bewerken van een vraag)
-  const [vraagPuntIds] = useState(() => new Set(
+  // Welke punten een vraag hebben (bijgewerkt via vraagBijgewerkt na het vraagvenster)
+  const [vraagPuntIds, setVraagPuntIds] = useState(() => new Set(
     (initRoute.route_points ?? []).filter((p) => (p.questions?.length ?? 0) > 0).map((p) => p.id),
   ));
   // Naamvoorstel per punt, bedacht uit de vraag of het goede antwoord (knop 💡 in het puntpaneel)
-  const [naamVoorstellen] = useState(() => new Map(
+  const [naamVoorstellen, setNaamVoorstellen] = useState(() => new Map(
     (initRoute.route_points ?? []).filter((p) => p.questions?.length && p.questions[0].type).map((p) => {
       const v = p.questions![0];
       return [p.id, naamUitVraag({ ...v, type: v.type! })] as const;
     }),
   ));
   // Maximaal te halen punten per vraag (hoogste van de vraagpunten en de punten per antwoord)
-  const [vraagMaxPunten] = useState(() => new Map(
+  const [vraagMaxPunten, setVraagMaxPunten] = useState(() => new Map(
     (initRoute.route_points ?? []).filter((p) => p.questions?.length).map((p) => {
       const v = p.questions![0];
       const perAntwoord = (v.answer_options ?? []).map((o) => o.punten).filter((n): n is number => typeof n === "number");
@@ -74,7 +97,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   async function wisselAndersom(team: number) {
     const nieuw = omgekeerdeTeams.includes(team) ? omgekeerdeTeams.filter((t) => t !== team) : [...omgekeerdeTeams, team];
     setOmgekeerdeTeams(nieuw);
-    await fetch(`/api/admin/routes/${initRoute.id}`, {
+    await api(`/api/admin/routes/${initRoute.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ omgekeerde_teams: nieuw }),
     });
   }
@@ -94,7 +117,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [spookMinuten, setSpookMinuten] = useState((initRoute.spook_duur_seconden ?? 600) / 60);
   const [tussenstandInterval, setTussenstandInterval] = useState(initRoute.tussenstand_interval_minuten ?? 0);
   const [tussenstandDuur, setTussenstandDuur] = useState(initRoute.tussenstand_duur_seconden ?? 10);
-  const [mistM2PerSter, setMistM2PerSter] = useState(initRoute.mist_m2_per_ster ?? 2500);
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
@@ -137,7 +159,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus]);
 
   useEffect(() => {
-    fetch(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
+    api(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
   }, [route.id]);
 
   useEffect(() => {
@@ -227,7 +249,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       .filter(({ p, juist, i }) => p.type !== "eindpunt" && !(hub && i === 0) && isStandaardNaam(p.name) && p.name !== juist);
     if (!fout.length) return;
     setPunten((ps) => ps.map((p) => fout.find((f) => f.p.id === p.id) ? { ...p, name: fout.find((f) => f.p.id === p.id)!.juist } : p));
-    fout.forEach((f) => fetch(`/api/admin/routes/${route.id}/punten/${f.p.id}`, {
+    fout.forEach((f) => api(`/api/admin/routes/${route.id}/punten/${f.p.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: f.juist }),
     }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,13 +313,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   async function pasAllePuntenAan(update: { radius_meters?: number; points?: number }) {
     const doel = punten.filter((p) => update.points === undefined || !vraagPuntIds.has(p.id));
     setPunten((ps) => ps.map((p) => (doel.some((d) => d.id === p.id) ? { ...p, ...update } : p)));
-    await Promise.all(doel.map((p) => fetch(`/api/admin/routes/${route.id}/punten/${p.id}`, {
+    await Promise.all(doel.map((p) => api(`/api/admin/routes/${route.id}/punten/${p.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(update),
     })));
   }
   async function pasAlleItemsAan(radius: number) {
     setSpecialeItems((its) => its.map((i) => ({ ...i, radius_meters: radius })));
-    await Promise.all(specialeItems.map((i) => fetch(`/api/admin/routes/${route.id}/speciaal/${i.id}`, {
+    await Promise.all(specialeItems.map((i) => api(`/api/admin/routes/${route.id}/speciaal/${i.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ radius_meters: radius }),
     })));
   }
@@ -344,12 +366,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       voorstellen: plekken.map((p, i) => ({ ...p, type: tekortTypes[i] })),
     };
   }, [route.modus, punten, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems]);
+  // "Klaar om te spelen?": alles wat vóór het activeren nog aandacht nodig heeft
+  const [controleOpen, setControleOpen] = useState(() => zoekParams.get("controle") === "1");
+  const controle = useMemo(() => routeControle({
+    punten, modus: route.modus, vraagPuntIds, verwachtTeams,
+    itemTekort: itemCheck?.tekort ?? 0, itemTeVeel: !!itemCheck?.teVeel,
+    teamStarts: teamRoutes.map((t) => t.coords.slice(0, 2)),
+    teamMinuten: teamSchattingen.map((t) => t.totaalMin),
+  }), [punten, route.modus, vraagPuntIds, verwachtTeams, itemCheck, teamRoutes, teamSchattingen]);
+  async function activeerRoute() {
+    const res = await api(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
+    if (res.ok) { setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); toonMelding("Route is actief: teams kunnen starten", "ok"); }
+  }
+
   // Startitems: wat elk team bij de start gratis in de balk krijgt
   const [startitems, setStartitems] = useState<Record<string, number>>(() => startitemsVan(initRoute));
   async function wijzigStartitem(type: string, delta: number) {
     const nieuw = { ...startitems, [type]: Math.max(0, Math.min(MAX_PER_STARTITEM, (startitems[type] ?? 0) + delta)) };
     setStartitems(nieuw);
-    await fetch(`/api/admin/routes/${route.id}`, {
+    await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ startitems: nieuw }),
     });
@@ -358,12 +393,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const naFinishTypes = itemsNaFinishVan(route);
   async function wisselNaFinish(type: string) {
     const nieuw = naFinishTypes.includes(type) ? naFinishTypes.filter((t) => t !== type) : [...naFinishTypes, type];
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items_na_finish_types: nieuw }),
     });
     if (res.ok) setRoute((r) => ({ ...r, items_na_finish_types: nieuw, items_na_finish: nieuw.length > 0 }));
-    else alert("Opslaan mislukt. Is migratie 036 al uitgevoerd?");
   }
 
   function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number) {
@@ -384,19 +418,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [route.modus, doelAfstandKm, centrumPunt, aantalPunten]);
 
   async function herlaadPunten() {
-    const res = await fetch(`/api/admin/routes/${route.id}/punten`);
+    const res = await api(`/api/admin/routes/${route.id}/punten`);
     if (res.ok) setPunten(await res.json());
   }
 
   async function genereerPuntenInCirkel() {
     if (!centrumPunt || doelAfstandKm <= 0) return;
-    if (punten.length > 0 && !confirm(`Dit verwijdert ${punten.length} bestaand(e) punt(en). Doorgaan?`)) return;
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
     const coords = puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
     for (const pt of punten) {
-      const res = await fetch(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
+      const res = await api(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
       if (!res.ok) {
-        alert(`"${pt.name}" kon niet verwijderd worden — de punten zijn niet opnieuw gegenereerd.`);
+        toonMelding(`"${pt.name}" kon niet verwijderd worden — de punten zijn niet opnieuw gegenereerd.`, "fout");
         await herlaadPunten();
         return;
       }
@@ -406,7 +439,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const nieuwePunten: RoutePunt[] = [];
 
     // Startpunt op het middelpunt
-    const resStart = await fetch(`/api/admin/routes/${route.id}/punten`, {
+    const resStart = await api(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "informatiepunt", name: "Startpunt", points: 0 }),
@@ -415,7 +448,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
     // Circulaire vraagpunten — genummerd vanaf 1, gelijk aan de nummers in lijst en kaart
     for (const [n, coord] of coords.entries()) {
-      const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
+      const res = await api(`/api/admin/routes/${route.id}/punten`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ latitude: coord.lat, longitude: coord.lng, points: 10, name: `Punt ${n + 1}` }),
@@ -424,7 +457,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
 
     // Finish op het middelpunt
-    const resEind = await fetch(`/api/admin/routes/${route.id}/punten`, {
+    const resEind = await api(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Finish", points: 0 }),
@@ -435,19 +468,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function voegPuntToeOp(lat: number, lng: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}/punten`, {
+    const res = await api(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ latitude: lat, longitude: lng, points: puntPunten, radius_meters: puntRadius }),
     });
     if (res.ok) {
       const nieuw: RoutePunt = await res.json();
+      onthoud({ soort: "punt-erbij", id: nieuw.id });
       // Is het laatste punt de finish (eindpunt), dan komt het nieuwe punt ervóór, niet erachter
       const laatste = punten[punten.length - 1];
       if (laatste && laatste.type === "eindpunt") {
         const volgorde = [...punten.slice(0, -1), nieuw, laatste];
         setPunten(volgorde);
-        await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
+        await api(`/api/admin/routes/${route.id}/punten/volgorde`, {
           method: "PATCH", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ volgorde: volgorde.map((p) => p.id) }),
         });
@@ -460,7 +494,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string) {
-    const res = await fetch(`/api/admin/routes/${route.id}/speciaal`, {
+    const res = await api(`/api/admin/routes/${route.id}/speciaal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // Sequentieel: alleen plek zooi op de kaart (teams krijgen een startbanaan in hun balk)
@@ -472,6 +506,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     });
     if (res.ok) {
       const nieuw: SpeciaalItem = await res.json();
+      onthoud({ soort: "item-erbij", id: nieuw.id });
       setSpecialeItems((p) => [...p, nieuw]);
       setGeselecteerdSpeciaal(nieuw);
       setAddSpeciaalModus(false);
@@ -493,15 +528,185 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setMobielTikPositie({ lat, lng });
   }
 
-  async function verwijderSpeciaalItem(id: string) {
-    if (!confirm("Speciaal item verwijderen?")) return;
-    await fetch(`/api/admin/routes/${route.id}/speciaal/${id}`, { method: "DELETE" });
-    if (geselecteerdSpeciaal?.id === id) setGeselecteerdSpeciaal(null);
-    setSpecialeItems((p) => p.filter((i) => i.id !== id));
+  // Vraag bewerken in een venster boven de editor (geen herladen, alles blijft open)
+  const [vraagVenster, setVraagVenster] = useState<{ punt: RoutePunt; vraag: VraagMetAntwoorden | null } | null>(null);
+  async function openVraag(punt: RoutePunt) {
+    const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}/vraag`);
+    setVraagVenster({ punt, vraag: res.ok ? await res.json() : null });
+  }
+  function vraagBijgewerkt(puntId: string, vraag: VraagMetAntwoorden | null) {
+    setVraagPuntIds((oud) => { const n = new Set(oud); if (vraag) n.add(puntId); else n.delete(puntId); return n; });
+    setNaamVoorstellen((oud) => {
+      const n = new Map(oud);
+      if (vraag?.type) n.set(puntId, naamUitVraag({ ...vraag, type: vraag.type })); else n.delete(puntId);
+      return n;
+    });
+    setVraagMaxPunten((oud) => {
+      const n = new Map(oud);
+      if (vraag) {
+        const perAntwoord = (vraag.answer_options ?? []).map((o) => o.punten).filter((x): x is number => typeof x === "number");
+        n.set(puntId, Math.max(vraag.points ?? 0, ...perAntwoord));
+      } else n.delete(puntId);
+      return n;
+    });
   }
 
-  async function slaSpeciaalItemOp(id: string, update: Partial<SpeciaalItem>) {
-    const res = await fetch(`/api/admin/routes/${route.id}/speciaal/${id}`, {
+  // Ongedaan maken in meerdere stappen: knop ↶ bovenin of Ctrl+Z.
+  // Een teruggezet punt of item krijgt een nieuw id; idMapRef zet oude id's om, zodat
+  // eerdere stappen voor dat punt (verschuiven, wijzigen) daarna nog steeds werken.
+  type Stap =
+    | { soort: "item-weg"; item: SpeciaalItem }
+    | { soort: "punt-weg"; punt: RoutePunt; plek: number; vraag: Record<string, unknown> | null }
+    | { soort: "item-erbij"; id: string }
+    | { soort: "punt-erbij"; id: string }
+    | { soort: "item-gewijzigd"; id: string; oud: Partial<SpeciaalItem> }
+    | { soort: "punt-gewijzigd"; id: string; oud: Partial<RoutePunt> }
+    | { soort: "volgorde"; ids: string[] };
+  const [stappen, setStappen] = useState<Stap[]>([]);
+  const [herstelToast, setHerstelToast] = useState<string | null>(null);
+  const [bezigMetHerstel, setBezigMetHerstel] = useState(false);
+  const herstelToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idMapRef = useRef(new Map<string, string>());
+  const los = (id: string) => { let x = id; while (idMapRef.current.has(x)) x = idMapRef.current.get(x)!; return x; };
+  function stapLabel(st: Stap): string {
+    switch (st.soort) {
+      case "item-weg": return "item verwijderd";
+      case "punt-weg": return `${st.punt.name} verwijderd`;
+      case "item-erbij": return "item toegevoegd";
+      case "punt-erbij": return "punt toegevoegd";
+      case "item-gewijzigd": return "latitude" in st.oud ? "item verschoven" : "item gewijzigd";
+      case "punt-gewijzigd": return "latitude" in st.oud ? "punt verschoven" : "punt gewijzigd";
+      case "volgorde": return "volgorde gewijzigd";
+    }
+  }
+  function onthoud(st: Stap, metToast = false) {
+    setStappen((oud) => [...oud.slice(-29), st]);
+    if (!metToast) return;
+    setHerstelToast(stapLabel(st));
+    if (herstelToastTimerRef.current) clearTimeout(herstelToastTimerRef.current);
+    herstelToastTimerRef.current = setTimeout(() => setHerstelToast(null), 10000);
+  }
+  // Huidige waarden van de velden die een wijziging gaat aanpassen
+  function oudeWaarden<T extends object>(bron: T | undefined, update: Partial<T>): Partial<T> {
+    const oud: Partial<T> = {};
+    if (bron) for (const k of Object.keys(update) as (keyof T)[]) oud[k] = bron[k];
+    return oud;
+  }
+  async function zetVolgorde(lijst: RoutePunt[]) {
+    setPunten(lijst);
+    await api(`/api/admin/routes/${route.id}/punten/volgorde`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ volgorde: lijst.map((x) => x.id) }),
+    });
+  }
+
+  async function maakOngedaan() {
+    const st = stappen[stappen.length - 1];
+    if (!st || bezigMetHerstel) return;
+    setBezigMetHerstel(true);
+    setHerstelToast(null);
+    setStappen((oud) => oud.slice(0, -1));
+    try {
+      if (st.soort === "item-weg") {
+        const { type, name, latitude, longitude, radius_meters, points_effect } = st.item;
+        const res = await api(`/api/admin/routes/${route.id}/speciaal`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, name, latitude, longitude, radius_meters, points_effect }),
+        });
+        if (res.ok) {
+          const terug: SpeciaalItem = await res.json();
+          idMapRef.current.set(st.item.id, terug.id);
+          setSpecialeItems((p) => [...p, terug]);
+        }
+      } else if (st.soort === "punt-weg") {
+        const p = st.punt;
+        const res = await api(`/api/admin/routes/${route.id}/punten`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: p.type, name: p.name, latitude: p.latitude, longitude: p.longitude, radius_meters: p.radius_meters, points: p.points }),
+        });
+        if (!res.ok) return;
+        const terug: RoutePunt = await res.json();
+        idMapRef.current.set(p.id, terug.id);
+        // Overige velden en de vraag met antwoorden terugzetten
+        await api(`/api/admin/routes/${route.id}/punten/${terug.id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ description: p.description, image_path: p.image_path, sound_path: p.sound_path, qr_unlock_enabled: p.qr_unlock_enabled, qr_secret: p.qr_secret }),
+        });
+        if (st.vraag) {
+          await api(`/api/admin/routes/${route.id}/punten/${terug.id}/vraag`, {
+            method: "PUT", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...st.vraag, antwoorden: st.vraag.answer_options ?? [] }),
+          });
+          vraagBijgewerkt(terug.id, st.vraag as unknown as VraagMetAntwoorden);
+        }
+        // Terug op dezelfde plek in de volgorde
+        const lijst = punten.filter((x) => x.id !== terug.id);
+        lijst.splice(Math.min(st.plek, lijst.length), 0, { ...p, id: terug.id });
+        await zetVolgorde(lijst);
+        await herlaadPunten();
+      } else if (st.soort === "item-erbij") {
+        const id = los(st.id);
+        await api(`/api/admin/routes/${route.id}/speciaal/${id}`, { method: "DELETE" });
+        setSpecialeItems((p) => p.filter((i) => i.id !== id));
+        if (geselecteerdSpeciaal?.id === id) setGeselecteerdSpeciaal(null);
+      } else if (st.soort === "punt-erbij") {
+        const id = los(st.id);
+        await api(`/api/admin/routes/${route.id}/punten/${id}`, { method: "DELETE" });
+        if (geselecteerd?.id === id) setGeselecteerd(null);
+        await herlaadPunten();
+      } else if (st.soort === "item-gewijzigd") {
+        await slaSpeciaalItemOp(los(st.id), st.oud, false);
+      } else if (st.soort === "punt-gewijzigd") {
+        const id = los(st.id);
+        const res = await api(`/api/admin/routes/${route.id}/punten/${id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(st.oud),
+        });
+        if (res.ok) {
+          const bijgewerkt: RoutePunt = await res.json();
+          setPunten((p) => p.map((pt) => pt.id === id ? bijgewerkt : pt));
+          setGeselecteerd((g) => (g?.id === id ? bijgewerkt : g));
+        }
+      } else if (st.soort === "volgorde") {
+        // Oude volgorde terug; punten die er toen nog niet waren blijven vóór de finish staan
+        const perId = new Map(punten.map((p) => [p.id, p]));
+        const lijst = st.ids.map(los).map((id) => perId.get(id)).filter((p): p is RoutePunt => !!p);
+        const nieuw = punten.filter((p) => !lijst.includes(p));
+        const eind = lijst[lijst.length - 1]?.type === "eindpunt" ? lijst.length - 1 : lijst.length;
+        lijst.splice(eind, 0, ...nieuw);
+        await zetVolgorde(lijst);
+      }
+    } finally {
+      setBezigMetHerstel(false);
+    }
+  }
+  // Ctrl+Z (of Cmd+Z), behalve tijdens het typen in een veld
+  const maakOngedaanRef = useRef(maakOngedaan);
+  maakOngedaanRef.current = maakOngedaan;
+  useEffect(() => {
+    function toets(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
+      const doel = e.target as HTMLElement | null;
+      if (doel && (doel.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(doel.tagName))) return;
+      if (document.querySelector("[data-vraagvenster]")) return;
+      e.preventDefault();
+      maakOngedaanRef.current();
+    }
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, []);
+
+  async function verwijderSpeciaalItem(id: string) {
+    // Geen bevestiging: met "Ongedaan maken" komt het terug
+    const item = specialeItems.find((i) => i.id === id);
+    await api(`/api/admin/routes/${route.id}/speciaal/${id}`, { method: "DELETE" });
+    if (geselecteerdSpeciaal?.id === id) setGeselecteerdSpeciaal(null);
+    setSpecialeItems((p) => p.filter((i) => i.id !== id));
+    if (item) onthoud({ soort: "item-weg", item }, true);
+  }
+
+  async function slaSpeciaalItemOp(id: string, update: Partial<SpeciaalItem>, registreer = true) {
+    if (registreer) onthoud({ soort: "item-gewijzigd", id, oud: oudeWaarden(specialeItems.find((i) => i.id === id), update) });
+    const res = await api(`/api/admin/routes/${route.id}/speciaal/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -518,7 +723,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function markerVerplaatst(id: string, lat: number, lng: number) {
-    await fetch(`/api/admin/routes/${route.id}/punten/${id}`, {
+    const oud = punten.find((p) => p.id === id);
+    if (oud) onthoud({ soort: "punt-gewijzigd", id, oud: { latitude: oud.latitude, longitude: oud.longitude } });
+    await api(`/api/admin/routes/${route.id}/punten/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ latitude: lat, longitude: lng }),
@@ -527,8 +734,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function verwijderPunt(id: string) {
-    if (!confirm("Punt verwijderen?")) return;
-    await fetch(`/api/admin/routes/${route.id}/punten/${id}`, { method: "DELETE" });
+    // Eerst bewaren (met vraag en antwoorden), zodat "Ongedaan maken" alles terug kan zetten
+    const plek = punten.findIndex((p) => p.id === id);
+    const punt = punten[plek];
+    let vraag: Record<string, unknown> | null = null;
+    if (punt && vraagPuntIds.has(id)) {
+      const res = await api(`/api/admin/routes/${route.id}/punten/${id}/vraag`);
+      if (res.ok) vraag = await res.json();
+    }
+    await api(`/api/admin/routes/${route.id}/punten/${id}`, { method: "DELETE" });
+    if (punt) onthoud({ soort: "punt-weg", punt, plek, vraag }, true);
     if (geselecteerd?.id === id) setGeselecteerd(null);
     await herlaadPunten();
   }
@@ -547,11 +762,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const laatsteIsEind = lijst[lijst.length - 1]?.type === "eindpunt";
     const hoog = laatsteIsEind || hub ? lijst.length - 1 : lijst.length;
     lijst.splice(Math.min(Math.max(doel, laag), hoog), 0, punt);
-    setPunten(lijst);
-    await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ volgorde: lijst.map((p) => p.id) }),
-    });
+    onthoud({ soort: "volgorde", ids: punten.map((p) => p.id) });
+    await zetVolgorde(lijst);
   }
 
   async function verplaatsVolgorde(id: string, richting: "omhoog" | "omlaag") {
@@ -566,16 +778,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
     const nieuw = [...punten];
     [nieuw[idx], nieuw[wissel]] = [nieuw[wissel], nieuw[idx]];
-    setPunten(nieuw);
-    await fetch(`/api/admin/routes/${route.id}/punten/volgorde`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ volgorde: nieuw.map((p) => p.id) }),
-    });
+    onthoud({ soort: "volgorde", ids: punten.map((p) => p.id) });
+    await zetVolgorde(nieuw);
   }
 
   async function slaRouteNaamOp() {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: nieuweNaam }),
@@ -584,7 +792,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function slaVerspreideInstellingenOp(teams: number, afstand: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ verwacht_aantal_teams: teams, doel_afstand_km: afstand }),
@@ -593,7 +801,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function slaItemWaardenOp(ster: number, bom: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ster_waarde: ster, bom_waarde: bom }),
@@ -602,7 +810,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function slaRespawnMinutenOp(minuten: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ respawn_minuten: minuten }),
@@ -612,7 +820,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   async function slaItemDuurOp(veld: "plekzooi_duur_seconden" | "spook_duur_seconden", minuten: number) {
     const seconden = Math.round(minuten * 60);
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [veld]: seconden }),
@@ -621,7 +829,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function slaTussenstandIntervalOp(minuten: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tussenstand_interval_minuten: minuten }),
@@ -630,7 +838,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function slaTussenstandDuurOp(seconden: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tussenstand_duur_seconden: seconden }),
@@ -638,28 +846,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, tussenstand_duur_seconden: seconden }));
   }
 
-  async function slaMistM2PerSterOp(m2: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mist_m2_per_ster: m2 }),
-    });
-    if (res.ok) setRoute((r) => ({ ...r, mist_m2_per_ster: m2 }));
-  }
-
-  async function slaStartLocatieOp(lat: number, lng: number) {
-    const res = await fetch(`/api/admin/routes/${route.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ start_latitude: lat, start_longitude: lng }),
-    });
-    if (res.ok) setRoute((r) => ({ ...r, start_latitude: lat, start_longitude: lng }));
-  }
-
   async function slaPuntOp(update: Partial<RoutePunt>) {
     if (!geselecteerd) return;
+    onthoud({ soort: "punt-gewijzigd", id: geselecteerd.id, oud: oudeWaarden(geselecteerd, update) });
     setOpslaan(true); setFout("");
-    const res = await fetch(`/api/admin/routes/${route.id}/punten/${geselecteerd.id}`, {
+    const res = await api(`/api/admin/routes/${route.id}/punten/${geselecteerd.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -714,7 +905,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
               onClick={async () => {
                 const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
-                const res = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
+                const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
                 if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
               }}>
               {route.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
@@ -722,24 +913,41 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           )}
           {!route.is_active && route.status === "gepubliceerd" && (
             <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
-              onClick={async () => {
-                const res = await fetch(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
-                if (res.ok) setRoute((r) => ({ ...r, is_active: true }));
-              }}>▶ Activeer</button>
+              onClick={() => setControleOpen(true)}>▶ Activeer</button>
+          )}
+          {!route.is_active && (
+            <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} onClick={() => setControleOpen(true)}
+              title="Klaar om te spelen? Controleer de route vóór het activeren">
+              🩺 Controle{controle.length ? ` (${controle.length})` : " ✓"}
+            </button>
           )}
           {route.is_active && (
-            <button className="btn btn-danger" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
-              onClick={async () => {
-                if (!confirm("Route deactiveren en terugzetten naar concept?")) return;
-                const res = await fetch(`/api/admin/routes/${route.id}`, {
+            <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+              vraag="Terug naar concept?" ja="Ja, deactiveer"
+              onBevestig={async () => {
+                const res = await api(`/api/admin/routes/${route.id}`, {
                   method: "PATCH",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ is_active: false, status: "concept" }),
                 });
                 if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
-              }}>⏹ Deactiveer</button>
+              }}>⏹ Deactiveer</BevestigKnop>
           )}
+          <button type="button" className="rl-knop" style={{ marginLeft: "auto", height: 30, fontSize: "0.76rem" }}
+            disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
+            title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
+            ↶ Ongedaan maken{stappen.length ? ` (${stappen.length})` : ""}
+          </button>
+          <span style={{ fontSize: "0.74rem", fontWeight: 700, whiteSpace: "nowrap",
+            color: opslag === "fout" ? "#FCA5A5" : opslag === "ok" ? "#86EFAC" : "var(--muted)",
+            visibility: opslag === "rust" ? "hidden" : "visible" }}>
+            {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
+          </span>
         </div>
+      </div>
+
+      <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: "8px 16px 0" }}>
+        💻 <strong>Tip:</strong> een route bewerk je het makkelijkst op een pc of laptop.
       </div>
 
       {/* Plaatsnaam zoeken — alleen zinvol zolang de route nog geen eigen punten heeft om op te centreren */}
@@ -845,12 +1053,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {/* Genereer knop */}
                   {centrumPunt && doelAfstandKm > 0 && (
                     <>
-                      <button
-                        className="btn btn-cyan"
-                        style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
-                        onClick={genereerPuntenInCirkel}>
-                        🔄 Genereer punten in cirkel
-                      </button>
+                      {punten.length > 0 ? (
+                        <BevestigKnop className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                          vraag={`Vervangt ${punten.length} punten.`} ja="Ja, vervang" onBevestig={genereerPuntenInCirkel}>
+                          🔄 Genereer punten in cirkel
+                        </BevestigKnop>
+                      ) : (
+                        <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }} onClick={genereerPuntenInCirkel}>
+                          🔄 Genereer punten in cirkel
+                        </button>
+                      )}
                     </>
                   )}
 
@@ -909,60 +1121,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             })()}
           </div>}
 
-          {route.modus === "mist" ? (
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div style={{ padding: "14px", borderBottom: "1px solid var(--line)" }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">🌫️ Startlocatie</label>
-                  <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-                    Nog geen startlocatie. Tik op de kaart → 🚩 Startlocatie.
-                  </p>
-                  {route.start_latitude !== null && route.start_longitude !== null ? (
-                    <div style={{ fontSize: "0.75rem", color: "var(--cyan)", marginTop: 6 }}>
-                      📍 {route.start_latitude.toFixed(5)}, {route.start_longitude.toFixed(5)}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: "0.75rem", color: "var(--red)", marginTop: 6 }}>
-                      Nog geen startlocatie gezet
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
-                👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen ({punten.length} vragen)
-              </div>
-
-              <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
-                {punten.length === 0 ? (
-                  <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                    Nog geen vragen. Tik op de kaart → ❓ Vraagpunt.
-                  </p>
-                ) : punten.map((pt) => (
-                  <div key={pt.id}
-                    onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
-                    style={{
-                      padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                      background: geselecteerd?.id === pt.id ? "rgba(255,255,255,0.12)" : "transparent",
-                      borderLeft: geselecteerd?.id === pt.id ? "3px solid #60A5FA" : "3px solid transparent",
-                    }}>
-                    <div style={{
-                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                      background: "var(--blue)",
-                      color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "0.72rem", fontWeight: 700,
-                    }}>❓</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>{pt.name}</div>
-                    </div>
-                    <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.85rem", padding: "2px 4px" }}>🗑️</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-          <>
           {/* Tabbladen */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
             <button
@@ -1169,8 +1327,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
 
           </div>
-          </>
-          )}
 
         </div>
 
@@ -1193,19 +1349,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               )}
               <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                {route.modus === "mist" ? "❓ Vraagpunt" : "📍 Punt"}
+                📍 Punt
               </button>
-              {route.modus === "mist" ? (
-                <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => { slaStartLocatieOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                  🚩 Startlocatie
-                </button>
-              ) : (
-                <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                  {route.modus === "sequentieel" ? "⛔ Plek zooi" : "🎁 Item"}
-                </button>
-              )}
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                {route.modus === "sequentieel" ? "⛔ Plek zooi" : "🎁 Item"}
+              </button>
               <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => setMobielTikPositie(null)}>
                 Annuleer
@@ -1237,7 +1386,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {/* Onderwerpen als knoppen */}
                 <div style={{ display: "flex", gap: 4 }}>
-                  {([["algemeen", "⚙️ Algemeen"], ["punten", "📍 Punten & vragen"], ...(route.modus !== "mist" ? [["items", "🎁 Items"]] : [])] as [typeof instellingenTab, string][]).map(([t, label]) => (
+                  {([["algemeen", "⚙️ Algemeen"], ["punten", "📍 Punten & vragen"], ["items", "🎁 Items"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
                     <button key={t} type="button" onClick={() => setInstellingenTab(t)}
                       style={{
                         flex: 1, padding: "8px 4px", borderRadius: 9, cursor: "pointer", fontSize: "0.78rem", fontWeight: 700,
@@ -1271,20 +1420,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                   <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>
-
-                {/* Mist-instellingen */}
-                {route.modus === "mist" && (
-                  <div className="form-group">
-                    <label className="form-label">🌫️ Mist-instellingen</label>
-                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Elke … m² weggespeelde mist = 1 ster</span>
-                    <input
-                      className="form-input" type="number" min={1} value={mistM2PerSter}
-                      onChange={(e) => setMistM2PerSter(Math.max(1, Number(e.target.value)))}
-                      onBlur={() => slaMistM2PerSterOp(mistM2PerSter)}
-                    />
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Startwaarde; stel bij na een proefronde.</span>
-                  </div>
-                )}
 
                 {/* Tussenstand */}
                 <div className="form-group">
@@ -1364,7 +1499,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Duur van spook en plekzooi */}
-                {route.modus !== "mist" && (
+                {(
                   <div className="form-group">
                     <label className="form-label">⏱️ Duur van effecten (minuten)</label>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1394,7 +1529,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Startitems */}
-                {route.modus !== "mist" && (
+                {(
                   <div className="form-group">
                     <label className="form-label">🎒 Startitems — gratis bij de start</label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: "6px 6px 6px 0" }}>
@@ -1440,7 +1575,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Items na de finish */}
-                {route.modus !== "mist" && (
+                {(
                   <div className="form-group">
                     <label className="form-label">🎁 Items inzetten na de finish</label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -1477,7 +1612,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <div style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
                         onClick={async () => {
                           const nieuw = !route.item_respawn;
-                          const res = await fetch(`/api/admin/routes/${route.id}`, {
+                          const res = await api(`/api/admin/routes/${route.id}`, {
                             method: "PATCH", headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ item_respawn: nieuw }),
                           });
@@ -1533,6 +1668,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </button>
         )}
 
+        {/* Klaar om te spelen? */}
+        {controleOpen && (
+          <ControleVenster controle={controle} status={route.status} actief={route.is_active}
+            onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} />
+        )}
+
+        {/* Vraag bewerken als venster over de hele editor */}
+        {vraagVenster && (
+          <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex", flexDirection: "column" }}>
+            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag}
+              onSluit={(vraag) => {
+                if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
+                setVraagVenster(null);
+              }} />
+          </div>
+        )}
+
+        {/* Net verwijderd: een paar seconden terug te halen */}
+        {herstelToast && stappen.length > 0 && (
+          <div style={{
+            position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 600,
+            display: "flex", alignItems: "center", gap: 10, padding: "8px 8px 8px 14px", borderRadius: 12,
+            background: "rgba(8,28,48,0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
+          }}>
+            🗑️ {herstelToast.charAt(0).toUpperCase() + herstelToast.slice(1)}
+            <button type="button" className="rl-knop rl-knop--cyan" onClick={maakOngedaan} disabled={bezigMetHerstel}
+              style={{ height: 30, fontSize: "0.78rem" }}>
+              {bezigMetHerstel ? "Bezig…" : "↶ Ongedaan maken"}
+            </button>
+            <button type="button" className="editor-paneel-sluit" style={{ marginLeft: 0 }} onClick={() => setHerstelToast(null)} title="Sluiten">✕</button>
+          </div>
+        )}
+
         {/* Looproute van één team: venster op de kaart, sluiten met de X */}
         {(() => {
           const t = teamRoutes.find((r) => r.teamIndex === uitgelichtTeam);
@@ -1576,14 +1745,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           }
           hubModus={route.modus === "verspreid" && punten.length >= 3}
           teamRoutes={teamRoutes}
-          centrumPunt={
-            route.modus === "mist"
-              ? (route.start_latitude !== null && route.start_longitude !== null ? { lat: route.start_latitude, lng: route.start_longitude } : null)
-              : (route.modus === "verspreid" ? centrumPunt : null)
-          }
+          centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
           ghostPunten={ghostPunten}
           ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
-          onCentrumVerplaatst={(lat, lng) => route.modus === "mist" ? slaStartLocatieOp(lat, lng) : setCentrumPunt({ lat, lng })}
+          onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
           onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}
@@ -1667,10 +1832,9 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
             {geselecteerd && (
               <PuntForm
                 punt={geselecteerd}
-                routeId={route.id}
+                onVraag={() => openVraag(geselecteerd)}
                 opslaan={opslaan}
                 fout={fout}
-                alleenVraag={route.modus === "mist"}
                 heeftVraag={vraagPuntIds.has(geselecteerd.id)}
                 naamVoorstel={naamVoorstellen.get(geselecteerd.id) ?? null}
                 onOpslaan={slaPuntOp}
@@ -1695,141 +1859,3 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
 }
 
 // ── StatusPil ─────────────────────────────────────────────────────────────────
-function StatusPil({ status, isActief }: { status: string; isActief: boolean }) {
-  if (isActief) return <span style={{ background: "var(--green-soft)", color: "var(--green)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>✓ Actief</span>;
-  if (status === "gepubliceerd") return <span style={{ background: "var(--cyan-soft)", color: "var(--cyan)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>Gepubliceerd</span>;
-  return <span style={{ background: "var(--line)", color: "var(--muted)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>Concept</span>;
-}
-
-// ── SpeciaalItemForm ──────────────────────────────────────────────────────────
-function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder, onSluit }: {
-  item: SpeciaalItem;
-  alleenPlekzooi: boolean;
-  onOpslaan: (u: Partial<SpeciaalItem>) => void;
-  onVerwijder: () => void;
-  onSluit: () => void;
-}) {
-  // Een klik op een type slaat meteen op; radius staat in ⚙️ Instellingen → Items
-  const type = item.type;
-  return (
-    <div className="editor-paneel-inhoud">
-      <div className="editor-paneel-kop">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/items/${type}.png`} alt="" style={{ width: 22, height: 22 }} />
-        <span>Item</span>
-        <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
-        {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
-          const gekozen = type === t;
-          const uit = alleenPlekzooi && t !== "plekzooi";
-          return (
-            <button key={t} type="button" disabled={uit} title={ITEM_UITLEG[t] ?? t}
-              onClick={() => { if (!gekozen) onOpslaan({ type: t, points_effect: t === "ster" ? 50 : 0, name: t === "plekzooi" ? "Plek zooi" : "Speciaal item" }); }}
-              style={{
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
-                borderRadius: 8, cursor: uit ? "not-allowed" : "pointer", opacity: uit ? 0.3 : 1,
-                border: `2px solid ${gekozen ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                background: gekozen ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
-              }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/items/${t}.png`} alt="" style={{ width: 26, height: 26 }} />
-              {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
-            </button>
-          );
-        })}
-      </div>
-
-      {type === "plekzooi" && (
-        <div className="editor-paneel-noot">⚠️ Onzichtbaar voor spelers. Duur: ⚙️ Instellingen.</div>
-      )}
-      {alleenPlekzooi && type !== "plekzooi" && (
-        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Sequentieel toont alleen plek zooi; dit item ziet niemand.</div>
-      )}
-      {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
-
-      <button className="rl-knop rl-knop--rood" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Verwijderen</button>
-    </div>
-  );
-}
-
-// ── PuntForm ──────────────────────────────────────────────────────────────────
-function PuntForm({ punt, routeId, opslaan, fout, alleenVraag, heeftVraag, naamVoorstel, onOpslaan, onVerwijder, onSluit }: {
-  punt: RoutePunt; routeId: string; opslaan: boolean; fout: string; alleenVraag?: boolean; heeftVraag: boolean;
-  naamVoorstel: string | null;
-  onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
-}) {
-  const [naam, setNaam] = useState(punt.name);
-  const [beschrijving, setBeschrijving] = useState(punt.description ?? "");
-  const [type, setType] = useState(punt.type);
-
-  useEffect(() => {
-    setNaam(punt.name); setBeschrijving(punt.description ?? ""); setType(punt.type);
-  // Alleen resetten bij wisselen van punt, niet bij elke prop-update (anders vecht dit met lokale invoer)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [punt.id]);
-
-  return (
-    <div className="editor-paneel-inhoud">
-      <div className="editor-paneel-kop">
-        <span style={{ fontSize: "1.1rem" }}>{type === "eindpunt" ? "🏁" : type === "informatiepunt" ? "ℹ️" : "📍"}</span>
-        <span>Punt</span>
-        <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
-      </div>
-
-      {/* Vraag: het belangrijkste, dus bovenaan */}
-      <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#93C5FD" : punt.type === "vraagpunt" ? "#FBBF24" : "var(--muted)" }}>
-        {heeftVraag ? "❓ Aan dit punt hangt een vraag." : punt.type === "vraagpunt" ? "⚠️ Dit vraagpunt heeft nog geen vraag." : "Aan dit punt hangt geen vraag."}
-      </div>
-      <a href={`/admin/routes/${routeId}/punten/${punt.id}`} className="rl-knop rl-knop--cyan"
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-        {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag toevoegen →"}
-      </a>
-
-      <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Naam</label>
-        <div style={{ display: "flex", gap: 6 }}>
-          <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem", flex: 1, minWidth: 0 }} />
-          {/* Naamvoorstel uit de vraag: alleen invullen als je erop klikt */}
-          {naamVoorstel && naamVoorstel !== naam && (
-            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
-              title={`Voorstel: "${naamVoorstel}" (uit de vraag)`} aria-label="Naam voorstellen" style={{ height: 38, width: 38 }}>💡</button>
-          )}
-        </div>
-      </div>
-      <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Beschrijving</label>
-        <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 48 }} />
-      </div>
-      {!alleenVraag && (
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Type</label>
-          <div style={{ display: "flex", gap: 3 }}>
-            {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
-              <button key={t} type="button" onClick={() => setType(t)}
-                style={{
-                  flex: 1, padding: "7px 2px", borderRadius: 8, cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
-                  border: `2px solid ${type === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                  background: type === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                  color: type === t ? "#fff" : "var(--muted)", whiteSpace: "nowrap",
-                }}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="editor-paneel-noot">Radius en punten: ⚙️ Instellingen.</div>
-      {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
-      <div style={{ display: "flex", gap: 6 }}>
-        <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}
-          onClick={() => onOpslaan({ name: naam, description: beschrijving, type })}>
-          {opslaan ? "Opslaan…" : "Opslaan"}
-        </button>
-        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={onVerwijder}>🗑️</button>
-      </div>
-    </div>
-  );
-}

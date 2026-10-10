@@ -51,11 +51,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.tussenstand_interval_minuten === "number" && body.tussenstand_interval_minuten >= 0) toegestaan.tussenstand_interval_minuten = body.tussenstand_interval_minuten;
   if (typeof body.tussenstand_duur_seconden === "number" && body.tussenstand_duur_seconden > 0) toegestaan.tussenstand_duur_seconden = body.tussenstand_duur_seconden;
   if (body.tussenstand_nu_tonen === true) toegestaan.tussenstand_trigger_at = new Date().toISOString();
-  if (typeof body.mist_m2_per_ster === "number" && body.mist_m2_per_ster > 0) toegestaan.mist_m2_per_ster = body.mist_m2_per_ster;
-  if (typeof body.start_latitude === "number" && typeof body.start_longitude === "number") {
-    toegestaan.start_latitude = body.start_latitude;
-    toegestaan.start_longitude = body.start_longitude;
-  }
   if (Object.keys(toegestaan).length === 0) {
     return NextResponse.json({ fout: "Geen geldige velden" }, { status: 400 });
   }

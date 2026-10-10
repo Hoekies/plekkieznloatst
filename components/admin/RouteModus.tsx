@@ -19,25 +19,11 @@ export const MODUS_INFO: Record<RouteModus, {
     kleur: "#67E8F9",
     tint: "rgba(6,182,212,0.16)",
   },
-  mist: {
-    label: "Mist",
-    omschrijving: "Gebied vrijspelen door te lopen",
-    kleur: "#FDBA74",
-    tint: "rgba(249,115,22,0.16)",
-  },
 };
 
-// Getekend i.p.v. emoji: emoji-ondersteuning verschilt per toestel (🌫️ viel op Windows
-// terug op een leeg blokje), deze iconen zien er overal identiek uit.
+// Getekend i.p.v. emoji: emoji-ondersteuning verschilt per toestel,
+// deze iconen zien er overal identiek uit.
 export function ModusIcoon({ modus, size = 20 }: { modus: RouteModus; size?: number }) {
-  if (modus === "mist") {
-    return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
-        <path d="M3 8h13M6 12h15M3 16h11M17.5 16H21" />
-      </svg>
-    );
-  }
   if (modus === "verspreid") {
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">

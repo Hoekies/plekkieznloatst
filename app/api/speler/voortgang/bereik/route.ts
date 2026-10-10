@@ -68,19 +68,17 @@ export async function POST(request: NextRequest) {
     .eq("id", sessie.route_id)
     .maybeSingle();
 
-  if (route?.modus !== "mist") {
-    // Mist heeft geen vaste volgorde. Verspreid en sequentieel: de eigen teamvolgorde
-    // (session_point_order) — oudere sequentiële sessies zonder die volgorde vallen terug op order_index.
-    const { data: spoLijst } = await admin
-      .from("session_point_order")
-      .select("volgorde, route_point_id")
-      .eq("session_id", sessie.id);
-    const juist = spoLijst && spoLijst.length > 0
-      ? spoLijst.find((s) => s.route_point_id === route_point_id)?.volgorde === aantalVerwerkt + 1
-      : route?.modus !== "verspreid" && punt.order_index === aantalVerwerkt + 1;
-    if (!juist) {
-      return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
-    }
+  // De eigen teamvolgorde (session_point_order) — oudere sequentiële sessies zonder die
+  // volgorde vallen terug op order_index.
+  const { data: spoLijst } = await admin
+    .from("session_point_order")
+    .select("volgorde, route_point_id")
+    .eq("session_id", sessie.id);
+  const juist = spoLijst && spoLijst.length > 0
+    ? spoLijst.find((s) => s.route_point_id === route_point_id)?.volgorde === aantalVerwerkt + 1
+    : route?.modus !== "verspreid" && punt.order_index === aantalVerwerkt + 1;
+  if (!juist) {
+    return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
   }
 
   // Ghost check: is het actieve punt geblokkeerd door een spook-effect?

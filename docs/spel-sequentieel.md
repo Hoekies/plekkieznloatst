@@ -1,7 +1,7 @@
 # Route op volgorde — speluitleg
 
 > Dit is de uitleg voor het spel **Route op volgorde** (in het adminpaneel heet dit *Sequentieel*).
-> Speel je een ander spel? Kijk dan bij [Verspreide route](spel-verspreid.md) of [Mist verjagen](spel-mist.md).
+> Speel je een ander spel? Kijk dan bij [Verspreide route](spel-verspreid.md).
 
 ## Wat is het spel?
 

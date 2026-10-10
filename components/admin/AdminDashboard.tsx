@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
@@ -29,22 +31,20 @@ export default function AdminDashboard({ initData }: Props) {
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
     const naam = s.nickname ?? s.login_name;
-    if (!confirm(`Volgende punt van ${naam} vrijgeven?\nDe vraag gaat bij hen direct open.`)) return;
     const res = await fetch(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
-      alert(fout ?? "Vrijgeven mislukt");
-    }
+      toonMelding(fout ?? "Vrijgeven mislukt", "fout");
+    } else toonMelding(`Punt van ${naam} vrijgegeven`, "ok");
     ververs();
   }
 
   async function stopSpel(s: SpelerOverzicht) {
     const naam = s.display_name;
-    if (!confirm(`Het spel van ${naam} stoppen?\nScore en voortgang vervallen.`)) return;
     const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
-      alert(fout ?? "Stoppen mislukt");
+      toonMelding(fout ?? "Stoppen mislukt", "fout");
     }
     ververs();
   }
@@ -142,7 +142,7 @@ export default function AdminDashboard({ initData }: Props) {
                 key={s.player_id}
                 speler={s}
                 totaalPunten={totaalPunten}
-                kanVrijgeven={route?.modus !== "mist"}
+                kanVrijgeven
                 onVrijgeven={() => geefPuntVrij(s)}
                 onStop={() => stopSpel(s)}
                 onNegeer={negeerHulp}
@@ -260,18 +260,20 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
           {speelt && (
             <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
               {kanVrijgeven && (
-                <button className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={onVrijgeven}>
+                <BevestigKnop className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }}
+                  vraag="Vraag gaat bij hen direct open." ja="Ja, vrijgeven" onBevestig={onVrijgeven}>
                   ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
-                </button>
+                </BevestigKnop>
               )}
               {s.hulp && (
                 <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={() => onNegeer(s.hulp!.id)}>
                   Negeren
                 </button>
               )}
-              <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px", color: "var(--red)" }} onClick={onStop}>
+              <BevestigKnop className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px", color: "var(--red)" }}
+                vraag="Score en voortgang vervallen." ja="Ja, stoppen" onBevestig={onStop}>
                 ⏹️ Spel stoppen
-              </button>
+              </BevestigKnop>
             </div>
           )}
         </div>

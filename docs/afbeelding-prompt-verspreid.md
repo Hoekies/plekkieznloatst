@@ -25,14 +25,16 @@ Subtitle beneath it: "Zelfde lus, ieder team een eigen startpunt."
 SECTION 1 — "Het idee" — a small diagram showing a circular loop of 6 numbered dots with a
 house-and-flag start/finish icon (🏠🏁) in the center. Three differently colored team arrows
 leave the center, each join the loop at a different dot, go around the loop, and return to the
-same center. Caption: "Iedereen start en finisht op dezelfde plek. Daartussen loopt elk team
-dezelfde lus, maar vanaf een ander punt — je hoeft nooit te racen naar hetzelfde punt."
+same center. The three team arrows from the center to the loop are about equally long. Caption:
+"Iedereen start en finisht op dezelfde plek. Elk team stapt op een eigen punt in de lus,
+ongeveer even ver van de start — je hoeft nooit te racen naar hetzelfde punt."
 
 SECTION 2 — "Hoe begin je?" (4 numbered steps, each with a small icon):
 1. 📱 Open de link en log in met je groep
 2. 🦊 Kies een teamnaam en icoon
 3. 📍 Geef locatietoegang
 4. 🚀 Druk op "Ga op pad" — je krijgt je eigen startpunt
+Small note under the steps: "Soms krijg je bij de start al items gratis in je balk."
 
 SECTION 3 — "De kaart" (small stylized map illustration with legend of map symbols):
 - 🔵 blauwe stip = jouw locatie
@@ -45,12 +47,13 @@ volgorde is niet gelijk."
 
 SECTION 4 — "Speciale items" as an icon grid of 2 columns × 5 rows, in exactly this order,
 each cell = emoji + short Dutch label:
-⭐ Ster — extra punten cadeau · 🔴 Verdubbeling — volgende vraag telt dubbel
+⭐ Ster — meteen extra punten · 🔴 Verdubbeling — volgende vraag telt dubbel
 📡 Radar — zie alle tegenstanders · 💣 Bom — tegenstander verliest punten
 👻 Spook — hun volgende punt verdwijnt · 🦹 Dief — steel hun volgende punten
 🍌 Banaan — gooi hun volgende punt om · 🔄 Wissel — ruil je score
-❓ Vraagteken — gok: winst of pech · ⛔ Plek zooi — onzichtbare val
-Small note: "Tik een item onderin aan en kies een tegenstander. Uitleg staat onder de i-knop."
+❓ Vraagteken — meteen een gok: winst of pech · ⛔ Plek zooi — onzichtbare val
+Small note: "Ster en vraagteken werken meteen. De rest komt in je balk: tik erop en kies
+een tegenstander. Uitleg staat onder de i-knop."
 Small note with a "🔄 respawn" badge icon: "Staat respawn aan? Dan komen opgeraapte items
 later weer terug op de kaart."
 
@@ -58,9 +61,11 @@ SECTION 5 — "Tips" (short bullet list with a lightbulb icon 💡):
 - Ga niet achter een ander team aan, hun volgorde is anders dan die van jou
 - Staat respawn aan? Dan loont een tweede rondje langs een goede plek
 - Je items blijven in je balk, ook als de app herlaadt
+- Gefinisht? Soms mag je nog items inzetten op teams die onderweg zijn, tot de uitslag bekend is
 
 FOOTER banner: "🏁 Terug bij de start staat je score vast — bekijk de eindstand!"
 
-Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
+Never use the word "hub" anywhere in the image; call the shared start/finish spot "start"
+or "de start". Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
 photorealistic humans, no readable brand logos other than the "PointRush" title itself.
 ```

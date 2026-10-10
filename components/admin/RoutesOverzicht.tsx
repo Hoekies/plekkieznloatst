@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
 
 export default function RoutesOverzicht() {
   const router = useRouter();
   const [routes, setRoutes] = useState<Route[]>([]);
   const [laden, setLaden] = useState(true);
   const [nieuweNaam, setNieuweNaam] = useState("");
-  const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid" | "mist">("sequentieel");
+  const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid">("sequentieel");
   const [nieuwAantalTeams, setNieuwAantalTeams] = useState(2);
   const [nieuwePlaats, setNieuwePlaats] = useState("");
   const [aanmaken, setAanmaken] = useState(false);
@@ -93,13 +95,19 @@ export default function RoutesOverzicht() {
   }
 
   async function verwijder(id: string, naam: string) {
-    if (!confirm(`Route "${naam}" verwijderen? Dit verwijdert ook alle punten en vragen.`)) return;
-    await fetch(`/api/admin/routes/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/routes/${id}`, { method: "DELETE" });
+    toonMelding(res.ok ? `Route "${naam}" verwijderd` : "Verwijderen mislukt", res.ok ? "ok" : "fout");
     laad();
   }
 
-  async function activeer(id: string) {
-    await fetch(`/api/admin/routes/${id}/activeren`, { method: "POST" });
+  // Kopie als basis voor een nieuwe route: alle instellingen, punten, vragen en items
+  const [kopieBezig, setKopieBezig] = useState<string | null>(null);
+  async function kopieer(id: string, naam: string) {
+    setKopieBezig(id);
+    const res = await fetch(`/api/admin/routes/${id}/kopie`, { method: "POST" });
+    setKopieBezig(null);
+    if (!res.ok) { toonMelding("Kopiëren mislukt", "fout"); return; }
+    toonMelding(`Kopie van "${naam}" gemaakt`, "ok");
     laad();
   }
 
@@ -131,6 +139,7 @@ export default function RoutesOverzicht() {
 
       {aanmaken && (
         <form onSubmit={nieuwRoute} className="card" style={{ marginBottom: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+          <div className="pc-tip">💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop. Op een groot scherm zie je de kaart, de puntenlijst en de instellingen tegelijk.</div>
           <div className="form-group">
             <label className="form-label">Naam van de route</label>
             <input className="form-input" placeholder="Bijv. Voorjaarsrit"
@@ -141,7 +150,7 @@ export default function RoutesOverzicht() {
             <label className="form-label">Speltype</label>
             <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
-              {(["sequentieel", "verspreid", "mist"] as const).map((m) => {
+              {(["sequentieel", "verspreid"] as const).map((m) => {
                 const info = MODUS_INFO[m];
                 const gekozen = nieuweModus === m;
                 return (
@@ -165,13 +174,11 @@ export default function RoutesOverzicht() {
             </div>
           </div>
 
-          {nieuweModus !== "mist" && (
-            <div className="form-group" style={{ width: 90 }}>
-              <label className="form-label">Teams</label>
-              <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
-                onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
-            </div>
-          )}
+          <div className="form-group" style={{ width: 90 }}>
+            <label className="form-label">Teams</label>
+            <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
+              onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
+          </div>
 
           <div className="form-group">
             <label className="form-label">Plaatsnaam (optioneel)</label>
@@ -223,10 +230,13 @@ export default function RoutesOverzicht() {
                     <button className="rl-knop" onClick={() => togglePubliceer(r)}>Publiceren</button>
                   )}
                   {!r.is_active && r.status === "gepubliceerd" && (
-                    <button className="rl-knop rl-knop--cyan" onClick={() => activeer(r.id)}>▶ Activeren</button>
+                    <button className="rl-knop rl-knop--cyan" onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}
+                      title="Eerst controleren of de route klaar is om te spelen">▶ Activeren</button>
                   )}
                   <button className="rl-knop" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
                   {/* Overige acties als directe icoonknoppen (geen uitklapmenu) */}
+                  <button className="rl-knop rl-knop--icoon" title="Kopie maken (met punten, vragen en items)" aria-label="Kopie maken"
+                    disabled={kopieBezig === r.id} onClick={() => kopieer(r.id, r.name)}>{kopieBezig === r.id ? "…" : "⧉"}</button>
                   <button className="rl-knop rl-knop--icoon" title="Exporteren (JSON-bestand)" aria-label="Exporteren"
                     onClick={() => exporteer(r.id, r.name)}>📤</button>
                   {!r.is_active && r.status === "gepubliceerd" && (
@@ -234,8 +244,8 @@ export default function RoutesOverzicht() {
                       onClick={() => togglePubliceer(r)}>↩</button>
                   )}
                   {!r.is_active && (
-                    <button className="rl-knop rl-knop--icoon rl-knop--rood" title="Verwijderen" aria-label="Verwijderen"
-                      onClick={() => verwijder(r.id, r.name)}>🗑️</button>
+                    <BevestigKnop className="rl-knop rl-knop--icoon rl-knop--rood" title="Verwijderen"
+                      vraag="Met alle punten en vragen?" ja="Ja, verwijder" onBevestig={() => verwijder(r.id, r.name)}>🗑️</BevestigKnop>
                   )}
                 </div>
               </div>

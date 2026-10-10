@@ -3,7 +3,7 @@ import type { createAdminClient } from "@/lib/supabase-admin";
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 // Het punt dat een team nu moet halen — zelfde volgorderegels als /api/speler/voortgang/bereik:
-// de eigen teamvolgorde (session_point_order), anders order_index. Mist heeft geen volgorde.
+// de eigen teamvolgorde (session_point_order), anders order_index.
 export async function bepaalVolgendPunt(
   admin: AdminClient,
   sessie: { id: string; route_id: string },
@@ -17,8 +17,6 @@ export async function bepaalVolgendPunt(
       .not("answered_at", "is", null),
   ]);
   const volgnummer = (aantalVerwerkt ?? 0) + 1;
-
-  if (route?.modus === "mist") return null;
 
   const { data: spo } = await admin
     .from("session_point_order")

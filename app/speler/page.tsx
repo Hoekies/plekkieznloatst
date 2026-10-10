@@ -22,7 +22,7 @@ export default async function SpelerHomePage() {
   // introscherm de uitleg van de juiste spelsoort toont (zonder route: algemene tekst).
   const { data: actieveRoute } = await admin
     .from("routes")
-    .select("id, modus, mist_m2_per_ster")
+    .select("id, modus")
     .eq("is_active", true)
     .maybeSingle();
 
@@ -35,7 +35,7 @@ export default async function SpelerHomePage() {
 
   if (activeSessie) {
     if (actieveRoute && activeSessie.route_id === actieveRoute.id) {
-      redirect(actieveRoute.modus === "mist" ? "/speler/mist" : "/speler/kaart");
+      redirect("/speler/kaart");
     }
     // Sessie hoort bij een route die niet meer actief is: afsluiten, zodat de groep
     // opnieuw via het introscherm op de huidige route start.
@@ -53,23 +53,12 @@ export default async function SpelerHomePage() {
       .eq("status", "voltooid")
       .limit(1)
       .maybeSingle();
-    if (klaar) redirect(actieveRoute.modus === "mist" ? "/speler/mist" : "/speler/finish");
-  }
-
-  let heeftVragen = false;
-  if (actieveRoute) {
-    const { count } = await admin
-      .from("route_points")
-      .select("id", { count: "exact", head: true })
-      .eq("route_id", actieveRoute.id);
-    heeftVragen = (count ?? 0) > 0;
+    if (klaar) redirect("/speler/finish");
   }
 
   return (
     <IntroScherm
       modus={actieveRoute?.modus ?? null}
-      mistM2PerSter={actieveRoute?.mist_m2_per_ster ?? null}
-      heeftVragen={heeftVragen}
     />
   );
 }

@@ -1,7 +1,7 @@
 # Verspreide route — speluitleg
 
 > Dit is de uitleg voor het spel **Verspreide route** (in het adminpaneel heet dit *Verspreid*).
-> Speel je een ander spel? Kijk dan bij [Route op volgorde](spel-sequentieel.md) of [Mist verjagen](spel-mist.md).
+> Speel je een ander spel? Kijk dan bij [Route op volgorde](spel-sequentieel.md).
 
 ## Wat is het spel?
 

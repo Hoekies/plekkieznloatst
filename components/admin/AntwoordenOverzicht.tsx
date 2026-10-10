@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -28,7 +30,7 @@ export default function AntwoordenOverzicht() {
     setBezig(sleutel);
     try {
       const res = await fn();
-      if (!res.ok) alert((await res.json().catch(() => ({}))).fout ?? "Mislukt");
+      if (!res.ok) toonMelding((await res.json().catch(() => ({}))).fout ?? "Mislukt", "fout");
       await laad();
     } finally {
       setBezig(null);
@@ -38,18 +40,17 @@ export default function AntwoordenOverzicht() {
   async function wisselUitslag() {
     if (!data) return;
     const vrij = !data.uitslag_vrijgegeven;
-    if (vrij) {
-      const nogBezig = data.teams.filter((t) => t.status === "actief").length;
-      const waarschuwing = [
-        nogBezig ? `${nogBezig} team${nogBezig !== 1 ? "s zijn" : " is"} nog niet gefinisht.` : "",
-        data.wachtende_fotos ? `Er ${data.wachtende_fotos !== 1 ? "zijn" : "is"} nog ${data.wachtende_fotos} foto${data.wachtende_fotos !== 1 ? "'s" : ""} niet gekeurd.` : "",
-      ].filter(Boolean).join("\n");
-      if (!confirm(`Uitslag vrijgeven? Alle teams zien dan de eindstand.${waarschuwing ? "\n\n" + waarschuwing : ""}`)) return;
-    }
     await actie("uitslag", () => fetch("/api/admin/uitslag", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij }),
     }));
   }
+
+  // Waarschuwing bij het vrijgeven: teams nog onderweg of foto's nog niet gekeurd
+  const nogBezig = data?.teams.filter((t) => t.status === "actief").length ?? 0;
+  const uitslagWaarschuwing = [
+    nogBezig ? `${nogBezig} team${nogBezig !== 1 ? "s" : ""} onderweg.` : "",
+    data?.wachtende_fotos ? `${data.wachtende_fotos} foto${data.wachtende_fotos !== 1 ? "'s" : ""} niet gekeurd.` : "",
+  ].filter(Boolean).join(" ");
 
   if (!data) return <p style={{ color: "var(--muted)" }}>Laden…</p>;
   if (!data.route) return <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Er is geen actieve route.</p></div>;
@@ -74,9 +75,14 @@ export default function AntwoordenOverzicht() {
             title="Eindstand en per team de vragen, items en gelopen route — op te slaan als PDF">
             📄 Rapport (PDF)
           </a>
-          <button className={`rl-knop ${data.uitslag_vrijgegeven ? "" : "rl-knop--cyan"}`} disabled={bezig === "uitslag"} onClick={wisselUitslag}>
-            {data.uitslag_vrijgegeven ? "🔒 Uitslag weer verbergen" : "🏆 Uitslag vrijgeven"}
-          </button>
+          {data.uitslag_vrijgegeven ? (
+            <button className="rl-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
+          ) : (
+            <BevestigKnop className="rl-knop rl-knop--cyan" disabled={bezig === "uitslag"} onBevestig={wisselUitslag}
+              vraag={`Alle teams zien de eindstand.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
+              🏆 Uitslag vrijgeven
+            </BevestigKnop>
+          )}
         </div>
       </div>
 

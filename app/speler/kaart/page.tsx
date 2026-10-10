@@ -67,7 +67,7 @@ export default async function SpelerKaartPage() {
 
   // Sorteer punten op de teamvolgorde
   let punten = ruwePunten ?? [];
-  if (route.modus !== "mist" && spo && heeftVolgorde) {
+  if (spo && heeftVolgorde) {
     const puntenMap = new Map((ruwePunten ?? []).map((p) => [p.id, p]));
     punten = spo.map((s) => puntenMap.get(s.route_point_id)).filter(Boolean) as typeof punten;
   }

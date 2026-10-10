@@ -24,7 +24,7 @@ TITLE (top banner, large): "🛠️ Beheerdershandleiding — PointRush"
 Subtitle beneath it: "Routes bouwen, groepen beheren, live volgen."
 
 SECTION 1 — "1. Route aanmaken" (numbered step list with small icons):
-1. 🗺️ Nieuwe route + kies speltype: Sequentieel, Verspreid of Mist
+1. 🗺️ Nieuwe route + kies speltype: Sequentieel of Verspreid
 2. 📍 Punten plaatsen op de kaart
 3. ❓ Vraag, type en punten per punt instellen
 4. ✅ Publiceer de route
@@ -33,7 +33,6 @@ Small note: "Speltype ligt vast na aanmaken — twijfel je? Maak twee routes."
 SECTION 2 — "Drie speltypen" as three side-by-side small cards:
 🎯 Sequentieel — vaste volgorde voor iedereen
 🎲 Verspreid — lus, ieder team eigen startpunt
-☁️ Mist — geen route, mist vrijspelen voor sterren en badges
 
 SECTION 3 — "2. Groepen beheren" (icon row with short labels):
 ➕ Nieuwe groep aanmaken · 🔑 Wachtwoord wijzigen · ✏️ Loginnaam wijzigen ·

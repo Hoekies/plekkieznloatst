@@ -14,11 +14,10 @@ PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route l
 - Speciale items oppakken en inzetten op andere teams
 - Live kaart met globale posities van medespelers
 - Alias en icoon instellen voor herkenning
-- **Mist**-modus: mist wegspelen door te lopen, met plaatsgebonden badges
 
 ### Voor beheerders
 - Routes aanmaken met punten, vragen en speciale items
-- **Sequentieel**, **Verspreid (lus)** of **Mist** modus per route
+- **Sequentieel** of **Verspreid (lus)** modus per route
 - Verspreid-modus: automatische puntgenerator in cirkelpatroon, met versleepbaar middelpunt en ghost-voorvertoning
 - Teams starten verspreid over de route, met ongeveer gelijke aanloop vanaf de startplek
 - Groepen aanmaken, in-/uitschakelen en inloggegevens beheren
@@ -124,6 +123,7 @@ supabase/migrations/033_items_na_finish.sql
 supabase/migrations/034_startitems_instelbaar.sql
 supabase/migrations/035_omgekeerde_teams.sql
 supabase/migrations/036_items_na_finish_per_item.sql
+supabase/migrations/037_mist_verwijderen.sql
 ```
 
 ### Starten
@@ -168,14 +168,14 @@ docs/             → Beheerdershandleiding, spelersinstructies
 
 - [Beheerdershandleiding](docs/beheerdershandleiding.md)
 - [Spelersinstructies](docs/spelersinstructies.md)
-- Speluitleg per speltype: [Sequentieel](docs/spel-sequentieel.md) · [Verspreid](docs/spel-verspreid.md) · [Mist](docs/spel-mist.md)
+- Speluitleg per speltype: [Sequentieel](docs/spel-sequentieel.md) · [Verspreid](docs/spel-verspreid.md)
 - Technisch ontwerp: [technisch-ontwerp.md](docs/technisch-ontwerp.md)
 
 ### Afbeelding-handleidingen genereren
 
 Voor elke speluitleg hierboven, plus de beheerdershandleiding, staat een kant-en-klare
 ChatGPT-prompt om er een geïllustreerde posterhandleiding van te laten maken:
-[Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md) · [Mist](docs/afbeelding-prompt-mist.md) · [Admin](docs/afbeelding-prompt-admin.md).
+[Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md) · [Admin](docs/afbeelding-prompt-admin.md).
 Plak de codeblok uit zo'n bestand in ChatGPT (met beeldgeneratie) om de afbeelding te maken.
 Voor een korte, printbare spelershandleiding op A5 met het logo: [spelers-a5](docs/afbeelding-prompt-spelers-a5.md).
 
