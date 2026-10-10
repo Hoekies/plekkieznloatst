@@ -1764,3 +1764,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 @media (max-width: 768px) {
   .pc-tip--alleen-mobiel { display: block; }
 }
+
+/* Kaartje in de vraag-editor: alleen als er naast formulier en spelersweergave ruimte is */
+@media (max-width: 1100px) {
+  .vraag-kaart-kolom { display: none !important; }
+}

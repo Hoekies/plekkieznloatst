@@ -547,6 +547,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const i = punten.findIndex((x) => x.id === p.id);
     return String(route.modus === "verspreid" && punten.length >= 3 ? i : i + 1);
   };
+  // Alle punten voor het kaartje in de vraag-editor, met hetzelfde label als op de grote kaart
+  const kaartPunten = punten.map((p, i) => ({
+    id: p.id, lat: p.latitude, lng: p.longitude,
+    label: p.type === "eindpunt" && i === punten.length - 1 ? "🏁" : route.modus === "verspreid" && punten.length >= 3 && i === 0 ? "🏠" : kaartNummer(p),
+  }));
   async function openVraag(punt: RoutePunt) {
     const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}/vraag`);
     setVraagVenster({ punt, vraag: res.ok ? await res.json() : null });
@@ -1719,7 +1724,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Alle vragen achter elkaar */}
         {alleVragenOpen && (
-          <AlleVragenVenster routeId={route.id} punten={vraagpunten} nummer={kaartNummer}
+          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer}
             heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt}
             onSluit={() => setAlleVragenOpen(false)} />
         )}
@@ -1727,7 +1732,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Vraag bewerken als venster over de hele editor */}
         {vraagVenster && (
           <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag}
+            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten}
               onSluit={(vraag) => {
                 if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
                 setVraagVenster(null);

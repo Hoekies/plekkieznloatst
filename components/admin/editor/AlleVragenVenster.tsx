@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import type { RoutePunt } from "@/types/database";
 import VraagEditorPagina, { type VraagMetAntwoorden } from "../VraagEditorPagina";
+import type { KaartPunt } from "../PuntMiniKaart";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
-export default function AlleVragenVenster({ routeId, punten, nummer, heeftVraag, onBijgewerkt, onSluit }: {
+export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onSluit }: {
   routeId: string;
+  kaartPunten: KaartPunt[];              // alle punten van de route, voor het kaartje
   punten: RoutePunt[];                   // de vraagpunten, in routevolgorde
   nummer: (p: RoutePunt) => string;      // zelfde nummer als op de kaart
   heeftVraag: (id: string) => boolean;
@@ -73,7 +75,7 @@ export default function AlleVragenVenster({ routeId, punten, nummer, heeftVraag,
           {!punt ? null : vraag === undefined ? (
             <p style={{ padding: 28, color: "var(--muted)" }}>Laden…</p>
           ) : (
-            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag}
+            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten}
               opslaanLabel={index < punten.length - 1 ? "Opslaan & volgende →" : "Opslaan & klaar"}
               onSluit={(v) => {
                 if (v === undefined) { onSluit(); return; }

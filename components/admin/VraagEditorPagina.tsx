@@ -6,6 +6,10 @@ import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
 import BevestigKnop from "./BevestigKnop";
+import dynamic from "next/dynamic";
+import type { KaartPunt } from "./PuntMiniKaart";
+
+const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
@@ -34,9 +38,11 @@ interface Props {
   onSluit?: (vraag: VraagMetAntwoorden | null | undefined) => void;
   // Andere tekst op de opslaanknop, bijvoorbeeld "Opslaan & volgende →" bij alle vragen achter elkaar
   opslaanLabel?: string;
+  // Andere punten van de route, klein op het kaartje ter oriëntatie; label = nummer op de kaart
+  kaartPunten?: KaartPunt[];
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -565,6 +571,22 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── Waar ligt dit punt? ── */}
+        <div className="vraag-kaart-kolom" style={{ flex: 1, minWidth: 260, borderLeft: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
+          <div style={{
+            padding: "12px 16px", borderBottom: "1px solid var(--line)",
+            fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em",
+          }}>
+            📍 Op de kaart — {punt.name}
+          </div>
+          <div style={{ flex: 1, minHeight: 0, padding: 12 }}>
+            <PuntMiniKaart
+              punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
+              radius={punt.radius_meters ?? 10}
+              andere={kaartPunten} />
           </div>
         </div>
       </div>
