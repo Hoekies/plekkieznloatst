@@ -40,10 +40,12 @@ export async function POST(request: NextRequest) {
     .filter((p: { a: unknown; b: unknown }) => geldig(p?.a) && geldig(p?.b))
     .slice(0, 80) as { a: Plek; b: Plek }[];
 
+  // vers = herberekenen: niet uit het geheugen, opnieuw opvragen
+  const vers = body?.vers === true;
   const uit: Record<string, Stuk | null> = {};
   const nodig = paren.filter((p) => {
     const k = sleutel(p.a, p.b);
-    if (cache.has(k)) { uit[k] = cache.get(k)!; return false; }
+    if (!vers && cache.has(k)) { uit[k] = cache.get(k)!; return false; }
     return true;
   });
   // Een paar tegelijk, om de gratis dienst niet te overvragen

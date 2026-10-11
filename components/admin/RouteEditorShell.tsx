@@ -966,21 +966,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </button>
         </div>
 
-        {/* Rij 2: status + acties */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        {/* Rij 2: status en route-stappen links, hulpmiddelen in het midden, ongedaan maken en opslagstatus rechts */}
+        <div className="editor-balk">
           <StatusPil status={route.status} isActief={route.is_active} />
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 7, flexShrink: 0,
-            padding: "4px 11px 4px 6px", borderRadius: 99,
-            background: MODUS_INFO[route.modus].tint,
-            border: `1px solid ${MODUS_INFO[route.modus].kleur}55`,
-            color: MODUS_INFO[route.modus].kleur, fontSize: "0.78rem", fontWeight: 700,
-          }}>
-            <ModusIcoon modus={route.modus} size={16} />
+          <span className="editor-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }}>
+            <ModusIcoon modus={route.modus} size={14} />
             {MODUS_INFO[route.modus].label}
           </span>
           {!route.is_active && (
-            <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+            <button className="rl-knop"
               onClick={async () => {
                 const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
                 const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
@@ -990,25 +984,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           )}
           {!route.is_active && route.status === "gepubliceerd" && (
-            <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
-              onClick={() => setControleOpen(true)}>▶ Activeer</button>
-          )}
-          <button className={`btn ${wegenAan ? "btn-cyan" : "btn-ghost"}`} style={{ fontSize: "0.78rem", padding: "5px 10px" }} onClick={wisselWegen}
-            title={wegenAan ? "Lijnen en afstanden volgen wegen en voetpaden. Klik voor hemelsbreed." : "Lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
-            🚶 Wegen {wegenAan ? "aan" : "uit"}
-          </button>
-          <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} disabled={!vraagpunten.length}
-            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
-            📝 Alle vragen ({vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length})
-          </button>
-          {!route.is_active && (
-            <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} onClick={() => setControleOpen(true)}
-              title="Klaar om te spelen? Controleer de route vóór het activeren">
-              🩺 Controle{controle.length ? ` (${controle.length})` : " ✓"}
-            </button>
+            <button className="rl-knop rl-knop--cyan" onClick={() => setControleOpen(true)}>▶ Activeer</button>
           )}
           {route.is_active && (
-            <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+            <BevestigKnop className="rl-knop rl-knop--rood"
               vraag="Terug naar concept?" ja="Ja, deactiveer"
               onBevestig={async () => {
                 const res = await api(`/api/admin/routes/${route.id}`, {
@@ -1019,16 +998,40 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
               }}>⏹ Deactiveer</BevestigKnop>
           )}
-          <button type="button" className="rl-knop" style={{ marginLeft: "auto", height: 30, fontSize: "0.76rem" }}
-            disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
-            title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-            ↶ Ongedaan maken{stappen.length ? ` (${stappen.length})` : ""}
+
+          <span className="editor-balk-scheiding" aria-hidden />
+
+          {/* Wegen: één knop; aan = opnieuw berekenen, ✕ = uit */}
+          <span className="editor-groep">
+            <button className={`rl-knop${wegenAan ? " rl-knop--cyan" : ""}`}
+              onClick={wegenAan ? wegen.herbereken : wisselWegen} disabled={wegen.bezig}
+              title={wegenAan ? "Lijnen en afstanden volgen wegen en voetpaden. Klik om alles opnieuw te berekenen." : "Lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
+              {wegen.bezig ? "⏳ Wegen…" : wegenAan ? "🚶 Wegen ↻" : "🚶 Wegen uit"}
+            </button>
+            {wegenAan && (
+              <button className="rl-knop rl-knop--cyan" onClick={wisselWegen} title="Wegen uit: lijnen en afstanden hemelsbreed" aria-label="Wegen uit">✕</button>
+            )}
+          </span>
+          <button className="rl-knop" disabled={!vraagpunten.length}
+            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
+            📝 Vragen {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
           </button>
-          <span style={{ fontSize: "0.74rem", fontWeight: 700, whiteSpace: "nowrap",
-            color: opslag === "fout" ? "#FCA5A5" : opslag === "ok" ? "#86EFAC" : "var(--muted)",
-            visibility: opslag === "rust" ? "hidden" : "visible" }}>
+          {!route.is_active && (
+            <button className="rl-knop" onClick={() => setControleOpen(true)}
+              title="Klaar om te spelen? Controleer de route vóór het activeren">
+              🩺 Controle {controle.length ? <span className="editor-teller">{controle.length}</span> : "✓"}
+            </button>
+          )}
+
+          <span style={{ flex: 1 }} />
+          <span className={`editor-opslag editor-opslag--${opslag}`}>
             {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
           </span>
+          <button type="button" className="rl-knop"
+            disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
+            title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
+            ↶ Ongedaan maken{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+          </button>
         </div>
       </div>
 
@@ -1355,7 +1358,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               return (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)" }}>
-                    <span>💡 Advies: ±{totaalAdvies} items · nu {totaalNu} — <span style={{ color: stand.kleur, fontWeight: 700 }}>{stand.tekst}</span></span>
+                    <span style={{ whiteSpace: "nowrap" }} title={`Advies: ongeveer ${totaalAdvies} items, nu ${totaalNu}`}>💡 ±{totaalAdvies} · nu {totaalNu} · <span style={{ color: stand.kleur, fontWeight: 700 }}>{stand.tekst}</span></span>
                     <button type="button" onClick={() => setAdviesOpen((v) => !v)} title="Advies voor een eerlijk spel" aria-expanded={adviesOpen}
                       style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
                         border: `1px solid ${adviesOpen ? "#FFE680" : "rgba(255,255,255,0.25)"}`, background: adviesOpen ? "rgba(255,217,59,0.15)" : "transparent",
@@ -1928,7 +1931,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <>
                 {teamSchattingen.map((s) => (
                   <div key={s.teamIndex} className="route-editor-tijden-rij"
-                    title={`Tijd: lopen ≈ ${formateerMinuten(s.lopenMin)} · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}
+                    // Klik = de looproute van dit team op de kaart (nogmaals klikken = weer alle teams)
+                    onClick={() => setUitgelichtTeam(uitgelichtTeam === s.teamIndex ? null : s.teamIndex)}
+                    style={{ cursor: "pointer", borderRadius: 6, background: uitgelichtTeam === s.teamIndex ? "rgba(255,255,255,0.1)" : undefined }}
+                    title={`Klik om de route van Team ${s.teamIndex} te zien
+Tijd: lopen ≈ ${formateerMinuten(s.lopenMin)} · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}
 Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed) · items ≈ ${s.punten.items >= 0 ? "+" : ""}${s.punten.items}`}>
                     <span style={{ width: 9, height: 9, borderRadius: 3, background: s.kleur, flexShrink: 0 }} />
                     <span style={{ color: s.kleur, fontWeight: 700 }}>Team {s.teamIndex}</span>
@@ -1940,26 +1947,12 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 {teamSchattingen.length > 0 && (
                   <div className="route-editor-tijden-voet">4,5 km/u · 2 min/vraag · 70% goed · items meegerekend</div>
                 )}
-                {/* Check: genoeg items voor deze lengte en speeltijd? */}
-                {itemCheck && (
-                  <div style={{ marginTop: 6, paddingTop: 5, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: "0.7rem", lineHeight: 1.4 }}>
-                    {itemCheck.tekort > 0 ? (
-                      <span style={{ color: "#FBBF24" }}>
-                        🎁 {itemCheck.nuOppakbaar}/±{itemCheck.advies.oppakbaar} items (+{itemCheck.advies.plekzooi} plek zooi) — nog {itemCheck.tekort}
-                        {itemCheck.voorstellen.length > 0 && ", zie gouden ➕"}
-                      </span>
-                    ) : itemCheck.teVeel ? (
-                      <span style={{ color: "#F87171" }}>🎁 {itemCheck.nuOppakbaar} items, advies ±{itemCheck.advies.oppakbaar}: te veel</span>
-                    ) : (
-                      <span style={{ color: "#4ADE80" }}>🎁 Genoeg items (±{itemCheck.advies.oppakbaar} + {itemCheck.advies.plekzooi} plek zooi)</span>
-                    )}
-                    {itemCheck.voorstellen.length > 0 && (
-                      <button onClick={() => setToonVoorstellen((v) => !v)}
-                        style={{ display: "block", marginTop: 3, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
-                        {toonVoorstellen ? "Voorstellen verbergen" : "Voorstellen tonen"}
-                      </button>
-                    )}
-                  </div>
+                {/* Voorgestelde plekken voor extra items (gouden ➕) tonen of verbergen */}
+                {itemCheck && itemCheck.voorstellen.length > 0 && (
+                  <button onClick={() => setToonVoorstellen((v) => !v)}
+                    style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
+                    {toonVoorstellen ? "➕ Voorstellen verbergen" : "➕ Voorstellen tonen"}
+                  </button>
                 )}
                 {/* Geplaatste items per soort (bewust klein en ingetogen) */}
                 {specialeItems.length > 0 && (() => {

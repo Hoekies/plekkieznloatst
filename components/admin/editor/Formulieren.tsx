@@ -7,9 +7,9 @@ import { ITEM_UITLEG } from "./item-uitleg";
 import NaamKiezer from "../NaamKiezer";
 
 export function StatusPil({ status, isActief }: { status: string; isActief: boolean }) {
-  if (isActief) return <span style={{ background: "var(--green-soft)", color: "var(--green)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>✓ Actief</span>;
-  if (status === "gepubliceerd") return <span style={{ background: "var(--cyan-soft)", color: "var(--cyan)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>Gepubliceerd</span>;
-  return <span style={{ background: "var(--line)", color: "var(--muted)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>Concept</span>;
+  if (isActief) return <span className="editor-chip" style={{ background: "var(--green-soft)", color: "var(--green)" }}>● Actief</span>;
+  if (status === "gepubliceerd") return <span className="editor-chip" style={{ background: "var(--cyan-soft)", color: "var(--cyan)" }}>Gepubliceerd</span>;
+  return <span className="editor-chip" style={{ background: "var(--line)", color: "var(--muted)" }}>Concept</span>;
 }
 
 // ── SpeciaalItemForm ──────────────────────────────────────────────────────────

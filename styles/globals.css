@@ -1769,3 +1769,25 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 @media (max-width: 1100px) {
   .vraag-kaart-kolom { display: none !important; }
 }
+
+/* Tweede balk van de route-editor: alles even hoog en in dezelfde stijl */
+.editor-balk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.editor-balk .rl-knop { height: 32px; padding: 0 12px; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 6px; }
+.editor-balk .rl-knop:disabled { opacity: 0.45; cursor: default; }
+.editor-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 99px;
+  border: 1px solid transparent; font-size: 0.74rem; font-weight: 700; white-space: nowrap;
+}
+.editor-balk-scheiding { width: 1px; height: 22px; background: rgba(255,255,255,0.18); margin: 0 4px; }
+.editor-groep { display: inline-flex; }
+.editor-groep .rl-knop:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.editor-groep .rl-knop + .rl-knop { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left-width: 0; padding: 0 9px; }
+.editor-teller {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; font-size: 0.68rem;
+  background: rgba(255,255,255,0.16); display: inline-flex; align-items: center; justify-content: center;
+}
+.editor-opslag { font-size: 0.74rem; font-weight: 700; white-space: nowrap; transition: opacity 0.3s; }
+.editor-opslag--rust { opacity: 0; }
+.editor-opslag--bezig { color: var(--muted); }
+.editor-opslag--ok { color: #86EFAC; }
+.editor-opslag--fout { color: #FCA5A5; }
