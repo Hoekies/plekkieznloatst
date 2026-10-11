@@ -236,8 +236,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     <div style={{ display: "flex", flexDirection: "column", height: onSluit ? "100%" : "100vh" }}>
       {/* Topbar */}
       <div className="admin-topbar" style={{ gap: 12 }}>
-        <button type="button" onClick={() => terug()} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--muted)", fontSize: "0.85rem", flexShrink: 0 }}>
-          ← Route
+        <button type="button" onClick={() => terug()} className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>
+          ← Terug
         </button>
         <h1 style={{ flex: 1 }}>Vraag — {naam.trim() || punt.name}</h1>
         <button type="button" className={`btn ${qrEnabled ? "btn-cyan" : "btn-outline"}`} style={{ fontSize: "0.82rem", flexShrink: 0 }}
