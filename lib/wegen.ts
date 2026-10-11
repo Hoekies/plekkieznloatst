@@ -59,9 +59,16 @@ export function useWegen(paren: [Plek, Plek][], aan = true) {
     const stuk = (a: Plek, b: Plek): { afstandM: number; lijn: Plek[] } | null => {
       const [x, y, omgekeerd] = geordend(a, b);
       const s = aan ? bekend.get(sleutel(x, y)) : undefined;
-      if (!s) return null;
-      const lijn = s.lijn.map(([lat, lng]) => ({ lat, lng }));
-      return { afstandM: s.afstandM, lijn: omgekeerd ? lijn.reverse() : lijn };
+      if (!s || !s.lijn.length) return null;
+      // De routeservice begint en eindigt op de dichtstbijzijnde weg of het dichtstbijzijnde pad.
+      // Ligt een punt daar een stukje vanaf (bijv. de start op een plein), dan de lijn netjes
+      // doortrekken naar het punt zelf en dat stukje meetellen.
+      const weg = s.lijn.map(([lat, lng]) => ({ lat, lng }));
+      const begin = weg[0], eind = weg[weg.length - 1];
+      const aanloop = haversine(x.lat, x.lng, begin.lat, begin.lng);
+      const uitloop = haversine(eind.lat, eind.lng, y.lat, y.lng);
+      const lijn = [...(aanloop > 1 ? [x] : []), ...weg, ...(uitloop > 1 ? [y] : [])];
+      return { afstandM: s.afstandM + aanloop + uitloop, lijn: omgekeerd ? lijn.reverse() : lijn };
     };
     const afstand = (a: Plek, b: Plek) => stuk(a, b)?.afstandM ?? haversine(a.lat, a.lng, b.lat, b.lng);
     const lijn = (a: Plek, b: Plek) => stuk(a, b)?.lijn ?? [a, b];
