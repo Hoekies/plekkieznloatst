@@ -67,16 +67,16 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
 
       {/* Vraag van het gekozen punt */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: "1px solid var(--line)", fontSize: "0.8rem", color: "var(--muted)" }}>
-          <button type="button" className="rl-knop" style={{ height: 30 }} disabled={index === 0} onClick={() => setIndex(index - 1)}>← Vorige</button>
-          <span style={{ flex: 1, textAlign: "center" }}>Punt {index + 1} van {punten.length}</span>
-          <button type="button" className="rl-knop" style={{ height: 30 }} disabled={index >= punten.length - 1} onClick={() => setIndex(index + 1)}>Overslaan →</button>
-        </div>
         <div style={{ flex: 1, minHeight: 0 }}>
           {!punt ? null : vraag === undefined ? (
             <p style={{ padding: 28, color: "var(--muted)" }}>Laden…</p>
           ) : (
             <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd}
+              navigatie={{
+                positie: `${index + 1} van ${punten.length}`,
+                onVorige: index > 0 ? () => setIndex(index - 1) : undefined,
+                onVolgende: index < punten.length - 1 ? () => setIndex(index + 1) : undefined,
+              }}
               opslaanLabel={index < punten.length - 1 ? "Opslaan & volgende →" : "Opslaan & klaar"}
               onSluit={(v) => {
                 if (v === undefined) { onSluit(); return; }

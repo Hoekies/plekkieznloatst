@@ -44,9 +44,11 @@ interface Props {
   kaartPunten?: KaartPunt[];
   // De naam van het punt is hier ook te wijzigen; zo hoort de route-editor het
   onNaamGewijzigd?: (puntId: string, naam: string) => void;
+  // Bij alle vragen achter elkaar: bladeren, direct naast de titel
+  navigatie?: { positie: string; onVorige?: () => void; onVolgende?: () => void };
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -239,7 +241,19 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         <button type="button" onClick={() => terug()} className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>
           ← Terug
         </button>
-        <h1 style={{ flex: 1 }}>Vraag — {naam.trim() || punt.name}</h1>
+        {navigatie && (
+          <button type="button" className="rl-knop" style={{ height: 32, flexShrink: 0 }} disabled={!navigatie.onVorige} onClick={navigatie.onVorige}
+            title="Vorig punt (zonder opslaan)">← Vorige</button>
+        )}
+        <h1 style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Vraag — {naam.trim() || punt.name}</h1>
+        {navigatie && (
+          <>
+            <span style={{ fontSize: "0.8rem", color: "var(--muted)", flexShrink: 0 }}>{navigatie.positie}</span>
+            <button type="button" className="rl-knop" style={{ height: 32, flexShrink: 0 }} disabled={!navigatie.onVolgende} onClick={navigatie.onVolgende}
+              title="Volgend punt (zonder opslaan)">Overslaan →</button>
+          </>
+        )}
+        <span style={{ flex: 1 }} />
         <button type="button" className={`btn ${qrEnabled ? "btn-cyan" : "btn-outline"}`} style={{ fontSize: "0.82rem", flexShrink: 0 }}
           onClick={() => setQrOpen((v) => !v)} aria-expanded={qrOpen}
           title="QR-code ontgrendeling: dit punt openen met een QR-code in plaats van GPS">
