@@ -103,6 +103,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [qrEnabled, setQrEnabled] = useState(punt.qr_unlock_enabled ?? false);
   const [qrSecret, setQrSecret] = useState(punt.qr_secret ?? "");
   const [qrOpslaan, setQrOpslaan] = useState(false);
+  // QR staat als knop in de bovenbalk; het paneel klapt eronder open
+  const [qrOpen, setQrOpen] = useState(false);
   const qrUrl = qrSecret ? `${SITE_URL}/speler/qr?p=${punt.id}&s=${qrSecret}` : "";
 
   function setCorrect(index: number) {
@@ -238,12 +240,46 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           ← Route
         </button>
         <h1 style={{ flex: 1 }}>Vraag — {naam.trim() || punt.name}</h1>
+        <button type="button" className={`btn ${qrEnabled ? "btn-cyan" : "btn-outline"}`} style={{ fontSize: "0.82rem", flexShrink: 0 }}
+          onClick={() => setQrOpen((v) => !v)} aria-expanded={qrOpen}
+          title="QR-code ontgrendeling: dit punt openen met een QR-code in plaats van GPS">
+          📱 QR{qrEnabled ? " aan" : ""}
+        </button>
         {bestaandeVraag && (
           <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.82rem" }} vraag="Vraag verwijderen?" ja="Ja, verwijder" onBevestig={verwijderVraag}>
             Vraag verwijderen
           </BevestigKnop>
         )}
       </div>
+
+      {qrOpen && (
+        <div style={{ padding: "14px 28px", borderBottom: "1px solid var(--line)", background: "rgba(255,255,255,0.03)", display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 320 }}>
+            <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>📱 QR-code ontgrendeling</div>
+            <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Ontgrendelen met een QR-code in plaats van GPS.</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button type="button" className={`btn ${qrEnabled ? "btn-danger" : "btn-outline"}`} style={{ fontSize: "0.82rem" }}
+                disabled={qrOpslaan} onClick={() => toggleQr(!qrEnabled)}>
+                {qrOpslaan ? "…" : qrEnabled ? "Uitschakelen" : "Inschakelen"}
+              </button>
+              <button type="button" className="btn btn-ghost" style={{ fontSize: "0.82rem" }} onClick={() => setQrOpen(false)}>Sluiten</button>
+            </div>
+          </div>
+          {qrEnabled && qrUrl && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div id="qr-print-zone" style={{ padding: 12, background: "#fff", borderRadius: 10, border: "1px solid var(--line)" }}>
+                <QRCodeSVG value={qrUrl} size={180} />
+              </div>
+              <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "center", wordBreak: "break-all", maxWidth: 280 }}>
+                {qrUrl}
+              </div>
+              <button type="button" className="btn btn-outline" style={{ fontSize: "0.82rem" }} onClick={printQr}>
+                🖨️ Print QR-code
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Twee-koloms layout: formulier + preview */}
       <div style={{ flex: 1, overflowY: "auto", display: "flex", gap: 0 }}>
@@ -401,39 +437,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             </div>
           </form>
 
-          {/* QR-unlock sectie (buiten formulier) */}
-          <div className="card" style={{ marginTop: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 2 }}>📱 QR-code ontgrendeling</div>
-                <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                  Ontgrendelen met een QR-code in plaats van GPS.
-                </div>
-              </div>
-              <button
-                type="button"
-                className={`btn ${qrEnabled ? "btn-danger" : "btn-outline"}`}
-                style={{ fontSize: "0.82rem", flexShrink: 0 }}
-                disabled={qrOpslaan}
-                onClick={() => toggleQr(!qrEnabled)}>
-                {qrOpslaan ? "…" : qrEnabled ? "Uitschakelen" : "Inschakelen"}
-              </button>
-            </div>
-
-            {qrEnabled && qrUrl && (
-              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                <div id="qr-print-zone" style={{ padding: 12, background: "#fff", borderRadius: 10, border: "1px solid var(--line)" }}>
-                  <QRCodeSVG value={qrUrl} size={180} />
-                </div>
-                <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "center", wordBreak: "break-all", maxWidth: 280 }}>
-                  {qrUrl}
-                </div>
-                <button type="button" className="btn btn-outline" style={{ fontSize: "0.82rem" }} onClick={printQr}>
-                  🖨️ Print QR-code
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── Preview (rechts) ── */}
