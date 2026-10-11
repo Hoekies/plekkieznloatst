@@ -48,11 +48,12 @@ export async function POST(request: NextRequest) {
     if (!vers && cache.has(k)) { uit[k] = cache.get(k)!; return false; }
     return true;
   });
-  // Een paar tegelijk, om de gratis dienst niet te overvragen
-  for (let i = 0; i < nodig.length; i += 4) {
-    await Promise.all(nodig.slice(i, i + 4).map(async ({ a, b }) => {
+  // Twee tegelijk, om de gratis dienst niet te overvragen; mislukt een stuk, dan na een korte pauze nog één keer
+  for (let i = 0; i < nodig.length; i += 2) {
+    await Promise.all(nodig.slice(i, i + 2).map(async ({ a, b }) => {
       const k = sleutel(a, b);
-      const stuk = await haalStuk(a, b);
+      let stuk = await haalStuk(a, b);
+      if (!stuk) { await new Promise((r) => setTimeout(r, 1200)); stuk = await haalStuk(a, b); }
       if (stuk) cache.set(k, stuk);  // mislukt = niet onthouden, later opnieuw proberen
       uit[k] = stuk;
     }));

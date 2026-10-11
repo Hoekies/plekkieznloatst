@@ -23,6 +23,9 @@ export function useWegen(paren: [Plek, Plek][], aan = true) {
   const [vers, setVers] = useState(0);
   const [bezig, setBezig] = useState(false);
   const bezigRef = useRef(new Set<string>());
+  // Mislukte stukken vanzelf opnieuw proberen (hooguit een paar keer, met wat tussenpauze)
+  const pogingenRef = useRef(new Map<string, number>());
+  const [opnieuw, setOpnieuw] = useState(0);
   const pakket = useMemo(() => {
     const uniek = new Map<string, { a: Plek; b: Plek }>();
     for (const [x, y] of paren) {
@@ -35,29 +38,42 @@ export function useWegen(paren: [Plek, Plek][], aan = true) {
 
   useEffect(() => {
     if (!aan) return;
-    const ontbreekt = [...pakket].filter(([k]) => (vers > 0 || !bekend.has(k)) && !bezigRef.current.has(k)).map(([, p]) => p);
+    const ontbreekt = [...pakket]
+      .filter(([k]) => (vers > 0 || (!bekend.has(k) && (pogingenRef.current.get(k) ?? 0) < 4)) && !bezigRef.current.has(k))
+      .map(([, p]) => p);
     if (!ontbreekt.length) return;
     // Even wachten: tijdens slepen of snel achter elkaar wijzigen niet elke keer opvragen
     const t = setTimeout(async () => {
-      const deel = ontbreekt.slice(0, 80);
+      const alles = ontbreekt.slice(0, 80);
       setBezig(true);
-      deel.forEach((p) => bezigRef.current.add(sleutel(p.a, p.b)));
-      try {
-        const res = await fetch("/api/admin/wegen", {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paren: deel, vers: vers > 0 }),
-        });
-        if (res.ok) {
-          const data: Record<string, Stuk | null> = await res.json();
-          for (const [k, stuk] of Object.entries(data)) if (stuk) bekend.set(k, stuk);
-          setVersie((v) => v + 1);
+      alles.forEach((p) => bezigRef.current.add(sleutel(p.a, p.b)));
+      let mislukt = 0;
+      // In porties van 15: één verzoek mag op de server niet te lang duren
+      for (let i = 0; i < alles.length; i += 15) {
+        const deel = alles.slice(i, i + 15);
+        try {
+          const res = await fetch("/api/admin/wegen", {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paren: deel, vers: vers > 0 }),
+          });
+          if (res.ok) {
+            const data: Record<string, Stuk | null> = await res.json();
+            for (const [k, stuk] of Object.entries(data)) if (stuk) bekend.set(k, stuk);
+            setVersie((v) => v + 1);
+          }
+        } catch { /* geen verbinding: rechte lijnen blijven staan */ }
+        // Niet gelukt? Straks nog eens (hooguit een paar keer per stuk)
+        for (const p of deel) {
+          const k = sleutel(p.a, p.b);
+          if (!bekend.has(k)) { pogingenRef.current.set(k, (pogingenRef.current.get(k) ?? 0) + 1); mislukt++; }
         }
-      } catch { /* geen verbinding: rechte lijnen blijven staan */ }
-      deel.forEach((p) => bezigRef.current.delete(sleutel(p.a, p.b)));
+      }
+      alles.forEach((p) => bezigRef.current.delete(sleutel(p.a, p.b)));
       if (vers > 0) setVers(0);
       setBezig(false);
+      if (mislukt) setTimeout(() => setOpnieuw((n) => n + 1), 5000);
     }, vers > 0 ? 0 : 600);
     return () => clearTimeout(t);
-  }, [pakket, aan, vers]);
+  }, [pakket, aan, vers, opnieuw]);
 
   return useMemo(() => {
     void versie;
@@ -82,7 +98,7 @@ export function useWegen(paren: [Plek, Plek][], aan = true) {
     // Totale afstand langs een reeks punten
     const totaal = (route: Plek[]) => route.slice(1).reduce((som, p, i) => som + afstand(route[i], p), 0);
     // Alle stukken opnieuw opvragen bij de routeservice
-    const herbereken = () => setVers((v) => v + 1);
+    const herbereken = () => { pogingenRef.current.clear(); setVers((v) => v + 1); };
     return { afstand, lijn, totaal, compleet, aan, herbereken, bezig };
   }, [pakket, versie, aan, bezig]);
 }
