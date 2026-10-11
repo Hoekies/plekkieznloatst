@@ -42,6 +42,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     toegestaan.items_na_finish = (toegestaan.items_na_finish_types as string[]).length > 0;
   }
   if ("startitems" in body) toegestaan.startitems = schoonStartitems(body.startitems);
+  if (body.instappunten && typeof body.instappunten === "object" && !Array.isArray(body.instappunten)) {
+    toegestaan.instappunten = Object.fromEntries(Object.entries(body.instappunten as Record<string, unknown>)
+      .filter(([team, id]) => /^\d{1,2}$/.test(team) && typeof id === "string" && /^[0-9a-f-]{36}$/i.test(id)));
+  }
   if (Array.isArray(body.omgekeerde_teams)) {
     toegestaan.omgekeerde_teams = [...new Set(body.omgekeerde_teams.filter((n: unknown) => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 50))];
   }

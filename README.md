@@ -124,6 +124,7 @@ supabase/migrations/034_startitems_instelbaar.sql
 supabase/migrations/035_omgekeerde_teams.sql
 supabase/migrations/036_items_na_finish_per_item.sql
 supabase/migrations/037_mist_verwijderen.sql
+supabase/migrations/038_instappunten.sql
 ```
 
 ### Starten

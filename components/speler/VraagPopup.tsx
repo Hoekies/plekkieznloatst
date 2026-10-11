@@ -62,9 +62,7 @@ interface Props {
 }
 
 export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onStartVraagLater }: Props) {
-  const [popupFase, setPopupFase] = useState<PopupFase>(
-    punt.type !== "eindpunt" || start ? "laden" : "informatie"
-  );
+  const [popupFase, setPopupFase] = useState<PopupFase>("laden");
   const [vraag, setVraag] = useState<VraagData | null>(null);
   const [gekozenId, setGekozenId] = useState<string | null>(null);
   const [openAntwoord, setOpenAntwoord] = useState("");
@@ -85,8 +83,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   const voortgangRef = useRef<SpelerPuntVoortgang | null>(null);
 
   useEffect(() => {
-    // Ook een informatiepunt kan een vraag hebben; die moet dan beantwoord worden
-    if (punt.type === "eindpunt" && !start) return;
+    // Ook een informatiepunt of de finish kan een vraag hebben (bijv. een selfie);
+    // die moet dan eerst beantwoord worden
     fetch(`/api/speler/vraag/${punt.id}`)
       .then((r) => r.json())
       .then((data: VraagData | null) => {
@@ -470,7 +468,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             className="btn btn-primary"
             style={KNOP_ONDERAAN_STIJL}
             onClick={doorgaan}>
-            Doorgaan →
+            {punt.type === "eindpunt" ? "🏁 Naar de finish!" : "Doorgaan →"}
           </button>
         )}
       </div>

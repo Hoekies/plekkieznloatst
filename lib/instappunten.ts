@@ -55,3 +55,19 @@ export function kiesInstappunten(start: Plek, lus: Plek[], teams: number): numbe
   }
   return beste ?? Array.from({ length: n }, (_, k) => Math.round((k * m) / n) % m);
 }
+
+// Zelfgekozen instappunten (teamnummer → punt-id) gaan voor de berekening. Staat het gekozen
+// punt niet (meer) in het rondje, dan valt dat team terug op het berekende instappunt.
+export function instappuntenMetKeuze(
+  start: Plek,
+  lus: (Plek & { id: string })[],
+  teams: number,
+  keuze?: Record<string, string> | null,
+): number[] {
+  const berekend = kiesInstappunten(start, lus, teams);
+  return berekend.map((index, k) => {
+    const id = keuze?.[String(k + 1)];
+    const gekozen = id ? lus.findIndex((p) => p.id === id) : -1;
+    return gekozen >= 0 ? gekozen : index;
+  });
+}

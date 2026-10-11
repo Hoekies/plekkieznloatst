@@ -39,7 +39,7 @@ export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
   sequentieel: [
     "Loop de punten op volgorde af. Je ziet steeds alleen het volgende punt; de paarse stippellijn wijst de weg.",
     "Ben je er? Tik linksonder op 📍 en beantwoord de vraag. Het team met de meeste punten wint.",
-    "Je startitems (bijvoorbeeld een banaan) staan in je balk onderin. Pas op voor onzichtbare plek zooi.",
+    "Na de eerste 100 meter krijg je startitems van de organisatie (bijvoorbeeld een banaan) in je balk onderin. Pas op voor onzichtbare plek zooi.",
   ],
   verspreid: [
     "Elk team loopt hetzelfde rondje, maar begint ergens anders. Je ziet steeds alleen het volgende punt.",

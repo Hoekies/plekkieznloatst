@@ -12,6 +12,8 @@ import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type Rout
 
 // Na het welkomstscherm op het startpunt: zoveel meter lopen voordat de startvraag komt
 const STARTVRAAG_NA_METER = 25;
+// Startitems van de organisatie komen pas als het team zoveel meter heeft gelopen
+const STARTITEMS_NA_METER = 100;
 import InventarisBar from "./InventarisBar";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
@@ -72,6 +74,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
   const [kmAfgelegd, setKmAfgelegd] = useState(0);
+  // Startitems: gelopen meters per sessie bewaren (ook na herladen), daarna één keer ophalen
+  const startitemsKey = `pr_startitems_${sessie.id}`;
+  const gelopenBasisRef = useRef<number | null>(null);
+  const startitemsBezigRef = useRef(false);
+  const [startitemsScherm, setStartitemsScherm] = useState<string[] | null>(null);
 
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [inventaris, setInventaris] = useState<SpeciaalItem[]>([]);
@@ -118,6 +125,31 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const startPunt = modus === "verspreid" && punten.length >= 3 ? punten[0] : null;
   const wachtOpStartVraag = startVraagVanaf !== null;
   const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(STARTVRAAG_NA_METER - (kmAfgelegd - startVraagVanaf))) : 0;
+
+  // 100 meter gelopen → startitems van de organisatie ophalen en het welkomstscherm tonen
+  useEffect(() => {
+    let opslag: { gelopen: number; klaar?: boolean } = { gelopen: 0 };
+    try { opslag = JSON.parse(localStorage.getItem(startitemsKey) ?? "null") ?? opslag; } catch { /* geen opslag */ }
+    if (opslag.klaar) return;
+    if (gelopenBasisRef.current === null) gelopenBasisRef.current = opslag.gelopen ?? 0;
+    const gelopen = gelopenBasisRef.current + kmAfgelegd;
+    try { localStorage.setItem(startitemsKey, JSON.stringify({ gelopen })); } catch { /* geen opslag */ }
+    if (gelopen < STARTITEMS_NA_METER || startitemsBezigRef.current) return;
+    startitemsBezigRef.current = true;
+    fetch("/api/speler/startitems", { method: "POST" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { items: SpeciaalItem[] } | null) => {
+        if (!data) { startitemsBezigRef.current = false; return; }  // later opnieuw proberen
+        try { localStorage.setItem(startitemsKey, JSON.stringify({ gelopen, klaar: true })); } catch { /* geen opslag */ }
+        if (data.items.length) {
+          setInventaris((prev) => [...prev, ...data.items]);
+          setStartitemsScherm(data.items.map((i) => i.type));
+          speelPuntBereikt();
+        }
+      })
+      .catch(() => { startitemsBezigRef.current = false; });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kmAfgelegd]);
 
   // 25 meter gelopen na het welkomstscherm → de vraag van het startpunt verschijnt
   useEffect(() => {
@@ -704,6 +736,44 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </div>
       )}
 
+
+      {/* Startitems van de organisatie, na 100 meter lopen */}
+      {startitemsScherm && (() => {
+        const aantallen = startitemsScherm.reduce<Record<string, number>>((m, t) => ({ ...m, [t]: (m[t] ?? 0) + 1 }), {});
+        return (
+          <div style={{ position: "fixed", inset: 0, zIndex: 1600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+            <div className="pr-panel" style={{ maxWidth: 360, width: "100%", animation: "pr-effect-pop 0.4s ease" }}>
+              <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, textAlign: "center", paddingTop: 22 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>🎁 Van de organisatie</div>
+                <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
+                  Om je een beetje op weg te helpen krijg je alvast
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10 }}>
+                  {Object.entries(aantallen).map(([type, n]) => (
+                    <div key={type} style={{ position: "relative" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`/items/${type}.png`} alt={type} style={{ width: 64, height: 64, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.5))" }} />
+                      {n > 1 && (
+                        <span style={{ position: "absolute", top: -4, right: -6, minWidth: 22, height: 22, borderRadius: 11, padding: "0 5px",
+                          background: "var(--pr-gold)", color: "#2a1050", fontWeight: 800, fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {n}×
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
+                  van de organisatie. Doe er je voordeel mee, gebruik ze verstandig.
+                </p>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.7)" }}>Je vindt ze in de balk onderin.</p>
+                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => setStartitemsScherm(null)}>
+                  TOP, BEDANKT!
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Effect notificatie */}
       {effectNotificatie && (() => {

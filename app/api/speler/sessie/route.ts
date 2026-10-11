@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
-import { startitemsVan } from "@/lib/startitems";
-import { kiesInstappunten } from "@/lib/instappunten";
+import { instappuntenMetKeuze } from "@/lib/instappunten";
 
 async function getSpeler() {
   const supabase = await createServerSupabaseClient();
@@ -105,10 +104,12 @@ export async function POST() {
 
       // Instappunt: zo gekozen dat elk team ongeveer even ver van de startplek begint
       // (zelfde berekening als het voorbeeld in de route-editor)
-      const offset = kiesInstappunten(
+      // Een zelfgekozen instappunt (route-editor) gaat voor de berekening
+      const offset = instappuntenMetKeuze(
         { lat: hubStart.latitude, lng: hubStart.longitude },
-        middenpunten.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+        middenpunten.map((p) => ({ id: p.id, lat: p.latitude, lng: p.longitude })),
         nTeams,
+        route.instappunten as Record<string, string> | null,
       )[teamIndex] ?? 0;
 
       const volgorde = [
@@ -179,25 +180,7 @@ export async function POST() {
     }
   }
 
-  // Startitems: wat de beheerder heeft ingesteld komt meteen in de balk van het team.
-  // Ze staan nooit op de kaart en worden bij "Reset spel" opgeruimd.
-  const startitems = startitemsVan(route);
-  const { data: eerstePunt } = await admin
-    .from("route_points").select("latitude, longitude").eq("route_id", route.id).order("order_index").limit(1).maybeSingle();
-  const rijen = Object.entries(startitems).flatMap(([type, aantal]) =>
-    Array.from({ length: aantal }, () => ({
-      route_id: route.id,
-      type,
-      name: `Start${type}`,
-      latitude: eerstePunt?.latitude ?? 0,
-      longitude: eerstePunt?.longitude ?? 0,
-      points_effect: 0,
-      claimed: true,
-      claimed_by_session_id: sessie.id,
-      claimed_at: new Date().toISOString(),
-      is_startitem: true,
-    })));
-  if (rijen.length) await admin.from("special_items").insert(rijen);
+  // Startitems komen pas na 100 meter lopen (zie /api/speler/startitems)
 
   return NextResponse.json({ ...sessie, modus: route.modus });
 }

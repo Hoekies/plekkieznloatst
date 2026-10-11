@@ -33,6 +33,8 @@ export interface Route {
   startitems: Record<string, number> | null;
   // Verspreid: teamnummers die het rondje andersom lopen
   omgekeerde_teams: number[] | null;
+  // Verspreid: zelfgekozen instappunt per team (teamnummer → punt-id)
+  instappunten: Record<string, string> | null;
   items_last_rotated_at: string | null;
   created_at: string;
   updated_at: string;

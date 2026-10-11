@@ -62,11 +62,9 @@ export async function POST(request: NextRequest) {
 
   // Hangt er een vraag aan het punt (ook aan een informatiepunt, zoals het startpunt), dan
   // moet die beantwoord worden: zonder antwoord wordt het punt niet verwerkt.
-  if (punt.type === "eindpunt") {
-    isCorrect = true;
-    puntWaarde = punt.points;
-  } else {
-    // Vraagpunt — vraag ophalen
+  // Ook de finish kan een vraag of opdracht hebben; zonder vraag telt alleen de puntwaarde.
+  {
+    // Vraag ophalen
     const { data: vraag } = await admin
       .from("questions")
       .select("*, answer_options(*)")

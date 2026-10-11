@@ -33,7 +33,7 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
 
 > **Routes-overzicht**: elke route staat als één regel met speltype en status (● Actief, Gepubliceerd of Concept). Rechts staat alleen de volgende stap als knop (Publiceren → ▶ Activeren) en **Bewerken**. Daarnaast staan icoonknoppen: ⧉ Kopie maken (een volledige kopie met alle instellingen, punten, vragen en items, als concept — handig als basis voor een nieuwe editie), 📤 Exporteren, ↩ Terug naar concept en 🗑️ Verwijderen (houd de muis erboven voor de uitleg). De actieve route staat altijd bovenaan.
 
-> Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd.
+> Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd. Ook de finish kan een vraag of opdracht hebben, bijvoorbeeld **maak een selfie**: het team krijgt die eerst te zien. Bij een foto-opdracht is het team gefinisht zodra de foto is ingestuurd; de punten komen erbij als jij de foto goedkeurt bij **Antwoorden**.
 
 ---
 
@@ -93,6 +93,8 @@ Onder de puntenlijst staat per team één regel (*Team 2 · start bij punt 8 · 
 
 Met **↺ Andersom lopen** (onder de opengeklapte volgorde) loopt dat team het rondje in **tegengestelde richting**, vanaf hetzelfde instappunt. Handig om teams elkaar tegen te laten komen, of om drukte op één stuk te spreiden. Het geldt voor teams die daarna starten. Let op: "Team 1" is het eerste team dat begint, "Team 2" het tweede, enzovoort.
 
+
+**Zelf het startpunt kiezen.** Begint een team te ver van de start? Klik in het teamvenster op **📍 Startpunt kiezen** en daarna op de kaart op het punt waar dat team het rondje moet beginnen (een punt in het rondje, niet de start of finish). In het venster zie je de **aanloop** vanaf de start in meters. Een zelfgekozen startpunt herken je aan 📌; met **Automatisch** gaat het team terug naar het berekende startpunt. Geldt voor teams die daarna beginnen.
 #### Afstand en speeltijd per team
 
 Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand, tijd & punten per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt, hoe lang het ongeveer duurt en hoeveel punten het ongeveer haalt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min · ≈ 310 pt*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
@@ -189,7 +191,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 > **Dief-effect**: de dief wacht tot de tegenstander een vraag beantwoordt waarmee ze punten verdienen. Bij een fout antwoord (0 of minpunten) blijft de dief gewoon klaarstaan.
 
-> **🎒 Startitems**: in de route-instellingen kies je per soort item (banaan, bom, spook, dief, wissel, verdubbeling, radar; een ster of vraagteken kan niet, die worden altijd meteen gebruikt) hoeveel elk team bij de start gratis in de balk krijgt, 0 tot 5 per soort. Bij Sequentieel staat standaard één banaan aan, bij Verspreid niets. Een wijziging geldt voor teams die daarna beginnen. Startitems staan nooit op de kaart en worden bij *Reset spel* opgeruimd.
+> **🎒 Startitems**: in de route-instellingen kies je per soort item (banaan, bom, spook, dief, wissel, verdubbeling, radar; een ster of vraagteken kan niet, die worden altijd meteen gebruikt) hoeveel elk team gratis in de balk krijgt, 0 tot 5 per soort. Het team krijgt ze **na de eerste 100 meter lopen**, met een scherm: *"Om je een beetje op weg te helpen krijg je alvast [items] van de organisatie. Doe er je voordeel mee, gebruik ze verstandig."* Bij Sequentieel staat standaard één banaan aan, bij Verspreid niets. Een wijziging geldt voor teams die daarna beginnen. Startitems staan nooit op de kaart en worden bij *Reset spel* opgeruimd.
 
 > **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Bij **🎁 Items inzetten na de finish** in de route-instellingen tik je per item aan wat na de finish nog mag (bom, spook, dief, banaan, wissel; groen = mag). Ster, vraagteken, verdubbeling en radar staan er niet bij: een ster en een vraagteken worden meteen gebruikt, en verdubbeling en radar hebben na de finish geen nut. Een gefinisht team houdt die items en kan ze vanaf het finishscherm nog inzetten op teams die onderweg zijn — tot jij de uitslag vrijgeeft; dan vervalt de rest. Een gefinisht team kan zelf ook nog geraakt worden, maar alleen met de groene items die op een gefinisht team iets doen: **bom** en **wissel**. Spook, dief en banaan werken op punten die nog komen en raken alleen teams die onderweg zijn. Na het vrijgeven van de uitslag kan niemand meer iets inzetten.
 

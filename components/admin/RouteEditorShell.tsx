@@ -13,7 +13,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import VraagEditorPagina, { type VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
 import { toonMelding } from "@/components/admin/Melding";
 import { naamWoorden, isStandaardNaam } from "@/lib/punt-naam";
-import { kiesInstappunten } from "@/lib/instappunten";
+import { instappuntenMetKeuze } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
@@ -110,6 +110,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ omgekeerde_teams: nieuw }),
     });
   }
+  // Verspreid: zelfgekozen instappunt per team (teamnummer → punt-id); de rest wordt berekend
+  const [instapKeuze, setInstapKeuze] = useState<Record<string, string>>(initRoute.instappunten ?? {});
+  // Team waarvoor je nu op de kaart een startpunt aanklikt
+  const [kiesInstapVoor, setKiesInstapVoor] = useState<number | null>(null);
+  async function zetInstappunt(team: number, puntId: string | null) {
+    const nieuw = { ...instapKeuze };
+    if (puntId) nieuw[String(team)] = puntId; else delete nieuw[String(team)];
+    setInstapKeuze(nieuw);
+    setKiesInstapVoor(null);
+    await api(`/api/admin/routes/${initRoute.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ instappunten: nieuw }),
+    });
+  }
+  useEffect(() => {
+    if (kiesInstapVoor === null) return;
+    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setKiesInstapVoor(null); };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [kiesInstapVoor]);
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"algemeen" | "punten" | "items">("algemeen");
@@ -197,10 +216,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const totalM = cumulatief[cumulatief.length - 1];
     if (totalM === 0) return [];
     // Instappunten met ongeveer gelijke aanloop vanaf de startplek (zelfde berekening als in het spel)
-    const instap = kiesInstappunten(
+    // Zelfgekozen instappunten gaan voor
+    const instap = instappuntenMetKeuze(
       { lat: hubStart.latitude, lng: hubStart.longitude },
-      middenpunten.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+      middenpunten.map((p) => ({ id: p.id, lat: p.latitude, lng: p.longitude })),
       verwachtTeams,
+      instapKeuze,
     );
     return Array.from({ length: verwachtTeams }, (_, k) => {
       const offset = instap[k] ?? 0;
@@ -216,9 +237,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         nummers: lusIndices.map((j) => j + 1),
         coords: volgorde.map((p) => ({ lat: p.latitude, lng: p.longitude })),
         punten: volgorde,
+        handmatig: middenpunten[offset]?.id === instapKeuze[String(k + 1)],
+        aanloopM: Math.round(haversine(hubStart.latitude, hubStart.longitude, middenpunten[offset].latitude, middenpunten[offset].longitude)),
       };
     });
-  }, [route.modus, punten, verwachtTeams, omgekeerdeTeams]);
+  }, [route.modus, punten, verwachtTeams, omgekeerdeTeams, instapKeuze]);
 
   // Afstand en geschatte speeltijd per team (lopen + vragen + items), getoond als paneel op de kaart
   const teamSchattingen = useMemo(() => {
@@ -1123,7 +1146,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                               background: open ? "rgba(255,255,255,0.08)" : "none" }}>
                             <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
                             <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
-                            <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
+                            <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{t.handmatig ? " 📌" : ""}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
                             <span style={{ marginLeft: "auto", color: "var(--muted)" }}>▸</span>
                           </button>
                         );
@@ -1622,7 +1645,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       })}
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Tik op een item voor +1; elk team krijgt dit bij de start in de balk.
+                      Tik op een item voor +1. Elk team krijgt dit na 100 meter lopen in de balk.
                     </span>
                   </div>
                 )}
@@ -1745,6 +1768,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </div>
         )}
 
+        {/* Startpunt voor een team kiezen */}
+        {kiesInstapVoor !== null && (
+          <div style={{
+            position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
+            display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
+            background: "rgba(8,28,48,0.95)", border: `1px solid ${TEAM_KLEUREN[(kiesInstapVoor - 1) % TEAM_KLEUREN.length]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
+          }}>
+            📍 Klik op het punt waar Team {kiesInstapVoor} begint · Esc = stoppen
+            <button type="button" className="editor-paneel-sluit" style={{ marginLeft: 0 }} onClick={() => setKiesInstapVoor(null)} title="Stoppen">✕</button>
+          </div>
+        )}
+
         {/* Snel plaatsen actief */}
         {plaatsType && (
           <div style={{
@@ -1795,7 +1831,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <span style={{ color: t.kleur, fontWeight: 800, fontSize: "0.9rem" }}>Team {t.teamIndex}</span>
                 <button type="button" className="editor-paneel-sluit" onClick={() => setUitgelichtTeam(null)} title="Sluiten">✕</button>
               </div>
-              <div style={{ color: "var(--muted)" }}>Start bij punt {t.nummers[0]} · {t.nummers.length} punten{andersom ? " · ↺ andersom" : ""}</div>
+              <div style={{ color: "var(--muted)" }}>
+                Start bij punt {t.nummers[0]} {t.handmatig ? "📌 zelf gekozen" : "(automatisch)"} · {t.nummers.length} punten{andersom ? " · ↺ andersom" : ""}
+              </div>
+              <div style={{ color: "var(--muted)" }}>Aanloop vanaf de start: <strong style={{ color: "var(--text)" }}>{t.aanloopM} m</strong></div>
               <div style={{ lineHeight: 1.6 }}>🏠 → {t.nummers.join(" → ")} → 🏁</div>
               <button type="button" onClick={() => wisselAndersom(t.teamIndex)}
                 className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`}
@@ -1803,6 +1842,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 title="Dit team loopt het rondje in tegengestelde richting, vanaf hetzelfde instappunt">
                 ↺ Andersom lopen: {andersom ? "aan" : "uit"}
               </button>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button type="button" onClick={() => setKiesInstapVoor(kiesInstapVoor === t.teamIndex ? null : t.teamIndex)}
+                  className={`rl-knop${kiesInstapVoor === t.teamIndex ? " rl-knop--cyan" : ""}`}
+                  style={{ flex: 1, height: 28, fontSize: "0.72rem" }}
+                  title="Klik daarna op de kaart op het punt waar dit team het rondje begint">
+                  📍 Startpunt kiezen
+                </button>
+                {t.handmatig && (
+                  <button type="button" onClick={() => zetInstappunt(t.teamIndex, null)} className="rl-knop"
+                    style={{ height: 28, fontSize: "0.72rem" }} title="Terug naar het berekende startpunt">
+                    Automatisch
+                  </button>
+                )}
+              </div>
             </div>
           );
         })()}
@@ -1826,7 +1879,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
-          onMarkerKlik={(id) => setGeselecteerd(punten.find((p) => p.id === id) ?? null)}
+          onMarkerKlik={(id) => {
+            if (kiesInstapVoor !== null) {
+              // Alleen punten in het rondje (niet de start of de finish)
+              const i = punten.findIndex((p) => p.id === id);
+              if (i > 0 && i < punten.length - 1) zetInstappunt(kiesInstapVoor, id);
+              else toonMelding("Kies een punt in het rondje, niet de start of de finish.", "info");
+              return;
+            }
+            setGeselecteerd(punten.find((p) => p.id === id) ?? null);
+          }}
           onSpeciaalItemVerplaatst={specialItemVerplaatst}
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}

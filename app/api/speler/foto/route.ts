@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { laatItemsVervallen } from "@/lib/items-vervallen";
+import { itemsNaFinishVan } from "@/lib/item-sessie";
 
 async function getSessieEnSpeler() {
   const supabase = await createServerSupabaseClient();
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
   // Controleer of punt bij de route hoort
   const { data: punt } = await admin
     .from("route_points")
-    .select("id")
+    .select("id, type")
     .eq("id", routePointId)
     .eq("route_id", sessie.route_id)
     .maybeSingle();
@@ -109,6 +111,17 @@ export async function POST(request: NextRequest) {
     .eq("id", voortgangRij.id)
     .select()
     .single();
+
+  // Foto-opdracht bij de finish (bijv. een selfie): na het insturen is het team gefinisht.
+  // De eindtijd ligt vast; de punten volgen na de keuring.
+  if (punt.type === "eindpunt") {
+    await admin.from("player_sessions")
+      .update({ status: "voltooid", finished_at: new Date().toISOString() })
+      .eq("id", sessie.id)
+      .eq("status", "actief");
+    const { data: finishRoute } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
+    await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(finishRoute) });
+  }
 
   return NextResponse.json({ foto_id: inzending.id, voortgang });
 }
