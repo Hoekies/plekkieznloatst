@@ -253,7 +253,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     for (const t of teamRoutes) t.coords.slice(1).forEach((c, i) => paren.push([t.coords[i], c]));
     return paren;
   }, [puntPlekken, lusPlekken, teamRoutes]);
-  const wegen = useWegen(wegParen);
+  // Knop 🚶 Wegen: lijnen en afstanden langs wegen en voetpaden, of hemelsbreed (onthouden per browser)
+  const [wegenAan, setWegenAan] = useState(true);
+  useEffect(() => {
+    try { if (localStorage.getItem("pr_editor_wegen") === "uit") setWegenAan(false); } catch { /* geen opslag */ }
+  }, []);
+  function wisselWegen() {
+    const nieuw = !wegenAan;
+    setWegenAan(nieuw);
+    try { localStorage.setItem("pr_editor_wegen", nieuw ? "aan" : "uit"); } catch { /* geen opslag */ }
+  }
+  const wegen = useWegen(wegParen, wegenAan);
   const lusMeterWeg = lusPlekken.length > 1 ? wegen.totaal([...lusPlekken, lusPlekken[0]]) : 0;
   const teamAanloopM = teamRoutes.map((t) => Math.round(t.coords.length > 1 ? wegen.afstand(t.coords[0], t.coords[1]) : 0));
   const teamRoutesKaart = useMemo(() => teamRoutes.map((t) => ({
@@ -983,6 +993,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button className="btn btn-cyan" style={{ fontSize: "0.78rem", padding: "5px 10px" }}
               onClick={() => setControleOpen(true)}>▶ Activeer</button>
           )}
+          <button className={`btn ${wegenAan ? "btn-cyan" : "btn-ghost"}`} style={{ fontSize: "0.78rem", padding: "5px 10px" }} onClick={wisselWegen}
+            title={wegenAan ? "Lijnen en afstanden volgen wegen en voetpaden. Klik voor hemelsbreed." : "Lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
+            🚶 Wegen {wegenAan ? "aan" : "uit"}
+          </button>
           <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "5px 10px" }} disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
             📝 Alle vragen ({vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length})
@@ -1136,7 +1150,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                   {/* Live preview */}
                   <div style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.5 }}>
-                    {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : "📏 hemelsbreed (wegen laden…)"}</div>}
+                    {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : wegen.aan ? "📏 hemelsbreed (wegen laden…)" : "📏 hemelsbreed"}</div>}
                     {doelAfstandKm > 0 && <div style={{ color: "var(--cyan)" }}>Teams ≈ {(doelAfstandKm / verwachtTeams).toFixed(2)} km uit elkaar</div>}
                     {stapM !== null && punten.length > 0 && <div>Aanbevolen puntafstand: ≈ {Math.round(stapM)} m</div>}
                     {geselecteerd && doelAfstandKm > 0 && punten.length > 0 && (
@@ -1181,7 +1195,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* Gemeten afstand voor sequentieel */}
             {route.modus === "sequentieel" && punten.length >= 2 && (() => {
               const totaalM = wegen.totaal(puntPlekken);
-              return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : "📏 hemelsbreed (wegen laden…)"}</span>;
+              return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : wegen.aan ? "📏 hemelsbreed (wegen laden…)" : "📏 hemelsbreed"}</span>;
             })()}
           </div>}
 

@@ -16,7 +16,8 @@ const geordend = (a: Plek, b: Plek): [Plek, Plek, boolean] => (punt(a) <= punt(b
 
 const bekend = new Map<string, Stuk | null>();  // over de hele pagina, ook na opnieuw tekenen
 
-export function useWegen(paren: [Plek, Plek][]) {
+// aan = false: alles hemelsbreed, er wordt niets opgevraagd
+export function useWegen(paren: [Plek, Plek][], aan = true) {
   const [versie, setVersie] = useState(0);
   const bezigRef = useRef(new Set<string>());
   const pakket = useMemo(() => {
@@ -30,6 +31,7 @@ export function useWegen(paren: [Plek, Plek][]) {
   }, [paren]);
 
   useEffect(() => {
+    if (!aan) return;
     const ontbreekt = [...pakket].filter(([k]) => !bekend.has(k) && !bezigRef.current.has(k)).map(([, p]) => p);
     if (!ontbreekt.length) return;
     // Even wachten: tijdens slepen of snel achter elkaar wijzigen niet elke keer opvragen
@@ -49,23 +51,23 @@ export function useWegen(paren: [Plek, Plek][]) {
       deel.forEach((p) => bezigRef.current.delete(sleutel(p.a, p.b)));
     }, 600);
     return () => clearTimeout(t);
-  }, [pakket]);
+  }, [pakket, aan]);
 
   return useMemo(() => {
     void versie;
     // Stuk van a naar b: afstand en lijn in looprichting (null = nog niet bekend)
     const stuk = (a: Plek, b: Plek): { afstandM: number; lijn: Plek[] } | null => {
       const [x, y, omgekeerd] = geordend(a, b);
-      const s = bekend.get(sleutel(x, y));
+      const s = aan ? bekend.get(sleutel(x, y)) : undefined;
       if (!s) return null;
       const lijn = s.lijn.map(([lat, lng]) => ({ lat, lng }));
       return { afstandM: s.afstandM, lijn: omgekeerd ? lijn.reverse() : lijn };
     };
     const afstand = (a: Plek, b: Plek) => stuk(a, b)?.afstandM ?? haversine(a.lat, a.lng, b.lat, b.lng);
     const lijn = (a: Plek, b: Plek) => stuk(a, b)?.lijn ?? [a, b];
-    const compleet = [...pakket.keys()].every((k) => bekend.has(k));
+    const compleet = aan && [...pakket.keys()].every((k) => bekend.has(k));
     // Totale afstand langs een reeks punten
     const totaal = (route: Plek[]) => route.slice(1).reduce((som, p, i) => som + afstand(route[i], p), 0);
-    return { afstand, lijn, totaal, compleet };
-  }, [pakket, versie]);
+    return { afstand, lijn, totaal, compleet, aan };
+  }, [pakket, versie, aan]);
 }
