@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
 import BevestigKnop from "./BevestigKnop";
+import { naamUitVraag } from "@/lib/punt-naam";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 
@@ -40,9 +41,11 @@ interface Props {
   opslaanLabel?: string;
   // Andere punten van de route, klein op het kaartje ter oriëntatie; label = nummer op de kaart
   kaartPunten?: KaartPunt[];
+  // De naam van het punt is hier ook te wijzigen; zo hoort de route-editor het
+  onNaamGewijzigd?: (puntId: string, naam: string) => void;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -82,6 +85,16 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [isNumeriek, setIsNumeriek] = useState(
     bestaandeVraag?.numeric_answer !== null && bestaandeVraag?.numeric_answer !== undefined
   );
+
+  // Naam van het punt, met een voorstel uit de vraag zoals in het puntpaneel (knop 💡)
+  const [naam, setNaam] = useState(punt.name ?? "");
+  const naamVoorstel = naamUitVraag({
+    type,
+    question_text: tekst,
+    correct_text_answers: openAntwoorden.split("\n").map((r) => r.trim()).filter(Boolean),
+    numeric_answer: isNumeriek && numeriekeWaarde.trim() ? Number(numeriekeWaarde.replace(",", ".")) : null,
+    answer_options: antwoorden.map((a) => ({ text: a.text, is_correct: a.is_correct })),
+  });
 
   const [opslaan, setOpslaan] = useState(false);
   const [fout, setFout] = useState("");
@@ -140,6 +153,14 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         is_correct: a.is_correct,
         punten: a.punten.trim() === "" ? null : Math.round(Number(a.punten)),
       }));
+    }
+
+    if (naam.trim() && naam.trim() !== punt.name) {
+      const naamRes = await fetch(`/api/admin/routes/${routeId}/punten/${punt.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: naam.trim() }),
+      });
+      if (!naamRes.ok) { setFout("Naam opslaan mislukt"); setOpslaan(false); return; }
+      onNaamGewijzigd?.(punt.id, naam.trim());
     }
 
     const res = await fetch(`/api/admin/routes/${routeId}/punten/${punt.id}/vraag`, {
@@ -217,7 +238,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         <button type="button" onClick={() => terug()} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--muted)", fontSize: "0.85rem", flexShrink: 0 }}>
           ← Route
         </button>
-        <h1 style={{ flex: 1 }}>Vraag — {punt.name}</h1>
+        <h1 style={{ flex: 1 }}>Vraag — {naam.trim() || punt.name}</h1>
         {bestaandeVraag && (
           <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.82rem" }} vraag="Vraag verwijderen?" ja="Ja, verwijder" onBevestig={verwijderVraag}>
             Vraag verwijderen
@@ -231,6 +252,19 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         {/* ── Formulier (links) ── */}
         <div style={{ flex: 1, overflowY: "auto", padding: "28px", maxWidth: 600, minWidth: 0 }}>
           <form onSubmit={slaOp} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+            <div className="form-group">
+              <label className="form-label">Naam van het punt</label>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
+                {/* Kernwoord uit de vraag: alleen invullen als je erop klikt */}
+                {naamVoorstel && naamVoorstel !== naam && (
+                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
+                    title={`Voorstel: "${naamVoorstel}" (kernwoord uit de vraag)`} aria-label="Naam voorstellen" style={{ height: 42, width: 42 }}>💡</button>
+                )}
+              </div>
+              <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Spelers zien de naam van een vraagpunt pas na afloop. Wordt opgeslagen met de vraag.</span>
+            </div>
 
             <div className="form-group">
               <label className="form-label">Vraagtype</label>

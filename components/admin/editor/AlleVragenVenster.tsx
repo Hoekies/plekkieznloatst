@@ -7,13 +7,14 @@ import type { KaartPunt } from "../PuntMiniKaart";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
-export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onSluit }: {
+export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onNaamGewijzigd, onSluit }: {
   routeId: string;
   kaartPunten: KaartPunt[];              // alle punten van de route, voor het kaartje
   punten: RoutePunt[];                   // de vraagpunten, in routevolgorde
   nummer: (p: RoutePunt) => string;      // zelfde nummer als op de kaart
   heeftVraag: (id: string) => boolean;
   onBijgewerkt: (puntId: string, vraag: VraagMetAntwoorden | null) => void;
+  onNaamGewijzigd: (puntId: string, naam: string) => void;
   onSluit: () => void;
 }) {
   // Begin bij het eerste punt zonder vraag
@@ -75,7 +76,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
           {!punt ? null : vraag === undefined ? (
             <p style={{ padding: 28, color: "var(--muted)" }}>Laden…</p>
           ) : (
-            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten}
+            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd}
               opslaanLabel={index < punten.length - 1 ? "Opslaan & volgende →" : "Opslaan & klaar"}
               onSluit={(v) => {
                 if (v === undefined) { onSluit(); return; }
