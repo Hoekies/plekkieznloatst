@@ -97,6 +97,8 @@ Met **↺ Andersom lopen** (onder de opengeklapte volgorde) loopt dat team het r
 **Zelf het startpunt kiezen.** Begint een team te ver van de start? Klik in het teamvenster op **📍 Startpunt kiezen** en daarna op de kaart op het punt waar dat team het rondje moet beginnen (een punt in het rondje, niet de start of finish). In het venster zie je de **aanloop** vanaf de start in meters. Een zelfgekozen startpunt herken je aan 📌; met **Automatisch** gaat het team terug naar het berekende startpunt. Geldt voor teams die daarna beginnen.
 #### Afstand en speeltijd per team
 
+> 🚶 **Langs wegen en voetpaden.** De lijnen op de kaart en alle afstanden (gemeten afstand, aanloop, speeltijd, itemadvies) volgen de wegen en voetpaden, via de voetgangersrouting van OpenStreetMap. Na het verplaatsen van een punt duurt het even voor de nieuwe route er is; tot dan staat er *📏 hemelsbreed*. Lukt het ophalen niet, dan rekent de editor hemelsbreed verder.
+
 Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand, tijd & punten per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt, hoe lang het ongeveer duurt en hoeveel punten het ongeveer haalt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min · ≈ 310 pt*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
 
 - **Lopen** — 4,5 km/u, het wandeltempo van een groep.

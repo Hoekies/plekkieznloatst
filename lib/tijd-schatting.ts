@@ -44,9 +44,14 @@ export function schatTeamTijd(route: Plek[], o: {
   respawn: boolean;
   spookMin: number;
   plekzooiMin: number;
+  // Langs wegen en voetpaden (route-editor): de echte loopafstand en -lijn; anders hemelsbreed
+  afstandM?: number;
+  lijn?: Plek[];
 }): TijdSchatting {
   let afstandM = 0;
   for (let i = 1; i < route.length; i++) afstandM += haversine(route[i - 1].lat, route[i - 1].lng, route[i].lat, route[i].lng);
+  if (o.afstandM !== undefined) afstandM = o.afstandM;
+  const lijn = o.lijn ?? route;
   const stukken = Math.max(1, route.length - 1);
   const gemStukM = afstandM / stukken;
   const teams = Math.max(1, o.teams);
@@ -56,7 +61,7 @@ export function schatTeamTijd(route: Plek[], o: {
 
   let itemsMin = 0;
   for (const it of o.items) {
-    const d = afstandTotRoute(it, route);
+    const d = afstandTotRoute(it, lijn);
     if (it.type === "plekzooi") {
       // Ligt de val op de route, dan loopt elk team erin
       if (d <= it.radius + 10) itemsMin += o.plekzooiMin;
@@ -104,6 +109,7 @@ export function schatTeamPunten(route: Plek[], o: {
   respawn: boolean;
   sterWaarde: number;
   bomWaarde: number;
+  lijn?: Plek[];  // looproute langs de weg, voor welke items er dichtbij liggen
 }): PuntenSchatting {
   const teams = Math.max(1, o.teams);
   const maxVragen = o.vraagPunten.reduce((a, b) => a + b, 0) + o.overigePunten;
@@ -113,7 +119,7 @@ export function schatTeamPunten(route: Plek[], o: {
   let items = 0;
   for (const it of o.items) {
     if (it.type === "plekzooi") continue;
-    const dichtbij = afstandTotRoute(it, route) <= ITEM_BEREIK_M;
+    const dichtbij = afstandTotRoute(it, o.lijn ?? route) <= ITEM_BEREIK_M;
     const pakKans = dichtbij ? (o.respawn ? 1 : 1 / teams) : 0;
     const ontvangKans = (o.respawn ? 2 : 1) / teams;
     if (it.type === "ster") items += pakKans * o.sterWaarde;

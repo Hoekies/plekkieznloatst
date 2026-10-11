@@ -24,6 +24,8 @@ export interface TeamRoute {
   kleur: string;
   // Volledige looproute: start-hub, lus-punten in teamvolgorde, finish-hub
   coords: { lat: number; lng: number }[];
+  // Per stuk (coords[i] → coords[i+1]) de lijn langs wegen en voetpaden; anders recht
+  stukken?: { lat: number; lng: number }[][];
 }
 
 interface Props {
@@ -35,6 +37,8 @@ interface Props {
   // Verspreid: eerste punt = start-hub (🏠), lus-punten genummerd vanaf 1
   hubModus?: boolean;
   teamRoutes?: TeamRoute[];
+  // Per stuk tussen opeenvolgende punten de lijn langs de weg (zonder teamroutes)
+  hoofdStukken?: { lat: number; lng: number }[][];
   // Genereer-preview
   centrumPunt?: { lat: number; lng: number } | null;
   ghostPunten?: { lat: number; lng: number }[];
@@ -56,7 +60,7 @@ interface Props {
 
 export default function LeafletKaart({
   punten, addModus, geselecteerdId, specialeItems = [],
-  guideCirkel = null, hubModus = false, teamRoutes = [],
+  guideCirkel = null, hubModus = false, teamRoutes = [], hoofdStukken,
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
@@ -186,10 +190,10 @@ export default function LeafletKaart({
       polylineRef.current?.remove();
       polylineRef.current = null;
       if (punten.length >= 2 && teamRoutes.length === 0) {
-        polylineRef.current = L.polyline(
-          punten.map((p) => [p.latitude, p.longitude] as [number, number]),
-          { color: "#1E40AF", weight: 2.5, opacity: 0.7, dashArray: "6 4" }
-        ).addTo(kaart);
+        const lijn = hoofdStukken?.length === punten.length - 1
+          ? hoofdStukken.flatMap((st, i) => (i === 0 ? st : st.slice(1))).map((c) => [c.lat, c.lng] as [number, number])
+          : punten.map((p) => [p.latitude, p.longitude] as [number, number]);
+        polylineRef.current = L.polyline(lijn, { color: "#1E40AF", weight: 2.5, opacity: 0.7, dashArray: "6 4" }).addTo(kaart);
       }
 
       if (punten.length !== prevPuntenLenRef.current && punten.length > 0) {
@@ -202,7 +206,7 @@ export default function LeafletKaart({
         }
       }
     });
-  }, [punten, geselecteerdId, hubModus, teamRoutes.length, kaartKlaar]);
+  }, [punten, geselecteerdId, hubModus, teamRoutes.length, kaartKlaar, hoofdStukken]);
 
   // Speciale item markers
   useEffect(() => {
@@ -250,7 +254,13 @@ export default function LeafletKaart({
         const vaag = uitgelichtTeam != null && !uitgelicht;
         // Lijnen lopen over dezelfde randen; schuif ze radiaal uit elkaar zodat elk team zichtbaar blijft
         const verschuivingM = uitgelicht ? 0 : (k - (teamRoutes.length - 1) / 2) * 4;
-        const lijnCoords = t.coords.map((c, i) => verschuifRadiaal(c, t.coords[0], i === 0 || i === t.coords.length - 1 ? 0 : verschuivingM));
+        // Per stuk de lijn langs de weg (of recht); de stukken van en naar de start niet verschuiven
+        const stukken = t.coords.slice(1).map((c, i) => t.stukken?.[i] ?? [t.coords[i], c]);
+        const stukLijnen = stukken.map((st, i) => {
+          const naarStart = i === 0 || i === stukken.length - 1;
+          return st.map((c) => verschuifRadiaal(c, t.coords[0], naarStart ? 0 : verschuivingM));
+        });
+        const lijnCoords = stukLijnen.flatMap((st, i) => (i === 0 ? st : st.slice(1)));
         const lijn = L.polyline(lijnCoords, {
           color: t.kleur, weight: uitgelicht ? 6 : 3.5, opacity: vaag ? 0.15 : uitgelicht ? 1 : 0.9, interactive: false,
         }).addTo(kaartRef.current!);
@@ -259,8 +269,11 @@ export default function LeafletKaart({
 
         // Looprichting: een pijl halverwege elk stuk
         if (uitgelicht) {
-          for (let i = 1; i < lijnCoords.length; i++) {
-            const [aLat, aLng] = lijnCoords[i - 1], [bLat, bLng] = lijnCoords[i];
+          // Halverwege elk stuk, in de richting van de weg op die plek
+          for (const st of stukLijnen) {
+            if (st.length < 2) continue;
+            const mid = Math.max(1, Math.floor(st.length / 2));
+            const [aLat, aLng] = st[mid - 1], [bLat, bLng] = st[mid];
             const dx = (bLng - aLng) * Math.cos((aLat * Math.PI) / 180), dy = bLat - aLat;
             if (dx === 0 && dy === 0) continue;
             const hoek = (-Math.atan2(dy, dx) * 180) / Math.PI; // 0° = naar rechts (oost), met de klok mee

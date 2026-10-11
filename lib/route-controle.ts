@@ -1,18 +1,17 @@
 // "Klaar om te spelen?": wat er vóór het activeren van een route nog aandacht nodig heeft.
 import type { RoutePunt, RouteModus } from "@/types/database";
-import { haversine } from "@/lib/geo";
 
 export type ControleRegel = { niveau: "fout" | "let op"; tekst: string };
 
-export function routeControle({ punten, modus, vraagPuntIds, verwachtTeams, itemTekort, itemTeVeel, teamStarts, teamMinuten }: {
+export function routeControle({ punten, modus, vraagPuntIds, verwachtTeams, itemTekort, itemTeVeel, teamAanloopM, teamMinuten }: {
   punten: RoutePunt[];
   modus: RouteModus;
   vraagPuntIds: Set<string>;
   verwachtTeams: number;
   itemTekort: number;
   itemTeVeel: boolean;
-  // Per team de startplek en het eerste punt (voor de aanloop)
-  teamStarts: { lat: number; lng: number }[][];
+  // Per team de aanloop van de start naar het eerste punt, in meters
+  teamAanloopM: number[];
   teamMinuten: number[];
 }): ControleRegel[] {
   const regels: ControleRegel[] = [];
@@ -33,7 +32,7 @@ export function routeControle({ punten, modus, vraagPuntIds, verwachtTeams, item
     if (itemTekort) regels.push({ niveau: "let op", tekst: `Ongeveer ${itemTekort} item${itemTekort !== 1 ? "s" : ""} te weinig volgens het advies.` });
     if (itemTeVeel) regels.push({ niveau: "let op", tekst: "Meer items dan het advies: het spel kan rommelig worden." });
     // Eerlijkheid: aanloop naar het eerste punt en totale looptijd per team
-    const aanloop = teamStarts.map((c) => c.length > 1 ? haversine(c[0].lat, c[0].lng, c[1].lat, c[1].lng) : 0);
+    const aanloop = teamAanloopM;
     if (aanloop.length > 1 && Math.max(...aanloop) - Math.min(...aanloop) > 150) {
       regels.push({ niveau: "let op", tekst: `De aanloop naar het eerste punt verschilt ${Math.round(Math.max(...aanloop) - Math.min(...aanloop))} m tussen de teams.` });
     }

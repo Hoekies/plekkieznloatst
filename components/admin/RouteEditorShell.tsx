@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { haversine } from "@/lib/geo";
+import { useWegen } from "@/lib/wegen";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
@@ -238,10 +239,27 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         coords: volgorde.map((p) => ({ lat: p.latitude, lng: p.longitude })),
         punten: volgorde,
         handmatig: middenpunten[offset]?.id === instapKeuze[String(k + 1)],
-        aanloopM: Math.round(haversine(hubStart.latitude, hubStart.longitude, middenpunten[offset].latitude, middenpunten[offset].longitude)),
       };
     });
   }, [route.modus, punten, verwachtTeams, omgekeerdeTeams, instapKeuze]);
+
+  // Looproutes langs wegen en voetpaden: alle stukken van de puntenlijst, het rondje en de teamroutes
+  const puntPlekken = useMemo(() => punten.map((p) => ({ lat: p.latitude, lng: p.longitude })), [punten]);
+  const lusPlekken = useMemo(() => (route.modus === "verspreid" && punten.length >= 3 ? puntPlekken.slice(1, -1) : []), [route.modus, punten.length, puntPlekken]);
+  const wegParen = useMemo(() => {
+    const paren: [{ lat: number; lng: number }, { lat: number; lng: number }][] = [];
+    puntPlekken.slice(1).forEach((p, i) => paren.push([puntPlekken[i], p]));
+    if (lusPlekken.length > 1) paren.push([lusPlekken[lusPlekken.length - 1], lusPlekken[0]]);
+    for (const t of teamRoutes) t.coords.slice(1).forEach((c, i) => paren.push([t.coords[i], c]));
+    return paren;
+  }, [puntPlekken, lusPlekken, teamRoutes]);
+  const wegen = useWegen(wegParen);
+  const lusMeterWeg = lusPlekken.length > 1 ? wegen.totaal([...lusPlekken, lusPlekken[0]]) : 0;
+  const teamAanloopM = teamRoutes.map((t) => Math.round(t.coords.length > 1 ? wegen.afstand(t.coords[0], t.coords[1]) : 0));
+  const teamRoutesKaart = useMemo(() => teamRoutes.map((t) => ({
+    ...t, stukken: t.coords.slice(1).map((c, i) => wegen.lijn(t.coords[i], c)),
+  })), [teamRoutes, wegen]);
+  const hoofdStukken = useMemo(() => puntPlekken.slice(1).map((p, i) => wegen.lijn(puntPlekken[i], p)), [puntPlekken, wegen]);
 
   // Afstand en geschatte speeltijd per team (lopen + vragen + items), getoond als paneel op de kaart
   const teamSchattingen = useMemo(() => {
@@ -257,6 +275,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         respawn: !!route.item_respawn,
         spookMin: spookMinuten,
         plekzooiMin: plekzooiMinuten,
+        afstandM: wegen.totaal(t.coords),
+        lijn: teamRoutesKaart.find((r) => r.teamIndex === t.teamIndex)?.stukken.flat(),
       }),
       punten: schatTeamPunten(t.coords, {
         vraagPunten: t.punten.filter((p) => vraagPuntIds.has(p.id)).map((p) => vraagMaxPunten.get(p.id) ?? 0),
@@ -266,9 +286,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         respawn: !!route.item_respawn,
         sterWaarde,
         bomWaarde,
+        lijn: teamRoutesKaart.find((r) => r.teamIndex === t.teamIndex)?.stukken.flat(),
       }),
     }));
-  }, [teamRoutes, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
+  }, [teamRoutes, teamRoutesKaart, wegen, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
 
   // Standaardnamen ("Punt 8") volgen het nummer op de kaart, ook na verschuiven of verwijderen.
@@ -362,12 +383,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [toonVoorstellen, setToonVoorstellen] = useState(true);
   const itemCheck = useMemo(() => {
     if (route.modus !== "verspreid" || punten.length < 3) return null;
-    const lus = punten.slice(1, -1).map((p) => ({ lat: p.latitude, lng: p.longitude }));
-    let lusMeter = 0;
-    for (let i = 0; i < lus.length && lus.length > 1; i++) {
-      const a = lus[i], b = lus[(i + 1) % lus.length];
-      lusMeter += haversine(a.lat, a.lng, b.lat, b.lng);
-    }
+    const lus = lusPlekken;
+    const lusMeter = lusMeterWeg;
     if (lusMeter < 100) return null;
     const advies = itemAdvies(lusMeter, verwachtTeams, !!route.item_respawn, gemSpeelMinuten);
     const tel = (types: readonly string[]) => specialeItems.filter((i) => types.includes(i.type)).length;
@@ -397,15 +414,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       teVeel: nuOppakbaar > advies.oppakbaar + 1,
       voorstellen: plekken.map((p, i) => ({ ...p, type: tekortTypes[i] })),
     };
-  }, [route.modus, punten, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems]);
+  }, [route.modus, punten, lusPlekken, lusMeterWeg, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems]);
   // "Klaar om te spelen?": alles wat vóór het activeren nog aandacht nodig heeft
   const [controleOpen, setControleOpen] = useState(() => zoekParams.get("controle") === "1");
   const controle = useMemo(() => routeControle({
     punten, modus: route.modus, vraagPuntIds, verwachtTeams,
     itemTekort: itemCheck?.tekort ?? 0, itemTeVeel: !!itemCheck?.teVeel,
-    teamStarts: teamRoutes.map((t) => t.coords.slice(0, 2)),
+    teamAanloopM,
     teamMinuten: teamSchattingen.map((t) => t.totaalMin),
-  }), [punten, route.modus, vraagPuntIds, verwachtTeams, itemCheck, teamRoutes, teamSchattingen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [punten, route.modus, vraagPuntIds, verwachtTeams, itemCheck, teamAanloopM.join(","), teamSchattingen]);
   async function activeerRoute() {
     const res = await api(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
     if (res.ok) { setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); toonMelding("Route is actief: teams kunnen starten", "ok"); }
@@ -1027,11 +1045,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* Verspreid-instellingen / afstand */}
           {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
             {route.modus === "verspreid" && (() => {
-              const totaalM = punten.length >= 2 ? punten.reduce((som, pt, i) => {
-                if (i === 0) return som;
-                const v = punten[i - 1];
-                return som + haversine(v.latitude, v.longitude, pt.latitude, pt.longitude);
-              }, 0) : 0;
+              const totaalM = punten.length >= 2 ? wegen.totaal(puntPlekken) : 0;
               const stapM = doelAfstandKm > 0 && punten.length > 0 ? doelAfstandKm * 1000 / punten.length : null;
               const teWeinigPunten = punten.length < verwachtTeams * 2;
 
@@ -1122,7 +1136,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                   {/* Live preview */}
                   <div style={{ fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.5 }}>
-                    {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km</div>}
+                    {totaalM > 0 && <div>Gemeten: {(totaalM / 1000).toFixed(2)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : "📏 hemelsbreed (wegen laden…)"}</div>}
                     {doelAfstandKm > 0 && <div style={{ color: "var(--cyan)" }}>Teams ≈ {(doelAfstandKm / verwachtTeams).toFixed(2)} km uit elkaar</div>}
                     {stapM !== null && punten.length > 0 && <div>Aanbevolen puntafstand: ≈ {Math.round(stapM)} m</div>}
                     {geselecteerd && doelAfstandKm > 0 && punten.length > 0 && (
@@ -1166,12 +1180,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
             {/* Gemeten afstand voor sequentieel */}
             {route.modus === "sequentieel" && punten.length >= 2 && (() => {
-              const totaalM = punten.reduce((som, pt, i) => {
-                if (i === 0) return som;
-                const vorige = punten[i - 1];
-                return som + haversine(vorige.latitude, vorige.longitude, pt.latitude, pt.longitude);
-              }, 0);
-              return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km</span>;
+              const totaalM = wegen.totaal(puntPlekken);
+              return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : "📏 hemelsbreed (wegen laden…)"}</span>;
             })()}
           </div>}
 
@@ -1305,12 +1315,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
             {actieveTab === "items" && route.modus === "verspreid" && (() => {
               // Lengte van het rondje: de punten tussen startpunt en finish, als gesloten lus
-              const lus = punten.length >= 3 ? punten.slice(1, -1) : punten;
-              let lusMeter = 0;
-              for (let i = 0; i < lus.length; i++) {
-                const a = lus[i], b = lus[(i + 1) % lus.length];
-                if (lus.length > 1) lusMeter += haversine(a.latitude, a.longitude, b.latitude, b.longitude);
-              }
+              let lusMeter = lusMeterWeg;
               if (lusMeter < 100) lusMeter = doelAfstandKm * 1000;
               if (lusMeter < 100) {
                 return (
@@ -1834,7 +1839,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <div style={{ color: "var(--muted)" }}>
                 Start bij punt {t.nummers[0]} {t.handmatig ? "📌 zelf gekozen" : "(automatisch)"} · {t.nummers.length} punten{andersom ? " · ↺ andersom" : ""}
               </div>
-              <div style={{ color: "var(--muted)" }}>Aanloop vanaf de start: <strong style={{ color: "var(--text)" }}>{t.aanloopM} m</strong></div>
+              <div style={{ color: "var(--muted)" }}>Aanloop vanaf de start: <strong style={{ color: "var(--text)" }}>{teamAanloopM[teamRoutes.indexOf(t)] ?? 0} m</strong>{wegen.compleet ? "" : " (hemelsbreed)"}</div>
               <div style={{ lineHeight: 1.6 }}>🏠 → {t.nummers.join(" → ")} → 🏁</div>
               <button type="button" onClick={() => wisselAndersom(t.teamIndex)}
                 className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`}
@@ -1872,7 +1877,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               : null
           }
           hubModus={route.modus === "verspreid" && punten.length >= 3}
-          teamRoutes={teamRoutes}
+          teamRoutes={teamRoutesKaart}
+          hoofdStukken={hoofdStukken}
           centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
           ghostPunten={ghostPunten}
           ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
