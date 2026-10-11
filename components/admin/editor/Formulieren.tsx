@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import type { RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { ITEM_UITLEG } from "./item-uitleg";
+import NaamKiezer from "../NaamKiezer";
 
 export function StatusPil({ status, isActief }: { status: string; isActief: boolean }) {
   if (isActief) return <span style={{ background: "var(--green-soft)", color: "var(--green)", padding: "4px 10px", borderRadius: 99, fontSize: "0.75rem", fontWeight: 700 }}>✓ Actief</span>;
@@ -66,9 +67,9 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamVoorstel, onOpslaan, onVerwijder, onSluit }: {
+export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden, onOpslaan, onVerwijder, onSluit }: {
   punt: RoutePunt; opslaan: boolean; fout: string; heeftVraag: boolean; onVraag: () => void;
-  naamVoorstel: string | null;
+  naamWoorden: string[];
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
@@ -100,14 +101,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamVoorste
 
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Naam</label>
-        <div style={{ display: "flex", gap: 6 }}>
-          <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ fontSize: "0.85rem", flex: 1, minWidth: 0 }} />
-          {/* Naamvoorstel uit de vraag: alleen invullen als je erop klikt */}
-          {naamVoorstel && naamVoorstel !== naam && (
-            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
-              title={`Voorstel: "${naamVoorstel}" (uit de vraag)`} aria-label="Naam voorstellen" style={{ height: 38, width: 38 }}>💡</button>
-          )}
-        </div>
+        <NaamKiezer naam={naam} onNaam={setNaam} woorden={naamWoorden} hoogte={38} />
       </div>
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Beschrijving</label>

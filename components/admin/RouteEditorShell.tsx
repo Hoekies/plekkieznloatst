@@ -12,7 +12,7 @@ import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import VraagEditorPagina, { type VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
 import { toonMelding } from "@/components/admin/Melding";
-import { naamUitVraag, isStandaardNaam } from "@/lib/punt-naam";
+import { naamWoorden, isStandaardNaam } from "@/lib/punt-naam";
 import { kiesInstappunten } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
@@ -75,7 +75,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [naamVoorstellen, setNaamVoorstellen] = useState(() => new Map(
     (initRoute.route_points ?? []).filter((p) => p.questions?.length && p.questions[0].type).map((p) => {
       const v = p.questions![0];
-      return [p.id, naamUitVraag({ ...v, type: v.type! })] as const;
+      return [p.id, naamWoorden(v)] as const;
     }),
   ));
   // Maximaal te halen punten per vraag (hoogste van de vraagpunten en de punten per antwoord)
@@ -565,7 +565,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setVraagPuntIds((oud) => { const n = new Set(oud); if (vraag) n.add(puntId); else n.delete(puntId); return n; });
     setNaamVoorstellen((oud) => {
       const n = new Map(oud);
-      if (vraag?.type) n.set(puntId, naamUitVraag({ ...vraag, type: vraag.type })); else n.delete(puntId);
+      if (vraag) n.set(puntId, naamWoorden(vraag)); else n.delete(puntId);
       return n;
     });
     setVraagMaxPunten((oud) => {
@@ -1911,7 +1911,7 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 opslaan={opslaan}
                 fout={fout}
                 heeftVraag={vraagPuntIds.has(geselecteerd.id)}
-                naamVoorstel={naamVoorstellen.get(geselecteerd.id) ?? null}
+                naamWoorden={naamVoorstellen.get(geselecteerd.id) ?? []}
                 onOpslaan={slaPuntOp}
                 onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}

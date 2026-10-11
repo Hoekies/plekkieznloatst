@@ -6,7 +6,8 @@ import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
 import AfbeeldingUpload from "./AfbeeldingUpload";
 import BevestigKnop from "./BevestigKnop";
-import { naamUitVraag } from "@/lib/punt-naam";
+import { naamWoorden } from "@/lib/punt-naam";
+import NaamKiezer from "./NaamKiezer";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 
@@ -88,11 +89,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
   // Naam van het punt, met een voorstel uit de vraag zoals in het puntpaneel (knop 💡)
   const [naam, setNaam] = useState(punt.name ?? "");
-  const naamVoorstel = naamUitVraag({
-    type,
+  const woorden = naamWoorden({
     question_text: tekst,
     correct_text_answers: openAntwoorden.split("\n").map((r) => r.trim()).filter(Boolean),
-    numeric_answer: isNumeriek && numeriekeWaarde.trim() ? Number(numeriekeWaarde.replace(",", ".")) : null,
     answer_options: antwoorden.map((a) => ({ text: a.text, is_correct: a.is_correct })),
   });
 
@@ -255,14 +254,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
             <div className="form-group">
               <label className="form-label">Naam van het punt</label>
-              <div style={{ display: "flex", gap: 6 }}>
-                <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => setNaam(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
-                {/* Kernwoord uit de vraag: alleen invullen als je erop klikt */}
-                {naamVoorstel && naamVoorstel !== naam && (
-                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setNaam(naamVoorstel)}
-                    title={`Voorstel: "${naamVoorstel}" (kernwoord uit de vraag)`} aria-label="Naam voorstellen" style={{ height: 42, width: 42 }}>💡</button>
-                )}
-              </div>
+              <NaamKiezer naam={naam} onNaam={setNaam} woorden={woorden} hoogte={42} />
               <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Spelers zien de naam van een vraagpunt pas na afloop. Wordt opgeslagen met de vraag.</span>
             </div>
 
