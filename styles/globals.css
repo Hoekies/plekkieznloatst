@@ -1793,17 +1793,18 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .editor-opslag--fout { color: #FCA5A5; }
 
 /* Uitloggen rechtsboven in het beheerscherm; de bovenbalken houden er ruimte voor vrij */
-.admin-uitlog-hoek { position: fixed; top: 0; right: 22px; height: 85px; display: flex; align-items: center; z-index: 900; }
+.admin-uitlog-hoek { position: fixed; top: 0; right: 28px; height: 84px; display: flex; align-items: center; z-index: 900; }
 @media (min-width: 769px) {
-  .admin-topbar { padding-right: 160px; }
+  /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
+  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 230px; }
   .admin-alleen-mobiel { display: none; }
 }
 @media (max-width: 768px) {
   .admin-uitlog-hoek { display: none; }
 }
 .route-editor-topbar { padding: 10px 16px; }
-@media (min-width: 769px) { .route-editor-topbar { padding-right: 160px; } }
+@media (min-width: 769px) { .route-editor-topbar { padding-right: 230px; } }
 
 /* Knoppen in de bovenbalk: zo hoog als de balk toelaat, met een groot icoon */
-.header-knop { height: 52px; padding: 0 16px 0 10px; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 8px; }
-.header-knop-icoon { font-size: 1.9rem; line-height: 1; }
+.header-knop { height: 52px; padding: 0 18px 0 12px; font-size: 0.86rem; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; }
+.header-knop-icoon { width: 34px; display: inline-flex; justify-content: center; font-size: 1.7rem; line-height: 1; }
