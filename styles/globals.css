@@ -1793,7 +1793,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .editor-opslag--fout { color: #FCA5A5; }
 
 /* Uitloggen rechtsboven in het beheerscherm; de bovenbalken houden er ruimte voor vrij */
-.admin-uitlog-hoek { position: fixed; top: 18px; right: 22px; z-index: 900; }
+.admin-uitlog-hoek { position: fixed; top: 0; right: 22px; height: 85px; display: flex; align-items: center; z-index: 900; }
 @media (min-width: 769px) {
   .admin-topbar { padding-right: 160px; }
   .admin-alleen-mobiel { display: none; }
