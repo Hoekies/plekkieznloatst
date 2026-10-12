@@ -29,7 +29,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor
       }
       if (!containerRef.current) return;
       map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
 
       const grenzen: [number, number][] = [];
       if (spoor.length > 1) {

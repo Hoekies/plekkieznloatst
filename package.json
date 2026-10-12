@@ -11,6 +11,8 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.43.0",
+    "html2canvas-pro": "^2.5.2",
+    "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",
     "marked": "^14.1.4",
     "next": "14.2.5",

@@ -6,6 +6,8 @@ import type { RouteVerslag, VerslagItem } from "@/lib/team-verslag";
 import { formateerTijd } from "@/lib/geo";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 
+import RapportDelen from "@/components/admin/RapportDelen";
+
 const GelopenRouteKaart = dynamic(() => import("@/components/speler/GelopenRouteKaart"), { ssr: false });
 
 const MEDAILLE = ["🥇", "🥈", "🥉"];
@@ -77,14 +79,12 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
       `}</style>
 
       <div className="rapport-knoppen" style={{ maxWidth: 860, margin: "0 auto 16px", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-        <button className="rl-knop rl-knop--cyan" onClick={() => window.print()}>🖨️ Opslaan als PDF / afdrukken</button>
-        <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-          Kies &quot;Opslaan als PDF&quot;. Wacht tot de kaarten geladen zijn.
-        </span>
+        <RapportDelen routeNaam={routeNaam} teams={stand.map((t) => ({ sessie_id: t.sessie_id, naam: t.naam, icon: t.icon ?? null }))} />
+        <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser">🖨️ Afdrukken</button>
       </div>
 
       {/* ── Eindstand ── */}
-      <div className="rapport-papier">
+      <div className="rapport-papier" data-rapport="eindstand">
         <div style={{ textAlign: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 110, width: "auto" }} />
@@ -147,7 +147,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
         const v = verslagen[t.sessie_id];
         const items = [...(v?.items ?? [])].sort((a, b) => a.tijd.localeCompare(b.tijd));
         return (
-          <div key={t.sessie_id} className="rapport-papier rapport-team">
+          <div key={t.sessie_id} className="rapport-papier rapport-team" data-rapport="team" data-rapport-team={t.sessie_id}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 42, width: "auto" }} />
@@ -178,7 +178,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
                             <>
                               {r.foto_pad && fotoUrls[r.foto_pad] && (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={fotoUrls[r.foto_pad]} alt="Foto" style={{ width: 140, maxHeight: 105, objectFit: "cover", borderRadius: 6, display: "block" }} />
+                                <img src={fotoUrls[r.foto_pad]} crossOrigin="anonymous" alt="Foto" style={{ width: 140, maxHeight: 105, objectFit: "cover", borderRadius: 6, display: "block" }} />
                               )}
                               <span style={{ fontSize: "0.75rem", color: r.foto_status === "wacht" ? "#FBBF24" : goed ? "#4ADE80" : "#F87171" }}>
                                 {r.foto_status === "wacht" ? "⏳ nog niet gekeurd" : goed ? "✓ goedgekeurd" : "✗ afgekeurd"}
@@ -239,7 +239,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
       })}
 
       {/* ── Dankwoord van de organisatie ── */}
-      <div className="rapport-papier rapport-slot">
+      <div className="rapport-papier rapport-slot" data-rapport="slot">
         <div className="rapport-blok" style={{ textAlign: "center", padding: "30px 10px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 90, width: "auto" }} />
