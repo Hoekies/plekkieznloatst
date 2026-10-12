@@ -37,15 +37,15 @@ SECTION 2 — "De kaart" (a small stylized map illustration with a legend of 5 m
 Caption under the map: "Toekomstige punten zijn onzichtbaar — pas als je het huidige punt
 hebt afgerond, verschijnt het volgende."
 
-SECTION 3 — "Je startbanaan" with two icon cards side by side:
-🍌 Banaan — "Elk team krijgt er één bij de start. Gooi hem naar een tegenstander: hun volgende
-punt wordt omgewisseld (het eindpunt nooit)."
+SECTION 3 — "Je startitems" with two icon cards side by side:
+🍌 Banaan — "Na de eerste 100 meter krijg je startitems van de organisatie, meestal een banaan.
+Gooi hem naar een tegenstander: hun volgende punt wordt omgewisseld (het eindpunt nooit)."
 ⛔ Plek zooi — "Onzichtbare val op de kaart. Loop je erover, dan sta je een paar minuten stil."
 
 SECTION 4 — "Tips" (short bullet list with a lightbulb icon 💡):
-- Je hebt maar één banaan: bewaar hem voor het juiste moment
+- Bewaar je banaan voor het juiste moment
 - Gooi hem naar een team dat bijna bij een punt is
-- Je banaan blijft bewaard, ook als de app herlaadt
+- Je items blijven bewaard, ook als de app herlaadt
 
 FOOTER banner: "🏁 Bij het eindpunt staat je score vast — bekijk de eindstand!"
 

@@ -1814,3 +1814,42 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .pr-gem-card .rl-acties .rl-knop { height: 46px; padding: 0 18px; font-size: 0.9rem; border-radius: 11px; }
 .pr-gem-card .rl-acties .rl-knop--icoon { width: 46px; padding: 0; font-size: 1.45rem; }
 .pr-gem-card .pr-gem-chip { font-size: 0.82rem; padding: 6px 14px; }
+
+/* ⓘ naast Uitloggen, met daaronder handleiding, instructiekaarten en Ko-fi */
+.admin-uitlog-hoek { gap: 10px; }
+.info-knop { width: 52px; padding: 0 !important; justify-content: center !important; }
+.info-knop-i { font-family: Georgia, serif; font-style: italic; font-weight: 800; font-size: 1.7rem; line-height: 1; color: #FFE680; }
+.info-paneel {
+  position: absolute; top: calc(100% + 10px); right: 0; width: 340px; z-index: 950;
+  display: flex; flex-direction: column; gap: 10px; padding: 14px;
+  border-radius: 16px; background: linear-gradient(165deg, #2f1769 0%, #1c0c45 75%, #150a36 100%);
+  border: 2px solid rgba(255,217,59,0.55); box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+}
+.info-regel {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #fff;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+}
+.info-regel:hover { background: rgba(255,255,255,0.12); }
+.info-regel strong { display: block; font-family: var(--font-display); font-size: 0.92rem; }
+.info-sub { display: block; font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+.info-kop { font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; color: #fff; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+.info-kaarten { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.info-kaart { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--text); font-size: 0.74rem; font-weight: 600; text-align: center; }
+.info-kaart img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18); }
+.info-kaart:hover img { border-color: #FFE680; }
+.info-kofi img { width: 100%; height: auto; display: block; border-radius: 10px; }
+
+/* Handleiding als pagina */
+.uitleg-tekst { max-width: 860px; color: var(--text); font-size: 0.92rem; line-height: 1.6; }
+.uitleg-tekst h1 { font-family: var(--font-display); color: #fff; font-size: 1.6rem; margin: 0 0 12px; }
+.uitleg-tekst h2 { font-family: var(--font-display); color: #FFE680; font-size: 1.25rem; margin: 28px 0 10px; }
+.uitleg-tekst h3 { font-family: var(--font-display); color: #fff; font-size: 1.05rem; margin: 22px 0 8px; }
+.uitleg-tekst h4 { color: #A5F3FC; font-size: 0.95rem; margin: 18px 0 6px; }
+.uitleg-tekst a { color: var(--cyan); }
+.uitleg-tekst code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 5px; font-size: 0.85em; }
+.uitleg-tekst blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid #FFE680; background: rgba(255,217,59,0.07); border-radius: 0 10px 10px 0; }
+.uitleg-tekst table { border-collapse: collapse; margin: 10px 0; width: 100%; font-size: 0.86rem; }
+.uitleg-tekst th, .uitleg-tekst td { border: 1px solid rgba(255,255,255,0.14); padding: 6px 10px; text-align: left; vertical-align: top; }
+.uitleg-tekst th { background: rgba(255,255,255,0.06); color: #fff; }
+.uitleg-tekst hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 24px 0; }
+.uitleg-tekst li { margin: 3px 0; }

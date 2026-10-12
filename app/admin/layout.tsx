@@ -7,6 +7,7 @@ import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import SidebarToggle from "@/components/admin/SidebarToggle";
 import HulpMeldingen from "@/components/admin/HulpMeldingen";
 import MeldingHouder from "@/components/admin/Melding";
+import InfoKnop from "@/components/admin/InfoKnop";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -47,6 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
       <div className="admin-uitlog-hoek">
+        <InfoKnop />
         <UitlogKnop compact />
       </div>
       <HulpMeldingen />

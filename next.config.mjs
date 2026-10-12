@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  // De handleidingpagina leest het Markdown-bestand op de server; zorg dat het meegaat
+  experimental: {
+    outputFileTracingIncludes: { "/admin/uitleg": ["./docs/beheerdershandleiding.md"] },
+  },
   async headers() {
     const csp = [
       "default-src 'self'",

@@ -1,6 +1,6 @@
 # Speluitleg — PointRush
 
-PointRush kent drie spelsoorten. De organisatie kiest er één per spel, en dat bepaalt hoe je speelt.
+PointRush kent twee spelsoorten. De organisatie kiest er één per spel, en dat bepaalt hoe je speelt.
 **Kies hieronder het spel dat jullie spelen** — elke uitleg is compleet, je hoeft er verder niks bij te lezen.
 
 | Spel | Waar het om gaat | Uitleg |
