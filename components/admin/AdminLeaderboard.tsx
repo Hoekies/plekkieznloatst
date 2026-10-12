@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase-browser";
 import { formateerTijd } from "@/lib/geo";
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
+import StatKaart from "@/components/admin/StatKaart";
+import SectieKop from "@/components/admin/SectieKop";
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -64,6 +66,15 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
       </div>
 
       <div className="admin-content">
+        {/* Tegels zoals bovenaan het dashboard */}
+        <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
+          <StatKaart label="Koploper" waarde={leaderboard[0]?.display_name ?? "—"} badgeKlas="pr-badge--gold" badge="🥇" />
+          <StatKaart label="Hoogste score" waarde={leaderboard[0] ? String(leaderboard[0].score) : "—"} badgeKlas="pr-badge--orange" badge="⭐" />
+          <StatKaart label="Bezig met spelen" waarde={String(leaderboard.filter((s) => s.sessie_status === "actief").length)} badgeKlas="pr-badge--purple" badge="⚡" />
+          <StatKaart label="Gefinisht" waarde={String(leaderboard.filter((s) => s.sessie_status === "voltooid").length)} badgeKlas="pr-badge--green" badge="✓" />
+        </div>
+
+        <SectieKop titel="🏆 Stand" />
         {leaderboard.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
@@ -71,44 +82,28 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
             </p>
           </div>
         ) : (
-          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
-                  {["#", "Teamnaam", "Score", "Tijd", "Afstand", "Punten", "Status"].map((h) => (
-                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.map((s) => (
-                  <tr key={s.player_id} style={{ borderBottom: "1px solid var(--line)" }}>
-                    <td style={{ padding: "12px 16px", fontWeight: 700, fontSize: "1.2rem" }}>
-                      {s.rang <= 3 ? ["🥇", "🥈", "🥉"][s.rang - 1] : s.rang}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {s.nickname
-                        ? <div style={{ fontWeight: 600 }}>{s.nickname}</div>
-                        : <div style={{ fontSize: "0.8rem", color: "var(--muted)", fontStyle: "italic" }}>nog geen naam gekozen</div>}
-                    </td>
-                    <td style={{ padding: "12px 16px", fontWeight: 800, fontSize: "1.1rem", color: "var(--blue)" }}>{s.score}</td>
-                    <td style={{ padding: "12px 16px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
-                      {s.started_at ? formateerTijd(sessietijd(s)) : "—"}
-                    </td>
-                    <td style={{ padding: "12px 16px", fontVariantNumeric: "tabular-nums", fontSize: "0.85rem" }}>
-                      {s.afstand_m > 0 ? `${(s.afstand_m / 1000).toFixed(2)} km` : "—"}
-                    </td>
-                    <td style={{ padding: "12px 16px", fontSize: "0.85rem" }}>
-                      {totaalPunten ? `${s.bezochte_punten} / ${totaalPunten}` : s.bezochte_punten}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <StatusPil status={s.sessie_status} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          leaderboard.map((s) => (
+            <div key={s.player_id} className="pr-gem-card" style={s.rang === 1 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
+              <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
+                <span style={{ width: 44, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: s.rang <= 3 ? "2rem" : "1.3rem", color: "#fff" }}>
+                  {s.rang <= 3 ? ["🥇", "🥈", "🥉"][s.rang - 1] : s.rang}
+                </span>
+                <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{s.icon ?? "👥"}</span>
+                <div style={{ flex: 1, minWidth: 140 }}>
+                  {s.nickname
+                    ? <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{s.nickname}</div>
+                    : <div style={{ fontSize: "0.85rem", color: "var(--muted)", fontStyle: "italic" }}>nog geen naam gekozen</div>}
+                  <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 2 }}>
+                    ⏱ {s.started_at ? formateerTijd(sessietijd(s)) : "—"}
+                    {" · "}🚶 {s.afstand_m > 0 ? `${(s.afstand_m / 1000).toFixed(2)} km` : "—"}
+                    {" · "}📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
+                  </div>
+                </div>
+                <StatusPil status={s.sessie_status} />
+                <span style={{ minWidth: 80, textAlign: "right", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.4rem", color: "#FFE680" }}>{s.score}</span>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </>

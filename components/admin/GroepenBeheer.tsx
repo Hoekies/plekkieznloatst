@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
+import StatKaart from "@/components/admin/StatKaart";
+import SectieKop from "@/components/admin/SectieKop";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
 const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
@@ -87,11 +89,17 @@ export default function GroepenBeheer() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", maxWidth: "760px" }}>
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
-          {groepen.length} groep{groepen.length !== 1 ? "en" : ""}
-        </p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* Tegels zoals bovenaan het dashboard */}
+      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
+        <StatKaart label="Groepen" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Ingelogd" waarde={String(groepen.filter((g) => g.active_device_id).length)} badgeKlas="pr-badge--green" badge="📱" />
+        <StatKaart label="Aan het spelen" waarde={String(groepen.filter((g) => g.heeft_spel).length)} badgeKlas="pr-badge--orange" badge="⚡" />
+        <StatKaart label="Uitgeschakeld" waarde={String(groepen.filter((g) => g.is_uitgeschakeld).length)} badgeKlas="pr-badge--gray" badge="⏸" />
+      </div>
+
+      <div>
+      <SectieKop titel="👥 Groepen">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           <button
             className="btn btn-ghost"
@@ -119,6 +127,7 @@ export default function GroepenBeheer() {
             + Nieuwe groep
           </button>
         </div>
+      </SectieKop>
       </div>
 
       {toonTemplate && (
@@ -169,17 +178,13 @@ export default function GroepenBeheer() {
           </p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <div>
           {groepen.map((g) => {
             const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe groep";
             const isUit = g.is_uitgeschakeld;
             return (
-              <div key={g.id} className="card" style={{
-                display: "flex", alignItems: "center", gap: "10px",
-                padding: "10px 14px",
-                opacity: isUit ? 0.55 : 1,
-                borderLeft: isUit ? "3px solid var(--red)" : "3px solid transparent",
-              }}>
+              <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.55 : 1 }}>
+               <div className="pr-gem-card-inner">
                 {/* Icoon — zelfde formaat als de teamavatars op het dashboard */}
                 <div className="pr-gem-avatar" style={{
                   borderRadius: "50%",
@@ -191,7 +196,7 @@ export default function GroepenBeheer() {
 
                 {/* Tekst + knoppen */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: g.nickname ? "var(--ink)" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
                     {g.nickname ?? "nog geen teamnaam gekozen"}
                   </div>
                   <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
@@ -255,6 +260,7 @@ export default function GroepenBeheer() {
                     boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                   }} />
                 </div>
+               </div>
               </div>
             );
           })}

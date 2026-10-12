@@ -56,8 +56,8 @@ export default function AdminLiveKaart({ initData }: Props) {
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
         <span className="admin-topbar-titel">Live kaart</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", color: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)" }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: realtimeOk ? "var(--green, #16A34A)" : "var(--muted)", display: "inline-block" }} />
+        <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
+          <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
           {realtimeOk ? "Live" : "Verbinding weg"}
         </div>
       </div>
@@ -69,17 +69,10 @@ export default function AdminLiveKaart({ initData }: Props) {
         </div>
 
         {/* Overlay: spelerslijst */}
-        <div style={{
-          position: "absolute", top: 36, right: 36, zIndex: 1000,
-          background: "rgba(8,17,32,0.92)", borderRadius: 12,
-          border: "1px solid var(--glass-border)", padding: "12px 14px",
-          minWidth: 190, maxHeight: "calc(100% - 72px)", overflowY: "auto",
-          backdropFilter: "blur(8px)",
-          boxShadow: "var(--shadow)",
-          color: "#fff",
-        }}>
-          <div style={{ fontSize: "0.72rem", color: "var(--cyan)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>
-            {aantalActief} bezig · {aantalKlaar} klaar
+        <div className="pr-gem-panel" style={{ position: "absolute", top: 36, right: 36, zIndex: 1000, flex: "none", minWidth: 210, maxHeight: "calc(100% - 72px)" }}>
+         <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
+          <div className="pr-gem-label" style={{ marginBottom: 8 }}>
+            ⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar
           </div>
           {spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>
@@ -103,6 +96,7 @@ export default function AdminLiveKaart({ initData }: Props) {
               </div>
             ))
           )}
+         </div>
         </div>
       </div>
     </div>

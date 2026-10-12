@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
+import StatKaart from "@/components/admin/StatKaart";
+import SectieKop from "@/components/admin/SectieKop";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -56,19 +58,17 @@ export default function AntwoordenOverzicht() {
   if (!data.route) return <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Er is geen actieve route.</p></div>;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 900 }}>
-      {/* Uitslag */}
-      <div className="card" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
-        <div>
-          <div style={{ fontWeight: 700, color: "var(--ink)" }}>{data.route.name}</div>
-          <div style={{ fontSize: "0.8rem", color: data.wachtende_fotos ? "#FBBF24" : "var(--muted)", marginTop: 2 }}>
-            {data.wachtende_fotos
-              ? `📸 ${data.wachtende_fotos} foto${data.wachtende_fotos !== 1 ? "'s" : ""} nog te keuren`
-              : "Alle foto's zijn gekeurd"}
-            {" · "}
-            {data.uitslag_vrijgegeven ? "✅ Uitslag is zichtbaar voor de teams" : "🔒 Uitslag nog verborgen"}
-          </div>
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Tegels zoals bovenaan het dashboard */}
+      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
+        <StatKaart label="Actieve route" waarde={data.route.name} badgeKlas="pr-badge--orange" badge="🗺️" />
+        <StatKaart label="Teams" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Foto's te keuren" waarde={String(data.wachtende_fotos ?? 0)} badgeKlas={data.wachtende_fotos ? "pr-badge--gold" : "pr-badge--green"} badge="📸" />
+        <StatKaart label="Uitslag" waarde={data.uitslag_vrijgegeven ? "Zichtbaar" : "Verborgen"} badgeKlas={data.uitslag_vrijgegeven ? "pr-badge--green" : "pr-badge--gray"} badge={data.uitslag_vrijgegeven ? "🏆" : "🔒"} />
+      </div>
+
+      {/* Uitslag en rapport */}
+      <SectieKop titel="📝 Antwoorden per team">
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
             style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}
@@ -84,21 +84,22 @@ export default function AntwoordenOverzicht() {
             </BevestigKnop>
           )}
         </div>
-      </div>
+      </SectieKop>
 
       {data.teams.length === 0 && (
         <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Nog geen teams aan het spelen.</p></div>
       )}
 
       {data.teams.map((team) => (
-        <div key={team.sessie_id} className="card" style={{ padding: "12px 14px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <span style={{ fontSize: "1.5rem" }}>{team.icon ?? "👥"}</span>
-            <span style={{ fontWeight: 700, color: "var(--ink)", flex: 1 }}>{team.naam}</span>
-            <span style={{ fontSize: "0.78rem", color: team.status === "voltooid" ? "var(--green)" : "var(--muted)" }}>
+        <div key={team.sessie_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
+         <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{team.icon ?? "👥"}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff", flex: 1 }}>{team.naam}</span>
+            <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--orange"}`}>
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
             </span>
-            <span style={{ fontWeight: 800, color: "var(--ink)" }}>{team.score} pt</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#FFE680" }}>{team.score} pt</span>
           </div>
           {team.rijen.length === 0 ? (
             <p style={{ fontSize: "0.82rem", color: "var(--muted)", margin: 0 }}>Nog geen vragen beantwoord.</p>
@@ -114,6 +115,7 @@ export default function AntwoordenOverzicht() {
               ))}
             </div>
           )}
+         </div>
         </div>
       ))}
     </div>
