@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import StatKaart from "@/components/admin/StatKaart";
 import { toonMelding } from "@/components/admin/Melding";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -300,17 +301,6 @@ function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolea
   );
 }
 
-function StatKaart({ label, waarde, badge, badgeKlas }: { label: string; waarde: string; badge: string; badgeKlas: string }) {
-  return (
-    <div className="pr-gem-panel">
-      <span className={`pr-corner-chip pr-badge ${badgeKlas}`}>{badge}</span>
-      <div className="pr-gem-panel-inner">
-        <div className="pr-gem-label">{label}</div>
-        <div className="pr-gem-value">{waarde}</div>
-      </div>
-    </div>
-  );
-}
 
 function StatusPil({ status, ingelogd }: { status: SpelerOverzicht["sessie_status"]; ingelogd: boolean }) {
   const cfg = {

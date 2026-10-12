@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import StatKaart from "@/components/admin/StatKaart";
 import { toonMelding } from "@/components/admin/Melding";
 
 export default function RoutesOverzicht() {
@@ -122,11 +123,19 @@ export default function RoutesOverzicht() {
   }
 
   return (
-    <div style={{ maxWidth: 760 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 14 }}>
-        <p style={{ color: "var(--muted)", fontSize: "0.85rem", fontWeight: 600, flex: 1, minWidth: 80, margin: 0 }}>
-          {routes.length} route{routes.length !== 1 ? "s" : ""}
-        </p>
+    <div>
+      {/* Tegels zoals bovenaan het dashboard */}
+      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
+        <StatKaart label="Actieve route" waarde={routes.find((r) => r.is_active)?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
+        <StatKaart label="Routes" waarde={String(routes.length)} badgeKlas="pr-badge--purple" badge="📚" />
+        <StatKaart label="Gepubliceerd" waarde={String(routes.filter((r) => r.status === "gepubliceerd").length)} badgeKlas="pr-badge--green" badge="📢" />
+        <StatKaart label="Concept" waarde={String(routes.filter((r) => r.status !== "gepubliceerd" && !r.is_active).length)} badgeKlas="pr-badge--gray" badge="✏️" />
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 12 }}>
+        <div style={{ flex: 1, minWidth: 80, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          🗺️ Routes
+        </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
           <button className="rl-knop" onClick={() => importRef.current?.click()} disabled={importBezig}>
             {importBezig ? "Importeren…" : "Importeren"}
@@ -203,26 +212,24 @@ export default function RoutesOverzicht() {
           <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Maak een nieuwe route aan.</p>
         </div>
       ) : (
-        <div className="rl-lijst">
+        <div>
           {gesorteerd.map((r) => {
             const info = MODUS_INFO[r.modus];
             const status = r.is_active
-              ? { tekst: "Actief", kleur: "#4ADE80" }
+              ? { tekst: "● Actief", cls: "pr-gem-chip--green" }
               : r.status === "gepubliceerd"
-                ? { tekst: "Gepubliceerd", kleur: "#67E8F9" }
-                : { tekst: "Concept", kleur: "#94A3B8" };
+                ? { tekst: "Gepubliceerd", cls: "pr-gem-chip--cyan" }
+                : { tekst: "Concept", cls: "pr-gem-chip--gray" };
 
             return (
-              <div key={r.id} className={`rl-rij${r.is_active ? " rl-rij--actief" : ""}`}>
-                <ModusTegel modus={r.modus} size={38} />
-                <div style={{ minWidth: 0 }}>
-                  <div className="rl-naam">{r.name}</div>
-                  <div className="rl-sub">
-                    <span style={{ color: info.kleur, fontWeight: 600 }}>{info.label}</span>
-                    <span aria-hidden>·</span>
-                    <span className="rl-status" style={{ color: status.kleur }}>{status.tekst}</span>
-                  </div>
+              <div key={r.id} className="pr-gem-card" style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
+               <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
+                <ModusTegel modus={r.modus} size={56} />
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</div>
+                  <div style={{ fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</div>
                 </div>
+                <span className={`pr-gem-chip ${status.cls}`} style={{ flexShrink: 0 }}>{status.tekst}</span>
 
                 <div className="rl-acties">
                   {/* Alleen de volgende logische stap als knop: publiceren → activeren */}
@@ -248,6 +255,7 @@ export default function RoutesOverzicht() {
                       vraag="Met alle punten en vragen?" ja="Ja, verwijder" onBevestig={() => verwijder(r.id, r.name)}>🗑️</BevestigKnop>
                   )}
                 </div>
+               </div>
               </div>
             );
           })}
