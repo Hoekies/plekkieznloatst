@@ -12,7 +12,7 @@ export default function UitlogKnop({ compact = false }: { compact?: boolean }) {
   }
 
   if (compact) {
-    return <button onClick={uitloggen} className="btn btn-outline" style={{ fontSize: "0.82rem" }} title="Uitloggen">🚪 Uitloggen</button>;
+    return <button onClick={uitloggen} className="btn btn-outline header-knop" title="Uitloggen"><span className="header-knop-icoon" aria-hidden>🚪</span> Uitloggen</button>;
   }
   return (
     <button onClick={uitloggen} className="admin-nav-link">

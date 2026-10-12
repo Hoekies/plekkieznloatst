@@ -1803,3 +1803,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .route-editor-topbar { padding: 10px 16px; }
 @media (min-width: 769px) { .route-editor-topbar { padding-right: 160px; } }
+
+/* Knoppen in de bovenbalk: zo hoog als de balk toelaat, met een groot icoon */
+.header-knop { height: 52px; padding: 0 16px 0 10px; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 8px; }
+.header-knop-icoon { font-size: 1.9rem; line-height: 1; }

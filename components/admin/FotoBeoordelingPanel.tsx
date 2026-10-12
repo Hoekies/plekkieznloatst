@@ -72,10 +72,10 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
     <>
       {/* Badge knop */}
       <button
-        className="btn btn-outline"
-        style={{ fontSize: "0.82rem", position: "relative" }}
+        className="btn btn-outline header-knop"
+        style={{ position: "relative" }}
         onClick={() => { setOpen(true); haalOp(); }}>
-        📷 Foto&apos;s beoordelen
+        <span className="header-knop-icoon" aria-hidden>📷</span> Foto&apos;s beoordelen
         {aantal > 0 && (
           <span style={{
             position: "absolute", top: -6, right: -6,
