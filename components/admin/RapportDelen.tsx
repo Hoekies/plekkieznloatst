@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
+import { deeltekstAlles, deeltekstTeam } from "@/lib/deeltekst";
 
 // Rapport als PDF-bestand maken en delen (WhatsApp via het deelmenu van telefoon of computer).
 // Eerst "PDF maken", daarna "Versturen": het deelmenu mag alleen direct na een klik openen,
@@ -94,7 +95,11 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
   async function verstuur(d: Doel) {
     const f = klaar[d.sleutel];
     if (!f) return;
-    const tekst = `🏁 PointRush — ${routeNaam}${d.sleutel === "alles" ? "" : ` · ${d.titel}`}`;
+    // Een leuke tekst erbij; per team afhankelijk van hun plek in de eindstand (teams staan op volgorde)
+    const plek = teams.findIndex((t) => t.sessie_id === d.sleutel) + 1;
+    const tekst = d.sleutel === "alles"
+      ? deeltekstAlles(routeNaam)
+      : deeltekstTeam(routeNaam, teams[plek - 1]?.naam ?? "jullie", plek, teams.length);
     if (navigator.canShare?.({ files: [f] })) {
       try { await navigator.share({ files: [f], text: tekst }); } catch { /* geannuleerd */ }
       return;
