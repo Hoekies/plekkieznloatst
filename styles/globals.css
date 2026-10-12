@@ -1853,3 +1853,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .uitleg-tekst th { background: rgba(255,255,255,0.06); color: #fff; }
 .uitleg-tekst hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 24px 0; }
 .uitleg-tekst li { margin: 3px 0; }
+
+/* Rapport delen: knoppen in de stijl van de routekaarten */
+.rapport-delen { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; }
+.rapport-delen .rl-knop { height: 46px; padding: 0 18px; font-size: 0.9rem; border-radius: 11px; display: inline-flex; align-items: center; gap: 6px; }
+.rapport-delen-rij {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,217,59,0.25);
+}

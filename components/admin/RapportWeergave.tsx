@@ -78,9 +78,8 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
         }
       `}</style>
 
-      <div className="rapport-knoppen" style={{ maxWidth: 860, margin: "0 auto 16px", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+      <div className="rapport-knoppen" style={{ maxWidth: 860, margin: "14px auto 24px", display: "flex" }}>
         <RapportDelen routeNaam={routeNaam} teams={stand.map((t) => ({ sessie_id: t.sessie_id, naam: t.naam, icon: t.icon ?? null }))} />
-        <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser">🖨️ Afdrukken</button>
       </div>
 
       {/* ── Eindstand ── */}

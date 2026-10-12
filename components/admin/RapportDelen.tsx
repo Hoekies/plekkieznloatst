@@ -11,22 +11,44 @@ type Doel = { sleutel: string; titel: string; bestand: string; selectors: string
 async function maakPdf(elementen: HTMLElement[]): Promise<Blob> {
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas-pro"), import("jspdf")]);
   const pdf = new jsPDF({ unit: "mm", format: "a4", compress: true });
-  const B = 210, H = 297;
+  const B = 210, H = 297, MARGE = 10;  // vervolgpagina's: wat ruimte boven en onder
   let eerste = true;
   for (const el of elementen) {
-    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#1c0c45", logging: false });
-    // Hoger dan een A4? Dan in stukken over meerdere pagina's
-    const perPagina = Math.floor((canvas.width * H) / B);
-    for (let y = 0; y < canvas.height; y += perPagina) {
+    const canvas = await html2canvas(el, {
+      scale: 2, useCORS: true, backgroundColor: "#1c0c45", logging: false,
+      // Zoomknoppen van de kaart horen niet in de PDF
+      ignoreElements: (n) => n.classList?.contains("leaflet-control-container") ?? false,
+    });
+    const pxPerMm = canvas.width / B;
+    const schaal = canvas.width / el.getBoundingClientRect().width;
+    // Plekken waar geknipt mag worden: vóór een blok, kop, tabelregel of item (nooit door een kaart heen)
+    const elTop = el.getBoundingClientRect().top;
+    const knippunten = [...el.querySelectorAll<HTMLElement>(".rapport-blok, h2, h3, tr, .rapport-item")]
+      .map((n) => Math.round((n.getBoundingClientRect().top - elTop) * schaal))
+      .filter((y) => y > 0)
+      .sort((x, y) => x - y);
+
+    let y = 0, eersteStuk = true;
+    while (y < canvas.height - 2) {
+      const boven = eersteStuk ? 0 : MARGE;
+      const ruimte = Math.floor((H - boven - (eersteStuk ? 0 : MARGE)) * pxPerMm);
+      let eind = Math.min(canvas.height, y + ruimte);
+      if (eind < canvas.height) {
+        // Laatste knippunt dat nog op deze pagina past (en niet te vroeg, anders blijft de pagina leeg)
+        const knip = [...knippunten].reverse().find((k) => k <= eind && k > y + ruimte * 0.25);
+        if (knip) eind = knip;
+      }
       const stuk = document.createElement("canvas");
       stuk.width = canvas.width;
-      stuk.height = Math.min(perPagina, canvas.height - y);
+      stuk.height = eind - y;
       stuk.getContext("2d")!.drawImage(canvas, 0, -y);
       if (!eerste) pdf.addPage();
       eerste = false;
       pdf.setFillColor(28, 12, 69);
       pdf.rect(0, 0, B, H, "F");
-      pdf.addImage(stuk.toDataURL("image/jpeg", 0.85), "JPEG", 0, 0, B, (stuk.height * B) / canvas.width);
+      pdf.addImage(stuk.toDataURL("image/jpeg", 0.85), "JPEG", 0, boven, B, stuk.height / pxPerMm);
+      y = eind;
+      eersteStuk = false;
     }
   }
   return pdf.output("blob");
@@ -82,39 +104,62 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
     window.open(`https://wa.me/?text=${encodeURIComponent(tekst + " (PDF is gedownload, voeg hem toe als bijlage)")}`, "_blank");
   }
 
-  const rij = (d: Doel, groot = false) => (
-    <div key={d.sleutel} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-      {!groot && <span style={{ minWidth: 150, fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>{d.titel}</span>}
-      {!klaar[d.sleutel] ? (
-        <button className={`rl-knop${groot ? " rl-knop--cyan" : ""}`} disabled={bezig !== null} onClick={() => maak(d)}>
-          {bezig === d.sleutel ? "⏳ PDF maken…" : groot ? "📄 PDF maken (hele rapport)" : "📄 PDF maken"}
-        </button>
-      ) : (
-        <>
-          <button className="rl-knop rl-knop--cyan" onClick={() => verstuur(d)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen{groot ? " (hele rapport)" : ""}</button>
-          <button className="rl-knop" onClick={() => download(klaar[d.sleutel])} title="PDF opslaan">⬇️ Opslaan</button>
-        </>
-      )}
-    </div>
+  // Knoppen voor één PDF: eerst maken, daarna versturen of opslaan
+  const knoppen = (d: Doel, label: string) => !klaar[d.sleutel] ? (
+    <button className="rl-knop rl-knop--cyan" disabled={bezig !== null} onClick={() => maak(d)}>
+      {bezig === d.sleutel ? "⏳ PDF maken…" : `📄 ${label}`}
+    </button>
+  ) : (
+    <>
+      <button className="rl-knop rl-knop--goud" onClick={() => verstuur(d)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen</button>
+      <button className="rl-knop" onClick={() => download(klaar[d.sleutel])} title="PDF opslaan">⬇️ Opslaan</button>
+    </>
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        {rij(doelen[0], true)}
-        <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>
-          👥 PDF per team
-        </button>
-      </div>
-      {perTeam && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Per team: de eindstand, het eigen verslag met kaart en het dankwoord.</span>
-          {doelen.slice(1).map((d) => rij(d))}
+    <div className="pr-gem-panel" style={{ width: "100%" }}>
+      <span className="pr-corner-chip pr-badge pr-badge--orange">📤</span>
+      <div className="pr-gem-panel-inner rapport-delen">
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <div className="pr-gem-label">Rapport delen</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Als PDF via WhatsApp</div>
+          </div>
+          <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser">🖨️ Afdrukken</button>
         </div>
-      )}
-      <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-        Wacht tot de kaarten geladen zijn. Bij 📲 Versturen kies je WhatsApp in het deelmenu.
-      </span>
+
+        {/* Hele rapport */}
+        <div className="rapport-delen-rij">
+          <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>🏆</span>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>Hele rapport</div>
+            <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, alle teams en het dankwoord</div>
+          </div>
+          {knoppen(doelen[0], "PDF maken")}
+        </div>
+
+        {/* Per team */}
+        <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} style={{ alignSelf: "flex-start" }} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>
+          👥 PDF per team {perTeam ? "▾" : "▸"}
+        </button>
+        {perTeam && doelen.slice(1).map((d) => {
+          const team = teams.find((t) => t.sessie_id === d.sleutel);
+          return (
+            <div key={d.sleutel} className="rapport-delen-rij">
+              <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>{team?.icon ?? "👥"}</span>
+              <div style={{ flex: 1, minWidth: 140 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{team?.naam}</div>
+                <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, eigen verslag met kaart en dankwoord</div>
+              </div>
+              {knoppen(d, "PDF maken")}
+            </div>
+          );
+        })}
+
+        <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>
+          Wacht tot de kaarten geladen zijn. Bij 📲 Versturen kies je WhatsApp in het deelmenu.
+        </div>
+      </div>
     </div>
   );
 }
