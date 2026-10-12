@@ -305,7 +305,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
   /* De zijbalk past altijd in beeld: op een lager scherm worden logo en knoppen kleiner in
      plaats van te scrollen (de scrollbalk at ook ruimte weg, waardoor tekst werd afgekapt).
-     11 knoppen + kopjes: per knop is er ongeveer (schermhoogte - 235px) / 12 beschikbaar. */
+     11 knoppen + kopjes: per knop is er ongeveer (schermhoogte - 295px) / 12 beschikbaar. */
   .admin-sidebar {
     overflow-y: auto;
     padding: 10px 0;
@@ -317,15 +317,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
   .admin-sidebar-logo img {
     width: auto !important;
-    max-width: 90%;
-    max-height: clamp(73px, 18vh, 154px); /* 1,4× zo groot als eerst */
+    max-width: 96%;
+    max-height: clamp(102px, 25vh, 216px); /* nog eens 1,4× zo groot */
   }
   .admin-nav { gap: clamp(3px, 0.7vh, 6px); padding-top: clamp(4px, 0.8vh, 8px); padding-bottom: clamp(4px, 0.8vh, 8px); }
   .admin-nav-link {
-    height: clamp(30px, calc((100dvh - 235px) / 12), 42px);
-    font-size: clamp(14px, calc((100dvh - 235px) / 12 * 0.42), 17px);
+    height: clamp(30px, calc((100dvh - 295px) / 12), 42px);
+    font-size: clamp(14px, calc((100dvh - 295px) / 12 * 0.42), 17px);
   }
-  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 235px) / 12 * 0.48), 20px); }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 295px) / 12 * 0.48), 20px); }
   .admin-main {
     min-height: 0;
     overflow-y: auto;
