@@ -38,12 +38,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
           <SidebarActies />
         </div>
-        <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div className="admin-alleen-mobiel" style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
           <UitlogKnop />
         </div>
       </aside>
       <div className="admin-main">
         {children}
+      </div>
+      {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
+      <div className="admin-uitlog-hoek">
+        <UitlogKnop compact />
       </div>
       <HulpMeldingen />
       <MeldingHouder />

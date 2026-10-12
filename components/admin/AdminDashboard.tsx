@@ -98,14 +98,13 @@ export default function AdminDashboard({ initData }: Props) {
 
   return (
     <>
-      <div className="admin-topbar">
+      {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
+      <div className="admin-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel">Dashboard</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <FotoBeoordelingPanel />
-          <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
-            <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
-            {realtimeOk ? "Live" : "Verbinding weg"}
-          </div>
+        <FotoBeoordelingPanel />
+        <div style={{ justifySelf: "end" }} className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
+          <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
+          {realtimeOk ? "Live" : "Verbinding weg"}
         </div>
       </div>
 

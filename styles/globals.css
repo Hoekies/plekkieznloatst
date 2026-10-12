@@ -1791,3 +1791,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .editor-opslag--bezig { color: var(--muted); }
 .editor-opslag--ok { color: #86EFAC; }
 .editor-opslag--fout { color: #FCA5A5; }
+
+/* Uitloggen rechtsboven in het beheerscherm; de bovenbalken houden er ruimte voor vrij */
+.admin-uitlog-hoek { position: fixed; top: 18px; right: 22px; z-index: 900; }
+@media (min-width: 769px) {
+  .admin-topbar { padding-right: 160px; }
+  .admin-alleen-mobiel { display: none; }
+}
+@media (max-width: 768px) {
+  .admin-uitlog-hoek { display: none; }
+}
+.route-editor-topbar { padding: 10px 16px; }
+@media (min-width: 769px) { .route-editor-topbar { padding-right: 160px; } }

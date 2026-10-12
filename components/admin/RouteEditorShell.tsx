@@ -944,7 +944,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       {/* Topbar */}
-      <div className="admin-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8, padding: "10px 16px" }}>
+      <div className="admin-topbar route-editor-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
         {/* Rij 1: navigatie + naam */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Routes</a>
