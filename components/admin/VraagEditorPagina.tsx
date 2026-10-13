@@ -454,7 +454,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         </div>
 
         {/* ── Preview (rechts) ── */}
-        <div style={{
+        <div className="vraag-preview-kolom" style={{
           width: 340, flexShrink: 0,
           borderLeft: "1px solid var(--line)",
           background: "var(--bg)",

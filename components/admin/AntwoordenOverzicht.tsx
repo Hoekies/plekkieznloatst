@@ -93,7 +93,7 @@ export default function AntwoordenOverzicht() {
       {data.teams.map((team) => (
         <div key={team.sessie_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
          <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{team.icon ?? "👥"}</span>
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff", flex: 1 }}>{team.naam}</span>
             <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--orange"}`}>

@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="admin-mobile-topbar">
         <SidebarToggle />
         <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>PointRush</span>
-        <div style={{ width: 40 }} />
+        <InfoKnop />
       </div>
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">

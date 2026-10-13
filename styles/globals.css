@@ -1861,3 +1861,36 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,217,59,0.25);
 }
+
+/* ── Telefoon (iPhone e.d.): alles binnen het scherm houden ──
+   Staat bewust onderaan, zodat het voorgaat op de grotere knoppen voor de pc. */
+@media (max-width: 768px) {
+  /* Knoppen in de bovenbalk en de ⓘ kleiner */
+  .header-knop { height: 42px; padding: 0 12px 0 8px; font-size: 0.8rem; gap: 6px; }
+  .header-knop-icoon { width: 26px; font-size: 1.3rem; }
+  .info-knop { width: 42px; }
+  .info-knop-i { font-size: 1.35rem; }
+  .info-paneel { width: min(340px, calc(100vw - 24px)); }
+  .info-kaarten { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+
+  /* Dashboard-bovenbalk: onder elkaar in plaats van drie kolommen */
+  .dashboard-topbar { display: flex !important; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+
+  /* Kaarten (routes, groepen, teams): knoppen mogen naar de volgende regel */
+  .pr-gem-card .rl-acties { flex-wrap: wrap; width: 100%; justify-content: flex-start; }
+  .pr-gem-card .rl-acties .rl-knop { height: 40px; padding: 0 12px; font-size: 0.8rem; }
+  .pr-gem-card .rl-acties .rl-knop--icoon { width: 40px; padding: 0; font-size: 1.2rem; }
+  .pr-gem-card .pr-gem-chip { padding: 4px 9px; font-size: 0.7rem; }
+
+  /* Rapport en handleiding: smallere marges, brede tabellen schuiven zijwaarts */
+  .rapport-wrap { padding: 10px !important; }
+  .rapport-papier { padding: 18px 14px !important; }
+  .rapport-papier table, .uitleg-tekst table { display: block; overflow-x: auto; }
+  .rapport-delen { padding: 12px; }
+  .rapport-delen .rl-knop { height: 40px; padding: 0 12px; font-size: 0.8rem; }
+
+  /* Vraag-editor: geen ruimte voor de spelersweergave naast het formulier */
+  .vraag-preview-kolom { display: none !important; }
+  /* Alle vragen: bladeren met Vorige/Overslaan, de lijst links valt weg */
+  .alle-vragen-lijst { display: none !important; }
+}
