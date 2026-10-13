@@ -1,2 +1,0 @@
-ALTER TABLE players
-  ADD COLUMN IF NOT EXISTS is_uitgeschakeld BOOLEAN NOT NULL DEFAULT false;

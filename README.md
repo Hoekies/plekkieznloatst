@@ -81,51 +81,9 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 ### Database
 
-Voer de migraties uit in de Supabase SQL Editor (in volgorde):
+Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-```
-supabase/migrations/001_schema.sql
-supabase/migrations/002_rls.sql
-supabase/migrations/003_seed.sql
-supabase/migrations/20260522_players_icon_naam.sql
-supabase/migrations/add_login_name.sql
-supabase/migrations/add_nickname_column.sql
-supabase/migrations/003_extra_features.sql
-supabase/migrations/004_special_items.sql
-supabase/migrations/005_dief_radar.sql
-supabase/migrations/007_verspreid_banaan.sql
-supabase/migrations/008_landmijn.sql
-supabase/migrations/009_rls_fixes.sql
-supabase/migrations/010_verspreid_teams.sql
-supabase/migrations/011_speler_uitgeschakeld.sql
-supabase/migrations/012_vraagteken.sql
-supabase/migrations/013_route_waarden.sql
-supabase/migrations/014_vier_antwoorden.sql
-supabase/migrations/015_security_fixes.sql
-supabase/migrations/016_item_respawn.sql
-supabase/migrations/017_respawn_minuten.sql
-supabase/migrations/018_plekzooi_duur.sql
-supabase/migrations/019_tussenstand.sql
-supabase/migrations/020_keepalive.sql
-supabase/migrations/021_mist_modus.sql
-supabase/migrations/022_mist_badges.sql
-supabase/migrations/023_force_logout.sql
-supabase/migrations/024_afstand_afgelegd.sql
-supabase/migrations/025_punten_verwijderbaar_plekzooi_5min.sql
-supabase/migrations/026_spook_duur.sql
-supabase/migrations/027_hulpverzoeken.sql
-supabase/migrations/028_punten_per_antwoord_en_leesrechten.sql
-supabase/migrations/029_startitems.sql
-supabase/migrations/030_ontbrekende_kolommen.sql
-supabase/migrations/031_uitslag_en_itemlog.sql
-supabase/migrations/032_itemlog_plek.sql
-supabase/migrations/033_items_na_finish.sql
-supabase/migrations/034_startitems_instelbaar.sql
-supabase/migrations/035_omgekeerde_teams.sql
-supabase/migrations/036_items_na_finish_per_item.sql
-supabase/migrations/037_mist_verwijderen.sql
-supabase/migrations/038_instappunten.sql
-```
+De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis.
 
 ### Starten
 
