@@ -106,7 +106,7 @@ export default function GroepenBeheer() {
             style={{ fontSize: "0.8rem" }}
             onClick={() => setToonTemplate((v) => !v)}
           >
-            ✏️ Berichttekst
+            ✏️ <span className="alleen-pc">Berichttekst</span><span className="alleen-mobiel">Tekst</span>
           </button>
           <button
             onClick={() => deelViaWhatsApp()}
@@ -124,7 +124,7 @@ export default function GroepenBeheer() {
             Verstuur
           </button>
           <button className="btn btn-primary" onClick={() => setToonFormulier(true)}>
-            + Nieuwe groep
+            + <span className="alleen-pc">Nieuwe groep</span><span className="alleen-mobiel">Groep</span>
           </button>
         </div>
       </SectieKop>
@@ -184,7 +184,7 @@ export default function GroepenBeheer() {
             const isUit = g.is_uitgeschakeld;
             return (
               <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.55 : 1 }}>
-               <div className="pr-gem-card-inner">
+               <div className="pr-gem-card-inner gb-kaart">
                 {/* Icoon — zelfde formaat als de teamavatars op het dashboard */}
                 <div className="pr-gem-avatar" style={{
                   borderRadius: "50%",
@@ -195,7 +195,7 @@ export default function GroepenBeheer() {
                 </div>
 
                 {/* Tekst + knoppen */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
                     {g.nickname ?? "nog geen teamnaam gekozen"}
                   </div>
@@ -238,7 +238,7 @@ export default function GroepenBeheer() {
                 </div>
 
                 {/* Aan/uit toggle */}
-                <div
+                <div className="gb-schakel"
                   title={isUit ? "Aanzetten" : "Uitzetten"}
                   onClick={async () => {
                     const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
