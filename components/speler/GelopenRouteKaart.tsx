@@ -8,6 +8,7 @@ export type BezochtPunt = {
   nr: number; naam: string; lat: number; lng: number;
   // Wat het team bij dit punt deed (voor het venster op de kaart)
   heeftVraag?: boolean;
+  vraag?: string | null;      // de vraagtekst
   antwoord?: string | null;   // gegeven antwoord, "📸 foto" bij een foto-opdracht
   goed?: boolean | null;      // null = (nog) niet beoordeeld, bijv. een foto die wacht op keuring
   punten?: number | null;
@@ -55,6 +56,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor
         });
         // Tik op het punt: naam, het gegeven antwoord en de gehaalde punten
         const regels = [`<strong>${escapeHtml(p.naam)}</strong>`];
+        if (p.vraag) regels.push(`<em>${escapeHtml(p.vraag)}</em>`);
         if (p.heeftVraag && p.antwoord) {
           const teken = p.goed === true ? " ✅" : p.goed === false ? " ❌" : "";
           regels.push(`Antwoord: ${escapeHtml(p.antwoord)}${teken}`);

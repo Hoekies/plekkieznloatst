@@ -8,6 +8,7 @@ export type BezochtPunt = {
   nr: number; naam: string; lat: number; lng: number;
   // Wat het team bij dit punt deed (voor het venster op de kaart)
   heeftVraag?: boolean;
+  vraag?: string | null;      // de vraagtekst
   antwoord?: string | null;   // gegeven antwoord, "📸 foto" bij een foto-opdracht
   goed?: boolean | null;      // null = (nog) niet beoordeeld, bijv. een foto die wacht op keuring
   punten?: number | null;
@@ -30,7 +31,7 @@ export async function haalRouteVerslag(admin: AdminClient, sessieId: string): Pr
   const [{ data: locaties }, { data: voortgang }, { data: logRijen }] = await Promise.all([
     admin.from("location_updates").select("latitude, longitude, accuracy_meters, created_at").eq("session_id", sessieId).order("created_at"),
     admin.from("player_point_progress")
-      .select("reached_at, answered_at, points_awarded, is_correct, open_answer_text, selected_answer_id, route_points(name, latitude, longitude, questions(type, answer_options(id, text, answer_type)))")
+      .select("reached_at, answered_at, points_awarded, is_correct, open_answer_text, selected_answer_id, route_points(name, latitude, longitude, questions(type, question_text, answer_options(id, text, answer_type)))")
       .eq("session_id", sessieId).order("reached_at"),
     admin.from("item_log").select("*").or(`gebruiker_session_id.eq.${sessieId},doel_session_id.eq.${sessieId}`).order("created_at"),
   ]);
@@ -53,7 +54,7 @@ export async function haalRouteVerslag(admin: AdminClient, sessieId: string): Pr
     open_answer_text: string | null; selected_answer_id: string | null;
     route_points: {
       name: string; latitude: number; longitude: number;
-      questions: { type: string; answer_options: { id: string; text: string | null; answer_type: string }[] }[] | null;
+      questions: { type: string; question_text: string | null; answer_options: { id: string; text: string | null; answer_type: string }[] }[] | null;
     } | null;
   };
   const punten: BezochtPunt[] = ((voortgang ?? []) as unknown as Rij[])
@@ -67,7 +68,7 @@ export async function haalRouteVerslag(admin: AdminClient, sessieId: string): Pr
         : v.open_answer_text;
       return {
         nr: i + 1, naam: v.route_points!.name, lat: v.route_points!.latitude, lng: v.route_points!.longitude,
-        heeftVraag: !!vraag, antwoord, goed: v.is_correct, punten: v.answered_at ? v.points_awarded : null,
+        heeftVraag: !!vraag, vraag: vraag?.question_text ?? null, antwoord, goed: v.is_correct, punten: v.answered_at ? v.points_awarded : null,
       };
     });
 
