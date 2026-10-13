@@ -48,7 +48,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return supabaseResponse;
+  // Gecontroleerde gebruiker doorgeven aan pagina's en API's (lib/auth-server.ts), zodat die
+  // niet opnieuw bij Supabase hoeven te vragen wie er ingelogd is. Eventueel meegestuurde
+  // waarden van buitenaf worden altijd eerst weggehaald.
+  const headers = new Headers(request.headers);
+  headers.delete("x-pr-user-id");
+  headers.delete("x-pr-rol");
+  if (user) {
+    headers.set("x-pr-user-id", user.id);
+    const rol = user.app_metadata?.rol;
+    if (typeof rol === "string") headers.set("x-pr-rol", rol);
+  }
+  const antwoord = NextResponse.next({ request: { headers } });
+  supabaseResponse.cookies.getAll().forEach((c) => antwoord.cookies.set(c));
+  return antwoord;
 }
 
 export const config = {

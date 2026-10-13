@@ -221,7 +221,7 @@ export default function LeafletKaart({
         const ring = isGeselecteerd ? "box-shadow:0 0 0 3px #fff,0 0 0 6px #00d9ff;" : "";
         const icon = L.divIcon({
           className: "",
-          html: `<img src="/items/${item.type}.png" alt="" style="width:34px;height:34px;display:block;border-radius:50%;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};${ring}" />`,
+          html: `<img src="/items/${item.type}.webp" alt="" style="width:34px;height:34px;display:block;border-radius:50%;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};${ring}" />`,
           iconSize: [34, 34],
           iconAnchor: [17, 17],
         });
@@ -358,7 +358,7 @@ export default function LeafletKaart({
             background:rgba(255,217,59,0.15);border:2px dashed rgba(255,217,59,0.9);
             display:flex;align-items:center;justify-content:center;position:relative;
             box-shadow:0 0 10px rgba(255,217,59,0.35);">
-            <img src="/items/${v.type}.png" style="width:22px;height:22px;opacity:0.6" alt="">
+            <img src="/items/${v.type}.webp" style="width:22px;height:22px;opacity:0.6" alt="">
             <span style="position:absolute;right:-4px;top:-6px;font-size:13px;font-weight:900;color:#FFE680;text-shadow:0 1px 2px #000">+</span>
           </div>`,
           iconSize: [34, 34],

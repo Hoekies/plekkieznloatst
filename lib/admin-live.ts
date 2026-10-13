@@ -60,44 +60,35 @@ export async function haalLiveData(): Promise<LiveData> {
     admin.from("players").select("id, login_name, nickname, icon, active_device_id").order("login_name"),
   ]);
 
-  let specialeItems: SpeciaalItem[] = [];
-  if (route) {
-    // Startitems liggen niet op de kaart; sequentieel heeft alleen plek zooi op de kaart
-    let query = admin
-      .from("special_items")
-      .select("*")
-      .eq("route_id", route.id)
-      .eq("is_startitem", false);
-    if (route.modus === "sequentieel") query = query.eq("type", "plekzooi");
-    const { data: items } = await query.order("created_at");
-    specialeItems = (items ?? []) as SpeciaalItem[];
-  }
-
-  let routePunten: RoutePuntKort[] = [];
-  if (route) {
-    const { data: punten } = await admin
-      .from("route_points")
-      .select("id, name, latitude, longitude, type, order_index")
-      .eq("route_id", route.id)
-      .order("order_index");
-    routePunten = punten ?? [];
-  }
+  // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
+  const playerIds = (allePlayers ?? []).map((p) => p.id);
+  // Startitems liggen niet op de kaart; sequentieel heeft alleen plek zooi op de kaart
+  let itemQuery = route
+    ? admin.from("special_items").select("*").eq("route_id", route.id).eq("is_startitem", false)
+    : null;
+  if (itemQuery && route?.modus === "sequentieel") itemQuery = itemQuery.eq("type", "plekzooi");
+  const [itemsRes, puntenRes, sessiesResult] = await Promise.all([
+    itemQuery ? itemQuery.order("created_at") : Promise.resolve(null),
+    route
+      ? admin.from("route_points").select("id, name, latitude, longitude, type, order_index").eq("route_id", route.id).order("order_index")
+      : Promise.resolve(null),
+    route && playerIds.length
+      ? admin
+          .from("player_sessions")
+          // "*" i.p.v. losse kolommen: een kolom uit een nog niet gedraaide migratie (zoals afstand_m)
+          // mag nooit het hele dashboard leeg maken
+          .select("*")
+          .eq("route_id", route.id)
+          .in("player_id", playerIds)
+      : Promise.resolve(null),
+  ]);
+  const specialeItems = (itemsRes?.data ?? []) as SpeciaalItem[];
+  const routePunten: RoutePuntKort[] = puntenRes?.data ?? [];
 
   if (!allePlayers?.length) {
     return { route, route_punten: routePunten, spelers: [], speciale_items: specialeItems };
   }
 
-  const playerIds = allePlayers.map((p) => p.id);
-
-  const sessiesResult = route
-    ? await admin
-        .from("player_sessions")
-        // "*" i.p.v. losse kolommen: een kolom uit een nog niet gedraaide migratie (zoals afstand_m)
-        // mag nooit het hele dashboard leeg maken
-        .select("*")
-        .eq("route_id", route.id)
-        .in("player_id", playerIds)
-    : null;
   const sessies = sessiesResult?.data ?? [];
   const fout = sessiesResult?.error ? `Sessies konden niet geladen worden: ${sessiesResult.error.message}` : undefined;
 
@@ -107,68 +98,55 @@ export async function haalLiveData(): Promise<LiveData> {
   const huidigePointIds = [...new Set(
     (sessies).filter((s) => s.current_point_id).map((s) => s.current_point_id as string)
   )];
+  // Alles per sessie tegelijk ophalen
+  const leeg = Promise.resolve({ data: null });
+  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes] = await Promise.all([
+    huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
+    sessieIds.length
+      ? admin.from("player_point_progress").select("session_id").in("session_id", sessieIds).not("answered_at", "is", null)
+      : leeg,
+    sessieIds.length
+      ? admin.from("location_updates").select("session_id, latitude, longitude, created_at")
+          .in("session_id", sessieIds).order("created_at", { ascending: false }).limit(sessieIds.length * 5)
+      : leeg,
+    sessieIds.length
+      ? admin.from("hulpverzoeken").select("id, session_id, created_at, route_points(name)").in("session_id", sessieIds).eq("status", "open")
+      : leeg,
+    // Items per team: opgepakt (of startitem) en nog niet gebruikt = in de balk
+    sessieIds.length
+      ? admin.from("special_items").select("type, used_at, claimed_by_session_id").in("claimed_by_session_id", sessieIds)
+      : leeg,
+  ]);
+
   const puntNaam = new Map<string, string>();
-  if (huidigePointIds.length) {
-    const { data: pts } = await admin
-      .from("route_points").select("id, name").in("id", huidigePointIds);
-    (pts ?? []).forEach((p) => puntNaam.set(p.id, p.name));
-  }
+  ((ptsRes.data ?? []) as { id: string; name: string }[]).forEach((p) => puntNaam.set(p.id, p.name));
 
   const progressMap = new Map<string, number>();
-  if (sessieIds.length) {
-    const { data: prog } = await admin
-      .from("player_point_progress")
-      .select("session_id")
-      .in("session_id", sessieIds)
-      .not("answered_at", "is", null);
-    (prog ?? []).forEach((p) => progressMap.set(p.session_id, (progressMap.get(p.session_id) ?? 0) + 1));
-  }
+  ((progRes.data ?? []) as { session_id: string }[]).forEach((p) => progressMap.set(p.session_id, (progressMap.get(p.session_id) ?? 0) + 1));
 
   const locatieMap = new Map<string, { lat: number; lng: number; created_at: string }>();
-  if (sessieIds.length) {
-    const { data: locs } = await admin
-      .from("location_updates")
-      .select("session_id, latitude, longitude, created_at")
-      .in("session_id", sessieIds)
-      .order("created_at", { ascending: false })
-      .limit(sessieIds.length * 5);
-    const gezien = new Set<string>();
-    (locs ?? []).forEach((l) => {
-      if (!gezien.has(l.session_id)) {
-        gezien.add(l.session_id);
-        locatieMap.set(l.session_id, { lat: l.latitude, lng: l.longitude, created_at: l.created_at });
-      }
-    });
-  }
+  const gezien = new Set<string>();
+  ((locsRes.data ?? []) as { session_id: string; latitude: number; longitude: number; created_at: string }[]).forEach((l) => {
+    if (!gezien.has(l.session_id)) {
+      gezien.add(l.session_id);
+      locatieMap.set(l.session_id, { lat: l.latitude, lng: l.longitude, created_at: l.created_at });
+    }
+  });
 
   const hulpMap = new Map<string, SpelerOverzicht["hulp"]>();
-  if (sessieIds.length) {
-    const { data: hulp } = await admin
-      .from("hulpverzoeken")
-      .select("id, session_id, created_at, route_points(name)")
-      .in("session_id", sessieIds)
-      .eq("status", "open");
-    (hulp ?? []).forEach((h) => {
-      const punt = h.route_points as { name?: string } | { name?: string }[] | null;
-      const naam = Array.isArray(punt) ? punt[0]?.name : punt?.name;
-      hulpMap.set(h.session_id, { id: h.id, punt_naam: naam ?? null, sinds: h.created_at });
-    });
-  }
+  ((hulpRes.data ?? []) as { id: string; session_id: string; created_at: string; route_points: unknown }[]).forEach((h) => {
+    const punt = h.route_points as { name?: string } | { name?: string }[] | null;
+    const naam = Array.isArray(punt) ? punt[0]?.name : punt?.name;
+    hulpMap.set(h.session_id, { id: h.id, punt_naam: naam ?? null, sinds: h.created_at });
+  });
 
-  // Items per team: opgepakt (of startitem) en nog niet gebruikt = in de balk
   const itemMap = new Map<string, SpelerOverzicht["items"]>();
-  if (sessieIds.length) {
-    const { data: teamItems } = await admin
-      .from("special_items")
-      .select("type, used_at, claimed_by_session_id")
-      .in("claimed_by_session_id", sessieIds);
-    (teamItems ?? []).forEach((i) => {
-      if (!i.claimed_by_session_id) return;
-      const m = itemMap.get(i.claimed_by_session_id) ?? { in_balk: [], ingezet: [] };
-      (i.used_at ? m.ingezet : m.in_balk).push(i.type);
-      itemMap.set(i.claimed_by_session_id, m);
-    });
-  }
+  ((teamItemsRes.data ?? []) as { type: string; used_at: string | null; claimed_by_session_id: string | null }[]).forEach((i) => {
+    if (!i.claimed_by_session_id) return;
+    const m = itemMap.get(i.claimed_by_session_id) ?? { in_balk: [], ingezet: [] };
+    (i.used_at ? m.ingezet : m.in_balk).push(i.type);
+    itemMap.set(i.claimed_by_session_id, m);
+  });
 
   const spelers: SpelerOverzicht[] = allePlayers.map((player) => {
     const sessie = sessieMap.get(player.id);

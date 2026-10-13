@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { schoonStartitems } from "@/lib/startitems";
 import { ITEMS_NA_FINISH } from "@/lib/item-sessie";
 
 async function checkAdmin() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   return user?.app_metadata?.rol === "admin" ? user : null;
 }
 

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
 
 async function getSpeler() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) return null;
   const admin = createAdminClient();
   const { data: speler } = await admin

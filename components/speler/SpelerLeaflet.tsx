@@ -7,7 +7,7 @@ import { escapeHtml } from "@/lib/html";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 
-// Item-iconen staan als /items/<type>.png (zelfde stijl als de spelershandleiding)
+// Item-iconen staan als /items/<type>.webp (zelfde stijl als de spelershandleiding)
 
 interface Props {
   positie: GeolocationCoordinates | null;
@@ -234,7 +234,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const maat = isVraagteken ? 48 : 42;
       const icon = L.divIcon({
         className: "",
-        html: `<img src="/items/${item.type}.png" alt="" style="
+        html: `<img src="/items/${item.type}.webp" alt="" style="
           width:${maat}px;height:${maat}px;display:block;
           filter:drop-shadow(0 3px 5px rgba(0,0,0,0.55))${isVraagteken ? " drop-shadow(0 0 8px rgba(255,217,59,0.9))" : ""};
           ${isVraagteken ? "animation:pr-vraagteken-puls 1.6s ease-in-out infinite;" : ""}

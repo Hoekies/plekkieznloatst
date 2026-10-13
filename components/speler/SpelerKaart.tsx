@@ -752,7 +752,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                   {Object.entries(aantallen).map(([type, n]) => (
                     <div key={type} style={{ position: "relative" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/items/${type}.png`} alt={type} style={{ width: 64, height: 64, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.5))" }} />
+                      <img src={`/items/${type}.webp`} alt={type} style={{ width: 64, height: 64, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.5))" }} />
                       {n > 1 && (
                         <span style={{ position: "absolute", top: -4, right: -6, minWidth: 22, height: 22, borderRadius: 11, padding: "0 5px",
                           background: "var(--pr-gold)", color: "#2a1050", fontWeight: 800, fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -792,7 +792,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
               <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", paddingTop: 22 }}>
                 {itemType ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`/items/${itemType}.png`} alt="" style={{ width: 110, height: 110, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.6))" }} />
+                  <img src={`/items/${itemType}.webp`} alt="" style={{ width: 110, height: 110, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.6))" }} />
                 ) : (
                   <span style={{ fontSize: "4rem", lineHeight: 1 }}>{isIcoon ? eerste : "🚨"}</span>
                 )}
@@ -910,7 +910,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             <div onClick={(e) => e.stopPropagation()} className="pr-panel" style={{ maxWidth: 340, width: "100%" }}>
               <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", paddingTop: 24 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/items/${opgepakt.item.type}.png`} alt="" style={{
+                <img src={`/items/${opgepakt.item.type}.webp`} alt="" style={{
                   width: 150, height: 150,
                   filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 24px rgba(255,217,59,0.45))",
                   animation: "pr-item-pop 0.45s cubic-bezier(.2,1.6,.4,1)",

@@ -208,7 +208,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
                       <td style={{ whiteSpace: "nowrap" }}>{new Date(it.tijd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</td>
                       <td style={{ whiteSpace: "nowrap" }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={`/items/${it.type}.png`} alt="" style={{ width: 20, height: 20, verticalAlign: "middle", marginRight: 6 }} />
+                        <img src={`/items/${it.type}.webp`} alt="" style={{ width: 20, height: 20, verticalAlign: "middle", marginRight: 6 }} />
                         {ITEM_INFO[it.type]?.naam ?? it.type}
                       </td>
                       <td>

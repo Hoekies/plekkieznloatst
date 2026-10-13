@@ -200,7 +200,7 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
                     fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
                   }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/items/${it.type}.png`} alt="" style={{ width: 30, height: 30 }} />
+                  <img src={`/items/${it.type}.webp`} alt="" style={{ width: 30, height: 30 }} />
                   {it.name && it.name !== "Speciaal item" ? it.name : it.type.charAt(0).toUpperCase() + it.type.slice(1)}
                 </button>
               ))}

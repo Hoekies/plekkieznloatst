@@ -53,7 +53,7 @@ function LoginForm() {
       <div className="pr-logo-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/logo.png"
+          src="/logo.webp"
           alt="PointRush"
           style={{ width: 230, display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
         />

@@ -1,11 +1,10 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import SpelerKaart from "@/components/speler/SpelerKaart";
 
 export default async function SpelerKaartPage() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) redirect("/login");
 
   const admin = createAdminClient();

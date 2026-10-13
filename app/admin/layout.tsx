@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 import UitlogKnop from "@/components/admin/UitlogKnop";
 import AdminNavLink from "@/components/admin/AdminNavLink";
@@ -10,8 +10,7 @@ import MeldingHouder from "@/components/admin/Melding";
 import InfoKnop from "@/components/admin/InfoKnop";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
 
   return (
@@ -24,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
+          <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>

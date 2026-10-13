@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { startitemsVan } from "@/lib/startitems";
 
 // Startitems: het team krijgt ze pas nadat het 100 meter heeft gelopen (de app vraagt ze dan aan).
 // Eén keer per sessie: zijn ze al gegeven, dan komt er niets meer bij.
 export async function POST() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) return NextResponse.json({ fout: "Niet ingelogd" }, { status: 403 });
 
   const admin = createAdminClient();

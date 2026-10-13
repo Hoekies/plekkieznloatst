@@ -486,7 +486,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               {/* Nep header */}
               <div style={{ background: "#0A1B36", padding: "6px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="" style={{ height: 22, objectFit: "contain" }} />
+                <img src="/logo.webp" alt="" style={{ height: 22, objectFit: "contain" }} />
               </div>
 
               {/* Popup inhoud */}

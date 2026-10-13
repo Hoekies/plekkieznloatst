@@ -1,11 +1,10 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import IntroScherm from "@/components/speler/IntroScherm";
 
 export default async function SpelerHomePage() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) redirect("/login");
 
   const admin = createAdminClient();
@@ -20,18 +19,10 @@ export default async function SpelerHomePage() {
 
   // Actieve route ophalen: nodig om een sessie op een oude route te herkennen, en zodat het
   // introscherm de uitleg van de juiste spelsoort toont (zonder route: algemene tekst).
-  const { data: actieveRoute } = await admin
-    .from("routes")
-    .select("id, modus")
-    .eq("is_active", true)
-    .maybeSingle();
-
-  const { data: activeSessie } = await admin
-    .from("player_sessions")
-    .select("id, route_id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
+  const [{ data: actieveRoute }, { data: activeSessie }] = await Promise.all([
+    admin.from("routes").select("id, modus").eq("is_active", true).maybeSingle(),
+    admin.from("player_sessions").select("id, route_id").eq("player_id", speler.id).eq("status", "actief").maybeSingle(),
+  ]);
 
   if (activeSessie) {
     if (actieveRoute && activeSessie.route_id === actieveRoute.id) {

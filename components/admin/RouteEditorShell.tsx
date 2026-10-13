@@ -1319,7 +1319,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         boxShadow: actief ? "0 0 0 2px rgba(0,217,255,0.35)" : "none",
                       }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/items/${t}.png`} alt={t} style={{ width: 24, height: 24 }} />
+                      <img src={`/items/${t}.webp`} alt={t} style={{ width: 24, height: 24 }} />
                     </button>
                   );
                 })}
@@ -1410,7 +1410,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       opacity: item.claimed ? 0.55 : 1,
                     }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/items/${item.type}.png`} alt="" style={{ width: 22, height: 22, flexShrink: 0 }} />
+                    <img src={`/items/${item.type}.webp`} alt="" style={{ width: 22, height: 22, flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {item.name}
                     </div>
@@ -1645,7 +1645,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                                 background: n > 0 ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
                               }}>
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={`/items/${type}.png`} alt={type} style={{ width: 26, height: 26, opacity: n > 0 ? 1 : 0.35, filter: n > 0 ? "none" : "grayscale(1)" }} />
+                              <img src={`/items/${type}.webp`} alt={type} style={{ width: 26, height: 26, opacity: n > 0 ? 1 : 0.35, filter: n > 0 ? "none" : "grayscale(1)" }} />
                             </button>
                             {n > 0 && (
                               <>
@@ -1689,7 +1689,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                               background: aan ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
                             }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={`/items/${type}.png`} alt={type} style={{ width: 26, height: 26, opacity: aan ? 1 : 0.35, filter: aan ? "none" : "grayscale(1)" }} />
+                            <img src={`/items/${type}.webp`} alt={type} style={{ width: 26, height: 26, opacity: aan ? 1 : 0.35, filter: aan ? "none" : "grayscale(1)" }} />
                           </button>
                         );
                       })}
@@ -1812,7 +1812,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/items/${plaatsType}.png`} alt="" style={{ width: 22, height: 22 }} />
+            <img src={`/items/${plaatsType}.webp`} alt="" style={{ width: 22, height: 22 }} />
             Klik op de kaart om te plaatsen · Esc = stoppen
             <button type="button" className="editor-paneel-sluit" style={{ marginLeft: 0 }} onClick={() => setPlaatsType(null)} title="Stoppen">✕</button>
           </div>
@@ -1963,7 +1963,7 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                       {[...perType].sort((a, b) => b[1] - a[1]).map(([type, n]) => (
                         <span key={type} style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={`/items/${type}.png`} alt={type} style={{ width: 16, height: 16, opacity: 0.85 }} />
+                          <img src={`/items/${type}.webp`} alt={type} style={{ width: 16, height: 16, opacity: 0.85 }} />
                           {n}
                         </span>
                       ))}

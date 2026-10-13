@@ -31,6 +31,16 @@ const config = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self), payment=(), usb=()" },
         ],
       },
+      // Afbeeldingen een dag in de browser bewaren (en daarna op de achtergrond verversen),
+      // zodat iconen en logo niet bij elke pagina opnieuw gecontroleerd worden
+      {
+        source: "/:pad(items|kaarten)/:bestand*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
+        source: "/:bestand(logo.webp|logo-breed-strak.webp|handleiding.jpg|ko-fi.png)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
     ];
   },
 };

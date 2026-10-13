@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 // Knop ⓘ naast Uitloggen: handleiding voor de beheerder, instructiekaarten en Ko-fi
+// klein = voorbeeldje in het paneel (snel), src = de kaart zelf om te openen of te printen
 const KAARTEN = [
-  { titel: "Spelers (A5)", src: "/handleiding.jpg" },
-  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.png" },
-  { titel: "Verspreide route", src: "/kaarten/verspreid.png" },
+  { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp" },
+  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp" },
+  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp" },
 ];
 
 export default function InfoKnop() {
@@ -44,7 +45,7 @@ export default function InfoKnop() {
             {KAARTEN.map((k) => (
               <a key={k.src} href={k.src} target="_blank" rel="noopener noreferrer" className="info-kaart" title={`${k.titel} — openen om te bekijken of op te slaan`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={k.src} alt={k.titel} />
+                <img src={k.klein} alt={k.titel} loading="lazy" />
                 <span>{k.titel}</span>
               </a>
             ))}

@@ -235,7 +235,7 @@ function ItemKaart({ g }: { g: TerugkijkGebeurtenis }) {
       border: `1px dashed ${ingezet ? "rgba(0,217,255,0.45)" : "rgba(255,138,0,0.55)"}`,
     }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/items/${g.item_type}.png`} alt="" style={{ width: 40, height: 40, flexShrink: 0 }} />
+      <img src={`/items/${g.item_type}.webp`} alt="" style={{ width: 40, height: 40, flexShrink: 0 }} />
       <div style={{ minWidth: 0 }}>
         <div style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.05em", color: ingezet ? "#67E8F9" : "#FDBA74" }}>
           {ingezet ? "ITEM INGEZET" : "ITEM ONTVANGEN"}

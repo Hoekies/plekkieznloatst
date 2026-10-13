@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 
 // Looproute langs wegen en voetpaden tussen twee punten, via de voetgangersrouting van
 // OpenStreetMap (routing.openstreetmap.de, gratis, geen sleutel). Wordt per stuk opgevraagd
@@ -31,8 +31,7 @@ async function haalStuk(a: Plek, b: Plek): Promise<Stuk | null> {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const body = await request.json().catch(() => null);

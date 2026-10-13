@@ -293,7 +293,7 @@ function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolea
         <span key={type} title={`${ITEM_INFO[type]?.naam ?? type}${n > 1 ? ` (${n}×)` : ""}`}
           style={{ display: "inline-flex", alignItems: "center", opacity: vaag ? 0.45 : 1 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/items/${type}.png`} alt={ITEM_INFO[type]?.naam ?? type} style={{ width: 22, height: 22 }} />
+          <img src={`/items/${type}.webp`} alt={ITEM_INFO[type]?.naam ?? type} style={{ width: 22, height: 22 }} />
           {n > 1 && <span style={{ fontWeight: 700, color: "var(--ink)", marginLeft: 1 }}>{n}</span>}
         </span>
       ))}

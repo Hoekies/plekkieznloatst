@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import { haversine } from "@/lib/geo";
@@ -7,8 +7,7 @@ import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 
 export default async function FinishPage() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) redirect("/login");
 
   const admin = createAdminClient();

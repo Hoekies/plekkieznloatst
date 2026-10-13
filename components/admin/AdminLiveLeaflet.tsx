@@ -197,7 +197,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     speciale_items.forEach((item) => {
       const icon = L.divIcon({
         className: "",
-        html: `<img src="/items/${item.type}.png" alt="" style="width:32px;height:32px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));opacity:${item.claimed ? 0.3 : 1}" />`,
+        html: `<img src="/items/${item.type}.webp" alt="" style="width:32px;height:32px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));opacity:${item.claimed ? 0.3 : 1}" />`,
         iconSize: [32, 32],
         iconAnchor: [16, 16],
       });

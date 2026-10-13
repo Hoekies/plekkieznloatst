@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Volledige kopie van een route als basis voor een nieuwe: alle instellingen, punten,
 // vragen met antwoorden en de items op de kaart. De kopie is altijd een concept en niet actief.
 export async function POST(_: Request, { params }: { params: { id: string } }) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();

@@ -26,7 +26,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
     <div className="editor-paneel-inhoud">
       <div className="editor-paneel-kop">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/items/${type}.png`} alt="" style={{ width: 22, height: 22 }} />
+        <img src={`/items/${type}.webp`} alt="" style={{ width: 22, height: 22 }} />
         <span>Item</span>
         <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
@@ -46,7 +46,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
                 color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
               }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/items/${t}.png`} alt="" style={{ width: 26, height: 26 }} />
+              <img src={`/items/${t}.webp`} alt="" style={{ width: 26, height: 26 }} />
               {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
             </button>
           );

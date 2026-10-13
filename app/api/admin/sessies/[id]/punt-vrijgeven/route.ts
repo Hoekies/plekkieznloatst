@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
 
 // Geeft het volgende punt van een team vrij alsof ze het bereikt hebben: bij het team
 // springt de vraag van dat punt open, waar ze ook zijn.
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();

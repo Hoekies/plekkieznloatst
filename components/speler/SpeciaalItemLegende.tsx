@@ -130,7 +130,7 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
             <Regel
               key={item.type}
               // eslint-disable-next-line @next/next/no-img-element
-              icoon={<img src={`/items/${item.type}.png`} alt="" style={{ width: 34, height: 34 }} />}
+              icoon={<img src={`/items/${item.type}.webp`} alt="" style={{ width: 34, height: 34 }} />}
               titel={item.naam}
               open={open === item.type}
               onTik={() => wissel(item.type)}

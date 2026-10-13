@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 import AudioUnlock from "@/components/speler/AudioUnlock";
 import IOSFixes from "@/components/speler/IOSFixes";
@@ -7,8 +7,7 @@ import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import SchermAanHouden from "@/components/speler/SchermAanHouden";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) redirect("/login");
   if (user.app_metadata?.rol === "admin") redirect("/admin");
 

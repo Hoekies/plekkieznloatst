@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import TerugkijkScherm from "@/components/speler/TerugkijkScherm";
@@ -36,8 +36,7 @@ export type TerugkijkGebeurtenis = {
 };
 
 export default async function TerugkijkPage() {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) redirect("/login");
 
   const admin = createAdminClient();

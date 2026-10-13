@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Moet gelijk blijven aan ICONEN.length in components/speler/IntroScherm.tsx
 const AANTAL_ICONEN = 15;
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user) return NextResponse.json({ fout: "Niet ingelogd" }, { status: 401 });
 
   const { teamnaam, icon } = await request.json();

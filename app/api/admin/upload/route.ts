@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 const TOEGESTANE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -8,8 +8,7 @@ const MAX_BYTES = 500 * 1024; // 500 KB
 export async function POST(request: NextRequest) {
   const TOEGESTANE_BUCKETS = ["route-afbeeldingen", "vraag-afbeeldingen"];
 
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await haalGebruiker();
   if (!user || user.app_metadata?.rol !== "admin") {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
