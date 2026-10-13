@@ -55,7 +55,17 @@ async function maakPdf(elementen: HTMLElement[]): Promise<Blob> {
   return pdf.output("blob");
 }
 
-export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; teams: { sessie_id: string; naam: string; icon: string | null }[] }) {
+export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; teams: { sessie_id: string; naam: string; icon: string | null; kaartLink?: string }[] }) {
+  // Link naar de kaart met de gelopen route van één team (openbaar, met geheime code)
+  async function deelKaart(team: { naam: string; kaartLink?: string }) {
+    if (!team.kaartLink) return;
+    const tekst = `🗺️ ${team.naam}, hier is jullie gelopen route bij ${routeNaam}! Tik op de punten voor jullie antwoorden en punten.`;
+    if (navigator.share) {
+      try { await navigator.share({ title: "PointRush — gelopen route", text: tekst, url: team.kaartLink }); } catch { /* geannuleerd */ }
+      return;
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${tekst}\n${team.kaartLink}`)}`, "_blank");
+  }
   const [bezig, setBezig] = useState<string | null>(null);
   const [klaar, setKlaar] = useState<Record<string, File>>({});
   const [perTeam, setPerTeam] = useState(false);
@@ -157,6 +167,11 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
                 <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, eigen verslag met kaart en dankwoord</div>
               </div>
               {knoppen(d, "PDF maken")}
+              {team?.kaartLink && (
+                <button className="rl-knop" onClick={() => deelKaart(team)} title="Link naar de kaart met de gelopen route (openen zonder inloggen)">
+                  🗺️ Kaart-link
+                </button>
+              )}
             </div>
           );
         })}

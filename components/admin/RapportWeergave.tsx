@@ -22,10 +22,11 @@ function itemWie(i: VerslagItem) {
   return i.type === "plekzooi" ? "verborgen val op de kaart" : `van ${i.ander ?? "een ander team"}`;
 }
 
-export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }: {
+export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks = {}, gemaaktOp }: {
   data: AntwoordenData;
   verslagen: Record<string, RouteVerslag>;
   fotoUrls: Record<string, string>;
+  kaartLinks?: Record<string, string>;
   gemaaktOp: string;
 }) {
   if (!data.route) return <div className="admin-content"><p style={{ color: "var(--muted)" }}>Er is geen actieve route.</p></div>;
@@ -79,7 +80,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, gemaaktOp }
       `}</style>
 
       <div className="rapport-knoppen" style={{ maxWidth: 860, margin: "14px auto 24px", display: "flex" }}>
-        <RapportDelen routeNaam={routeNaam} teams={stand.map((t) => ({ sessie_id: t.sessie_id, naam: t.naam, icon: t.icon ?? null }))} />
+        <RapportDelen routeNaam={routeNaam} teams={stand.map((t) => ({ sessie_id: t.sessie_id, naam: t.naam, icon: t.icon ?? null, kaartLink: kaartLinks[t.sessie_id] }))} />
       </div>
 
       {/* ── Eindstand ── */}

@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { haalAntwoorden } from "@/lib/admin-antwoorden";
 import { haalRouteVerslag, type RouteVerslag } from "@/lib/team-verslag";
 import RapportWeergave from "@/components/admin/RapportWeergave";
+import { deelUrl } from "@/lib/deel-link";
 
 // Printbaar rapport (opslaan als PDF): eindstand, en per team de vragen, items en gelopen route
 export default async function RapportPagina() {
@@ -19,5 +20,7 @@ export default async function RapportPagina() {
     }
   }
 
-  return <RapportWeergave data={data} verslagen={verslagen} fotoUrls={fotoUrls} gemaaktOp={new Date().toISOString()} />;
+  // Per team een openbare link naar de kaart met de gelopen route (alleen de beheerder deelt die)
+  const kaartLinks = Object.fromEntries(data.teams.map((t) => [t.sessie_id, deelUrl(t.sessie_id)]));
+  return <RapportWeergave data={data} verslagen={verslagen} fotoUrls={fotoUrls} kaartLinks={kaartLinks} gemaaktOp={new Date().toISOString()} />;
 }

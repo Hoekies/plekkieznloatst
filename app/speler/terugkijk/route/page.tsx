@@ -30,6 +30,7 @@ export default async function GelopenRoutePagina() {
       punten={verslag.punten}
       items={verslag.items.filter((i) => i.lat != null && i.lng != null).map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! }))}
       afstandM={verslag.afstandM}
+      terugNaar="/speler/finish"
     />
   );
 }

@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const pad = request.nextUrl.pathname;
 
   // Niet ingelogd → naar login (auth-API routes zijn altijd toegankelijk)
-  if (!user && pad !== "/login" && !pad.startsWith("/api/auth/")) {
+  if (!user && pad !== "/login" && !pad.startsWith("/api/auth/") && !pad.startsWith("/gedeeld/")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
