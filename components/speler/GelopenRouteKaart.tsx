@@ -4,7 +4,14 @@ import { useEffect, useRef } from "react";
 import { escapeHtml } from "@/lib/html";
 
 export type RouteSpoorPunt = { lat: number; lng: number };
-export type BezochtPunt = { nr: number; naam: string; lat: number; lng: number };
+export type BezochtPunt = {
+  nr: number; naam: string; lat: number; lng: number;
+  // Wat het team bij dit punt deed (voor het venster op de kaart)
+  heeftVraag?: boolean;
+  antwoord?: string | null;   // gegeven antwoord, "📸 foto" bij een foto-opdracht
+  goed?: boolean | null;      // null = (nog) niet beoordeeld, bijv. een foto die wacht op keuring
+  punten?: number | null;
+};
 export type KaartItem = { soort: "ingezet" | "ontvangen"; type: string; ander: string | null; lat: number; lng: number };
 
 const ITEM_NAAM: Record<string, string> = {
@@ -46,7 +53,18 @@ export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor
           html: `<div style="width:26px;height:26px;border-radius:50%;background:#16A34A;border:2px solid #fff;color:#fff;font:700 12px sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.4)">${p.nr}</div>`,
           iconSize: [26, 26], iconAnchor: [13, 13],
         });
-        L.marker([p.lat, p.lng], { icon: icoon }).addTo(map).bindTooltip(escapeHtml(p.naam));
+        // Tik op het punt: naam, het gegeven antwoord en de gehaalde punten
+        const regels = [`<strong>${escapeHtml(p.naam)}</strong>`];
+        if (p.heeftVraag && p.antwoord) {
+          const teken = p.goed === true ? " ✅" : p.goed === false ? " ❌" : "";
+          regels.push(`Antwoord: ${escapeHtml(p.antwoord)}${teken}`);
+        }
+        if (p.punten != null) {
+          regels.push(`Punten: <strong>${p.punten > 0 ? "+" : ""}${p.punten}</strong>`);
+        } else if (p.heeftVraag && p.goed == null && p.antwoord) {
+          regels.push("Punten: wacht op keuring");
+        }
+        L.marker([p.lat, p.lng], { icon: icoon }).addTo(map).bindPopup(regels.join("<br/>"));
         grenzen.push([p.lat, p.lng]);
       }
       // Items: blauwe rand = ingezet, oranje rand = ontvangen, precies op de plek waar het gebeurde.
