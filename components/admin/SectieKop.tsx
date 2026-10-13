@@ -7,7 +7,8 @@ export default function SectieKop({ titel, children }: { titel: string; children
       <div style={{ flex: 1, minWidth: 80, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
         {titel}
       </div>
-      {children && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, flexShrink: 0 }}>{children}</div>}
+      {/* Knoppen mogen op een smal scherm krimpen en doorlopen naar een volgende regel */}
+      {children && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minWidth: 0, maxWidth: "100%" }}>{children}</div>}
     </div>
   );
 }
