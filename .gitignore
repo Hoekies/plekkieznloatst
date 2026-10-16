@@ -26,3 +26,6 @@ supa-ww.txt
 tsconfig.tsbuildinfo
 
 .vercel
+
+# Bronbestanden van de posters (groot); de app gebruikt de webp-versies in public/kaarten
+docs/afbeeldingen/

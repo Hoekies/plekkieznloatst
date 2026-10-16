@@ -8,8 +8,8 @@
 -- Nieuwe wijzigingen komen als 002_…, 003_… enz. in deze map.
 --
 -- Na het uitvoeren, via het Supabase-dashboard:
---   1. Storage: maak de buckets "foto-inzendingen", "route-afbeeldingen" en
---      "vraag-afbeeldingen" aan (niet openbaar).
+--   1. Storage: maak drie buckets aan: "route-afbeeldingen" en "vraag-afbeeldingen"
+--      (openbaar: de app toont ze via een openbare link) en "foto-inzendingen" (niet openbaar).
 --   2. Authentication > Users: maak de beheerder aan en geef hem de rol admin:
 --        UPDATE auth.users
 --        SET raw_app_meta_data = raw_app_meta_data || '{"rol": "admin"}'

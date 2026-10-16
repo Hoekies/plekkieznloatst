@@ -56,16 +56,44 @@ export default function RoutesOverzicht() {
     router.push(`/admin/routes/${route.id}${query}`);
   }
 
+  // Export: de server levert alle gegevens, de browser pakt daarna de afbeeldingen in het bestand in
+  const [exportBezig, setExportBezig] = useState<string | null>(null);
   async function exporteer(id: string, naam: string) {
-    const res = await fetch(`/api/admin/routes/${id}/export`);
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${naam.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setExportBezig(id);
+    try {
+      const res = await fetch(`/api/admin/routes/${id}/export`);
+      if (!res.ok) { toonMelding("Exporteren mislukt", "fout"); return; }
+      const data = await res.json();
+      const afbeeldingen: Record<string, { type: string; data: string }> = {};
+      let ontbreekt = 0;
+      for (const sleutel of (data.afbeeldingen_lijst ?? []) as string[]) {
+        try {
+          const r = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${sleutel}`);
+          if (!r.ok) { ontbreekt++; continue; }
+          const blob = await r.blob();
+          const base64 = await new Promise<string>((klaar) => {
+            const lezer = new FileReader();
+            lezer.onload = () => klaar(String(lezer.result).split(",")[1] ?? "");
+            lezer.readAsDataURL(blob);
+          });
+          afbeeldingen[sleutel] = { type: blob.type || "image/jpeg", data: base64 };
+        } catch { ontbreekt++; }
+      }
+      delete data.afbeeldingen_lijst;
+      data.afbeeldingen = afbeeldingen;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      // Bestandsnaam: spel, route en datum, bijv. PointRush_Op-zn-Loatst_2026-10-16.json
+      const route = naam.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+      const datum = new Date().toLocaleDateString("sv-SE");  // JJJJ-MM-DD
+      a.download = `PointRush_${route}_${datum}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toonMelding(ontbreekt ? `Geëxporteerd, maar ${ontbreekt} afbeelding(en) konden niet worden meegenomen` : "Route geëxporteerd, met alle afbeeldingen", ontbreekt ? "fout" : "ok");
+    } finally {
+      setExportBezig(null);
+    }
   }
 
   async function importeer(e: React.ChangeEvent<HTMLInputElement>) {
@@ -75,8 +103,18 @@ export default function RoutesOverzicht() {
     setImportBezig(true);
     setImportFout("");
     try {
-      const tekst = await bestand.text();
-      const json = JSON.parse(tekst);
+      const json = JSON.parse(await bestand.text());
+      // Eerst de afbeeldingen terugzetten (los, zodat geen enkel verzoek te groot wordt)
+      const afbeeldingen = (json.afbeeldingen ?? {}) as Record<string, { type: string; data: string }>;
+      let mislukt = 0;
+      for (const [sleutel, beeld] of Object.entries(afbeeldingen)) {
+        const r = await fetch("/api/admin/routes/import/afbeelding", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sleutel, type: beeld.type, data: beeld.data }),
+        }).catch(() => null);
+        if (!r?.ok) mislukt++;
+      }
+      delete json.afbeeldingen;
       const res = await fetch("/api/admin/routes/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -88,6 +126,7 @@ export default function RoutesOverzicht() {
         setImportBezig(false);
         return;
       }
+      if (mislukt) toonMelding(`Route geïmporteerd, maar ${mislukt} afbeelding(en) konden niet worden teruggezet`, "fout");
       router.push(`/admin/routes/${data.id}`);
     } catch {
       setImportFout("Ongeldig JSON-bestand");
@@ -245,7 +284,7 @@ export default function RoutesOverzicht() {
                   <button className="rl-knop rl-knop--icoon" title="Kopie maken (met punten, vragen en items)" aria-label="Kopie maken"
                     disabled={kopieBezig === r.id} onClick={() => kopieer(r.id, r.name)}>{kopieBezig === r.id ? "…" : "⧉"}</button>
                   <button className="rl-knop rl-knop--icoon" title="Exporteren (JSON-bestand)" aria-label="Exporteren"
-                    onClick={() => exporteer(r.id, r.name)}>📤</button>
+                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}</button>
                   {!r.is_active && r.status === "gepubliceerd" && (
                     <button className="rl-knop rl-knop--icoon" title="Terug naar concept" aria-label="Terug naar concept"
                       onClick={() => togglePubliceer(r)}>↩</button>

@@ -2,88 +2,76 @@ import { NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-type AntwoordOptieImport = {
-  order_index: number;
-  color: string;
-  answer_type: string;
-  text: string | null;
-  image_path: string | null;
-  is_correct: boolean;
-  punten?: number | null;
-};
+// Route importeren uit een exportbestand. Versie 2 bevat ook het speltype, alle instellingen en de
+// items op de kaart; versie 1 (oudere exports) alleen punten en vragen. De afbeeldingen zet de
+// browser vooraf terug via /api/admin/routes/import/afbeelding.
 
+type AntwoordOptieImport = {
+  order_index: number; color: string; answer_type: string; text: string | null;
+  image_path: string | null; is_correct: boolean; punten?: number | null;
+};
 type VraagImport = {
-  type: string;
-  question_text: string;
-  question_image_path: string | null;
-  points: number;
-  correct_text_answers: string[] | null;
-  numeric_answer: number | null;
-  numeric_tolerance: number | null;
+  type: string; question_text: string; question_image_path: string | null; points: number;
+  correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null;
   antwoord_opties: AntwoordOptieImport[];
 };
-
 type PuntImport = {
-  order_index: number;
-  type: string;
-  name: string;
-  description: string | null;
-  latitude: number;
-  longitude: number;
-  radius_meters: number;
-  points: number;
-  image_path: string | null;
-  sound_path: string | null;
-  vraag: VraagImport | null;
+  order_index: number; type: string; name: string; description: string | null; latitude: number; longitude: number;
+  radius_meters: number; points: number; image_path: string | null; sound_path: string | null;
+  qr_unlock_enabled?: boolean; vraag: VraagImport | null;
 };
-
+type ItemImport = { type: string; name: string; latitude: number; longitude: number; radius_meters: number; points_effect: number };
 type RouteExport = {
   _version: number;
-  route: { name: string; status: string };
+  route: { name: string; status: string; instellingen?: Record<string, unknown>; instappunten_volgorde?: Record<string, number> };
   route_punten: PuntImport[];
+  items?: ItemImport[];
 };
+
+// Alleen bekende instellingen overnemen
+const INSTELLINGEN = [
+  "modus", "verwacht_aantal_teams", "doel_afstand_km", "omgekeerde_teams", "ster_waarde", "bom_waarde",
+  "item_respawn", "respawn_minuten", "plekzooi_duur_seconden", "spook_duur_seconden", "startitems",
+  "items_na_finish", "items_na_finish_types", "tussenstand_interval_minuten", "tussenstand_duur_seconden",
+];
+const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken"];
 
 export async function POST(request: Request) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
-    return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  }
+  if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   let body: RouteExport;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 });
-  }
+  try { body = await request.json(); } catch { return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 }); }
 
-  if (body._version !== 1 || typeof body.route?.name !== "string" || !Array.isArray(body.route_punten)) {
+  if (![1, 2].includes(body._version) || typeof body.route?.name !== "string" || !Array.isArray(body.route_punten)) {
     return NextResponse.json({ fout: "Ongeldig export-bestand (verkeerde versie of structuur)" }, { status: 400 });
   }
 
-  const safePath = /^[\w\-\/]+\.(jpg|jpeg|png|mp3|webp)$/i;
+  const veiligPad = /^[\w\-\/]+\.(jpg|jpeg|png|mp3|webp)$/i;
+  const geldigePlek = (lat: unknown, lng: unknown) => {
+    const a = Number(lat), b = Number(lng);
+    return !isNaN(a) && a >= -90 && a <= 90 && !isNaN(b) && b >= -180 && b <= 180;
+  };
   for (const punt of body.route_punten) {
-    const lat = Number(punt.latitude); const lng = Number(punt.longitude);
-    if (isNaN(lat) || lat < -90 || lat > 90 || isNaN(lng) || lng < -180 || lng > 180) {
-      return NextResponse.json({ fout: `Ongeldig coördinaat bij punt: ${punt.name}` }, { status: 400 });
-    }
-    if (punt.image_path && !safePath.test(punt.image_path)) {
-      return NextResponse.json({ fout: `Ongeldig image_path bij punt: ${punt.name}` }, { status: 400 });
+    if (!geldigePlek(punt.latitude, punt.longitude)) return NextResponse.json({ fout: `Ongeldig coördinaat bij punt: ${punt.name}` }, { status: 400 });
+    for (const pad of [punt.image_path, punt.vraag?.question_image_path, ...(punt.vraag?.antwoord_opties ?? []).map((o) => o.image_path)]) {
+      if (pad && !veiligPad.test(pad)) return NextResponse.json({ fout: `Ongeldig afbeeldingspad bij punt: ${punt.name}` }, { status: 400 });
     }
   }
 
   const admin = createAdminClient();
 
   // Route aanmaken — altijd als concept, nooit actief
+  const instellingen = Object.fromEntries(Object.entries(body.route.instellingen ?? {}).filter(([k]) => INSTELLINGEN.includes(k)));
+  if (instellingen.modus !== undefined && !["sequentieel", "verspreid"].includes(instellingen.modus as string)) delete instellingen.modus;
   const { data: nieuweRoute, error: routeError } = await admin
     .from("routes")
-    .insert({ name: body.route.name, status: "concept", is_active: false })
+    .insert({ ...instellingen, name: body.route.name, status: "concept", is_active: false })
     .select("id")
     .single();
+  if (routeError || !nieuweRoute) return NextResponse.json({ fout: `Kon route niet aanmaken: ${routeError?.message ?? ""}` }, { status: 500 });
 
-  if (routeError || !nieuweRoute) {
-    return NextResponse.json({ fout: "Kon route niet aanmaken" }, { status: 500 });
-  }
-
+  const nieuwPuntVoorVolgorde = new Map<number, string>();
   for (const punt of body.route_punten) {
     const { data: nieuwPunt, error: puntError } = await admin
       .from("route_points")
@@ -99,12 +87,14 @@ export async function POST(request: Request) {
         points: punt.points ?? 0,
         image_path: punt.image_path ?? null,
         sound_path: punt.sound_path ?? null,
+        // QR-ontgrendeling: nieuwe geheime code (de punten krijgen nieuwe id's, oude QR-codes werken niet meer)
+        qr_unlock_enabled: !!punt.qr_unlock_enabled,
+        qr_secret: punt.qr_unlock_enabled ? crypto.randomUUID().replace(/-/g, "").slice(0, 12) : null,
       })
       .select("id")
       .single();
-
     if (puntError || !nieuwPunt) continue;
-
+    nieuwPuntVoorVolgorde.set(punt.order_index, nieuwPunt.id);
     if (!punt.vraag) continue;
 
     const { data: nieuweVraag, error: vraagError } = await admin
@@ -121,7 +111,6 @@ export async function POST(request: Request) {
       })
       .select("id")
       .single();
-
     if (vraagError || !nieuweVraag) continue;
 
     if (Array.isArray(punt.vraag.antwoord_opties) && punt.vraag.antwoord_opties.length > 0) {
@@ -135,9 +124,24 @@ export async function POST(request: Request) {
           image_path: opt.image_path ?? null,
           is_correct: opt.is_correct ?? false,
           ...(typeof opt.punten === "number" && Number.isFinite(opt.punten) ? { punten: Math.round(opt.punten) } : {}),
-        }))
+        })),
       );
     }
+  }
+
+  // Zelfgekozen instappunten (verspreid): van volgorde terug naar de nieuwe punt-id's
+  const instappunten = Object.fromEntries(Object.entries(body.route.instappunten_volgorde ?? {})
+    .map(([team, volgorde]) => [team, nieuwPuntVoorVolgorde.get(Number(volgorde))])
+    .filter(([, id]) => !!id));
+  if (Object.keys(instappunten).length) await admin.from("routes").update({ instappunten }).eq("id", nieuweRoute.id);
+
+  // Items op de kaart
+  const items = (body.items ?? []).filter((i) => ITEM_TYPES.includes(i.type) && geldigePlek(i.latitude, i.longitude));
+  if (items.length) {
+    await admin.from("special_items").insert(items.map((i) => ({
+      route_id: nieuweRoute.id, type: i.type, name: i.name ?? "Speciaal item", latitude: i.latitude, longitude: i.longitude,
+      radius_meters: i.radius_meters ?? 15, points_effect: i.points_effect ?? 0,
+    })));
   }
 
   return NextResponse.json({ id: nieuweRoute.id });
