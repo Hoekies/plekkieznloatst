@@ -220,8 +220,11 @@ Halve minuten mogen ook (bijv. 2,5). De duur geldt voor alle spook- en plekzooi-
 2. Klik op **+ Nieuwe groep** en vul een **loginnaam** en een **wachtwoord** in.
    - De **loginnaam** is wat de speler typt bij het inloggen (bijv. "team1").
    - Het **wachtwoord** moet minimaal 8 tekens zijn.
-3. Deel de inloggegevens met de groep via de **WhatsApp-knop** bovenaan.
-4. De berichttekst is aanpasbaar via **✏️ Berichttekst** — opgeslagen per browser. Onder je eigen tekst komt altijd automatisch de uitleg hoe je de app op je beginscherm zet (eerst Android, dan iPhone).
+3. Deel de inloggegevens met de groep via **Versturen via WhatsApp** bovenaan. Er opent eerst een venster **Wat verstuur je?** waarin je zelf kiest wat er meegaat:
+   - **✉️ Berichttekst** — aan te passen in het venster (wordt per browser onthouden; met "Standaardtekst terugzetten" krijg je de oorspronkelijke tekst terug);
+   - **📲 Uitleg** hoe je de app op het beginscherm zet;
+   - **Afbeeldingen:** de spelershandleiding en/of de speluitleg van route op volgorde of verspreid.
+   Onderaan zie je een voorbeeld van het bericht. Met **📲 Versturen** opent het deelmenu (kies WhatsApp); kan je browser geen afbeeldingen delen, dan gaan er links naar de afbeeldingen mee. Je laatste keuze wordt onthouden.
 
 > De **teamnaam** kiest de groep zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, het leaderboard en in de meldingen aan andere teams. Zolang een groep nog geen teamnaam heeft gekozen, zie je de loginnaam.
 

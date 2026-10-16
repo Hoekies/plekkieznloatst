@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
+import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import { toonMelding } from "@/components/admin/Melding";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -105,7 +106,10 @@ export default function AdminDashboard({ initData }: Props) {
       {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel">Dashboard</span>
-        <FotoBeoordelingPanel />
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+          <FotoBeoordelingPanel />
+          <WhatsAppKnop groot />
+        </div>
         <div style={{ justifySelf: "end" }} className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
           <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
           {realtimeOk ? "Live" : "Verbinding weg"}
