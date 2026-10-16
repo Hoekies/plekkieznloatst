@@ -171,18 +171,17 @@ export default function RoutesOverzicht() {
         <StatKaart label="Concept" waarde={String(routes.filter((r) => r.status !== "gepubliceerd" && !r.is_active).length)} badgeKlas="pr-badge--gray" badge="✏️" />
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 12 }}>
-        <div style={{ flex: 1, minWidth: 80, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-          🗺️ Routes
-        </div>
-        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-          <button className="rl-knop rl-knop--icoon actie-knop" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
-            onClick={() => importRef.current?.click()} disabled={importBezig}>
-            {importBezig ? "…" : "📥"}
-          </button>
-          <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
-          <button className="rl-knop rl-knop--icoon rl-knop--cyan actie-knop" data-tip="Nieuwe route maken" aria-label="Nieuwe route" onClick={() => setAanmaken(true)}>➕</button>
-        </div>
+      {/* Nieuwe route links, importeren rechts (zoals bij Groepen) */}
+      <div className="actie-rij">
+        <button className="btn btn-primary actie-knop" onClick={() => setAanmaken(true)}>
+          + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
+        </button>
+        <span style={{ flex: 1 }} />
+        <button className="rl-knop rl-knop--icoon actie-knop" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
+          onClick={() => importRef.current?.click()} disabled={importBezig}>
+          {importBezig ? "…" : "📥"}
+        </button>
+        <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
 
