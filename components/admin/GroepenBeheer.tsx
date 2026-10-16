@@ -21,6 +21,7 @@ export default function GroepenBeheer() {
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
   const [modal, setModal] = useState<BeheerModal | null>(null);
+  const [uitOpen, setUitOpen] = useState(false);
 
   async function laadGroepen() {
     const res = await fetch("/api/admin/groepen");
@@ -52,6 +53,96 @@ export default function GroepenBeheer() {
     toonMelding(data.gestopt === 0 ? `${naam} had geen lopend spel.` : `Spel van ${naam} gestopt`, data.gestopt === 0 ? "info" : "ok");
     setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, heeft_spel: false } : g));
   }
+
+  // Uitgeschakelde spelers staan apart onderaan, standaard ingeklapt
+  const actieveSpelers = groepen.filter((g) => !g.is_uitgeschakeld);
+  const uitgeschakeld = groepen.filter((g) => g.is_uitgeschakeld);
+
+  const spelerKaart = (g: Groep) => {
+    const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe speler";
+    const isUit = g.is_uitgeschakeld;
+    return (
+      <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.8 : 1 }}>
+       <div className="pr-gem-card-inner gb-kaart">
+        {/* Icoon — zelfde formaat als de teamavatars op het dashboard; uitgeschakeld: zo hoog als de tekst */}
+        <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : ""}`} style={{
+          borderRadius: "50%",
+          background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
+          fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
+        }}>
+          {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
+        </div>
+
+        {/* Tekst + knoppen */}
+        <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
+            {g.nickname ?? "nog geen teamnaam gekozen"}
+          </div>
+          <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
+            {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
+            <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
+              {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
+            </span>
+          </div>
+          {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
+          {!isUit && <div className="gb-knoppen">
+            <button className="rl-knop" title="Wachtwoord wijzigen"
+              onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
+              🔑 Wachtwoord
+            </button>
+            <button className="rl-knop" title="Loginnaam wijzigen"
+              onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
+              ✏️ Loginnaam
+            </button>
+            {g.active_device_id && (
+              <button className="rl-knop" onClick={() => resetApparaat(g.id)}
+                title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
+                🔓 Apparaat
+              </button>
+            )}
+            {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
+            {g.active_device_id && (
+              <button className="rl-knop rl-knop--rood" onClick={() => logGroepUit(g.id)}
+                title="Uitloggen; het spel blijft staan">
+                🚪 Uitloggen
+              </button>
+            )}
+            {g.heeft_spel && (
+              <BevestigKnop className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
+                title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
+                ⏹️ Stop spel
+              </BevestigKnop>
+            )}
+          </div>}
+        </div>
+
+        {/* Aan/uit toggle */}
+        <div className="gb-schakel"
+          title={isUit ? "Aanzetten" : "Uitzetten"}
+          onClick={async () => {
+            const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
+            if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
+          }}
+          style={{
+            width: 42, height: 24, borderRadius: 12, flexShrink: 0,
+            background: isUit ? "rgba(255,59,92,0.3)" : "rgba(34,197,94,0.3)",
+            border: `1.5px solid ${isUit ? "var(--red)" : "var(--green)"}`,
+            position: "relative", cursor: "pointer",
+            transition: "background 0.2s, border-color 0.2s",
+          }}
+        >
+          <div style={{
+            position: "absolute", width: 18, height: 18, borderRadius: "50%",
+            background: isUit ? "var(--red)" : "var(--green)",
+            top: 2, left: isUit ? 2 : 20,
+            transition: "left 0.2s, background 0.2s",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+          }} />
+        </div>
+       </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -90,91 +181,17 @@ export default function GroepenBeheer() {
         </div>
       ) : (
         <div>
-          {groepen.map((g) => {
-            const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe speler";
-            const isUit = g.is_uitgeschakeld;
-            return (
-              <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.8 : 1 }}>
-               <div className="pr-gem-card-inner gb-kaart">
-                {/* Icoon — zelfde formaat als de teamavatars op het dashboard; uitgeschakeld: zo hoog als de tekst */}
-                <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : ""}`} style={{
-                  borderRadius: "50%",
-                  background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
-                  fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
-                }}>
-                  {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
-                </div>
-
-                {/* Tekst + knoppen */}
-                <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
-                    {g.nickname ?? "nog geen teamnaam gekozen"}
-                  </div>
-                  <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
-                    {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
-                    <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
-                      {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
-                    </span>
-                  </div>
-                  {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
-                  {!isUit && <div className="gb-knoppen">
-                    <button className="rl-knop" title="Wachtwoord wijzigen"
-                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
-                      🔑 Wachtwoord
-                    </button>
-                    <button className="rl-knop" title="Loginnaam wijzigen"
-                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
-                      ✏️ Loginnaam
-                    </button>
-                    {g.active_device_id && (
-                      <button className="rl-knop" onClick={() => resetApparaat(g.id)}
-                        title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
-                        🔓 Apparaat
-                      </button>
-                    )}
-                    {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
-                    {g.active_device_id && (
-                      <button className="rl-knop rl-knop--rood" onClick={() => logGroepUit(g.id)}
-                        title="Uitloggen; het spel blijft staan">
-                        🚪 Uitloggen
-                      </button>
-                    )}
-                    {g.heeft_spel && (
-                      <BevestigKnop className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
-                        title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
-                        ⏹️ Stop spel
-                      </BevestigKnop>
-                    )}
-                  </div>}
-                </div>
-
-                {/* Aan/uit toggle */}
-                <div className="gb-schakel"
-                  title={isUit ? "Aanzetten" : "Uitzetten"}
-                  onClick={async () => {
-                    const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
-                    if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
-                  }}
-                  style={{
-                    width: 42, height: 24, borderRadius: 12, flexShrink: 0,
-                    background: isUit ? "rgba(255,59,92,0.3)" : "rgba(34,197,94,0.3)",
-                    border: `1.5px solid ${isUit ? "var(--red)" : "var(--green)"}`,
-                    position: "relative", cursor: "pointer",
-                    transition: "background 0.2s, border-color 0.2s",
-                  }}
-                >
-                  <div style={{
-                    position: "absolute", width: 18, height: 18, borderRadius: "50%",
-                    background: isUit ? "var(--red)" : "var(--green)",
-                    top: 2, left: isUit ? 2 : 20,
-                    transition: "left 0.2s, background 0.2s",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                  }} />
-                </div>
-               </div>
-              </div>
-            );
-          })}
+          {/* Actieve spelers altijd zichtbaar; uitgeschakelde spelers achter een inklapbare kop */}
+          {actieveSpelers.map(spelerKaart)}
+          {uitgeschakeld.length > 0 && (
+            <>
+              <button type="button" className="gb-inklap" onClick={() => setUitOpen((v) => !v)} aria-expanded={uitOpen}>
+                <span aria-hidden>{uitOpen ? "▾" : "▸"}</span>
+                ⏸ Uitgeschakelde spelers ({uitgeschakeld.length})
+              </button>
+              {uitOpen && uitgeschakeld.map(spelerKaart)}
+            </>
+          )}
         </div>
       )}
 

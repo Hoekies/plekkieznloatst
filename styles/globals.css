@@ -1117,6 +1117,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Te lange waarde in een tegel: heen en weer schuiven, met een pauze aan beide kanten */
+.stat-schuif { animation: stat-schuif ease-in-out infinite alternate; }
+@keyframes stat-schuif { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--schuif)); } }
 
 /* ── Team-card (groepenlijst admin dashboard) ── */
 .pr-team-card {
@@ -1964,3 +1967,18 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .pr-gem-avatar.nieuwe-speler-icoon { display: none; }
   .nieuwe-speler-knoppen { width: 100%; justify-content: flex-end; }
 }
+
+/* Reset-kaart op het dashboard: brede knop rechts; op de telefoon over de volle breedte */
+.reset-knop { min-width: 220px; }
+@media (max-width: 768px) {
+  .reset-kaart-knop { width: 100%; }
+  .reset-knop { width: 100%; min-width: 0; }
+}
+
+/* Spelers: kop om de uitgeschakelde spelers in of uit te klappen */
+.gb-inklap {
+  display: flex; align-items: center; gap: 8px; width: 100%; margin: 14px 0 10px; padding: 10px 14px;
+  border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05);
+  color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; cursor: pointer; text-align: left;
+}
+.gb-inklap:hover { background: rgba(255,255,255,0.1); }

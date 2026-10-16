@@ -134,7 +134,7 @@ export default function AdminDashboard({ initData }: Props) {
         {/* Stat kaarten */}
         <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
           <StatKaart label="Actieve route" waarde={route?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
-          <StatKaart label="Bezig met spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
+          <StatKaart label="Aan het spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
           <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} badgeKlas="pr-badge--green" badge="✓" />
           <StatKaart label="Koploper" waarde={koploper ? `${koploper.nickname ?? koploper.login_name} · ${koploper.score} pt` : "—"} badgeKlas="pr-badge--gold" badge="🥇" />
         </div>
@@ -167,20 +167,17 @@ export default function AdminDashboard({ initData }: Props) {
         )}
 
         {/* Reset sectie */}
-        {/* Zelfde kaartstijl als de spelers, met een rode knop zoals elders */}
+        {/* Zelfde kaartstijl als de spelers: één regel uitleg en een brede rode knop */}
         <div className="pr-gem-card" style={{ marginTop: 32 }}>
-         <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
-          <div className="pr-gem-avatar">💣</div>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>Spel resetten</div>
-            <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: 2 }}>
-              Wist alle spellen en scores. Spelers en routes blijven.
-            </div>
+         <div className="pr-gem-card-inner reset-kaart" style={{ flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ flex: "1 1 220px", minWidth: 0, fontSize: "0.9rem", color: "var(--text)" }}>
+            <strong style={{ fontFamily: "var(--font-display)", color: "#fff" }}>Spel resetten</strong>
+            <span style={{ color: "var(--muted)" }}> · wist alle spellen en scores, spelers en routes blijven</span>
           </div>
-          <div style={{ flexShrink: 0 }}>
+          <div className="reset-kaart-knop">
             {/* Bevestigen in een venster, met uitleg wat er verdwijnt */}
             {(resetFase === "idle" || resetFase === "bevestig") && (
-              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="rl-knop rl-knop--rood actie-knop"
+              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="rl-knop rl-knop--rood actie-knop reset-knop"
                 vraag="Alle spellen van alle spelers worden gewist, ook van gefinishte spelers: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Spelers en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
                 ja="Ja, reset het spel" onBevestig={bevestigReset}>
                 💣 Reset spel
