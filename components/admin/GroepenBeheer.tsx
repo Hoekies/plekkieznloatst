@@ -56,7 +56,7 @@ export default function GroepenBeheer() {
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Tegels zoals bovenaan het dashboard */}
       <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
-        <StatKaart label="Groepen" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Spelers" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👥" />
         <StatKaart label="Ingelogd" waarde={String(groepen.filter((g) => g.active_device_id).length)} badgeKlas="pr-badge--green" badge="📱" />
         <StatKaart label="Aan het spelen" waarde={String(groepen.filter((g) => g.heeft_spel).length)} badgeKlas="pr-badge--orange" badge="⚡" />
         <StatKaart label="Uitgeschakeld" waarde={String(groepen.filter((g) => g.is_uitgeschakeld).length)} badgeKlas="pr-badge--gray" badge="⏸" />
@@ -65,7 +65,7 @@ export default function GroepenBeheer() {
       {/* Nieuwe groep links, versturen via WhatsApp rechts */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
-            + <span className="alleen-pc">Nieuwe groep</span><span className="alleen-mobiel">Groep</span>
+            + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <span style={{ flex: 1 }} />
           <WhatsAppKnop />
@@ -84,13 +84,13 @@ export default function GroepenBeheer() {
       ) : groepen.length === 0 ? (
         <div className="card">
           <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
-            Nog geen groepen aangemaakt.
+            Nog geen spelers aangemaakt.
           </p>
         </div>
       ) : (
         <div>
           {groepen.map((g) => {
-            const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe groep";
+            const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe speler";
             const isUit = g.is_uitgeschakeld;
             return (
               <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.55 : 1 }}>
@@ -127,7 +127,7 @@ export default function GroepenBeheer() {
                     </button>
                     {g.active_device_id && (
                       <button className="rl-knop" onClick={() => resetApparaat(g.id)}
-                        title="Toestel ontkoppelen, zodat de groep elders kan inloggen">
+                        title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
                         🔓 Apparaat
                       </button>
                     )}
@@ -140,7 +140,7 @@ export default function GroepenBeheer() {
                     )}
                     {g.heeft_spel && (
                       <BevestigKnop className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
-                        title="Spel stoppen: beëindigt het lopende spel van deze groep" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
+                        title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
                         ⏹️ Stop spel
                       </BevestigKnop>
                     )}
@@ -224,15 +224,15 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
 
   return (
     <div className="card" style={{ border: "2px solid var(--blue)" }}>
-      <h2 style={{ marginBottom: "16px", fontSize: "1rem" }}>Nieuwe groep aanmaken</h2>
+      <h2 style={{ marginBottom: "16px", fontSize: "1rem" }}>Nieuwe speler aanmaken</h2>
       <form onSubmit={opslaan} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-          De teamnaam kiest de groep zelf bij de start van het spel.
+          De teamnaam kiest de speler zelf bij de start van het spel.
         </p>
         <div className="form-group">
           <label className="form-label">Loginnaam (speler typt dit in bij inloggen)</label>
           <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
-            placeholder="bijv. groep1" required />
+            placeholder="bijv. speler1" required />
         </div>
         <div className="form-group">
           <label className="form-label">Wachtwoord (min. 8 tekens)</label>

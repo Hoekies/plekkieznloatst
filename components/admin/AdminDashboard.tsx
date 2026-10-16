@@ -8,6 +8,7 @@ import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
 
+import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
@@ -96,11 +97,15 @@ export default function AdminDashboard({ initData }: Props) {
   }, []);
 
   const { spelers, route, route_punten } = data;
-  // Alleen groepen die meedoen: bezig of gefinisht. Wie nog niet gestart is, staat bij Groepen.
-  const spelend = spelers.filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid");
+  // Alleen spelers die meedoen (bezig of gefinisht), op volgorde van de stand: hoogste score eerst,
+  // bij gelijke score de snelste. Wie nog niet gestart is, staat bij Spelers.
+  const spelend = spelers
+    .filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid")
+    .sort((a, b) => b.score !== a.score ? b.score - a.score : sessietijd(a) - sessietijd(b));
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
+  const koploper = spelend[0];
 
   return (
     <>
@@ -131,24 +136,25 @@ export default function AdminDashboard({ initData }: Props) {
           <StatKaart label="Actieve route" waarde={route?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
           <StatKaart label="Bezig met spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
           <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} badgeKlas="pr-badge--green" badge="✓" />
-          <StatKaart label="Routepunten" waarde={totaalPunten ? String(totaalPunten) : "—"} badgeKlas="pr-badge--purple" badge="📍" />
+          <StatKaart label="Koploper" waarde={koploper ? `${koploper.nickname ?? koploper.login_name} · ${koploper.score} pt` : "—"} badgeKlas="pr-badge--gold" badge="🥇" />
         </div>
 
-        {/* Groepen overzicht */}
-        <SectieKop titel="👥 Spelende groepen">
+        {/* Spelende spelers, op volgorde van de stand */}
+        <SectieKop titel="🏆 Spelende spelers">
           <WhatsAppKnop />
         </SectieKop>
         {spelend.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem", margin: 0 }}>
-              {spelers.length === 0 ? "Nog geen groepen aangemaakt." : "Er is nog geen groep gestart. Zodra een groep op ‘Ga op pad’ drukt, verschijnt hij hier."}
+              {spelers.length === 0 ? "Nog geen spelers aangemaakt." : "Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier."}
             </p>
           </div>
         ) : (
           <div>
-            {spelend.map((s) => (
+            {spelend.map((s, i) => (
               <SpelerKaart
                 key={s.player_id}
+                rang={i + 1}
                 speler={s}
                 totaalPunten={totaalPunten}
                 kanVrijgeven
@@ -169,14 +175,14 @@ export default function AdminDashboard({ initData }: Props) {
           <div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>💣 Spel resetten</div>
             <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 2 }}>
-              Wist alle spellen en scores. Groepen en routes blijven.
+              Wist alle spellen en scores. Spelers en routes blijven.
             </div>
           </div>
           <div style={{ flexShrink: 0 }}>
             {/* Bevestigen in een venster, met uitleg wat er verdwijnt */}
             {(resetFase === "idle" || resetFase === "bevestig") && (
               <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="btn-premium--danger"
-                vraag="Alle spellen van alle groepen worden gewist, ook van gefinishte groepen: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Groepen en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
+                vraag="Alle spellen van alle spelers worden gewist, ook van gefinishte spelers: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Spelers en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
                 ja="Ja, reset het spel" onBevestig={bevestigReset}>
                 Reset spel
               </BevestigKnop>
@@ -206,7 +212,8 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onStop, onNegeer }: {
+function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onStop, onNegeer }: {
+  rang: number;
   speler: SpelerOverzicht;
   totaalPunten: number;
   kanVrijgeven: boolean;
@@ -217,8 +224,13 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
   const speelt = s.sessie_status === "actief";
   return (
-    <div className="pr-gem-card" style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" } : undefined}>
+    <div className="pr-gem-card" style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
+      : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
       <div className="pr-gem-card-inner">
+        {/* Plek in de stand */}
+        <span title={`${rang}e plaats`} style={{ width: 40, flexShrink: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: rang <= 3 ? "1.9rem" : "1.2rem", color: "#fff" }}>
+          {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
+        </span>
         <div className="pr-gem-avatar">{s.icon ?? teamIcoonVoor(s.player_id)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
@@ -231,7 +243,7 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
             {s.login_name}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>
-            {s.score} pt · {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
+            📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
             {s.huidig_punt_naam && ` · ${s.huidig_punt_naam}`}
             {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)} geleden`}
           </div>
@@ -282,7 +294,10 @@ function SpelerKaart({ speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onSto
             </div>
           )}
         </div>
-        <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+          <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680" }}>{s.score} pt</span>
+        </div>
       </div>
     </div>
   );
@@ -310,7 +325,7 @@ function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolea
 function StatusPil({ status, ingelogd }: { status: SpelerOverzicht["sessie_status"]; ingelogd: boolean }) {
   const cfg = {
     geen_sessie: { label: "Niet gestart", cls: "pr-gem-chip--gray" },
-    // Spel loopt nog, maar de groep is uitgelogd: kan verder na opnieuw inloggen
+    // Spel loopt nog, maar de speler is uitgelogd: kan verder na opnieuw inloggen
     actief:      ingelogd ? { label: "Actief", cls: "pr-gem-chip--orange" } : { label: "Uitgelogd", cls: "pr-gem-chip--gray" },
     voltooid:    { label: "Voltooid",     cls: "pr-gem-chip--green" },
     vervallen:   { label: "Vervallen",    cls: "pr-gem-chip--gray" },

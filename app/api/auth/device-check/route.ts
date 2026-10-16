@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Uitloggen zodat de sessie niet open blijft
     await supabase.auth.signOut();
     return NextResponse.json(
-      { fout: "Je groep is al actief op een ander apparaat. Sluit dat apparaat eerst af.", reden: "apparaat" },
+      { fout: "Je bent al actief op een ander apparaat. Sluit dat apparaat eerst af.", reden: "apparaat" },
       { status: 409 }
     );
   }

@@ -1,7 +1,6 @@
-import { haalLiveData } from "@/lib/admin-live";
-import AdminLeaderboard from "@/components/admin/AdminLeaderboard";
+import { redirect } from "next/navigation";
 
-export default async function LeaderboardPagina() {
-  const initData = await haalLiveData();
-  return <AdminLeaderboard initData={initData} />;
+// De stand staat nu op het dashboard, bij de spelende spelers
+export default function LeaderboardPagina() {
+  redirect("/admin");
 }

@@ -49,7 +49,7 @@ export default function AntwoordenOverzicht() {
   // Waarschuwing bij het vrijgeven: teams nog onderweg of foto's nog niet gekeurd
   const nogBezig = data?.teams.filter((t) => t.status === "actief").length ?? 0;
   const uitslagWaarschuwing = [
-    nogBezig ? `${nogBezig} team${nogBezig !== 1 ? "s" : ""} onderweg.` : "",
+    nogBezig ? `${nogBezig} speler${nogBezig !== 1 ? "s" : ""} onderweg.` : "",
     data?.wachtende_fotos ? `${data.wachtende_fotos} foto${data.wachtende_fotos !== 1 ? "'s" : ""} niet gekeurd.` : "",
   ].filter(Boolean).join(" ");
 
@@ -61,7 +61,7 @@ export default function AntwoordenOverzicht() {
       {/* Tegels zoals bovenaan het dashboard */}
       <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
         <StatKaart label="Actieve route" waarde={data.route.name} badgeKlas="pr-badge--orange" badge="🗺️" />
-        <StatKaart label="Teams" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Spelers" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👥" />
         <StatKaart label="Foto's te keuren" waarde={String(data.wachtende_fotos ?? 0)} badgeKlas={data.wachtende_fotos ? "pr-badge--gold" : "pr-badge--green"} badge="📸" />
         <StatKaart label="Uitslag" waarde={data.uitslag_vrijgegeven ? "Zichtbaar" : "Verborgen"} badgeKlas={data.uitslag_vrijgegeven ? "pr-badge--green" : "pr-badge--gray"} badge={data.uitslag_vrijgegeven ? "🏆" : "🔒"} />
       </div>
@@ -74,20 +74,20 @@ export default function AntwoordenOverzicht() {
         ) : (
           <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Uitslag vrijgeven?"
             className="rl-knop rl-knop--cyan actie-knop" disabled={bezig === "uitslag"} onBevestig={wisselUitslag}
-            vraag={`Alle teams zien dan de eindstand op hun finishscherm.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
+            vraag={`Alle spelers zien dan de eindstand op hun finishscherm.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
             🏆 Uitslag vrijgeven
           </BevestigKnop>
         )}
         <span style={{ flex: 1 }} />
         <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
           style={{ textDecoration: "none" }}
-          title="Eindstand en per team de vragen, items en gelopen route — als PDF te versturen">
+          title="Eindstand en per speler de vragen, items en gelopen route — als PDF te versturen">
           📄 Rapport (PDF)
         </a>
       </div>
 
       {data.teams.length === 0 && (
-        <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Nog geen teams aan het spelen.</p></div>
+        <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Nog geen spelers aan het spelen.</p></div>
       )}
 
       {data.teams.map((team) => (

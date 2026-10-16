@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div style={{ display: "flex", gap: 8 }}>
           <TussenstandKnop />
           <BroadcastKnop alsIcoon />
-          <InfoKnop />
+          <UitlogKnop />
         </div>
       </div>
       <aside className="admin-sidebar">
@@ -32,9 +32,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
-          <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Groepen</AdminNavLink>
+          <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Spelers</AdminNavLink>
           <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
-          <AdminNavLink href="/admin/leaderboard"><span aria-hidden>🏆</span> Leaderboard</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>
         </nav>
@@ -42,8 +41,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
           <SidebarActies />
         </div>
-        <div className="admin-alleen-mobiel" style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-          <UitlogKnop />
+        <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          <InfoKnop />
         </div>
       </aside>
       <div className="admin-main">
@@ -53,7 +52,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="admin-uitlog-hoek">
         <TussenstandKnop />
         <BroadcastKnop alsIcoon />
-        <InfoKnop />
         <UitlogKnop compact />
       </div>
       <HulpMeldingen />
