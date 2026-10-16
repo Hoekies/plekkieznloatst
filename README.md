@@ -1,6 +1,8 @@
-# PointRush
+<p align="center">
+  <img src="public/logo-breed.png" alt="PointRush by Hoekies" width="620">
+</p>
 
-> Loop de route. Pak de punten. Saboteer je vrienden.
+<p align="center"><strong>Loop de route. Pak de punten. Saboteer je vrienden.</strong></p>
 
 PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route langs geocoördinaten, beantwoorden vragen op locatie en proberen elkaar te saboteren met speciale items. Beheer van routes, groepen en live-voortgang gaat via een ingebouwd adminpaneel.
 
