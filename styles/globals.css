@@ -1982,3 +1982,13 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; cursor: pointer; text-align: left;
 }
 .gb-inklap:hover { background: rgba(255,255,255,0.1); }
+
+/* Live kaart: op de computer met ruimte en een rand, op de telefoon over de volle breedte */
+.live-kaart-vak { padding: 24px; }
+.live-kaart-rand { border-radius: 14px; border: 1px solid var(--line); }
+.live-kaart-lijst { top: 36px; right: 36px; max-height: calc(100% - 72px); }
+@media (max-width: 768px) {
+  .live-kaart-vak { padding: 0; }
+  .live-kaart-rand { border-radius: 0; border: none; }
+  .live-kaart-lijst { top: 10px; right: 10px; max-height: calc(100% - 20px); min-width: 0 !important; max-width: 60vw; }
+}

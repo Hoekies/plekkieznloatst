@@ -9,6 +9,11 @@ export default function UitlogKnop({ compact = false }: { compact?: boolean }) {
 
   async function uitloggen() {
     await fetch("/api/auth/uitloggen", { method: "POST" });
+    // Telefoon: de app meteen sluiten. Lukt dat niet (iPhone staat dat niet toe), dan naar het inlogscherm.
+    if (!compact) {
+      window.close();
+      await new Promise((r) => setTimeout(r, 300));
+    }
     router.replace("/login");
   }
 

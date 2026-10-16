@@ -63,14 +63,14 @@ export default function AdminLiveKaart({ initData }: Props) {
         </div>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, position: "relative", padding: 24, display: "flex" }}>
+      <div className="live-kaart-vak" style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
         {/* Kaart */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)" }}>
+        <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
           <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null} />
         </div>
 
         {/* Overlay: spelerslijst */}
-        <div className="pr-gem-panel" style={{ position: "absolute", top: 36, right: 36, zIndex: 1000, flex: "none", minWidth: 210, maxHeight: "calc(100% - 72px)" }}>
+        <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
           <div className="pr-gem-label" style={{ marginBottom: 8 }}>
             ⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar

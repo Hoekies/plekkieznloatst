@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
+import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
 
 export default function RoutesOverzicht() {
@@ -22,9 +23,11 @@ export default function RoutesOverzicht() {
   const [importBezig, setImportBezig] = useState(false);
   const [importFout, setImportFout] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
-  // Actief bovenaan, dan gepubliceerd, dan concepten
+  // Ingedeeld in actief, gepubliceerd en concept (elk met een kop), binnen een groep op naam
   const rang = (r: Route) => (r.is_active ? 0 : r.status === "gepubliceerd" ? 1 : 2);
-  const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b));
+  const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b) || a.name.localeCompare(b.name, "nl"));
+  const GROEP_KOP = ["● Actief", "📢 Gepubliceerd", "✏️ Concept"];
+  const aantalIn = (n: number) => gesorteerd.filter((r) => rang(r) === n).length;
 
   async function laad() {
     const res = await fetch("/api/admin/routes");
@@ -252,7 +255,8 @@ export default function RoutesOverzicht() {
         </div>
       ) : (
         <div>
-          {gesorteerd.map((r) => {
+          {gesorteerd.map((r, i) => {
+            const nieuweGroep = i === 0 || rang(gesorteerd[i - 1]) !== rang(r);
             const info = MODUS_INFO[r.modus];
             const status = r.is_active
               ? { tekst: "● Actief", cls: "pr-gem-chip--green" }
@@ -261,7 +265,13 @@ export default function RoutesOverzicht() {
                 : { tekst: "Concept", cls: "pr-gem-chip--gray" };
 
             return (
-              <div key={r.id} className="pr-gem-card" style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
+              <Fragment key={r.id}>
+              {nieuweGroep && (
+                <div style={{ marginTop: i === 0 ? 0 : 22 }}>
+                  <SectieKop titel={rang(r) === 0 ? GROEP_KOP[0] : `${GROEP_KOP[rang(r)]} (${aantalIn(rang(r))})`} />
+                </div>
+              )}
+              <div className="pr-gem-card" style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
                <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
                 <ModusTegel modus={r.modus} size={56} />
                 <div style={{ flex: 1, minWidth: 160 }}>
@@ -302,6 +312,7 @@ export default function RoutesOverzicht() {
                 </div>
                </div>
               </div>
+              </Fragment>
             );
           })}
         </div>
