@@ -7,6 +7,7 @@ export async function createServerSupabaseClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: (url, opties) => fetch(url, { ...opties, cache: "no-store" }) },
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (cookiesToSet) => {

@@ -34,6 +34,7 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
   }
 
   useEffect(() => {
+    ververs();  // meteen de actuele stand, niet pas na de eerste ronde
     pollRef.current = setInterval(ververs, POLL_INTERVAL_MS);
     const supabase = createClient();
     const kanaal = supabase

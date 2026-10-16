@@ -76,6 +76,7 @@ export default function AdminDashboard({ initData }: Props) {
   }
 
   useEffect(() => {
+    ververs();  // meteen de actuele stand, niet pas na de eerste ronde
     pollRef.current = setInterval(ververs, POLL_INTERVAL_MS);
 
     const supabase = createClient();
@@ -93,6 +94,8 @@ export default function AdminDashboard({ initData }: Props) {
   }, []);
 
   const { spelers, route, route_punten } = data;
+  // Alleen groepen die meedoen: bezig of gefinisht. Wie nog niet gestart is, staat bij Groepen.
+  const spelend = spelers.filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid");
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
@@ -130,14 +133,16 @@ export default function AdminDashboard({ initData }: Props) {
         </div>
 
         {/* Groepen overzicht */}
-        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 12 }}>👥 Groepen</div>
-        {spelers.length === 0 ? (
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 12 }}>👥 Spelende groepen</div>
+        {spelend.length === 0 ? (
           <div className="card">
-            <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen groepen aangemaakt.</p>
+            <p style={{ color: "var(--muted)", fontSize: "0.875rem", margin: 0 }}>
+              {spelers.length === 0 ? "Nog geen groepen aangemaakt." : "Er is nog geen groep gestart. Zodra een groep op ‘Ga op pad’ drukt, verschijnt hij hier."}
+            </p>
           </div>
         ) : (
           <div>
-            {spelers.map((s) => (
+            {spelend.map((s) => (
               <SpelerKaart
                 key={s.player_id}
                 speler={s}

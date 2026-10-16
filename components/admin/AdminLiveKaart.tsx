@@ -33,6 +33,7 @@ export default function AdminLiveKaart({ initData }: Props) {
   }
 
   useEffect(() => {
+    ververs();  // meteen de actuele stand, niet pas na de eerste ronde
     pollRef.current = setInterval(ververs, POLL_INTERVAL_MS);
     const supabase = createClient();
     const kanaal = supabase
