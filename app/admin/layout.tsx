@@ -8,6 +8,7 @@ import SidebarToggle from "@/components/admin/SidebarToggle";
 import HulpMeldingen from "@/components/admin/HulpMeldingen";
 import MeldingHouder from "@/components/admin/Melding";
 import InfoKnop from "@/components/admin/InfoKnop";
+import TussenstandKnop from "@/components/admin/TussenstandKnop";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -18,7 +19,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="admin-mobile-topbar">
         <SidebarToggle />
         <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>PointRush</span>
-        <InfoKnop />
+        <div style={{ display: "flex", gap: 8 }}>
+          <TussenstandKnop />
+          <BroadcastKnop alsIcoon />
+          <InfoKnop />
+        </div>
       </div>
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
@@ -32,7 +37,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
           <AdminNavLink href="/admin/leaderboard"><span aria-hidden>🏆</span> Leaderboard</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
-          <BroadcastKnop />
         </nav>
         <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
           <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
@@ -47,6 +51,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
       <div className="admin-uitlog-hoek">
+        <TussenstandKnop />
+        <BroadcastKnop alsIcoon />
         <InfoKnop />
         <UitlogKnop compact />
       </div>

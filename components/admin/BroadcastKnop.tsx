@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-export default function BroadcastKnop() {
+// alsIcoon = 📢-knop in de bovenbalk (naast de ⓘ); anders als regel in het menu
+export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean }) {
   const [open, setOpen] = useState(false);
   const [tekst, setTekst] = useState("");
   const [fase, setFase] = useState<"idle" | "bezig" | "verzonden">("idle");
@@ -27,9 +28,16 @@ export default function BroadcastKnop() {
 
   return (
     <>
-      <button className="admin-nav-link" onClick={() => setOpen(true)}>
-        <span aria-hidden>📢</span> Bericht sturen
-      </button>
+      {alsIcoon ? (
+        <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}
+          data-tip="Bericht sturen aan alle spelers" data-tip-pos="onder" aria-label="Bericht sturen">
+          <span className="header-knop-icoon" aria-hidden>📢</span>
+        </button>
+      ) : (
+        <button className="admin-nav-link" onClick={() => setOpen(true)}>
+          <span aria-hidden>📢</span> Bericht sturen
+        </button>
+      )}
 
       {open && createPortal(
         <div className="broadcast-overlay" onClick={() => setOpen(false)}>

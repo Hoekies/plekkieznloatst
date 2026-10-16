@@ -6,8 +6,6 @@ type Fase = "idle" | "bevestig-stop" | "bevestig-reset" | "bezig" | "klaar-stop"
 
 export default function SidebarActies() {
   const [fase, setFase] = useState<Fase>("idle");
-  // De tussenstand-knop toont zijn eigen status in de knop zelf
-  const [tussenstandFase, setTussenstandFase] = useState<"idle" | "bezig" | "klaar">("idle");
 
   async function stopRoute() {
     setFase("bezig");
@@ -21,13 +19,6 @@ export default function SidebarActies() {
     await fetch("/api/admin/reset", { method: "POST" });
     setFase("klaar-reset");
     setTimeout(() => setFase("idle"), 2500);
-  }
-
-  async function toonTussenstand() {
-    setTussenstandFase("bezig");
-    await fetch("/api/admin/tussenstand/tonen", { method: "POST" });
-    setTussenstandFase("klaar");
-    setTimeout(() => setTussenstandFase("idle"), 2500);
   }
 
   // Alle knoppen gebruiken dezelfde box als de menu-items (admin-nav-link)
@@ -75,13 +66,6 @@ export default function SidebarActies() {
 
   return (
     <div style={lijst}>
-      <button
-        className={`admin-nav-link ${tussenstandFase === "klaar" ? "admin-nav-link--groen" : "admin-nav-link--goud"}`}
-        onClick={toonTussenstand}
-        disabled={tussenstandFase !== "idle"}>
-        <span aria-hidden>{tussenstandFase === "bezig" ? "⏳" : tussenstandFase === "klaar" ? "✅" : "🏆"}</span>
-        {tussenstandFase === "bezig" ? "Bezig…" : tussenstandFase === "klaar" ? "Getoond" : "Tussenstand"}
-      </button>
       <button className="admin-nav-link admin-nav-link--rood" onClick={() => setFase("bevestig-stop")}>
         <span aria-hidden>🛑</span> Stop route
       </button>

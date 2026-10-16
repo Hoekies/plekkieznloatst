@@ -176,11 +176,12 @@ export default function RoutesOverzicht() {
           🗺️ Routes
         </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-          <button className="rl-knop" onClick={() => importRef.current?.click()} disabled={importBezig}>
-            {importBezig ? "Importeren…" : "Importeren"}
+          <button className="rl-knop rl-knop--icoon" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
+            onClick={() => importRef.current?.click()} disabled={importBezig}>
+            {importBezig ? "…" : "📥"}
           </button>
           <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
-          <button className="rl-knop rl-knop--cyan" onClick={() => setAanmaken(true)}>+ Nieuwe route</button>
+          <button className="rl-knop rl-knop--icoon rl-knop--cyan" data-tip="Nieuwe route maken" aria-label="Nieuwe route" onClick={() => setAanmaken(true)}>➕</button>
         </div>
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
@@ -281,17 +282,23 @@ export default function RoutesOverzicht() {
                   )}
                   <button className="rl-knop" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
                   {/* Overige acties als directe icoonknoppen (geen uitklapmenu) */}
-                  <button className="rl-knop rl-knop--icoon" title="Kopie maken (met punten, vragen en items)" aria-label="Kopie maken"
-                    disabled={kopieBezig === r.id} onClick={() => kopieer(r.id, r.name)}>{kopieBezig === r.id ? "…" : "⧉"}</button>
-                  <button className="rl-knop rl-knop--icoon" title="Exporteren (JSON-bestand)" aria-label="Exporteren"
+                  <BevestigKnop venster gevaarlijk={false} icoon="⧉" titel="Route kopiëren?"
+                    vraag={`Er komt een nieuwe route „${r.name} (kopie)” bij, met alle instellingen, punten, vragen en items. De kopie staat op concept.`}
+                    ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}
+                    className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
+                    {kopieBezig === r.id ? "…" : "⧉"}
+                  </BevestigKnop>
+                  <button className="rl-knop rl-knop--icoon" data-tip="Exporteren (JSON-bestand, met afbeeldingen)" aria-label="Exporteren"
                     disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}</button>
                   {!r.is_active && r.status === "gepubliceerd" && (
-                    <button className="rl-knop rl-knop--icoon" title="Terug naar concept" aria-label="Terug naar concept"
+                    <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept" aria-label="Terug naar concept"
                       onClick={() => togglePubliceer(r)}>↩</button>
                   )}
                   {!r.is_active && (
-                    <BevestigKnop className="rl-knop rl-knop--icoon rl-knop--rood" title="Verwijderen"
-                      vraag="Met alle punten en vragen?" ja="Ja, verwijder" onBevestig={() => verwijder(r.id, r.name)}>🗑️</BevestigKnop>
+                    <BevestigKnop venster icoon="🗑️" titel="Route verwijderen?"
+                      vraag={`„${r.name}” wordt verwijderd, met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt. Wil je hem bewaren? Exporteer hem dan eerst (📤).`}
+                      ja="Ja, verwijderen" onBevestig={() => verwijder(r.id, r.name)}
+                      className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️</BevestigKnop>
                   )}
                 </div>
                </div>

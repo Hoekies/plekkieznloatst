@@ -1796,14 +1796,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-uitlog-hoek { position: fixed; top: 0; right: 28px; height: 84px; display: flex; align-items: center; z-index: 900; }
 @media (min-width: 769px) {
   /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
-  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 230px; }
+  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 400px; }
   .admin-alleen-mobiel { display: none; }
 }
 @media (max-width: 768px) {
   .admin-uitlog-hoek { display: none; }
 }
 .route-editor-topbar { padding: 10px 16px; }
-@media (min-width: 769px) { .route-editor-topbar { padding-right: 230px; } }
+@media (min-width: 769px) { .route-editor-topbar { padding-right: 400px; } }
 
 /* Knoppen in de bovenbalk: zo hoog als de balk toelaat, met een groot icoon */
 .header-knop { height: 52px; padding: 0 18px 0 12px; font-size: 0.86rem; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; }
@@ -1920,3 +1920,28 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .gb-tekst > .gb-knoppen { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; flex-wrap: wrap; }
   .gb-knoppen .rl-knop { height: 32px; padding: 0 10px; font-size: 0.74rem; }
 }
+
+/* Info-balkje bij knoppen met alleen een icoon: verschijnt meteen bij het aanwijzen */
+[data-tip] { position: relative; }
+[data-tip]:hover::after, [data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; pointer-events: none; z-index: 1000;
+  padding: 6px 10px; border-radius: 8px;
+  background: #1c0c45; color: #fff; border: 1px solid rgba(255,217,59,0.6);
+  font-family: var(--font); font-size: 0.74rem; font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+}
+[data-tip]:hover::before, [data-tip]:focus-visible::before {
+  content: ""; position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: rgba(255,217,59,0.6); pointer-events: none; z-index: 1000;
+}
+/* Op een touchscherm geen balkje dat blijft hangen */
+@media (hover: none) { [data-tip]::after, [data-tip]::before { display: none !important; } }
+
+/* Info-balkje onder de knop (voor knoppen bovenaan het scherm) */
+[data-tip-pos="onder"]:hover::after, [data-tip-pos="onder"]:focus-visible::after { bottom: auto; top: calc(100% + 8px); }
+[data-tip-pos="onder"]:hover::before, [data-tip-pos="onder"]:focus-visible::before {
+  bottom: auto; top: calc(100% + 3px); border-top-color: transparent; border-bottom-color: rgba(255,217,59,0.6);
+}
+/* Rechts uitlijnen, zodat het balkje bij de rand van het scherm niet wegvalt */
+.admin-uitlog-hoek [data-tip]:hover::after { left: auto; right: 0; transform: none; }
