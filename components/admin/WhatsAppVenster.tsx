@@ -12,10 +12,21 @@ const KEUZE_KEY = "pointrush_deel_keuze";
 export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
 const SITE = "https://plekkieznloatst.vercel.app";
 
+// Stap voor stap; *tekst* wordt in WhatsApp vetgedrukt
 const BEGINSCHERM_UITLEG = [
-  "📲 Zet PointRush als app op je beginscherm (dat kan gewoon vanuit de link in WhatsApp):",
-  "• Android (Chrome): tik op ⋮ rechtsboven → \"Toevoegen aan startscherm\" of \"App installeren\"",
-  "• iPhone (Safari): tik op de deelknop (vierkantje met pijl omhoog) → \"Zet op beginscherm\"",
+  "📲 *Zet PointRush als app op je telefoon*",
+  "",
+  "*iPhone*",
+  "1. Open de link in *Safari*",
+  "2. Tik onderin op de deelknop (vierkantje met pijltje omhoog)",
+  "3. Kies *Zet op beginscherm* en tik op *Voeg toe*",
+  "",
+  "*Android*",
+  "1. Open de link in *Chrome*",
+  "2. Tik rechtsboven op de drie puntjes ⋮",
+  "3. Kies *App installeren* of *Toevoegen aan startscherm*",
+  "",
+  "Opent de link binnen WhatsApp? Kies dan eerst *Openen in Safari* of *Openen in Chrome*. Daarna staat PointRush als app tussen je andere apps.",
 ].join("\n");
 
 const AFBEELDINGEN = [
@@ -133,7 +144,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
           <div className="pr-gem-label" style={{ marginTop: 4 }}>Voorbeeld</div>
           <div style={{ padding: "10px 12px", borderRadius: 12, background: "#0b3b2e", border: "1px solid rgba(37,211,102,0.4)", color: "#e9fbe9", fontSize: "0.82rem", lineHeight: 1.45, whiteSpace: "pre-line" }}>
             {gekozen.length > 0 && <div style={{ marginBottom: bericht ? 6 : 0, color: "#a7f3d0" }}>🖼️ {gekozen.map((a) => a.titel).join(" · ")}</div>}
-            {bericht || (gekozen.length ? "" : "Kies hierboven wat je wilt versturen.")}
+            {bericht ? metVet(bericht) : (gekozen.length ? "" : "Kies hierboven wat je wilt versturen.")}
           </div>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
@@ -141,7 +152,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
             <button type="button" disabled={niksGekozen} onClick={verstuur}
               style={{ height: 44, padding: "0 20px", borderRadius: 11, border: "none", background: niksGekozen ? "rgba(37,211,102,0.35)" : "#25D366",
                 color: "#fff", fontWeight: 800, fontSize: "0.9rem", cursor: niksGekozen ? "default" : "pointer" }}>
-              📲 Versturen
+              Versturen
             </button>
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -152,4 +163,10 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
     </div>,
     document.body,
   );
+}
+
+// *tekst* vetgedrukt tonen, zoals WhatsApp dat doet
+function metVet(tekst: string) {
+  return tekst.split(/(\*[^*\r\n]+\*)/g).map((deel, i) =>
+    /^\*[^*\r\n]+\*$/.test(deel) ? <strong key={i}>{deel.slice(1, -1)}</strong> : <span key={i}>{deel}</span>);
 }

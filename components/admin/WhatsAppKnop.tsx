@@ -11,7 +11,7 @@ export default function WhatsAppKnop({ groot = false }: { groot?: boolean }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={groot ? "header-knop" : undefined}
+        className={groot ? "header-knop" : "actie-knop"}
         style={{
           display: "flex", alignItems: "center", gap: groot ? 10 : 6,
           padding: groot ? "0 18px 0 14px" : "8px 14px", borderRadius: groot ? "var(--radius-md)" : 8, border: "none",

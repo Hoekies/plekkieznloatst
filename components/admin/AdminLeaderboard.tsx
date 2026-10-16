@@ -6,7 +6,6 @@ import { formateerTijd } from "@/lib/geo";
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import StatKaart from "@/components/admin/StatKaart";
-import SectieKop from "@/components/admin/SectieKop";
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -75,7 +74,6 @@ export default function AdminLeaderboard({ initData }: { initData: LiveData }) {
           <StatKaart label="Gefinisht" waarde={String(leaderboard.filter((s) => s.sessie_status === "voltooid").length)} badgeKlas="pr-badge--green" badge="✓" />
         </div>
 
-        <SectieKop titel="🏆 Stand" />
         {leaderboard.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>

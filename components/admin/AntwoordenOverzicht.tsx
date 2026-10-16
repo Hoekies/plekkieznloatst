@@ -5,7 +5,6 @@ import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
-import SectieKop from "@/components/admin/SectieKop";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -68,23 +67,24 @@ export default function AntwoordenOverzicht() {
       </div>
 
       {/* Uitslag en rapport */}
-      <SectieKop titel="📝 Antwoorden per team">
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}
-            title="Eindstand en per team de vragen, items en gelopen route — op te slaan als PDF">
-            📄 Rapport (PDF)
-          </a>
-          {data.uitslag_vrijgegeven ? (
-            <button className="rl-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
-          ) : (
-            <BevestigKnop className="rl-knop rl-knop--cyan" disabled={bezig === "uitslag"} onBevestig={wisselUitslag}
-              vraag={`Alle teams zien de eindstand.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
-              🏆 Uitslag vrijgeven
-            </BevestigKnop>
-          )}
-        </div>
-      </SectieKop>
+      {/* Uitslag links, rapport rechts */}
+      <div className="actie-rij">
+        {data.uitslag_vrijgegeven ? (
+          <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
+        ) : (
+          <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Uitslag vrijgeven?"
+            className="rl-knop rl-knop--cyan actie-knop" disabled={bezig === "uitslag"} onBevestig={wisselUitslag}
+            vraag={`Alle teams zien dan de eindstand op hun finishscherm.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
+            🏆 Uitslag vrijgeven
+          </BevestigKnop>
+        )}
+        <span style={{ flex: 1 }} />
+        <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+          title="Eindstand en per team de vragen, items en gelopen route — als PDF te versturen">
+          📄 Rapport (PDF)
+        </a>
+      </div>
 
       {data.teams.length === 0 && (
         <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Nog geen teams aan het spelen.</p></div>

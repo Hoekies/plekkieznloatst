@@ -173,17 +173,13 @@ export default function AdminDashboard({ initData }: Props) {
             </div>
           </div>
           <div style={{ flexShrink: 0 }}>
-            {resetFase === "idle" && (
-              <button className="btn-premium--danger" onClick={() => setResetFase("bevestig")}>
+            {/* Bevestigen in een venster, met uitleg wat er verdwijnt */}
+            {(resetFase === "idle" || resetFase === "bevestig") && (
+              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="btn-premium--danger"
+                vraag="Alle spellen van alle groepen worden gewist, ook van gefinishte groepen: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Groepen en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
+                ja="Ja, reset het spel" onBevestig={bevestigReset}>
                 Reset spel
-              </button>
-            )}
-            {resetFase === "bevestig" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Weet je het zeker?</span>
-                <button className="btn btn-outline" style={{ fontSize: "0.78rem" }} onClick={() => setResetFase("idle")}>Annuleer</button>
-                <button className="btn-premium--danger" style={{ fontSize: "0.78rem", padding: "9px 16px" }} onClick={bevestigReset}>Ja, reset</button>
-              </div>
+              </BevestigKnop>
             )}
             {resetFase === "bezig" && (
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "var(--muted)" }}>

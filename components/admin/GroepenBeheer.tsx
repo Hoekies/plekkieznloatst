@@ -64,7 +64,7 @@ export default function GroepenBeheer() {
 
       {/* Nieuwe groep links, versturen via WhatsApp rechts */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <button className="btn btn-primary" onClick={() => setToonFormulier(true)}>
+          <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
             + <span className="alleen-pc">Nieuwe groep</span><span className="alleen-mobiel">Groep</span>
           </button>
           <span style={{ flex: 1 }} />

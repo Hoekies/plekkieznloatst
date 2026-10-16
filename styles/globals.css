@@ -1945,3 +1945,12 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 /* Rechts uitlijnen, zodat het balkje bij de rand van het scherm niet wegvalt */
 .admin-uitlog-hoek [data-tip]:hover::after { left: auto; right: 0; transform: none; }
+
+/* Knoppen boven een lijst (Antwoorden, Groepen, Dashboard, Routes): overal even hoog en gelijk van stijl */
+.actie-rij { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.actie-knop {
+  height: 42px !important; padding: 0 16px !important; border-radius: 10px !important;
+  font-size: 0.86rem !important; font-weight: 700 !important; line-height: 1 !important;
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;
+}
+.actie-knop.rl-knop--icoon { width: 42px; padding: 0 !important; font-size: 1.2rem !important; }

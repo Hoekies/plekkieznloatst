@@ -176,12 +176,12 @@ export default function RoutesOverzicht() {
           🗺️ Routes
         </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-          <button className="rl-knop rl-knop--icoon" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
+          <button className="rl-knop rl-knop--icoon actie-knop" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
             onClick={() => importRef.current?.click()} disabled={importBezig}>
             {importBezig ? "…" : "📥"}
           </button>
           <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
-          <button className="rl-knop rl-knop--icoon rl-knop--cyan" data-tip="Nieuwe route maken" aria-label="Nieuwe route" onClick={() => setAanmaken(true)}>➕</button>
+          <button className="rl-knop rl-knop--icoon rl-knop--cyan actie-knop" data-tip="Nieuwe route maken" aria-label="Nieuwe route" onClick={() => setAanmaken(true)}>➕</button>
         </div>
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
