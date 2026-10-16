@@ -1780,6 +1780,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 @media (min-width: 769px) {
   /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
   .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 400px; }
+  /* De bovenbalk blijft staan bij het scrollen: de inhoud schuift eronderdoor, niet onder de knoppen rechtsboven */
+  .admin-topbar { position: sticky; top: 0; z-index: 800; flex-shrink: 0; background: rgba(46,21,96,0.94); }
   .admin-alleen-mobiel { display: none; }
 }
 @media (max-width: 768px) {
@@ -1940,3 +1942,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;
 }
 .actie-knop.rl-knop--icoon { width: 42px; padding: 0 !important; font-size: 1.2rem !important; }
+/* Nieuwe speler: velden even hoog als de knoppen, icoon zo hoog als label + veld */
+.nieuwe-speler .form-input { height: 42px; box-sizing: border-box; }
+.nieuwe-speler .form-label { margin-bottom: 4px; }
+.pr-gem-avatar.nieuwe-speler-icoon { width: 60px; height: 60px; font-size: 2rem; }
+@media (max-width: 768px) {
+  .pr-gem-avatar.nieuwe-speler-icoon { display: none; }
+  .nieuwe-speler-knoppen { width: 100%; justify-content: flex-end; }
+}

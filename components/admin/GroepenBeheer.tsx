@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
@@ -11,7 +12,7 @@ import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
 type Groep = Speler & { heeft_spel?: boolean };
 
-type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string };
+type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string; icoon: string | null; login: string | null };
 
 
 export default function GroepenBeheer() {
@@ -118,11 +119,11 @@ export default function GroepenBeheer() {
                   {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
                   {!isUit && <div className="gb-knoppen">
                     <button className="rl-knop" title="Wachtwoord wijzigen"
-                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam })}>
+                      onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
                       🔑 Wachtwoord
                     </button>
                     <button className="rl-knop" title="Loginnaam wijzigen"
-                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam })}>
+                      onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
                       ✏️ Loginnaam
                     </button>
                     {g.active_device_id && (
@@ -177,18 +178,11 @@ export default function GroepenBeheer() {
         </div>
       )}
 
-      {modal?.type === "wachtwoord" && (
-        <WachtwoordWijzigen
-          id={modal.id}
-          groepNaam={modal.groepNaam}
-          onKlaar={() => setModal(null)}
-        />
-      )}
-      {modal?.type === "loginnaam" && (
-        <LoginNaamWijzigen
-          id={modal.id}
-          groepNaam={modal.groepNaam}
-          onKlaar={() => { setModal(null); laadGroepen(); }}
+      {modal && (
+        <WijzigVenster
+          modal={modal}
+          onSluit={() => setModal(null)}
+          onKlaar={() => { setModal(null); if (modal.type === "loginnaam") laadGroepen(); }}
         />
       )}
     </div>
@@ -223,128 +217,108 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
   }
 
   return (
-    <div className="card" style={{ border: "2px solid var(--blue)" }}>
-      <h2 style={{ marginBottom: "16px", fontSize: "1rem" }}>Nieuwe speler aanmaken</h2>
-      <form onSubmit={opslaan} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0 }}>
-          De teamnaam kiest de speler zelf bij de start van het spel.
-        </p>
-        <div className="form-group">
-          <label className="form-label">Loginnaam (speler typt dit in bij inloggen)</label>
+    // Compact, in de stijl van de spelerkaarten: icoon, twee velden naast elkaar en de knoppen rechts
+    <div className="pr-gem-card">
+      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
+        <div className="pr-gem-avatar nieuwe-speler-icoon">👤</div>
+        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
+          <label className="form-label">Loginnaam</label>
           <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
-            placeholder="bijv. speler1" required />
+            placeholder="bijv. speler1" required autoFocus title="Dit typt de speler in bij het inloggen; de teamnaam kiest de speler zelf bij de start" />
         </div>
-        <div className="form-group">
-          <label className="form-label">Wachtwoord (min. 8 tekens)</label>
+        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
+          <label className="form-label">Wachtwoord</label>
           <input className="form-input" type="password" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
-            placeholder="••••••••" required minLength={8} />
+            placeholder="min. 8 tekens" required minLength={8} />
         </div>
-        {fout && <div className="melding melding-fout"><span>⚠️</span> {fout}</div>}
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button type="submit" className="btn btn-primary" disabled={laden} style={{ flex: 1 }}>
+        <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+          <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>
             {laden ? "Aanmaken…" : "Aanmaken"}
           </button>
-          <button type="button" className="btn btn-ghost" onClick={onAnnuleer} style={{ flex: 1 }}>Annuleren</button>
+          <button type="button" className="rl-knop actie-knop" onClick={onAnnuleer}>Annuleren</button>
         </div>
+        {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
       </form>
     </div>
   );
 }
 
-// ── Login naam wijzigen ───────────────────────────────────────────────────────
-function LoginNaamWijzigen({ id, groepNaam, onKlaar }: { id: string; groepNaam: string; onKlaar: () => void }) {
-  const [loginNaam, setLoginNaam] = useState("");
+// ── Loginnaam of wachtwoord wijzigen: venster midden in beeld, met de speler erin ──
+function WijzigVenster({ modal, onSluit, onKlaar }: { modal: BeheerModal; onSluit: () => void; onKlaar: () => void }) {
+  const isWachtwoord = modal.type === "wachtwoord";
+  const [waarde, setWaarde] = useState("");
   const [fout, setFout] = useState("");
   const [ok, setOk] = useState(false);
   const [laden, setLaden] = useState(false);
+
+  // Sluiten met Esc
+  useEffect(() => {
+    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [onSluit]);
 
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
     setFout("");
     setLaden(true);
-    const res = await fetch(`/api/admin/groepen/${id}/loginnaam`, {
+    const res = await fetch(`/api/admin/groepen/${modal.id}/${modal.type}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ loginNaam }),
+      body: JSON.stringify(isWachtwoord ? { wachtwoord: waarde } : { loginNaam: waarde }),
     });
     if (!res.ok) {
-      const { fout: f } = await res.json();
+      const { fout: f } = await res.json().catch(() => ({}));
       setFout(f ?? "Er is een fout opgetreden");
     } else {
       setOk(true);
-      setTimeout(onKlaar, 1500);
+      setTimeout(onKlaar, 1200);
     }
     setLaden(false);
   }
 
-  return (
-    <div className="card" style={{ border: "1px solid var(--blue)" }}>
-      <h2 style={{ marginBottom: "12px", fontSize: "1rem" }}>✏️ Loginnaam wijzigen — {groepNaam}</h2>
-      {ok ? (
-        <div className="melding melding-ok">✅ Loginnaam gewijzigd</div>
-      ) : (
-        <form onSubmit={opslaan} style={{ display: "flex", gap: "8px" }}>
-          <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
-            placeholder="Nieuwe loginnaam" required style={{ flex: 1 }} />
-          <button type="submit" className="btn btn-primary" disabled={laden}>
-            {laden ? "…" : "Opslaan"}
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={onKlaar} title="Annuleren">✕</button>
+  return createPortal(
+    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420 }}>
+        <form onSubmit={opslaan} className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ flex: 1 }}>
+              <div className="pr-gem-label">{isWachtwoord ? "🔑 Wachtwoord wijzigen" : "✏️ Loginnaam wijzigen"}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>Voor welke speler?</div>
+            </div>
+            <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
+          </div>
+
+          {/* De speler waar het om gaat */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}>
+            <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.6rem" }}>{modal.icoon ?? "👤"}</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{modal.groepNaam}</div>
+              {modal.login && <div style={{ fontSize: "0.75rem", color: "var(--muted)" }}>Login: <strong style={{ color: "var(--ink)" }}>{modal.login}</strong></div>}
+            </div>
+          </div>
+
+          {ok ? (
+            <div className="melding melding-ok">✅ {isWachtwoord ? "Wachtwoord" : "Loginnaam"} gewijzigd</div>
+          ) : (
+            <>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label">{isWachtwoord ? "Nieuw wachtwoord" : "Nieuwe loginnaam"}</label>
+                <input className="form-input" type={isWachtwoord ? "password" : "text"} value={waarde} onChange={(e) => setWaarde(e.target.value)}
+                  placeholder={isWachtwoord ? "min. 8 tekens" : modal.login ?? ""} required minLength={isWachtwoord ? 8 : undefined} autoFocus />
+              </div>
+              {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
+                <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }} disabled={laden}>
+                  {laden ? "Opslaan…" : "Opslaan"}
+                </button>
+                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={onSluit}>Annuleren</button>
+              </div>
+            </>
+          )}
         </form>
-      )}
-      {fout && <div className="melding melding-fout" style={{ marginTop: 8 }}><span>⚠️</span> {fout}</div>}
-    </div>
-  );
-}
-
-// ── Wachtwoord wijzigen ───────────────────────────────────────────────────────
-function WachtwoordWijzigen({ id, groepNaam, onKlaar }: { id: string; groepNaam: string; onKlaar: () => void }) {
-  const [wachtwoord, setWachtwoord] = useState("");
-  const [fout, setFout] = useState("");
-  const [ok, setOk] = useState(false);
-  const [laden, setLaden] = useState(false);
-
-  async function opslaan(e: React.FormEvent) {
-    e.preventDefault();
-    setFout("");
-    setLaden(true);
-
-    const res = await fetch(`/api/admin/groepen/${id}/wachtwoord`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wachtwoord }),
-    });
-
-    if (!res.ok) {
-      const { fout: f } = await res.json();
-      setFout(f ?? "Er is een fout opgetreden");
-    } else {
-      setOk(true);
-      setTimeout(onKlaar, 1500);
-    }
-    setLaden(false);
-  }
-
-  return (
-    <div className="card" style={{ border: "1px solid var(--gold)" }}>
-      <h2 style={{ marginBottom: "12px", fontSize: "1rem" }}>
-        🔑 Wachtwoord wijzigen — {groepNaam}
-      </h2>
-      {ok ? (
-        <div className="melding melding-ok">✅ Wachtwoord gewijzigd</div>
-      ) : (
-        <form onSubmit={opslaan} style={{ display: "flex", gap: "8px" }}>
-          <input className="form-input" type="password" value={wachtwoord}
-            onChange={(e) => setWachtwoord(e.target.value)}
-            placeholder="Nieuw wachtwoord (min. 8 tekens)" required minLength={8}
-            style={{ flex: 1 }} />
-          <button type="submit" className="btn btn-primary" disabled={laden}>
-            {laden ? "…" : "Opslaan"}
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={onKlaar} title="Annuleren">✕</button>
-        </form>
-      )}
-      {fout && <div className="melding melding-fout" style={{ marginTop: 8 }}><span>⚠️</span> {fout}</div>}
-    </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
