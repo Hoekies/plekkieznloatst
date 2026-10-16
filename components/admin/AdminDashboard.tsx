@@ -167,24 +167,23 @@ export default function AdminDashboard({ initData }: Props) {
         )}
 
         {/* Reset sectie */}
-        <div className="admin-reset-sectie" style={{
-          marginTop: 32, padding: "18px 22px", borderRadius: 16,
-          background: "rgba(255,59,92,0.08)", border: "2px dashed rgba(255,59,92,0.4)",
-          display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16,
-        }}>
-          <div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>💣 Spel resetten</div>
-            <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 2 }}>
+        {/* Zelfde kaartstijl als de spelers, met een rode knop zoals elders */}
+        <div className="pr-gem-card" style={{ marginTop: 32 }}>
+         <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
+          <div className="pr-gem-avatar">💣</div>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>Spel resetten</div>
+            <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: 2 }}>
               Wist alle spellen en scores. Spelers en routes blijven.
             </div>
           </div>
           <div style={{ flexShrink: 0 }}>
             {/* Bevestigen in een venster, met uitleg wat er verdwijnt */}
             {(resetFase === "idle" || resetFase === "bevestig") && (
-              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="btn-premium--danger"
+              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="rl-knop rl-knop--rood actie-knop"
                 vraag="Alle spellen van alle spelers worden gewist, ook van gefinishte spelers: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Spelers en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
                 ja="Ja, reset het spel" onBevestig={bevestigReset}>
-                Reset spel
+                💣 Reset spel
               </BevestigKnop>
             )}
             {resetFase === "bezig" && (
@@ -197,6 +196,7 @@ export default function AdminDashboard({ initData }: Props) {
               <span style={{ fontSize: "0.82rem", color: "var(--green, #16A34A)", fontWeight: 600 }}>✓ Reset voltooid</span>
             )}
           </div>
+         </div>
         </div>
       </div>
     </>

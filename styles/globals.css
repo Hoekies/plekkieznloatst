@@ -1587,6 +1587,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
   flex-shrink: 0;
 }
+/* Uitgeschakelde speler: icoon zo hoog als naam + loginregel */
+.pr-gem-avatar.gb-avatar-uit { width: 40px; height: 40px; font-size: 1.45rem; }
 
 /* ── Premium reset-knop (rood gevaar-gem) ── */
 .btn-premium--danger {
@@ -1921,6 +1923,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .gb-schakel { grid-column: 3; grid-row: 1 / span 2; }
   .gb-tekst > .gb-knoppen { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; flex-wrap: wrap; }
   .gb-knoppen .rl-knop { height: 32px; padding: 0 10px; font-size: 0.74rem; }
+  .gb-kaart > .pr-gem-avatar.gb-avatar-uit { width: 36px; height: 36px; font-size: 1.3rem; justify-self: center; }
 }
 
 /* Info-balkje bij knoppen met alleen een icoon: verschijnt meteen bij het aanwijzen */

@@ -95,8 +95,8 @@ export default function GroepenBeheer() {
             return (
               <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.55 : 1 }}>
                <div className="pr-gem-card-inner gb-kaart">
-                {/* Icoon — zelfde formaat als de teamavatars op het dashboard */}
-                <div className="pr-gem-avatar" style={{
+                {/* Icoon — zelfde formaat als de teamavatars op het dashboard; uitgeschakeld: zo hoog als de tekst */}
+                <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : ""}`} style={{
                   borderRadius: "50%",
                   background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
                   fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
@@ -115,8 +115,8 @@ export default function GroepenBeheer() {
                       {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
                     </span>
                   </div>
-                  {/* Knoppen op één regel, zelfde stijl als het routes-overzicht */}
-                  <div className="gb-knoppen">
+                  {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
+                  {!isUit && <div className="gb-knoppen">
                     <button className="rl-knop" title="Wachtwoord wijzigen"
                       onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam })}>
                       🔑 Wachtwoord
@@ -144,7 +144,7 @@ export default function GroepenBeheer() {
                         ⏹️ Stop spel
                       </BevestigKnop>
                     )}
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Aan/uit toggle */}
