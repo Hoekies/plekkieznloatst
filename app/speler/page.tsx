@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import IntroScherm from "@/components/speler/IntroScherm";
 
-export default async function SpelerHomePage() {
+export default async function SpelerHomePage({ searchParams }: { searchParams: { gestopt?: string } }) {
   const user = await haalGebruiker();
   if (!user) redirect("/login");
 
@@ -50,6 +50,8 @@ export default async function SpelerHomePage() {
   return (
     <IntroScherm
       modus={actieveRoute?.modus ?? null}
+      // Hierheen gestuurd omdat het spel wegviel: zonder actieve route is de route gestopt, anders het eigen spel
+      melding={searchParams?.gestopt ? (actieveRoute ? "spel" : "route") : null}
     />
   );
 }

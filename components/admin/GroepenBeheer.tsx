@@ -94,7 +94,7 @@ export default function GroepenBeheer() {
             const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe speler";
             const isUit = g.is_uitgeschakeld;
             return (
-              <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.55 : 1 }}>
+              <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.8 : 1 }}>
                <div className="pr-gem-card-inner gb-kaart">
                 {/* Icoon — zelfde formaat als de teamavatars op het dashboard; uitgeschakeld: zo hoog als de tekst */}
                 <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : ""}`} style={{
@@ -112,7 +112,7 @@ export default function GroepenBeheer() {
                   </div>
                   <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
                     {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
-                    <span style={{ color: isUit ? "var(--red)" : g.active_device_id ? "var(--green)" : "var(--muted)" }}>
+                    <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
                       {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
                     </span>
                   </div>

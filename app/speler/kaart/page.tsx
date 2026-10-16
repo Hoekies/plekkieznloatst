@@ -49,8 +49,8 @@ export default async function SpelerKaartPage() {
       .order("volgorde"),
   ]);
 
-  // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw
-  if (!route?.is_active) redirect("/speler");
+  // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw (met melding)
+  if (!route?.is_active) redirect("/speler?gestopt=1");
 
   // Verspreid: is de route na de start van de sessie aangepast (punten toegevoegd of
   // verwijderd), dan klopt de teamvolgorde niet meer. Sessie afsluiten en opnieuw starten.

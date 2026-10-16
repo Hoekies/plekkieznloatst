@@ -7,7 +7,7 @@
   /* ── Tekst ── */
   --ink: #e8f0ff;
   --text: #b8cce0;
-  --muted: #6b84a8;
+  --muted: #9aaecb;  /* lichter: goed leesbaar op het donkerpaars */
 
   /* ── Accenten ── */
   --blue: #00d9ff;
@@ -517,7 +517,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .status-pil--grijs {
   background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.8);
 }
 .status-pil--blauw {
   background: rgba(6,182,212,0.18);
@@ -771,8 +771,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     font-size: 1.15rem;
   }
   .admin-stat-grid .pr-corner-chip.pr-badge {
-    padding: 3px 8px;
-    font-size: 0.75rem;
+    width: 34px; height: 28px; padding: 0;
+    font-size: 1.25rem;
     top: -10px; right: -6px;
   }
 
@@ -1519,6 +1519,20 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   transform: rotate(8deg);
   z-index: 2;
 }
+/* Hoekbadge van de tegels: donker vlak met een gekleurde rand, zodat het icoon altijd goed uitkomt
+   (een paars icoon op paars of een oranje bliksem op oranje viel weg) */
+.pr-gem-panel .pr-corner-chip.pr-badge {
+  background: #140838; border: 2.5px solid var(--badge-kleur, #7C3AED);
+  box-shadow: 0 0 0 2px #000, 0 0 12px color-mix(in srgb, var(--badge-kleur, #7C3AED) 55%, transparent), 2px 3px 0 rgba(0,0,0,0.45);
+  /* Vast vlakje (zo groot als vroeger), het icoon vult het zo veel mogelijk */
+  width: 42px; height: 36px; box-sizing: border-box; padding: 0; justify-content: center;
+  font-size: 1.6rem; line-height: 1; color: #fff;
+}
+.pr-badge--orange { --badge-kleur: #FF8A00; }
+.pr-badge--purple { --badge-kleur: #A78BFA; }
+.pr-badge--gold   { --badge-kleur: #FFD93B; }
+.pr-badge--green  { --badge-kleur: #34D399; }
+.pr-badge--gray   { --badge-kleur: #A8A1B8; }
 .pr-gem-label {
   font-size: 0.66rem;
   font-weight: 700;

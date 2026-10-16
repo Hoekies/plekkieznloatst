@@ -223,7 +223,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "location_updates" }, () => { haalAndereSpelersOp(); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "special_item_effects" }, () => { haalEffectenOp(); })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "player_sessions", filter: `id=eq.${sessie.id}` }, () => {
-        router.push("/speler");
+        router.push("/speler?gestopt=1");
       })
       .subscribe((status) => { setRealtimeVerbonden(status === "SUBSCRIBED"); });
 
@@ -337,7 +337,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (res.status === 403) { router.push("/speler"); return; }
       if (res.ok) {
         const data = await res.json();
-        if (data === null) { router.push("/speler"); return; }
+        // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
+        if (data === null) { router.push("/speler?gestopt=1"); return; }
         if (data?.score !== undefined) setScore(data.score);
       }
     } catch { /* verbindingsfout */ }

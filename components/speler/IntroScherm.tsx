@@ -9,6 +9,8 @@ type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "star
 
 interface Props {
   modus: RouteModus | null;
+  // Het spel viel weg door de beheerder: eigen spel gestopt/gereset, of de hele route gestopt
+  melding?: "spel" | "route" | null;
 }
 
 const ICONEN = [
@@ -17,8 +19,15 @@ const ICONEN = [
   "🤡", "👽", "🤖", "🍕", "🦸",
 ];
 
-export default function IntroScherm({ modus }: Props) {
+export default function IntroScherm({ modus, melding = null }: Props) {
   const router = useRouter();
+  const [toonMelding, setToonMelding] = useState(!!melding);
+
+  // Melding wegklikken; ook ?gestopt uit de adresbalk, zodat hij na verversen niet terugkomt
+  function sluitMelding() {
+    setToonMelding(false);
+    router.replace("/speler");
+  }
   const uitleg = spelUitleg(modus);
   const [fase, setFase] = useState<Fase>("profiel");
   const [fout, setFout] = useState("");
@@ -310,6 +319,28 @@ export default function IntroScherm({ modus }: Props) {
           </div>
         )}
       </div>
+
+      {/* Melding: het spel is gestopt door de beheerder */}
+      {toonMelding && melding && (
+        <div onClick={sluitMelding} style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(12,3,34,0.78)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 360 }}>
+            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "24px 20px 20px" }}>
+              <div style={{ fontSize: "2.8rem", lineHeight: 1 }}>{melding === "route" ? "🛑" : "⏹️"}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#fff" }}>
+                {melding === "route" ? "De route is gestopt" : "Je spel is gestopt"}
+              </div>
+              <p style={{ margin: 0, fontSize: "0.92rem", lineHeight: 1.5, color: "rgba(255,255,255,0.85)" }}>
+                {melding === "route"
+                  ? "De beheerder heeft het spel beëindigd. Wacht tot er een nieuwe route klaarstaat."
+                  : "De beheerder heeft je spel gestopt. Je kunt hieronder opnieuw beginnen."}
+              </p>
+              <button type="button" className="btn-premium--compact" onClick={sluitMelding} autoFocus style={{ marginTop: 6 }}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

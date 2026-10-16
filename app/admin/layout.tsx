@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>
         </nav>
         <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
+          <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
           <SidebarActies />
         </div>
         <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
