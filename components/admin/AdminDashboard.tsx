@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
+import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
 
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -106,10 +107,7 @@ export default function AdminDashboard({ initData }: Props) {
       {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel">Dashboard</span>
-        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-          <FotoBeoordelingPanel />
-          <WhatsAppKnop groot />
-        </div>
+        <FotoBeoordelingPanel />
         <div style={{ justifySelf: "end" }} className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
           <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
           {realtimeOk ? "Live" : "Verbinding weg"}
@@ -137,7 +135,9 @@ export default function AdminDashboard({ initData }: Props) {
         </div>
 
         {/* Groepen overzicht */}
-        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 12 }}>👥 Spelende groepen</div>
+        <SectieKop titel="👥 Spelende groepen">
+          <WhatsAppKnop />
+        </SectieKop>
         {spelend.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem", margin: 0 }}>
