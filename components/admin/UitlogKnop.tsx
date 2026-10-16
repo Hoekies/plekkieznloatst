@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import BevestigKnop from "@/components/admin/BevestigKnop";
 
-// Uitloggen: compact = knop met tekst rechtsboven (groot scherm), anders alleen het icoon (bovenbalk telefoon)
+// Uitloggen (eerst bevestigen): compact = knop met tekst rechtsboven (groot scherm), anders alleen het icoon (bovenbalk telefoon)
 export default function UitlogKnop({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
 
@@ -11,17 +12,18 @@ export default function UitlogKnop({ compact = false }: { compact?: boolean }) {
     router.replace("/login");
   }
 
+  const venster = { venster: true, icoon: "🚪", titel: "Uitloggen?", vraag: "Je gaat terug naar het inlogscherm. Het spel loopt gewoon door.", ja: "Ja, uitloggen", onBevestig: uitloggen };
   if (compact) {
     return (
-      <button onClick={uitloggen} className="btn btn-outline header-knop" title="Uitloggen">
+      <BevestigKnop {...venster} className="btn btn-outline header-knop" title="Uitloggen">
         <span className="header-knop-icoon" aria-hidden><UitlogIcoon /></span> Uitloggen
-      </button>
+      </BevestigKnop>
     );
   }
   return (
-    <button onClick={uitloggen} className="btn btn-outline header-knop info-knop" title="Uitloggen" aria-label="Uitloggen">
+    <BevestigKnop {...venster} className="btn btn-outline header-knop info-knop" tip="Uitloggen" tipOnder>
       <UitlogIcoon />
-    </button>
+    </BevestigKnop>
   );
 }
 

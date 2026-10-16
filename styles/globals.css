@@ -658,28 +658,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: none;
 }
 
-/* ── Broadcast overlay/modal ── */
-.broadcast-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 18, 34, 0.75);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.broadcast-modal {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 18px 48px rgba(0,0,0,0.45);
-  padding: 24px;
-  width: 100%;
-  max-width: 440px;
-  color: #fff;
+/* Telefoon: invoervelden minstens 16px, anders zoomt de browser in bij het typen */
+@media (max-width: 768px) and (pointer: coarse) {
+  input, textarea, select { font-size: 16px !important; }
 }
 
 /* ── Admin responsive ── */

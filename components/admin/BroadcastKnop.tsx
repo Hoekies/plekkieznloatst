@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-// alsIcoon = 📢-knop in de bovenbalk (naast de ⓘ); anders als regel in het menu
+// alsIcoon = 📢-knop in de bovenbalk; anders als regel in het menu
 export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean }) {
   const [open, setOpen] = useState(false);
   const [tekst, setTekst] = useState("");
@@ -40,38 +40,41 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
       )}
 
       {open && createPortal(
-        <div className="broadcast-overlay" onClick={() => setOpen(false)}>
-          <div className="broadcast-modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--ink)" }}>📢 Bericht versturen</span>
-              <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", fontSize: "1.1rem", lineHeight: 1 }}>✕</button>
-            </div>
-            <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
-              Verschijnt bij alle spelers in beeld.
-            </p>
-            <textarea
-              className="form-textarea"
-              spellCheck
-              lang="nl"
-              placeholder="Bijv. Over 5 minuten pauze bij de vijver!"
-              value={tekst}
-              onChange={(e) => setTekst(e.target.value)}
-              maxLength={150}
-              disabled={fase !== "idle"}
-              style={{ width: "100%", fontSize: "0.875rem", marginBottom: 12, minHeight: 80 }}
-              autoFocus
-            />
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button className="btn btn-outline" onClick={() => setOpen(false)} disabled={fase === "bezig"}>
-                Annuleer
-              </button>
-              <button
-                className="btn btn-primary"
-                disabled={!tekst.trim() || fase !== "idle"}
-                onClick={verstuur}
-              >
-                {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? "✓ Verzonden!" : "Verstuur"}
-              </button>
+        // Zelfde venster-stijl als de andere vensters (WhatsApp, bevestigen)
+        <div onClick={() => fase !== "bezig" && setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 460 }}>
+            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <div className="pr-gem-label">Aan alle spelers</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>📢 Bericht sturen</div>
+                </div>
+                <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
+              </div>
+              <div style={{ fontSize: "0.82rem", color: "var(--muted)" }}>Het bericht verschijnt meteen bij alle spelers in beeld.</div>
+              <textarea
+                className="form-textarea"
+                spellCheck
+                lang="nl"
+                placeholder="Bijv. Over 5 minuten pauze bij de vijver!"
+                value={tekst}
+                onChange={(e) => setTekst(e.target.value)}
+                maxLength={150}
+                disabled={fase !== "idle"}
+                rows={3}
+                style={{ width: "100%", minHeight: 90 }}
+                autoFocus
+              />
+              <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "right", marginTop: -6 }}>{tekst.length}/150</div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
+                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={() => setOpen(false)} disabled={fase === "bezig"}>
+                  Annuleren
+                </button>
+                <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }}
+                  disabled={!tekst.trim() || fase !== "idle"} onClick={verstuur}>
+                  {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? "✓ Verzonden!" : "Versturen"}
+                </button>
+              </div>
             </div>
           </div>
         </div>,
