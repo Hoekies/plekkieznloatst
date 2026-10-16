@@ -328,12 +328,13 @@ In de route-editor staat een **⏹ Deactiveer**-knop, en in de zijbalk **Stop ro
 
 Op het dashboard staat onderaan **🗑️ Reset spel**. Dit wist:
 
-- Alle actieve sessies
-- Alle locatiegeschiedenis
-- Alle voortgang en scores
-- Alle geclaimde speciale items
+- Alle spellen van alle groepen, ook van gefinishte groepen: niemand is daarna nog bezig of gefinisht
+- Alle locatiegeschiedenis (gelopen routes), voortgang, antwoorden en scores
+- Alle ingestuurde foto's, ook uit de opslag van Supabase
+- Alle opgepakte items (die liggen weer op de kaart), startitems, effecten en het itemlogboek
+- De uitslag gaat weer op verborgen
 
-Routes, routepunten, vragen en groepen blijven bewaard. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
+Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je dat wilt bewaren. Routes, routepunten, vragen en groepen blijven bewaard en de actieve route blijft actief. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
 
 > Klik tweemaal (bevestiging vereist) om te voorkomen dat je per ongeluk reset.
 
