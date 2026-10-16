@@ -241,10 +241,10 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
         </div>
         {fout && <div className="melding melding-fout"><span>⚠️</span> {fout}</div>}
         <div style={{ display: "flex", gap: "8px" }}>
-          <button type="button" className="btn btn-ghost" onClick={onAnnuleer} style={{ flex: 1 }}>Annuleer</button>
           <button type="submit" className="btn btn-primary" disabled={laden} style={{ flex: 1 }}>
             {laden ? "Aanmaken…" : "Aanmaken"}
           </button>
+          <button type="button" className="btn btn-ghost" onClick={onAnnuleer} style={{ flex: 1 }}>Annuleren</button>
         </div>
       </form>
     </div>
@@ -286,10 +286,10 @@ function LoginNaamWijzigen({ id, groepNaam, onKlaar }: { id: string; groepNaam: 
         <form onSubmit={opslaan} style={{ display: "flex", gap: "8px" }}>
           <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
             placeholder="Nieuwe loginnaam" required style={{ flex: 1 }} />
-          <button type="button" className="btn btn-ghost" onClick={onKlaar}>✕</button>
           <button type="submit" className="btn btn-primary" disabled={laden}>
             {laden ? "…" : "Opslaan"}
           </button>
+          <button type="button" className="btn btn-ghost" onClick={onKlaar} title="Annuleren">✕</button>
         </form>
       )}
       {fout && <div className="melding melding-fout" style={{ marginTop: 8 }}><span>⚠️</span> {fout}</div>}
@@ -338,10 +338,10 @@ function WachtwoordWijzigen({ id, groepNaam, onKlaar }: { id: string; groepNaam:
             onChange={(e) => setWachtwoord(e.target.value)}
             placeholder="Nieuw wachtwoord (min. 8 tekens)" required minLength={8}
             style={{ flex: 1 }} />
-          <button type="button" className="btn btn-ghost" onClick={onKlaar}>✕</button>
           <button type="submit" className="btn btn-primary" disabled={laden}>
             {laden ? "…" : "Opslaan"}
           </button>
+          <button type="button" className="btn btn-ghost" onClick={onKlaar} title="Annuleren">✕</button>
         </form>
       )}
       {fout && <div className="melding melding-fout" style={{ marginTop: 8 }}><span>⚠️</span> {fout}</div>}

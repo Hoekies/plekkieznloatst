@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 
 // Knop voor iets wat je niet per ongeluk wilt doen. Vervangt de confirm() van de browser.
 // Standaard vraagt de eerste klik "Zeker?" met Ja/Nee op dezelfde plek; met `venster` opent
-// er een venster midden in beeld met een titel, uitleg en twee knoppen.
+// er een venster midden in beeld met alleen een icoon, de titel en twee knoppen (vraag geldt dan niet).
 export default function BevestigKnop({
   children, vraag, ja = "Ja", onBevestig, className = "btn btn-ghost", style, disabled, title,
   venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false,
@@ -61,14 +61,14 @@ export default function BevestigKnop({
               <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "22px 20px 18px" }}>
                 {icoon && <div style={{ fontSize: "2.6rem", lineHeight: 1 }}>{icoon}</div>}
                 {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#fff" }}>{titel}</div>}
-                <p style={{ margin: 0, fontSize: "0.92rem", lineHeight: 1.5, color: "var(--text)" }}>{vraag}</p>
                 <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button type="button" className="rl-knop" style={{ height: 44, padding: "0 20px" }} disabled={bezig} onClick={() => setVragen(false)}>
-                    Annuleren
-                  </button>
+                  {/* Annuleren altijd rechts */}
                   <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 44, padding: "0 20px" }}
                     disabled={bezig} onClick={bevestig} autoFocus>
                     {bezig ? "Bezig…" : ja}
+                  </button>
+                  <button type="button" className="rl-knop" style={{ height: 44, padding: "0 20px" }} disabled={bezig} onClick={() => setVragen(false)}>
+                    Annuleren
                   </button>
                 </div>
               </div>

@@ -67,12 +67,12 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
               />
               <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "right", marginTop: -6 }}>{tekst.length}/150</div>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={() => setOpen(false)} disabled={fase === "bezig"}>
-                  Annuleren
-                </button>
                 <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }}
                   disabled={!tekst.trim() || fase !== "idle"} onClick={verstuur}>
                   {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? "✓ Verzonden!" : "Versturen"}
+                </button>
+                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={() => setOpen(false)} disabled={fase === "bezig"}>
+                  Annuleren
                 </button>
               </div>
             </div>

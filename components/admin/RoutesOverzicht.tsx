@@ -235,10 +235,10 @@ export default function RoutesOverzicht() {
           </div>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button className="rl-knop" type="button" onClick={() => setAanmaken(false)}>Annuleer</button>
             <button className="rl-knop rl-knop--cyan" type="submit" disabled={bezig}>
               {bezig ? "…" : "Aanmaken"}
             </button>
+            <button className="rl-knop" type="button" onClick={() => setAanmaken(false)}>Annuleren</button>
           </div>
         </form>
       )}

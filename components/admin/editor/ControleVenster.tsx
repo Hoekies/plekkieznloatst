@@ -38,7 +38,6 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
           <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Publiceer de route eerst (📢 Publiceer) voordat je hem activeert.</div>
         )}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-          <button type="button" className="rl-knop" onClick={() => onSluit()}>Terug</button>
           {!actief && status === "gepubliceerd" && (
             controle.some((r) => r.niveau === "fout") ? (
               <span style={{ fontSize: "0.78rem", color: "#FCA5A5", alignSelf: "center" }}>Los eerst de ❌ op.</span>
@@ -48,6 +47,7 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
               </button>
             )
           )}
+          <button type="button" className="rl-knop" onClick={() => onSluit()}>Terug</button>
         </div>
       </div>
     </div>

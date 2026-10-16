@@ -148,12 +148,12 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
           </div>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-            <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={onSluit}>Annuleren</button>
             <button type="button" disabled={niksGekozen} onClick={verstuur}
               style={{ height: 44, padding: "0 20px", borderRadius: 11, border: "none", background: niksGekozen ? "rgba(37,211,102,0.35)" : "#25D366",
                 color: "#fff", fontWeight: 800, fontSize: "0.9rem", cursor: niksGekozen ? "default" : "pointer" }}>
               Versturen
             </button>
+            <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={onSluit}>Annuleren</button>
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
             Met afbeeldingen opent het deelmenu: kies daar WhatsApp. Kan je browser geen afbeeldingen delen, dan gaan er links naar de afbeeldingen mee.
