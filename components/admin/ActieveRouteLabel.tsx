@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-// Bovenin het telefoonmenu: welke route er nu actief is (of dat er geen is)
+// Bovenin het menu: welke route er nu actief is (of dat er geen is)
 export default function ActieveRouteLabel() {
   const [naam, setNaam] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     let actief = true;
     async function laad() {
-      // Alleen op de telefoon zichtbaar: op de computer niets ophalen
-      if (!window.matchMedia("(max-width: 768px)").matches) return;
       try {
         const res = await fetch("/api/admin/routes");
         if (!res.ok) return;

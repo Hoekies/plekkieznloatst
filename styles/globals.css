@@ -2002,7 +2002,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Zijmenu: blokken met een kopje (Spel, Beheer) */
 .admin-menu-blok { padding: clamp(4px, 0.8vh, 8px) 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 .admin-menu-kop { font-size: 0.68rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: clamp(2px, 0.5vh, 6px); }
-.admin-menu-lijst { display: flex; flex-direction: column; gap: 8px; }
+.admin-menu-lijst { display: flex; flex-direction: column; gap: clamp(3px, 0.7vh, 6px); }
 /* Actieve route bovenin het telefoonmenu */
 .admin-menu-route { display: flex; align-items: center; gap: 8px; margin: 0 10px 6px; padding: 10px 12px; border-radius: 12px;
   background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.45); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
@@ -2016,6 +2016,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .admin-nav-link > [aria-hidden] { width: 26px; font-size: 24px; }
   .admin-menu-blok { padding: 10px; }
   .admin-menu-kop { font-size: 0.72rem; margin-bottom: 8px; }
+  .admin-menu-lijst { gap: 8px; }
   .admin-menu-blok--beheer > div:last-child { gap: 8px !important; }
   /* Beheer wat apart, zodat je de rode knoppen niet per ongeluk raakt */
   .admin-menu-blok--beheer { margin-top: 14px; }
@@ -2023,3 +2024,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .admin-menu-blok--info .admin-nav-link { height: 40px; font-size: 15px; border: none; background: none; color: var(--muted); }
   .admin-menu-blok--info .admin-nav-link > [aria-hidden] { font-size: 18px; }
 }
+
+/* WhatsApp in het menu: groen zoals de WhatsApp-knop */
+.admin-nav-link--whatsapp { border-color: rgba(37,211,102,0.6); background: rgba(37,211,102,0.16); color: #86EFAC; }
+.admin-nav-link--whatsapp:hover:not(:disabled) { background: rgba(37,211,102,0.26); border-color: rgba(37,211,102,0.8); color: #BBF7D0; }
+.admin-nav-link--whatsapp > [aria-hidden] { display: inline-flex; justify-content: center; color: #25D366; }
+/* Actieve route op de pc: past in de smalle zijbalk */
+@media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: 6px 8px; font-size: 0.78rem; gap: 6px; } }

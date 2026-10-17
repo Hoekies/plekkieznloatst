@@ -6,7 +6,6 @@ import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
-import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -154,13 +153,11 @@ export default function GroepenBeheer() {
         <StatKaart label="Uitgeschakeld" waarde={String(groepen.filter((g) => g.is_uitgeschakeld).length)} badgeKlas="pr-badge--gray" badge="⏸" />
       </div>
 
-      {/* Nieuwe groep links, versturen via WhatsApp rechts */}
+      {/* Nieuwe speler links (versturen via WhatsApp staat in het menu) */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
             + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
-          <span style={{ flex: 1 }} />
-          <WhatsAppKnop />
       </div>
 
 

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
-import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
 
@@ -140,9 +139,7 @@ export default function AdminDashboard({ initData }: Props) {
         </div>
 
         {/* Spelende spelers, op volgorde van de stand */}
-        <SectieKop titel="🏆 Spelende spelers">
-          <WhatsAppKnop />
-        </SectieKop>
+        <SectieKop titel="🏆 Spelende spelers" />
         {spelend.length === 0 ? (
           <div className="card">
             <p style={{ color: "var(--muted)", fontSize: "0.875rem", margin: 0 }}>
@@ -180,7 +177,7 @@ export default function AdminDashboard({ initData }: Props) {
               <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="rl-knop rl-knop--rood actie-knop reset-knop"
                 vraag="Alle spellen van alle spelers worden gewist, ook van gefinishte spelers: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Spelers en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
                 ja="Ja, reset het spel" onBevestig={bevestigReset}>
-                💣 Reset spel
+                <span aria-hidden style={{ fontSize: "1.5rem", lineHeight: 1 }}>💣</span> Reset spel
               </BevestigKnop>
             )}
             {resetFase === "bezig" && (
