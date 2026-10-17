@@ -71,9 +71,6 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
                   disabled={!tekst.trim() || fase !== "idle"} onClick={verstuur}>
                   {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? "✓ Verzonden!" : "Versturen"}
                 </button>
-                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={() => setOpen(false)} disabled={fase === "bezig"}>
-                  Annuleren
-                </button>
               </div>
             </div>
           </div>

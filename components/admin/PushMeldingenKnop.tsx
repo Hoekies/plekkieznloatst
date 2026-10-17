@@ -130,7 +130,6 @@ export default function PushMeldingenKnop() {
                 {stand === "uit" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetAan}>🔔 Meldingen aanzetten</button>}
                 {stand === "aan" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={test}>Testmelding sturen</button>}
                 {stand === "aan" && <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} disabled={bezig} onClick={zetUit}>Uitzetten</button>}
-                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={() => setOpen(false)}>Sluiten</button>
               </div>
             </div>
           </div>

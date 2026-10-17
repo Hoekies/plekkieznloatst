@@ -47,7 +47,6 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
               </button>
             )
           )}
-          <button type="button" className="rl-knop" onClick={() => onSluit()}>Terug</button>
         </div>
       </div>
     </div>

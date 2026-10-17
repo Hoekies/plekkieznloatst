@@ -329,7 +329,6 @@ function WijzigVenster({ modal, onSluit, onKlaar }: { modal: BeheerModal; onSlui
                 <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }} disabled={laden}>
                   {laden ? "Opslaan…" : "Opslaan"}
                 </button>
-                <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} onClick={onSluit}>Annuleren</button>
               </div>
             </>
           )}
