@@ -71,9 +71,13 @@ function LoginForm() {
               name="naam"
               className="pr-field-input2"
               type="text"
-              placeholder="bijv. groep1"
+              placeholder="bijv. speler1"
               required
               autoComplete="username"
+              // Geen automatische hoofdletter (iPhone) of autocorrectie: de loginnaam is altijd kleine letters
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
             />
 
             <label htmlFor="wachtwoord" className="pr-field-label2">
@@ -88,6 +92,10 @@ function LoginForm() {
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
+                // Ook als het wachtwoord zichtbaar is: geen automatische hoofdletter of autocorrectie
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 style={{ paddingRight: "44px", marginBottom: 0 }}
               />
               <button
