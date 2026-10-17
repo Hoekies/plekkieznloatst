@@ -91,6 +91,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const hulpIdRef = useRef<string | null>(null);
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
+  // Wie het item op ons inzette (naam en icoon), groot bovenin de melding
+  const [effectVan, setEffectVan] = useState<{ naam: string; icon: string | null } | null>(null);
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
@@ -435,6 +437,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // Aanval: blijft staan tot het team hem zelf wegklikt
         if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
         setEffectNotificatie(data.notification);
+        setEffectVan(data.notification_van ?? null);
         speelDong();
         navigator.vibrate?.([300, 120, 300, 120, 300]);
         haalScoreOp();
@@ -797,13 +800,24 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                 ) : (
                   <span style={{ fontSize: "4rem", lineHeight: 1 }}>{isIcoon ? eerste : "🚨"}</span>
                 )}
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>
-                  {itemType ? "Let op!" : "Bericht"}
-                </div>
+                {itemType && effectVan ? (
+                  // Duidelijk wie dit op je afvuurde: icoon en teamnaam groot
+                  <div className="aanvaller-blok">
+                    <span className="aanvaller-label">Ingezet door</span>
+                    <span className="aanvaller-team">
+                      {effectVan.icon && <span aria-hidden className="aanvaller-icoon">{effectVan.icon}</span>}
+                      {effectVan.naam}
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>
+                    {itemType ? "Let op!" : "Bericht"}
+                  </div>
+                )}
                 <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
                   {tekst}
                 </p>
-                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => setEffectNotificatie(null)}>
+                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => { setEffectNotificatie(null); setEffectVan(null); }}>
                   OK, BEGREPEN
                 </button>
               </div>
@@ -941,18 +955,19 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {ghostTot && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 1500, pointerEvents: "none",
-          background: "radial-gradient(circle at 50% 45%, rgba(88,28,135,0.55) 0%, rgba(15,10,40,0.75) 70%)",
+          // Doorzichtig genoeg om de kaart eronder te blijven zien; tekst leesbaar door de schaduw
+          background: "radial-gradient(circle at 50% 45%, rgba(88,28,135,0.32) 0%, rgba(15,10,40,0.42) 70%)",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           color: "#fff", gap: 10, textAlign: "center", padding: "0 24px",
         }}>
           <div style={{ fontSize: "9rem", lineHeight: 1, filter: "drop-shadow(0 0 30px rgba(196,181,253,0.8))", animation: "pr-spook-zweef 2.4s ease-in-out infinite" }}>👻</div>
-          <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: 900, letterSpacing: "0.05em", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
+          <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: 900, letterSpacing: "0.05em", textShadow: "0 2px 12px rgba(0,0,0,0.85)" }}>
             BOE! Je punt is weg
           </h1>
-          <p style={{ margin: 0, fontSize: "0.95rem", opacity: 0.85 }}>
+          <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}>
             Een ander team heeft je volgende punt verstopt. Het komt terug over:
           </p>
-          <div style={{ fontSize: "4.5rem", fontWeight: 800, fontVariantNumeric: "tabular-nums", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+          <div style={{ fontSize: "4.5rem", fontWeight: 800, fontVariantNumeric: "tabular-nums", textShadow: "0 4px 20px rgba(0,0,0,0.85)" }}>
             {String(Math.floor(ghostSecondsLeft / 60)).padStart(2, "0")}:{String(ghostSecondsLeft % 60).padStart(2, "0")}
           </div>
           <style>{`@keyframes pr-spook-zweef { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }`}</style>

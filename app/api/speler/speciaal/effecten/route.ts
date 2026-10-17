@@ -56,12 +56,34 @@ export async function GET() {
   // Meest recente notification (ook verlopen) voor toast
   const { data: latestNotification } = await admin
     .from("special_item_effects")
-    .select("notification, applied_at")
+    .select("notification, applied_at, special_item_id")
     .eq("target_session_id", sessie.id)
     .not("notification", "is", null)
     .order("applied_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  // Wie zette het in? Naam en icoon van dat team, om groot in de melding te tonen
+  let van: { naam: string; icon: string | null } | null = null;
+  if (latestNotification) {
+    const { data: item } = latestNotification.special_item_id
+      ? await admin.from("special_items").select("claimed_by_session_id").eq("id", latestNotification.special_item_id).maybeSingle()
+      : { data: null };
+    let aanvallerSessie = item?.claimed_by_session_id && item.claimed_by_session_id !== sessie.id ? item.claimed_by_session_id : null;
+    if (!aanvallerSessie) {
+      // Terugval: het logboek (het item kan inmiddels weer op de kaart liggen)
+      const { data: log } = await admin.from("item_log").select("gebruiker_session_id")
+        .eq("doel_session_id", sessie.id).not("gebruiker_session_id", "is", null)
+        .lte("created_at", new Date(new Date(latestNotification.applied_at).getTime() + 60000).toISOString())
+        .order("created_at", { ascending: false }).limit(1).maybeSingle();
+      aanvallerSessie = log?.gebruiker_session_id ?? null;
+    }
+    if (aanvallerSessie) {
+      const { data: a } = await admin.from("player_sessions").select("players!inner(login_name, nickname, icon)").eq("id", aanvallerSessie).maybeSingle();
+      const p = a?.players as unknown as { login_name: string; nickname: string | null; icon: string | null } | undefined;
+      if (p) van = { naam: p.nickname ?? p.login_name, icon: p.icon };
+    }
+  }
 
   return NextResponse.json({
     ghost: ghostEffect
@@ -75,5 +97,6 @@ export async function GET() {
       : { active: false },
     notification: latestNotification?.notification ?? null,
     notification_at: latestNotification?.applied_at ?? null,
+    notification_van: van,
   });
 }

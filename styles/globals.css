@@ -2148,3 +2148,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* iPhone: stappen om PointRush op het beginscherm te zetten */
 .ios-stappen { margin: 0; padding-left: 22px; text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; line-height: 1.4; color: #fff; }
 .ios-stappen strong { color: #FFE680; }
+
+/* Melding van een aanval: wie het inzette, groot en duidelijk */
+.aanvaller-blok { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 10px 12px; border-radius: 14px;
+  background: rgba(255,59,92,0.16); border: 2px solid rgba(255,107,129,0.7); box-shadow: 0 0 18px rgba(255,59,92,0.3); }
+.aanvaller-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #FCA5A5; }
+.aanvaller-team { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; line-height: 1.1; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.35); }
+.aanvaller-icoon { font-size: 2.2rem; line-height: 1; }
