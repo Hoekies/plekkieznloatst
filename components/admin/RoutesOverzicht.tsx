@@ -9,6 +9,17 @@ import StatKaart from "@/components/admin/StatKaart";
 import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
 
+// "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
+function wanneer(iso: string): string {
+  const d = new Date(iso);
+  const tijd = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+  const dagen = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(iso).setHours(0, 0, 0, 0)) / 86400000);
+  if (dagen <= 0) return `vandaag ${tijd}`;
+  if (dagen === 1) return `gisteren ${tijd}`;
+  if (dagen < 7) return `${dagen} dagen geleden`;
+  return d.toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
+}
+
 export default function RoutesOverzicht() {
   const router = useRouter();
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -282,6 +293,11 @@ export default function RoutesOverzicht() {
                   <span className="rl-titel">
                     <span style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</span>
                     <span style={{ display: "block", fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</span>
+                    {r.bewerkt_op && (
+                      <span style={{ display: "block", fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }} title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
+                        ✏️ Aangepast {wanneer(r.bewerkt_op)}
+                      </span>
+                    )}
                   </span>
                   <span className={`pr-gem-chip rl-status-kop ${status.cls}`}>{status.tekst}</span>
                   <span className="rl-pijl" aria-hidden>{open.has(r.id) ? "▾" : "▸"}</span>

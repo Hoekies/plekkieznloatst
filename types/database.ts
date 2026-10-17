@@ -36,6 +36,8 @@ export interface Route {
   // Verspreid: zelfgekozen instappunt per team (teamnummer → punt-id)
   instappunten: Record<string, string> | null;
   items_last_rotated_at: string | null;
+  // Laatste bewerking in de editor (route, punten, vragen, items); niet het spelen zelf (migratie 003)
+  bewerkt_op?: string | null;
   created_at: string;
   updated_at: string;
 }
