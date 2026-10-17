@@ -2179,3 +2179,5 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .wacht-blok { flex-wrap: wrap; }
   .spelleider-regel { font-size: 0.8rem; }
 }
+/* Spelerkaart: geen enkel blok mag de kaart breder maken dan het scherm */
+.speler-kaart-klik .pr-gem-card-inner > * { min-width: 0; }

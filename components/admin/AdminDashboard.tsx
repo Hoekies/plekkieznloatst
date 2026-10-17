@@ -320,12 +320,12 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
               {s.items.in_balk.length > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
                   In de balk: <ItemIcoontjes types={s.items.in_balk} />
                 </span>
               )}
               {s.items.ingezet.length > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
                   Ingezet: <ItemIcoontjes types={s.items.ingezet} vaag />
                 </span>
               )}
@@ -396,7 +396,8 @@ function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolea
   const aantallen = new Map<string, number>();
   types.forEach((t) => aantallen.set(t, (aantallen.get(t) ?? 0) + 1));
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+    // Mag over meerdere regels: met veel items werd de kaart anders breder dan het scherm
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, flexWrap: "wrap", minWidth: 0 }}>
       {[...aantallen].map(([type, n]) => (
         <span key={type} title={`${ITEM_INFO[type]?.naam ?? type}${n > 1 ? ` (${n}×)` : ""}`}
           style={{ display: "inline-flex", alignItems: "center", opacity: vaag ? 0.45 : 1 }}>
