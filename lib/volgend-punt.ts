@@ -35,7 +35,8 @@ export async function bepaalVolgendPunt(
     .from("route_points")
     .select("id, name")
     .eq("route_id", sessie.route_id)
-    .eq("order_index", volgnummer)
+    .order("order_index")
+    .range(volgnummer - 1, volgnummer - 1)
     .maybeSingle();
   return punt ?? null;
 }
