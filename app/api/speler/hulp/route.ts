@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { stuurPushNaarBeheer } from "@/lib/push";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
@@ -11,7 +12,7 @@ async function getSessie() {
   if (!speler) return null;
   const { data: sessie } = await admin
     .from("player_sessions")
-    .select("id, route_id")
+    .select("id, route_id, player_id")
     .eq("player_id", speler.id)
     .eq("status", "actief")
     .maybeSingle();
@@ -63,6 +64,15 @@ export async function POST() {
     .select("id, status")
     .single();
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+
+  // Pushmelding naar de beheerder: dit team kan niet verder
+  const { data: team } = await admin.from("players").select("nickname, login_name").eq("id", sessie.player_id).maybeSingle();
+  await stuurPushNaarBeheer({
+    titel: `⚠️ ${team?.nickname ?? team?.login_name ?? "Een team"} kan een punt niet bereiken`,
+    tekst: `"${punt.name}" is niet te bereiken. Tik om het punt vrij te geven.`,
+    url: "/admin",
+    tag: `hulp-${sessie.id}`,
+  });
 
   return NextResponse.json(data);
 }

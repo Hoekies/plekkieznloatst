@@ -324,10 +324,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
   .admin-nav { gap: clamp(3px, 0.7vh, 6px); padding-top: clamp(4px, 0.8vh, 8px); padding-bottom: clamp(4px, 0.8vh, 8px); }
   .admin-nav-link {
-    height: clamp(30px, calc((100dvh - 365px) / 12), 42px);
-    font-size: clamp(14px, calc((100dvh - 365px) / 12 * 0.42), 17px);
+    height: clamp(30px, calc((100dvh - 365px) / 13), 42px);
+    font-size: clamp(14px, calc((100dvh - 365px) / 13 * 0.42), 17px);
   }
-  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 365px) / 12 * 0.48), 20px); }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 365px) / 13 * 0.48), 20px); }
   .admin-main {
     min-height: 0;
     overflow-y: auto;
@@ -2162,3 +2162,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .wacht-blok--plekzooi { background: rgba(239,68,68,0.14); border-color: rgba(248,113,113,0.55); }
 .wacht-tijd { font-family: var(--font-display); font-weight: 800; font-size: 1rem; font-variant-numeric: tabular-nums; }
 .wacht-blok .rl-knop { height: 30px; padding: 0 10px; font-size: 0.76rem; }
+
+/* Menu: klein statuslabel achter een menu-item (bv. Meldingen aan/uit) */
+.menu-status { margin-left: auto; flex-shrink: 0; font-size: 0.66rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+.menu-status--aan { background: rgba(34,197,94,0.25); color: #BBF7D0; }
+.menu-status--uit { background: rgba(255,255,255,0.1); color: var(--muted); }

@@ -11,6 +11,7 @@ import InfoKnop from "@/components/admin/InfoKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
+import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -49,6 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="admin-menu-lijst">
             <TussenstandKnop alsMenu />
             <WhatsAppKnop alsMenu />
+            <PushMeldingenKnop />
           </div>
         </div>
         <div className="admin-menu-blok admin-menu-blok--beheer">

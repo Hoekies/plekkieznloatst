@@ -3,6 +3,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
+import { stuurPushNaarBeheer } from "@/lib/push";
 
 async function getSessieEnSpeler() {
   const user = await haalGebruiker();
@@ -121,6 +122,15 @@ export async function POST(request: NextRequest) {
     const { data: finishRoute } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
     await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(finishRoute) });
   }
+
+  // Pushmelding naar de beheerder: er is een foto om te keuren
+  const { data: team } = await admin.from("players").select("nickname, login_name").eq("id", context.speler.id).maybeSingle();
+  await stuurPushNaarBeheer({
+    titel: `📸 Nieuwe foto van ${team?.nickname ?? team?.login_name ?? "een team"}`,
+    tekst: "Tik om de foto te bekijken en goed of af te keuren.",
+    url: "/admin/antwoorden",
+    tag: "foto",
+  });
 
   return NextResponse.json({ foto_id: inzending.id, voortgang });
 }

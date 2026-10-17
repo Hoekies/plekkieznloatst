@@ -13,6 +13,38 @@ button{margin-top:8px;padding:12px 22px;border:0;border-radius:12px;background:#
 <p style="margin:0;opacity:.8">PointRush heeft verbinding nodig. Controleer je mobiele data of wifi.</p>
 <button onclick="location.reload()">Opnieuw proberen</button></body></html>`;
 
+// Pushmelding voor de beheerder (nieuwe foto, hulpvraag), ook als de app dicht is
+self.addEventListener("push", (event) => {
+  let bericht = { titel: "PointRush", tekst: "", url: "/admin", tag: undefined };
+  try { bericht = { ...bericht, ...event.data.json() }; } catch { /* lege of onleesbare melding */ }
+  event.waitUntil(self.registration.showNotification(bericht.titel, {
+    body: bericht.tekst,
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    tag: bericht.tag,
+    renotify: !!bericht.tag,
+    vibrate: [200, 100, 200],
+    data: { url: bericht.url },
+  }));
+});
+
+// Tik op de melding: de app openen (of een open venster naar voren halen) op de juiste pagina
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url ?? "/admin", self.location.origin).href;
+  event.waitUntil((async () => {
+    const vensters = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const venster of vensters) {
+      if (new URL(venster.url).origin === self.location.origin) {
+        await venster.focus();
+        if ("navigate" in venster) await venster.navigate(url).catch(() => {});
+        return;
+      }
+    }
+    await self.clients.openWindow(url);
+  })());
+});
+
 self.addEventListener("fetch", (event) => {
   // Alleen het openen van pagina's; al het andere gaat zoals altijd rechtstreeks naar het netwerk
   if (event.request.mode !== "navigate") return;
