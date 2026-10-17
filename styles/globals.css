@@ -2155,3 +2155,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .aanvaller-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #FCA5A5; }
 .aanvaller-team { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; line-height: 1.1; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.35); }
 .aanvaller-icoon { font-size: 2.2rem; line-height: 1; }
+
+/* Dashboard: team wacht door een spook of plek zooi */
+.wacht-blok { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 6px 8px 6px 10px; border-radius: 10px; font-size: 0.8rem; color: #fff;
+  background: rgba(167,139,250,0.16); border: 1px solid rgba(167,139,250,0.55); }
+.wacht-blok--plekzooi { background: rgba(239,68,68,0.14); border-color: rgba(248,113,113,0.55); }
+.wacht-tijd { font-family: var(--font-display); font-weight: 800; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.wacht-blok .rl-knop { height: 30px; padding: 0 10px; font-size: 0.76rem; }

@@ -122,6 +122,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
   const spelAfgelopen = verwerktIds.size >= punten.length;
+  // Voor de check of de organisatie het punt heeft vrijgegeven (die draait in een timer en zou
+  // anders de waarden van het begin blijven zien)
+  const vrijgaveRef = useRef({ puntId: null as string | null, bereikt: false, popup: false });
+  vrijgaveRef.current = {
+    puntId: activePunt?.id ?? null,
+    bereikt: !!activePunt && (bereiktIds.has(activePunt.id) || verwerktIds.has(activePunt.id)),
+    popup: !!popupPunt,
+  };
 
   // Verspreid: het eerste punt is het startpunt (start en finish op dezelfde plek)
   const startPunt = modus === "verspreid" && punten.length >= 3 ? punten[0] : null;
@@ -342,6 +350,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
         if (data === null) { router.push("/speler?gestopt=1"); return; }
         if (data?.score !== undefined) setScore(data.score);
+        // De organisatie heeft ons volgende punt vrijgegeven ("Volgend punt vrijgeven" op het dashboard):
+        // de server zet dat punt als bereikt. Herladen opent de vraag, net als na een hulpmelding.
+        const v = vrijgaveRef.current;
+        if (v.puntId && data?.current_point_id === v.puntId && !v.bereikt && !v.popup && !bezigRef.current) {
+          speelPuntBereikt();
+          window.location.reload();
+        }
       }
     } catch { /* verbindingsfout */ }
   }
@@ -448,6 +463,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       // Plek zooi actief: herstel afteltimer bij herverbinding
       if (data.plekzooi?.active && data.plekzooi.expires_at) {
         activeerPlekzooi(new Date(data.plekzooi.expires_at));
+      } else if (plekzooiTimerRef.current) {
+        // De organisatie heeft de wachttijd ingekort: niet langer stilstaan
+        clearInterval(plekzooiTimerRef.current);
+        plekzooiTimerRef.current = null;
+        setPlekzooiActief(false);
       }
 
       // Radar actief: poll andere spelers elke 5 seconden

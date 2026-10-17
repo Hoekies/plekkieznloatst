@@ -26,6 +26,8 @@ export type SpelerOverzicht = {
   hulp: { id: string; punt_naam: string | null; sinds: string } | null;
   // Itemtypes die het team nog in de balk heeft, en die het al heeft ingezet
   items: { in_balk: string[]; ingezet: string[] };
+  // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
+  wacht: { effect_id: string; soort: "spook" | "plekzooi"; tot: string } | null;
 };
 
 export type RoutePuntKort = {
@@ -109,7 +111,7 @@ export async function haalLiveData(): Promise<LiveData> {
   )];
   // Alles per sessie tegelijk ophalen
   const leeg = Promise.resolve({ data: null });
-  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes] = await Promise.all([
+  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes] = await Promise.all([
     huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
     sessieIds.length
       ? admin.from("player_point_progress").select("session_id").in("session_id", sessieIds).not("answered_at", "is", null)
@@ -131,6 +133,11 @@ export async function haalLiveData(): Promise<LiveData> {
     sessieIds.length
       ? admin.from("foto_inzendingen").select("id", { count: "exact", head: true }).in("session_id", sessieIds).eq("status", "wacht")
       : Promise.resolve({ count: 0 }),
+    // Lopende spook- en plek-zooi-effecten
+    sessieIds.length
+      ? admin.from("special_item_effects").select("id, target_session_id, effect_type, expires_at")
+          .in("target_session_id", sessieIds).in("effect_type", ["ghost", "plekzooi"]).gt("expires_at", new Date().toISOString())
+      : leeg,
   ]);
 
   const puntNaam = new Map<string, string>();
@@ -153,6 +160,15 @@ export async function haalLiveData(): Promise<LiveData> {
     const punt = h.route_points as { name?: string } | { name?: string }[] | null;
     const naam = Array.isArray(punt) ? punt[0]?.name : punt?.name;
     hulpMap.set(h.session_id, { id: h.id, punt_naam: naam ?? null, sinds: h.created_at });
+  });
+
+  // Per sessie het effect dat het langst duurt
+  const wachtMap = new Map<string, NonNullable<SpelerOverzicht["wacht"]>>();
+  ((wachtRes.data ?? []) as { id: string; target_session_id: string; effect_type: string; expires_at: string }[]).forEach((e) => {
+    const huidig = wachtMap.get(e.target_session_id);
+    if (!huidig || e.expires_at > huidig.tot) {
+      wachtMap.set(e.target_session_id, { effect_id: e.id, soort: e.effect_type === "ghost" ? "spook" : "plekzooi", tot: e.expires_at });
+    }
   });
 
   const itemMap = new Map<string, SpelerOverzicht["items"]>();
@@ -186,6 +202,7 @@ export async function haalLiveData(): Promise<LiveData> {
       laatste_lng: locatie?.lng ?? null,
       hulp: sessie ? (hulpMap.get(sessie.id) ?? null) : null,
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
+      wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
     };
   });
 

@@ -60,6 +60,15 @@ export default function AdminDashboard({ initData }: Props) {
     ververs();
   }
 
+  // Spook of plek zooi 30 seconden korter laten duren
+  async function verkortWachten(effectId: string) {
+    const res = await fetch(`/api/admin/effecten/${effectId}/verkorten`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) toonMelding(data.fout ?? "Inkorten mislukt", "fout");
+    else if (data.voorbij) toonMelding("Wachttijd voorbij: het team kan weer verder", "ok");
+    ververs();
+  }
+
   async function negeerHulp(hulpId: string) {
     await fetch(`/api/admin/hulp/${hulpId}`, { method: "PATCH" });
     ververs();
@@ -199,6 +208,7 @@ export default function AdminDashboard({ initData }: Props) {
                     totaalPunten={totaalPunten}
                     kanVrijgeven
                     onOpen={() => setDetailId(s.player_id)}
+                    onVerkort={verkortWachten}
                     onVrijgeven={() => geefPuntVrij(s)}
                     onStop={() => stopSpel(s)}
                     onNegeer={negeerHulp}
@@ -259,11 +269,12 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVrijgeven, onStop, onNegeer }: {
+function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVerkort, onVrijgeven, onStop, onNegeer }: {
   rang: number;
   speler: SpelerOverzicht;
   kleur: string;
   onOpen: () => void;
+  onVerkort: (effectId: string) => void;
   totaalPunten: number;
   kanVrijgeven: boolean;
   onVrijgeven: () => void;
@@ -304,6 +315,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           {stil !== null && (
             <div className="stil-label">📵 Niet gezien sinds {stil} min{s.ingelogd ? "" : " · uitgelogd"}</div>
           )}
+          {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={() => onVerkort(s.wacht!.effect_id)} />}
 
           {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -355,6 +367,26 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Details ›</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Team moet wachten door een spook of plek zooi: resterende tijd (telt per seconde af) en inkorten
+function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["wacht"]>; onVerkort: () => void }) {
+  const [nu, setNu] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNu(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const rest = Math.max(0, Math.ceil((new Date(wacht.tot).getTime() - nu) / 1000));
+  if (rest <= 0) return null;
+  const tijd = `${Math.floor(rest / 60)}:${String(rest % 60).padStart(2, "0")}`;
+  return (
+    <div className={`wacht-blok wacht-blok--${wacht.soort}`} onClick={(e) => e.stopPropagation()}>
+      <span style={{ fontSize: "1.3rem", lineHeight: 1 }} aria-hidden>{wacht.soort === "spook" ? "👻" : "⛔"}</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <strong>{wacht.soort === "spook" ? "Spook" : "Plek zooi"}</strong>
+        <span style={{ color: "var(--text)" }}>{wacht.soort === "spook" ? " · volgende punt verborgen" : " · staat stil"}</span>
+      </span>
+      <span className="wacht-tijd">{tijd}</span>
+      <button type="button" className="rl-knop" onClick={onVerkort} title="Wachttijd 30 seconden korter maken">−30 s</button>
     </div>
   );
 }

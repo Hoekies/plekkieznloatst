@@ -41,6 +41,12 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   for (const s of spelend) {
     if (s.hulp) aandacht.push({ id: `hulp-${s.player_id}`, kleur: "#FF8A00", tekst: `⚠️ ${s.display_name} kan ${s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken`, speler: s });
   }
+  for (const s of spelend) {
+    if (s.wacht && new Date(s.wacht.tot).getTime() > nu) {
+      const min = Math.ceil((new Date(s.wacht.tot).getTime() - nu) / 60000);
+      aandacht.push({ id: `wacht-${s.player_id}`, kleur: "#A78BFA", tekst: `${s.wacht.soort === "spook" ? "👻" : "⛔"} ${s.display_name} moet wachten (${s.wacht.soort === "spook" ? "spook" : "plek zooi"}, nog ± ${min} min)`, speler: s });
+    }
+  }
   if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, link: "/admin/antwoorden" });
   for (const s of spelend) {
     const min = minutenNietGezien(s, nu);
