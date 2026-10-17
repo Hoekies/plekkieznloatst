@@ -301,6 +301,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }));
   }, [teamRoutes, teamRoutesKaart, wegen, specialeItems, vraagPuntIds, vraagMaxPunten, verwachtTeams, route.item_respawn, spookMinuten, plekzooiMinuten, sterWaarde, bomWaarde]);
   const [tijdenOpen, setTijdenOpen] = useState(true);
+  const [tipWeg, setTipWeg] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 768px)").matches) setTijdenOpen(false);
+    try { if (localStorage.getItem("pointrush_editor_tip_weg")) setTipWeg(true); } catch { /* geen opslag */ }
+  }, []);
 
   // Standaardnamen ("Punt 8") volgen het nummer op de kaart, ook na verschuiven of verwijderen.
   // Zelfgekozen namen blijven staan.
@@ -995,6 +1000,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           )}
 
           <span className="editor-balk-scheiding" aria-hidden />
+          {/* Telefoon: hier begint een nieuwe regel met het gereedschap */}
+          <span className="editor-breuk" aria-hidden />
 
           {/* Wegen: één knop; aan = opnieuw berekenen, ✕ = uit */}
           <span className="editor-groep">
@@ -1018,26 +1025,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           )}
 
-          <span style={{ flex: 1 }} />
+          <span className="editor-ruimte" />
           <span className={`editor-opslag editor-opslag--${opslag}`}>
             {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
           </span>
           <button type="button" className="rl-knop"
             disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
             title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-            ↶ Ongedaan maken{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+            ↶<span className="alleen-pc"> Ongedaan maken</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
           </button>
           {/* Instellingen: goud, als laatste in dezelfde rij */}
           <button className="rl-knop rl-knop--goud"
             onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
-            ⚙️ Instellingen
+            ⚙️<span className="alleen-pc"> Instellingen</span>
           </button>
         </div>
       </div>
 
-      <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: "8px 16px 0" }}>
-        💻 <strong>Tip:</strong> een route bewerk je het makkelijkst op een pc of laptop.
-      </div>
+      {!tipWeg && (
+        <div className="pc-tip pc-tip--alleen-mobiel editor-tip" style={{ margin: "8px 16px 0" }}>
+          <span style={{ flex: 1 }}>💻 <strong>Tip:</strong> een route bewerk je het makkelijkst op een pc of laptop.</span>
+          <button type="button" className="editor-tip-sluit" aria-label="Tip sluiten"
+            onClick={() => { setTipWeg(true); try { localStorage.setItem("pointrush_editor_tip_weg", "1"); } catch { /* geen opslag */ } }}>✕</button>
+        </div>
+      )}
 
       {/* Plaatsnaam zoeken — alleen zinvol zolang de route nog geen eigen punten heeft om op te centreren */}
       {punten.length === 0 && (

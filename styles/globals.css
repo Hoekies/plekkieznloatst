@@ -2181,3 +2181,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 /* Spelerkaart: geen enkel blok mag de kaart breder maken dan het scherm */
 .speler-kaart-klik .pr-gem-card-inner > * { min-width: 0; }
+
+/* Route-editor op de telefoon: twee nette rijen (status · gereedschap), compacte knoppen */
+.editor-breuk { display: none; }
+.editor-ruimte { flex: 1; }
+.editor-tip-sluit { flex-shrink: 0; background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 0 2px; line-height: 1.2; }
+@media (max-width: 768px) {
+  .route-editor-topbar .editor-balk { gap: 6px; }
+  .route-editor-topbar .editor-balk-scheiding, .route-editor-topbar .editor-ruimte, .route-editor-topbar .editor-opslag { display: none; }
+  .route-editor-topbar .editor-breuk { display: block; flex-basis: 100%; height: 0; }
+  .route-editor-topbar .rl-knop, .route-editor-topbar .editor-chip { height: 32px; padding: 0 10px; font-size: 0.74rem; }
+  .route-editor-topbar .rl-knop--goud { padding: 0 10px; }
+  .editor-tip { display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; padding: 8px 10px; }
+}
