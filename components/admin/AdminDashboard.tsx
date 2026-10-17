@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
@@ -11,6 +12,12 @@ import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
+import { maakKleurMap } from "@/lib/speler-kleur";
+import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
+import Klaarzetten from "@/components/admin/Klaarzetten";
+import Tijdlijn from "@/components/admin/Tijdlijn";
+import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
+import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -30,6 +37,8 @@ export default function AdminDashboard({ initData }: Props) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
+  // Speler waarvan het detailvenster open staat
+  const [detailId, setDetailId] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
@@ -105,6 +114,9 @@ export default function AdminDashboard({ initData }: Props) {
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
   const koploper = spelend[0];
+  // Vaste kleur per speler (zelfde als op de live kaart en de spelerspagina)
+  const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
+  const detail = detailId ? spelend.find((s) => s.player_id === detailId) : undefined;
 
   return (
     <>
@@ -130,37 +142,79 @@ export default function AdminDashboard({ initData }: Props) {
           </div>
         )}
 
+        {/* Telefoon: compacte strook in plaats van de vier tegels */}
+        <div className="dash-strook">
+          <span title="Actieve route">🗺️ {route?.name ?? "Geen route"}</span>
+          <span title="Aan het spelen">⚡ {aantalActief}</span>
+          <span title="Gefinisht">✓ {aantalKlaar}</span>
+          <span title="Koploper">🥇 {koploper ? `${koploper.display_name} · ${koploper.score}` : "—"}</span>
+        </div>
+
         {/* Stat kaarten */}
-        <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
+        <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
           <StatKaart label="Actieve route" waarde={route?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
           <StatKaart label="Aan het spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
           <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} badgeKlas="pr-badge--green" badge="✓" />
           <StatKaart label="Koploper" waarde={koploper ? `${koploper.nickname ?? koploper.login_name} · ${koploper.score} pt` : "—"} badgeKlas="pr-badge--gold" badge="🥇" />
         </div>
 
-        {/* Spelende spelers, op volgorde van de stand */}
-        <SectieKop titel="🏆 Spelende spelers" />
-        {spelend.length === 0 ? (
-          <div className="card">
-            <p style={{ color: "var(--muted)", fontSize: "0.875rem", margin: 0 }}>
-              {spelers.length === 0 ? "Nog geen spelers aangemaakt." : "Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier."}
-            </p>
+        {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
+        <div style={{ marginBottom: 24 }}>
+          {spelend.length === 0
+            ? <Klaarzetten route={route} spelers={spelers} />
+            : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
+                uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)} />}
+        </div>
+
+        <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
+          <div style={{ minWidth: 0 }}>
+            {/* Spelende spelers, op volgorde van de stand */}
+            <SectieKop titel="🏆 Spelende spelers" />
+            {spelend.length === 0 ? (
+              <div className="card leeg-scherm">
+                {!route ? (
+                  <>
+                    <p>Er is geen actieve route. Kies eerst een route en activeer hem.</p>
+                    <Link href="/admin/routes" className="rl-knop rl-knop--cyan actie-knop">🗺️ Naar routes</Link>
+                  </>
+                ) : spelers.length === 0 ? (
+                  <>
+                    <p>Nog geen spelers aangemaakt.</p>
+                    <Link href="/admin/groepen" className="rl-knop rl-knop--cyan actie-knop">👥 Spelers aanmaken</Link>
+                  </>
+                ) : (
+                  <>
+                    <p>Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier.</p>
+                    <WhatsAppKnop />
+                  </>
+                )}
+              </div>
+            ) : (
+              <div>
+                {spelend.map((s, i) => (
+                  <SpelerKaart
+                    key={s.player_id}
+                    rang={i + 1}
+                    speler={s}
+                    kleur={kleuren.get(s.player_id) ?? "#A78BFA"}
+                    totaalPunten={totaalPunten}
+                    kanVrijgeven
+                    onOpen={() => setDetailId(s.player_id)}
+                    onVrijgeven={() => geefPuntVrij(s)}
+                    onStop={() => stopSpel(s)}
+                    onNegeer={negeerHulp}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div>
-            {spelend.map((s, i) => (
-              <SpelerKaart
-                key={s.player_id}
-                rang={i + 1}
-                speler={s}
-                totaalPunten={totaalPunten}
-                kanVrijgeven
-                onVrijgeven={() => geefPuntVrij(s)}
-                onStop={() => stopSpel(s)}
-                onNegeer={negeerHulp}
-              />
-            ))}
-          </div>
+          {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
+          {route && spelend.length > 0 && <Tijdlijn kleuren={kleuren} />}
+        </div>
+
+        {detail && (
+          <SpelerDetailVenster speler={detail} rang={spelend.indexOf(detail) + 1} kleur={kleuren.get(detail.player_id) ?? "#A78BFA"}
+            totaalPunten={totaalPunten} onSluit={() => setDetailId(null)} />
         )}
 
         {/* Reset sectie */}
@@ -206,9 +260,11 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven, onStop, onNegeer }: {
+function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVrijgeven, onStop, onNegeer }: {
   rang: number;
   speler: SpelerOverzicht;
+  kleur: string;
+  onOpen: () => void;
   totaalPunten: number;
   kanVrijgeven: boolean;
   onVrijgeven: () => void;
@@ -217,15 +273,19 @@ function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven,
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
   const speelt = s.sessie_status === "actief";
+  const stil = minutenNietGezien(s);
   return (
-    <div className="pr-gem-card" style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
+    // Tik op de kaart: alles van deze speler in één venster (de knoppen erin doen hun eigen ding)
+    <div className="pr-gem-card speler-kaart-klik" role="button" tabIndex={0} title="Tik voor alle details"
+      onClick={onOpen} onKeyDown={(e) => { if (e.key === "Enter") onOpen(); }}
+      style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
       : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
       <div className="pr-gem-card-inner">
         {/* Plek in de stand */}
         <span title={`${rang}e plaats`} style={{ width: 40, flexShrink: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: rang <= 3 ? "1.9rem" : "1.2rem", color: "#fff" }}>
           {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
         </span>
-        <div className="pr-gem-avatar">{s.icon ?? teamIcoonVoor(s.player_id)}</div>
+        <div className="pr-gem-avatar speler-ring" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem",
@@ -241,7 +301,10 @@ function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven,
             {s.huidig_punt_naam && ` · ${s.huidig_punt_naam}`}
             {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)} geleden`}
           </div>
-          <div className="pr-xp-bar"><div className="pr-xp-fill" style={{ width: `${pct}%` }} /></div>
+          <div className="pr-xp-bar"><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
+          {stil !== null && (
+            <div className="stil-label">📵 Niet gezien sinds {stil} min{s.ingelogd ? "" : " · uitgelogd"}</div>
+          )}
 
           {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -269,7 +332,7 @@ function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven,
             </div>
           )}
           {speelt && (
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()}>
               {kanVrijgeven && (
                 <BevestigKnop className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }}
                   vraag="Vraag gaat bij hen direct open." ja="Ja, vrijgeven" onBevestig={onVrijgeven}>
@@ -291,6 +354,7 @@ function SpelerKaart({ rang, speler: s, totaalPunten, kanVrijgeven, onVrijgeven,
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
           <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680" }}>{s.score} pt</span>
+          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Details ›</span>
         </div>
       </div>
     </div>

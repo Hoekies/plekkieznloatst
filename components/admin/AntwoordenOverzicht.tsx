@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
@@ -54,7 +55,12 @@ export default function AntwoordenOverzicht() {
   ].filter(Boolean).join(" ");
 
   if (!data) return <p style={{ color: "var(--muted)" }}>Laden…</p>;
-  if (!data.route) return <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Er is geen actieve route.</p></div>;
+  if (!data.route) return (
+    <div className="card leeg-scherm">
+      <p>Er is geen actieve route. Activeer eerst een route, dan zie je hier de antwoorden.</p>
+      <Link href="/admin/routes" className="rl-knop rl-knop--cyan actie-knop">🗺️ Naar routes</Link>
+    </div>
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -87,7 +93,7 @@ export default function AntwoordenOverzicht() {
       </div>
 
       {data.teams.length === 0 && (
-        <div className="card"><p style={{ color: "var(--muted)", margin: 0 }}>Nog geen spelers aan het spelen.</p></div>
+        <div className="card leeg-scherm"><p>Nog geen spelers aan het spelen. Zodra iemand een vraag beantwoordt, zie je dat hier.</p><Link href="/admin" className="rl-knop actie-knop">🏠 Naar het dashboard</Link></div>
       )}
 
       {data.teams.map((team) => (

@@ -6,6 +6,7 @@ import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
+import { maakKleurMap } from "@/lib/speler-kleur";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -55,6 +56,8 @@ export default function GroepenBeheer() {
 
   // Uitgeschakelde spelers staan apart onderaan, standaard ingeklapt
   const actieveSpelers = groepen.filter((g) => !g.is_uitgeschakeld);
+  // Zelfde kleur per speler als op het dashboard en de live kaart
+  const kleuren = maakKleurMap(groepen.map((g) => g.id));
   const uitgeschakeld = groepen.filter((g) => g.is_uitgeschakeld);
 
   const spelerKaart = (g: Groep) => {
@@ -64,10 +67,11 @@ export default function GroepenBeheer() {
       <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.8 : 1 }}>
        <div className="pr-gem-card-inner gb-kaart">
         {/* Icoon — zelfde formaat als de teamavatars op het dashboard; uitgeschakeld: zo hoog als de tekst */}
-        <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : ""}`} style={{
+        <div className={`pr-gem-avatar${isUit ? " gb-avatar-uit" : " speler-ring"}`} style={{
           borderRadius: "50%",
           background: isUit ? "var(--red-soft)" : "var(--blue-soft)",
           fontWeight: 700, color: isUit ? "var(--red)" : "var(--blue)",
+          ["--speler-kleur" as string]: kleuren.get(g.id),
         }}>
           {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
         </div>
@@ -171,10 +175,9 @@ export default function GroepenBeheer() {
       {laden ? (
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
       ) : groepen.length === 0 ? (
-        <div className="card">
-          <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
-            Nog geen spelers aangemaakt.
-          </p>
+        <div className="card leeg-scherm">
+          <p>Nog geen spelers aangemaakt. Maak per team een speler aan met een loginnaam en wachtwoord.</p>
+          <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>+ Eerste speler aanmaken</button>
         </div>
       ) : (
         <div>

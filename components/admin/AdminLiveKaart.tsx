@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
+import { maakKleurMap } from "@/lib/speler-kleur";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -24,6 +25,10 @@ export default function AdminLiveKaart({ initData }: Props) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Speler die de kaart volgt (null = iedereen in beeld houden)
+  const [volgId, setVolgId] = useState<string | null>(null);
+  // Spoor van de laatste 10 minuten per speler
+  const [sporen, setSporen] = useState<Record<string, [number, number][]>>({});
 
   async function ververs() {
     try {
@@ -31,6 +36,19 @@ export default function AdminLiveKaart({ initData }: Props) {
       if (res.ok) setData(await res.json());
     } catch { /* verbindingsfout */ }
   }
+
+  useEffect(() => {
+    let actief = true;
+    async function laadSporen() {
+      try {
+        const res = await fetch("/api/admin/live/sporen");
+        if (res.ok && actief) setSporen((await res.json()).sporen ?? {});
+      } catch { /* verbindingsfout */ }
+    }
+    laadSporen();
+    const t = setInterval(laadSporen, 15000);
+    return () => { actief = false; clearInterval(t); };
+  }, []);
 
   useEffect(() => {
     ververs();  // meteen de actuele stand, niet pas na de eerste ronde
@@ -52,6 +70,8 @@ export default function AdminLiveKaart({ initData }: Props) {
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const spelersOpKaart = spelers.filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid");
+  // Zelfde kleur per speler als op het dashboard
+  const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
@@ -66,10 +86,11 @@ export default function AdminLiveKaart({ initData }: Props) {
       <div className="live-kaart-vak" style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
         {/* Kaart */}
         <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
-          <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null} />
+          <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null}
+            kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} />
         </div>
 
-        {/* Overlay: spelerslijst */}
+        {/* Overlay: spelerslijst. Tik op een naam om die speler te volgen */}
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
           <div className="pr-gem-label" style={{ marginBottom: 8 }}>
@@ -78,24 +99,27 @@ export default function AdminLiveKaart({ initData }: Props) {
           {spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>
           ) : (
-            spelersOpKaart.map((s) => (
-              <div key={s.player_id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
-                <span style={{
-                  width: 9, height: 9, borderRadius: "50%", flexShrink: 0,
-                  background: s.sessie_status === "voltooid" ? "var(--green, #16A34A)" : "#F97316",
-                }} />
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {s.display_name}
-                  </div>
-                  {(!s.ingelogd || s.laatste_lat === null) && (
-                    <div style={{ fontSize: "0.7rem", color: "var(--text)" }}>
-                      {!s.ingelogd ? "uitgelogd" : "nog geen locatie"}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
+            spelersOpKaart.map((s) => {
+              const volgt = volgId === s.player_id;
+              return (
+                <button key={s.player_id} type="button" className={`live-lijst-regel${volgt ? " live-lijst-regel--volgt" : ""}`}
+                  disabled={s.laatste_lat === null} onClick={() => setVolgId(volgt ? null : s.player_id)}
+                  title={volgt ? "Niet meer volgen" : "Deze speler volgen op de kaart"}>
+                  <span style={{ width: 11, height: 11, borderRadius: "50%", flexShrink: 0, background: kleuren.get(s.player_id) }} />
+                  <span style={{ minWidth: 0, flex: 1 }}>
+                    <span style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}
+                    </span>
+                    {(!s.ingelogd || s.laatste_lat === null) && (
+                      <span style={{ display: "block", fontSize: "0.7rem", color: "var(--text)" }}>
+                        {!s.ingelogd ? "uitgelogd" : "nog geen locatie"}
+                      </span>
+                    )}
+                  </span>
+                  {volgt && <span aria-hidden style={{ fontSize: "0.9rem" }}>🎯</span>}
+                </button>
+              );
+            })
           )}
          </div>
         </div>

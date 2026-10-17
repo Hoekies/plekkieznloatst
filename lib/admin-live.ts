@@ -38,10 +38,12 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string; modus: string } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
+  // Ingestuurde foto's die nog gekeurd moeten worden (voor "vraagt je aandacht" op het dashboard)
+  wachtende_fotos?: number;
   // Gezet als de sessies niet opgehaald konden worden (bv. een migratie die nog niet gedraaid is)
   fout?: string;
 };
@@ -56,7 +58,7 @@ export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
-    admin.from("routes").select("id, name, modus").eq("is_active", true).maybeSingle(),
+    admin.from("routes").select("id, name, modus, uitslag_vrijgegeven").eq("is_active", true).maybeSingle(),
     admin.from("players").select("id, login_name, nickname, icon, active_device_id").order("login_name"),
   ]);
 
@@ -100,15 +102,17 @@ export async function haalLiveData(): Promise<LiveData> {
   )];
   // Alles per sessie tegelijk ophalen
   const leeg = Promise.resolve({ data: null });
-  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes] = await Promise.all([
+  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes] = await Promise.all([
     huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
     sessieIds.length
       ? admin.from("player_point_progress").select("session_id").in("session_id", sessieIds).not("answered_at", "is", null)
       : leeg,
-    sessieIds.length
-      ? admin.from("location_updates").select("session_id, latitude, longitude, created_at")
-          .in("session_id", sessieIds).order("created_at", { ascending: false }).limit(sessieIds.length * 5)
-      : leeg,
+    // Laatste locatie per sessie apart opvragen: één gezamenlijke "nieuwste N" miste juist de speler
+    // die al een tijdje niets stuurde (en die wil je op het dashboard zien als "niet gezien")
+    Promise.all(sessieIds.map((id) =>
+      admin.from("location_updates").select("session_id, latitude, longitude, created_at")
+        .eq("session_id", id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    )).then((rijen) => ({ data: rijen.map((r) => r.data).filter(Boolean) })),
     sessieIds.length
       ? admin.from("hulpverzoeken").select("id, session_id, created_at, route_points(name)").in("session_id", sessieIds).eq("status", "open")
       : leeg,
@@ -116,6 +120,10 @@ export async function haalLiveData(): Promise<LiveData> {
     sessieIds.length
       ? admin.from("special_items").select("type, used_at, claimed_by_session_id").in("claimed_by_session_id", sessieIds)
       : leeg,
+    // Alleen het aantal: foto's die op keuring wachten
+    sessieIds.length
+      ? admin.from("foto_inzendingen").select("id", { count: "exact", head: true }).in("session_id", sessieIds).eq("status", "wacht")
+      : Promise.resolve({ count: 0 }),
   ]);
 
   const puntNaam = new Map<string, string>();
@@ -174,5 +182,5 @@ export async function haalLiveData(): Promise<LiveData> {
     };
   });
 
-  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems, fout };
+  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems, wachtende_fotos: fotoRes.count ?? 0, fout };
 }

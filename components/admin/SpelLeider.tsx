@@ -1,0 +1,90 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { SpelerOverzicht } from "@/lib/admin-live";
+import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
+
+// Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
+export const NIET_GEZIEN_MIN = 5;
+
+export function minutenNietGezien(s: SpelerOverzicht, nu = Date.now()): number | null {
+  if (s.sessie_status !== "actief") return null;
+  const sinds = s.laatste_gezien ?? s.started_at;
+  if (!sinds) return null;
+  const min = Math.floor((nu - new Date(sinds).getTime()) / 60000);
+  return min >= NIET_GEZIEN_MIN ? min : null;
+}
+
+function duur(ms: number): string {
+  const min = Math.max(0, Math.floor(ms / 60000));
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")} uur`;
+}
+
+// "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies }: {
+  spelend: SpelerOverzicht[];
+  wachtendeFotos: number;
+  kleuren: Map<string, string>;
+  uitslagVrij?: boolean;
+  onKies: (s: SpelerOverzicht) => void;
+}) {
+  // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
+  const [nu, setNu] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNu(Date.now()), 30000); return () => clearInterval(t); }, []);
+
+  const start = spelend.map((s) => s.started_at).filter((t): t is string => !!t).sort()[0];
+  const onderweg = spelend.filter((s) => s.sessie_status === "actief").length;
+
+  const aandacht: { id: string; kleur: string | null; tekst: string; speler?: SpelerOverzicht; link?: string }[] = [];
+  for (const s of spelend) {
+    if (s.hulp) aandacht.push({ id: `hulp-${s.player_id}`, kleur: "#FF8A00", tekst: `⚠️ ${s.display_name} kan ${s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken`, speler: s });
+  }
+  if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, link: "/admin/antwoorden" });
+  for (const s of spelend) {
+    const min = minutenNietGezien(s, nu);
+    if (min !== null) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} niet gezien sinds ${min} min${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
+  }
+
+  async function afronden() {
+    // Rapport meteen openen (een venster openen mag alleen direct na de klik)
+    window.open("/admin/rapport", "_blank");
+    const res = await fetch("/api/admin/uitslag", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij: true }),
+    }).catch(() => null);
+    toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : "Uitslag vrijgeven mislukt", res?.ok ? "ok" : "fout");
+  }
+
+  return (
+    <div className="pr-gem-panel spelleider">
+      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="pr-gem-label">🎯 Spelleider</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
+              {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
+            </div>
+          </div>
+          {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
+          <BevestigKnop venster gevaarlijk={false} icoon="🏁"
+            titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
+            vraag="" ja="Ja, uitslag vrijgeven en rapport openen" onBevestig={afronden}
+            className="rl-knop rl-knop--cyan actie-knop">
+            🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
+          </BevestigKnop>
+        </div>
+
+        {aandacht.length === 0 ? (
+          <div className="spelleider-regel" style={{ borderLeftColor: "#4ADE80", color: "#BBF7D0" }}>✅ Alles loopt, niets vraagt je aandacht</div>
+        ) : aandacht.map((a) => {
+          const inhoud = <><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span><span aria-hidden style={{ color: "var(--muted)" }}>›</span></>;
+          const stijl = { borderLeftColor: (a.speler && kleuren.get(a.speler.player_id)) || a.kleur || undefined };
+          return a.link
+            ? <Link key={a.id} href={a.link} className="spelleider-regel spelleider-regel--knop" style={stijl}>{inhoud}</Link>
+            : <button key={a.id} type="button" className="spelleider-regel spelleider-regel--knop" style={stijl} onClick={() => a.speler && onKies(a.speler)}>{inhoud}</button>;
+        })}
+      </div>
+    </div>
+  );
+}

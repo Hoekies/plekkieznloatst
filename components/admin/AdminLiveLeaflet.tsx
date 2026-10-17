@@ -11,9 +11,20 @@ interface Props {
   speciale_items?: SpeciaalItem[];
   // Speltype: bij Verspreid is het eerste punt het startpunt (🏠), net als in de route-editor
   modus?: string | null;
+  // Vaste kleur per speler (zelfde als op het dashboard)
+  kleuren?: Map<string, string>;
+  // Spoor van de laatste minuten per speler: een vervagende lijn achter de speler
+  sporen?: Record<string, [number, number][]>;
+  // Speler die de kaart volgt; slepen stopt het volgen
+  volgId?: string | null;
+  onStopVolgen?: () => void;
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen }: Props) {
+  const sporenLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
+  // Laatste versie van de callback voor de sleep-handler (die wordt maar één keer gekoppeld)
+  const stopVolgenRef = useRef(onStopVolgen);
+  stopVolgenRef.current = onStopVolgen;
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const LRef = useRef<typeof import("leaflet") | null>(null);
@@ -64,7 +75,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         maxZoom: 19,
       }).addTo(map);
 
-      map.on("dragstart", () => setVolgen(false));
+      map.on("dragstart", () => { setVolgen(false); stopVolgenRef.current?.(); });
+      sporenLaagRef.current = L.layerGroup().addTo(map);
 
       mapRef.current = map;
       setKaartKlaar(true);
@@ -81,6 +93,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       mapRef.current?.remove();
       mapRef.current = null;
       LRef.current = null;
+      sporenLaagRef.current = null;
       spelerMarkers.clear();
       puntMarkers.clear();
       specialeItemMarkers.clear();
@@ -142,18 +155,20 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       nieuwePosities.push(latlng);
 
       const isKlaar = speler.sessie_status === "voltooid";
-      const kleur = isKlaar ? "#16A34A" : "#F97316";
-      const label = isKlaar ? "✓" : escapeHtml(speler.display_name.charAt(0).toUpperCase());
+      const kleur = kleuren?.get(speler.player_id) ?? (isKlaar ? "#16A34A" : "#F97316");
+      const label = isKlaar ? "🏁" : escapeHtml(speler.icon ?? speler.display_name.charAt(0).toUpperCase());
+      const gevolgd = volgId === speler.player_id;
+      const maat = gevolgd ? 44 : 34;
 
       const icon = L.divIcon({
         className: "",
         html: `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
           <div style="
-            width:34px;height:34px;border-radius:50%;
-            background:${kleur};border:2px solid #fff;
-            box-shadow:0 2px 8px rgba(0,0,0,0.3);
+            width:${maat}px;height:${maat}px;border-radius:50%;
+            background:#1c0c45;border:3px solid ${kleur};
+            box-shadow:0 0 0 2px #fff, 0 2px 10px rgba(0,0,0,0.45)${gevolgd ? `, 0 0 18px ${kleur}` : ""};
             display:flex;align-items:center;justify-content:center;
-            font-size:14px;font-weight:700;color:#fff;
+            font-size:${gevolgd ? 22 : 17}px;font-weight:700;color:#fff;
           ">${label}</div>
           <div style="
             background:rgba(0,0,0,0.7);color:#fff;
@@ -161,21 +176,26 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
             padding:1px 5px;border-radius:4px;line-height:1.4;
           ">${escapeHtml(speler.display_name)}</div>
         </div>`,
-        iconSize: [34, 52],
-        iconAnchor: [17, 17],
+        iconSize: [maat, maat + 18],
+        iconAnchor: [maat / 2, maat / 2],
       });
 
       const bestaand = spelerMarkersRef.current.get(speler.player_id);
       if (bestaand) {
         bestaand.setLatLng(latlng);
         bestaand.setIcon(icon);
+        bestaand.setZIndexOffset(gevolgd ? 1000 : 0);
       } else {
-        const marker = L.marker(latlng, { icon, interactive: false }).addTo(map);
+        const marker = L.marker(latlng, { icon, interactive: false, zIndexOffset: gevolgd ? 1000 : 0 }).addTo(map);
         spelerMarkersRef.current.set(speler.player_id, marker);
       }
     });
 
-    if (volgen && nieuwePosities.length > 0) {
+    // Eén speler volgen: die blijft in het midden, ingezoomd
+    const gevolgde = volgId ? spelers.find((s) => s.player_id === volgId && s.laatste_lat !== null) : undefined;
+    if (gevolgde) {
+      map.setView([gevolgde.laatste_lat!, gevolgde.laatste_lng!], Math.max(map.getZoom(), 17), { animate: true });
+    } else if (volgen && nieuwePosities.length > 0) {
       // Spelers volgen: bij elke update alle teams in beeld houden
       map.fitBounds(L.latLngBounds(nieuwePosities), { padding: [60, 60], maxZoom: 17, animate: true });
     } else if (!routeGetoondRef.current && route_punten.length > 0) {
@@ -183,7 +203,30 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       routeGetoondRef.current = true;
       map.fitBounds(L.latLngBounds(route_punten.map((p): [number, number] => [p.latitude, p.longitude])), { padding: [40, 40] });
     }
-  }, [spelers, route_punten, volgen, kaartKlaar]);
+  }, [spelers, route_punten, volgen, kaartKlaar, kleuren, volgId]);
+
+  // Spoor van de laatste minuten: in stukjes die naar het heden toe steeds feller worden
+  useEffect(() => {
+    const L = LRef.current;
+    const laag = sporenLaagRef.current;
+    if (!L || !laag) return;
+    laag.clearLayers();
+    const STUKKEN = 6;
+    for (const [id, punten] of Object.entries(sporen)) {
+      const speler = spelers.find((s) => s.player_id === id);
+      if (!speler || speler.sessie_status !== "actief") continue;
+      // Tot de huidige plek doortrekken, zodat de lijn aan de speler vastzit
+      const lijn = speler.laatste_lat !== null ? [...punten, [speler.laatste_lat, speler.laatste_lng!] as [number, number]] : punten;
+      if (lijn.length < 2) continue;
+      const kleur = kleuren?.get(id) ?? "#F97316";
+      const per = Math.ceil((lijn.length - 1) / STUKKEN);
+      for (let i = 0, n = 0; i < lijn.length - 1; i += per, n++) {
+        const stuk = lijn.slice(i, Math.min(lijn.length, i + per + 1));
+        const deel = (n + 1) / Math.ceil((lijn.length - 1) / per);
+        L.polyline(stuk, { color: kleur, weight: 5, opacity: 0.12 + 0.75 * deel, lineCap: "round", lineJoin: "round", interactive: false }).addTo(laag);
+      }
+    }
+  }, [sporen, spelers, kleuren, kaartKlaar]);
 
   // Speciale item markers bijwerken (admin ziet geclaimd = transparant)
   useEffect(() => {
@@ -216,7 +259,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   return (
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      {!volgen && (
+      {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}
           className="btn-premium--cyan"

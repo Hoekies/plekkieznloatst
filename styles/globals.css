@@ -2031,3 +2031,57 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-nav-link--whatsapp > [aria-hidden] { display: inline-flex; justify-content: center; color: #25D366; }
 /* Actieve route op de pc: past in de smalle zijbalk */
 @media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: 6px 8px; font-size: 0.78rem; gap: 6px; } }
+
+/* ── Dashboard: spelleider, tijdlijn, stappenplan, spelerkleuren ── */
+/* Telefoon: compacte strook i.p.v. vier tegels */
+.dash-strook { display: none; }
+@media (max-width: 768px) {
+  .dash-tegels { display: none !important; }
+  .dash-strook { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; scrollbar-width: none; }
+  .dash-strook::-webkit-scrollbar { display: none; }
+  .dash-strook > span { flex-shrink: 0; max-width: 60vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 7px 11px; border-radius: 999px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,217,59,0.35); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; }
+}
+/* Spelers links, tijdlijn rechts op een breed scherm */
+.dash-kolommen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (min-width: 1100px) { .dash-kolommen { grid-template-columns: minmax(0, 1fr) 340px; } .dash-kolommen .tijdlijn { position: sticky; top: 100px; } }
+/* Lege schermen met een volgende stap */
+.leeg-scherm { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.leeg-scherm p { margin: 0; color: var(--text); font-size: 0.9rem; }
+/* Spelerkleur: ring om het icoon */
+.speler-ring { border-radius: 50%; box-shadow: 0 0 0 3px var(--speler-kleur, #A78BFA), 0 0 14px color-mix(in srgb, var(--speler-kleur, #A78BFA) 45%, transparent); background: rgba(255,255,255,0.05); }
+.speler-kaart-klik { cursor: pointer; }
+.speler-kaart-klik:hover { filter: brightness(1.08); }
+.stil-label { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; color: #E5E7EB; background: rgba(156,163,175,0.2); border: 1px solid rgba(156,163,175,0.5); }
+/* Spelleider: regels die aandacht vragen */
+.spelleider-regel { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border-radius: 10px; text-align: left;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid rgba(255,255,255,0.3);
+  color: var(--ink); font-size: 0.86rem; font-weight: 600; text-decoration: none; }
+.spelleider-regel--knop { cursor: pointer; }
+.spelleider-regel--knop:hover { background: rgba(255,255,255,0.1); }
+/* Tijdlijn */
+.tijdlijn-lijst { display: flex; flex-direction: column; gap: 6px; max-height: 520px; overflow-y: auto; }
+.tijdlijn-regel { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border-left: 3px solid; font-size: 0.8rem; color: var(--ink); line-height: 1.35; }
+.tijdlijn-icoon { width: 22px; flex-shrink: 0; text-align: center; font-size: 1rem; }
+.tijdlijn-tijd { flex-shrink: 0; font-size: 0.7rem; color: var(--muted); }
+@media (max-width: 1099px) { .dash-kolommen .tijdlijn { margin-top: 4px; } .tijdlijn-lijst { max-height: 320px; } }
+/* Stappenplan */
+.klaar-stap { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.04); flex-wrap: wrap; }
+.klaar-stap--klaar { opacity: 0.75; }
+.klaar-vinkje { width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; color: #fff; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.3); }
+.klaar-stap--klaar .klaar-vinkje { background: #16A34A; border-color: #4ADE80; }
+.klaar-vinkje--knop { cursor: pointer; }
+.klaar-vinkje--knop:hover { border-color: #FFE680; }
+/* Detailvenster: kerngetallen */
+.detail-cijfers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.detail-cijfers > div { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: rgba(255,255,255,0.06); }
+.detail-cijfers strong { color: #fff; font-family: var(--font-display); font-size: 0.95rem; }
+.detail-cijfers small { color: var(--muted); font-size: 0.68rem; }
+@media (max-width: 480px) { .detail-cijfers { grid-template-columns: repeat(2, 1fr); } }
+/* Live kaart: spelerslijst, tik op een naam om te volgen */
+.live-lijst-regel { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; margin-bottom: 4px; border-radius: 8px;
+  background: none; border: 1px solid transparent; color: #fff; text-align: left; cursor: pointer; }
+.live-lijst-regel:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+.live-lijst-regel:disabled { cursor: default; opacity: 0.7; }
+.live-lijst-regel--volgt { background: rgba(0,217,255,0.12); border-color: rgba(0,217,255,0.45); }
