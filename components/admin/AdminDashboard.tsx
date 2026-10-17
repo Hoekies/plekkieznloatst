@@ -17,7 +17,6 @@ import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
 import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
-import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -186,7 +185,6 @@ export default function AdminDashboard({ initData }: Props) {
                 ) : (
                   <>
                     <p>Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier.</p>
-                    <WhatsAppKnop />
                   </>
                 )}
               </div>

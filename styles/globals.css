@@ -322,10 +322,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
   .admin-nav { gap: clamp(3px, 0.7vh, 6px); padding-top: clamp(4px, 0.8vh, 8px); padding-bottom: clamp(4px, 0.8vh, 8px); }
   .admin-nav-link {
-    height: clamp(30px, calc((100dvh - 295px) / 12), 42px);
-    font-size: clamp(14px, calc((100dvh - 295px) / 12 * 0.42), 17px);
+    height: clamp(30px, calc((100dvh - 340px) / 12), 42px);
+    font-size: clamp(14px, calc((100dvh - 340px) / 12 * 0.42), 17px);
   }
-  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 295px) / 12 * 0.48), 20px); }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 340px) / 12 * 0.48), 20px); }
   .admin-main {
     min-height: 0;
     overflow-y: auto;

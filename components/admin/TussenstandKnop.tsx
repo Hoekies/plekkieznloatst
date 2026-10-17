@@ -14,7 +14,7 @@ export default function TussenstandKnop({ alsMenu = false }: { alsMenu?: boolean
   if (alsMenu) {
     return (
       <BevestigKnop {...venster} className="admin-nav-link">
-        <span aria-hidden>🏆</span> Tussenstand tonen
+        <span aria-hidden>🏆</span> Tussenstand
       </BevestigKnop>
     );
   }
