@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SectieKop from "@/components/admin/SectieKop";
 
 // Tijdlijn op het dashboard: wat er in het spel gebeurt, nieuwste bovenaan, in de kleur van de speler
 type Gebeurtenis = { id: string; tijd: string; speler_id: string | null; icoon: string; item: string | null; tekst: string };
@@ -28,10 +29,12 @@ export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) 
     return () => { actief = false; clearInterval(t); };
   }, []);
 
+  // Kop boven het paneel (net als "Spelende spelers"), zodat beide kolommen gelijk beginnen
   return (
-    <div className="pr-gem-panel tijdlijn">
+    <div className="tijdlijn">
+    <SectieKop titel="📜 Wat gebeurt er" />
+    <div className="pr-gem-panel">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div className="pr-gem-label">📜 Wat gebeurt er</div>
         {items === null ? (
           <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Laden…</div>
         ) : items.length === 0 ? (
@@ -53,6 +56,7 @@ export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) 
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

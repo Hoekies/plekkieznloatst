@@ -111,8 +111,8 @@ export default function GroepenBeheer() {
               </button>
             )}
             {g.heeft_spel && (
-              <BevestigKnop className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
-                title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="Score en voortgang vervallen." ja="Ja, stoppen">
+              <BevestigKnop venster icoon="⏹️" titel={`Spel van ${displayNaam} stoppen?`} className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
+                title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="" ja="Ja, stoppen">
                 ⏹️ Stop spel
               </BevestigKnop>
             )}
@@ -241,7 +241,7 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Loginnaam</label>
           <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
-            placeholder="bijv. speler1" required autoFocus title="Dit typt de speler in bij het inloggen; de teamnaam kiest de speler zelf bij de start" />
+            placeholder="bijv. speler1" required autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} title="Dit typt de speler in bij het inloggen; de teamnaam kiest de speler zelf bij de start" />
         </div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Wachtwoord</label>
@@ -322,7 +322,7 @@ function WijzigVenster({ modal, onSluit, onKlaar }: { modal: BeheerModal; onSlui
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label">{isWachtwoord ? "Nieuw wachtwoord" : "Nieuwe loginnaam"}</label>
                 <input className="form-input" type={isWachtwoord ? "password" : "text"} value={waarde} onChange={(e) => setWaarde(e.target.value)}
-                  placeholder={isWachtwoord ? "min. 8 tekens" : modal.login ?? ""} required minLength={isWachtwoord ? 8 : undefined} autoFocus />
+                  placeholder={isWachtwoord ? "min. 8 tekens" : modal.login ?? ""} required minLength={isWachtwoord ? 8 : undefined} autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} />
               </div>
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>

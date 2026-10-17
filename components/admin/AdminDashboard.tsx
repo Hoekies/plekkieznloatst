@@ -331,20 +331,19 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             </div>
           )}
           {speelt && (
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()}>
+            <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
               {kanVrijgeven && (
-                <BevestigKnop className={s.hulp ? "btn-premium--cyan" : "btn btn-ghost"} style={{ fontSize: "0.75rem", padding: "6px 12px" }}
-                  vraag="Vraag gaat bij hen direct open." ja="Ja, vrijgeven" onBevestig={onVrijgeven}>
+                <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
+                  vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
+                  className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
                   ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
                 </BevestigKnop>
               )}
               {s.hulp && (
-                <button className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px" }} onClick={() => onNegeer(s.hulp!.id)}>
-                  Negeren
-                </button>
+                <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
               )}
-              <BevestigKnop className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "6px 12px", color: "var(--red)" }}
-                vraag="Score en voortgang vervallen." ja="Ja, stoppen" onBevestig={onStop}>
+              <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
+                vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
                 ⏹️ Spel stoppen
               </BevestigKnop>
             </div>

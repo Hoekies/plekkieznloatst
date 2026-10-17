@@ -260,7 +260,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           📱 QR{qrEnabled ? " aan" : ""}
         </button>
         {bestaandeVraag && (
-          <BevestigKnop className="btn btn-danger" style={{ fontSize: "0.82rem" }} vraag="Vraag verwijderen?" ja="Ja, verwijder" onBevestig={verwijderVraag}>
+          <BevestigKnop venster icoon="🗑️" titel="Vraag verwijderen?" className="btn btn-danger" style={{ fontSize: "0.82rem" }} vraag="" ja="Ja, verwijder" onBevestig={verwijderVraag}>
             Vraag verwijderen
           </BevestigKnop>
         )}

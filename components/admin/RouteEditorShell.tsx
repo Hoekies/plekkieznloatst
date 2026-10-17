@@ -947,7 +947,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       <div className="admin-topbar route-editor-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
         {/* Rij 1: navigatie + naam */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <a href="/admin/routes" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Routes</a>
+          <a href="/admin/routes" className="rl-knop editor-terug">← Routes</a>
           {naamWijzig ? (
             <div style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
               <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
@@ -959,11 +959,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
-          {/* Instellingen: goed zichtbaar rechts bovenaan */}
-          <button className="rl-knop rl-knop--goud" style={{ flexShrink: 0 }}
-            onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
-            ⚙️ Instellingen
-          </button>
         </div>
 
         {/* Rij 2: status en route-stappen links, hulpmiddelen in het midden, ongedaan maken en opslagstatus rechts */}
@@ -987,8 +982,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button className="rl-knop rl-knop--cyan" onClick={() => setControleOpen(true)}>▶ Activeer</button>
           )}
           {route.is_active && (
-            <BevestigKnop className="rl-knop rl-knop--rood"
-              vraag="Terug naar concept?" ja="Ja, deactiveer"
+            <BevestigKnop venster icoon="⏸️" titel="Route deactiveren en terug naar concept?" className="rl-knop rl-knop--rood"
+              vraag="" ja="Ja, deactiveer"
               onBevestig={async () => {
                 const res = await api(`/api/admin/routes/${route.id}`, {
                   method: "PATCH",
@@ -1031,6 +1026,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
             title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
             ↶ Ongedaan maken{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+          </button>
+          {/* Instellingen: goud, als laatste in dezelfde rij */}
+          <button className="rl-knop rl-knop--goud"
+            onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
+            ⚙️ Instellingen
           </button>
         </div>
       </div>
@@ -1139,8 +1139,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {centrumPunt && doelAfstandKm > 0 && (
                     <>
                       {punten.length > 0 ? (
-                        <BevestigKnop className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
-                          vraag={`Vervangt ${punten.length} punten.`} ja="Ja, vervang" onBevestig={genereerPuntenInCirkel}>
+                        <BevestigKnop venster icoon="🔄" titel={`De ${punten.length} punten vervangen door nieuwe?`} className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
+                          vraag="" ja="Ja, vervang" onBevestig={genereerPuntenInCirkel}>
                           🔄 Genereer punten in cirkel
                         </BevestigKnop>
                       ) : (

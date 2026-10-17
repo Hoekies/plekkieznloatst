@@ -308,6 +308,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
      11 knoppen + kopjes: per knop is er ongeveer (schermhoogte - 295px) / 12 beschikbaar. */
   .admin-sidebar {
     overflow-y: auto;
+    /* Nooit zijwaarts scrollen: dan verschoof de hele zijbalk een stukje naar links */
+    overflow-x: hidden;
     padding: 10px 0;
     scrollbar-width: none;
   }
@@ -1796,7 +1798,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-uitlog-hoek { position: fixed; top: 0; right: 28px; height: 84px; display: flex; align-items: center; z-index: 900; }
 @media (min-width: 769px) {
   /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
-  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 400px; }
+  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 300px; }
   /* De bovenbalk blijft staan bij het scrollen: de inhoud schuift eronderdoor, niet onder de knoppen rechtsboven */
   .admin-topbar { position: sticky; top: 0; z-index: 800; flex-shrink: 0; background: rgba(46,21,96,0.94); }
   .admin-alleen-mobiel { display: none; }
@@ -1805,7 +1807,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .admin-uitlog-hoek { display: none; }
 }
 .route-editor-topbar { padding: 10px 16px; }
-@media (min-width: 769px) { .route-editor-topbar { padding-right: 400px; } }
+@media (min-width: 769px) { .route-editor-topbar { padding-right: 300px; } }
 
 /* Knoppen in de bovenbalk: zo hoog als de balk toelaat, met een groot icoon */
 .header-knop { height: 52px; padding: 0 18px 0 12px; font-size: 0.86rem; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; }
@@ -2064,7 +2066,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .tijdlijn-regel { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border-left: 3px solid; font-size: 0.8rem; color: var(--ink); line-height: 1.35; }
 .tijdlijn-icoon { width: 22px; flex-shrink: 0; text-align: center; font-size: 1rem; }
 .tijdlijn-tijd { flex-shrink: 0; font-size: 0.7rem; color: var(--muted); }
-@media (max-width: 1099px) { .dash-kolommen .tijdlijn { margin-top: 4px; } .tijdlijn-lijst { max-height: 320px; } }
+@media (max-width: 1099px) { .dash-kolommen .tijdlijn { margin-top: 12px; } .tijdlijn-lijst { max-height: 320px; } }
 /* Stappenplan */
 .klaar-stap { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.04); flex-wrap: wrap; }
 .klaar-stap--klaar { opacity: 0.75; }
@@ -2117,3 +2119,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-icoonknoppen { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; }
   .pr-gem-card .rl-icoonknoppen .rl-knop--icoon { width: 100%; }
 }
+
+/* Knoppen op de spelerkaart van het dashboard: zelfde stijl als de andere kaartknoppen */
+.speler-knoppen { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.speler-knoppen .rl-knop { height: 38px; padding: 0 14px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
+
+/* Route-editor bovenbalk: alles even hoog (34px) en netjes op één lijn */
+.route-editor-topbar .rl-knop, .route-editor-topbar .editor-chip, .route-editor-topbar .editor-terug {
+  height: 34px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; font-size: 0.78rem; border-radius: 9px; }
+.route-editor-topbar .editor-chip { border-radius: 99px; }
+.route-editor-topbar .editor-groep .rl-knop + .rl-knop { padding: 0 10px; }
+.route-editor-topbar .rl-knop--goud { padding: 0 14px; }
+.editor-terug { text-decoration: none; flex-shrink: 0; }
+.route-editor-topbar .editor-balk-scheiding { height: 24px; }
