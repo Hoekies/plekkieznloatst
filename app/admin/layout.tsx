@@ -18,7 +18,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin-shell">
       <div className="admin-mobile-topbar">
         <SidebarToggle />
-        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>PointRush</span>
+        {/* Breed logo in de bovenbalk van de telefoon */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-breed-strak.webp" alt="PointRush" className="admin-mobiel-logo" />
         <div style={{ display: "flex", gap: 8 }}>
           <TussenstandKnop />
           <BroadcastKnop alsIcoon />
