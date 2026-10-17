@@ -180,9 +180,9 @@ export default function RoutesOverzicht() {
           + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>
         <span style={{ flex: 1 }} />
-        <button className="rl-knop rl-knop--icoon actie-knop" data-tip="Route importeren (JSON-bestand)" aria-label="Route importeren"
+        <button className="rl-knop actie-knop" title="Een eerder geëxporteerde route (bestand) toevoegen"
           onClick={() => importRef.current?.click()} disabled={importBezig}>
-          {importBezig ? "…" : "📥"}
+          {importBezig ? "…" : <>📂 <span className="alleen-pc">Route importeren</span><span className="alleen-mobiel">Importeren</span></>}
         </button>
         <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
       </div>
@@ -278,39 +278,37 @@ export default function RoutesOverzicht() {
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</div>
                   <div style={{ fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</div>
                 </div>
-                <span className={`pr-gem-chip ${status.cls}`} style={{ flexShrink: 0 }}>{status.tekst}</span>
-
-                <div className="rl-acties">
-                  {/* Alleen de volgende logische stap als knop: publiceren → activeren */}
-                  {!r.is_active && r.status !== "gepubliceerd" && (
-                    <button className="rl-knop" onClick={() => togglePubliceer(r)}>Publiceren</button>
-                  )}
-                  {!r.is_active && r.status === "gepubliceerd" && (
-                    <button className="rl-knop rl-knop--cyan" onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}
+                <div className="rl-acties rl-acties--vast">
+                  <span className={`pr-gem-chip rl-status ${status.cls}`}>{status.tekst}</span>
+                  {/* Plek 1: de volgende logische stap (publiceren → activeren), bij de actieve route leeg */}
+                  {!r.is_active && r.status !== "gepubliceerd" ? (
+                    <button className="rl-knop rl-stap" onClick={() => togglePubliceer(r)}>Publiceren</button>
+                  ) : !r.is_active && r.status === "gepubliceerd" ? (
+                    <button className="rl-knop rl-knop--cyan rl-stap" onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}
                       title="Eerst controleren of de route klaar is om te spelen">▶ Activeren</button>
-                  )}
-                  <button className="rl-knop" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
-                  {/* Overige acties als directe icoonknoppen (geen uitklapmenu) */}
+                  ) : <span className="rl-knop rl-stap rl-leeg" aria-hidden />}
+                  <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
+                  {/* Icoonknoppen, altijd in dezelfde volgorde */}
+                  <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
+                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>👀</button>
                   <BevestigKnop venster gevaarlijk={false} icoon="⧉" titel="Route kopiëren?"
                     vraag={`Er komt een nieuwe route „${r.name} (kopie)” bij, met alle instellingen, punten, vragen en items. De kopie staat op concept.`}
                     ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
                     {kopieBezig === r.id ? "…" : "⧉"}
                   </BevestigKnop>
-                  <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
-                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>👀</button>
-                  <button className="rl-knop rl-knop--icoon" data-tip="Exporteren (JSON-bestand, met afbeeldingen)" aria-label="Exporteren"
-                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}</button>
-                  {!r.is_active && r.status === "gepubliceerd" && (
+                  <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
+                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "💾"}</button>
+                  {!r.is_active && r.status === "gepubliceerd" ? (
                     <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept" aria-label="Terug naar concept"
                       onClick={() => togglePubliceer(r)}>↩</button>
-                  )}
-                  {!r.is_active && (
+                  ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
+                  {!r.is_active ? (
                     <BevestigKnop venster icoon="🗑️" titel="Route verwijderen?"
-                      vraag={`„${r.name}” wordt verwijderd, met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt. Wil je hem bewaren? Exporteer hem dan eerst (📤).`}
+                      vraag={`„${r.name}” wordt verwijderd, met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt. Wil je hem bewaren? Exporteer hem dan eerst (💾).`}
                       ja="Ja, verwijderen" onBevestig={() => verwijder(r.id, r.name)}
                       className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️</BevestigKnop>
-                  )}
+                  ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                 </div>
                </div>
               </div>

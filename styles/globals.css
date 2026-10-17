@@ -2085,3 +2085,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .live-lijst-regel:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
 .live-lijst-regel:disabled { cursor: default; opacity: 0.7; }
 .live-lijst-regel--volgt { background: rgba(0,217,255,0.12); border-color: rgba(0,217,255,0.45); }
+
+/* Routekaarten: elke knop op een vaste plek, zodat ze bij alle routes recht onder elkaar staan */
+.rl-acties--vast .rl-status { width: 130px; justify-content: center; text-align: center; flex-shrink: 0; box-sizing: border-box; }
+.pr-gem-card .rl-acties--vast .rl-stap { width: 140px; justify-content: center; }
+.pr-gem-card .rl-acties--vast .rl-bewerk { width: 120px; justify-content: center; }
+.rl-leeg { display: inline-block; box-sizing: border-box; visibility: hidden; pointer-events: none; }
+@media (max-width: 768px) {
+  .rl-acties--vast .rl-status { width: auto; }
+  .pr-gem-card .rl-acties--vast .rl-stap { width: 110px; }
+  .pr-gem-card .rl-acties--vast .rl-bewerk { width: 96px; }
+  /* Lege plekken op de telefoon niet tonen: daar lopen de knoppen toch al door naar een volgende regel */
+  .rl-acties--vast .rl-leeg { display: none; }
+}
