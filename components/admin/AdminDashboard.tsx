@@ -14,7 +14,7 @@ import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
-import Klaarzetten from "@/components/admin/Klaarzetten";
+import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
@@ -78,6 +78,7 @@ export default function AdminDashboard({ initData }: Props) {
     try {
       const res = await fetch("/api/admin/reset", { method: "POST" });
       if (!res.ok) { setResetFase("idle"); return; }
+      wisKlaarzetten();
       await ververs();
       setResetFase("klaar");
       setTimeout(() => setResetFase("idle"), 3000);

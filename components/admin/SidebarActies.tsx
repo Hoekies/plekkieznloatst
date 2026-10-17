@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 
 type Fase = "idle" | "bezig" | "klaar-stop" | "klaar-reset";
 
@@ -17,7 +18,8 @@ export default function SidebarActies() {
 
   async function resetSpel() {
     setFase("bezig");
-    await fetch("/api/admin/reset", { method: "POST" });
+    const res = await fetch("/api/admin/reset", { method: "POST" });
+    if (res.ok) wisKlaarzetten();
     setFase("klaar-reset");
     setTimeout(() => setFase("idle"), 2500);
   }
