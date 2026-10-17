@@ -4,6 +4,7 @@ import AudioUnlock from "@/components/speler/AudioUnlock";
 import IOSFixes from "@/components/speler/IOSFixes";
 import DeviceGuard from "@/components/speler/DeviceGuard";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
+import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import SchermAanHouden from "@/components/speler/SchermAanHouden";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
@@ -17,6 +18,7 @@ export default async function SpelerLayout({ children }: { children: React.React
       <IOSFixes />
       <DeviceGuard />
       <SchermAanHouden />
+      <AutoVolledigScherm />
       <header className="speler-header">
         <VolledigSchermKnop />
         {/* Logo zonder lege randen: vult de hoogte van de balk, links uitgelijnd */}

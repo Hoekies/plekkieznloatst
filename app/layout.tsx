@@ -45,12 +45,15 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+import AppInstallatie from "@/components/shared/AppInstallatie";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl">
       <body className={`${spaceGrotesk.variable} ${baloo2.variable}`}>
         <GeenInternet />
         <InAppBrowserWaarschuwing />
+        <AppInstallatie />
         {children}
       </body>
     </html>

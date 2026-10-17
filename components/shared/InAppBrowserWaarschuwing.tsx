@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-function detecteerInAppBrowser(): boolean {
+export function detecteerInAppBrowser(): boolean {
   const ua = navigator.userAgent;
   // WhatsApp in-app browser (iOS + Android)
   if (/WhatsApp/i.test(ua)) return true;

@@ -2141,3 +2141,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .route-editor-topbar .rl-knop--goud { padding: 0 14px; }
 .editor-terug { text-decoration: none; flex-shrink: 0; }
 .route-editor-topbar .editor-balk-scheiding { height: 24px; }
+
+/* Inlogscherm: knop om PointRush als app te installeren (Android) */
+.app-installeer-knop { margin: 14px auto 0; display: block; max-width: 340px; width: 100%; padding: 12px 16px; border-radius: 14px; cursor: pointer;
+  background: rgba(0,217,255,0.14); border: 1.5px solid rgba(0,217,255,0.55); color: #A5F3FC; font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; }
+/* iPhone: stappen om PointRush op het beginscherm te zetten */
+.ios-stappen { margin: 0; padding-left: 22px; text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; line-height: 1.4; color: #fff; }
+.ios-stappen strong { color: #FFE680; }

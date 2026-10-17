@@ -72,6 +72,6 @@ export const config = {
   matcher: [
     // API, beheer, speler en gedeelde links: altijd langs de middleware, ook als het pad op .png e.d. eindigt
     "/api/:path*", "/admin/:path*", "/speler/:path*", "/gedeeld/:path*",
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico|txt|xml)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico|txt|xml)$).*)",
   ],
 };

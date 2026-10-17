@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
+import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
+import AppInstallatie from "@/components/shared/AppInstallatie";
 
 function LoginForm() {
   const params = useSearchParams();
@@ -137,6 +139,9 @@ function LoginForm() {
         </div>
       </div>
 
+      {/* Android: als app installeren, dan opent PointRush voortaan volledig scherm */}
+      <AppInstallatie toonKnop />
+
     </div>
   );
 }
@@ -144,6 +149,7 @@ function LoginForm() {
 export default function LoginPagina() {
   return (
     <Suspense>
+      <AutoVolledigScherm />
       <LoginForm />
     </Suspense>
   );
