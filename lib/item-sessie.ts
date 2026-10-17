@@ -16,8 +16,8 @@ export function itemsNaFinishVan(route: { items_na_finish?: boolean | null; item
 }
 
 // Items die een gefinisht team nog raken: alleen wat de beheerder voor na de finish heeft
-// aangezet, en alleen als het iets doet (spook, dief en banaan werken op punten die nog komen)
-const RAAKT_GEFINISHT = ["bom", "wissel"];
+// aangezet, en alleen als het iets doet (spook en banaan werken op punten die nog komen)
+const RAAKT_GEFINISHT = ["bom", "wissel", "dief"];
 export function doelwitNaFinishVan(route: Parameters<typeof itemsNaFinishVan>[0] & { uitslag_vrijgegeven?: boolean | null }): string[] {
   if (!route || route.uitslag_vrijgegeven) return [];
   return itemsNaFinishVan(route).filter((t) => RAAKT_GEFINISHT.includes(t));

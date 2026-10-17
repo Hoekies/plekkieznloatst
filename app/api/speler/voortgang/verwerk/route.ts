@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Diefstal check: actief effect op eigen sessie? (alleen voor vraagpunten)
+  // Alleen nog voor dieven die vóór de wijziging zijn ingezet: een nieuwe dief steelt meteen bij het inzetten.
   if (punt.type === "vraagpunt" && puntWaarde > 0) {
     const { data: diefstal } = await admin
       .from("special_item_effects")

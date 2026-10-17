@@ -5,7 +5,7 @@ export const ITEM_UITLEG: Record<string, string> = {
   radar: "Radar: 2 minuten zien waar de andere teams lopen.",
   bom: "Bom: een tegenstander verliest punten (bomwaarde).",
   spook: "Spook: het volgende punt van een tegenstander verdwijnt een tijdje.",
-  dief: "Dief: de punten van het volgende goede antwoord van een tegenstander gaan naar dit team.",
+  dief: "Dief: steelt meteen de punten van een goede vraag van een tegenstander (hun laatste goede vraag, anders een gemiddelde vraag).",
   banaan: "Banaan: het volgende punt van een tegenstander ruilt met het punt daarna.",
   wissel: "Wissel: het team ruilt zijn score met een tegenstander.",
   vraagteken: "Vraagteken: meteen gespeeld bij oppakken. Een gok, van jackpot tot punten kwijt.",

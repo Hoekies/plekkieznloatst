@@ -168,14 +168,51 @@ export async function POST(request: NextRequest) {
     eigenNotificatie = `🔄 Je score is gewisseld met team ${doelNaam}!`;
 
   } else if (item.type === "dief") {
+    // De dief steelt meteen de punten van een goede vraag: de punten van de laatste vraag die het
+    // doelteam goed had, of (nog geen goede vraag) het gemiddelde van een vraag in deze route.
+    // Nooit meer dan het doelteam heeft: een score gaat niet onder 0.
+    const { data: laatsteGoed } = await admin
+      .from("player_point_progress")
+      .select("points_awarded")
+      .eq("session_id", doelSessie!.id)
+      .eq("is_correct", true)
+      .gt("points_awarded", 0)
+      .order("answered_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    let buit = laatsteGoed?.points_awarded ?? 0;
+    if (!buit) {
+      const { data: vragen } = await admin
+        .from("questions")
+        .select("points, route_points!inner(route_id)")
+        .eq("route_points.route_id", eigenSessie.route_id)
+        .gt("points", 0);
+      const lijst = (vragen ?? []).map((v) => v.points as number);
+      buit = lijst.length ? Math.round(lijst.reduce((a, b) => a + b, 0) / lijst.length) : routeBomWaarde;
+    }
+    const [{ data: doelHuidig }, { data: eigenHuidig }] = await Promise.all([
+      admin.from("player_sessions").select("score").eq("id", doelSessie!.id).maybeSingle(),
+      admin.from("player_sessions").select("score").eq("id", eigenSessie.id).maybeSingle(),
+    ]);
+    const doelScore = doelHuidig?.score ?? doelSessie!.score;
+    const gestolen = Math.max(0, Math.min(buit, doelScore));
+    await Promise.all([
+      admin.from("player_sessions").update({ score: doelScore - gestolen }).eq("id", doelSessie!.id),
+      admin.from("player_sessions").update({ score: (eigenHuidig?.score ?? eigenSessie.score) + gestolen }).eq("id", eigenSessie.id),
+    ]);
     const { error } = await admin.from("special_item_effects").insert({
       special_item_id: item.id,
       target_session_id: doelSessie!.id,
-      effect_type: "diefstal",
+      effect_type: "punt_aftrek",
       expires_at: null,
-      notification: `🦹 Team ${aanvallerNaam} heeft een dief op je losgelaten! Je volgende punten lopen gevaar.`,
+      notification: gestolen
+        ? `🦹 Dief van team ${aanvallerNaam}! Ze hebben ${gestolen} punten van jullie gestolen.`
+        : `🦹 Dief van team ${aanvallerNaam}! Gelukkig hadden jullie nog geen punten om te stelen.`,
     });
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+    eigenNotificatie = gestolen
+      ? `🦹 Je dief heeft ${gestolen} punten gestolen van team ${doelNaam}!`
+      : `🦹 Team ${doelNaam} had nog geen punten: je dief kwam met lege handen terug.`;
 
   } else if (item.type === "banaan") {
     // Haal session_point_order op voor doelteam
