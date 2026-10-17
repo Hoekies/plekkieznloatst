@@ -324,10 +324,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   }
   .admin-nav { gap: clamp(3px, 0.7vh, 6px); padding-top: clamp(4px, 0.8vh, 8px); padding-bottom: clamp(4px, 0.8vh, 8px); }
   .admin-nav-link {
-    height: clamp(30px, calc((100dvh - 340px) / 12), 42px);
-    font-size: clamp(14px, calc((100dvh - 340px) / 12 * 0.42), 17px);
+    height: clamp(30px, calc((100dvh - 365px) / 12), 42px);
+    font-size: clamp(14px, calc((100dvh - 365px) / 12 * 0.42), 17px);
   }
-  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 340px) / 12 * 0.48), 20px); }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(16px, calc((100dvh - 365px) / 12 * 0.48), 20px); }
   .admin-main {
     min-height: 0;
     overflow-y: auto;
@@ -2007,11 +2007,19 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-menu-kop { font-size: 0.68rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: clamp(2px, 0.5vh, 6px); }
 .admin-menu-lijst { display: flex; flex-direction: column; gap: clamp(3px, 0.7vh, 6px); }
 /* Actieve route bovenin het telefoonmenu */
-.admin-menu-route { display: flex; align-items: center; gap: 8px; margin: 0 10px 6px; padding: 10px 12px; border-radius: 12px;
-  background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.45); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
-.admin-menu-route--geen { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.14); color: var(--muted); }
-.admin-menu-route-naam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.admin-menu-route-chip { flex-shrink: 0; font-size: 0.68rem; padding: 2px 8px; border-radius: 999px; background: rgba(34,197,94,0.25); color: #BBF7D0; }
+.admin-menu-route { display: flex; flex-direction: column; gap: 3px; margin: 0 10px 6px; padding: 9px 12px 10px; border-radius: 12px; text-decoration: none;
+  background: linear-gradient(160deg, rgba(34,197,94,0.28), rgba(22,163,74,0.12)); border: 2px solid rgba(74,222,128,0.7);
+  box-shadow: 0 0 14px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.08); color: #fff; }
+.admin-menu-route:hover { border-color: #86EFAC; }
+.admin-menu-route-kop { display: flex; align-items: center; gap: 6px; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #86EFAC; }
+.admin-menu-route-stip { width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 0 rgba(74,222,128,0.7); animation: pr-route-stip 1.8s ease-out infinite; }
+@keyframes pr-route-stip { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); } 100% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } }
+.admin-menu-route-naam { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; line-height: 1.2; color: #fff;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.admin-menu-route--geen { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); box-shadow: none; }
+.admin-menu-route--geen .admin-menu-route-kop { color: var(--muted); }
+.admin-menu-route--geen .admin-menu-route-stip { background: var(--muted); animation: none; }
+.admin-menu-route--geen .admin-menu-route-naam { color: #FFE680; font-size: 0.85rem; }
 @media (max-width: 768px) {
   /* Telefoon: grotere menu-items, makkelijk met de duim */
   .admin-nav { gap: 8px; padding: 8px 10px 12px; }
@@ -2033,7 +2041,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-nav-link--whatsapp:hover:not(:disabled) { background: rgba(37,211,102,0.26); border-color: rgba(37,211,102,0.8); color: #BBF7D0; }
 .admin-nav-link--whatsapp > [aria-hidden] { display: inline-flex; justify-content: center; color: #25D366; }
 /* Actieve route op de pc: past in de smalle zijbalk */
-@media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: 6px 8px; font-size: 0.78rem; gap: 6px; } }
+@media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: clamp(5px, 0.8vh, 9px) 10px; } .admin-menu-route-naam { font-size: clamp(0.8rem, 1.6vh, 0.95rem); } }
 
 /* ── Dashboard: spelleider, tijdlijn, stappenplan, spelerkleuren ── */
 /* Telefoon: compacte strook i.p.v. vier tegels */

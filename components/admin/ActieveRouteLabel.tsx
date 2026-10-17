@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 // Bovenin het menu: welke route er nu actief is (of dat er geen is)
 export default function ActieveRouteLabel() {
@@ -25,10 +26,13 @@ export default function ActieveRouteLabel() {
 
   if (naam === undefined) return null;
   return (
-    <div className={`admin-menu-route${naam ? "" : " admin-menu-route--geen"}`}>
-      <span aria-hidden>🗺️</span>
-      <span className="admin-menu-route-naam">{naam ?? "Geen actieve route"}</span>
-      {naam && <span className="admin-menu-route-chip">actief</span>}
-    </div>
+    // Eigen kaartje bovenin het menu: kopje met een pulserend bolletje, de naam groot (mag over twee regels)
+    <Link href="/admin/routes" className={`admin-menu-route${naam ? "" : " admin-menu-route--geen"}`} title="Naar de routes">
+      <span className="admin-menu-route-kop">
+        <span className="admin-menu-route-stip" aria-hidden />
+        {naam ? "Actieve route" : "Geen actieve route"}
+      </span>
+      <span className="admin-menu-route-naam">{naam ?? "Kies een route ›"}</span>
+    </Link>
   );
 }
