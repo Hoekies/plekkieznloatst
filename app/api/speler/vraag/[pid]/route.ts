@@ -9,6 +9,15 @@ export async function GET(_: NextRequest, { params }: { params: { pid: string } 
 
   const admin = createAdminClient();
 
+  // Alleen punten van de route waarop deze speler nu speelt (niet die van andere routes)
+  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
+  if (!speler) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { data: sessie } = await admin.from("player_sessions").select("route_id")
+    .eq("player_id", speler.id).in("status", ["actief", "voltooid"]).order("started_at", { ascending: false }).limit(1).maybeSingle();
+  if (!sessie) return NextResponse.json({ fout: "Geen spel" }, { status: 403 });
+  const { data: punt } = await admin.from("route_points").select("id").eq("id", params.pid).eq("route_id", sessie.route_id).maybeSingle();
+  if (!punt) return NextResponse.json({ fout: "Onbekend punt" }, { status: 404 });
+
   const { data: vraag } = await admin
     .from("questions")
     .select(`

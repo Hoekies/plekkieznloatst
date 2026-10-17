@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
+import { escapeHtml } from "@/lib/html";
 
 // Leaflet wordt alleen client-side geladen
 declare global {
@@ -226,7 +227,7 @@ export default function LeafletKaart({
           iconAnchor: [17, 17],
         });
         const marker = L.marker([item.latitude, item.longitude], { icon, draggable: true, zIndexOffset: 200 })
-          .bindTooltip(`${emoji} ${item.name}`, { permanent: false })
+          .bindTooltip(`${emoji} ${escapeHtml(item.name)}`, { permanent: false })
           .on("click", () => onSpeciaalItemKlikRef.current?.(item.id))
           .on("dragend", (e) => {
             const pos = (e.target as import("leaflet").Marker).getLatLng();

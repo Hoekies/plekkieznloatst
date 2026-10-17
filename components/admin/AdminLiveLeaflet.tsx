@@ -128,7 +128,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         iconAnchor: [15, 15],
       });
       const marker = L.marker([punt.latitude, punt.longitude], { icon })
-        .bindTooltip(punt.name, { permanent: false })
+        .bindTooltip(escapeHtml(punt.name), { permanent: false })
         .addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
@@ -245,7 +245,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         iconAnchor: [16, 16],
       });
       const marker = L.marker([item.latitude, item.longitude], { icon })
-        .bindTooltip(`${item.name}${item.claimed ? " (geclaimd)" : ""}`, { permanent: false })
+        .bindTooltip(`${escapeHtml(item.name)}${item.claimed ? " (geclaimd)" : ""}`, { permanent: false })
         .addTo(map);
       specialeItemMarkersRef.current.set(item.id, marker);
     });

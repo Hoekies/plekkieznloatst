@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { middlewareMerk, MERK_HEADER } from "@/lib/middleware-merk";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -54,7 +55,10 @@ export async function middleware(request: NextRequest) {
   const headers = new Headers(request.headers);
   headers.delete("x-pr-user-id");
   headers.delete("x-pr-rol");
+  headers.delete(MERK_HEADER);
   if (user) {
+    // Geheim kenmerk: alleen hiermee vertrouwt de server de doorgegeven gebruiker
+    headers.set(MERK_HEADER, await middlewareMerk());
     headers.set("x-pr-user-id", user.id);
     const rol = user.app_metadata?.rol;
     if (typeof rol === "string") headers.set("x-pr-rol", rol);
@@ -65,5 +69,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico|txt|xml)$).*)"],
+  matcher: [
+    // API, beheer, speler en gedeelde links: altijd langs de middleware, ook als het pad op .png e.d. eindigt
+    "/api/:path*", "/admin/:path*", "/speler/:path*", "/gedeeld/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico|txt|xml)$).*)",
+  ],
 };

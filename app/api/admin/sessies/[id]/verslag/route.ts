@@ -9,6 +9,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   const user = await haalGebruiker();
   if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
+  if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
   const admin = createAdminClient();
   return NextResponse.json(await haalRouteVerslag(admin, params.id));
 }
