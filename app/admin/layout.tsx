@@ -12,6 +12,7 @@ import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
+import VersieRegel from "@/components/admin/VersieRegel";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -59,6 +60,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <div className="admin-menu-blok admin-menu-blok--info">
           <InfoKnop />
+          {/* Versie en laatste update, klein onderaan */}
+          <VersieRegel />
         </div>
       </aside>
       <div className="admin-main">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import VersieRegel from "@/components/admin/VersieRegel";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
@@ -58,6 +59,7 @@ export default function InfoKnop() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/ko-fi.png" alt="Ko-fi — Steun het project" />
             </a>
+            <VersieRegel />
           </div>
         </div>,
         document.body,

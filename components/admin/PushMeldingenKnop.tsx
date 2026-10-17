@@ -97,7 +97,8 @@ export default function PushMeldingenKnop() {
     <>
       <button type="button" className="admin-nav-link" onClick={() => setOpen(true)} title="Pushmeldingen bij een nieuwe foto of hulpvraag">
         <span aria-hidden>{stand === "aan" ? "🔔" : "🔕"}</span> Meldingen
-        {label && <span className={`menu-status menu-status--${stand === "aan" ? "aan" : "uit"}`}>{label}</span>}
+        {/* Klein bolletje i.p.v. tekst: past altijd in de smalle menuknop (groen = aan) */}
+        {label && <span className={`menu-status menu-status--${stand === "aan" ? "aan" : "uit"}`} title={`Meldingen ${label}`} aria-label={`Meldingen ${label}`} />}
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>

@@ -1,6 +1,15 @@
+import { readFileSync } from "fs";
+
+// Versienummer (package.json) en het moment van bouwen: zichtbaar onderin het beheermenu
+const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_VERSIE: version,
+    NEXT_PUBLIC_BOUWDATUM: new Date().toISOString(),
+  },
   experimental: {
     // Bij het wisselen tussen pagina's altijd de actuele versie ophalen (standaard 30 s bewaard)
     staleTimes: { dynamic: 0 },
