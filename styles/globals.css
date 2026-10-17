@@ -2092,9 +2092,28 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .pr-gem-card .rl-acties--vast .rl-bewerk { width: 120px; justify-content: center; }
 .rl-leeg { display: inline-block; box-sizing: border-box; visibility: hidden; pointer-events: none; }
 @media (max-width: 768px) {
-  .rl-acties--vast .rl-status { width: auto; }
-  .pr-gem-card .rl-acties--vast .rl-stap { width: 110px; }
-  .pr-gem-card .rl-acties--vast .rl-bewerk { width: 96px; }
-  /* Lege plekken op de telefoon niet tonen: daar lopen de knoppen toch al door naar een volgende regel */
-  .rl-acties--vast .rl-leeg { display: none; }
+  /* Telefoon: kaart start ingeklapt (kop met naam en status); open = twee nette rijen knoppen */
+  .rl-kaart .rl-acties { display: none !important; }
+  .rl-kaart--open .rl-acties { display: flex !important; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; }
+  .rl-acties--vast .rl-status { display: none; }
+}
+
+/* Routekaart-kop: op de computer gewoon naam en icoon (niet klikbaar), op de telefoon de uitklapknop */
+.rl-kop { display: contents; }
+.rl-status-kop, .rl-pijl { display: none; }
+.rl-tekstknoppen, .rl-icoonknoppen { display: contents; }
+.rl-titel { flex: 1; min-width: 160px; }
+/* Statuslabel heeft al een bolletje in de tekst: het extra bolletje van .rl-status weg */
+.rl-acties--vast .rl-status::before { display: none; }
+@media (max-width: 768px) {
+  .rl-kop { display: flex; align-items: center; gap: 12px; width: 100%; padding: 0; background: none; border: none; text-align: left; cursor: pointer; color: inherit; }
+  .rl-kop .modus-tegel, .rl-kop > :first-child { flex-shrink: 0; }
+  .rl-status-kop { display: inline-flex; flex-shrink: 0; }
+  .rl-pijl { display: inline; flex-shrink: 0; color: var(--muted); font-size: 1rem; width: 14px; text-align: center; }
+  .rl-titel { min-width: 0 !important; }
+  .rl-tekstknoppen { display: flex; gap: 8px; width: 100%; }
+  .rl-tekstknoppen > .rl-knop { flex: 1; width: auto !important; }
+  .rl-tekstknoppen > .rl-leeg { display: none; }
+  .rl-icoonknoppen { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; }
+  .pr-gem-card .rl-icoonknoppen .rl-knop--icoon { width: 100%; }
 }

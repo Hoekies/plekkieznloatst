@@ -145,6 +145,9 @@ export default function RoutesOverzicht() {
 
   // Kopie als basis voor een nieuwe route: alle instellingen, punten, vragen en items
   const [kopieBezig, setKopieBezig] = useState<string | null>(null);
+  // Telefoon: routekaarten starten ingeklapt; tik op naam of icoon om de knoppen te tonen
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const wisselOpen = (id: string) => setOpen((o) => { const n = new Set(o); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   async function kopieer(id: string, naam: string) {
     setKopieBezig(id);
     const res = await fetch(`/api/admin/routes/${id}/kopie`, { method: "POST" });
@@ -271,15 +274,22 @@ export default function RoutesOverzicht() {
                   <SectieKop titel={rang(r) === 0 ? GROEP_KOP[0] : `${GROEP_KOP[rang(r)]} (${aantalIn(rang(r))})`} />
                 </div>
               )}
-              <div className="pr-gem-card" style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
+              <div className={`pr-gem-card rl-kaart${open.has(r.id) ? " rl-kaart--open" : ""}`} style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
                <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
-                <ModusTegel modus={r.modus} size={56} />
-                <div style={{ flex: 1, minWidth: 160 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</div>
-                  <div style={{ fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</div>
-                </div>
+                {/* Kop: op de telefoon de knop om de kaart open en dicht te klappen */}
+                <button type="button" className="rl-kop" onClick={() => wisselOpen(r.id)} aria-expanded={open.has(r.id)}>
+                  <ModusTegel modus={r.modus} size={56} />
+                  <span className="rl-titel">
+                    <span style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</span>
+                    <span style={{ display: "block", fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</span>
+                  </span>
+                  <span className={`pr-gem-chip rl-status-kop ${status.cls}`}>{status.tekst}</span>
+                  <span className="rl-pijl" aria-hidden>{open.has(r.id) ? "▾" : "▸"}</span>
+                </button>
                 <div className="rl-acties rl-acties--vast">
                   <span className={`pr-gem-chip rl-status ${status.cls}`}>{status.tekst}</span>
+                  {/* Telefoon: eerst de knoppen met tekst over de hele breedte, daaronder de iconen */}
+                  <div className="rl-tekstknoppen">
                   {/* Plek 1: de volgende logische stap (publiceren → activeren), bij de actieve route leeg */}
                   {!r.is_active && r.status !== "gepubliceerd" ? (
                     <button className="rl-knop rl-stap" onClick={() => togglePubliceer(r)}>Publiceren</button>
@@ -288,7 +298,9 @@ export default function RoutesOverzicht() {
                       title="Eerst controleren of de route klaar is om te spelen">▶ Activeren</button>
                   ) : <span className="rl-knop rl-stap rl-leeg" aria-hidden />}
                   <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
+                  </div>
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}
+                  <div className="rl-icoonknoppen">
                   <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
                     onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>👀</button>
                   <BevestigKnop venster gevaarlijk={false} icoon="⧉" titel="Route kopiëren?"
@@ -309,6 +321,7 @@ export default function RoutesOverzicht() {
                       ja="Ja, verwijderen" onBevestig={() => verwijder(r.id, r.name)}
                       className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️</BevestigKnop>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
+                  </div>
                 </div>
                </div>
               </div>
