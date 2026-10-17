@@ -297,6 +297,8 @@ export default function RoutesOverzicht() {
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
                     {kopieBezig === r.id ? "…" : "⧉"}
                   </BevestigKnop>
+                  <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
+                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>👀</button>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren (JSON-bestand, met afbeeldingen)" aria-label="Exporteren"
                     disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}</button>
                   {!r.is_active && r.status === "gepubliceerd" && (
