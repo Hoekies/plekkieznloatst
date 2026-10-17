@@ -8,7 +8,7 @@ import { toonMelding } from "@/components/admin/Melding";
 // Werkt ook als de app dicht is, en komt via de telefoon ook op een horloge.
 const PUBLIEK = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
-type Stand = "laden" | "aan" | "uit" | "geblokkeerd" | "niet-mogelijk" | "iphone-beginscherm";
+type Stand = "laden" | "aan" | "uit" | "geblokkeerd" | "niet-mogelijk" | "iphone-beginscherm" | "geen-sleutel";
 
 function sleutelBytes(basis64: string): Uint8Array<ArrayBuffer> {
   const opgevuld = (basis64 + "=".repeat((4 - (basis64.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/");
@@ -31,7 +31,9 @@ export default function PushMeldingenKnop() {
     (async () => {
       const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       const alsApp = (navigator as Navigator & { standalone?: boolean }).standalone === true || window.matchMedia("(display-mode: standalone)").matches;
-      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !PUBLIEK) {
+      // Sleutel ontbreekt in deze versie van de app: in Vercel zetten en opnieuw bouwen (Redeploy)
+      if (!PUBLIEK) { setStand("geen-sleutel"); return; }
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
         // iPhone: pushmeldingen alleen als PointRush op het beginscherm staat
         setStand(ios && !alsApp ? "iphone-beginscherm" : "niet-mogelijk");
         return;
@@ -116,6 +118,9 @@ export default function PushMeldingenKnop() {
               )}
               {stand === "geblokkeerd" && (
                 <div className="melding melding-fout" style={{ margin: 0 }}>Meldingen zijn geblokkeerd voor deze site. Zet ze aan in de instellingen van je browser of telefoon (bij PointRush → Meldingen) en probeer het opnieuw.</div>
+              )}
+              {stand === "geen-sleutel" && (
+                <div className="melding melding-fout" style={{ margin: 0 }}>De sleutel voor meldingen ontbreekt in deze versie van de app. Zet NEXT_PUBLIC_VAPID_PUBLIC_KEY en VAPID_PRIVATE_KEY in Vercel en bouw de app opnieuw (Deployments → ⋯ → Redeploy).</div>
               )}
               {stand === "niet-mogelijk" && (
                 <div className="melding melding-fout" style={{ margin: 0 }}>Deze browser ondersteunt geen pushmeldingen.</div>
