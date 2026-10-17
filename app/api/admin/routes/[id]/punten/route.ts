@@ -24,17 +24,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const body = await request.json();
   const admin = createAdminClient();
 
-  // Bepaal de volgende order_index
-  const { count } = await admin
-    .from("route_points")
-    .select("*", { count: "exact", head: true })
-    .eq("route_id", params.id);
+  // Volgende order_index: één hoger dan de hoogste. Niet "aantal + 1": na het verwijderen van
+  // een punt zit er een gat in de nummering en is dat nummer al bezet (dubbel = fout bij opslaan).
+  const [{ count }, { data: hoogste }] = await Promise.all([
+    admin.from("route_points").select("*", { count: "exact", head: true }).eq("route_id", params.id),
+    admin.from("route_points").select("order_index").eq("route_id", params.id)
+      .order("order_index", { ascending: false }).limit(1).maybeSingle(),
+  ]);
 
   const { data, error } = await admin
     .from("route_points")
     .insert({
       route_id: params.id,
-      order_index: (count ?? 0) + 1,
+      order_index: (hoogste?.order_index ?? 0) + 1,
       type: body.type ?? "vraagpunt",
       name: body.name ?? `Punt ${(count ?? 0) + 1}`,
       latitude: body.latitude,
