@@ -76,6 +76,19 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [kmAfgelegd, setKmAfgelegd] = useState(0);
   // Startitems: gelopen meters per sessie bewaren (ook na herladen), daarna één keer ophalen
   const startitemsKey = `pr_startitems_${sessie.id}`;
+  // Punt vrijgegeven door de organisatie: na het herladen eerst een melding, dan de vraag
+  const vrijgegevenKey = `pointrush_vrijgegeven_${sessie.id}`;
+  const [vrijgegevenMelding, setVrijgegevenMelding] = useState<"organisatie" | "hulp" | null>(null);
+  useEffect(() => {
+    try {
+      const soort = localStorage.getItem(vrijgegevenKey);
+      if (soort === "organisatie" || soort === "hulp") setVrijgegevenMelding(soort);
+      localStorage.removeItem(vrijgegevenKey);
+    } catch { /* geen opslag */ }
+  }, [vrijgegevenKey]);
+  function onthoudVrijgegeven(soort: "organisatie" | "hulp") {
+    try { localStorage.setItem(vrijgegevenKey, soort); } catch { /* geen opslag */ }
+  }
   const gelopenBasisRef = useRef<number | null>(null);
   const startitemsBezigRef = useRef(false);
   const [startitemsScherm, setStartitemsScherm] = useState<string[] | null>(null);
@@ -354,6 +367,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // de server zet dat punt als bereikt. Herladen opent de vraag, net als na een hulpmelding.
         const v = vrijgaveRef.current;
         if (v.puntId && data?.current_point_id === v.puntId && !v.bereikt && !v.popup && !bezigRef.current) {
+          onthoudVrijgegeven("organisatie");
           speelPuntBereikt();
           window.location.reload();
         }
@@ -397,7 +411,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       hulpIdRef.current = null;
       setHulpOpen(false);
       if (data.status === "toegekend") {
-        // Punt is vrijgegeven: herladen zet het als bereikt en opent de vraag
+        // Punt is vrijgegeven: herladen zet het als bereikt en opent de vraag (met eerst een melding)
+        onthoudVrijgegeven("hulp");
         speelPuntBereikt();
         window.location.reload();
       } else if (data.status === "genegeerd") {
@@ -760,6 +775,26 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </div>
       )}
 
+
+      {/* Melding: de organisatie heeft het punt vrijgegeven (ligt boven de vraag, die daarna zichtbaar is) */}
+      {vrijgegevenMelding && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1700, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div className="pr-panel" style={{ maxWidth: 360, width: "100%", animation: "pr-effect-pop 0.4s ease" }}>
+            <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", paddingTop: 22 }}>
+              <div style={{ fontSize: "3.2rem", lineHeight: 1 }}>📨</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "var(--pr-gold)" }}>
+                {vrijgegevenMelding === "hulp" ? "Je melding is gezien" : "Punt vrijgegeven"}
+              </div>
+              <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
+                De organisatie heeft dit punt voor jullie vrijgegeven. Je hoeft er niet meer heen: beantwoord de vraag hier.
+              </p>
+              <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => setVrijgegevenMelding(null)}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Startitems van de organisatie, na 100 meter lopen */}
       {startitemsScherm && (() => {
