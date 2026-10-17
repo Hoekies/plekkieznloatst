@@ -9,6 +9,7 @@ import HulpMeldingen from "@/components/admin/HulpMeldingen";
 import MeldingHouder from "@/components/admin/Melding";
 import InfoKnop from "@/components/admin/InfoKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
+import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -21,16 +22,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Breed logo in de bovenbalk van de telefoon */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed-strak.webp" alt="PointRush" className="admin-mobiel-logo" />
-        <div style={{ display: "flex", gap: 8 }}>
-          <TussenstandKnop />
-          <BroadcastKnop alsIcoon />
-          <UitlogKnop />
-        </div>
+        {/* Tussenstand en bericht staan op de telefoon in het menu, met tekst erbij */}
+        <UitlogKnop />
       </div>
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
+        </div>
+        {/* Telefoon: bovenin het menu welke route er loopt */}
+        <div className="admin-alleen-mobiel">
+          <ActieveRouteLabel />
         </div>
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
@@ -39,11 +41,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>
         </nav>
-        <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "clamp(2px, 0.5vh, 6px)" }}>Beheer</div>
+        {/* Telefoon: acties tijdens het spel (op de computer staan ze rechtsboven) */}
+        <div className="admin-alleen-mobiel admin-menu-blok">
+          <div className="admin-menu-kop">Spel</div>
+          <div className="admin-menu-lijst">
+            <TussenstandKnop alsMenu />
+            <BroadcastKnop />
+          </div>
+        </div>
+        <div className="admin-menu-blok admin-menu-blok--beheer">
+          <div className="admin-menu-kop">Beheer</div>
           <SidebarActies />
         </div>
-        <div style={{ padding: "clamp(4px, 0.8vh, 8px) 10px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div className="admin-menu-blok admin-menu-blok--info">
           <InfoKnop />
         </div>
       </aside>
