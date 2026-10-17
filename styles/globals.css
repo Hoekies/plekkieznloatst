@@ -2167,3 +2167,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .menu-status { margin-left: auto; flex-shrink: 0; font-size: 0.66rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
 .menu-status--aan { background: rgba(34,197,94,0.25); color: #BBF7D0; }
 .menu-status--uit { background: rgba(255,255,255,0.1); color: var(--muted); }
+
+/* Telefoon: dashboard nooit breder dan het scherm (vensters en spelerkaarten vielen eraf) */
+@media (max-width: 768px) {
+  .admin-main { overflow-x: clip; }
+  .speler-kaart-klik .pr-gem-card-inner { gap: 8px; }
+  .rang-kolom { width: 24px !important; font-size: 1.25rem !important; }
+  .speler-kaart-klik .pr-gem-avatar { width: 40px; height: 40px; font-size: 1.4rem; }
+  /* Knoppen op de spelerkaart: mogen over twee regels en vullen de breedte */
+  .speler-knoppen > * { flex: 1 1 130px; min-width: 0; white-space: normal !important; justify-content: center; text-align: center; height: auto !important; min-height: 38px; padding: 6px 10px !important; line-height: 1.2; }
+  .wacht-blok { flex-wrap: wrap; }
+  .spelleider-regel { font-size: 0.8rem; }
+}
