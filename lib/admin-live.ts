@@ -94,7 +94,14 @@ export async function haalLiveData(): Promise<LiveData> {
   const sessies = sessiesResult?.data ?? [];
   const fout = sessiesResult?.error ? `Sessies konden niet geladen worden: ${sessiesResult.error.message}` : undefined;
 
-  const sessieMap = new Map((sessies).map((s) => [s.player_id, s]));
+  // Eén sessie per speler. Heeft een speler er meer (bv. een gestopt spel en een nieuw spel), dan telt
+  // de lopende, dan de gefinishte; een vervallen sessie alleen als er niets anders is.
+  const voorrang = (st: string) => (st === "actief" ? 0 : st === "voltooid" ? 1 : 2);
+  const sessieMap = new Map<string, (typeof sessies)[number]>();
+  for (const s of sessies) {
+    const huidig = sessieMap.get(s.player_id);
+    if (!huidig || voorrang(s.status) < voorrang(huidig.status)) sessieMap.set(s.player_id, s);
+  }
   const sessieIds = (sessies).map((s) => s.id);
 
   const huidigePointIds = [...new Set(

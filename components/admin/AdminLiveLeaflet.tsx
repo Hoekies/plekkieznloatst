@@ -140,16 +140,16 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     const map = mapRef.current;
     if (!L || !map) return;
 
-    const actieveIds = new Set(
-      spelers.filter((s) => s.laatste_lat !== null).map((s) => s.player_id)
-    );
+    // Alleen wie nu speelt of gefinisht is: een gestopt (vervallen) spel hoort niet op de kaart
+    const opKaart = spelers.filter((s) => (s.sessie_status === "actief" || s.sessie_status === "voltooid") && s.laatste_lat !== null);
+    const actieveIds = new Set(opKaart.map((s) => s.player_id));
     spelerMarkersRef.current.forEach((marker, id) => {
       if (!actieveIds.has(id)) { marker.remove(); spelerMarkersRef.current.delete(id); }
     });
 
     const nieuwePosities: [number, number][] = [];
 
-    spelers.forEach((speler) => {
+    opKaart.forEach((speler) => {
       if (speler.laatste_lat === null || speler.laatste_lng === null) return;
       const latlng: [number, number] = [speler.laatste_lat, speler.laatste_lng];
       nieuwePosities.push(latlng);
@@ -263,7 +263,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         <button
           onClick={() => setVolgen(true)}
           className="btn-premium--cyan"
-          style={{ position: "absolute", top: 12, right: 12, zIndex: 1000, fontSize: "0.8rem", padding: "8px 14px" }}>
+          style={{ position: "absolute", top: 12, left: 60, zIndex: 1000, fontSize: "0.8rem", padding: "8px 14px" }}>
           📍 Volg spelers
         </button>
       )}

@@ -1986,9 +1986,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .gb-inklap:hover { background: rgba(255,255,255,0.1); }
 
 /* Live kaart: op de computer met ruimte en een rand, op de telefoon over de volle breedte */
-.live-kaart-vak { padding: 24px; }
-.live-kaart-rand { border-radius: 14px; border: 1px solid var(--line); }
-.live-kaart-lijst { top: 36px; right: 36px; max-height: calc(100% - 72px); }
+/* Kaart over het hele werkvlak, ook op de computer */
+.live-kaart-vak { padding: 0; }
+.live-kaart-rand { border-radius: 0; border: none; }
+.live-kaart-lijst { top: 12px; right: 12px; max-height: calc(100% - 24px); }
 @media (max-width: 768px) {
   .live-kaart-vak { padding: 0; }
   .live-kaart-rand { border-radius: 0; border: none; }
