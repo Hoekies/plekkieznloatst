@@ -18,6 +18,8 @@ export type LeaderboardEntry = {
 export type SpelerLocatie = {
   session_id: string;
   teamnaam: string;
+  // Gekozen icoon van het team (emoji), zodat je ze ook herkent bij het kiezen van een tegenstander
+  icon?: string | null;
   // null = niet zichtbaar (alleen met een actieve radar zie je waar andere teams lopen)
   latitude: number | null;
   longitude: number | null;

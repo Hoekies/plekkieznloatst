@@ -877,7 +877,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           // Gefinishte teams alleen met de items die de beheerder voor na de finish heeft aangezet
           andereSessies={andereSpelers
             .filter((s) => !s.gefinisht || doelNaFinish.includes(activeSpeciaalItem.type))
-            .map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam, gefinisht: s.gefinisht }))}
+            .map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam, icon: s.icon ?? null, gefinisht: s.gefinisht }))}
           waarden={waarden}
           plek={positie ? { lat: positie.latitude, lng: positie.longitude } : null}
           onVerwerkt={inventarisItemGebruikt}

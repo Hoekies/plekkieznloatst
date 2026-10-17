@@ -9,6 +9,7 @@ type Fase = "bevestig" | "kies_team" | "bezig" | "bevestigd" | "fout";
 interface AndereSpeler {
   session_id: string;
   teamnaam: string;
+  icon?: string | null;
   gefinisht?: boolean;
 }
 
@@ -147,7 +148,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
                     key={s.session_id}
                     onClick={() => pasEffectToe(s.session_id)}
                     style={{
-                      padding: "13px 16px",
+                      padding: "10px 16px",
                       borderRadius: "10px",
                       border: `2px solid ${info.kleur}`,
                       background: "#fff",
@@ -155,9 +156,12 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
                       fontWeight: 700,
                       fontSize: "16px",
                       cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                     }}
                   >
-                    {s.teamnaam}{s.gefinisht && " 🏁"}
+                    {/* Icoon van het team, zodat je in één oogopslag ziet wie je kiest */}
+                    {s.icon && <span aria-hidden style={{ fontSize: "1.7rem", lineHeight: 1 }}>{s.icon}</span>}
+                    <span>{s.teamnaam}{s.gefinisht && " 🏁"}</span>
                   </button>
                 ))}
               </div>

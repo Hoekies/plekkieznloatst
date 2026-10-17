@@ -267,7 +267,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     zichtbaar.forEach((speler) => {
       const isVerouderd = nu - new Date(speler.created_at!).getTime() > VEROUDERD_MS;
       const kleur = isVerouderd ? "#9CA3AF" : "#F97316";
-      const label = isVerouderd ? "?" : escapeHtml(speler.teamnaam.charAt(0).toUpperCase());
+      // Het icoon van het team (zoals bij het kiezen van een tegenstander), anders de eerste letter
+      const label = isVerouderd ? "?" : escapeHtml(speler.icon ?? speler.teamnaam.charAt(0).toUpperCase());
       const naam = isVerouderd ? `${escapeHtml(speler.teamnaam)}\n>2 min` : escapeHtml(speler.teamnaam);
 
       const icon = L.divIcon({
@@ -278,7 +279,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
             background:${kleur};border:${isVerouderd ? "2px dashed #9CA3AF" : "2px solid #fff"};
             box-shadow:0 2px 6px rgba(0,0,0,0.25);
             display:flex;align-items:center;justify-content:center;
-            font-size:13px;font-weight:700;color:#fff;
+            font-size:${speler.icon && !isVerouderd ? 19 : 13}px;font-weight:700;color:#fff;
           ">${label}</div>
           <div style="
             background:rgba(0,0,0,0.65);color:#fff;
