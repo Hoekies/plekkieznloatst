@@ -36,15 +36,16 @@ export const ITEM_INFO: Record<string, ItemInfo> = {
 
 // Korte speluitleg bovenaan het info-venster, per speltype
 export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
+  // Kort en in één oogopslag: lopen → vraag → volgend punt, en wat je met items doet
   sequentieel: [
-    "Loop de punten op volgorde af. Je ziet steeds alleen het volgende punt; de paarse stippellijn wijst de weg.",
-    "Ben je er? Tik linksonder op 📍 en beantwoord de vraag. Het team met de meeste punten wint.",
-    "Na de eerste 100 meter krijg je startitems van de organisatie (bijvoorbeeld een banaan) in je balk onderin. Pas op voor onzichtbare plek zooi.",
+    "Loop naar het punt op de kaart. Ben je er, dan krijg je een vraag: goed = punten.",
+    "Daarna verschijnt het volgende punt. Het team met de meeste punten wint.",
+    "Items komen in je balk onderin. Zet ze in om andere teams te saboteren of jezelf te helpen. Pas op voor onzichtbare plek zooi!",
   ],
   verspreid: [
-    "Elk team loopt hetzelfde rondje, maar begint ergens anders. Je ziet steeds alleen het volgende punt.",
-    "Ben je er? Tik linksonder op 📍 en beantwoord de vraag. Het team met de meeste punten wint.",
-    "Loop over items op de kaart om ze op te pakken; ze komen in je balk onderin.",
+    "Loop naar het punt op de kaart. Ben je er, dan krijg je een vraag: goed = punten.",
+    "Daarna verschijnt het volgende punt. Het team met de meeste punten wint.",
+    "Loop over items op de kaart om ze op te pakken. Ze komen in je balk onderin: zet ze in om andere teams te saboteren of jezelf te helpen.",
   ],
 };
 

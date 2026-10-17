@@ -23,6 +23,11 @@ export function routeControle({ punten, modus, vraagPuntIds, verwachtTeams, item
   }
   if (punten[punten.length - 1].type !== "eindpunt") regels.push({ niveau: "fout", tekst: "Het laatste punt is geen finish (🏁)." });
   if (modus === "verspreid" && punten.length < 4) regels.push({ niveau: "fout", tekst: "Een verspreide route heeft een start, minstens 2 punten in het rondje en een finish nodig." });
+  // Verspreid: het startpunt (🏠) moet een vraag hebben. Spelers krijgen eerst de welkomstuitleg
+  // en daarna, na 25 meter lopen, deze eerste vraag.
+  if (modus === "verspreid" && punten.length >= 3 && !vraagPuntIds.has(punten[0].id)) {
+    regels.push({ niveau: "fout", tekst: `Het startpunt (🏠 ${naam(punten[0])}) heeft nog geen vraag. Die vraag krijgen spelers als eerste, na de welkomstuitleg.` });
+  }
   const zonderVraag = punten.filter((p) => p.type === "vraagpunt" && !vraagPuntIds.has(p.id));
   if (zonderVraag.length) regels.push({ niveau: "let op", tekst: `${zonderVraag.length} vraagpunt${zonderVraag.length !== 1 ? "en" : ""} zonder vraag: ${lijst(zonderVraag)}.` });
   const zonderNaam = punten.filter((p) => !p.name?.trim());
