@@ -57,18 +57,15 @@ export default function BevestigKnop({
             position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)",
             display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
           }}>
-            <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420 }}>
+            <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420, position: "relative" }}>
+              <button type="button" className="editor-paneel-sluit venster-sluit" disabled={bezig} onClick={() => setVragen(false)} title="Annuleren" aria-label="Annuleren">✕</button>
               <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "22px 20px 18px" }}>
                 {icoon && <div style={{ fontSize: "2.6rem", lineHeight: 1 }}>{icoon}</div>}
                 {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#fff" }}>{titel}</div>}
                 <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap", justifyContent: "center" }}>
-                  {/* Annuleren altijd rechts */}
-                  <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 44, padding: "0 20px" }}
+                  <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 44, padding: "0 22px" }}
                     disabled={bezig} onClick={bevestig} autoFocus>
                     {bezig ? "Bezig…" : ja}
-                  </button>
-                  <button type="button" className="rl-knop" style={{ height: 44, padding: "0 20px" }} disabled={bezig} onClick={() => setVragen(false)}>
-                    Annuleren
                   </button>
                 </div>
               </div>

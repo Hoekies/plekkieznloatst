@@ -7,6 +7,7 @@ import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import StatKaart from "@/components/admin/StatKaart";
 import SectieKop from "@/components/admin/SectieKop";
+import SchuifTekst from "@/components/admin/SchuifTekst";
 import { toonMelding } from "@/components/admin/Melding";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
@@ -168,6 +169,12 @@ export default function RoutesOverzicht() {
     laad();
   }
 
+  async function deactiveer() {
+    const res = await fetch("/api/admin/routes/stoppen", { method: "POST" });
+    if (!res.ok) toonMelding("Deactiveren mislukt", "fout");
+    laad();
+  }
+
   async function togglePubliceer(route: Route) {
     const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
     await fetch(`/api/admin/routes/${route.id}`, {
@@ -176,6 +183,27 @@ export default function RoutesOverzicht() {
       body: JSON.stringify({ status: nieuweStatus }),
     });
     laad();
+  }
+
+  // Volgende stap voor een route, altijd eerst bevestigen: concept → publiceren, gepubliceerd → activeren
+  // (via de controle in de editor), actief → deactiveren
+  function stapKnop(r: Route) {
+    if (r.is_active) {
+      return (
+        <BevestigKnop venster icoon="⏹️" titel={`"${r.name}" deactiveren?`} vraag="" ja="Ja, deactiveren"
+          onBevestig={deactiveer} className="rl-knop rl-knop--rood rl-stap">⏹ Deactiveren</BevestigKnop>
+      );
+    }
+    if (r.status === "gepubliceerd") {
+      return (
+        <BevestigKnop venster gevaarlijk={false} icoon="▶️" titel={`"${r.name}" activeren?`} vraag="" ja="Ja, naar de controle"
+          onBevestig={() => router.push(`/admin/routes/${r.id}?controle=1`)} className="rl-knop rl-knop--cyan rl-stap">▶ Activeren</BevestigKnop>
+      );
+    }
+    return (
+      <BevestigKnop venster gevaarlijk={false} icoon="📢" titel={`"${r.name}" publiceren?`} vraag="" ja="Ja, publiceren"
+        onBevestig={() => togglePubliceer(r)} className="rl-knop rl-stap">📢 Publiceren</BevestigKnop>
+    );
   }
 
   return (
@@ -288,10 +316,11 @@ export default function RoutesOverzicht() {
               <div className={`pr-gem-card rl-kaart${open.has(r.id) ? " rl-kaart--open" : ""}`} style={r.is_active ? { boxShadow: "0 0 0 2px #22c55e, 0 0 16px rgba(34,197,94,0.45)" } : undefined}>
                <div className="pr-gem-card-inner" style={{ flexWrap: "wrap" }}>
                 {/* Kop: op de telefoon de knop om de kaart open en dicht te klappen */}
-                <button type="button" className="rl-kop" onClick={() => wisselOpen(r.id)} aria-expanded={open.has(r.id)}>
+                <div className="rl-kop" role="button" tabIndex={0} onClick={() => wisselOpen(r.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter") wisselOpen(r.id); }} aria-expanded={open.has(r.id)}>
                   <ModusTegel modus={r.modus} size={56} />
                   <span className="rl-titel">
-                    <span style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{r.name}</span>
+                    <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
                     <span style={{ display: "block", fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</span>
                     {r.bewerkt_op && (
                       <span style={{ display: "block", fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }} title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
@@ -299,20 +328,15 @@ export default function RoutesOverzicht() {
                       </span>
                     )}
                   </span>
-                  <span className={`pr-gem-chip rl-status-kop ${status.cls}`}>{status.tekst}</span>
+                  {/* Telefoon: de volgende stap naast de naam (de status staat al in de kop van de groep) */}
+                  <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>{stapKnop(r)}</span>
                   <span className="rl-pijl" aria-hidden>{open.has(r.id) ? "▾" : "▸"}</span>
-                </button>
+                </div>
                 <div className="rl-acties rl-acties--vast">
-                  <span className={`pr-gem-chip rl-status ${status.cls}`}>{status.tekst}</span>
                   {/* Telefoon: eerst de knoppen met tekst over de hele breedte, daaronder de iconen */}
                   <div className="rl-tekstknoppen">
-                  {/* Plek 1: de volgende logische stap (publiceren → activeren), bij de actieve route leeg */}
-                  {!r.is_active && r.status !== "gepubliceerd" ? (
-                    <button className="rl-knop rl-stap" onClick={() => togglePubliceer(r)}>Publiceren</button>
-                  ) : !r.is_active && r.status === "gepubliceerd" ? (
-                    <button className="rl-knop rl-knop--cyan rl-stap" onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}
-                      title="Eerst controleren of de route klaar is om te spelen">▶ Activeren</button>
-                  ) : <span className="rl-knop rl-stap rl-leeg" aria-hidden />}
+                  {/* Plek 1: de volgende stap: publiceren → activeren → deactiveren (computer) */}
+                  <span className="rl-stap-plek">{stapKnop(r)}</span>
                   <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
                   </div>
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}

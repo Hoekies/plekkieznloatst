@@ -67,7 +67,7 @@ export default function AppInstallatie({ toonKnop = false }: { toonKnop?: boolea
       )}
       {vraag && createPortal(
         <div onClick={later} data-geen-volledig style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(12,3,34,0.78)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 360 }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 360, position: "relative" }}>
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "22px 20px 18px" }}>
               <div style={{ fontSize: "2.6rem", lineHeight: 1 }}>📲</div>
               {vraag === "android" ? (
@@ -85,10 +85,10 @@ export default function AppInstallatie({ toonKnop = false }: { toonKnop?: boolea
                 <>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#fff" }}>Zet PointRush op je beginscherm</div>
                   <p style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.45, color: "rgba(255,255,255,0.8)" }}>
-                    Dan opent hij als een app, zonder de balken van Safari.
+                    Dan opent hij als een app, zonder de balken van de browser.
                   </p>
                   <ol className="ios-stappen">
-                    <li>Tik onderin op de deelknop <DeelIcoon /></li>
+                    <li>Tik op de deelknop <DeelIcoon /> <span style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.8rem" }}>(Safari: onderin · Chrome: bovenin naast het adres)</span></li>
                     <li>Scroll omlaag en kies <strong>Zet op beginscherm</strong></li>
                     <li>Tik op <strong>Voeg toe</strong> en open PointRush daarna vanaf je beginscherm</li>
                   </ol>

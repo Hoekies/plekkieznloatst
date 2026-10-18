@@ -722,7 +722,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     overflow-y: auto;
-    padding-top: max(20px, env(safe-area-inset-top));
+    padding-top: max(10px, env(safe-area-inset-top));
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   .admin-sidebar--open {
@@ -867,9 +867,12 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .editor-paneel-sluit {
   margin-left: auto; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(239,68,68,0.18); border: 1px solid rgba(248,113,113,0.6); color: #FCA5A5; font-size: 0.95rem; font-weight: 800;
+  background: none; border: none; color: rgba(248,113,113,0.85); font-size: 1rem; font-weight: 700;
 }
-.editor-paneel-sluit:hover { background: rgba(239,68,68,0.32); border-color: #F87171; color: #FECACA; }
+.editor-paneel-sluit:hover { background: rgba(239,68,68,0.15); color: #FCA5A5; }
+.editor-paneel-sluit:disabled { opacity: 0.4; cursor: default; }
+/* Kruisje rechtsboven in een venster zonder eigen kopregel (bevestigen, installeren) */
+.venster-sluit { position: absolute; top: 10px; right: 10px; z-index: 1; margin: 0; }
 .editor-paneel-noot { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
 
 /* Backdrop achter de tik-kiezer — geldt op elke schermbreedte */
@@ -2028,17 +2031,18 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-menu-route--geen .admin-menu-route-naam { color: #FFE680; font-size: 0.85rem; }
 @media (max-width: 768px) {
   /* Telefoon: grotere menu-items, makkelijk met de duim */
-  .admin-nav { gap: 8px; padding: 8px 10px 12px; }
-  .admin-nav-link { height: 52px; font-size: 18px; padding: 0 12px; gap: 12px; border-radius: 12px; }
-  .admin-nav-link > [aria-hidden] { width: 26px; font-size: 24px; }
-  .admin-menu-blok { padding: 10px; }
-  .admin-menu-kop { font-size: 0.72rem; margin-bottom: 8px; }
-  .admin-menu-lijst { gap: 8px; }
+  /* Alles past in de schermhoogte (geen scrollen): 11 knoppen delen de ruimte, tussen 34 en 52 px */
+  .admin-nav { gap: clamp(4px, 0.9dvh, 8px); padding: clamp(4px, 0.8dvh, 8px) 10px; }
+  .admin-nav-link { height: clamp(34px, calc((100dvh - 290px) / 11), 52px); font-size: clamp(15px, calc(calc((100dvh - 290px) / 11) * 0.36), 18px); padding: 0 12px; gap: 12px; border-radius: 12px; }
+  .admin-nav-link > [aria-hidden] { width: 26px; font-size: clamp(18px, calc(calc((100dvh - 290px) / 11) * 0.46), 24px); }
+  .admin-menu-blok { padding: clamp(4px, 0.9dvh, 10px) 10px; }
+  .admin-menu-kop { font-size: 0.68rem; margin-bottom: clamp(3px, 0.6dvh, 8px); }
+  .admin-menu-lijst { gap: clamp(4px, 0.9dvh, 8px); }
   .admin-menu-blok--beheer > div:last-child { gap: 8px !important; }
   /* Beheer wat apart, zodat je de rode knoppen niet per ongeluk raakt */
-  .admin-menu-blok--beheer { margin-top: 14px; }
+  .admin-menu-blok--beheer { margin-top: clamp(2px, 1dvh, 14px); }
   /* Info & uitleg als kleine regel onderaan */
-  .admin-menu-blok--info .admin-nav-link { height: 40px; font-size: 15px; border: none; background: none; color: var(--muted); }
+  .admin-menu-blok--info .admin-nav-link { height: clamp(30px, 4dvh, 40px); font-size: 15px; border: none; background: none; color: var(--muted); }
   .admin-menu-blok--info .admin-nav-link > [aria-hidden] { font-size: 18px; }
 }
 
@@ -2205,3 +2209,18 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .versie-regel { margin-top: 6px; text-align: center; font-size: 0.66rem; line-height: 1.35; color: rgba(255,255,255,0.45); }
 .versie-regel strong { color: rgba(255,255,255,0.7); font-weight: 700; }
 .info-paneel .versie-regel { margin-top: 2px; font-size: 0.72rem; }
+/* Telefoon: kaartje actieve route schaalt mee, zodat het hele menu in beeld past */
+@media (max-width: 768px) {
+  .admin-menu-route { padding: clamp(5px, 0.9dvh, 9px) 12px; margin-bottom: clamp(2px, 0.5dvh, 6px); }
+  .admin-menu-route-naam { font-size: clamp(0.8rem, 2dvh, 0.95rem); }
+  .admin-sidebar .versie-regel { margin-top: 2px; }
+}
+
+/* Routekaart: volgende stap (publiceren/activeren/deactiveren). Computer: in de knoppenrij; telefoon: naast de naam */
+.rl-kop-stap { display: none; }
+.rl-stap-plek { display: contents; }
+@media (max-width: 768px) {
+  .rl-kop-stap { display: inline-flex; flex-shrink: 0; }
+  .rl-kop-stap .rl-knop { height: 34px !important; width: auto !important; padding: 0 10px !important; font-size: 0.74rem !important; }
+  .rl-stap-plek { display: none; }
+}

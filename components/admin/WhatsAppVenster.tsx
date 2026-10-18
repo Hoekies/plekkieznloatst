@@ -9,24 +9,17 @@ import { createPortal } from "react-dom";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
 const KEUZE_KEY = "pointrush_deel_keuze";
-export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
+export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\nVeel plezier! René";
+// Vorige standaardtekst: wie die nog onthouden had, krijgt vanzelf de nieuwe
+const OUDE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
 const SITE = "https://plekkieznloatst.vercel.app";
 
-// Stap voor stap; *tekst* wordt in WhatsApp vetgedrukt
+// Kort: de app zelf legt het bij het openen ook nog uit. *tekst* wordt in WhatsApp vetgedrukt
 const BEGINSCHERM_UITLEG = [
   "📲 *Zet PointRush als app op je telefoon*",
-  "",
-  "*iPhone*",
-  "1. Open de link in *Safari*",
-  "2. Tik onderin op de deelknop (vierkantje met pijltje omhoog)",
-  "3. Kies *Zet op beginscherm* en tik op *Voeg toe*",
-  "",
-  "*Android*",
-  "1. Open de link in *Chrome*",
-  "2. Tik rechtsboven op de drie puntjes ⋮",
-  "3. Kies *App installeren* of *Toevoegen aan startscherm*",
-  "",
-  "Opent de link binnen WhatsApp? Kies dan eerst *Openen in Safari* of *Openen in Chrome*. Daarna staat PointRush als app tussen je andere apps.",
+  "Tik op de link naar PointRush, dan:",
+  "• *iPhone:* tik op de deelknop (vierkantje met pijltje omhoog) → *Zet op beginscherm*",
+  "• *Android:* tik op *Installeren* in het venster dat verschijnt. Zie je dat niet? ⋮ → *Openen in Chrome*",
 ].join("\n");
 
 const AFBEELDINGEN = [
@@ -46,7 +39,8 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
   // Laatste tekst en keuze onthouden (per browser)
   useEffect(() => {
     try {
-      setTekst(localStorage.getItem(TEMPLATE_KEY) ?? TEMPLATE_DEFAULT);
+      const opgeslagen = localStorage.getItem(TEMPLATE_KEY);
+      setTekst(!opgeslagen || opgeslagen === OUDE_DEFAULT ? TEMPLATE_DEFAULT : opgeslagen);
       const k = localStorage.getItem(KEUZE_KEY);
       if (k) setKeuze({ ...STANDAARD, ...JSON.parse(k) });
     } catch { /* geen opslag */ }
