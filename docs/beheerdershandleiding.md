@@ -292,6 +292,7 @@ Met de **📞** rechts op de spelerskaart (naast de 🔑) vul je het telefoonnum
 In hetzelfde venster achter de **🔑** kies je bovenin **🔗 Link zonder wachtwoord**. Kies hoe lang de link geldig is (**4 uur**, **½ dag**, **1 dag** of **2 dagen**) en tik **🔗 Link maken**. Je krijgt een QR-code (om ter plekke te laten scannen) en **WhatsApp**: een bericht met de link en tot wanneer hij werkt.
 
 - Het team tikt op de link en is meteen ingelogd, zonder loginnaam en wachtwoord. Binnen de geldigheid werkt de link vaker, bijvoorbeeld na het wegdrukken van de app. Eén telefoon per team blijft gelden.
+- **Staat PointRush als app op de telefoon?** Een link uit WhatsApp opent in de browser, en de app heeft een eigen inlog. Laat het team de link dan in WhatsApp ingedrukt houden → **Kopiëren**, de app openen en op het inlogscherm **🔗 Inloggen met link** tikken: de app pakt de link van het klembord (of ze plakken hem). Dit staat ook kort in het WhatsApp-bericht.
 - **Is de tijd om**, dan wordt het team automatisch uitgelogd (binnen een halve minuut) en werkt de link niet meer. Een lopend spel blijft bewaard.
 - Op de spelerskaart zie je **🔗 tot …** zolang het team via een link toegang heeft. Met **Intrekken** (in hetzelfde venster) werkt geen enkele link van dat team meer en wordt het team uitgelogd.
 - Logt het team daarna gewoon in met loginnaam en wachtwoord, dan geldt er geen tijdslimiet.

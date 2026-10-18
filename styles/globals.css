@@ -2438,3 +2438,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Spelleider: melding dat het spel gepauzeerd is */
 .spelleider-pauze { border-left-color: #FBBF24 !important; color: #FDE68A; background: rgba(251,191,36,0.12); }
+
+/* Inlogscherm: inloggen met een link (voor de geïnstalleerde app) */
+.link-inloggen-knop { display: block; width: 100%; margin-top: 14px; padding: 10px; cursor: pointer; border-radius: 12px;
+  background: rgba(255,255,255,0.06); border: 1.5px dashed rgba(255,255,255,0.3); color: #fff; font: inherit; font-weight: 700; font-size: 0.9rem; }
+.link-inloggen-knop:hover { background: rgba(255,255,255,0.12); }

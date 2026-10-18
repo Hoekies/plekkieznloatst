@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import AppInstallatie from "@/components/shared/AppInstallatie";
+import LinkInloggen from "@/components/shared/LinkInloggen";
 
 function LoginForm() {
   const params = useSearchParams();
@@ -140,6 +141,8 @@ function LoginForm() {
               INLOGGEN →
             </button>
           </form>
+          {/* In de geïnstalleerde app: inloggen met een link uit WhatsApp */}
+          <LinkInloggen />
         </div>
       </div>
 
