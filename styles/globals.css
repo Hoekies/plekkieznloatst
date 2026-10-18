@@ -2472,3 +2472,18 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .helpers-blok { margin-top: 20px !important; gap: 10px !important; }
   .gb-kaart .gb-iconen { margin-top: 6px; }
 }
+
+/* Inlogscherm: bovenaan beginnen; met het toetsenbord open (weinig hoogte) nog compacter */
+.login-scherm { padding-top: calc(max(16px, env(safe-area-inset-top)) + 3vh) !important; }
+.login-scherm .pr-logo-glow { top: calc(max(16px, env(safe-area-inset-top)) + 3vh - 20px); }
+.login-logo { width: 168px; }
+@media (max-height: 640px) {
+  .login-scherm { padding-top: max(10px, env(safe-area-inset-top)) !important; }
+  .login-logo { width: 112px; }
+  .login-scherm .pr-logo-glow { width: 140px; height: 140px; top: 0; }
+  .login-scherm .pr-orb, .login-scherm .pr-sparkle { display: none; }
+  .login-scherm .pr-panel { margin-top: -16px; }
+  .login-scherm .pr-panel-inner { padding: 22px 16px 12px; }
+  .login-scherm .pr-field-input2 { padding: 8px 12px; margin-bottom: 10px; }
+  .login-scherm .btn-premium--compact { padding: 9px 0; }
+}

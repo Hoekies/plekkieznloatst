@@ -31,14 +31,16 @@ function LoginForm() {
 
 
   return (
+    // Vanaf boven (niet gecentreerd): als het toetsenbord opent, schuift het logo niet onder de statusbalk
     <div className="pr-stage login-scherm" style={{
       height: "100dvh",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       padding: "16px",
       position: "relative",
+      overflowY: "auto",
     }}>
       <div style={{ position: "absolute", top: "max(16px, env(safe-area-inset-top))", right: 16, zIndex: 5 }}>
         <VolledigSchermKnop />
@@ -62,7 +64,8 @@ function LoginForm() {
         <img
           src="/logo.webp"
           alt="PointRush"
-          style={{ width: 168, display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
+          className="login-logo"
+          style={{ display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
         />
       </div>
 
