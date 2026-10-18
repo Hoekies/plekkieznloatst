@@ -493,10 +493,60 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setPunten(await res.json());
   }
 
+  // Plekken naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad verschuiven (max. 200 m;
+  // verder weg of geen antwoord van de kaartdienst: dan blijft de plek zoals hij was)
+  async function opDeWeg(plekken: { lat: number; lng: number }[]): Promise<{ lat: number; lng: number }[]> {
+    if (!plekken.length) return plekken;
+    try {
+      const res = await api("/api/admin/wegen/dichtstbij", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punten: plekken }),
+      });
+      if (!res.ok) return plekken;
+      const { plekken: weg } = await res.json() as { plekken: ({ lat: number; lng: number; afstand: number } | null)[] };
+      return plekken.map((p, i) => (weg[i] && weg[i]!.afstand <= 200 ? { lat: weg[i]!.lat, lng: weg[i]!.lng } : p));
+    } catch {
+      return plekken;
+    }
+  }
+
+  // "📍 Op de weg": alle punten op de dichtstbijzijnde weg of het voetpad zetten.
+  // Bij Verspreid blijven start en finish (de verzamelplek) staan. Elke verschuiving is ongedaan te maken.
+  const [opDeWegBezig, setOpDeWegBezig] = useState(false);
+  async function puntenOpDeWeg() {
+    const hub = route.modus === "verspreid" && punten.length >= 3;
+    const doel = punten.filter((p, i) => !(hub && (i === 0 || i === punten.length - 1)));
+    if (!doel.length) return;
+    setOpDeWegBezig(true);
+    const nieuw = await opDeWeg(doel.map((p) => ({ lat: p.latitude, lng: p.longitude })));
+    let verschoven = 0;
+    for (const [i, p] of doel.entries()) {
+      if (haversine(p.latitude, p.longitude, nieuw[i].lat, nieuw[i].lng) < 3) continue;
+      await markerVerplaatst(p.id, nieuw[i].lat, nieuw[i].lng);
+      verschoven++;
+    }
+    setOpDeWegBezig(false);
+    toonMelding(verschoven
+      ? `${verschoven} punt${verschoven === 1 ? "" : "en"} op de weg gezet${route.is_active ? ". Druk op 📲 Naar spelers om ze bij te werken" : ""}`
+      : "Alle punten liggen al op een weg of pad", "ok");
+  }
+
+  // "🧹 Leegmaken": alle punten (met vragen) en items weg; de route en de instellingen blijven
+  async function maakRouteLeeg() {
+    const res = await api(`/api/admin/routes/${route.id}/leegmaken`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toonMelding(data.fout ?? "Leegmaken mislukt", "fout"); return; }
+    setPunten([]);
+    setSpecialeItems([]);
+    setGeselecteerd(null);
+    setStappen([]);  // eerdere stappen verwijzen naar punten die niet meer bestaan
+    toonMelding("De route is leeg", "ok");
+  }
+
   async function genereerPuntenInCirkel() {
     if (!centrumPunt || doelAfstandKm <= 0) return;
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
-    const coords = puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
+    // Op de cirkel, en dan elk punt naar de dichtstbijzijnde weg of het voetpad
+    const coords = await opDeWeg(puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten));
     for (const pt of punten) {
       const res = await api(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -1041,6 +1091,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
           </button>
           <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
+          <BevestigKnop venster gevaarlijk={false} icoon="📍" titel="Alle punten op de weg zetten?"
+            vraag={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Met ↶ Ongedaan maken zet je ze terug.`}
+            ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
+            className="rl-knop" title="Alle punten naar de dichtstbijzijnde weg of het voetpad">
+            {opDeWegBezig ? "⏳" : "📍"}<span className="alleen-pc"> Op de weg</span>
+          </BevestigKnop>
+          {!route.is_active && (
+            <BevestigKnop venster icoon="🧹" titel="Route leegmaken?"
+              vraag={`Alle ${punten.length} punten (met hun vragen) en ${specialeItems.length} items worden verwijderd. De naam en de instellingen van de route blijven. Dit kan niet ongedaan worden gemaakt.`}
+              ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length}
+              className="rl-knop" title="Alle punten en items van deze route verwijderen">
+              🧹<span className="alleen-pc"> Leegmaken</span>
+            </BevestigKnop>
+          )}
           <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
             title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
             🧪<span className="alleen-pc"> Test</span>

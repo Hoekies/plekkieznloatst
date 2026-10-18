@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoutePuntKort } from "@/lib/admin-live";
 import { escapeHtml } from "@/lib/html";
+import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
 
 export type ReplayTeam = { player_id: string; naam: string; icon: string | null; gefinisht_op: number | null; spoor: [number, number, number][] };
 
@@ -47,7 +48,8 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
       if (!actief || !containerRef.current || mapRef.current) return;
       LRef.current = L;
       const map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      // Zelfde vectorkaart (en stijl) als de live kaart; laadt op de achtergrond
+      voegBasiskaartToe(L, map, bewaardeStijl());
       // Routepunten klein en vaag, zodat de teams opvallen
       route_punten.forEach((p) => L.circleMarker([p.latitude, p.longitude], { radius: 6, color: "#fff", weight: 2, fillColor: "#1E40AF", fillOpacity: 0.8, interactive: false }).addTo(map));
       const alle = teams.flatMap((t) => t.spoor.map((p): [number, number] => [p[1], p[2]]));

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 
 interface Props {
   spelers: SpelerOverzicht[];
@@ -36,6 +37,15 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   const [kaartKlaar, setKaartKlaar] = useState(false);
   // Kaart volgt de spelers tot de admin hem zelf versleept
   const [volgen, setVolgen] = useState(true);
+  // Vectorkaart (OpenFreeMap): licht of donker; null = de oude plaatjes (geen WebGL)
+  const basiskaartRef = useRef<Basiskaart | null>(null);
+  const [stijl, setStijl] = useState<KaartStijl>("licht");
+  const [vector, setVector] = useState(false);
+  function kiesStijl(s: KaartStijl) {
+    setStijl(s);
+    bewaarStijl(s);
+    basiskaartRef.current?.zetStijl(s);
+  }
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -70,16 +80,21 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         attributionControl: false,
       });
 
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-        maxZoom: 19,
-      }).addTo(map);
-
       map.on("dragstart", () => { setVolgen(false); stopVolgenRef.current?.(); });
       sporenLaagRef.current = L.layerGroup().addTo(map);
 
       mapRef.current = map;
       setKaartKlaar(true);
+
+      // Basiskaart daarna: vectortegels van OpenFreeMap (scherp op elk zoomniveau),
+      // anders de gewone OSM-plaatjes. Markers en sporen staan er al.
+      const beginStijl = bewaardeStijl();
+      setStijl(beginStijl);
+      voegBasiskaartToe(L, map, beginStijl).then((b) => {
+        if (!mounted) return;
+        basiskaartRef.current = b;
+        setVector(b.vector);
+      });
     }
 
     init();
@@ -259,6 +274,13 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   return (
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      {/* Licht of donker kaartbeeld (alleen bij de vectorkaart) */}
+      {vector && (
+        <div className="kaart-stijl">
+          <button type="button" className={stijl === "licht" ? "aan" : ""} onClick={() => kiesStijl("licht")} title="Lichte kaart">☀️</button>
+          <button type="button" className={stijl === "donker" ? "aan" : ""} onClick={() => kiesStijl("donker")} title="Donkere kaart">🌙</button>
+        </div>
+      )}
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

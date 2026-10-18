@@ -45,6 +45,10 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
 
+> **📍 Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
+
+> **🧹 Leegmaken**: haalt alle punten (met hun vragen) en alle items van de route weg, na bevestiging. De naam en de instellingen blijven. Alleen bij een route die niet actief is.
+
 > **📥 Punten importeren**: kies een **GPX-bestand** (waypoints, of een spoor: dan komt er om de 150 m een punt) of een **KML-bestand** (bijv. uit Google My Maps), of plak een lijst met één punt per regel: `52.2215, 6.8937 Kerk`, een lange Google Maps-link, of een korte deellink uit de Google Maps-app (`maps.app.goo.gl/…`). Je ziet eerst welke punten gevonden zijn (✕ om er een weg te laten) en welke regels niet herkend zijn. Daarna komen ze vóór de finish, met de standaard punten en straal van de route. De vragen voeg je daarna toe.
 
 > **📚 Vragenbank**: in de vraag-editor staat bovenin **📚 Vragenbank**: alle vragen uit je andere routes, gesorteerd op soort (meerkeuze, met afbeeldingen, open, foto) met een kopje per soort. Met de knoppen bovenin toon je één soort, en je kunt zoeken op vraag, antwoord, route of punt. Tik op een vraag en het formulier wordt ermee ingevuld (type, tekst, afbeelding, antwoorden en punten). Pas aan wat je wilt en druk op **Opslaan**; de oorspronkelijke vraag blijft ongewijzigd.
