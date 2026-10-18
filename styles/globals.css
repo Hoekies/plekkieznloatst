@@ -2244,3 +2244,23 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-kop .rl-pijl { order: 2; }
   .rl-kop .rl-kop-stap { order: 3; flex-basis: 100%; padding-left: 68px; box-sizing: border-box; }
 }
+
+/* Routekaart: spelsoort en datum (computer onder elkaar, telefoon op één regel) */
+.rl-meta { display: block; }
+.rl-modus { display: block; font-size: 0.78rem; font-weight: 600; margin-top: 2px; }
+.rl-datum { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+@media (max-width: 768px) {
+  /* Strakker: kleinere tegel, minder ruimte, alles op een vaste lijn onder de naam */
+  .rl-kaart .pr-gem-card-inner { padding: 10px 12px; }
+  .rl-kop { column-gap: 10px; row-gap: 6px; align-items: flex-start; }
+  .rl-kop > div:first-child { width: 40px !important; height: 40px !important; border-radius: 10px !important; }
+  .rl-kop > div:first-child svg { width: 22px; height: 22px; }
+  .rl-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+  .rl-modus, .rl-datum { display: inline; margin: 0; font-size: 0.72rem; }
+  .rl-datum::before { content: "·"; margin-right: 6px; color: var(--muted); }
+  .rl-datum-woord { display: none; }
+  .rl-kop .rl-pijl { align-self: center; }
+  .rl-kop .rl-kop-stap { padding-left: 50px; }
+  .rl-kop-stap .rl-knop { height: 32px !important; width: 100% !important; justify-content: center; }
+  .rl-kop-stap { display: flex !important; }
+}

@@ -321,12 +321,15 @@ export default function RoutesOverzicht() {
                   <ModusTegel modus={r.modus} size={56} />
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
-                    <span style={{ display: "block", fontSize: "0.78rem", color: info.kleur, fontWeight: 600, marginTop: 2 }}>{info.label}</span>
-                    {r.bewerkt_op && (
-                      <span style={{ display: "block", fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }} title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
-                        ✏️ Aangepast {wanneer(r.bewerkt_op)}
-                      </span>
-                    )}
+                    {/* Telefoon: spelsoort en datum samen op één regel */}
+                    <span className="rl-meta">
+                      <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>
+                      {r.bewerkt_op && (
+                        <span className="rl-datum" title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
+                          ✏️ <span className="rl-datum-woord">Aangepast </span>{wanneer(r.bewerkt_op)}
+                        </span>
+                      )}
+                    </span>
                   </span>
                   {/* Telefoon: de volgende stap naast de naam (de status staat al in de kop van de groep) */}
                   <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>{stapKnop(r)}</span>
