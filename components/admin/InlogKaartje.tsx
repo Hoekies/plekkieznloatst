@@ -47,18 +47,15 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
   return taak;
 }
 
-async function versturen(inlog: Inlog, beeld: File | null) {
+// Stap 1: het kaartje als afbeelding. WhatsApp laat tekst weg als er een afbeelding gedeeld wordt,
+// dus het bericht met de link volgt in stap 2 (zelfde knop). Geeft terug of stap 2 nog nodig is.
+async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "klaar" | "geannuleerd"> {
   const tekst = waTekst(inlog);
-  // De tekst met de link ook op het klembord: sommige WhatsApp-versies (zoals op de computer)
-  // laten de tekst weg als er een afbeelding wordt gedeeld. Niet afwachten: het deelmenu moet
-  // direct na de klik openen.
-  navigator.clipboard?.writeText(tekst).catch(() => undefined);
-  if (beeld && navigator.canShare?.({ files: [beeld], text: tekst })) {
+  if (beeld && navigator.canShare?.({ files: [beeld] })) {
     try {
-      await navigator.share({ files: [beeld], text: tekst });
-      toonMelding("Staat de link er niet onder? Hij staat op het klembord: plak hem erbij.", "info");
-      return;
-    } catch (e) { if ((e as Error).name === "AbortError") return; }
+      await navigator.share({ files: [beeld] });
+      return "link";
+    } catch (e) { if ((e as Error).name === "AbortError") return "geannuleerd"; }
   }
   // Geen deelmenu met afbeeldingen: kaartje downloaden en WhatsApp openen met de tekst (link erin)
   if (beeld) {
@@ -70,16 +67,31 @@ async function versturen(inlog: Inlog, beeld: File | null) {
     toonMelding("Kaartje gedownload: voeg het in WhatsApp toe bij het bericht", "info");
   }
   window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
+  return "klaar";
+}
+
+// Stap 2: het bericht met de link (via het deelmenu: de chat van net staat daar bovenaan)
+async function stuurLink(inlog: Inlog) {
+  const tekst = waTekst(inlog);
+  if (navigator.share) {
+    try { await navigator.share({ text: tekst }); return true; }
+    catch (e) { if ((e as Error).name === "AbortError") return false; }
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
+  return true;
 }
 
 // Kaartje met daaronder de enige verstuurknop: het kaartje als afbeelding, met de link als tekst erbij
 export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
   const ref = useRef<HTMLDivElement>(null);
   const [beeld, setBeeld] = useState<File | null>(null);
+  // Na het kaartje: de knop wordt "stuur nu de link"
+  const [stap, setStap] = useState<"kaartje" | "link" | "klaar">("kaartje");
 
   useEffect(() => {
     let gestopt = false;
     setBeeld(null);
+    setStap("kaartje");
     if (ref.current) naarAfbeelding(ref.current, `inlog-${inlog.login}.png`).then((f) => { if (!gestopt) setBeeld(f); });
     return () => { gestopt = true; };
   }, [inlog.login, inlog.wachtwoord, inlog.helper]);
@@ -88,11 +100,24 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
     <div className="kaartje-blok">
       <InlogKaartje inlog={inlog} kaartRef={ref} />
       <div className="kaartje-acties">
-        <button type="button" className="wa-knop" onClick={() => versturen(inlog, beeld)} disabled={!beeld}
-          title="Het kaartje als afbeelding versturen, met de link erbij">
-          <WhatsAppLogo /> {beeld ? "WhatsApp" : "Even geduld…"}
-        </button>
+        {stap === "link" ? (
+          <button type="button" className="wa-knop wa-knop--stap2" onClick={async () => { if (await stuurLink(inlog)) setStap("klaar"); }}
+            title="Het bericht met de link naar de app versturen">
+            <WhatsAppLogo /> 2. Stuur nu de link erachteraan
+          </button>
+        ) : (
+          <button type="button" className="wa-knop" disabled={!beeld}
+            onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
+            title="Eerst het kaartje, daarna het bericht met de link">
+            <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "klaar" ? "✓ Verstuurd · nog een keer" : "WhatsApp"}
+          </button>
+        )}
       </div>
+      {stap === "link" && (
+        <div style={{ fontSize: "0.74rem", color: "#FFE680", textAlign: "center" }}>
+          WhatsApp stuurt bij een afbeelding geen tekst mee. Kies dezelfde chat (staat bovenaan).
+        </div>
+      )}
     </div>
   );
 }

@@ -272,7 +272,11 @@ Met **👫 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spele
 
 Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen) en een **voorgesteld wachtwoord** (🎲 voor een ander, of typ zelf iets). Wachtwoorden worden nergens leesbaar bewaard; daarom krijgt de speler bij versturen een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd.
 
-Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**. Dat verstuurt het kaartje als afbeelding, met het bericht met de link erbij (een afbeelding is in WhatsApp niet aan te klikken). Laat jouw WhatsApp de tekst weg, wat op de computer kan gebeuren, dan staat die op het klembord: plak hem onder het kaartje.
+Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**. Versturen gaat in twee tikken, omdat WhatsApp bij een afbeelding geen tekst meestuurt:
+1. **WhatsApp** — het kaartje als afbeelding; kies de chat.
+2. De knop wordt groen: **Stuur nu de link erachteraan** — het bericht met de link naar de app, loginnaam en wachtwoord. Kies dezelfde chat (die staat bovenaan in het deelmenu).
+
+Kan je browser geen afbeeldingen delen, dan wordt het kaartje gedownload en opent WhatsApp meteen met het bericht; voeg het kaartje dan zelf toe.
 
 Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aanmaken krijg je hetzelfde kaartje. Na **👫 Meerdere** krijg je alle kaartjes onder elkaar, elk met WhatsApp, plus **🖨️ Afdrukken** (8 per A4, met **← Terug** naar Spelers) en **📋 Kopiëren**.
 
