@@ -40,10 +40,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
         </div>
         {/* Bovenin het menu welke route er loopt */}
-        {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🧑‍💼 Helper</div> : <ActieveRouteLabel />}
+        {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🦺 Helper</div> : <ActieveRouteLabel />}
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
-          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>🧑‍🤝‍🧑</span> Spelers</AdminNavLink>}
+          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>👫</span> Spelers</AdminNavLink>}
           <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}

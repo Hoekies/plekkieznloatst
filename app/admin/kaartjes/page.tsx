@@ -45,7 +45,7 @@ export default function KaartjesPagina() {
       </div>
       <div className="admin-content">
         {!inlogs.length ? (
-          <p style={{ textAlign: "center", color: "var(--muted)" }}>Geen inloggegevens. Maak ze bij Spelers via 🧑‍🤝‍🧑 Meerdere en kies daar 🖨️ Afdrukken.</p>
+          <p style={{ textAlign: "center", color: "var(--muted)" }}>Geen inloggegevens. Maak ze bij Spelers via 👫 Meerdere en kies daar 🖨️ Afdrukken.</p>
         ) : (
           <div className="kaartjes">
             {inlogs.map((i) => <KaartjeVersturen key={i.login} inlog={i} />)}

@@ -193,7 +193,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
                 ) : spelers.length === 0 ? (
                   <>
                     <p>Nog geen spelers aangemaakt.</p>
-                    <Link href="/admin/groepen" className="rl-knop rl-knop--cyan actie-knop">🧑‍🤝‍🧑 Spelers aanmaken</Link>
+                    <Link href="/admin/groepen" className="rl-knop rl-knop--cyan actie-knop">👫 Spelers aanmaken</Link>
                   </>
                 ) : (
                   <>

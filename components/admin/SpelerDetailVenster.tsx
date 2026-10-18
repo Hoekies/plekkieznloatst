@@ -45,7 +45,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
         <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 14, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "16px 16px 18px" }}>
           {/* Kop: wie, plek en score */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="pr-gem-avatar speler-ring" style={{ width: 56, height: 56, fontSize: "2rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "🧑‍🤝‍🧑"}</span>
+            <span className="pr-gem-avatar speler-ring" style={{ width: 56, height: 56, fontSize: "2rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "👫"}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
                 {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : `#${rang}`} {s.display_name}

@@ -33,7 +33,7 @@ export default function HelpersBeheer() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 32 }}>
-      <SectieKop titel="🧑‍💼 Helpers" />
+      <SectieKop titel="🦺 Helpers" />
       <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginTop: -8 }}>
         Kunnen meekijken, foto&apos;s keuren en punten vrijgeven. Geen routes, spelers of reset.
       </div>
@@ -55,7 +55,7 @@ export default function HelpersBeheer() {
           {helpers.map((h) => (
             <div key={h.id} className="pr-gem-card">
               <div className="pr-gem-card-inner gb-kaart">
-                <div className="pr-gem-avatar" style={{ borderRadius: "50%", background: "var(--blue-soft)" }}>🧑‍💼</div>
+                <div className="pr-gem-avatar" style={{ borderRadius: "50%", background: "var(--blue-soft)" }}>🦺</div>
                 <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>{h.naam}</div>
                   <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
@@ -68,7 +68,7 @@ export default function HelpersBeheer() {
                 <div className="gb-schakel gb-rechts">
                   <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
                     title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
-                    onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🧑‍💼", login: h.naam, helper: true })}>🔑</button>
+                    onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🦺", login: h.naam, helper: true })}>🔑</button>
                   <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
                     onBevestig={() => verwijder(h)} className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
                     tip="Helper verwijderen: kan daarna niet meer inloggen">🗑️</BevestigKnop>
@@ -120,7 +120,7 @@ function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSlu
   return (
     <div className="pr-gem-card">
       <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
-        <div className="pr-gem-avatar nieuwe-speler-icoon">🧑‍💼</div>
+        <div className="pr-gem-avatar nieuwe-speler-icoon">🦺</div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Naam</label>
           <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} maxLength={30}
