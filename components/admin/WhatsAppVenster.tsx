@@ -15,12 +15,22 @@ export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nht
 const OUDE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
 const SITE = "https://plekkieznloatst.vercel.app";
 
-// Kort: de app zelf legt het bij het openen ook nog uit. *tekst* wordt in WhatsApp vetgedrukt
+// Stap voor stap, vriendelijk uitgelegd. *tekst* wordt in WhatsApp vetgedrukt
 const BEGINSCHERM_UITLEG = [
   "📲 *Zet PointRush als app op je telefoon*",
-  "Tik op de link naar PointRush, dan:",
-  "• *iPhone:* tik op de deelknop (vierkantje met pijltje omhoog) → *Zet op beginscherm*",
-  "• *Android:* tik op *Installeren* in het venster dat verschijnt. Zie je dat niet? ⋮ → *Openen in Chrome*",
+  "Dan open je het spel straks met één tik, op het hele scherm. Zo doe je dat:",
+  "",
+  "*iPhone*",
+  "1. Tik op de link hierboven: PointRush opent in je browser.",
+  "2. Tik op de deelknop (vierkantje met pijltje omhoog; in Safari onderin, in Chrome bovenin).",
+  "3. Tik op *Zet op beginscherm* → *Voeg toe*.",
+  "",
+  "*Android*",
+  "1. Tik op de link hierboven: PointRush opent in je browser.",
+  "2. Tik op *Installeren* in het venster dat verschijnt.",
+  "3. Zie je dat niet? Tik op het menu (⋮ of ☰) en kies *App installeren* of *Toevoegen aan startscherm*.",
+  "",
+  "Klaar! PointRush staat nu tussen je apps 🎉",
 ].join("\n");
 
 const AFBEELDINGEN = [
@@ -75,8 +85,16 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
       navigator.share({ text: bericht || undefined, files }).then(onSluit).catch(() => { /* geannuleerd */ });
       return;
     }
-    // Zonder deelmenu met bestanden: WhatsApp met de tekst en links naar de afbeeldingen
     const links = gekozen.map((a) => `🖼️ ${a.titel}: ${SITE}${a.src}`).join("\n");
+    // Alleen tekst: ook via het deelmenu. Via een wa.me-link maakt WhatsApp op de computer
+    // van emoji's als 🎯 een vraagteken; via het deelmenu blijven ze heel.
+    if (navigator.share) {
+      navigator.share({ text: [bericht, links].filter(Boolean).join("\n\n") }).then(onSluit).catch((e) => {
+        if ((e as Error).name !== "AbortError") window.open(`https://wa.me/?text=${encodeURIComponent([bericht, links].filter(Boolean).join("\n\n"))}`, "_blank");
+      });
+      return;
+    }
+    // Geen deelmenu: WhatsApp met de tekst en links naar de afbeeldingen
     window.open(`https://wa.me/?text=${encodeURIComponent([bericht, links].filter(Boolean).join("\n\n"))}`, "_blank");
     onSluit();
   }

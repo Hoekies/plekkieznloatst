@@ -275,9 +275,9 @@ Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er open
 - Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 
 Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met het hele bericht eronder:
-- 👉 **Direct inloggen** met de link (en tot wanneer die werkt);
-- of naar de site gaan en inloggen met **loginnaam** en **wachtwoord**;
-- en wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**).
+- naar de site gaan en inloggen met **loginnaam** en **wachtwoord**;
+- wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**);
+- en onderaan 👉 **Direct inloggen** met de link (en tot wanneer die werkt).
 
 Op de telefoon zet WhatsApp dat bericht meestal als bijschrift bij het kaartje. Op de computer laat WhatsApp de tekst soms weg; tik dan op **Tekst ontbreekt? Stuur het bericht erachteraan** onder de knop en kies dezelfde chat (die staat bovenaan).
 
