@@ -2338,9 +2338,19 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .punten-snel .rl-knop { flex: 1 1 0; min-width: 52px; height: 38px; padding: 0 8px; font-weight: 800; justify-content: center; }
 
 /* Vragenbank: één vraag per regel */
-.vragenbank-regel { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 10px; cursor: pointer;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font: inherit; font-size: 0.86rem; }
-.vragenbank-regel:hover { background: rgba(0,217,255,0.1); border-color: rgba(0,217,255,0.45); }
+.vragenbank-regel { display: flex; align-items: center; gap: 6px; width: 100%; padding: 4px 6px 4px 4px; border-radius: 10px; box-sizing: border-box;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.vragenbank-regel:hover { background: rgba(0,217,255,0.08); border-color: rgba(0,217,255,0.4); }
+.vragenbank-regel--favoriet { border-color: rgba(255,217,59,0.45); background: rgba(255,217,59,0.07); }
+.vragenbank-kies { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; padding: 5px 8px; cursor: pointer;
+  background: none; border: none; color: var(--text); font: inherit; font-size: 0.86rem; }
+.vragenbank-kies:disabled { cursor: default; opacity: 0.6; }
+.bank-icoon { flex-shrink: 0; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: #FFE680; font-size: 1.05rem; }
+.bank-icoon:hover { background: rgba(255,255,255,0.12); }
+.bank-icoon--aan { border-color: rgba(255,217,59,0.6); background: rgba(255,217,59,0.15); }
+.bank-icoon--weg { border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.1); }
+.bank-icoon--weg:hover { background: rgba(239,68,68,0.22); }
 
 /* Punten importeren: voorbeeld van de gevonden punten */
 .import-regel { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem;
@@ -2375,3 +2385,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .kaartje-voet strong { color: #fff; }
 .kaartje-acties { display: flex; }
 .kaartje-acties .wa-knop { flex: 1; height: 44px; }
+
+/* Vragenbank: filter op soort en kopjes */
+.bank-soorten { display: flex; gap: 6px; flex-wrap: wrap; }
+.bank-soorten .rl-knop { height: 32px; padding: 0 10px; font-size: 0.78rem; }
+.bank-kop { font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: #C9B6FF; text-transform: uppercase; letter-spacing: 0.06em; margin: 8px 2px 2px; }

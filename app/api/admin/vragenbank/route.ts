@@ -21,6 +21,10 @@ export async function GET(request: NextRequest) {
     answer_options: { color: string; text: string | null; image_path: string | null; is_correct: boolean; punten: number | null }[];
     route_points: { name: string; order_index: number; routes: { id: string; name: string } };
   };
+  // Favoriet en verborgen (migratie 007; zonder die tabel gewoon niets gemarkeerd)
+  const { data: markeringen } = await admin.from("vragenbank_markering").select("question_id, favoriet, verborgen");
+  const markering = new Map((markeringen ?? []).map((m) => [m.question_id as string, m as { favoriet: boolean; verborgen: boolean }]));
+
   const kleurVolgorde = ["geel", "blauw", "rood", "groen"];
   const vragen = ((data ?? []) as unknown as Rij[])
     .filter((v) => v.route_point_id !== zonder && (v.question_text?.trim() || v.question_image_path))
@@ -37,7 +41,31 @@ export async function GET(request: NextRequest) {
       punt_naam: v.route_points.name,
       route_naam: v.route_points.routes.name,
       volgorde: v.route_points.order_index,
+      favoriet: markering.get(v.id)?.favoriet ?? false,
+      verborgen: markering.get(v.id)?.verborgen ?? false,
     }))
     .sort((a, b) => a.route_naam.localeCompare(b.route_naam) || a.volgorde - b.volgorde);
   return NextResponse.json({ vragen });
+}
+
+// Favoriet aan/uit of uit de vragenbank halen / terugzetten: PATCH { id, favoriet?, verborgen? }
+export async function PATCH(request: NextRequest) {
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  if (typeof body?.id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
+
+  const admin = createAdminClient();
+  const { data: huidig } = await admin.from("vragenbank_markering").select("favoriet, verborgen").eq("question_id", body.id).maybeSingle();
+  const nieuw = {
+    question_id: body.id,
+    favoriet: typeof body.favoriet === "boolean" ? body.favoriet : huidig?.favoriet ?? false,
+    verborgen: typeof body.verborgen === "boolean" ? body.verborgen : huidig?.verborgen ?? false,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await admin.from("vragenbank_markering").upsert(nieuw, { onConflict: "question_id" });
+  if (error) {
+    const migratie = /vragenbank_markering/.test(error.message);
+    return NextResponse.json({ fout: migratie ? "Draai eerst SQL-bestand 007 in Supabase" : error.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true, favoriet: nieuw.favoriet, verborgen: nieuw.verborgen });
 }

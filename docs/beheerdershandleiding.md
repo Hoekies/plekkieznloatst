@@ -34,9 +34,11 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst.) Veel punten tegelijk? Gebruik **📥 Importeren** bovenin de editor (zie hieronder).
 5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
-   - **Vraag bewerken / toevoegen** — bovenaan, voor de vraag, antwoorden en afbeelding. De vraag opent als venster over de editor; na **Opslaan** of **← Terug** sta je weer precies waar je was.
+   - **Soort punt** — bovenaan: ❓ Vraag, ℹ️ Info of 🏁 Eind. Daaronder staat alleen wat bij dat soort hoort.
    - **Naam** — met de knop **💡** ernaast vul je een voorstel in, bedacht uit de vraag of het goede antwoord (spelers zien de naam van een vraagpunt pas na afloop)
-   - **Type** — knoppen ❓ Vraag, ℹ️ Info of 🏁 Eind
+   - **❓ Vraag**: of de vraag al is ingevuld (✅) of nog niet (⚠️), met **Vraag invullen / bewerken**. De vraag opent als venster over de editor; na **Opslaan** of **← Terug** sta je weer precies waar je was.
+   - **ℹ️ Info**: de **tekst voor de spelers**, die ze lezen als ze er aankomen. Hangt er toch een vraag aan (zoals een startvraag), dan zie je dat, en krijgen de spelers die vraag in plaats van de tekst.
+   - **🏁 Eind**: hier finisht het team; met **Opdracht bij de finish** hang je er eventueel een opdracht aan, zoals een selfie.
    - Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
@@ -45,7 +47,10 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > **📥 Punten importeren**: kies een **GPX-bestand** (waypoints, of een spoor: dan komt er om de 150 m een punt) of een **KML-bestand** (bijv. uit Google My Maps), of plak een lijst met één punt per regel: `52.2215, 6.8937 Kerk`, een lange Google Maps-link, of een korte deellink uit de Google Maps-app (`maps.app.goo.gl/…`). Je ziet eerst welke punten gevonden zijn (✕ om er een weg te laten) en welke regels niet herkend zijn. Daarna komen ze vóór de finish, met de standaard punten en straal van de route. De vragen voeg je daarna toe.
 
-> **📚 Vragenbank**: in de vraag-editor staat bovenin **📚 Vragenbank**: alle vragen uit je andere routes, met zoeken op vraag, antwoord, route of punt. Tik op een vraag en het formulier wordt ermee ingevuld (type, tekst, afbeelding, antwoorden en punten). Pas aan wat je wilt en druk op **Opslaan**; de oorspronkelijke vraag blijft ongewijzigd.
+> **📚 Vragenbank**: in de vraag-editor staat bovenin **📚 Vragenbank**: alle vragen uit je andere routes, gesorteerd op soort (meerkeuze, met afbeeldingen, open, foto) met een kopje per soort. Met de knoppen bovenin toon je één soort, en je kunt zoeken op vraag, antwoord, route of punt. Tik op een vraag en het formulier wordt ermee ingevuld (type, tekst, afbeelding, antwoorden en punten). Pas aan wat je wilt en druk op **Opslaan**; de oorspronkelijke vraag blijft ongewijzigd.
+> - **☆ Favoriet**: tik op het sterretje achter een vraag. Favorieten staan bovenaan hun soort, met een gouden rand, en met **⭐ Favorieten** zie je alleen die.
+> - **🗑️ Uit de bank halen**: de vraag verdwijnt uit de vragenbank, maar blijft gewoon in zijn eigen route staan. Handig voor dubbele vragen (bijv. na een kopie van een route). Met **🗑️ Verwijderd** zie je ze terug en zet je ze met **↩ Terug** weer in de bank.
+> - Hiervoor moet SQL-bestand 007 in Supabase gedraaid zijn.
 
 > **🧪 Testronde**: met **🧪 Test** bovenin de editor loop je de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
 

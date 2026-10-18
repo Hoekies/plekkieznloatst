@@ -90,25 +90,9 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
         <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
 
-      {/* Vraag: het belangrijkste, dus bovenaan */}
-      <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#93C5FD" : punt.type === "vraagpunt" ? "#FBBF24" : "var(--muted)" }}>
-        {heeftVraag ? "❓ Aan dit punt hangt een vraag." : punt.type === "vraagpunt" ? "⚠️ Dit vraagpunt heeft nog geen vraag." : "Aan dit punt hangt geen vraag."}
-      </div>
-      <button type="button" onClick={onVraag} className="rl-knop rl-knop--cyan"
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag toevoegen →"}
-      </button>
-
+      {/* Eerst het soort punt; daaronder alleen wat bij dat soort hoort */}
       <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Naam</label>
-        <NaamKiezer naam={naam} onNaam={setNaam} woorden={naamWoorden} hoogte={38} />
-      </div>
-      <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Beschrijving</label>
-        <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)} style={{ fontSize: "0.85rem", minHeight: 48 }} />
-      </div>
-      <div className="form-group" style={{ margin: 0 }}>
-        <label className="form-label">Type</label>
+        <label className="form-label">Soort punt</label>
         <div style={{ display: "flex", gap: 3 }}>
           {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
             <button key={t} type="button" onClick={() => setType(t)}
@@ -123,7 +107,50 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           ))}
         </div>
       </div>
-      <div className="editor-paneel-noot">Radius en punten: ⚙️ Instellingen.</div>
+
+      <div className="form-group" style={{ margin: 0 }}>
+        <label className="form-label">Naam</label>
+        <NaamKiezer naam={naam} onNaam={setNaam} woorden={naamWoorden} hoogte={38} />
+      </div>
+
+      {type === "vraagpunt" && (
+        <>
+          <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#86EFAC" : "#FBBF24" }}>
+            {heeftVraag ? "✅ De vraag is ingevuld." : "⚠️ Nog geen vraag: vul hem in."}
+          </div>
+          <button type="button" onClick={onVraag} className="rl-knop rl-knop--cyan" style={{ width: "100%", justifyContent: "center" }}>
+            {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag invullen →"}
+          </button>
+        </>
+      )}
+
+      {type === "informatiepunt" && (
+        <>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Tekst voor de spelers</label>
+            <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)}
+              placeholder="Dit lezen de spelers als ze hier aankomen" style={{ fontSize: "0.85rem", minHeight: 60 }} />
+          </div>
+          {/* Een infopunt met een vraag (zoals een startvraag): de spelers krijgen dan de vraag */}
+          {heeftVraag && (
+            <>
+              <div className="editor-paneel-noot" style={{ color: "#FBBF24" }}>❓ Hier hangt ook een vraag (bijv. een startvraag). Die krijgen de spelers in plaats van de tekst.</div>
+              <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}>❓ Vraag bewerken →</button>
+            </>
+          )}
+        </>
+      )}
+
+      {type === "eindpunt" && (
+        <>
+          <div className="editor-paneel-noot">🏁 Hier finisht het team. Je kunt er een opdracht aan hangen, zoals een selfie (niet verplicht).</div>
+          <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}>
+            {heeftVraag ? "❓ Opdracht bewerken →" : "➕ Opdracht bij de finish →"}
+          </button>
+        </>
+      )}
+
+      <div className="editor-paneel-noot">Straal en punten: ⚙️ Instellingen.</div>
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
       <div style={{ display: "flex", gap: 6 }}>
         <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}
