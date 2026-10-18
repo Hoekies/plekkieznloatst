@@ -43,6 +43,8 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
 
+> **🧪 Testronde**: met **🧪 Test** bovenin de editor loop je de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
+
 > **Opslaan gaat vanzelf.** Rechtsboven in de editor zie je ⏳ *Opslaan…*, daarna ✓ *Opgeslagen*. Lukt het niet (bijvoorbeeld door een slechte verbinding), dan staat er ⚠️ *Niet opgeslagen* en krijg je een melding. Doe de wijziging dan opnieuw.
 
 > **↶ Ongedaan maken.** Verwijderd, verschoven, toegevoegd of gewijzigd? Met **↶ Ongedaan maken** bovenin (of **Ctrl+Z**) zet je de laatste stappen één voor één terug, tot 30 stappen. Een verwijderd punt komt terug met zijn vraag en antwoorden, op dezelfde plek in de lijst. Verwijderen vraagt daarom geen bevestiging meer.
@@ -253,6 +255,19 @@ Elke "speler" in het beheer is één team met één inlog.
 
 Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook op het dashboard, de tijdlijn en de live kaart.
 
+#### Meerdere spelers tegelijk
+
+Met **👥 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spelers aan. Kies het aantal en hoe de loginnaam begint (standaard *speler*): je krijgt dan bijvoorbeeld speler1, speler2, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord zoals *tijger47*. Daarna zie je meteen de lijst met inloggegevens (zie hieronder).
+
+#### Inloggegevens per team uitdelen
+
+Met **🔑 Inloggegevens uitdelen** rechts kies je de spelers en maak je voor hen **nieuwe, makkelijke wachtwoorden**. Wachtwoorden worden nergens leesbaar bewaard; daarom maakt de app ze nieuw op het moment van uitdelen. Wie al is ingelogd, blijft ingelogd. Daarna kun je:
+- per team op **WhatsApp** tikken: een bericht met de link, de loginnaam en het wachtwoord van dat team;
+- **📋 Kopiëren**: alle inloggegevens als lijst;
+- **🖨️ Kaartjes**: een A4 met inlogkaartjes om uit te knippen (logo, QR-code naar de app, loginnaam en wachtwoord; 8 per vel).
+
+Bewaar of verstuur ze meteen: na het sluiten zijn de wachtwoorden niet meer te zien.
+
 > De **teamnaam** kiest het team zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, de stand en in de meldingen aan andere teams. Zolang een team nog geen teamnaam heeft gekozen, zie je de loginnaam.
 
 #### Spelers aan- en uitzetten
@@ -308,7 +323,7 @@ Met **⏹️ Stop spel** bij Spelers (op het Dashboard heet de knop **Spel stopp
    - Op een telefoon vraagt de app bij het openen of de speler PointRush **als app wil installeren** (Android) of legt hij uit hoe je hem **op het beginscherm** zet (iPhone). Als app opent PointRush volledig scherm, zonder balken.
 3. Bij een **verspreid**-route krijgt elke team automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
 
-> **Wisselen van route of een route aanpassen.** Een team dat nog een lopende sessie heeft op een route die niet meer actief is, wordt bij het openen van de app automatisch afgemeld van die oude sessie en begint opnieuw bij naam en icoon, op de route die nu actief is. Hetzelfde gebeurt bij een **verspreid**-route als je er punten aan toevoegt of verwijdert nadat een team al gestart is: de teamvolgorde klopt dan niet meer, dus dat team begint opnieuw. Voeg daarom tijdens een echt spel **geen punten toe en verwijder er geen** in de actieve route. Vragen, items en de instellingen voor items mag je wel aanpassen: die gelden meteen. Tijdens het testen gebruik je het best **💣 Reset spel** na een wijziging.
+> **Wisselen van route of een route aanpassen.** Een team dat nog een lopende sessie heeft op een route die niet meer actief is, wordt bij het openen van de app automatisch afgemeld van die oude sessie en begint opnieuw bij naam en icoon, op de route die nu actief is. **Punten toevoegen of verwijderen tijdens een spel** kan veilig: een nieuw punt komt bij elk team dat onderweg is vlak vóór de finish in de volgorde, en een verwijderd punt valt eruit. De apps van de spelers lezen de route dan vanzelf opnieuw in. Vragen, items en de instellingen voor items gelden meteen. Heb je een bestaand punt **verschoven** of de naam of straal aangepast, druk dan op **📲 Naar spelers** in de editor (alleen bij de actieve route): binnen een paar seconden zien alle spelers de wijziging, met de melding *"🔄 De route is bijgewerkt"*. (Hiervoor moet SQL-bestand 005 in Supabase gedraaid zijn.) Tijdens het testen gebruik je het best **💣 Reset spel** na een wijziging.
 
 ---
 
@@ -383,6 +398,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
+- **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Tik je op de pushmelding *"📸 Nieuwe foto"*, dan opent dit venster meteen.
 - **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groep of persoon. Met **👥 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.

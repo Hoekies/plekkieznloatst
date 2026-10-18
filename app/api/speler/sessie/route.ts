@@ -27,8 +27,12 @@ export async function GET() {
     .eq("player_id", speler.id)
     .eq("status", "actief")
     .maybeSingle();
+  if (!sessie) return NextResponse.json(null);
 
-  return NextResponse.json(sessie ?? null);
+  // "Wijzigingen naar spelers sturen" (migratie 005): los opvragen, zodat een ontbrekende kolom
+  // het spel nooit stopt
+  const { data: vernieuw } = await admin.from("routes").select("spelers_vernieuwen_at").eq("id", sessie.route_id).maybeSingle();
+  return NextResponse.json({ ...sessie, vernieuw_at: (vernieuw as { spelers_vernieuwen_at?: string | null } | null)?.spelers_vernieuwen_at ?? null });
 }
 
 export async function POST() {

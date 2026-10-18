@@ -820,7 +820,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .route-editor-tijden {
   position: absolute; top: 12px; right: 12px; z-index: 450;
   width: 300px; padding: 6px 10px 8px; border-radius: 12px;
-  background: rgba(8,28,48,0.84); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: rgba(42,18,96,0.9); /* paars zoals de rest (was blauw) */ backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,0,0,0.35);
   color: var(--ink); font-size: 0.74rem;
 }
@@ -2293,3 +2293,25 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Meldingen-venster: knoppen even breed naast elkaar over de volle breedte */
 .melding-knoppen { display: flex; gap: 8px; }
 .melding-knoppen > .rl-knop { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* Inloggegevens uitdelen */
+.inlog-regel { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 0.86rem; color: var(--ink); }
+.inlog-ww { display: block; font-family: ui-monospace, Consolas, monospace; font-size: 0.95rem; color: #FFE680; margin-top: 2px; }
+.inlog-wa { flex-shrink: 0; height: 34px; display: inline-flex; align-items: center; text-decoration: none; background: #25D366 !important; border-color: #25D366 !important; color: #fff !important; }
+.uitdeel-keuze { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; text-align: left; cursor: pointer; font-size: 0.86rem;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: var(--ink); }
+.uitdeel-keuze--aan { background: rgba(0,217,255,0.1); border-color: rgba(0,217,255,0.45); }
+
+/* Foto's keuren: twee grote knoppen naast elkaar */
+.keur-knoppen { display: flex; gap: 10px; }
+.keur-knoppen > .rl-knop { flex: 1; height: 52px; font-size: 1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.rl-knop--groen { background: rgba(34,197,94,0.2); border-color: rgba(74,222,128,0.6); color: #BBF7D0; }
+.rl-knop--groen:hover { background: rgba(34,197,94,0.32); }
+
+/* Testronde in de route-editor: zwevend paneel rechtsonder over de kaart */
+.testronde { position: fixed; right: 16px; bottom: 16px; width: 380px; max-width: calc(100vw - 32px); z-index: 1200; flex: none !important; }
+.testronde .pr-gem-panel-inner { max-height: 60vh; overflow-y: auto; }
+.testronde-vraag { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 0.86rem; }
+.testronde-optie { display: flex; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 7px; background: rgba(255,255,255,0.04); border-left: 4px solid; font-size: 0.82rem; color: #fff; }
+.testronde-item { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.07); }
+@media (max-width: 768px) { .testronde { left: 8px; right: 8px; bottom: 8px; width: auto; } .testronde .pr-gem-panel-inner { max-height: 48vh; } }

@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   await stuurPushNaarBeheer({
     titel: `📸 Nieuwe foto van ${team?.nickname ?? team?.login_name ?? "een team"}`,
     tekst: "Tik om de foto te bekijken en goed of af te keuren.",
-    url: "/admin/antwoorden",
+    url: "/admin?keuren=1",
     tag: "foto",
   });
 

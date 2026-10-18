@@ -47,6 +47,11 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
   }
 
   useEffect(() => {
+    // Geopend vanuit de pushmelding "Nieuwe foto": meteen het keurvenster tonen
+    if (new URLSearchParams(window.location.search).get("keuren") === "1") {
+      setOpen(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
     // Poll elke 15s voor nieuwe foto's
     haalOp();
     const t = setInterval(haalOp, 15000);
@@ -59,7 +64,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
       await fetch(`/api/admin/foto/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, punten: puntenMap[id] ?? 0 }),
+        body: JSON.stringify({ status, punten: puntenMap[id] ?? inzendingen.find((i) => i.id === id)?.max_punten ?? 0 }),
       });
       setInzendingen((prev) => prev.filter((i) => i.id !== id));
       setAantal((n) => Math.max(0, n - 1));
@@ -87,90 +92,49 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
         )}
       </button>
 
-      {/* Modal via portal zodat hij altijd volledig scherm bedekt */}
+      {/* Keurvenster: één foto tegelijk, groot in beeld; na een keuze komt vanzelf de volgende */}
       {open && createPortal(
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 500,
-          background: "rgba(0,0,0,0.75)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "24px 16px",
-        }}
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
-          <div style={{
-            background: "#0f1c2e",
-            border: "1px solid rgba(0,217,255,0.12)",
-            borderRadius: 16, width: "100%", maxWidth: 560,
-            boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
-            maxHeight: "90vh", display: "flex", flexDirection: "column",
-            overflow: "hidden",
-          }}>
-            {/* Header */}
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)",
-              flexShrink: 0,
-            }}>
-              <h2 style={{ margin: 0, fontSize: "1rem", color: "#e8f0ff" }}>📷 Foto-inzendingen beoordelen</h2>
-              <button className="btn btn-ghost" style={{ fontSize: "0.82rem" }} onClick={() => setOpen(false)}>✕ Sluiten</button>
-            </div>
-
-            {/* Inhoud */}
-            <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto" }}>
-              {laden && inzendingen.length === 0 ? (
-                <p style={{ color: "var(--muted)", textAlign: "center" }}>Laden…</p>
-              ) : inzendingen.length === 0 ? (
-                <p style={{ color: "var(--muted)", textAlign: "center" }}>Geen foto&apos;s wachten op beoordeling. 🎉</p>
-              ) : (
-                inzendingen.map((inz) => (
-                  <div key={inz.id} style={{
-                    border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, overflow: "hidden",
-                    background: "rgba(255,255,255,0.04)",
-                  }}>
-                    <FotoViewer pad={inz.foto_pad} />
-
-                    <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                        <div>
-                          <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8f0ff" }}>{inz.teamnaam}</span>
-                          <span style={{ color: "var(--muted)", fontSize: "0.78rem", marginLeft: 8 }}>@ {inz.punt_naam}</span>
-                        </div>
-                        <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                          {new Date(inz.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      </div>
-
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <label style={{ fontSize: "0.8rem", color: "var(--muted)", flexShrink: 0 }}>Punten:</label>
-                        <input
-                          type="number" min={0} max={inz.max_punten}
-                          className="form-input"
-                          style={{ width: 80, fontSize: "0.85rem" }}
-                          value={puntenMap[inz.id] ?? inz.max_punten}
-                          onChange={(e) => setPuntenMap((m) => ({ ...m, [inz.id]: Number(e.target.value) }))}
-                        />
-                        <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>/ {inz.max_punten}</span>
-                      </div>
-
-                      <div style={{ display: "flex", gap: 10 }}>
-                        <button
-                          className="btn btn-danger"
-                          style={{ flex: 1, fontSize: "0.82rem" }}
-                          disabled={bezig === inz.id}
-                          onClick={() => beoordeel(inz.id, "afgekeurd")}>
-                          ❌ Afkeuren
-                        </button>
-                        <button
-                          className="btn btn-primary"
-                          style={{ flex: 2, fontSize: "0.82rem" }}
-                          disabled={bezig === inz.id}
-                          onClick={() => beoordeel(inz.id, "goedgekeurd")}>
-                          {bezig === inz.id ? "Opslaan…" : "✅ Goedkeuren"}
-                        </button>
-                      </div>
-                    </div>
+        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 560, maxHeight: "96vh" }}>
+            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "16px 16px 14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <div className="pr-gem-label">📸 Foto&apos;s keuren{inzendingen.length > 0 ? ` · nog ${inzendingen.length}` : ""}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
+                    {inzendingen[0] ? inzendingen[0].teamnaam : "Alles gekeurd"}
                   </div>
-                ))
-              )}
+                </div>
+                <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} aria-label="Sluiten">✕</button>
+              </div>
+
+              {laden && inzendingen.length === 0 ? (
+                <p style={{ color: "var(--muted)", textAlign: "center", margin: 0 }}>Laden…</p>
+              ) : inzendingen.length === 0 ? (
+                <p style={{ color: "var(--text)", textAlign: "center", margin: "12px 0" }}>Geen foto&apos;s die op keuring wachten. 🎉</p>
+              ) : (() => {
+                const inz = inzendingen[0];
+                const punten = puntenMap[inz.id] ?? inz.max_punten;
+                return (
+                  <>
+                    <div style={{ fontSize: "0.84rem", color: "var(--text)" }}>
+                      📍 {inz.punt_naam} · {new Date(inz.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                    <FotoViewer key={inz.id} pad={inz.foto_pad} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+                      <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>Punten</span>
+                      <input type="number" min={0} max={inz.max_punten} className="form-input" style={{ width: 90, textAlign: "center", fontWeight: 800 }}
+                        value={punten} onChange={(e) => setPuntenMap((m) => ({ ...m, [inz.id]: Number(e.target.value) }))} />
+                      <span style={{ fontSize: "0.86rem", color: "var(--muted)" }}>/ {inz.max_punten}</span>
+                    </div>
+                    <div className="keur-knoppen">
+                      <button type="button" className="rl-knop rl-knop--rood" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "afgekeurd")}>✗ Afkeuren</button>
+                      <button type="button" className="rl-knop rl-knop--groen" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "goedgekeurd")}>
+                        {bezig === inz.id ? "Opslaan…" : `✓ Goed (+${punten})`}
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>,
@@ -195,7 +159,7 @@ function FotoViewer({ pad }: { pad: string }) {
     <div style={{ background: "#f3f4f6", minHeight: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: 320, objectFit: "contain" }} />
+        <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: "55vh", objectFit: "contain", display: "block" }} />
       ) : (
         <span style={{ color: "#9ca3af", fontSize: "0.85rem" }}>📷 Foto laden…</span>
       )}

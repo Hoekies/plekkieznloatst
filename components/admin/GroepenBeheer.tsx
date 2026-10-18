@@ -7,6 +7,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
+import { MeerdereSpelersKnop, InloggegevensUitdelenKnop } from "@/components/admin/InlogUitdelen";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -176,6 +177,9 @@ export default function GroepenBeheer() {
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
             + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
+          <MeerdereSpelersKnop onKlaar={laadGroepen} />
+          <span style={{ flex: 1 }} />
+          <InloggegevensUitdelenKnop spelers={groepen} />
       </div>
 
 

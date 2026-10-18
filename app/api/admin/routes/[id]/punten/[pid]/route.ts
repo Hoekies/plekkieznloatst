@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { hernummerLopendeSpellen } from "@/lib/route-sessies";
 
 async function checkAdmin() {
   const user = await haalGebruiker();
@@ -53,18 +54,17 @@ export async function DELETE(
     .eq("route_id", params.id);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
-  // Hernummer resterende punten
+  // Hernummer resterende punten: na elkaar en oplopend. Tegelijk kon een nummer nog bezet zijn,
+  // waardoor er een gat in de nummering bleef (zie Berghem: 1, 2, 3, 5)
   const { data: overig } = await admin
     .from("route_points")
-    .select("id")
+    .select("id, order_index")
     .eq("route_id", params.id)
     .order("order_index");
-  if (overig) {
-    await Promise.all(
-      overig.map((p, i) =>
-        admin.from("route_points").update({ order_index: i + 1 }).eq("id", p.id)
-      )
-    );
+  for (const [i, p] of (overig ?? []).entries()) {
+    if (p.order_index !== i + 1) await admin.from("route_points").update({ order_index: i + 1 }).eq("id", p.id);
   }
+  // Lopende spellen: het punt is uit hun volgorde gevallen, nummering weer sluitend maken
+  await hernummerLopendeSpellen(admin, params.id);
   return NextResponse.json({ ok: true });
 }

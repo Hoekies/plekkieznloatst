@@ -32,6 +32,9 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Pushmeldingen bij een nieuwe foto of hulpvraag (ook op een horloge)
 - Berichten naar alle teams, tussenstand, uitslag vrijgeven en spelrapport als PDF
 - Voorproefje van een route op één A4 (zonder antwoorden)
+- Meerdere spelers tegelijk aanmaken; inloggegevens per team via WhatsApp of als printbare inlogkaartjes
+- Testronde in de route-editor; punten toevoegen of verwijderen tijdens een lopend spel; wijzigingen naar spelers sturen
+- Foto's één voor één keuren, ook vanuit de pushmelding
 - Routes exporteren, importeren en kopiëren; versienummer en laatste update in het menu
 
 ### Speciale items

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { voegPuntToeAanLopendeSpellen } from "@/lib/route-sessies";
 
 async function checkAdmin() {
   const user = await haalGebruiker();
@@ -47,5 +48,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     .select()
     .single();
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  // Loopt er een spel op deze route? Dan krijgt elk team het nieuwe punt vóór de finish
+  await voegPuntToeAanLopendeSpellen(admin, params.id, data.id);
   return NextResponse.json(data, { status: 201 });
 }

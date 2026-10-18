@@ -138,6 +138,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // Voor de check of de organisatie het punt heeft vrijgegeven (die draait in een timer en zou
   // anders de waarden van het begin blijven zien)
   const vrijgaveRef = useRef({ puntId: null as string | null, bereikt: false, popup: false });
+  // Laatst gezien "vernieuwen"-tijdstip van de beheerder (undefined = nog niet opgehaald)
+  const vernieuwRef = useRef<string | null | undefined>(undefined);
   vrijgaveRef.current = {
     puntId: activePunt?.id ?? null,
     bereikt: !!activePunt && (bereiktIds.has(activePunt.id) || verwerktIds.has(activePunt.id)),
@@ -363,6 +365,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
         if (data === null) { router.push("/speler?gestopt=1"); return; }
         if (data?.score !== undefined) setScore(data.score);
+        // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
+        if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
+          router.refresh();
+          setOpgehaaldToast("🔄 De route is bijgewerkt");
+          if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
+          opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 3500);
+        }
+        if (data) vernieuwRef.current = data.vernieuw_at ?? null;
         // De organisatie heeft ons volgende punt vrijgegeven ("Volgend punt vrijgeven" op het dashboard):
         // de server zet dat punt als bereikt. Herladen opent de vraag, net als na een hulpmelding.
         const v = vrijgaveRef.current;

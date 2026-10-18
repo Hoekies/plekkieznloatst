@@ -18,6 +18,7 @@ import { instappuntenMetKeuze } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
+import TestRonde from "./editor/TestRonde";
 import ControleVenster from "./editor/ControleVenster";
 import AlleVragenVenster from "./editor/AlleVragenVenster";
 import { routeControle } from "@/lib/route-controle";
@@ -598,6 +599,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [vraagVenster, setVraagVenster] = useState<{ punt: RoutePunt; vraag: VraagMetAntwoorden | null } | null>(null);
   // Alle vragen achter elkaar invullen (knop 📝 Alle vragen)
   const [alleVragenOpen, setAlleVragenOpen] = useState(false);
+  // Testronde: de route punt voor punt doorlopen zonder naar buiten te gaan
+  const [testOpen, setTestOpen] = useState(false);
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
   const kaartNummer = (p: RoutePunt) => {
     const i = punten.findIndex((x) => x.id === p.id);
@@ -1001,6 +1004,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
               }}>⏹ Deactiveer</BevestigKnop>
           )}
+          {/* Actieve route: verschoven punten, nieuwe namen of stralen meteen bij de spelers (nieuwe of
+              verwijderde punten gaan vanzelf mee) */}
+          {route.is_active && (
+            <BevestigKnop venster gevaarlijk={false} icoon="📲" titel="Wijzigingen naar de spelers sturen?" vraag="" ja="Ja, versturen"
+              className="rl-knop rl-knop--cyan" tip="De apps van de spelers lezen de route opnieuw in" tipOnder
+              onBevestig={async () => {
+                const res = await api(`/api/admin/routes/${route.id}/vernieuw`, { method: "POST" });
+                const data = await res.json().catch(() => ({}));
+                toonMelding(res.ok ? "Verstuurd: de spelers zien de wijzigingen binnen een paar seconden" : data.fout ?? "Versturen mislukt", res.ok ? "ok" : "fout");
+              }}>📲<span className="alleen-pc"> Naar spelers</span></BevestigKnop>
+          )}
 
           <span className="editor-balk-scheiding" aria-hidden />
           {/* Telefoon: hier begint een nieuwe regel met het gereedschap */}
@@ -1020,6 +1034,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
             📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
+          </button>
+          <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
+            title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
+            🧪<span className="alleen-pc"> Test</span>
           </button>
           {!route.is_active && (
             <button className="rl-knop" onClick={() => setControleOpen(true)}
@@ -1784,6 +1802,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {controleOpen && (
           <ControleVenster controle={controle} status={route.status} actief={route.is_active}
             onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} />
+        )}
+
+        {/* Testronde */}
+        {testOpen && (
+          <TestRonde routeId={route.id} punten={punten} items={specialeItems} verspreid={route.modus === "verspreid"}
+            onGaNaar={(lat, lng) => setVliegNaar({ lat, lng, zoom: 18 })} onSluit={() => setTestOpen(false)} />
         )}
 
         {/* Alle vragen achter elkaar */}
