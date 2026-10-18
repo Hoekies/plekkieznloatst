@@ -10,9 +10,12 @@ import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
 const KEUZE_KEY = "pointrush_deel_keuze";
-export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\nVeel plezier! René";
-// Vorige standaardtekst: wie die nog onthouden had, krijgt vanzelf de nieuwe
-const OUDE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app";
+export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\n\n🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht.\n\nVeel plezier! René";
+// Vorige standaardteksten: wie die nog onthouden had, krijgt vanzelf de nieuwe
+const OUDE_DEFAULTS = [
+  "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app",
+  "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\nVeel plezier! René",
+];
 const SITE = "https://plekkieznloatst.vercel.app";
 
 // Stap voor stap, vriendelijk uitgelegd. *tekst* wordt in WhatsApp vetgedrukt
@@ -51,7 +54,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
   useEffect(() => {
     try {
       const opgeslagen = localStorage.getItem(TEMPLATE_KEY);
-      setTekst(!opgeslagen || opgeslagen === OUDE_DEFAULT ? TEMPLATE_DEFAULT : opgeslagen);
+      setTekst(!opgeslagen || OUDE_DEFAULTS.includes(opgeslagen) ? TEMPLATE_DEFAULT : opgeslagen);
       const k = localStorage.getItem(KEUZE_KEY);
       if (k) setKeuze({ ...STANDAARD, ...JSON.parse(k) });
     } catch { /* geen opslag */ }

@@ -257,7 +257,7 @@ Elke "speler" in het beheer is één team met één inlog.
 1. Ga naar **Spelers** in het menu.
 2. Klik op **+ Nieuwe speler** en vul een **loginnaam** en een **wachtwoord** (minimaal 8 tekens) in. De loginnaam is wat het team typt bij het inloggen (bijv. "speler1"); hoofdletters maken daarbij niet uit.
 3. Verstuur de inloggegevens met **WhatsApp** in het menu (onder Spel). Er opent eerst **Wat verstuur je?**:
-   - **✉️ Berichttekst** — standaard *"Hoi! Log in op PointRush via deze link 🎯 … Veel plezier! René"*, aan te passen in het venster;
+   - **✉️ Berichttekst** — standaard *"Hoi! Log in op PointRush via deze link 🎯 … 🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht. … Veel plezier! René"*, aan te passen in het venster. De inlog stuur je daarna per team met de **🔑** bij Spelers;
    - **📲 Uitleg** hoe je de app op het beginscherm zet;
    - **Afbeeldingen:** de spelershandleiding en/of de speluitleg van route op volgorde of verspreid.
    Onderaan zie je een voorbeeld. **Versturen** opent het deelmenu (kies WhatsApp). Je laatste keuze wordt onthouden.
