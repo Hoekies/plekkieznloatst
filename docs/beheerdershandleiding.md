@@ -270,9 +270,16 @@ Met **👫 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spele
 
 #### Inloggegevens per team uitdelen
 
-Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen) en een **voorgesteld wachtwoord** (🎲 voor een ander, of typ zelf iets). Wachtwoorden worden nergens leesbaar bewaard; daarom krijgt de speler bij versturen een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd.
+Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (**Geen**, 4 uur, ½ dag, **1 dag** of 2 dagen).
+- Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
+- Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 
-Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met de link naar de app eronder. Op de telefoon zet WhatsApp de link meestal als bijschrift bij het kaartje. Op de computer laat WhatsApp die tekst soms weg; tik dan op **Link ontbreekt? Stuur hem erachteraan** onder de knop en kies dezelfde chat (die staat bovenaan).
+Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met het hele bericht eronder:
+- 👉 **Direct inloggen** met de link (en tot wanneer die werkt);
+- of naar de site gaan en inloggen met **loginnaam** en **wachtwoord**;
+- en wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**).
+
+Op de telefoon zet WhatsApp dat bericht meestal als bijschrift bij het kaartje. Op de computer laat WhatsApp de tekst soms weg; tik dan op **Tekst ontbreekt? Stuur het bericht erachteraan** onder de knop en kies dezelfde chat (die staat bovenaan).
 
 Kan je browser geen afbeeldingen delen, dan wordt het kaartje gedownload en opent WhatsApp meteen met het bericht; voeg het kaartje dan zelf toe.
 

@@ -328,11 +328,26 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
 export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerModal; onSluit: () => void; onGewijzigd?: () => void }) {
   // Helpers loggen in met hun naam; die blijft vast
   const [login, setLogin] = useState(modal.login ?? "");
-  // Alvast een makkelijk voorstel (🎲 voor een ander, of zelf typen)
-  const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
+  // Het huidige wachtwoord (als het bewaard is); anders een makkelijk voorstel. 🎲 = een ander
+  const [wachtwoord, setWachtwoord] = useState("");
+  const [huidig, setHuidig] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let actief = true;
+    fetch(modal.helper ? `/api/admin/helpers?id=${modal.id}` : `/api/admin/groepen/${modal.id}/wachtwoord`)
+      .then((r) => (r.ok ? r.json() : { wachtwoord: null }))
+      .catch(() => ({ wachtwoord: null }))
+      .then((d: { wachtwoord?: string | null }) => {
+        if (!actief) return;
+        setHuidig(d.wachtwoord ?? null);
+        setWachtwoord(d.wachtwoord ?? maakWachtwoord());
+      });
+    return () => { actief = false; };
+  }, [modal.id, modal.helper]);
   const [fout, setFout] = useState("");
-  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
+  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string; link?: { url: string; geldig_tot: string } | null } | null>(null);
   const [laden, setLaden] = useState(false);
+  // Ook een link om direct in te loggen meesturen: zoveel uur geldig (0 = geen link)
+  const [linkUren, setLinkUren] = useState(24);
   // Spelers: met wachtwoord, of met een link zonder wachtwoord (helpers alleen wachtwoord)
   const [modus, setModus] = useState<"wachtwoord" | "link">("wachtwoord");
 
@@ -355,17 +370,29 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
     setLaden(true);
     const nieuweLogin = login.trim();
     let f: string | null = null;
+    // Hetzelfde wachtwoord als nu: niets aan veranderen, gewoon opnieuw versturen
+    const nieuwWachtwoord = wachtwoord !== huidig;
     if (modal.helper) {
-      f = await patch("/api/admin/helpers", { id: modal.id, wachtwoord });
+      if (nieuwWachtwoord) f = await patch("/api/admin/helpers", { id: modal.id, wachtwoord });
     } else {
-      // Eerst de loginnaam (alleen als die anders is), dan het wachtwoord
+      // Eerst de loginnaam (alleen als die anders is), dan het wachtwoord (alleen als het anders is)
       if (nieuweLogin && nieuweLogin !== modal.login) f = await patch(`/api/admin/groepen/${modal.id}/loginnaam`, { loginNaam: nieuweLogin });
-      if (!f) f = await patch(`/api/admin/groepen/${modal.id}/wachtwoord`, { wachtwoord });
+      if (!f && nieuwWachtwoord) f = await patch(`/api/admin/groepen/${modal.id}/wachtwoord`, { wachtwoord });
       onGewijzigd?.();
+    }
+    // Directe inloglink erbij (alleen spelers). Lukt dat niet, dan gewoon zonder.
+    let link: { url: string; geldig_tot: string } | null = null;
+    if (!f && !modal.helper && linkUren > 0) {
+      const res = await fetch(`/api/admin/groepen/${modal.id}/link`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uren: linkUren }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) link = { url: data.url, geldig_tot: data.geldig_tot };
+      else toonMelding(`Wachtwoord opgeslagen, maar de directe link lukte niet: ${data.fout ?? "onbekende fout"}`, "fout");
     }
     setLaden(false);
     if (f) { setFout(f); return; }
-    setKlaar({ login: modal.helper ? modal.login ?? modal.groepNaam : nieuweLogin, wachtwoord });
+    setKlaar({ login: modal.helper ? modal.login ?? modal.groepNaam : nieuweLogin, wachtwoord, link });
   }
 
   return createPortal(
@@ -396,7 +423,9 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
           ) : (
             <>
               <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                Wachtwoorden zijn niet terug te lezen: er komt een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd.
+                {huidig === undefined ? "Huidig wachtwoord ophalen…"
+                  : huidig ? "Dit is het huidige wachtwoord. Met 🎲 maak je een nieuw; wie al is ingelogd, blijft ingelogd."
+                  : "Het huidige wachtwoord is niet bewaard: dit team krijgt eenmalig een nieuw wachtwoord."}
               </div>
               {!modal.helper && (
                 <div className="form-group" style={{ margin: 0 }}>
@@ -406,15 +435,25 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                 </div>
               )}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Nieuw wachtwoord</label>
+                <label className="form-label">{huidig && wachtwoord === huidig ? "Wachtwoord" : "Nieuw wachtwoord"}</label>
                 <div className="ww-veld">
                   <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
                     placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
                   <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
                 </div>
               </div>
+              {!modal.helper && (
+                <div>
+                  <label className="form-label">🔗 Link om direct in te loggen, geldig</label>
+                  <div className="punten-snel">
+                    {[[0, "Geen"], [4, "4 uur"], [12, "½ dag"], [24, "1 dag"], [48, "2 dagen"]].map(([u, label]) => (
+                      <button key={u} type="button" className={`rl-knop${linkUren === u ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(u as number)}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
-              <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={laden}>
+              <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={laden || huidig === undefined}>
                 {laden ? "Bezig…" : "Opslaan en versturen"}
               </button>
             </>

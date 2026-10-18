@@ -8,13 +8,38 @@ import { toonMelding } from "@/components/admin/Melding";
 import { waLink } from "@/lib/telefoon";
 
 // telefoon: bekend nummer van het team; dan opent WhatsApp meteen die chat (waar dat kan)
-export type Inlog = { login: string; wachtwoord: string; naam?: string | null; helper?: boolean; telefoon?: string | null };
+// link: link om direct in te loggen (zonder wachtwoord), met tot wanneer hij werkt
+export type Inlog = {
+  login: string; wachtwoord: string; naam?: string | null; helper?: boolean; telefoon?: string | null;
+  link?: { url: string; geldig_tot: string } | null;
+};
+
+function totTekst(iso: string) {
+  return new Date(iso).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
 
 export const SITE = "https://plekkieznloatst.vercel.app";
 
+// Het hele bericht: wat het team moet doen, met de directe link (als die er is), de site en de inlog
 export function waTekst(i: Inlog) {
   if (i.helper) return `Hoi! Je bent helper bij PointRush 🎯\n${SITE}\n\nNaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nJe kunt foto's keuren en punten vrijgeven. Bedankt! René`;
-  return `Hoi! Log in op PointRush 🎯\n${SITE}\n\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
+  if (i.link) {
+    return [
+      "Hoi! Doe mee met PointRush 🎯",
+      "",
+      `👉 *Direct inloggen* (werkt tot ${totTekst(i.link.geldig_tot)}):`,
+      i.link.url,
+      "",
+      `Of ga naar ${SITE} en log in met:`,
+      `Loginnaam: *${i.login}*`,
+      `Wachtwoord: *${i.wachtwoord}*`,
+      "",
+      "📱 Staat PointRush als app op je telefoon? Kopieer dan de bovenste link en tik in de app op 🔗 Inloggen met link.",
+      "",
+      "Veel plezier! René",
+    ].join("\n");
+  }
+  return `Hoi! Doe mee met PointRush 🎯\n\nGa naar ${SITE} en log in met:\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
 }
 
 // Het inlogkaartje zelf: logo, QR-code naar de app, loginnaam en wachtwoord
@@ -50,14 +75,14 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
   return taak;
 }
 
-// Het kaartje als afbeelding, met de link als bijschrift. Op de telefoon neemt WhatsApp die meestal
-// mee; op de computer laat WhatsApp de tekst weg, dan kan de link er los achteraan (reserveknop).
+// Het kaartje als afbeelding, met het hele bericht als bijschrift. Op de telefoon neemt WhatsApp dat
+// meestal mee; op de computer laat WhatsApp de tekst weg, dan kan het bericht er los achteraan.
 // Geeft terug of de reserveknop zinvol is.
 async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "klaar" | "geannuleerd"> {
   const tekst = waTekst(inlog);
   if (beeld && navigator.canShare?.({ files: [beeld] })) {
     try {
-      await navigator.share({ files: [beeld], text: SITE });
+      await navigator.share({ files: [beeld], text: tekst });
       return "link";
     } catch (e) { if ((e as Error).name === "AbortError") return "geannuleerd"; }
   }
@@ -74,10 +99,10 @@ async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "kl
   return "klaar";
 }
 
-// Reserve: alleen de link naar de app (loginnaam en wachtwoord staan al op het kaartje).
-// Via het deelmenu: de chat van net staat daar bovenaan.
-async function stuurLink(telefoon?: string | null) {
-  const tekst = SITE;
+// Reserve: het bericht los erachteraan (via het deelmenu staat de chat van net bovenaan)
+async function stuurLink(inlog: Inlog) {
+  const tekst = waTekst(inlog);
+  const telefoon = inlog.telefoon;
   // Nummer bekend: meteen naar die chat
   if (telefoon) { window.open(waLink(tekst, telefoon), "_blank"); return true; }
   if (navigator.share) {
@@ -101,7 +126,7 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
     setStap("kaartje");
     if (ref.current) naarAfbeelding(ref.current, `inlog-${inlog.login}.png`).then((f) => { if (!gestopt) setBeeld(f); });
     return () => { gestopt = true; };
-  }, [inlog.login, inlog.wachtwoord, inlog.helper]);
+  }, [inlog.login, inlog.wachtwoord, inlog.helper, inlog.link?.url]);
 
   return (
     <div className="kaartje-blok">
@@ -109,15 +134,15 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
       <div className="kaartje-acties">
         <button type="button" className="wa-knop" disabled={!beeld}
           onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
-          title="Het kaartje versturen, met de link eronder">
+          title="Het kaartje versturen, met het bericht (links en inlog) eronder">
           <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "kaartje" ? "WhatsApp" : "✓ Verstuurd · nog een keer"}
         </button>
       </div>
-      {/* Reserve: op de computer laat WhatsApp de link onder het kaartje weg */}
+      {/* Reserve: op de computer laat WhatsApp de tekst onder het kaartje weg */}
       {stap === "link" && (
-        <button type="button" className="kaartje-link-los" onClick={async () => { if (await stuurLink(inlog.telefoon)) setStap("klaar"); }}
-          title="Alleen de link naar de app versturen (kies dezelfde chat, die staat bovenaan)">
-          Link ontbreekt? Stuur hem erachteraan
+        <button type="button" className="kaartje-link-los" onClick={async () => { if (await stuurLink(inlog)) setStap("klaar"); }}
+          title="Het bericht met de links en de inlog los versturen (kies dezelfde chat, die staat bovenaan)">
+          Tekst ontbreekt? Stuur het bericht erachteraan
         </button>
       )}
     </div>

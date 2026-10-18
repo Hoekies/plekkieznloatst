@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
+import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
 
 // GET — alle groepen ophalen
 export async function GET() {
@@ -19,7 +20,8 @@ export async function GET() {
 
   // Heeft de groep een lopend spel? (bepaalt of 'Spel stoppen' zichtbaar is)
   const metSpel = new Set((lopend ?? []).map((s) => s.player_id));
-  return NextResponse.json((data ?? []).map((g) => ({ ...g, heeft_spel: metSpel.has(g.id) })));
+  // De versleutelde wachtwoordkopie gaat niet mee naar de browser
+  return NextResponse.json((data ?? []).map(({ wachtwoord_versleuteld: _ww, ...g }) => ({ ...g, heeft_spel: metSpel.has(g.id) })));
 }
 
 // POST — nieuwe groep aanmaken
@@ -75,5 +77,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: spelerFout.message }, { status: 500 });
   }
 
-  return NextResponse.json(speler, { status: 201 });
+  await bewaarWachtwoord(admin, speler.id, wachtwoord);
+  // De versleutelde kopie gaat niet mee naar de browser
+  const { wachtwoord_versleuteld: _ww, ...zonder } = speler as Record<string, unknown>;
+  return NextResponse.json(zonder, { status: 201 });
 }

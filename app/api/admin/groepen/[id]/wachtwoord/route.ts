@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { bewaarWachtwoord, ontsleutel } from "@/lib/wachtwoord-kluis";
+
+// Huidig wachtwoord van een team (uit de versleutelde kopie); null als het onbekend is
+export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const admin = createAdminClient();
+  const { data: speler } = await admin.from("players").select("*").eq("id", params.id).maybeSingle();
+  if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 404 });
+  return NextResponse.json({ wachtwoord: ontsleutel((speler as { wachtwoord_versleuteld?: string | null }).wachtwoord_versleuteld) });
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -32,5 +42,7 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
+  // Versleutelde kopie, zodat hetzelfde wachtwoord later opnieuw verstuurd kan worden
+  await bewaarWachtwoord(admin, params.id, wachtwoord);
   return NextResponse.json({ ok: true });
 }

@@ -3,6 +3,7 @@ import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { helperNaarEmail } from "@/lib/login-naam";
 import { maakWachtwoord } from "@/lib/speler-aanmaken";
+import { versleutel, ontsleutel } from "@/lib/wachtwoord-kluis";
 
 // Helpers van de spelleider: inloggen met een naam en wachtwoord, en dan alleen meekijken,
 // foto's keuren en punten vrijgeven. Alleen de beheerder maakt ze aan en haalt ze weg.
@@ -15,8 +16,15 @@ async function alleHelpers(admin: ReturnType<typeof createAdminClient>) {
   return (data?.users ?? []).filter((u) => u.app_metadata?.rol === "helper");
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  // ?id=…: het huidige wachtwoord van die helper (versleutelde kopie), voor opnieuw versturen
+  const id = request.nextUrl.searchParams.get("id");
+  if (id) {
+    const { data } = await createAdminClient().auth.admin.getUserById(id);
+    if (data?.user?.app_metadata?.rol !== "helper") return NextResponse.json({ fout: "Helper niet gevonden" }, { status: 404 });
+    return NextResponse.json({ wachtwoord: ontsleutel(data.user.user_metadata?.ww as string | undefined) });
+  }
   const helpers = await alleHelpers(createAdminClient());
   return NextResponse.json({
     helpers: helpers
@@ -41,7 +49,7 @@ export async function PATCH(request: NextRequest) {
   const admin = createAdminClient();
   const { data } = await admin.auth.admin.getUserById(body.id);
   if (data?.user?.app_metadata?.rol !== "helper") return NextResponse.json({ fout: "Helper niet gevonden" }, { status: 404 });
-  const { error } = await admin.auth.admin.updateUserById(body.id, { password: wachtwoord });
+  const { error } = await admin.auth.admin.updateUserById(body.id, { password: wachtwoord, user_metadata: { ...data.user.user_metadata, ww: versleutel(wachtwoord) } });
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json({ naam: data.user.user_metadata?.naam ?? "", wachtwoord });
 }
@@ -67,7 +75,7 @@ export async function POST(request: NextRequest) {
     password: wachtwoord,
     email_confirm: true,
     app_metadata: { rol: "helper" },
-    user_metadata: { naam },
+    user_metadata: { naam, ww: versleutel(wachtwoord) },
   });
   if (error) {
     const dubbel = /already|registered|exists/i.test(error.message);

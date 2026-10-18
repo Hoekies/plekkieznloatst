@@ -1,5 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
+import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -35,5 +36,6 @@ export async function maakSpeler(admin: AdminClient, loginNaam: string, wachtwoo
     await admin.auth.admin.deleteUser(authData.user.id);
     return { fout: spelerFout?.message ?? "Kon speler niet aanmaken", status: 500 };
   }
+  await bewaarWachtwoord(admin, speler.id, wachtwoord);
   return { speler };
 }
