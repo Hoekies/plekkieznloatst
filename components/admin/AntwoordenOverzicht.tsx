@@ -68,8 +68,15 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Telefoon: compacte strook in plaats van de vier tegels */}
+      <div className="dash-strook" style={{ marginBottom: 0 }}>
+        <span title="Actieve route">🗺️ {data.route.name}</span>
+        <span title="Spelers">👫 {data.teams.length}</span>
+        <span title="Foto's te keuren">📸 {data.wachtende_fotos ?? 0}</span>
+        <span title="Uitslag">{data.uitslag_vrijgegeven ? "🏆 zichtbaar" : "🔒 verborgen"}</span>
+      </div>
       {/* Tegels zoals bovenaan het dashboard */}
-      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
+      <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
         <StatKaart label="Actieve route" waarde={data.route.name} badgeKlas="pr-badge--orange" badge="🗺️" />
         <StatKaart label="Spelers" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👫" />
         <StatKaart label="Foto's te keuren" waarde={String(data.wachtende_fotos ?? 0)} badgeKlas={data.wachtende_fotos ? "pr-badge--gold" : "pr-badge--green"} badge="📸" />

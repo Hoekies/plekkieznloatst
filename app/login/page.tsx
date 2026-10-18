@@ -31,7 +31,7 @@ function LoginForm() {
 
 
   return (
-    <div className="pr-stage" style={{
+    <div className="pr-stage login-scherm" style={{
       height: "100dvh",
       display: "flex",
       flexDirection: "column",
@@ -62,7 +62,7 @@ function LoginForm() {
         <img
           src="/logo.webp"
           alt="PointRush"
-          style={{ width: 230, display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
+          style={{ width: 168, display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
         />
       </div>
 
@@ -90,7 +90,7 @@ function LoginForm() {
             <label htmlFor="wachtwoord" className="pr-field-label2">
               Wachtwoord
             </label>
-            <div style={{ position: "relative", marginBottom: 16 }}>
+            <div style={{ position: "relative", marginBottom: 14 }}>
               <input
                 id="wachtwoord"
                 name="wachtwoord"

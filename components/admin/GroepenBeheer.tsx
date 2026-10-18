@@ -131,8 +131,10 @@ export default function GroepenBeheer() {
         </div>
 
         {/* Rechts: verwijderen en de aan/uit-schakelaar */}
+        {/* Op de telefoon: schakelaar naast de naam, de icoonknoppen op een eigen regel eronder */}
         <div className="gb-schakel gb-rechts">
-        {/* 🔑 Inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
+        <div className="gb-iconen">
+        {/* 📞 Telefoonnummer en 🔑 inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
         {!isUit && (
           <button type="button" className={`rl-knop rl-knop--icoon gb-icoon${g.telefoon ? " rl-knop--groen" : ""}`} aria-label="Telefoonnummer"
             title={g.telefoon ? `Telefoon: ${toonTelefoon(g.telefoon)}` : "Telefoonnummer toevoegen"}
@@ -147,7 +149,8 @@ export default function GroepenBeheer() {
           onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
           className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
           tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}>🗑️</BevestigKnop>
-        <div
+        </div>
+        <div className="gb-schakelaar"
           title={isUit ? "Aanzetten" : "Uitzetten"}
           onClick={async () => {
             const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
@@ -177,8 +180,15 @@ export default function GroepenBeheer() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* Telefoon: compacte strook in plaats van de vier tegels */}
+      <div className="dash-strook" style={{ marginBottom: 0 }}>
+        <span title="Spelers">👫 {groepen.length}</span>
+        <span title="Ingelogd">📱 {groepen.filter((g) => g.active_device_id).length}</span>
+        <span title="Aan het spelen">⚡ {groepen.filter((g) => g.heeft_spel).length}</span>
+        <span title="Uitgeschakeld">⏸ {groepen.filter((g) => g.is_uitgeschakeld).length}</span>
+      </div>
       {/* Tegels zoals bovenaan het dashboard */}
-      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
+      <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
         <StatKaart label="Spelers" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👫" />
         <StatKaart label="Ingelogd" waarde={String(groepen.filter((g) => g.active_device_id).length)} badgeKlas="pr-badge--green" badge="📱" />
         <StatKaart label="Aan het spelen" waarde={String(groepen.filter((g) => g.heeft_spel).length)} badgeKlas="pr-badge--orange" badge="⚡" />

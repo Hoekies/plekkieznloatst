@@ -2085,8 +2085,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .spelleider-status { flex: 1 1 240px; min-width: 0; }
 .spelleider-knoppen { display: flex; gap: 8px; flex-shrink: 0; }
 @media (max-width: 768px) {
-  .spelleider-knoppen { flex: 1 1 100%; }
-  .spelleider-knoppen > * { flex: 1 1 0; min-width: 0; justify-content: center; }
+  /* Twee knoppen per regel (Pauze · Eindtijd), de laatste (Spel afronden) over de volle breedte */
+  .spelleider-knoppen { flex: 1 1 100%; flex-wrap: wrap; }
+  .spelleider-knoppen > * { flex: 1 1 40%; min-width: 0; justify-content: center; padding: 0 10px !important; white-space: nowrap; }
 }
 .spelleider-regel--knop:hover { background: rgba(255,255,255,0.1); }
 /* Tijdlijn */
@@ -2443,3 +2444,31 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .link-inloggen-knop { display: block; width: 100%; margin-top: 14px; padding: 10px; cursor: pointer; border-radius: 12px;
   background: rgba(255,255,255,0.06); border: 1.5px dashed rgba(255,255,255,0.3); color: #fff; font: inherit; font-weight: 700; font-size: 0.9rem; }
 .link-inloggen-knop:hover { background: rgba(255,255,255,0.12); }
+
+/* Inlogscherm compact: kleiner logo, lagere velden, minder ruimte in het blok */
+.login-scherm .pr-logo-glow { width: 210px; height: 210px; }
+.login-scherm .pr-panel { max-width: 330px; margin-top: -24px; }
+.login-scherm .pr-panel-inner { padding: 30px 18px 16px; }
+.login-scherm .pr-field-label2 { font-size: 0.7rem; margin-bottom: 4px; }
+.login-scherm .pr-field-input2 { padding: 10px 14px; margin-bottom: 12px; font-size: 0.92rem; }
+.login-scherm .btn-premium--compact { padding: 10px 0; }
+.login-scherm .link-inloggen-knop { margin-top: 10px; padding: 8px; font-size: 0.84rem; }
+
+/* Spelerkaart dashboard: voortgangsbalk over de volle breedte */
+.sk-lijf > .pr-xp-bar { max-width: none; }
+
+/* Spelers- en helperkaart: icoonknoppen (📞 🔑 🗑️) en de schakelaar */
+.gb-iconen { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 768px) {
+  /* Telefoon: de naam krijgt de breedte; schakelaar rechts ernaast, icoonknoppen op een eigen regel */
+  .gb-kaart .gb-rechts { display: contents; }
+  .gb-kaart .gb-schakelaar { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+  .gb-kaart .gb-iconen { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; gap: 8px; }
+  .gb-kaart .gb-tekst > .gb-knoppen { grid-row: 4; }
+}
+
+@media (max-width: 768px) {
+  /* Minder lege ruimte op de telefoon (Spelers, Antwoorden) */
+  .helpers-blok { margin-top: 20px !important; gap: 10px !important; }
+  .gb-kaart .gb-iconen { margin-top: 6px; }
+}

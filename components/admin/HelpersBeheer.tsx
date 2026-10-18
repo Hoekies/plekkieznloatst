@@ -32,16 +32,17 @@ export default function HelpersBeheer() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 32 }}>
-      <SectieKop titel="🦺 Helpers" />
-      <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginTop: -8 }}>
-        Kunnen meekijken, foto&apos;s keuren en punten vrijgeven. Geen routes, spelers of reset.
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-        <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
-          + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
-        </button>
+    <div className="helpers-blok" style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 32 }}>
+      {/* Kop met de knop ernaast; korte uitleg eronder */}
+      <div>
+        <SectieKop titel="🦺 Helpers">
+          <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
+            + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
+          </button>
+        </SectieKop>
+        <div style={{ fontSize: "0.76rem", color: "var(--muted)", marginTop: -6 }}>
+          Kijken mee, keuren foto&apos;s en geven punten vrij.
+        </div>
       </div>
 
       {formulier && <NieuweHelperForm onSuccess={laad} onSluit={() => setFormulier(false)} />}
@@ -61,17 +62,19 @@ export default function HelpersBeheer() {
                   <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
                     <span>Login: <strong style={{ color: "var(--ink)" }}>{h.naam}</strong> · </span>
                     <span style={{ color: h.laatst_ingelogd ? "#4ADE80" : "var(--muted)", fontWeight: h.laatst_ingelogd ? 700 : 400 }}>
-                      {h.laatst_ingelogd ? `Ingelogd ${new Date(h.laatst_ingelogd).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}` : "Nog niet ingelogd"}
+                      {h.laatst_ingelogd ? `Ingelogd ${new Date(h.laatst_ingelogd).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : "Nog niet ingelogd"}
                     </span>
                   </div>
                 </div>
                 <div className="gb-schakel gb-rechts">
+                  <div className="gb-iconen">
                   <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
                     title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
                     onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🦺", login: h.naam, helper: true })}>🔑</button>
                   <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
                     onBevestig={() => verwijder(h)} className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
                     tip="Helper verwijderen: kan daarna niet meer inloggen">🗑️</BevestigKnop>
+                  </div>
                 </div>
               </div>
             </div>
