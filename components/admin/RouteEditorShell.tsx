@@ -425,14 +425,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       ...punten.map((p) => ({ lat: p.latitude, lng: p.longitude, r: 50 })),
       { lat: punten[0].latitude, lng: punten[0].longitude, r: 120 }, // niet vlak bij start/finish
     ];
-    const plekken = voorgesteldePlekken(lus, specialeItems.map((i) => ({ lat: i.latitude, lng: i.longitude })), vermijd, tekortTypes.length);
+    // Voorstellen langs de weg die de teams echt lopen (met 🚶 Wegen aan), niet over de rechte
+    // lijn tussen de punten. Per stuk het laatste punt weglaten: dat is het begin van het volgende.
+    const lusPad = lus.flatMap((p, i) => wegen.lijn(p, lus[(i + 1) % lus.length]).slice(0, -1));
+    const plekken = voorgesteldePlekken(lusPad.length > 1 ? lusPad : lus, specialeItems.map((i) => ({ lat: i.latitude, lng: i.longitude })), vermijd, tekortTypes.length);
     return {
       advies, nuOppakbaar,
       tekort: Math.max(0, advies.oppakbaar - nuOppakbaar) + Math.max(0, advies.plekzooi - tel(ITEM_GROEPEN.plekzooi)),
       teVeel: nuOppakbaar > advies.oppakbaar + 1,
       voorstellen: plekken.map((p, i) => ({ ...p, type: tekortTypes[i] })),
     };
-  }, [route.modus, punten, lusPlekken, lusMeterWeg, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems]);
+  }, [route.modus, punten, lusPlekken, lusMeterWeg, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems, wegen]);
   // "Klaar om te spelen?": alles wat vóór het activeren nog aandacht nodig heeft
   const [controleOpen, setControleOpen] = useState(() => zoekParams.get("controle") === "1");
   const controle = useMemo(() => routeControle({
