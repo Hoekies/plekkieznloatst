@@ -38,6 +38,11 @@ export async function voegBasiskaartToe(L: typeof Leaflet, map: Leaflet.Map, sti
     // Test of WebGL er is: anders werkt de vectorkaart niet
     const proef = document.createElement("canvas");
     if (!(proef.getContext("webgl2") || proef.getContext("webgl"))) throw new Error("geen WebGL");
+    // Het rekenhulpje (web worker) van de kaart staat als los bestand op de eigen site: bij het
+    // bundelen raakt het pad kwijt dat MapLibre zelf zou gebruiken. Versie moet gelijk zijn aan
+    // maplibre-gl in package.json (kopie van node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs).
+    const maplibre = await import("maplibre-gl");
+    maplibre.setWorkerUrl("/maplibre/maplibre-gl-worker-6.15.0.mjs");
     await import("@maplibre/maplibre-gl-leaflet");
     const laag = (L as unknown as { maplibreGL: (o: object) => Leaflet.Layer & { getMaplibreMap: () => { setStyle: (s: string) => void } } })
       .maplibreGL({ style: STIJLEN[stijl], attributionControl: false });
