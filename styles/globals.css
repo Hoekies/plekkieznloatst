@@ -2236,3 +2236,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-kaart .pr-gem-card-inner > *, .rl-kop, .rl-titel { min-width: 0; max-width: 100%; }
   .rl-titel { overflow: hidden; }
 }
+
+/* Telefoon: routekaart-kop in twee regels — icoon, naam en pijltje; daaronder de stap-knop */
+@media (max-width: 768px) {
+  .rl-kop { flex-wrap: wrap; row-gap: 8px; }
+  .rl-kop .rl-titel { flex: 1 1 0; min-width: 0; }
+  .rl-kop .rl-pijl { order: 2; }
+  .rl-kop .rl-kop-stap { order: 3; flex-basis: 100%; padding-left: 68px; box-sizing: border-box; }
+}
