@@ -47,13 +47,14 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
   return taak;
 }
 
-// Stap 1: het kaartje als afbeelding. WhatsApp laat tekst weg als er een afbeelding gedeeld wordt,
-// dus het bericht met de link volgt in stap 2 (zelfde knop). Geeft terug of stap 2 nog nodig is.
+// Het kaartje als afbeelding, met de link als bijschrift. Op de telefoon neemt WhatsApp die meestal
+// mee; op de computer laat WhatsApp de tekst weg, dan kan de link er los achteraan (reserveknop).
+// Geeft terug of de reserveknop zinvol is.
 async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "klaar" | "geannuleerd"> {
   const tekst = waTekst(inlog);
   if (beeld && navigator.canShare?.({ files: [beeld] })) {
     try {
-      await navigator.share({ files: [beeld] });
+      await navigator.share({ files: [beeld], text: SITE });
       return "link";
     } catch (e) { if ((e as Error).name === "AbortError") return "geannuleerd"; }
   }
@@ -70,9 +71,10 @@ async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "kl
   return "klaar";
 }
 
-// Stap 2: het bericht met de link (via het deelmenu: de chat van net staat daar bovenaan)
-async function stuurLink(inlog: Inlog) {
-  const tekst = waTekst(inlog);
+// Reserve: alleen de link naar de app (loginnaam en wachtwoord staan al op het kaartje).
+// Via het deelmenu: de chat van net staat daar bovenaan.
+async function stuurLink() {
+  const tekst = SITE;
   if (navigator.share) {
     try { await navigator.share({ text: tekst }); return true; }
     catch (e) { if ((e as Error).name === "AbortError") return false; }
@@ -85,7 +87,7 @@ async function stuurLink(inlog: Inlog) {
 export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
   const ref = useRef<HTMLDivElement>(null);
   const [beeld, setBeeld] = useState<File | null>(null);
-  // Na het kaartje: de knop wordt "stuur nu de link"
+  // Na het kaartje: "link" = reserveknop voor de link tonen
   const [stap, setStap] = useState<"kaartje" | "link" | "klaar">("kaartje");
 
   useEffect(() => {
@@ -100,23 +102,18 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
     <div className="kaartje-blok">
       <InlogKaartje inlog={inlog} kaartRef={ref} />
       <div className="kaartje-acties">
-        {stap === "link" ? (
-          <button type="button" className="wa-knop wa-knop--stap2" onClick={async () => { if (await stuurLink(inlog)) setStap("klaar"); }}
-            title="Het bericht met de link naar de app versturen">
-            <WhatsAppLogo /> 2. Stuur nu de link erachteraan
-          </button>
-        ) : (
-          <button type="button" className="wa-knop" disabled={!beeld}
-            onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
-            title="Eerst het kaartje, daarna het bericht met de link">
-            <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "klaar" ? "✓ Verstuurd · nog een keer" : "WhatsApp"}
-          </button>
-        )}
+        <button type="button" className="wa-knop" disabled={!beeld}
+          onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
+          title="Het kaartje versturen, met de link eronder">
+          <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "kaartje" ? "WhatsApp" : "✓ Verstuurd · nog een keer"}
+        </button>
       </div>
+      {/* Reserve: op de computer laat WhatsApp de link onder het kaartje weg */}
       {stap === "link" && (
-        <div style={{ fontSize: "0.74rem", color: "#FFE680", textAlign: "center" }}>
-          WhatsApp stuurt bij een afbeelding geen tekst mee. Kies dezelfde chat (staat bovenaan).
-        </div>
+        <button type="button" className="kaartje-link-los" onClick={async () => { if (await stuurLink()) setStap("klaar"); }}
+          title="Alleen de link naar de app versturen (kies dezelfde chat, die staat bovenaan)">
+          Link ontbreekt? Stuur hem erachteraan
+        </button>
       )}
     </div>
   );

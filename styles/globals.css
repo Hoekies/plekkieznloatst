@@ -2391,8 +2391,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .bank-soorten .rl-knop { height: 32px; padding: 0 10px; font-size: 0.78rem; }
 .bank-kop { font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: #C9B6FF; text-transform: uppercase; letter-spacing: 0.06em; margin: 8px 2px 2px; }
 
-/* Tweede stap bij het versturen van een kaartje: valt op */
-.wa-knop--stap2 { background: #25D366; color: #fff; border-color: #25D366; animation: pr-pulse-groen 1.6s ease-in-out infinite; }
-.wa-knop--stap2 svg { color: #fff; }
-.wa-knop--stap2:hover:not(:disabled) { background: #1ebe5a; color: #fff; }
-@keyframes pr-pulse-groen { 50% { box-shadow: 0 0 14px rgba(37,211,102,0.7); } }
+/* Reserve na het versturen van een kaartje: de link los erachteraan (onopvallend) */
+.kaartje-link-los { align-self: center; background: none; border: none; cursor: pointer; padding: 2px 6px;
+  color: #86EFAC; font: inherit; font-size: 0.78rem; text-decoration: underline; text-underline-offset: 3px; }
+.kaartje-link-los:hover { color: #BBF7D0; }
