@@ -265,11 +265,11 @@ Met **👥 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spele
 
 #### Inloggegevens per team uitdelen
 
-Op elke spelerskaart staat **📲 Versturen**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen) en een **voorgesteld wachtwoord** (🎲 voor een ander, of typ zelf iets). Wachtwoorden worden nergens leesbaar bewaard; daarom krijgt de speler bij versturen een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd. Na **Opslaan en versturen** kies je:
-- **WhatsApp**: een bericht met de link, de loginnaam en het wachtwoord;
-- **🎫 Kaartje**: het inlogkaartje (logo, QR-code naar de app, loginnaam en wachtwoord). Daar kun je het **afdrukken** of met **WhatsApp** als afbeelding versturen. De link gaat altijd als tekst mee, want een afbeelding is in WhatsApp niet aan te klikken. Met **← Terug** ga je terug naar Spelers.
+Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen) en een **voorgesteld wachtwoord** (🎲 voor een ander, of typ zelf iets). Wachtwoorden worden nergens leesbaar bewaard; daarom krijgt de speler bij versturen een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd.
 
-Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aanmaken krijg je dezelfde knoppen. Na **👥 Meerdere** krijg je de lijst met inloggegevens, met per team WhatsApp, **📋 Kopiëren** en **🖨️ Kaartjes** (8 per A4).
+Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**. Dat verstuurt het kaartje als afbeelding, met het bericht met de link erbij (een afbeelding is in WhatsApp niet aan te klikken). Laat jouw WhatsApp de tekst weg, wat op de computer kan gebeuren, dan staat die op het klembord: plak hem onder het kaartje.
+
+Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aanmaken krijg je hetzelfde kaartje. Na **👥 Meerdere** krijg je alle kaartjes onder elkaar, elk met WhatsApp, plus **🖨️ Afdrukken** (8 per A4, met **← Terug** naar Spelers) en **📋 Kopiëren**.
 
 Verstuur ze meteen: na het sluiten zijn de wachtwoorden niet meer te zien.
 
@@ -312,9 +312,9 @@ Met **⏹️ Stop spel** bij Spelers (op het Dashboard heet de knop **Spel stopp
 
 #### Helpers
 
-Wil je hulp bij het spelleiden, maak dan onderaan de Spelers-pagina bij **🧑‍💼 Helpers** een helper aan met **+ Nieuwe helper**: vul een naam in (letters en cijfers, anders dan de loginnamen van de spelers); het wachtwoord staat al voorgesteld. Na **Aanmaken** verstuur je de gegevens meteen met **WhatsApp** of als **🎫 Kaartje**. Een helper logt gewoon in op de inlogpagina, met die naam en dat wachtwoord.
+Wil je hulp bij het spelleiden, maak dan onderaan de Spelers-pagina bij **🧑‍💼 Helpers** een helper aan met **+ Nieuwe helper**: vul een naam in (letters en cijfers, anders dan de loginnamen van de spelers); het wachtwoord staat al voorgesteld. Na **Aanmaken** verstuur je het kaartje meteen met **WhatsApp**. Een helper logt gewoon in op de inlogpagina, met die naam en dat wachtwoord.
 
-Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren**, antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Helpers staan op dezelfde soort kaarten als de spelers. Met **📲 Versturen** maak je een nieuw wachtwoord en verstuur je het; met de rode **🗑️** kan de helper niet meer inloggen.
+Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren**, antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Helpers staan op dezelfde soort kaarten als de spelers. Met de **🔑** maak je een nieuw wachtwoord en verstuur je het kaartje; met de rode **🗑️** kan de helper niet meer inloggen.
 
 ---
 

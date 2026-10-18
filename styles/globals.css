@@ -2289,7 +2289,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Spelerskaart: verwijderen en schakelaar rechts naast elkaar */
 .gb-rechts { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.gb-rechts .gb-verwijder { width: 34px !important; height: 34px !important; font-size: 1rem !important; padding: 0 !important; }
+.gb-rechts .gb-verwijder, .gb-rechts .gb-icoon { width: 34px !important; height: 34px !important; font-size: 1rem !important; padding: 0 !important; justify-content: center; }
+/* Spelerskaart: tekst netjes in het midden naast het icoon (ook zonder knoppenregel) */
+.gb-kaart { align-items: center; }
 .gb-rechts .gb-verwijder:disabled { opacity: 0.35; cursor: default; }
 
 /* Meldingen-venster: knoppen even breed naast elkaar over de volle breedte */
@@ -2354,3 +2356,22 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .ww-veld { display: flex; gap: 6px; align-items: center; }
 .ww-veld .form-input { flex: 1; min-width: 0; }
 .ww-veld .rl-knop--icoon { flex-shrink: 0; height: 40px; width: 40px; justify-content: center; }
+
+/* Inlogkaartje (versturen via WhatsApp en afdrukken) */
+.kaartje-blok { display: flex; flex-direction: column; gap: 8px; }
+.kaartje { position: relative; border-radius: 18px; padding: 14px 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  background: radial-gradient(circle at 50% 0%, rgba(255,217,59,0.18), transparent 60%), linear-gradient(165deg, #43207f 0%, #241056 55%, #140637 100%);
+  border: 2px solid rgba(255,217,59,0.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  color: #fff; break-inside: avoid; page-break-inside: avoid; }
+.kaartje-logo { height: 62px; width: auto; display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45)); }
+.kaartje-midden { display: flex; gap: 14px; align-items: center; width: 100%; }
+.kaartje-qr { background: #fff; padding: 6px; border-radius: 10px; line-height: 0; flex-shrink: 0; }
+.kaartje-velden { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.kaartje-veld { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 5px 10px 6px; }
+.kaartje-veld small { display: block; font-size: 9.5px; color: #C9B6FF; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; }
+.kaartje-veld b { display: block; font-family: var(--font-display); font-size: 19px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kaartje-veld--ww b { color: #FFE680; letter-spacing: 0.02em; }
+.kaartje-voet { font-size: 10.5px; color: #D9D0F5; text-align: center; }
+.kaartje-voet strong { color: #fff; }
+.kaartje-acties { display: flex; }
+.kaartje-acties .wa-knop { flex: 1; height: 44px; }

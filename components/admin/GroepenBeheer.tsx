@@ -100,11 +100,7 @@ export default function GroepenBeheer() {
             </span>
           </div>
           {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
-          {!isUit && <div className="gb-knoppen">
-            <button className="rl-knop rl-knop--cyan" title="Inloggegevens versturen via WhatsApp of als kaartje (met een nieuw wachtwoord)"
-              onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
-              📲 Versturen
-            </button>
+          {!isUit && (g.active_device_id || g.heeft_spel) && <div className="gb-knoppen">
             {g.active_device_id && (
               <button className="rl-knop" onClick={() => resetApparaat(g.id)}
                 title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
@@ -129,6 +125,12 @@ export default function GroepenBeheer() {
 
         {/* Rechts: verwijderen en de aan/uit-schakelaar */}
         <div className="gb-schakel gb-rechts">
+        {/* 🔑 Inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
+        {!isUit && (
+          <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
+            title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
+            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>🔑</button>
+        )}
         <BevestigKnop venster icoon="🗑️" titel={`${displayNaam} verwijderen?`} vraag="" ja="Ja, verwijderen"
           onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
           className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"

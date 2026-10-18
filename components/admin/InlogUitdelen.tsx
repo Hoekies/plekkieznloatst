@@ -3,41 +3,26 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
-import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
+import KaartjeVersturen, { type Inlog } from "@/components/admin/InlogKaartje";
 
-// Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team via WhatsApp
-// versturen, alles kopiëren of kaartjes afdrukken. Eén speler: 📲 Versturen op de spelerskaart.
-export type Inlog = { login: string; wachtwoord: string; naam?: string | null; helper?: boolean };
+// Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team het kaartje
+// via WhatsApp versturen (met de link erbij). Eén speler: 📲 Versturen op de spelerskaart.
+export { type Inlog, waTekst } from "@/components/admin/InlogKaartje";
 
-const SITE = "https://plekkieznloatst.vercel.app";
 export const KAARTJES_KEY = "pointrush_inlogkaartjes";
 
-export function waTekst(i: Inlog) {
-  if (i.helper) return `Hoi! Je bent helper bij PointRush 🎯\n${SITE}\n\nNaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nJe kunt foto's keuren en punten vrijgeven. Bedankt! René`;
-  return `Hoi! Log in op PointRush 🎯\n${SITE}\n\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
-}
-
-// Inlogkaartjes openen (nieuw tabblad): afdrukken, of per kaartje als afbeelding via WhatsApp
+// Inlogkaartjes openen (nieuw tabblad) om af te drukken
 export function openKaartjes(inlogs: Inlog[]) {
   try { localStorage.setItem(KAARTJES_KEY, JSON.stringify(inlogs)); } catch { /* geen opslag */ }
   window.open("/admin/kaartjes", "_blank");
 }
 
-// Net aangemaakt of nieuw wachtwoord: de gegevens één keer tonen, met versturen en kaartje
+// Net aangemaakt of nieuw wachtwoord: het kaartje, met daaronder WhatsApp
 export function InlogKlaar({ inlog }: { inlog: Inlog }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div className="inlog-regel">
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <strong>{inlog.login}</strong>
-          <span className="inlog-ww">{inlog.wachtwoord}</span>
-        </span>
-        <a className="wa-knop wa-knop--klein" href={`https://wa.me/?text=${encodeURIComponent(waTekst(inlog))}`} target="_blank" rel="noopener noreferrer" title="Versturen via WhatsApp">
-          <WhatsAppLogo maat={18} /> WhatsApp
-        </a>
-        <button type="button" className="rl-knop" style={{ height: 34, flexShrink: 0 }} onClick={() => openKaartjes([inlog])} title="Inlogkaartje: afdrukken of als afbeelding versturen">🎫 Kaartje</button>
-      </div>
-      <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Verstuur het nu: het wachtwoord is later niet meer te zien.</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <KaartjeVersturen inlog={inlog} />
+      <div style={{ fontSize: "0.74rem", color: "var(--muted)", textAlign: "center" }}>Verstuur het nu: het wachtwoord is later niet meer te zien.</div>
     </div>
   );
 }
@@ -77,22 +62,12 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
   return (
     <>
       <div className="melding-knoppen">
-        <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} onClick={kaartjes}>🖨️ Kaartjes</button>
-        <button type="button" className="rl-knop" style={{ height: 44 }} onClick={kopieer}>📋 Kopiëren</button>
+        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kaartjes}>🖨️ Afdrukken</button>
+        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kopieer}>📋 Kopiëren</button>
       </div>
-      <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>Bewaar of verstuur ze nu: de wachtwoorden zijn later niet meer te zien.</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {inlogs.map((i) => (
-          <div key={i.login} className="inlog-regel">
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <strong>{i.login}</strong>{i.naam ? <span style={{ color: "var(--muted)" }}> · {i.naam}</span> : null}
-              <span className="inlog-ww">{i.wachtwoord}</span>
-            </span>
-            <a className="wa-knop wa-knop--klein" href={`https://wa.me/?text=${encodeURIComponent(waTekst(i))}`} target="_blank" rel="noopener noreferrer" title="Versturen via WhatsApp">
-              <WhatsAppLogo maat={18} /> WhatsApp
-            </a>
-          </div>
-        ))}
+      <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>Verstuur ze nu: de wachtwoorden zijn later niet meer te zien.</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {inlogs.map((i) => <KaartjeVersturen key={i.login} inlog={i} />)}
       </div>
     </>
   );

@@ -64,14 +64,11 @@ export default function HelpersBeheer() {
                       {h.laatst_ingelogd ? `Ingelogd ${new Date(h.laatst_ingelogd).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}` : "Nog niet ingelogd"}
                     </span>
                   </div>
-                  <div className="gb-knoppen">
-                    <button className="rl-knop rl-knop--cyan" title="Inloggegevens versturen via WhatsApp of als kaartje (met een nieuw wachtwoord)"
-                      onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🧑‍💼", login: h.naam, helper: true })}>
-                      📲 Versturen
-                    </button>
-                  </div>
                 </div>
                 <div className="gb-schakel gb-rechts">
+                  <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
+                    title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
+                    onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🧑‍💼", login: h.naam, helper: true })}>🔑</button>
                   <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
                     onBevestig={() => verwijder(h)} className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
                     tip="Helper verwijderen: kan daarna niet meer inloggen">🗑️</BevestigKnop>
