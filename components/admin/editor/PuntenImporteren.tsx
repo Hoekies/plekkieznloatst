@@ -65,8 +65,9 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
 
   return (
     <>
-      <button type="button" className="rl-knop" onClick={() => setOpen(true)} title="Punten importeren uit een GPX-bestand, een lijst of Google Maps-links">
-        📥<span className="alleen-pc"> Importeren</span>
+      <button type="button" className="rl-knop" onClick={() => setOpen(true)}
+        data-tip="Punten importeren (GPX, KML, lijst of Google Maps-links)" data-tip-pos="onder" aria-label="Punten importeren">
+        📥
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>

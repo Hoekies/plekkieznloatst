@@ -21,8 +21,12 @@ const config = {
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
-      "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://unpkg.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://tiles.openfreemap.org",
+      // tiles.openfreemap.org: vectorkaart (stijl, tegels, lettertypen, symbolen)
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://unpkg.com https://tiles.openfreemap.org",
+      // De vectorkaart rekent in web workers die als blob worden gestart
+      "worker-src 'self' blob:",
+      "child-src 'self' blob:",
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'none'",
       "object-src 'none'",

@@ -2493,3 +2493,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   background: rgba(28,12,69,0.85); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
 .kaart-stijl button { width: 34px; height: 30px; border: none; border-radius: 7px; background: none; cursor: pointer; font-size: 1rem; opacity: 0.55; }
 .kaart-stijl button.aan { background: rgba(255,255,255,0.18); opacity: 1; }
+
+/* Route-editor: gereedschapsknoppen als smalle icoontjes naast elkaar */
+.editor-gereedschap .rl-knop { min-width: 38px; justify-content: center; padding: 0 10px; }
+.editor-gereedschap .rl-knop + .rl-knop { padding: 0 10px; }

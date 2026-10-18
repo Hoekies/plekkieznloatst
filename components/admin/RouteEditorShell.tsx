@@ -1090,21 +1090,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
             📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
           </button>
-          <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
-          <BevestigKnop venster gevaarlijk={false} icoon="📍" titel="Alle punten op de weg zetten?"
-            vraag={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Met ↶ Ongedaan maken zet je ze terug.`}
-            ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
-            className="rl-knop" title="Alle punten naar de dichtstbijzijnde weg of het voetpad">
-            {opDeWegBezig ? "⏳" : "📍"}<span className="alleen-pc"> Op de weg</span>
-          </BevestigKnop>
-          {!route.is_active && (
-            <BevestigKnop venster icoon="🧹" titel="Route leegmaken?"
-              vraag={`Alle ${punten.length} punten (met hun vragen) en ${specialeItems.length} items worden verwijderd. De naam en de instellingen van de route blijven. Dit kan niet ongedaan worden gemaakt.`}
-              ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length}
-              className="rl-knop" title="Alle punten en items van deze route verwijderen">
-              🧹<span className="alleen-pc"> Leegmaken</span>
-            </BevestigKnop>
-          )}
           <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
             title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
             🧪<span className="alleen-pc"> Test</span>
@@ -1116,6 +1101,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           )}
 
+          <span className="editor-balk-scheiding" aria-hidden />
+          {/* Gereedschap voor de punten: icoontjes met uitleg bij aanwijzen */}
+          <span className="editor-groep editor-gereedschap">
+            <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
+            <BevestigKnop venster gevaarlijk={false} icoon="📍" titel="Alle punten op de weg zetten?"
+              vraag={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Met ↶ Ongedaan maken zet je ze terug.`}
+              ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
+              className="rl-knop" tip="Alle punten op de weg of het voetpad zetten" tipOnder>
+              {opDeWegBezig ? "⏳" : "📍"}
+            </BevestigKnop>
+            {!route.is_active && (
+              <BevestigKnop venster icoon="🧹" titel="Route leegmaken?"
+                vraag={`Alle ${punten.length} punten (met hun vragen) en ${specialeItems.length} items worden verwijderd. De naam en de instellingen van de route blijven. Dit kan niet ongedaan worden gemaakt.`}
+                ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length}
+                className="rl-knop" tip="Route leegmaken: alle punten en items weg" tipOnder>
+                🧹
+              </BevestigKnop>
+            )}
+          </span>
+
           <span className="editor-ruimte" />
           <span className={`editor-opslag editor-opslag--${opslag}`}>
             {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
@@ -1123,7 +1128,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <button type="button" className="rl-knop"
             disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
             title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-            ↶<span className="alleen-pc"> Ongedaan maken</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+            ↶<span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
           </button>
           {/* Instellingen: goud, als laatste in dezelfde rij */}
           <button className="rl-knop rl-knop--goud alleen-pc-knop"
