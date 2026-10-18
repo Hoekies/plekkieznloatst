@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
   const itemSessie = await haalItemSessie(admin, speler.id);
   if (!itemSessie) return NextResponse.json({ fout: "Je kunt nu geen items meer inzetten" }, { status: 403 });
   const eigenSessie = itemSessie.sessie;
+  if (await spelGepauzeerd(admin, eigenSessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
 
   const body = await request.json();
   const { special_item_id, target_session_id } = body;

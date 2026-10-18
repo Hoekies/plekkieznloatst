@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
+import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 
 export async function POST(request: NextRequest) {
   const user = await haalGebruiker();
@@ -18,6 +19,7 @@ export async function POST(request: NextRequest) {
     .eq("status", "actief")
     .maybeSingle();
   if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  if (await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
 
   const body = await request.json();
   const { special_item_id } = body;

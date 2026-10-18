@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-// alsIcoon = 📢-knop in de bovenbalk; anders als regel in het menu
-export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean }) {
+// alsIcoon = 📢-knop in de bovenbalk; anders als regel in het menu.
+// Met team: bericht aan alleen dat team (knop op de spelerskaart van het dashboard).
+export default function BroadcastKnop({ alsIcoon = false, team }: { alsIcoon?: boolean; team?: { id: string; naam: string } }) {
   const [open, setOpen] = useState(false);
   const [tekst, setTekst] = useState("");
   const [fase, setFase] = useState<"idle" | "bezig" | "verzonden">("idle");
@@ -16,7 +17,7 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
       await fetch("/api/admin/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bericht: tekst }),
+        body: JSON.stringify(team ? { bericht: tekst, player_id: team.id } : { bericht: tekst }),
       });
       setTekst("");
       setFase("verzonden");
@@ -28,7 +29,11 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
 
   return (
     <>
-      {alsIcoon ? (
+      {team ? (
+        <button type="button" className="rl-knop sk-icoonknop" onClick={() => setOpen(true)} title={`Bericht aan ${team.naam}`} aria-label={`Bericht aan ${team.naam}`}>
+          📢<span className="alleen-pc"> Bericht</span>
+        </button>
+      ) : alsIcoon ? (
         <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}
           data-tip="Bericht sturen aan alle spelers" data-tip-pos="onder" aria-label="Bericht sturen">
           <span className="header-knop-icoon" aria-hidden>📢</span>
@@ -46,12 +51,12 @@ export default function BroadcastKnop({ alsIcoon = false }: { alsIcoon?: boolean
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">Aan alle spelers</div>
+                  <div className="pr-gem-label">{team ? `Aan ${team.naam}` : "Aan alle spelers"}</div>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>📢 Bericht sturen</div>
                 </div>
                 <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--muted)" }}>Het bericht verschijnt meteen bij alle spelers in beeld.</div>
+              <div style={{ fontSize: "0.82rem", color: "var(--muted)" }}>{team ? `Het bericht verschijnt meteen bij ${team.naam} in beeld, niet bij de andere teams.` : "Het bericht verschijnt meteen bij alle spelers in beeld."}</div>
               <textarea
                 className="form-textarea"
                 spellCheck

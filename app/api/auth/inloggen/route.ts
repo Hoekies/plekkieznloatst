@@ -57,6 +57,8 @@ export async function POST(request: NextRequest) {
   // Een verse, geldige login mag nooit meteen gekelderd worden door een oude uitlog-vlag
   const admin = createAdminClient();
   await admin.from("players").update({ force_logout_at: null }).eq("auth_user_id", data.user.id);
+  // Met wachtwoord ingelogd: een eventuele tijdslimiet van een inloglink vervalt
+  await admin.from("players").update({ toegang_tot: null }).eq("auth_user_id", data.user.id);
 
   const rol = data.user.app_metadata?.rol;
   const redirectNaar = rol === "admin" || rol === "helper" ? "/admin" : "/speler";

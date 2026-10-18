@@ -280,6 +280,23 @@ Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aa
 
 Verstuur ze meteen: na het sluiten zijn de wachtwoorden niet meer te zien.
 
+#### Telefoonnummer van een team
+
+Met de **📞** rechts op de spelerskaart (naast de 🔑) vul je het telefoonnummer van het team in, bijvoorbeeld *06 12 34 56 78*. Is er een nummer, dan is de 📞 groen en staat het nummer op de kaart. Voordelen:
+- **WhatsApp opent meteen de juiste chat** bij het versturen van een inloglink, en bij de link na het kaartje. (Het kaartje zelf gaat via het deelmenu van de telefoon; daar kies je de chat nog zelf.)
+- Op het dashboard staan in het detailvenster van het team **📞 Bellen** en **WhatsApp**, handig als een team niet reageert.
+- Hiervoor moet SQL-bestand 009 in Supabase gedraaid zijn.
+
+#### Link zonder wachtwoord (tijdelijk)
+
+In hetzelfde venster achter de **🔑** kies je bovenin **🔗 Link zonder wachtwoord**. Kies hoe lang de link geldig is (**4 uur**, **½ dag**, **1 dag** of **2 dagen**) en tik **🔗 Link maken**. Je krijgt een QR-code (om ter plekke te laten scannen) en **WhatsApp**: een bericht met de link en tot wanneer hij werkt.
+
+- Het team tikt op de link en is meteen ingelogd, zonder loginnaam en wachtwoord. Binnen de geldigheid werkt de link vaker, bijvoorbeeld na het wegdrukken van de app. Eén telefoon per team blijft gelden.
+- **Is de tijd om**, dan wordt het team automatisch uitgelogd (binnen een halve minuut) en werkt de link niet meer. Een lopend spel blijft bewaard.
+- Op de spelerskaart zie je **🔗 tot …** zolang het team via een link toegang heeft. Met **Intrekken** (in hetzelfde venster) werkt geen enkele link van dat team meer en wordt het team uitgelogd.
+- Logt het team daarna gewoon in met loginnaam en wachtwoord, dan geldt er geen tijdslimiet.
+- Hiervoor moet SQL-bestand 008 in Supabase gedraaid zijn.
+
 > De **teamnaam** kiest het team zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, de stand en in de meldingen aan andere teams. Zolang een team nog geen teamnaam heeft gekozen, zie je de loginnaam.
 
 #### Spelers aan- en uitzetten
@@ -354,6 +371,8 @@ Het **Dashboard** (ververst elke paar seconden vanzelf):
 
 De **Live kaart** vult het hele scherm en toont iedereen in zijn eigen kleur, met een vervagend **spoor van de laatste 10 minuten**. Tik op een naam in de lijst om die speler te **volgen** (🎯); de kaart schuift dan mee. Slepen of nog eens tikken stopt het volgen.
 
+**⏪ Replay** (bovenin de live kaart) speelt het hele spel versneld af: alle teams tegelijk, elk met hun spoor in hun eigen kleur, en 🏁 zodra een team gefinisht is. Onderin staan **▶ / ⏸**, een tijdbalk om naar elk moment te schuiven, en de snelheid (**30×** tot **300×**; bij 60× duurt een uur spelen een minuut). Met **📡 Terug naar live** ga je terug. Leuk om na afloop samen te bekijken.
+
 ---
 
 ## Tijdens het spel
@@ -361,6 +380,8 @@ De **Live kaart** vult het hele scherm en toont iedereen in zijn eigen kleur, me
 ### Bericht sturen
 
 Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht naar alle actieve teams, maximaal 150 tekens. Handig voor aankondigingen of hints.
+
+**Aan één team**: met **📢 Bericht** op de spelerskaart van het dashboard gaat het bericht alleen naar dat team, bijvoorbeeld *"jullie lopen de verkeerde kant op"*. De andere teams zien het niet. (Hiervoor moet SQL-bestand 009 in Supabase gedraaid zijn.)
 
 ### Meldingen op je telefoon en horloge
 
@@ -374,6 +395,16 @@ Met **⏰ Eindtijd** (in het Spelleider-blok, of al bij *Spel klaarzetten*) zet 
 - **Op de eindtijd** is elk team dat nog onderweg is gefinisht, met de punten van dat moment. Hun app gaat naar het finishscherm; antwoorden die later binnenkomen tellen niet meer. Nieuwe spellen starten kan dan niet meer.
 - Uitstellen of weghalen kan zolang de tijd nog niet voorbij is (**Geen eindtijd**). Teams die al door de eindtijd gefinisht zijn, gaan niet terug het spel in.
 - Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
+
+### Spel pauzeren
+
+Met **⏸️ Pauze** in het Spelleider-blok (na bevestiging) staat het spel voor alle teams even stil, bijvoorbeeld bij onweer, voor de lunch of als iemand kwijt is.
+
+- De teams zien een groot scherm **"⏸️ Even pauze"** en kunnen niets doen: geen punten bereiken, geen antwoorden, foto's of items.
+- Bij de spelleider staat *"Gepauzeerd sinds 14:02 · 5 min"*.
+- De **eindtijd loopt niet door**: met **▶️ Verder** schuift de eindtijd precies zo lang op als de pauze duurde, en verdwijnt het pauzescherm binnen een paar seconden bij iedereen.
+- De wachttijd van een spook of plek zooi loopt wel door.
+- Hiervoor moet SQL-bestand 010 in Supabase gedraaid zijn.
 
 ### Punten aanpassen (bonus of aftrek)
 

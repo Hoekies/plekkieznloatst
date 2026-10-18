@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
 import { maakKleurMap } from "@/lib/speler-kleur";
+import { toonMelding } from "@/components/admin/Melding";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -13,6 +14,11 @@ const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
       Kaart laden…
     </div>
   ),
+});
+
+const ReplayKaart = dynamic(() => import("./ReplayKaart"), {
+  ssr: false,
+  loading: () => <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Replay laden…</div>,
 });
 
 const POLL_INTERVAL_MS = 15000;
@@ -29,6 +35,20 @@ export default function AdminLiveKaart({ initData }: Props) {
   const [volgId, setVolgId] = useState<string | null>(null);
   // Spoor van de laatste 10 minuten per speler
   const [sporen, setSporen] = useState<Record<string, [number, number][]>>({});
+  // ⏪ Replay: het hele spel versneld afspelen (null = live kaart)
+  const [replay, setReplay] = useState<import("./ReplayKaart").ReplayTeam[] | null>(null);
+  const [replayLaden, setReplayLaden] = useState(false);
+
+  async function startReplay() {
+    setReplayLaden(true);
+    try {
+      const res = await fetch("/api/admin/live/replay");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { toonMelding(data.fout ?? "Replay laden mislukt", "fout"); return; }
+      if (!data.teams?.length) { toonMelding("Nog geen gelopen sporen om af te spelen", "info"); return; }
+      setReplay(data.teams);
+    } finally { setReplayLaden(false); }
+  }
 
   async function ververs() {
     try {
@@ -76,13 +96,30 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Live kaart</span>
-        <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
-          <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
-          {realtimeOk ? "Live" : "Verbinding weg"}
-        </div>
+        <span className="admin-topbar-titel">{replay ? "Replay" : "Live kaart"}</span>
+        <span style={{ flex: 1 }} />
+        {replay ? (
+          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}>📡 Terug naar live</button>
+        ) : (
+          <>
+            <button type="button" className="rl-knop" onClick={startReplay} disabled={replayLaden} title="Het hele spel versneld afspelen">
+              {replayLaden ? "⏳" : "⏪"} Replay
+            </button>
+            <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
+              <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
+              {realtimeOk ? "Live" : "Verbinding weg"}
+            </div>
+          </>
+        )}
       </div>
 
+      {replay ? (
+        <div className="live-kaart-vak" style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
+          <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
+            <ReplayKaart teams={replay} route_punten={route_punten} kleuren={kleuren} />
+          </div>
+        </div>
+      ) : (
       <div className="live-kaart-vak" style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
         {/* Kaart */}
         <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
@@ -124,6 +161,7 @@ export default function AdminLiveKaart({ initData }: Props) {
          </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

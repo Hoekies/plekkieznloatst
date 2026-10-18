@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: speler } = await admin
     .from("players")
-    .select("id, active_device_id, force_logout_at")
+    // "*": toegang_tot (migratie 008) mag ontbreken zonder dat iedereen eruit vliegt
+    .select("*")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -24,6 +25,14 @@ export async function POST(request: NextRequest) {
     await supabase.auth.signOut();
     await admin.from("players").update({ force_logout_at: null, active_device_id: null }).eq("id", speler.id);
     return NextResponse.json({ fout: "Je bent door de beheerder uitgelogd.", reden: "uitgelogd" }, { status: 409 });
+  }
+
+  // Ingelogd via een inloglink en de tijd is om: uitloggen
+  const toegangTot = (speler as { toegang_tot?: string | null }).toegang_tot;
+  if (toegangTot && new Date(toegangTot).getTime() <= Date.now()) {
+    await supabase.auth.signOut();
+    await admin.from("players").update({ toegang_tot: null, active_device_id: null }).eq("id", speler.id);
+    return NextResponse.json({ fout: "De tijd van je toegang is om.", reden: "verlopen" }, { status: 409 });
   }
 
   // Tweede apparaat blokkeren

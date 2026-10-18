@@ -3,7 +3,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
-import { rondAfAlsTijdVoorbij, eindtijdVoorbij } from "@/lib/eindtijd";
+import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 
 async function getSpeler() {
   const user = await haalGebruiker();
@@ -31,13 +31,14 @@ export async function GET() {
   if (!sessie) return NextResponse.json(null);
 
   // Eindtijd van het spel voorbij: alle teams zijn gefinisht, de app gaat naar het finishscherm
-  const eindtijd = await rondAfAlsTijdVoorbij(admin, sessie.route_id);
-  if (eindtijdVoorbij(eindtijd)) return NextResponse.json({ tijd_op: true, eindtijd });
+  const tijd = await rondAfAlsTijdVoorbij(admin, sessie.route_id);
+  if (eindtijdVoorbij(tijd)) return NextResponse.json({ tijd_op: true, eindtijd: tijd.eindtijd });
 
   // "Wijzigingen naar spelers sturen" (migratie 005): los opvragen, zodat een ontbrekende kolom
   // het spel nooit stopt
   const { data: vernieuw } = await admin.from("routes").select("spelers_vernieuwen_at").eq("id", sessie.route_id).maybeSingle();
-  return NextResponse.json({ ...sessie, eindtijd, vernieuw_at: (vernieuw as { spelers_vernieuwen_at?: string | null } | null)?.spelers_vernieuwen_at ?? null });
+  // pauze: het spel is gepauzeerd sinds (de app toont dan een pauzescherm)
+  return NextResponse.json({ ...sessie, eindtijd: tijd.eindtijd, pauze: tijd.pauze, vernieuw_at: (vernieuw as { spelers_vernieuwen_at?: string | null } | null)?.spelers_vernieuwen_at ?? null });
 }
 
 export async function POST() {
@@ -58,6 +59,9 @@ export async function POST() {
   }
   if (eindtijdVoorbij((route as { eindtijd?: string | null }).eindtijd)) {
     return NextResponse.json({ fout: "Het spel is afgelopen: de eindtijd is voorbij" }, { status: 400 });
+  }
+  if ((route as { gepauzeerd_sinds?: string | null }).gepauzeerd_sinds) {
+    return NextResponse.json({ fout: `${PAUZE_FOUT}. Probeer het zo opnieuw.` }, { status: 400 });
   }
 
   // Controleer bestaande actieve sessie

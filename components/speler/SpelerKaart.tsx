@@ -74,7 +74,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [doelNaFinish, setDoelNaFinish] = useState<string[]>([]);
   const [realtimeVerbonden, setRealtimeVerbonden] = useState(true);
 
-  const [kmAfgelegd, setKmAfgelegd] = useState(0);
+  // Gelopen meters van dit spel: na herladen verder tellen vanaf wat al op de server staat
+  // (anders begon de teller opnieuw bij 0 en overschreef hij de opgeslagen afstand)
+  const [kmAfgelegd, setKmAfgelegd] = useState(() => Math.max(0, Number(sessie.afstand_m) || 0));
   // Startitems: gelopen meters per sessie bewaren (ook na herladen), daarna één keer ophalen
   const startitemsKey = `pr_startitems_${sessie.id}`;
   // Punt vrijgegeven door de organisatie: na het herladen eerst een melding, dan de vraag
@@ -112,6 +114,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [score, setScore] = useState(sessie.score);
   // Eindtijd van het spel (door de beheerder ingesteld), telt af in de statistiekenbalk
   const [eindtijd, setEindtijd] = useState<string | null>(null);
+  // Gepauzeerd door de organisatie (sinds): pauzescherm, niets bereiken of inzetten
+  const [pauze, setPauze] = useState<string | null>(null);
+  const pauzeRef = useRef(false);
+  pauzeRef.current = !!pauze;
   const [plekzooiActief, setPlekzooiActief] = useState(false);
   const [plekzooiSecondsLeft, setPlekzooiSecondsLeft] = useState(0);
   const [tussenstand, setTussenstand] = useState<LeaderboardEntry[] | null>(null);
@@ -130,7 +136,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const locatieTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const radarPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const vorigePositieRef = useRef<GeolocationCoordinates | null>(null);
-  const kmAfgelegdRef = useRef(0);
+  const kmAfgelegdRef = useRef(Math.max(0, Number(sessie.afstand_m) || 0));
   const laatstGepubliceerdRef = useRef<{ lat: number; lng: number; tijd: number } | null>(null);
 
   // Afgeleid uit voortgang
@@ -159,8 +165,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     let opslag: { gelopen: number; klaar?: boolean } = { gelopen: 0 };
     try { opslag = JSON.parse(localStorage.getItem(startitemsKey) ?? "null") ?? opslag; } catch { /* geen opslag */ }
     if (opslag.klaar) return;
+    // De teller loopt na herladen door, dus de opgeslagen waarde is alleen nog een ondergrens
     if (gelopenBasisRef.current === null) gelopenBasisRef.current = opslag.gelopen ?? 0;
-    const gelopen = gelopenBasisRef.current + kmAfgelegd;
+    const gelopen = Math.max(gelopenBasisRef.current, kmAfgelegd);
     try { localStorage.setItem(startitemsKey, JSON.stringify({ gelopen })); } catch { /* geen opslag */ }
     if (gelopen < STARTITEMS_NA_METER || startitemsBezigRef.current) return;
     startitemsBezigRef.current = true;
@@ -370,6 +377,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
         if (data?.tijd_op) { speelFinish(); router.push("/speler/finish"); return; }
         setEindtijd(data?.eindtijd ?? null);
+        setPauze(data?.pauze ?? null);
         if (data?.score !== undefined) setScore(data.score);
         // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
         if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
@@ -624,15 +632,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     positieRef.current = pos.coords;
     setPositie(pos.coords);
     setGpsStatus(pos.coords.accuracy <= SLECHTE_NAUWKEURIGHEID_M ? "ok" : "zwak");
-    if (vorigePositieRef.current) {
-      const d = haversine(vorigePositieRef.current.latitude, vorigePositieRef.current.longitude, pos.coords.latitude, pos.coords.longitude);
-      if (d > 5) {
-        kmAfgelegdRef.current += d;
-        setKmAfgelegd(prev => prev + d);
+    // Gelopen afstand: GPS-ruis niet meetellen. Binnen of tussen hoge gebouwen springt de positie
+    // tientallen meters heen en weer, ook als je stilstaat; zonder filter liep de teller dan vanzelf op.
+    // Daarom: alleen nauwkeurige metingen, en alleen een stap die groter is dan de onnauwkeurigheid.
+    const acc = pos.coords.accuracy ?? 0;
+    if (acc <= SLECHTE_NAUWKEURIGHEID_M) {
+      if (vorigePositieRef.current) {
+        const d = haversine(vorigePositieRef.current.latitude, vorigePositieRef.current.longitude, pos.coords.latitude, pos.coords.longitude);
+        if (d > Math.max(8, acc)) {
+          kmAfgelegdRef.current += d;
+          setKmAfgelegd(prev => prev + d);
+          vorigePositieRef.current = pos.coords;
+        }
+      } else {
         vorigePositieRef.current = pos.coords;
       }
-    } else {
-      vorigePositieRef.current = pos.coords;
     }
     // Spoor bijhouden: 10 m verder dan de laatst opgeslagen plek (en niet vaker dan elke 4 s)
     const laatst = laatstGepubliceerdRef.current;
@@ -700,7 +714,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   }
 
   function controleerLocatie() {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt || plekzooiActief) return;
+    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt || plekzooiActief || pauzeRef.current) return;
     const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
     if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
   }
@@ -725,7 +739,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           <span className="pr-hud-icoon">⭐</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
         </div>
-        {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} />}
+        {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} pauze={pauze} />}
         <button
           onClick={() => setLegendeOpen(true)}
           title="Wat doen de speciale items?"
@@ -792,6 +806,22 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </div>
       )}
 
+
+      {/* Pauze van de organisatie: over alles heen, verdwijnt vanzelf als het spel verder gaat */}
+      {pauze && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(12,3,34,0.86)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div className="pr-panel" style={{ maxWidth: 360, width: "100%" }}>
+            <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", paddingTop: 22 }}>
+              <div style={{ fontSize: "3.4rem", lineHeight: 1 }}>⏸️</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.4rem", color: "var(--pr-gold)" }}>Even pauze</div>
+              <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
+                De organisatie heeft het spel gepauzeerd. Blijf waar je bent; zodra het verder gaat, verdwijnt dit vanzelf.
+              </p>
+              {eindtijd && <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--pr-muted, #C9B6FF)" }}>De eindtijd loopt niet door tijdens de pauze.</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Melding: de organisatie heeft het punt vrijgegeven (ligt boven de vraag, die daarna zichtbaar is) */}
       {vrijgegevenMelding && (

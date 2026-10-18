@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { stuurPushNaarBeheer } from "@/lib/push";
@@ -28,6 +29,7 @@ export async function POST(request: NextRequest) {
   if (!context) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
 
   const { sessie } = context;
+  if (await spelGepauzeerd(createAdminClient(), sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
   const formData = await request.formData();
   const bestand = formData.get("foto") as File | null;
   const routePointId = formData.get("route_point_id") as string | null;

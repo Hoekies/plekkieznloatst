@@ -24,7 +24,7 @@ function duur(ms: number): string {
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, beperkt = false }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
@@ -32,6 +32,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   onKies: (s: SpelerOverzicht) => void;
   routeId?: string;
   eindtijd?: string | null;
+  // Gepauzeerd sinds (null = het spel loopt)
+  pauze?: string | null;
   // Hulp (helper): geen eindtijd en niet afronden
   beperkt?: boolean;
 }) {
@@ -58,6 +60,20 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     if (min !== null) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} niet gezien sinds ${min} min${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
   }
 
+  // ⏸️ Pauze: alle teams staan stil; ▶️ Verder: de eindtijd schuift mee
+  const [pauzeLokaal, setPauzeLokaal] = useState<string | null | undefined>(undefined);
+  useEffect(() => { setPauzeLokaal(undefined); }, [pauze]);
+  const gepauzeerd = pauzeLokaal !== undefined ? pauzeLokaal : pauze;
+  async function wisselPauze(aan: boolean) {
+    const res = await fetch("/api/admin/pauze", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pauze: aan }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toonMelding(data.fout ?? "Pauzeren mislukt", "fout"); return; }
+    setPauzeLokaal(data.pauze ?? null);
+    toonMelding(aan ? "Spel gepauzeerd: alle teams zien het pauzescherm" : "Het spel gaat verder", "ok");
+  }
+
   async function afronden() {
     // Rapport meteen openen (een venster openen mag alleen direct na de klik)
     window.open("/admin/rapport", "_blank");
@@ -70,24 +86,41 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   return (
     <div className="pr-gem-panel spelleider">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Status links, knoppen rechts; op de telefoon de knoppen op een eigen regel eronder */}
+        <div className="spelleider-kop">
+          <div className="spelleider-status">
             <div className="pr-gem-label">🎯 Spelleider</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
               {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
             </div>
           </div>
-          {!beperkt && routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
-          {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
-          {!beperkt && <BevestigKnop venster gevaarlijk={false} icoon="🏁"
-            titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
-            vraag="" ja="Ja, uitslag vrijgeven en rapport openen" onBevestig={afronden}
-            className="rl-knop rl-knop--cyan actie-knop">
-            🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
-          </BevestigKnop>}
+          {!beperkt && (
+            <div className="spelleider-knoppen">
+              {gepauzeerd ? (
+                <button type="button" className="rl-knop rl-knop--groen actie-knop" onClick={() => wisselPauze(false)}>▶️ Verder</button>
+              ) : (
+                <BevestigKnop venster gevaarlijk={false} icoon="⏸️" titel="Spel pauzeren?"
+                  vraag="Alle teams zien een pauzescherm en kunnen even niets doen. De eindtijd loopt niet door." ja="Ja, pauzeren"
+                  onBevestig={() => wisselPauze(true)} className="rl-knop actie-knop">⏸️ Pauze</BevestigKnop>
+              )}
+              {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
+              {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
+              <BevestigKnop venster gevaarlijk={false} icoon="🏁"
+                titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
+                vraag="" ja="Ja, uitslag vrijgeven en rapport openen" onBevestig={afronden}
+                className="rl-knop rl-knop--cyan actie-knop">
+                🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
+              </BevestigKnop>
+            </div>
+          )}
         </div>
 
+        {gepauzeerd && (
+          <div className="spelleider-regel spelleider-pauze">
+            ⏸️ <strong>Gepauzeerd</strong> sinds {new Date(gepauzeerd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · {duur(nu - new Date(gepauzeerd).getTime())}
+          </div>
+        )}
         {aandacht.length === 0 ? (
           <div className="spelleider-regel" style={{ borderLeftColor: "#4ADE80", color: "#BBF7D0" }}>✅ Alles loopt, niets vraagt je aandacht</div>
         ) : aandacht.map((a) => {

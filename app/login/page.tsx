@@ -20,6 +20,10 @@ function LoginForm() {
       ? "Dit account is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
       : fout === "uitgelogd"
       ? "Je bent door de beheerder uitgelogd."
+      : fout === "link-verlopen"
+      ? "Deze link werkt niet meer (verlopen of ingetrokken). Vraag de spelleider om een nieuwe."
+      : fout === "verlopen"
+      ? "De tijd van je toegang is om. Vraag de spelleider om een nieuwe link."
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);

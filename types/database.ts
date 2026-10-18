@@ -105,6 +105,10 @@ export interface Speler {
   active_device_id: string | null;
   is_uitgeschakeld: boolean;
   force_logout_at: string | null;
+  // Ingelogd via een inloglink: tot dit moment (migratie 008)
+  toegang_tot?: string | null;
+  // Telefoonnummer van het team, +31612345678 (migratie 009)
+  telefoon?: string | null;
   created_at: string;
 }
 

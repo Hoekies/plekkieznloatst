@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
+import { waLink } from "@/lib/telefoon";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import type { SpelerOverzicht } from "@/lib/admin-live";
@@ -55,6 +57,14 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: "#FFE680" }}>{s.score} pt</span>
             <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
           </div>
+
+          {/* Contact: bellen of WhatsApp (als het nummer bij Spelers is ingevuld) */}
+          {s.telefoon && (
+            <div className="melding-knoppen">
+              <a className="rl-knop" href={`tel:${s.telefoon}`} style={{ height: 40, textDecoration: "none" }}>📞 Bellen</a>
+              <a className="wa-knop" href={waLink("", s.telefoon)} target="_blank" rel="noopener noreferrer"><WhatsAppLogo /> WhatsApp</a>
+            </div>
+          )}
 
           {/* Kerngetallen */}
           <div className="detail-cijfers">

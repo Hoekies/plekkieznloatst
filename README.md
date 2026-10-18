@@ -40,6 +40,10 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Vragenbank: een vraag uit een andere route overnemen in de vraag-editor, op soort, met favorieten
 - Punten handmatig aanpassen per team (bonus of aftrek met reden, in tijdlijn en rapport)
 - Eindtijd van het spel: spelers zien een aftelklok en een waarschuwing 10 minuten van tevoren
+- Inloglink zonder wachtwoord voor een team, een gekozen tijd geldig (daarna automatisch uitgelogd)
+- Bericht aan één team, telefoonnummer per team (bellen en WhatsApp direct naar de juiste chat)
+- Replay op de live kaart: het hele spel versneld afspelen
+- Spel pauzeren voor alle teams (eindtijd schuift mee)
 - Helpers: een tweede, beperkte inlog die alleen meekijkt, foto's keurt en punten vrijgeeft
 - Statistiek per vraag: hoeveel teams een vraag goed hadden en welke foute antwoorden vaak voorkwamen
 
@@ -100,7 +104,7 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank.
+De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren.
 
 ### Starten
 

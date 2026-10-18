@@ -9,6 +9,9 @@ import StatKaart from "@/components/admin/StatKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { MeerdereSpelersKnop, InlogKlaar } from "@/components/admin/InlogUitdelen";
 import { maakWachtwoord } from "@/lib/wachtwoord";
+import InlogLinkSectie, { tijdTekst } from "@/components/admin/InlogLink";
+import TelefoonVenster from "@/components/admin/TelefoonVenster";
+import { toonTelefoon } from "@/lib/telefoon";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -16,7 +19,7 @@ type Groep = Speler & { heeft_spel?: boolean };
 
 // helper: wachtwoord van een helper (gaat via /api/admin/helpers)
 // Inloggegevens versturen (met een nieuw wachtwoord); helper = via /api/admin/helpers
-export type BeheerModal = { id: string; groepNaam: string; icoon: string | null; login: string | null; helper?: boolean };
+export type BeheerModal = { id: string; groepNaam: string; icoon: string | null; login: string | null; helper?: boolean; toegangTot?: string | null; telefoon?: string | null };
 
 
 export default function GroepenBeheer() {
@@ -25,6 +28,8 @@ export default function GroepenBeheer() {
   const [laden, setLaden] = useState(true);
   const [toonFormulier, setToonFormulier] = useState(false);
   const [modal, setModal] = useState<BeheerModal | null>(null);
+  // 📞 Telefoonnummer van dit team
+  const [telVoor, setTelVoor] = useState<Groep | null>(null);
   const [uitOpen, setUitOpen] = useState(false);
 
   async function laadGroepen() {
@@ -95,6 +100,8 @@ export default function GroepenBeheer() {
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
             {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
+            {g.toegang_tot && new Date(g.toegang_tot).getTime() > Date.now() && <span style={{ color: "#FFE680" }}>🔗 tot {tijdTekst(g.toegang_tot)} · </span>}
+            {g.telefoon && <span>📞 {toonTelefoon(g.telefoon)} · </span>}
             <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
               {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
             </span>
@@ -127,9 +134,14 @@ export default function GroepenBeheer() {
         <div className="gb-schakel gb-rechts">
         {/* 🔑 Inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
         {!isUit && (
+          <button type="button" className={`rl-knop rl-knop--icoon gb-icoon${g.telefoon ? " rl-knop--groen" : ""}`} aria-label="Telefoonnummer"
+            title={g.telefoon ? `Telefoon: ${toonTelefoon(g.telefoon)}` : "Telefoonnummer toevoegen"}
+            onClick={() => setTelVoor(g)}>📞</button>
+        )}
+        {!isUit && (
           <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
             title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
-            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>🔑</button>
+            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}>🔑</button>
         )}
         <BevestigKnop venster icoon="🗑️" titel={`${displayNaam} verwijderen?`} vraag="" ja="Ja, verwijderen"
           onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
@@ -212,6 +224,11 @@ export default function GroepenBeheer() {
         </div>
       )}
 
+      {telVoor && (
+        <TelefoonVenster spelerId={telVoor.id} naam={telVoor.nickname ?? telVoor.login_name ?? "Speler"} icoon={telVoor.icon} telefoon={telVoor.telefoon ?? null}
+          onSluit={() => setTelVoor(null)}
+          onOpgeslagen={(t) => setGroepen((prev) => prev.map((x) => x.id === telVoor.id ? { ...x, telefoon: t } : x))} />
+      )}
       {modal && (
         <WijzigVenster
           modal={modal}
@@ -306,6 +323,8 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
   const [fout, setFout] = useState("");
   const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
   const [laden, setLaden] = useState(false);
+  // Spelers: met wachtwoord, of met een link zonder wachtwoord (helpers alleen wachtwoord)
+  const [modus, setModus] = useState<"wachtwoord" | "link">("wachtwoord");
 
   // Sluiten met Esc
   useEffect(() => {
@@ -353,8 +372,17 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
             <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
           </div>
 
-          {klaar ? (
-            <InlogKlaar inlog={{ ...klaar, helper: modal.helper }} />
+          {!modal.helper && !klaar && (
+            <div className="punten-snel">
+              <button type="button" className={`rl-knop${modus === "wachtwoord" ? " rl-knop--cyan" : ""}`} onClick={() => setModus("wachtwoord")}>🔑 Wachtwoord</button>
+              <button type="button" className={`rl-knop${modus === "link" ? " rl-knop--cyan" : ""}`} onClick={() => setModus("link")}>🔗 Link zonder wachtwoord</button>
+            </div>
+          )}
+
+          {modus === "link" && !modal.helper ? (
+            <InlogLinkSectie spelerId={modal.id} toegangTot={modal.toegangTot} telefoon={modal.telefoon} onGewijzigd={onGewijzigd} />
+          ) : klaar ? (
+            <InlogKlaar inlog={{ ...klaar, helper: modal.helper, telefoon: modal.telefoon }} />
           ) : (
             <>
               <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>

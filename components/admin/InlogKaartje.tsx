@@ -5,7 +5,10 @@ import { QRCodeCanvas } from "qrcode.react";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonMelding } from "@/components/admin/Melding";
 
-export type Inlog = { login: string; wachtwoord: string; naam?: string | null; helper?: boolean };
+import { waLink } from "@/lib/telefoon";
+
+// telefoon: bekend nummer van het team; dan opent WhatsApp meteen die chat (waar dat kan)
+export type Inlog = { login: string; wachtwoord: string; naam?: string | null; helper?: boolean; telefoon?: string | null };
 
 export const SITE = "https://plekkieznloatst.vercel.app";
 
@@ -67,14 +70,16 @@ async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "kl
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     toonMelding("Kaartje gedownload: voeg het in WhatsApp toe bij het bericht", "info");
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(tekst)}`, "_blank");
+  window.open(waLink(tekst, inlog.telefoon), "_blank");
   return "klaar";
 }
 
 // Reserve: alleen de link naar de app (loginnaam en wachtwoord staan al op het kaartje).
 // Via het deelmenu: de chat van net staat daar bovenaan.
-async function stuurLink() {
+async function stuurLink(telefoon?: string | null) {
   const tekst = SITE;
+  // Nummer bekend: meteen naar die chat
+  if (telefoon) { window.open(waLink(tekst, telefoon), "_blank"); return true; }
   if (navigator.share) {
     try { await navigator.share({ text: tekst }); return true; }
     catch (e) { if ((e as Error).name === "AbortError") return false; }
@@ -110,7 +115,7 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
       </div>
       {/* Reserve: op de computer laat WhatsApp de link onder het kaartje weg */}
       {stap === "link" && (
-        <button type="button" className="kaartje-link-los" onClick={async () => { if (await stuurLink()) setStap("klaar"); }}
+        <button type="button" className="kaartje-link-los" onClick={async () => { if (await stuurLink(inlog.telefoon)) setStap("klaar"); }}
           title="Alleen de link naar de app versturen (kies dezelfde chat, die staat bovenaan)">
           Link ontbreekt? Stuur hem erachteraan
         </button>

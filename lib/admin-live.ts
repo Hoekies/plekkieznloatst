@@ -10,6 +10,8 @@ export type SpelerOverzicht = {
   display_name: string;
   // Door het team gekozen icoon (emoji)
   icon: string | null;
+  // Telefoonnummer van het team (migratie 009), voor bellen en WhatsApp
+  telefoon?: string | null;
   // Heeft de groep nu een telefoon gekoppeld (= ingelogd)?
   ingelogd: boolean;
   // Uitgeschakeld door de beheerder: kan niet inloggen en telt niet mee in het stappenplan
@@ -43,7 +45,7 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -64,12 +66,13 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
     admin.from("routes").select("id, name, modus, uitslag_vrijgegeven, verwacht_aantal_teams").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, login_name, nickname, icon, active_device_id, is_uitgeschakeld").order("login_name"),
+    // "*": een kolom uit een nog niet gedraaide migratie (zoals telefoon) mag het dashboard niet leeg maken
+    admin.from("players").select("*").order("login_name"),
   ]);
 
   // Eindtijd voorbij? Dan eerst de lopende spellen afsluiten, zodat het dashboard meteen de eindstand toont
-  const eindtijd = route ? await rondAfAlsTijdVoorbij(admin, route.id) : null;
-  const routeInfo = route ? { ...route, eindtijd } : null;
+  const tijd = route ? await rondAfAlsTijdVoorbij(admin, route.id) : null;
+  const routeInfo = route ? { ...route, eindtijd: tijd?.eindtijd ?? null, gepauzeerd_sinds: tijd?.pauze ?? null } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
   const playerIds = (allePlayers ?? []).map((p) => p.id);
@@ -195,6 +198,7 @@ export async function haalLiveData(): Promise<LiveData> {
       nickname: player.nickname ?? null,
       display_name: player.nickname ?? player.login_name,
       icon: player.icon ?? null,
+      telefoon: (player as { telefoon?: string | null }).telefoon ?? null,
       ingelogd: !!player.active_device_id,
       uitgeschakeld: !!player.is_uitgeschakeld,
       sessie_id: sessie?.id ?? null,

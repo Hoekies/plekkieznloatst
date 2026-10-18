@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 
 async function getSessieEnSpeler() {
   const user = await haalGebruiker();
@@ -25,6 +26,7 @@ export async function POST(request: NextRequest) {
   if (!context) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
 
   const { sessie } = context;
+  if (await spelGepauzeerd(createAdminClient(), sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
   const body = await request.json();
   const { route_point_id, qr_secret } = body;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });

@@ -7,14 +7,16 @@ const WAARSCHUWING_S = 10 * 60;
 
 // Eindtijd van het spel in de statistiekenbalk: telt af, wordt rood in de laatste 10 minuten
 // en geeft dan één keer een groot venster. Op 0 roept hij onVoorbij aan (de app gaat naar de finish).
-export default function EindtijdTeller({ eindtijd, sessieId, onVoorbij }: { eindtijd: string; sessieId: string; onVoorbij: () => void }) {
+export default function EindtijdTeller({ eindtijd, sessieId, onVoorbij, pauze = null }: { eindtijd: string; sessieId: string; onVoorbij: () => void; pauze?: string | null }) {
   const [nu, setNu] = useState(() => Date.now());
   const [waarschuwing, setWaarschuwing] = useState(false);
   const voorbijRef = useRef(false);
 
   useEffect(() => { const t = setInterval(() => setNu(Date.now()), 1000); return () => clearInterval(t); }, []);
 
-  const rest = Math.max(0, Math.ceil((new Date(eindtijd).getTime() - nu) / 1000));
+  // Tijdens een pauze staat de teller stil op de tijd van het begin van de pauze
+  const peil = pauze ? new Date(pauze).getTime() : nu;
+  const rest = Math.max(0, Math.ceil((new Date(eindtijd).getTime() - peil) / 1000));
   const tijd = new Date(eindtijd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
 
   useEffect(() => {

@@ -18,6 +18,7 @@ import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
+import BroadcastKnop from "@/components/admin/BroadcastKnop";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -176,7 +177,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             ? !beperkt && <Klaarzetten route={route} spelers={spelers} />
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
                 uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
-                routeId={route?.id} eindtijd={route?.eindtijd} beperkt={beperkt} />}
+                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} />}
         </div>
 
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
@@ -298,28 +299,37 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
       onClick={onOpen} onKeyDown={(e) => { if (e.key === "Enter") onOpen(); }}
       style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
       : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
-      <div className="pr-gem-card-inner">
-        {/* Plek in de stand */}
-        <span className="rang-kolom" title={`${rang}e plaats`} style={{ width: 40, flexShrink: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: rang <= 3 ? "1.9rem" : "1.2rem", color: "#fff" }}>
-          {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
-        </span>
-        <div className="pr-gem-avatar speler-ring" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem",
-            color: s.nickname ? "#fff" : "var(--muted)", fontStyle: s.nickname ? "normal" : "italic",
-          }}>
-            {s.nickname ?? "nog geen naam gekozen"}
+      {/* Bovenaan: plek, icoon, naam en score op één regel; daaronder over de volle breedte de rest */}
+      <div className="pr-gem-card-inner sk-inner">
+        <div className="sk-kop">
+          {/* Plek in de stand */}
+          <span className="rang-kolom" title={`${rang}e plaats`} style={{ width: 40, flexShrink: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: rang <= 3 ? "1.9rem" : "1.2rem", color: "#fff" }}>
+            {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
+          </span>
+          <div className="pr-gem-avatar speler-ring" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
+          <div className="sk-naam">
+            <div style={{
+              fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              color: s.nickname ? "#fff" : "var(--muted)", fontStyle: s.nickname ? "normal" : "italic",
+            }}>
+              {s.nickname ?? "nog geen naam gekozen"}
+            </div>
+            <div style={{ fontSize: "0.74rem", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {s.login_name} · 📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
+              {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)}`}
+            </div>
+            {s.huidig_punt_naam && (
+              <div style={{ fontSize: "0.72rem", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>➡️ {s.huidig_punt_naam}</div>
+            )}
           </div>
-          <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-            {s.login_name}
+          <div className="sk-rechts">
+            <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
           </div>
-          <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>
-            📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
-            {s.huidig_punt_naam && ` · ${s.huidig_punt_naam}`}
-            {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)} geleden`}
-          </div>
-          <div className="pr-xp-bar"><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
+        </div>
+
+        <div className="sk-lijf">
+          <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
           {stil !== null && (
             <div className="stil-label">📵 Niet gezien sinds {stil} min{s.ingelogd ? "" : " · uitgelogd"}</div>
           )}
@@ -350,23 +360,25 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {tijdGeleden(s.hulp.sinds)} geleden</span>
             </div>
           )}
+          {/* Knoppen: op de telefoon korte teksten, naast elkaar op één regel */}
           {speelt && (
             <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
               {kanVrijgeven && (
                 <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
                   vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
                   className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
-                  ⏭️ {s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}
+                  ⏭️ <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
                 </BevestigKnop>
               )}
               {s.hulp && (
                 <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
               )}
               {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
+              {!beperkt && <BroadcastKnop team={{ id: s.player_id, naam: s.display_name }} />}
               {!beperkt && (
                 <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
                   vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
-                  ⏹️ Spel stoppen
+                  ⏹️ <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
                 </BevestigKnop>
               )}
             </div>
@@ -377,11 +389,6 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />
             </div>
           )}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
-          <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680" }}>{s.score} pt</span>
-          <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Details ›</span>
         </div>
       </div>
     </div>

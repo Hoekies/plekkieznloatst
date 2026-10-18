@@ -28,7 +28,7 @@ export default function DeviceGuard() {
         if (gestopt) return;
         if (res.status === 409) {
           const { reden } = await res.json().catch(() => ({ reden: null }));
-          router.replace(reden === "uitgelogd" ? "/login?fout=uitgelogd" : "/login?fout=apparaat");
+          router.replace(reden === "uitgelogd" ? "/login?fout=uitgelogd" : reden === "verlopen" ? "/login?fout=verlopen" : "/login?fout=apparaat");
         } else if (!res.ok) {
           router.replace("/login?fout=apparaat");
         }

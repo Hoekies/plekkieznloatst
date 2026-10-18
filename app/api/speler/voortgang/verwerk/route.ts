@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { normaliserenNumeriek } from "@/lib/geo";
-import { rondAfAlsTijdVoorbij, eindtijdVoorbij } from "@/lib/eindtijd";
+import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 
 async function getActieveSessie() {
   const user = await haalGebruiker();
@@ -25,9 +25,11 @@ export async function POST(request: NextRequest) {
   const sessie = await getActieveSessie();
   if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
   // Na de eindtijd telt niets meer mee
-  if (eindtijdVoorbij(await rondAfAlsTijdVoorbij(createAdminClient(), sessie.route_id))) {
+  const tijd = await rondAfAlsTijdVoorbij(createAdminClient(), sessie.route_id);
+  if (eindtijdVoorbij(tijd)) {
     return NextResponse.json({ fout: "Het spel is afgelopen: de eindtijd is voorbij" }, { status: 403 });
   }
+  if (tijd.pauze) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
 
   const body = await request.json();
   const { route_point_id, selected_answer_id, open_answer_text } = body;

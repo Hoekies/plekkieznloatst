@@ -20,11 +20,13 @@ export async function GET() {
     .maybeSingle();
   if (!sessie?.started_at) return NextResponse.json({ berichten: [] });
 
-  const { data } = await admin
-    .from("broadcasts")
-    .select("id, bericht, created_at")
-    .gte("created_at", sessie.started_at)
-    .order("created_at", { ascending: true })
-    .limit(20);
+  // Berichten aan iedereen en aan dit team (migratie 009). Ontbreekt die kolom nog, dan gewoon alles.
+  const basis = () => admin.from("broadcasts").select("id, bericht, created_at")
+    .gte("created_at", sessie.started_at!).order("created_at", { ascending: true }).limit(20);
+  const { data, error } = await basis().or(`player_id.is.null,player_id.eq.${speler.id}`);
+  if (error) {
+    const { data: alles } = await basis();
+    return NextResponse.json({ berichten: alles ?? [] });
+  }
   return NextResponse.json({ berichten: data ?? [] });
 }
