@@ -2264,3 +2264,32 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-kop-stap .rl-knop { height: 32px !important; width: 100% !important; justify-content: center; }
   .rl-kop-stap { display: flex !important; }
 }
+
+/* Controlevenster route-editor */
+.controle-samenvatting { padding: 8px 12px; border-radius: 10px; font-weight: 700; font-size: 0.86rem; background: rgba(34,197,94,0.14); border: 1px solid rgba(74,222,128,0.45); color: #BBF7D0; }
+.controle-samenvatting--letop { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.45); color: #FDE68A; }
+.controle-samenvatting--fout { background: rgba(239,68,68,0.14); border-color: rgba(248,113,113,0.5); color: #FECACA; }
+.controle-regel { padding: 8px 12px; border-radius: 10px; font-size: 0.84rem; line-height: 1.4; color: var(--ink); background: rgba(255,255,255,0.05); border-left: 4px solid; }
+.controle-regel--fout { border-left-color: #F87171; }
+.controle-regel--letop { border-left-color: #FBBF24; }
+.controle-regel--info { border-left-color: #A78BFA; color: var(--text); }
+
+/* Route-editor: knoppen die alleen op de telefoon of alleen op de computer staan */
+.alleen-mobiel-knop { display: none !important; }
+@media (max-width: 768px) {
+  .alleen-mobiel-knop { display: inline-flex !important; flex-shrink: 0; }
+  .alleen-pc-knop { display: none !important; }
+  /* Compacter: kleinere naam, iets minder ruimte tussen de rijen */
+  .route-editor-topbar { gap: 6px !important; padding: 8px 12px !important; }
+  .route-editor-topbar h1 { font-size: 1rem !important; }
+  .route-editor-topbar .editor-terug { padding: 0 12px; }
+}
+
+/* Spelerskaart: verwijderen en schakelaar rechts naast elkaar */
+.gb-rechts { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.gb-rechts .gb-verwijder { width: 34px !important; height: 34px !important; font-size: 1rem !important; padding: 0 !important; }
+.gb-rechts .gb-verwijder:disabled { opacity: 0.35; cursor: default; }
+
+/* Meldingen-venster: knoppen even breed naast elkaar over de volle breedte */
+.melding-knoppen { display: flex; gap: 8px; }
+.melding-knoppen > .rl-knop { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }

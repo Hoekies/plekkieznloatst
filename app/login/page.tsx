@@ -15,9 +15,9 @@ function LoginForm() {
       : fout === "leeg"
       ? "Vul je naam en wachtwoord in."
       : fout === "uitgeschakeld"
-      ? "Deze groep is uitgeschakeld. Neem contact op met de spelleider."
+      ? "Dit account is uitgeschakeld. Neem contact op met de spelleider."
       : fout === "apparaat"
-      ? "Deze groep is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
+      ? "Dit account is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
       : fout === "uitgelogd"
       ? "Je bent door de beheerder uitgelogd."
       : null;

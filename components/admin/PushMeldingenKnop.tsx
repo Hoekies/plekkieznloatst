@@ -112,7 +112,7 @@ export default function PushMeldingenKnop() {
                 <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
               </div>
               <p style={{ margin: 0, fontSize: "0.86rem", lineHeight: 1.5, color: "var(--text)" }}>
-                Je krijgt een melding bij een <strong>nieuwe foto</strong> om te keuren en als een team <strong>een punt niet kan bereiken</strong>, ook als de app dicht is. Staat je telefoon gekoppeld aan een horloge, dan komt de melding daar ook.
+                Bij een <strong>nieuwe foto</strong> of een <strong>hulpvraag</strong>, ook als de app dicht is (en op je horloge).
               </p>
               {stand === "iphone-beginscherm" && (
                 <div className="melding melding-fout" style={{ margin: 0 }}>Op een iPhone werken meldingen alleen als PointRush op je beginscherm staat: Safari → deelknop → Zet op beginscherm. Open hem daarna vanaf het beginscherm en zet hier de meldingen aan.</div>
@@ -126,10 +126,10 @@ export default function PushMeldingenKnop() {
               {stand === "niet-mogelijk" && (
                 <div className="melding melding-fout" style={{ margin: 0 }}>Deze browser ondersteunt geen pushmeldingen.</div>
               )}
-              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                {stand === "uit" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetAan}>🔔 Meldingen aanzetten</button>}
-                {stand === "aan" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={test}>Testmelding sturen</button>}
-                {stand === "aan" && <button type="button" className="rl-knop" style={{ height: 44, padding: "0 18px" }} disabled={bezig} onClick={zetUit}>Uitzetten</button>}
+              <div className="melding-knoppen">
+                {stand === "uit" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetAan}>🔔 Aanzetten</button>}
+                {stand === "aan" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={test}>📨 Test sturen</button>}
+                {stand === "aan" && <button type="button" className="rl-knop rl-knop--rood" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetUit}>🔕 Uitzetten</button>}
               </div>
             </div>
           </div>

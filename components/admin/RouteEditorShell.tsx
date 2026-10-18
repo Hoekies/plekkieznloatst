@@ -952,7 +952,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       <div className="admin-topbar route-editor-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
         {/* Rij 1: navigatie + naam */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <a href="/admin/routes" className="rl-knop editor-terug">← Routes</a>
+          <a href="/admin/routes" className="rl-knop editor-terug" title="Terug naar de routes">←<span className="alleen-pc"> Routes</span></a>
           {naamWijzig ? (
             <div style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
               <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
@@ -964,6 +964,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
+          {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}
+          <button className="rl-knop rl-knop--goud alleen-mobiel-knop"
+            onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen">⚙️</button>
         </div>
 
         {/* Rij 2: status en route-stappen links, hulpmiddelen in het midden, ongedaan maken en opslagstatus rechts */}
@@ -971,7 +974,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <StatusPil status={route.status} isActief={route.is_active} />
           <span className="editor-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }}>
             <ModusIcoon modus={route.modus} size={14} />
-            {MODUS_INFO[route.modus].label}
+            <span className="alleen-pc">{MODUS_INFO[route.modus].label}</span>
           </span>
           {!route.is_active && (
             <button className="rl-knop"
@@ -980,7 +983,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
                 if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
               }}>
-              {route.status === "gepubliceerd" ? "↩ Concept" : "📢 Publiceer"}
+              {route.status === "gepubliceerd" ? <>↩<span className="alleen-pc"> Concept</span></> : "📢 Publiceer"}
             </button>
           )}
           {!route.is_active && route.status === "gepubliceerd" && (
@@ -1008,7 +1011,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button className={`rl-knop${wegenAan ? " rl-knop--cyan" : ""}`}
               onClick={wegenAan ? wegen.herbereken : wisselWegen} disabled={wegen.bezig}
               title={wegenAan ? "Lijnen en afstanden volgen wegen en voetpaden. Klik om alles opnieuw te berekenen." : "Lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
-              {wegen.bezig ? "⏳ Wegen…" : wegenAan ? "🚶 Wegen ↻" : "🚶 Wegen uit"}
+              {wegen.bezig ? "⏳" : "🚶"}<span className="alleen-pc">{wegen.bezig ? " Wegen…" : " Wegen"}</span>{!wegen.bezig && (wegenAan ? " ↻" : <span className="alleen-pc"> uit</span>)}
             </button>
             {wegenAan && (
               <button className="rl-knop rl-knop--cyan" onClick={wisselWegen} title="Wegen uit: lijnen en afstanden hemelsbreed" aria-label="Wegen uit">✕</button>
@@ -1016,12 +1019,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </span>
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
-            📝 Vragen {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
+            📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
           </button>
           {!route.is_active && (
             <button className="rl-knop" onClick={() => setControleOpen(true)}
               title="Klaar om te spelen? Controleer de route vóór het activeren">
-              🩺 Controle {controle.length ? <span className="editor-teller">{controle.length}</span> : "✓"}
+              🩺<span className="alleen-pc"> Controle</span> {controle.length ? <span className="editor-teller">{controle.length}</span> : "✓"}
             </button>
           )}
 
@@ -1035,7 +1038,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             ↶<span className="alleen-pc"> Ongedaan maken</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
           </button>
           {/* Instellingen: goud, als laatste in dezelfde rij */}
-          <button className="rl-knop rl-knop--goud"
+          <button className="rl-knop rl-knop--goud alleen-pc-knop"
             onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
             ⚙️<span className="alleen-pc"> Instellingen</span>
           </button>

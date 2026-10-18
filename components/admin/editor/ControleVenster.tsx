@@ -2,7 +2,9 @@
 
 import type { ControleRegel } from "@/lib/route-controle";
 
-// "Klaar om te spelen?": de controle vóór het activeren van een route
+// "Klaar om te spelen?": de controle vóór het activeren van een route.
+// Zelfde stijl als de andere vensters: paars paneel met gouden rand, ✕ rechtsboven,
+// per punt een regel met een gekleurde streep (rood = moet opgelost, geel = let op).
 export default function ControleVenster({ controle, status, actief, onSluit, onActiveer }: {
   controle: ControleRegel[];
   status: string;
@@ -10,39 +12,45 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
   onSluit: () => void;
   onActiveer: () => void;
 }) {
+  const fouten = controle.filter((r) => r.niveau === "fout").length;
+  const letOp = controle.length - fouten;
+  const samenvatting = controle.length === 0
+    ? "Alles in orde"
+    : [fouten ? `${fouten} om op te lossen` : "", letOp ? `${letOp} om op te letten` : ""].filter(Boolean).join(" · ");
+
   return (
-    <div className="route-editor-backdrop" style={{ zIndex: 1900, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
-      onClick={() => onSluit()}>
-      <div onClick={(e) => e.stopPropagation()} style={{
-        width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", borderRadius: 14, padding: "16px 18px",
-        background: "rgba(8,28,48,0.97)", border: "1px solid rgba(255,255,255,0.18)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-        display: "flex", flexDirection: "column", gap: 10, color: "var(--text)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontWeight: 800, fontSize: "1rem", color: "var(--ink)" }}>🩺 Klaar om te spelen?</span>
-          <button type="button" className="editor-paneel-sluit" onClick={() => onSluit()} title="Sluiten">✕</button>
-        </div>
-        {controle.length === 0 ? (
-          <div style={{ color: "#86EFAC", fontWeight: 600, fontSize: "0.88rem" }}>✅ Alles in orde. De route is klaar om te spelen.</div>
-        ) : (
-          <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
-            {controle.map((r, i) => (
-              <li key={i} style={{ fontSize: "0.84rem", lineHeight: 1.4, display: "flex", gap: 8 }}>
-                <span>{r.niveau === "fout" ? "❌" : "⚠️"}</span>
-                <span style={{ color: r.niveau === "fout" ? "#FCA5A5" : "var(--text)" }}>{r.tekst}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {status !== "gepubliceerd" && (
-          <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Publiceer de route eerst (📢 Publiceer) voordat je hem activeert.</div>
-        )}
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
+    <div onClick={() => onSluit()} style={{ position: "fixed", inset: 0, zIndex: 1900, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 440, maxHeight: "90vh" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(90vh - 6px)", overflowY: "auto", padding: "18px 18px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ flex: 1 }}>
+              <div className="pr-gem-label">🩺 Route controleren</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>Klaar om te spelen?</div>
+            </div>
+            <button type="button" className="editor-paneel-sluit" onClick={() => onSluit()} title="Sluiten" aria-label="Sluiten">✕</button>
+          </div>
+
+          <div className={`controle-samenvatting${fouten ? " controle-samenvatting--fout" : controle.length ? " controle-samenvatting--letop" : ""}`}>
+            {controle.length === 0 ? "✅" : fouten ? "❌" : "⚠️"} {samenvatting}
+          </div>
+
+          {controle.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {controle.map((r, i) => (
+                <div key={i} className={`controle-regel controle-regel--${r.niveau === "fout" ? "fout" : "letop"}`}>{r.tekst}</div>
+              ))}
+            </div>
+          )}
+
+          {status !== "gepubliceerd" && !actief && (
+            <div className="controle-regel controle-regel--info">Publiceer de route eerst (📢 Publiceer), daarna kun je hem activeren.</div>
+          )}
+
           {!actief && status === "gepubliceerd" && (
-            controle.some((r) => r.niveau === "fout") ? (
-              <span style={{ fontSize: "0.78rem", color: "#FCA5A5", alignSelf: "center" }}>Los eerst de ❌ op.</span>
+            fouten ? (
+              <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je activeren.</div>
             ) : (
-              <button type="button" className="rl-knop rl-knop--cyan" onClick={onActiveer}>
+              <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onActiveer}>
                 ▶ {controle.length ? "Toch activeren" : "Activeren"}
               </button>
             )

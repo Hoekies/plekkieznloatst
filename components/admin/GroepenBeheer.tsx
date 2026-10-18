@@ -54,6 +54,14 @@ export default function GroepenBeheer() {
     setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, heeft_spel: false } : g));
   }
 
+  async function verwijderSpeler(id: string) {
+    const res = await fetch(`/api/admin/groepen/${id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toonMelding(data.fout ?? "Verwijderen mislukt", "fout"); return; }
+    toonMelding(`${data.naam ?? "Speler"} is verwijderd`, "ok");
+    setGroepen((prev) => prev.filter((g) => g.id !== id));
+  }
+
   // Uitgeschakelde spelers staan apart onderaan, standaard ingeklapt
   const actieveSpelers = groepen.filter((g) => !g.is_uitgeschakeld);
   // Zelfde kleur per speler als op het dashboard en de live kaart
@@ -119,8 +127,13 @@ export default function GroepenBeheer() {
           </div>}
         </div>
 
-        {/* Aan/uit toggle */}
-        <div className="gb-schakel"
+        {/* Rechts: verwijderen en de aan/uit-schakelaar */}
+        <div className="gb-schakel gb-rechts">
+        <BevestigKnop venster icoon="🗑️" titel={`${displayNaam} verwijderen?`} vraag="" ja="Ja, verwijderen"
+          onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
+          className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
+          tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}>🗑️</BevestigKnop>
+        <div
           title={isUit ? "Aanzetten" : "Uitzetten"}
           onClick={async () => {
             const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
@@ -141,6 +154,7 @@ export default function GroepenBeheer() {
             transition: "left 0.2s, background 0.2s",
             boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
           }} />
+        </div>
         </div>
        </div>
       </div>
