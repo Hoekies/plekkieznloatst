@@ -4,7 +4,7 @@
 
 <p align="center"><strong>Loop de route. Pak de punten. Saboteer je vrienden.</strong></p>
 
-PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route langs geocoördinaten, beantwoorden vragen op locatie en proberen elkaar te saboteren met speciale items. Beheer van routes, groepen en live-voortgang gaat via een ingebouwd adminpaneel.
+PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route langs geocoördinaten, beantwoorden vragen op locatie en proberen elkaar te saboteren met speciale items. Beheer van routes, spelers en live-voortgang gaat via een ingebouwd beheer, op de computer en de telefoon.
 
 ---
 
@@ -14,19 +14,25 @@ PointRush is een GPS-gebaseerd buiten-spel voor groepen. Teams lopen een route l
 - GPS-navigatie naar opeenvolgende route-punten, met stippellijn naar het actieve punt zodra dat zichtbaar wordt
 - Vragen op locatie (meerkeuze, open antwoord, foto-opdracht)
 - Speciale items oppakken en inzetten op andere teams
-- Live kaart met globale posities van medespelers
-- Alias en icoon instellen voor herkenning
+- Andere teams alleen zichtbaar met een radar
+- Teamnaam en icoon kiezen
+- Als app te installeren (volledig scherm), met uitleg voor Android en iPhone
+- Melding als de organisatie een punt vrijgeeft of het spel stopt
 
 ### Voor beheerders
 - Routes aanmaken met punten, vragen en speciale items
 - **Sequentieel** of **Verspreid (lus)** modus per route
 - Verspreid-modus: automatische puntgenerator in cirkelpatroon, met versleepbaar middelpunt en ghost-voorvertoning
 - Teams starten verspreid over de route, met ongeveer gelijke aanloop vanaf de startplek
-- Groepen aanmaken, in-/uitschakelen en inloggegevens beheren
-- Een groep direct uitloggen of hun gekoppelde apparaat resetten
-- Live dashboard met score, voortgang en GPS per team
-- Broadcast-berichten sturen naar alle actieve teams
-- Leaderboard na afloop
+- Spelers aanmaken, in-/uitschakelen, verwijderen en inloggegevens beheren; inloggegevens versturen via WhatsApp
+- Een speler direct uitloggen of het gekoppelde apparaat resetten
+- Dashboard met stappenplan, spelleider (wat vraagt aandacht), stand, tijdlijn en details per speler
+- Live kaart met vaste kleur per speler, speler volgen en spoor van de laatste 10 minuten
+- Wachttijd van spook of plek zooi inkorten, punt vrijgeven, spel per speler stoppen
+- Pushmeldingen bij een nieuwe foto of hulpvraag (ook op een horloge)
+- Berichten naar alle teams, tussenstand, uitslag vrijgeven en spelrapport als PDF
+- Voorproefje van een route op één A4 (zonder antwoorden)
+- Routes exporteren, importeren en kopiëren; versienummer en laatste update in het menu
 
 ### Speciale items
 Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
@@ -38,7 +44,7 @@ Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk tea
 | 👻 Spook | Verbergt het doelpunt van een team 10 minuten |
 | 💣 Bom | Trekt punten af van een doelteam |
 | 🔄 Wissel | Wisselt scores met een doelteam |
-| 🦹 Dief | Steelt de pluspunten van de volgende vraag van een doelteam (minpunten nooit) |
+| 🦹 Dief | Steelt meteen de punten van een goede vraag van een doelteam |
 | 📡 Radar | Onthult exacte GPS-posities van alle teams voor 2 minuten |
 | 🍌 Banaan | Het volgende punt van een tegenstander ruilt van plek met het punt daarna (nooit start of eindpunt) |
 | ⛔ Plek zooi | Onzichtbare val — blokkeert kaart en voortgang bij betreden |
@@ -109,7 +115,7 @@ Maak een gebruiker aan in Supabase Authentication en zet in `app_metadata`:
 
 ```
 app/
-  admin/          → Adminpaneel (routes, groepen, dashboard, live)
+  admin/          → Beheer (routes, spelers, dashboard, live)
   speler/         → Spelersapp (kaart, vragen, finish)
   api/            → API-routes (Next.js Route Handlers)
   login/          → Inlogpagina

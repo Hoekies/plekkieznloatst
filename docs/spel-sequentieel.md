@@ -38,7 +38,7 @@ Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huid
 
 ## Een punt bezoeken
 
-Navigeer naar het genummerde punt. Eenmaal ter plekke druk je op de **📍 knop** linksonder. De app controleert of je dicht genoeg bij het punt staat.
+Navigeer naar het genummerde punt. Ben je er, dan springt de vraag vanzelf open.
 
 - **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten.
 - **Infopunt** — Er verschijnt informatie, geen vraag.

@@ -52,7 +52,7 @@ Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huid
 
 ## Een punt bezoeken
 
-Navigeer naar het genummerde punt. Eenmaal ter plekke druk je op de **📍 knop** linksonder. De app controleert of je dicht genoeg bij het punt staat.
+Navigeer naar het genummerde punt. Ben je er, dan springt de vraag vanzelf open.
 
 - **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten.
 - **Infopunt** — Er verschijnt informatie, geen vraag.
@@ -103,7 +103,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 | 📡 | Radar | Je ziet 2 minuten lang precies waar alle tegenstanders lopen. |
 | 💣 | Bom | Gooi hem naar een tegenstander: die verliest punten (standaard 30). |
 | 👻 | Spook | Stuur een spook naar een tegenstander: hun volgende punt verdwijnt een tijdje van de kaart (standaard 10 minuten) en is zolang niet te halen. |
-| 🦹 | Dief | Zet een dief op een tegenstander: de punten van hun volgende goede antwoord gaan naar jullie. |
+| 🦹 | Dief | Stuur een dief naar een tegenstander: hij steelt meteen de punten van een goede vraag van hen en geeft ze aan jullie. |
 | 🍌 | Banaan | Gooi hem naar een tegenstander: hun volgende punt ruilt van plek met het punt daarna. Ze moeten eerst naar dat punt, dan terug naar hun oude volgende punt, en dan verder. Het eindpunt blijft altijd als laatste. |
 | 🔄 | Wissel | Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳 |
 | ❓ | Vraagteken | Wordt meteen gespeeld als je hem oppakt. Een gok! Je krijgt 2× de sterwaarde (40%) of zelfs 5× als jackpot (10%). Je kunt ook 1× de sterwaarde verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig 1× de sterwaarde bij of af (20%). |

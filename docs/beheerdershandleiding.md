@@ -2,7 +2,23 @@
 
 ## Overzicht
 
-Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en volg je de voortgang live. Alles gaat via het adminpaneel, bereikbaar op `/admin`.
+Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel en volg je de voortgang live. Alles gaat via het beheer, bereikbaar op `/admin`. Het werkt op de computer en op de telefoon.
+
+**Het menu** (links; op de telefoon via ☰):
+
+| Onderdeel | Wat staat er |
+|---|---|
+| **Actieve route** (groen kaartje bovenaan) | Welke route nu loopt; tik erop voor de routes. Grijs = geen actieve route. |
+| 🏠 **Dashboard** | Stappenplan, spelleider, spelende spelers met de stand, en de tijdlijn |
+| 👥 **Spelers** | Spelers aanmaken, inloggegevens, aan/uit, verwijderen |
+| 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
+| 📡 **Live kaart** | Waar iedereen loopt |
+| 🗺️ **Routes** | Routes maken, publiceren, activeren, voorproefje |
+| **Spel** | 🏆 Tussenstand, WhatsApp (inloggegevens versturen), 🔔 Meldingen |
+| **Beheer** | Stop route, Reset spel |
+| **Info & uitleg** | Deze handleiding, de instructiekaarten, Ko-fi, en het versienummer met de datum van de laatste update |
+
+Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
 
 ---
 
@@ -25,13 +41,22 @@ Als beheerder stel jij de routes in, maak je groepen aan, start je het spel en v
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
-8. Ga terug naar **Routes** en klik bij de route op **Publiceren** als hij klaar is, daarna op **▶ Activeren**. Eerst opent dan de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
+8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
 
 > **Opslaan gaat vanzelf.** Rechtsboven in de editor zie je ⏳ *Opslaan…*, daarna ✓ *Opgeslagen*. Lukt het niet (bijvoorbeeld door een slechte verbinding), dan staat er ⚠️ *Niet opgeslagen* en krijg je een melding. Doe de wijziging dan opnieuw.
 
 > **↶ Ongedaan maken.** Verwijderd, verschoven, toegevoegd of gewijzigd? Met **↶ Ongedaan maken** bovenin (of **Ctrl+Z**) zet je de laatste stappen één voor één terug, tot 30 stappen. Een verwijderd punt komt terug met zijn vraag en antwoorden, op dezelfde plek in de lijst. Verwijderen vraagt daarom geen bevestiging meer.
 
-> **Routes-overzicht**: elke route staat als één regel met speltype en status (● Actief, Gepubliceerd of Concept). Rechts staat alleen de volgende stap als knop (Publiceren → ▶ Activeren) en **Bewerken**. Daarnaast staan icoonknoppen: ⧉ Kopie maken (een volledige kopie met alle instellingen, punten, vragen en items, als concept — handig als basis voor een nieuwe editie), 📤 Exporteren, ↩ Terug naar concept en 🗑️ Verwijderen (houd de muis erboven voor de uitleg). De actieve route staat altijd bovenaan.
+> **Routes-overzicht**: de routes staan onder drie koppen: **● Actief**, **📢 Gepubliceerd** en **✏️ Concept**, binnen een team op naam. Bij elke route zie je het speltype en **✏️ Aangepast** (de laatste bewerking in de editor; het spelen zelf telt niet mee). Een lange naam schuift vanzelf heen en weer.
+> De knoppen staan bij elke route op een vaste plek:
+> - **De volgende stap** (met bevestiging): **📢 Publiceren** (concept) → **▶ Activeren** (gepubliceerd) → **⏹ Deactiveren** (actief). Deactiveren werkt zoals *Stop route*: lopende spellen worden netjes afgesloten.
+> - **Bewerken**
+> - 👀 **Voorproefje** (zie hieronder), ⧉ **Kopie maken** (alles, als concept), 💾 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩ **Terug naar concept** en 🗑️ **Verwijderen**.
+> - Rechtsboven **📂 Route importeren**: een eerder geëxporteerd bestand terugzetten.
+>
+> Op de telefoon starten de routekaarten ingeklapt: tik op de naam om de knoppen te tonen.
+
+> **👀 Voorproefje**: één A4 om te laten zien wat een route inhoudt, zonder iets te verraden. Op het vel staan het speelgebied (een zone op de kaart, zonder route en zonder punten; de items staan er verschoven op), het aantal punten en vragen per soort, een schatting van afstand en speelduur, drie voorbeeldvragen zónder de goede antwoorden (je kiest zelf welke, of 🔀 voor andere) en de items in het spel. Met **📄 PDF maken** en daarna **📲 Versturen** deel je het via WhatsApp. Antwoorden, puntnamen en coördinaten komen niet eens in de browser.
 
 > Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd. Ook de finish kan een vraag of opdracht hebben, bijvoorbeeld **maak een selfie**: het team krijgt die eerst te zien. Bij een foto-opdracht is het team gefinisht zodra de foto is ingestuurd; de punten komen erbij als jij de foto goedkeurt bij **Antwoorden**.
 
@@ -45,8 +70,8 @@ Welk speltype een route heeft zie je overal terug: in de routeslijst staat het a
 
 | Speltype | Omschrijving |
 |---|---|
-| 🎯 **Sequentieel** | Alle groepen lopen de punten in dezelfde volgorde (standaard) |
-| 🎲 **Verspreid (lus)** | Elke groep start op een ander punt en loopt de route als een lus — iedereen legt dezelfde afstand af, maar in een andere volgorde |
+| 🎯 **Sequentieel** | Alle teams lopen de punten in dezelfde volgorde (standaard) |
+| 🎲 **Verspreid (lus)** | Elke team start op een ander punt en loopt de route als een lus — iedereen legt dezelfde afstand af, maar in een andere volgorde. Het **startpunt (🏠) moet een vraag hebben**: spelers krijgen eerst een welkomstuitleg en na 25 meter lopen deze eerste vraag. Zonder vraag kun je de route niet activeren. |
 
 In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar staan alleen de instellingen die bij het gekozen speltype horen:
 
@@ -101,7 +126,7 @@ Met **↺ Andersom lopen** (onder de opengeklapte volgorde) loopt dat team het r
 
 Rechtsboven op de kaart staat een klein paneel **⏱️ Afstand, tijd & punten per team**: per team (in de kleur van de kaart) hoeveel kilometer het loopt, hoe lang het ongeveer duurt en hoeveel punten het ongeveer haalt, bijvoorbeeld *Team 1 · 2,35 km · ≈ 52 min · ≈ 310 pt*. Ga met de muis over een team voor de opbouw (lopen, vragen, items). Klik op de kop om het paneel in of uit te klappen. De looproute per team staat onder de puntenlijst.
 
-- **Lopen** — 4,5 km/u, het wandeltempo van een groep.
+- **Lopen** — 4,5 km/u, het wandeltempo van een team.
 - **Vragen** — ongeveer 2 minuten per vraag en een halve minuut per infopunt.
 - **Items** — omlopen naar items die binnen 150 m van de route liggen, de vastzittijd van plek zooi die op de route ligt, en de verwachte vertraging door spoken en bananen van tegenstanders. Met respawn aan telt dat zwaarder.
 
@@ -117,7 +142,7 @@ In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus st
 
 | Instelling | Uitleg |
 |---|---|
-| **Aantal teams** | Verwacht aantal deelnemende groepen (min. 2). Bepaalt de startpuntberekening. |
+| **Aantal teams** | Verwacht aantal deelnemende teams (min. 2). Bepaalt de startpuntberekening. |
 | **Doelafstand** | Totale routelengte in km. Wordt gebruikt voor de kaartcirkel en puntgenerator. |
 | **Aantal punten** | Aantal punten voor de automatische generator (zie hieronder). |
 
@@ -214,86 +239,91 @@ Halve minuten mogen ook (bijv. 2,5). De duur geldt voor alle spook- en plekzooi-
 
 ---
 
-### 4. Groepen aanmaken
+### 4. Spelers aanmaken
 
-1. Ga naar **Groepen** in de zijbalk.
-2. Klik op **+ Nieuwe groep** en vul een **loginnaam** en een **wachtwoord** in.
-   - De **loginnaam** is wat de speler typt bij het inloggen (bijv. "team1").
-   - Het **wachtwoord** moet minimaal 8 tekens zijn.
-3. Deel de inloggegevens met de groep via **Versturen via WhatsApp** bovenaan. Er opent eerst een venster **Wat verstuur je?** waarin je zelf kiest wat er meegaat:
-   - **✉️ Berichttekst** — aan te passen in het venster (wordt per browser onthouden; met "Standaardtekst terugzetten" krijg je de oorspronkelijke tekst terug);
+Elke "speler" in het beheer is één team met één inlog.
+
+1. Ga naar **Spelers** in het menu.
+2. Klik op **+ Nieuwe speler** en vul een **loginnaam** en een **wachtwoord** (minimaal 8 tekens) in. De loginnaam is wat het team typt bij het inloggen (bijv. "speler1"); hoofdletters maken daarbij niet uit.
+3. Verstuur de inloggegevens met **WhatsApp** in het menu (onder Spel). Er opent eerst **Wat verstuur je?**:
+   - **✉️ Berichttekst** — standaard *"Hoi! Log in op PointRush via deze link 🎯 … Veel plezier! René"*, aan te passen in het venster;
    - **📲 Uitleg** hoe je de app op het beginscherm zet;
    - **Afbeeldingen:** de spelershandleiding en/of de speluitleg van route op volgorde of verspreid.
-   Onderaan zie je een voorbeeld van het bericht. Met **📲 Versturen** opent het deelmenu (kies WhatsApp); kan je browser geen afbeeldingen delen, dan gaan er links naar de afbeeldingen mee. Je laatste keuze wordt onthouden.
+   Onderaan zie je een voorbeeld. **Versturen** opent het deelmenu (kies WhatsApp). Je laatste keuze wordt onthouden.
 
-> De **teamnaam** kiest de groep zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, het leaderboard en in de meldingen aan andere teams. Zolang een groep nog geen teamnaam heeft gekozen, zie je de loginnaam.
+Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook op het dashboard, de tijdlijn en de live kaart.
 
-#### Groepen aan- en uitzetten
+> De **teamnaam** kiest het team zelf, samen met een **icoon**, bij de start van het spel. Die naam zie je overal terug: op het dashboard, de kaarten, de stand en in de meldingen aan andere teams. Zolang een team nog geen teamnaam heeft gekozen, zie je de loginnaam.
 
-Met de **toggle** (groen/rood) rechts op elke groepskaart kun je een groep in- of uitschakelen:
+#### Spelers aan- en uitzetten
 
-- **Groen (aan)** — de groep kan normaal inloggen en deelnemen.
-- **Rood (uit)** — de groep kan niet meer inloggen. Bij een inlogpoging verschijnt de melding _"Deze groep is uitgeschakeld."_
+Met de **schakelaar** (groen/rood) rechts op elke spelerskaart zet je een speler aan of uit. Uitgeschakelde spelers staan onderaan in het ingeklapte blok **⏸ Uitgeschakelde spelers**, compact en zonder knoppen.
 
-Handig bij een testgroep die niet meer mee moet doen, of om groepen tijdelijk te blokkeren.
+- **Groen (aan)** — het team kan normaal inloggen en deelnemen.
+- **Rood (uit)** — het team kan niet meer inloggen. Bij een inlogpoging verschijnt de melding _"Dit account is uitgeschakeld."_
+
+Handig bij een testspeler die niet meer mee moet doen, of om teams tijdelijk te blokkeren.
 
 #### Loginnaam of wachtwoord wijzigen
 
-Via de knoppen **🔑 Wachtwoord** en **✏️ Loginnaam** op de groepskaart kun je deze gegevens aanpassen zonder de groep opnieuw aan te maken.
+Via **🔑 Wachtwoord** en **✏️ Loginnaam** op de spelerskaart opent een venster met de speler erin; daar pas je het aan zonder de speler opnieuw aan te maken.
+
+#### Een speler verwijderen
+
+Met de rode **🗑️** rechts op de spelerskaart (naast de schakelaar) verwijder je een speler helemaal, na bevestiging: het inlogaccount, alle spellen (score, antwoorden, gelopen route), de ingestuurde foto's en de regels in het itemlogboek. De loginnaam is daarna weer vrij. Speelt de speler nog, dan is de 🗑️ grijs: stop eerst het spel. Let op: bij een afgelopen spel verdwijnt de speler ook uit het rapport en de uitslag, dus maak eerst de PDF als je die wilt bewaren.
 
 #### Apparaat resetten
 
-Een groep kan maar op één apparaat tegelijk ingelogd zijn. Wordt de app weggedrukt zónder uit te loggen, dan blijft die koppeling hangen en kan de groep **op geen enkel apparaat meer inloggen** — ook niet op hetzelfde.
+Een team kan maar op één apparaat tegelijk ingelogd zijn. Wordt de app weggedrukt zónder uit te loggen, dan blijft die koppeling hangen en kan het team **op geen enkel apparaat meer inloggen** — ook niet op hetzelfde.
 
-Klik dan op **🔓 Apparaat** op de groepskaart (alleen zichtbaar zolang er een toestel gekoppeld is). De koppeling wordt losgelaten en de groep kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
+Klik dan op **🔓 Apparaat** op de spelerskaart (alleen zichtbaar zolang er een toestel gekoppeld is). De koppeling wordt losgelaten en het team kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
 
 > Dit is de meest voorkomende storing tijdens een spel. Als een team belt met "we kunnen niet meer inloggen", is dit vrijwel altijd de oplossing.
 
-#### Een groep direct uitloggen
+#### Een team direct uitloggen
 
-De knop **🚪 Uitloggen** staat alleen op de groepskaart zolang de groep ingelogd is (groen "Actief"). Klik erop om een groep meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt de groep automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
+De knop **🚪 Uitloggen** staat alleen op de spelerskaart zolang het team ingelogd is (groen "Actief"). Klik erop om een team meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt het team automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
 
-Handig als je een groep bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
+Handig als je een team bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
 
-> **Uitloggen laat het spel staan.** Logt de groep opnieuw in, dan spelen ze verder met dezelfde score en voortgang. Op het dashboard staan ze zolang als **"Uitgelogd"**.
+> **Uitloggen laat het spel staan.** Logt het team opnieuw in, dan spelen ze verder met dezelfde score en voortgang. Op het dashboard staan ze zolang als **"Uitgelogd"**.
 
-#### Het spel van een groep stoppen
+#### Het spel van een team stoppen
 
-Met **⏹️ Stop spel** bij Groepen (op het Dashboard heet de knop **Spel stoppen**) beëindig je het lopende spel van één groep: score en voortgang vervallen. De groep blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle groepen opnieuw laten beginnen, gebruik dan **🗑️ Reset spel**. Bij Groepen staat deze knop alleen bij een groep die nu een spel speelt.
+Met **⏹️ Stop spel** bij Spelers (op het Dashboard heet de knop **Spel stoppen**) beëindig je het lopende spel van één team: score en voortgang vervallen. Het team blijft ingelogd; hun app gaat binnen een halve minuut terug naar het startscherm, en bij **Ga op pad** beginnen ze een nieuw spel. Wil je álle teams opnieuw laten beginnen, gebruik dan **💣 Reset spel**. Bij Spelers staat deze knop alleen bij een team dat nu een spel speelt.
 
-> De Groepen-pagina ververst zichzelf elke 10 seconden, dus knoppen verschijnen vanzelf zodra een groep inlogt of begint.
+> De Spelers-pagina ververst zichzelf elke 10 seconden, dus knoppen verschijnen vanzelf zodra een team inlogt of begint.
 
 ---
 
 ## Het spel starten
 
+> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *Reset spel* worden je eigen vinkjes gewist.
+
 1. Ga naar de gewenste route en klik op **▶ Activeer**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch activeren**. Met **🩺 Controle** in de editor bekijk je deze lijst ook tussendoor.
    - Er kan maar één route tegelijk actief zijn.
    - De route moet op "Gepubliceerd" staan voordat je hem kunt activeren.
-2. Groepen kunnen nu via hun inloggegevens inloggen en op **Ga op pad** drukken.
+2. Spelers kunnen nu via hun inloggegevens inloggen en op **Ga op pad** drukken.
    - Vóór het starten toont de app automatisch de **spelregels van het actieve speltype**. Je hoeft dus niets vooraf uit te leggen.
-3. Bij een **verspreid**-route krijgt elke groep automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
+   - Op een telefoon vraagt de app bij het openen of de speler PointRush **als app wil installeren** (Android) of legt hij uit hoe je hem **op het beginscherm** zet (iPhone). Als app opent PointRush volledig scherm, zonder balken.
+3. Bij een **verspreid**-route krijgt elke team automatisch een uniek startpunt toegewezen op basis van GPS-afstand, zodat teams gelijkmatig verspreid beginnen.
 
-> **Wisselen van route of een route aanpassen.** Een groep die nog een lopende sessie heeft op een route die niet meer actief is, wordt bij het openen van de app automatisch afgemeld van die oude sessie en begint opnieuw bij naam en icoon, op de route die nu actief is. Hetzelfde gebeurt bij een **verspreid**-route als je er punten aan toevoegt of verwijdert nadat een groep al gestart is: de teamvolgorde klopt dan niet meer, dus die groep begint opnieuw. Pas een route daarom niet aan tijdens een echt spel. Tijdens het testen gebruik je het best **🗑️ Reset spel** na een wijziging.
+> **Wisselen van route of een route aanpassen.** Een team dat nog een lopende sessie heeft op een route die niet meer actief is, wordt bij het openen van de app automatisch afgemeld van die oude sessie en begint opnieuw bij naam en icoon, op de route die nu actief is. Hetzelfde gebeurt bij een **verspreid**-route als je er punten aan toevoegt of verwijdert nadat een team al gestart is: de teamvolgorde klopt dan niet meer, dus dat team begint opnieuw. Voeg daarom tijdens een echt spel **geen punten toe en verwijder er geen** in de actieve route. Vragen, items en de instellingen voor items mag je wel aanpassen: die gelden meteen. Tijdens het testen gebruik je het best **💣 Reset spel** na een wijziging.
 
 ---
 
 ## Live volgen
 
-Het **Dashboard** toont per groep:
+Het **Dashboard** (ververst elke paar seconden vanzelf):
 
-| Kolom | Betekenis |
-|---|---|
-| Score | Huidig puntentotaal |
-| Voortgang | Aantal bezochte punten / totaal |
-| Gestart | Starttijd van de sessie |
-| Huidig punt | Naam van het laatste bereiktte punt |
-| Speeltijd | Totale tijd (alleen zichtbaar na finish) |
-| Laatste update | Hoe lang geleden de GPS-positie is bijgewerkt |
+- **Tegels**: actieve route, aan het spelen, gefinisht en de koploper. Op de telefoon als één compacte strook.
+- **🎯 Spelleider**: hoe lang het spel loopt en hoeveel teams onderweg zijn, met daaronder alleen wat **je aandacht vraagt**: hulpvragen, foto's om te keuren, teams die 5 minuten **niet gezien** zijn (📵), en teams die wachten door een spook of plek zooi. Tik op een regel voor de details. Niets aan de hand? Dan staat er *"✅ Alles loopt"*.
+- **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand), met per team het aantal punten, de items in de balk en ingezet, en de knoppen **⏭️ Volgend punt vrijgeven** en **⏹️ Spel stoppen**.
+- **Wacht een team door een spook of plek zooi**, dan zie je op de kaart een aftelklok met **−30 s**: daarmee haal je er 30 seconden af. De app van het team neemt de nieuwe tijd binnen een paar seconden over.
+- **Tik op een spelerskaart** voor alles van dat team: speeltijd, afstand, vragen goed, de gelopen route op een kaartje, alle bezochte punten met antwoorden en de items.
+- **📜 Wat gebeurt er**: een tijdlijn met starts, bereikte punten, goede en foute antwoorden, foto's, ingezette items en finishes.
 
-De **Live kaart** toont de actuele (globale) GPS-posities van alle groepen op de kaart.
-
-Het dashboard ververst automatisch elke 5 seconden en via realtime-database-updates; het leaderboard elke 4 seconden.
+De **Live kaart** vult het hele scherm en toont iedereen in zijn eigen kleur, met een vervagend **spoor van de laatste 10 minuten**. Tik op een naam in de lijst om die speler te **volgen** (🎯); de kaart schuift dan mee. Slepen of nog eens tikken stopt het volgen.
 
 ---
 
@@ -301,7 +331,11 @@ Het dashboard ververst automatisch elke 5 seconden en via realtime-database-upda
 
 ### Bericht sturen
 
-Ga naar **Bericht sturen** om een notificatie naar alle actieve groepen te sturen. Handig voor aankondigingen of hints.
+Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht naar alle actieve teams, maximaal 150 tekens. Handig voor aankondigingen of hints.
+
+### Meldingen op je telefoon en horloge
+
+Met **🔔 Meldingen** in het menu (onder Spel) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
 
 ### Punt vrijgeven voor een team
 
@@ -310,13 +344,13 @@ Kan een team zijn volgende punt echt niet bereiken (afgesloten weg, bouwhek, onv
 - **⏭️ Punt vrijgeven** — het punt telt als bereikt: bij het team springt de vraag van dat punt direct open, waar ze ook zijn. Daarna spelen ze gewoon verder.
 - **Negeren** — het team krijgt de melding dat het het punt toch zelf moet proberen te halen.
 
-Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken.
+Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken. Het team ziet dan eerst *"📨 Punt vrijgegeven — de organisatie heeft dit punt voor jullie vrijgegeven"* en daarna de vraag.
 
 ### Tussenstand tonen
 
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:
 
-- **Handmatig** — via de gele knop **🏆 Tussenstand** bovenaan de acties in de zijbalk. De knop laat zelf "✓ Getoond" zien als het gelukt is. Opnieuw tonen kan zodra de vorige tussenstand weer weg is.
+- **Handmatig** — via **🏆 Tussenstand** in het menu (onder Spel), na bevestiging.
 - **Automatisch** — via **⚙️ Instellingen** → "🏆 Tussenstand": stel een interval in hele minuten in (minimaal 1, 0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
 
 De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste punten bovenaan. Plaatsnummers, tijd en afstand staan er bewust niet bij. Aan het eind zien ze de volledige **eindstand** met medailles, speeltijd en afstand.
@@ -325,21 +359,21 @@ De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste pun
 
 ### Route stoppen
 
-In de route-editor staat een **⏹ Deactiveer**-knop, en in de zijbalk **Stop route**. Hiermee haal je de route uit de actieve stand zonder gegevens te wissen.
+Met **Stop route** in het menu (of **⏹ Deactiveren** bij de route) haal je de route uit de actieve stand, na bevestiging. Lopende spellen worden afgesloten: de teams zien binnen een paar seconden *"🛑 De route is gestopt"* en gaan terug naar het startscherm. Gegevens worden niet gewist.
 
 ### Spel resetten
 
-Op het dashboard staat onderaan **🗑️ Reset spel**. Dit wist:
+Onderaan het dashboard en in het menu staat **💣 Reset spel** (met bevestiging). Dit wist:
 
-- Alle spellen van alle groepen, ook van gefinishte groepen: niemand is daarna nog bezig of gefinisht
+- Alle spellen van alle teams, ook van gefinishte teams: niemand is daarna nog bezig of gefinisht
 - Alle locatiegeschiedenis (gelopen routes), voortgang, antwoorden en scores
 - Alle ingestuurde foto's, ook uit de opslag van Supabase
 - Alle opgepakte items (die liggen weer op de kaart), startitems, effecten en het itemlogboek
 - De uitslag gaat weer op verborgen
 
-Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je dat wilt bewaren. Routes, routepunten, vragen en groepen blijven bewaard en de actieve route blijft actief. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
+Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je dat wilt bewaren. Routes, routepunten, vragen en teams blijven bewaard en de actieve route blijft actief. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
 
-> Klik tweemaal (bevestiging vereist) om te voorkomen dat je per ongeluk reset.
+> Teams die op dat moment spelen, zien *"⏹️ Je spel is gestopt"* en kunnen opnieuw beginnen. De vinkjes van het stappenplan "Spel klaarzetten" worden ook gewist.
 
 ---
 
@@ -353,15 +387,15 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groep of persoon. Met **👥 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 
+> **🏁 Spel afronden** (in het Spelleider-blok op het dashboard): geeft in één keer de uitslag vrij en opent het rapport. De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
+
 Bij het activeren van een route en bij **Reset spel** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 
 ---
 
-## Leaderboard
+## De stand
 
-Het leaderboard toont de eindrangschikking op basis van score. Bij gelijke score is de kortste speeltijd bepalend. Het leaderboard is ook zichtbaar voor spelers.
-
-De tabel toont per team de **Teamnaam** (de naam die de groep zelf gekozen heeft; staat er "nog geen naam gekozen", dan heeft die groep nog niet op "Ga op pad" gedrukt), de score, speeltijd, afgelegde afstand en voortgang.
+De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gelijke score wint de kortste speeltijd. De teams zien de stand tussendoor via de tussenstand, en aan het eind op hun finishscherm zodra je de uitslag vrijgeeft.
 
 ---
 
@@ -372,6 +406,6 @@ De tabel toont per team de **Teamnaam** (de naam die de groep zelf gekozen heeft
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Verspreid-modus**: het eerste punt is het startpunt en het laatste de finish — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
 - **Aantal teams instellen**: stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoe de startpunten worden verdeeld.
-- **Eén login per apparaat**: een groep kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur de groep naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Groepen) als dat niet meer lukt, of log de groep vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
+- **Eén login per apparaat**: een team kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur het team naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Spelers) als dat niet meer lukt, of log het team vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
