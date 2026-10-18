@@ -11,6 +11,8 @@ export type SpelerOverzicht = {
   icon: string | null;
   // Heeft de groep nu een telefoon gekoppeld (= ingelogd)?
   ingelogd: boolean;
+  // Uitgeschakeld door de beheerder: kan niet inloggen en telt niet mee in het stappenplan
+  uitgeschakeld?: boolean;
   sessie_id: string | null;
   sessie_status: "geen_sessie" | "actief" | "voltooid" | "vervallen";
   started_at: string | null;
@@ -40,7 +42,7 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -60,8 +62,8 @@ export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
-    admin.from("routes").select("id, name, modus, uitslag_vrijgegeven").eq("is_active", true).maybeSingle(),
-    admin.from("players").select("id, login_name, nickname, icon, active_device_id").order("login_name"),
+    admin.from("routes").select("id, name, modus, uitslag_vrijgegeven, verwacht_aantal_teams").eq("is_active", true).maybeSingle(),
+    admin.from("players").select("id, login_name, nickname, icon, active_device_id, is_uitgeschakeld").order("login_name"),
   ]);
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
@@ -189,6 +191,7 @@ export async function haalLiveData(): Promise<LiveData> {
       display_name: player.nickname ?? player.login_name,
       icon: player.icon ?? null,
       ingelogd: !!player.active_device_id,
+      uitgeschakeld: !!player.is_uitgeschakeld,
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
       started_at: sessie?.started_at ?? null,

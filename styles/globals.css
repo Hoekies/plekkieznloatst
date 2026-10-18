@@ -2315,3 +2315,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .testronde-optie { display: flex; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 7px; background: rgba(255,255,255,0.04); border-left: 4px solid; font-size: 0.82rem; color: #fff; }
 .testronde-item { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.07); }
 @media (max-width: 768px) { .testronde { left: 8px; right: 8px; bottom: 8px; width: auto; } .testronde .pr-gem-panel-inner { max-height: 48vh; } }
+
+/* Stappenplan: waarschuwing als het aantal spelers niet past bij de verspreide route */
+.klaar-waarschuwing { flex-basis: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; color: #FDE68A;
+  background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.45); }
+.klaar-waarschuwing strong { color: #fff; }

@@ -90,30 +90,61 @@ export async function POST() {
       .order("order_index");
 
     if (punten && punten.length >= 3) {
-      const { count: aantalSessies } = await admin
-        .from("player_sessions")
-        .select("*", { count: "exact", head: true })
-        .eq("route_id", route.id)
-        .neq("id", sessie.id);
-
-      const nTeams = (route.verwacht_aantal_teams as number | undefined) ?? 2;
-      const teamIndex = (aantalSessies ?? 0) % nTeams;
-      // Dit team loopt het rondje andersom (ingesteld per team in de editor)
-      const andersom = Array.isArray(route.omgekeerde_teams) && route.omgekeerde_teams.includes(teamIndex + 1);
-
+      const nTeams = Math.max(1, (route.verwacht_aantal_teams as number | undefined) ?? 2);
       const hubStart = punten[0];
       const hubEind = punten[punten.length - 1];
       const middenpunten = punten.slice(1, -1);
 
-      // Instappunt: zo gekozen dat elk team ongeveer even ver van de startplek begint
-      // (zelfde berekening als het voorbeeld in de route-editor)
-      // Een zelfgekozen instappunt (route-editor) gaat voor de berekening
-      const offset = instappuntenMetKeuze(
+      // Instappunt per startplek: zo gekozen dat elk team ongeveer even ver van de startplek begint
+      // (zelfde berekening als het voorbeeld in de route-editor); een zelfgekozen instappunt gaat voor
+      const offsets = instappuntenMetKeuze(
         { lat: hubStart.latitude, lng: hubStart.longitude },
         middenpunten.map((p) => ({ id: p.id, lat: p.latitude, lng: p.longitude })),
         nTeams,
         route.instappunten as Record<string, string> | null,
-      )[teamIndex] ?? 0;
+      );
+      const omgekeerd = (plek: number) => Array.isArray(route.omgekeerde_teams) && route.omgekeerde_teams.includes(plek + 1);
+
+      // Welke startplekken zijn bezet door teams die nu spelen? Afgeleid uit hun eerste twee punten
+      // na de start (welk instappunt, en welke kant op). Gestopte en oude spellen tellen niet mee.
+      const { data: anderen } = await admin.from("player_sessions").select("id")
+        .eq("route_id", route.id).eq("status", "actief").neq("id", sessie.id);
+      const bezet: { plek: number; andersom: boolean }[] = [];
+      if (anderen?.length && middenpunten.length) {
+        const { data: spoAnderen } = await admin.from("session_point_order").select("session_id, volgorde, route_point_id")
+          .in("session_id", anderen.map((a) => a.id)).in("volgorde", [2, 3]);
+        const perSessie = new Map<string, { eerste?: string; tweede?: string }>();
+        for (const r of spoAnderen ?? []) {
+          const m = perSessie.get(r.session_id) ?? {};
+          if (r.volgorde === 2) m.eerste = r.route_point_id; else m.tweede = r.route_point_id;
+          perSessie.set(r.session_id, m);
+        }
+        const indexVan = new Map(middenpunten.map((p, i) => [p.id, i]));
+        for (const { eerste, tweede } of perSessie.values()) {
+          const start = eerste ? indexVan.get(eerste) : undefined;
+          if (start === undefined) continue;
+          const plek = offsets.indexOf(start);
+          if (plek < 0) continue;
+          const volgende = tweede ? indexVan.get(tweede) : undefined;
+          const andersom = volgende !== undefined && middenpunten.length > 1 && volgende === (start - 1 + middenpunten.length) % middenpunten.length;
+          bezet.push({ plek, andersom });
+        }
+      }
+
+      // De eerste vrije startplek. Zijn alle plekken bezet (meer teams dan ingesteld), dan de plek met
+      // de minste teams, en dan de andere kant op: zo lopen twee teams nooit het hele spel samen.
+      let teamIndex = Array.from({ length: nTeams }, (_, i) => i).find((i) => !bezet.some((b) => b.plek === i));
+      let andersom: boolean;
+      if (teamIndex !== undefined) {
+        andersom = omgekeerd(teamIndex);
+      } else {
+        const aantalOp = (i: number) => bezet.filter((b) => b.plek === i).length;
+        teamIndex = Array.from({ length: nTeams }, (_, i) => i).sort((a, b) => aantalOp(a) - aantalOp(b) || a - b)[0];
+        const richtingen = bezet.filter((b) => b.plek === teamIndex);
+        const vooruit = richtingen.filter((b) => !b.andersom).length;
+        andersom = vooruit > richtingen.length - vooruit;  // de richting die op deze plek het minst gelopen wordt
+      }
+      const offset = offsets[teamIndex] ?? 0;
 
       const volgorde = [
         { session_id: sessie.id, volgorde: 1, route_point_id: hubStart.id },

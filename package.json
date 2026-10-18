@@ -1,6 +1,6 @@
 {
   "name": "plekkie-zn-loatst",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
