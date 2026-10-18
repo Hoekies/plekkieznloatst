@@ -2,18 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
+import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 
-// Inloggegevens per team: meerdere spelers in één keer aanmaken, of voor bestaande spelers nieuwe
-// wachtwoorden maken. Daarna per team via WhatsApp versturen, alles kopiëren of kaartjes afdrukken.
-export type Inlog = { login: string; wachtwoord: string; naam?: string | null };
+// Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team via WhatsApp
+// versturen, alles kopiëren of kaartjes afdrukken. Eén speler: 📲 Versturen op de spelerskaart.
+export type Inlog = { login: string; wachtwoord: string; naam?: string | null; helper?: boolean };
 
 const SITE = "https://plekkieznloatst.vercel.app";
 export const KAARTJES_KEY = "pointrush_inlogkaartjes";
 
-function waTekst(i: Inlog) {
+export function waTekst(i: Inlog) {
+  if (i.helper) return `Hoi! Je bent helper bij PointRush 🎯\n${SITE}\n\nNaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nJe kunt foto's keuren en punten vrijgeven. Bedankt! René`;
   return `Hoi! Log in op PointRush 🎯\n${SITE}\n\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
+}
+
+// Inlogkaartjes openen (nieuw tabblad): afdrukken, of per kaartje als afbeelding via WhatsApp
+export function openKaartjes(inlogs: Inlog[]) {
+  try { localStorage.setItem(KAARTJES_KEY, JSON.stringify(inlogs)); } catch { /* geen opslag */ }
+  window.open("/admin/kaartjes", "_blank");
+}
+
+// Net aangemaakt of nieuw wachtwoord: de gegevens één keer tonen, met versturen en kaartje
+export function InlogKlaar({ inlog }: { inlog: Inlog }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div className="inlog-regel">
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <strong>{inlog.login}</strong>
+          <span className="inlog-ww">{inlog.wachtwoord}</span>
+        </span>
+        <a className="wa-knop wa-knop--klein" href={`https://wa.me/?text=${encodeURIComponent(waTekst(inlog))}`} target="_blank" rel="noopener noreferrer" title="Versturen via WhatsApp">
+          <WhatsAppLogo maat={18} /> WhatsApp
+        </a>
+        <button type="button" className="rl-knop" style={{ height: 34, flexShrink: 0 }} onClick={() => openKaartjes([inlog])} title="Inlogkaartje: afdrukken of als afbeelding versturen">🎫 Kaartje</button>
+      </div>
+      <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Verstuur het nu: het wachtwoord is later niet meer te zien.</div>
+    </div>
+  );
 }
 
 function Venster({ titel, label, onSluit, children }: { titel: string; label: string; onSluit: () => void; children: React.ReactNode }) {
@@ -47,10 +73,7 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
     const tekst = inlogs.map((i) => `${i.login}  ·  ${i.wachtwoord}`).join("\n");
     navigator.clipboard?.writeText(tekst).then(() => toonMelding("Gekopieerd", "ok")).catch(() => toonMelding("Kopiëren lukte niet", "fout"));
   }
-  function kaartjes() {
-    try { localStorage.setItem(KAARTJES_KEY, JSON.stringify(inlogs)); } catch { /* geen opslag */ }
-    window.open("/admin/kaartjes", "_blank");
-  }
+  function kaartjes() { openKaartjes(inlogs); }
   return (
     <>
       <div className="melding-knoppen">
@@ -65,8 +88,8 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
               <strong>{i.login}</strong>{i.naam ? <span style={{ color: "var(--muted)" }}> · {i.naam}</span> : null}
               <span className="inlog-ww">{i.wachtwoord}</span>
             </span>
-            <a className="rl-knop inlog-wa" href={`https://wa.me/?text=${encodeURIComponent(waTekst(i))}`} target="_blank" rel="noopener noreferrer" title="Versturen via WhatsApp">
-              WhatsApp
+            <a className="wa-knop wa-knop--klein" href={`https://wa.me/?text=${encodeURIComponent(waTekst(i))}`} target="_blank" rel="noopener noreferrer" title="Versturen via WhatsApp">
+              <WhatsAppLogo maat={18} /> WhatsApp
             </a>
           </div>
         ))}
@@ -124,63 +147,6 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
                 {bezig ? "Aanmaken…" : `+ ${aantal} spelers aanmaken`}
               </button>
             </form>
-          )}
-        </Venster>
-      )}
-    </>
-  );
-}
-
-// "🔑 Uitdelen" — voor bestaande spelers nieuwe wachtwoorden maken en uitdelen
-export function InloggegevensUitdelenKnop({ spelers }: { spelers: { id: string; login_name: string | null; nickname: string | null; is_uitgeschakeld?: boolean }[] }) {
-  const [open, setOpen] = useState(false);
-  const [gekozen, setGekozen] = useState<Set<string>>(new Set());
-  const [resultaat, setResultaat] = useState<Inlog[] | null>(null);
-  const actief = spelers.filter((s) => !s.is_uitgeschakeld);
-
-  function openen() {
-    setGekozen(new Set(actief.map((s) => s.id)));
-    setResultaat(null);
-    setOpen(true);
-  }
-  function wissel(id: string) {
-    setGekozen((g) => { const n = new Set(g); if (n.has(id)) n.delete(id); else n.add(id); return n; });
-  }
-  async function maakWachtwoorden() {
-    const res = await fetch("/api/admin/groepen/wachtwoorden", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [...gekozen] }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) { toonMelding(data.fout ?? "Mislukt", "fout"); return; }
-    setResultaat((data.spelers as { login: string; naam: string | null; wachtwoord: string }[]).map((s) => ({ login: s.login, naam: s.naam, wachtwoord: s.wachtwoord })));
-  }
-
-  return (
-    <>
-      <button type="button" className="rl-knop actie-knop" onClick={openen} title="Inloggegevens per team versturen of afdrukken">
-        🔑 <span className="alleen-pc">Inloggegevens uitdelen</span><span className="alleen-mobiel">Uitdelen</span>
-      </button>
-      {open && (
-        <Venster label="Inloggegevens" titel={resultaat ? "Klaar om uit te delen" : "Voor welke spelers?"} onSluit={() => setOpen(false)}>
-          {resultaat ? <InlogLijst inlogs={resultaat} /> : (
-            <>
-              <div style={{ fontSize: "0.82rem", color: "var(--text)" }}>
-                Wachtwoorden zijn niet terug te lezen. Daarom krijgen de gekozen spelers een <strong>nieuw, makkelijk wachtwoord</strong>. Wie al is ingelogd, blijft ingelogd.
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {actief.map((s) => (
-                  <button key={s.id} type="button" className={`uitdeel-keuze${gekozen.has(s.id) ? " uitdeel-keuze--aan" : ""}`} onClick={() => wissel(s.id)}>
-                    <span aria-hidden>{gekozen.has(s.id) ? "✅" : "⬜"}</span>
-                    <strong>{s.login_name}</strong>{s.nickname ? <span style={{ color: "var(--muted)" }}> · {s.nickname}</span> : null}
-                  </button>
-                ))}
-              </div>
-              <BevestigKnop venster gevaarlijk={false} icoon="🔑" titel={`${gekozen.size} nieuwe wachtwoorden maken?`} vraag="" ja="Ja, maken"
-                onBevestig={maakWachtwoorden} disabled={!gekozen.size}
-                className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center" }}>
-                🔑 Nieuwe wachtwoorden maken ({gekozen.size})
-              </BevestigKnop>
-            </>
           )}
         </Venster>
       )}

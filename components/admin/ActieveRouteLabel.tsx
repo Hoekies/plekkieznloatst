@@ -3,6 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const EVENT = "pr-actieve-route";
+
+// Na activeren, deactiveren of stoppen van een route: het menu (en de routelijst) meteen bijwerken
+export function meldActieveRouteGewijzigd() {
+  window.dispatchEvent(new Event(EVENT));
+}
+export function opActieveRouteGewijzigd(fn: () => void): () => void {
+  window.addEventListener(EVENT, fn);
+  return () => window.removeEventListener(EVENT, fn);
+}
+
 // Bovenin het menu: welke route er nu actief is (of dat er geen is)
 export default function ActieveRouteLabel() {
   const [naam, setNaam] = useState<string | null | undefined>(undefined);
@@ -21,7 +32,8 @@ export default function ActieveRouteLabel() {
     const t = setInterval(laad, 30000);
     const zichtbaar = () => { if (document.visibilityState === "visible") laad(); };
     document.addEventListener("visibilitychange", zichtbaar);
-    return () => { actief = false; clearInterval(t); document.removeEventListener("visibilitychange", zichtbaar); };
+    const stop = opActieveRouteGewijzigd(laad);
+    return () => { actief = false; clearInterval(t); document.removeEventListener("visibilitychange", zichtbaar); stop(); };
   }, []);
 
   if (naam === undefined) return null;

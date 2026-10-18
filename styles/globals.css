@@ -2294,12 +2294,20 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Meldingen-venster: knoppen even breed naast elkaar over de volle breedte */
 .melding-knoppen { display: flex; gap: 8px; }
-.melding-knoppen > .rl-knop { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.melding-knoppen > .rl-knop, .melding-knoppen > .wa-knop { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 
 /* Inloggegevens uitdelen */
 .inlog-regel { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 0.86rem; color: var(--ink); }
 .inlog-ww { display: block; font-family: ui-monospace, Consolas, monospace; font-size: 0.95rem; color: #FFE680; margin-top: 2px; }
-.inlog-wa { flex-shrink: 0; height: 34px; display: inline-flex; align-items: center; text-decoration: none; background: #25D366 !important; border-color: #25D366 !important; color: #fff !important; }
+/* WhatsApp-knop: overal zoals in het menu (groen randje, lichtgroene tekst, logo in WhatsApp-groen) */
+.wa-knop { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 14px; box-sizing: border-box;
+  font-family: var(--font-display); font-size: 0.95rem; font-weight: 800; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+  border-radius: 9px; border: 1px solid rgba(37,211,102,0.6); background: rgba(37,211,102,0.16); color: #86EFAC;
+  transition: color 0.15s, background 0.15s, border-color 0.15s; }
+.wa-knop svg { color: #25D366; }
+.wa-knop:hover:not(:disabled) { background: rgba(37,211,102,0.26); border-color: rgba(37,211,102,0.8); color: #BBF7D0; }
+.wa-knop:disabled { opacity: 0.45; cursor: default; }
+.wa-knop--klein { flex-shrink: 0; height: 34px; padding: 0 12px; font-size: 0.85rem; gap: 6px; }
 .uitdeel-keuze { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; text-align: left; cursor: pointer; font-size: 0.86rem;
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: var(--ink); }
 .uitdeel-keuze--aan { background: rgba(0,217,255,0.1); border-color: rgba(0,217,255,0.45); }
@@ -2335,3 +2343,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Punten importeren: voorbeeld van de gevonden punten */
 .import-regel { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
+
+/* Helper aangemaakt: naam en wachtwoord onder elkaar, knoppen eronder */
+.helper-inlog { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 12px; }
+.helper-inlog-velden { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: baseline; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 0.8rem; color: var(--muted); }
+.helper-inlog-velden strong { color: #fff; font-size: 0.95rem; }
+.helper-inlog-velden .helper-inlog-ww { font-family: ui-monospace, Consolas, monospace; color: #FFE680; letter-spacing: 0.03em; }
+
+/* Wachtwoordveld met 🎲 (ander voorstel) ernaast */
+.ww-veld { display: flex; gap: 6px; align-items: center; }
+.ww-veld .form-input { flex: 1; min-width: 0; }
+.ww-veld .rl-knop--icoon { flex-shrink: 0; height: 40px; width: 40px; justify-content: center; }

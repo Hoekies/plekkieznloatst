@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 
 // Venster "Wat verstuur je?": vóór het versturen via WhatsApp kies je zelf wat er meegaat
 // (tekst, uitleg beginscherm, afbeeldingen). Bestanden worden bij het openen alvast geladen:
@@ -142,10 +143,8 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
           </div>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-            <button type="button" disabled={niksGekozen} onClick={verstuur}
-              style={{ height: 44, padding: "0 20px", borderRadius: 11, border: "none", background: niksGekozen ? "rgba(37,211,102,0.35)" : "#25D366",
-                color: "#fff", fontWeight: 800, fontSize: "0.9rem", cursor: niksGekozen ? "default" : "pointer" }}>
-              Versturen
+            <button type="button" className="wa-knop" style={{ height: 44, padding: "0 20px" }} disabled={niksGekozen} onClick={verstuur}>
+              <WhatsAppLogo /> Versturen
             </button>
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>

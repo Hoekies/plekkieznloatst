@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
+import { InlogKlaar } from "@/components/admin/InlogUitdelen";
+import { WijzigVenster, type BeheerModal } from "@/components/admin/GroepenBeheer";
+import { maakWachtwoord } from "@/lib/wachtwoord";
 
 type Helper = { id: string; naam: string; laatst_ingelogd: string | null };
 
-const SITE = "https://plekkieznloatst.vercel.app";
-
 // Helpers van de spelleider: zij loggen in met een naam en wachtwoord en kunnen dan
 // meekijken, foto's keuren en punten vrijgeven. Geen routes, spelers of reset.
+// Zelfde opbouw als de spelers: knop "+ Nieuwe helper", formulier, en kaarten met knoppen.
 export default function HelpersBeheer() {
   const [helpers, setHelpers] = useState<Helper[] | null>(null);
-  const [naam, setNaam] = useState("");
-  const [bezig, setBezig] = useState(false);
-  const [nieuw, setNieuw] = useState<{ naam: string; wachtwoord: string } | null>(null);
+  const [formulier, setFormulier] = useState(false);
+  const [modal, setModal] = useState<BeheerModal | null>(null);
 
   async function laad() {
     const res = await fetch("/api/admin/helpers");
@@ -23,79 +24,126 @@ export default function HelpersBeheer() {
   }
   useEffect(() => { laad(); }, []);
 
-  async function post(body: object) {
-    setBezig(true);
-    const res = await fetch("/api/admin/helpers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const data = await res.json().catch(() => ({}));
-    setBezig(false);
-    if (!res.ok) { toonMelding(data.fout ?? "Mislukt", "fout"); return; }
-    setNieuw({ naam: data.naam, wachtwoord: data.wachtwoord });
-    setNaam("");
-    laad();
-  }
-
   async function verwijder(h: Helper) {
     const res = await fetch("/api/admin/helpers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: h.id }) });
     if (!res.ok) toonMelding((await res.json().catch(() => ({}))).fout ?? "Verwijderen mislukt", "fout");
-    else toonMelding(`${h.naam} kan niet meer inloggen`, "ok");
-    if (nieuw?.naam === h.naam) setNieuw(null);
+    else toonMelding(`${h.naam} is verwijderd`, "ok");
     laad();
   }
 
-  const whatsapp = nieuw
-    ? `https://wa.me/?text=${encodeURIComponent(`Hoi! Je bent helper bij PointRush 🎯\n${SITE}\n\nNaam: *${nieuw.naam}*\nWachtwoord: *${nieuw.wachtwoord}*\n\nJe kunt foto's keuren en punten vrijgeven. Bedankt! René`)}`
-    : "";
-
   return (
-    <div style={{ marginTop: 28 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 32 }}>
       <SectieKop titel="🧑‍💼 Helpers" />
-      <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginBottom: 10 }}>
+      <div style={{ fontSize: "0.82rem", color: "var(--muted)", marginTop: -8 }}>
         Kunnen meekijken, foto&apos;s keuren en punten vrijgeven. Geen routes, spelers of reset.
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (naam.trim()) post({ naam: naam.trim() }); }}
-        style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} placeholder="Naam, bijv. Anouk"
-          maxLength={30} style={{ flex: "1 1 180px", maxWidth: 280 }} />
-        <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={bezig || !naam.trim()}>+ Helper</button>
-      </form>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
+          + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
+        </button>
+      </div>
 
-      {nieuw && (
-        <div className="pr-gem-card" style={{ marginBottom: 12 }}>
-          <div className="pr-gem-card-inner" style={{ flexWrap: "wrap", gap: 10 }}>
-            <div style={{ flex: "1 1 200px", minWidth: 0 }}>
-              <div style={{ fontWeight: 700, color: "#fff" }}>{nieuw.naam} · <span className="inlog-ww">{nieuw.wachtwoord}</span></div>
-              <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>Verstuur dit nu: het wachtwoord is later niet meer te zien.</div>
+      {formulier && <NieuweHelperForm onSuccess={laad} onSluit={() => setFormulier(false)} />}
+
+      {helpers === null ? (
+        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
+      ) : helpers.length === 0 ? (
+        <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: 0 }}>Nog geen helpers.</p>
+      ) : (
+        <div>
+          {helpers.map((h) => (
+            <div key={h.id} className="pr-gem-card">
+              <div className="pr-gem-card-inner gb-kaart">
+                <div className="pr-gem-avatar" style={{ borderRadius: "50%", background: "var(--blue-soft)" }}>🧑‍💼</div>
+                <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>{h.naam}</div>
+                  <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
+                    <span>Login: <strong style={{ color: "var(--ink)" }}>{h.naam}</strong> · </span>
+                    <span style={{ color: h.laatst_ingelogd ? "#4ADE80" : "var(--muted)", fontWeight: h.laatst_ingelogd ? 700 : 400 }}>
+                      {h.laatst_ingelogd ? `Ingelogd ${new Date(h.laatst_ingelogd).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}` : "Nog niet ingelogd"}
+                    </span>
+                  </div>
+                  <div className="gb-knoppen">
+                    <button className="rl-knop rl-knop--cyan" title="Inloggegevens versturen via WhatsApp of als kaartje (met een nieuw wachtwoord)"
+                      onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🧑‍💼", login: h.naam, helper: true })}>
+                      📲 Versturen
+                    </button>
+                  </div>
+                </div>
+                <div className="gb-schakel gb-rechts">
+                  <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
+                    onBevestig={() => verwijder(h)} className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
+                    tip="Helper verwijderen: kan daarna niet meer inloggen">🗑️</BevestigKnop>
+                </div>
+              </div>
             </div>
-            <a className="rl-knop rl-knop--groen" href={whatsapp} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>💬 WhatsApp</a>
-            <button type="button" className="editor-paneel-sluit" onClick={() => setNieuw(null)} aria-label="Sluiten">✕</button>
-          </div>
+          ))}
         </div>
       )}
 
-      {helpers === null ? (
-        <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Laden…</p>
-      ) : helpers.length === 0 ? (
-        <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen helpers.</p>
-      ) : helpers.map((h) => (
-        <div key={h.id} className="pr-gem-card">
-          <div className="pr-gem-card-inner" style={{ flexWrap: "wrap", gap: 10 }}>
-            <div className="pr-gem-avatar">🧑‍💼</div>
-            <div style={{ flex: "1 1 140px", minWidth: 0 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{h.naam}</div>
-              <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>
-                {h.laatst_ingelogd ? `Laatst ingelogd ${new Date(h.laatst_ingelogd).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}` : "Nog niet ingelogd"}
-              </div>
-            </div>
-            <div className="speler-knoppen" style={{ marginTop: 0 }}>
-              <BevestigKnop venster gevaarlijk={false} icoon="🔑" titel={`Nieuw wachtwoord voor ${h.naam}?`} vraag="" ja="Ja, nieuw wachtwoord"
-                onBevestig={() => post({ id: h.id })} className="rl-knop">🔑 Wachtwoord</BevestigKnop>
-              <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
-                onBevestig={() => verwijder(h)} className="rl-knop rl-knop--rood">🗑️ Verwijderen</BevestigKnop>
-            </div>
+      {modal && <WijzigVenster modal={modal} onSluit={() => setModal(null)} />}
+    </div>
+  );
+}
+
+// Zelfde formulier als "+ Nieuwe speler": naam en een voorgesteld wachtwoord
+function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSluit: () => void }) {
+  const [naam, setNaam] = useState("");
+  const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
+  const [fout, setFout] = useState("");
+  const [laden, setLaden] = useState(false);
+  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
+
+  async function opslaan(e: React.FormEvent) {
+    e.preventDefault();
+    setFout(""); setLaden(true);
+    const res = await fetch("/api/admin/helpers", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ naam: naam.trim(), wachtwoord }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setLaden(false);
+    if (!res.ok) { setFout(data.fout ?? "Er is een fout opgetreden"); return; }
+    setKlaar({ login: data.naam, wachtwoord: data.wachtwoord });
+    onSuccess();
+  }
+
+  if (klaar) {
+    return (
+      <div className="pr-gem-panel" style={{ maxWidth: 560 }}>
+        <div className="pr-gem-panel-inner helper-inlog">
+          <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} aria-label="Sluiten">✕</button>
+          <div className="pr-gem-label">✅ Helper aangemaakt</div>
+          <InlogKlaar inlog={{ ...klaar, helper: true }} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pr-gem-card">
+      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
+        <div className="pr-gem-avatar nieuwe-speler-icoon">🧑‍💼</div>
+        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
+          <label className="form-label">Naam</label>
+          <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} maxLength={30}
+            placeholder="bijv. Anouk" required autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false}
+            title="Hiermee logt de helper in; letters en cijfers, anders dan de loginnamen van de spelers" />
+        </div>
+        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
+          <label className="form-label">Wachtwoord</label>
+          <div className="ww-veld">
+            <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
+              placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
           </div>
         </div>
-      ))}
+        <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+          <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
+          <button type="button" className="rl-knop actie-knop" onClick={onSluit}>Annuleren</button>
+        </div>
+        {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
+      </form>
     </div>
   );
 }

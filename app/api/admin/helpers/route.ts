@@ -25,20 +25,34 @@ export async function GET() {
   });
 }
 
-// Nieuwe helper (POST {naam}) of een nieuw wachtwoord (POST {id}); het wachtwoord komt één keer terug
+// Gekozen wachtwoord (minimaal 8 tekens), of een makkelijk voorstel als er niets is meegestuurd
+function kiesWachtwoord(waarde: unknown): string | null {
+  if (waarde === undefined || waarde === null || waarde === "") return maakWachtwoord();
+  return typeof waarde === "string" && waarde.trim().length >= 8 ? waarde.trim() : null;
+}
+
+// Nieuw wachtwoord voor een helper: PATCH {id, wachtwoord?}
+export async function PATCH(request: NextRequest) {
+  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  if (typeof body?.id !== "string") return NextResponse.json({ fout: "id ontbreekt" }, { status: 400 });
+  const wachtwoord = kiesWachtwoord(body.wachtwoord);
+  if (!wachtwoord) return NextResponse.json({ fout: "Wachtwoord: minimaal 8 tekens" }, { status: 400 });
+  const admin = createAdminClient();
+  const { data } = await admin.auth.admin.getUserById(body.id);
+  if (data?.user?.app_metadata?.rol !== "helper") return NextResponse.json({ fout: "Helper niet gevonden" }, { status: 404 });
+  const { error } = await admin.auth.admin.updateUserById(body.id, { password: wachtwoord });
+  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  return NextResponse.json({ naam: data.user.user_metadata?.naam ?? "", wachtwoord });
+}
+
+// Nieuwe helper: POST {naam, wachtwoord?}; het wachtwoord komt één keer terug
 export async function POST(request: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   const admin = createAdminClient();
-  const wachtwoord = maakWachtwoord();
-
-  if (typeof body?.id === "string") {
-    const { data } = await admin.auth.admin.getUserById(body.id);
-    if (data?.user?.app_metadata?.rol !== "helper") return NextResponse.json({ fout: "Helper niet gevonden" }, { status: 404 });
-    const { error } = await admin.auth.admin.updateUserById(body.id, { password: wachtwoord });
-    if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
-    return NextResponse.json({ naam: data.user.user_metadata?.naam ?? "", wachtwoord });
-  }
+  const wachtwoord = kiesWachtwoord(body?.wachtwoord);
+  if (!wachtwoord) return NextResponse.json({ fout: "Wachtwoord: minimaal 8 tekens" }, { status: 400 });
 
   const naam = typeof body?.naam === "string" ? body.naam.trim() : "";
   if (!/^[A-Za-z0-9]{2,30}$/.test(naam)) {

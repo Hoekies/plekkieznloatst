@@ -7,13 +7,16 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
-import { MeerdereSpelersKnop, InloggegevensUitdelenKnop } from "@/components/admin/InlogUitdelen";
+import { MeerdereSpelersKnop, InlogKlaar } from "@/components/admin/InlogUitdelen";
+import { maakWachtwoord } from "@/lib/wachtwoord";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
 type Groep = Speler & { heeft_spel?: boolean };
 
-type BeheerModal = { type: "wachtwoord" | "loginnaam"; id: string; groepNaam: string; icoon: string | null; login: string | null };
+// helper: wachtwoord van een helper (gaat via /api/admin/helpers)
+// Inloggegevens versturen (met een nieuw wachtwoord); helper = via /api/admin/helpers
+export type BeheerModal = { id: string; groepNaam: string; icoon: string | null; login: string | null; helper?: boolean };
 
 
 export default function GroepenBeheer() {
@@ -98,13 +101,9 @@ export default function GroepenBeheer() {
           </div>
           {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
           {!isUit && <div className="gb-knoppen">
-            <button className="rl-knop" title="Wachtwoord wijzigen"
-              onClick={() => setModal({ type: "wachtwoord", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
-              🔑 Wachtwoord
-            </button>
-            <button className="rl-knop" title="Loginnaam wijzigen"
-              onClick={() => setModal({ type: "loginnaam", id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
-              ✏️ Loginnaam
+            <button className="rl-knop rl-knop--cyan" title="Inloggegevens versturen via WhatsApp of als kaartje (met een nieuw wachtwoord)"
+              onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name })}>
+              📲 Versturen
             </button>
             {g.active_device_id && (
               <button className="rl-knop" onClick={() => resetApparaat(g.id)}
@@ -178,14 +177,12 @@ export default function GroepenBeheer() {
             + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <MeerdereSpelersKnop onKlaar={laadGroepen} />
-          <span style={{ flex: 1 }} />
-          <InloggegevensUitdelenKnop spelers={groepen} />
       </div>
 
 
       {toonFormulier && (
         <NieuweGroepForm
-          onSuccess={() => { setToonFormulier(false); laadGroepen(); }}
+          onSuccess={laadGroepen}
           onAnnuleer={() => setToonFormulier(false)}
         />
       )}
@@ -217,7 +214,7 @@ export default function GroepenBeheer() {
         <WijzigVenster
           modal={modal}
           onSluit={() => setModal(null)}
-          onKlaar={() => { setModal(null); if (modal.type === "loginnaam") laadGroepen(); }}
+          onGewijzigd={laadGroepen}
         />
       )}
     </div>
@@ -227,9 +224,12 @@ export default function GroepenBeheer() {
 // ── Nieuwe groep formulier ────────────────────────────────────────────────────
 function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onAnnuleer: () => void }) {
   const [loginNaam, setLoginNaam] = useState("");
-  const [wachtwoord, setWachtwoord] = useState("");
+  // Alvast een makkelijk wachtwoord voorstellen (mag je aanpassen)
+  const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
   const [fout, setFout] = useState("");
   const [laden, setLaden] = useState(false);
+  // Aangemaakt: de gegevens tonen, met WhatsApp en kaartje
+  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
 
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
@@ -248,7 +248,21 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
       setLaden(false);
       return;
     }
+    setLaden(false);
+    setKlaar({ login: loginNaam.trim(), wachtwoord });
     onSuccess();
+  }
+
+  if (klaar) {
+    return (
+      <div className="pr-gem-panel" style={{ maxWidth: 560 }}>
+        <div className="pr-gem-panel-inner helper-inlog">
+          <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onAnnuleer} aria-label="Sluiten">✕</button>
+          <div className="pr-gem-label">✅ Speler aangemaakt</div>
+          <InlogKlaar inlog={klaar} />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -263,8 +277,11 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
         </div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Wachtwoord</label>
-          <input className="form-input" type="password" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
-            placeholder="min. 8 tekens" required minLength={8} />
+          <div className="ww-veld">
+            <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
+              placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
+          </div>
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
           <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>
@@ -278,12 +295,14 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
   );
 }
 
-// ── Loginnaam of wachtwoord wijzigen: venster midden in beeld, met de speler erin ──
-function WijzigVenster({ modal, onSluit, onKlaar }: { modal: BeheerModal; onSluit: () => void; onKlaar: () => void }) {
-  const isWachtwoord = modal.type === "wachtwoord";
-  const [waarde, setWaarde] = useState("");
+// ── Inloggegevens versturen: loginnaam (aan te passen) en een nieuw wachtwoord, daarna WhatsApp of kaartje ──
+export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerModal; onSluit: () => void; onGewijzigd?: () => void }) {
+  // Helpers loggen in met hun naam; die blijft vast
+  const [login, setLogin] = useState(modal.login ?? "");
+  // Alvast een makkelijk voorstel (🎲 voor een ander, of zelf typen)
+  const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
   const [fout, setFout] = useState("");
-  const [ok, setOk] = useState(false);
+  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
   const [laden, setLaden] = useState(false);
 
   // Sluiten met Esc
@@ -293,61 +312,71 @@ function WijzigVenster({ modal, onSluit, onKlaar }: { modal: BeheerModal; onSlui
     return () => window.removeEventListener("keydown", toets);
   }, [onSluit]);
 
+  async function patch(url: string, body: object) {
+    const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (res.ok) return null;
+    return (await res.json().catch(() => ({}))).fout ?? "Er is een fout opgetreden";
+  }
+
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
     setFout("");
     setLaden(true);
-    const res = await fetch(`/api/admin/groepen/${modal.id}/${modal.type}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(isWachtwoord ? { wachtwoord: waarde } : { loginNaam: waarde }),
-    });
-    if (!res.ok) {
-      const { fout: f } = await res.json().catch(() => ({}));
-      setFout(f ?? "Er is een fout opgetreden");
+    const nieuweLogin = login.trim();
+    let f: string | null = null;
+    if (modal.helper) {
+      f = await patch("/api/admin/helpers", { id: modal.id, wachtwoord });
     } else {
-      setOk(true);
-      setTimeout(onKlaar, 1200);
+      // Eerst de loginnaam (alleen als die anders is), dan het wachtwoord
+      if (nieuweLogin && nieuweLogin !== modal.login) f = await patch(`/api/admin/groepen/${modal.id}/loginnaam`, { loginNaam: nieuweLogin });
+      if (!f) f = await patch(`/api/admin/groepen/${modal.id}/wachtwoord`, { wachtwoord });
+      onGewijzigd?.();
     }
     setLaden(false);
+    if (f) { setFout(f); return; }
+    setKlaar({ login: modal.helper ? modal.login ?? modal.groepNaam : nieuweLogin, wachtwoord });
   }
 
   return createPortal(
     <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420 }}>
+      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 440 }}>
         <form onSubmit={opslaan} className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ flex: 1 }}>
-              <div className="pr-gem-label">{isWachtwoord ? "🔑 Wachtwoord wijzigen" : "✏️ Loginnaam wijzigen"}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>Voor welke speler?</div>
+            {/* De speler of helper waar het om gaat */}
+            <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.6rem" }}>{modal.icoon ?? "👤"}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="pr-gem-label">📲 Inloggegevens versturen</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{modal.groepNaam}</div>
             </div>
             <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
           </div>
 
-          {/* De speler waar het om gaat */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}>
-            <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.6rem" }}>{modal.icoon ?? "👤"}</span>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{modal.groepNaam}</div>
-              {modal.login && <div style={{ fontSize: "0.75rem", color: "var(--muted)" }}>Login: <strong style={{ color: "var(--ink)" }}>{modal.login}</strong></div>}
-            </div>
-          </div>
-
-          {ok ? (
-            <div className="melding melding-ok">✅ {isWachtwoord ? "Wachtwoord" : "Loginnaam"} gewijzigd</div>
+          {klaar ? (
+            <InlogKlaar inlog={{ ...klaar, helper: modal.helper }} />
           ) : (
             <>
+              <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+                Wachtwoorden zijn niet terug te lezen: er komt een nieuw wachtwoord. Wie al is ingelogd, blijft ingelogd.
+              </div>
+              {!modal.helper && (
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label">Loginnaam</label>
+                  <input className="form-input" value={login} onChange={(e) => setLogin(e.target.value)} required
+                    autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+                </div>
+              )}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">{isWachtwoord ? "Nieuw wachtwoord" : "Nieuwe loginnaam"}</label>
-                <input className="form-input" type={isWachtwoord ? "password" : "text"} value={waarde} onChange={(e) => setWaarde(e.target.value)}
-                  placeholder={isWachtwoord ? "min. 8 tekens" : modal.login ?? ""} required minLength={isWachtwoord ? 8 : undefined} autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+                <label className="form-label">Nieuw wachtwoord</label>
+                <div className="ww-veld">
+                  <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
+                    placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
+                </div>
               </div>
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
-              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }} disabled={laden}>
-                  {laden ? "Opslaan…" : "Opslaan"}
-                </button>
-              </div>
+              <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={laden}>
+                {laden ? "Bezig…" : "Opslaan en versturen"}
+              </button>
             </>
           )}
         </form>

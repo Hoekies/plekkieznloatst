@@ -9,6 +9,7 @@ import StatKaart from "@/components/admin/StatKaart";
 import SectieKop from "@/components/admin/SectieKop";
 import SchuifTekst from "@/components/admin/SchuifTekst";
 import { toonMelding } from "@/components/admin/Melding";
+import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components/admin/ActieveRouteLabel";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -46,7 +47,9 @@ export default function RoutesOverzicht() {
     if (res.ok) setRoutes(await res.json());
     setLaden(false);
   }
-  useEffect(() => { laad(); }, []);
+  // Ook bijwerken als de route via het menu (Stop route) gestopt wordt
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { laad(); return opActieveRouteGewijzigd(laad); }, []);
 
   async function nieuwRoute(e: React.FormEvent) {
     e.preventDefault();
@@ -172,6 +175,7 @@ export default function RoutesOverzicht() {
   async function deactiveer() {
     const res = await fetch("/api/admin/routes/stoppen", { method: "POST" });
     if (!res.ok) toonMelding("Deactiveren mislukt", "fout");
+    meldActieveRouteGewijzigd();
     laad();
   }
 

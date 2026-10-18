@@ -19,6 +19,7 @@ import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
 import TestRonde from "./editor/TestRonde";
+import { meldActieveRouteGewijzigd } from "./ActieveRouteLabel";
 import PuntenImporteren from "./editor/PuntenImporteren";
 import ControleVenster from "./editor/ControleVenster";
 import AlleVragenVenster from "./editor/AlleVragenVenster";
@@ -443,7 +444,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }), [punten, route.modus, vraagPuntIds, verwachtTeams, itemCheck, teamAanloopM.join(","), teamSchattingen]);
   async function activeerRoute() {
     const res = await api(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
-    if (res.ok) { setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); toonMelding("Route is actief: teams kunnen starten", "ok"); }
+    if (res.ok) { setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); meldActieveRouteGewijzigd(); toonMelding("Route is actief: teams kunnen starten", "ok"); }
   }
 
   // Startitems: wat elk team bij de start gratis in de balk krijgt
@@ -1002,7 +1003,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ is_active: false, status: "concept" }),
                 });
-                if (res.ok) setRoute((r) => ({ ...r, is_active: false, status: "concept" }));
+                if (res.ok) { setRoute((r) => ({ ...r, is_active: false, status: "concept" })); meldActieveRouteGewijzigd(); }
               }}>⏹ Deactiveer</BevestigKnop>
           )}
           {/* Actieve route: verschoven punten, nieuwe namen of stralen meteen bij de spelers (nieuwe of

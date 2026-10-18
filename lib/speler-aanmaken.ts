@@ -3,13 +3,8 @@ import { loginNaarEmail } from "@/lib/login-naam";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-// Makkelijk te typen wachtwoorden voor teams: een woord en twee cijfers (minimaal 8 tekens)
-const WOORDEN = ["tijger", "banaan", "kompas", "piraat", "sterren", "vlinder", "olifant", "pinguin", "dolfijn", "raketje", "zeilboot", "kasteel", "draakje", "schatkist", "tulpen", "molentje"];
-
-export function maakWachtwoord(): string {
-  const woord = WOORDEN[Math.floor(Math.random() * WOORDEN.length)];
-  return `${woord}${String(Math.floor(Math.random() * 90) + 10)}`;
-}
+// Makkelijk te typen wachtwoorden voor teams (ook in de browser te gebruiken: lib/wachtwoord.ts)
+export { maakWachtwoord } from "@/lib/wachtwoord";
 
 // Eén speler aanmaken: inlogaccount + players-rij. Geeft de speler terug, of een foutmelding.
 export async function maakSpeler(admin: AdminClient, loginNaam: string, wachtwoord: string):

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { wisKlaarzetten } from "@/components/admin/Klaarzetten";
+import { meldActieveRouteGewijzigd } from "@/components/admin/ActieveRouteLabel";
 
 type Fase = "idle" | "bezig" | "klaar-stop" | "klaar-reset";
 
@@ -12,6 +13,7 @@ export default function SidebarActies() {
   async function stopRoute() {
     setFase("bezig");
     await fetch("/api/admin/routes/stoppen", { method: "POST" });
+    meldActieveRouteGewijzigd();
     setFase("klaar-stop");
     setTimeout(() => setFase("idle"), 2500);
   }
