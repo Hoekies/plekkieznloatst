@@ -2224,3 +2224,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-kop-stap .rl-knop { height: 34px !important; width: auto !important; padding: 0 10px !important; font-size: 0.74rem !important; }
   .rl-stap-plek { display: none; }
 }
+
+/* Stappenplan op de telefoon: de knop (bv. Naar routes) onder de tekst, zodat de tekst de breedte houdt */
+@media (max-width: 768px) {
+  .klaar-tekst { flex-basis: calc(100% - 46px) !important; }
+  .klaar-stap > .rl-knop { margin-left: 42px; }
+}
+
+/* Telefoon: een lange routenaam mag de kaart niet breder maken (hij schuift binnen zijn eigen vak) */
+@media (max-width: 768px) {
+  .rl-kaart .pr-gem-card-inner > *, .rl-kop, .rl-titel { min-width: 0; max-width: 100%; }
+  .rl-titel { overflow: hidden; }
+}
