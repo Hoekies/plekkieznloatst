@@ -43,7 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🧑‍💼 Helper</div> : <ActieveRouteLabel />}
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
-          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Spelers</AdminNavLink>}
+          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>🧑‍🤝‍🧑</span> Spelers</AdminNavLink>}
           <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}

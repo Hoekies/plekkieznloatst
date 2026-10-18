@@ -10,7 +10,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 |---|---|
 | **Actieve route** (groen kaartje bovenaan) | Welke route nu loopt; tik erop voor de routes. Grijs = geen actieve route. |
 | 🏠 **Dashboard** | Stappenplan, spelleider, spelende spelers met de stand, en de tijdlijn |
-| 👥 **Spelers** | Spelers aanmaken, inloggegevens, aan/uit, verwijderen |
+| 🧑‍🤝‍🧑 **Spelers** | Spelers aanmaken, inloggegevens, aan/uit, verwijderen |
 | 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
 | 📡 **Live kaart** | Waar iedereen loopt |
 | 🗺️ **Routes** | Routes maken, publiceren, activeren, voorproefje |
@@ -261,7 +261,7 @@ Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook
 
 #### Meerdere spelers tegelijk
 
-Met **👥 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spelers aan. Kies het aantal en hoe de loginnaam begint (standaard *speler*): je krijgt dan bijvoorbeeld speler1, speler2, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord zoals *tijger47*. Daarna zie je meteen de lijst met inloggegevens (zie hieronder).
+Met **🧑‍🤝‍🧑 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spelers aan. Kies het aantal en hoe de loginnaam begint (standaard *speler*): je krijgt dan bijvoorbeeld speler1, speler2, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord zoals *tijger47*. Daarna zie je meteen de lijst met inloggegevens (zie hieronder).
 
 #### Inloggegevens per team uitdelen
 
@@ -269,7 +269,7 @@ Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er open
 
 Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**. Dat verstuurt het kaartje als afbeelding, met het bericht met de link erbij (een afbeelding is in WhatsApp niet aan te klikken). Laat jouw WhatsApp de tekst weg, wat op de computer kan gebeuren, dan staat die op het klembord: plak hem onder het kaartje.
 
-Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aanmaken krijg je hetzelfde kaartje. Na **👥 Meerdere** krijg je alle kaartjes onder elkaar, elk met WhatsApp, plus **🖨️ Afdrukken** (8 per A4, met **← Terug** naar Spelers) en **📋 Kopiëren**.
+Ook bij **+ Nieuwe speler** staat er al een wachtwoord voorgesteld, en na het aanmaken krijg je hetzelfde kaartje. Na **🧑‍🤝‍🧑 Meerdere** krijg je alle kaartjes onder elkaar, elk met WhatsApp, plus **🖨️ Afdrukken** (8 per A4, met **← Terug** naar Spelers) en **📋 Kopiëren**.
 
 Verstuur ze meteen: na het sluiten zijn de wachtwoorden niet meer te zien.
 
@@ -416,13 +416,13 @@ Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je 
 
 Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag in de volgorde waarin ze gelopen zijn: het gegeven antwoord, het goede antwoord en de punten.
 
-- **👥 Per team / 📊 Per vraag** — met *Per vraag* zie je per vraag (op volgorde van de route) hoeveel teams hem goed hadden, als percentage met een balk (groen, oranje of rood), en welke **foute antwoorden** vaak voorkwamen, met het goede antwoord erbij. Zo zie je snel of een vraag te moeilijk of verkeerd ingesteld is. Foto-opdrachten tellen mee zodra ze gekeurd zijn.
+- **🧑‍🤝‍🧑 Per team / 📊 Per vraag** — met *Per vraag* zie je per vraag (op volgorde van de route) hoeveel teams hem goed hadden, als percentage met een balk (groen, oranje of rood), en welke **foute antwoorden** vaak voorkwamen, met het goede antwoord erbij. Zo zie je snel of een vraag te moeilijk of verkeerd ingesteld is. Foto-opdrachten tellen mee zodra ze gekeurd zijn.
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
 - **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Tik je op de pushmelding *"📸 Nieuwe foto"*, dan opent dit venster meteen.
 - **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
-- **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groep of persoon. Met **👥 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
+- **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groep of persoon. Met **🧑‍🤝‍🧑 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 
 > **🏁 Spel afronden** (in het Spelleider-blok op het dashboard): geeft in één keer de uitslag vrij en opent het rapport. De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
 

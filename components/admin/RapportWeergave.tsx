@@ -131,7 +131,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
             {stand.map((t, i) => (
               <tr key={t.sessie_id}>
                 <td style={{ fontSize: "1.1rem" }}>{MEDAILLE[i] ?? i + 1}</td>
-                <td style={{ fontWeight: 700 }}>{t.icon ?? "👥"} {t.naam}</td>
+                <td style={{ fontWeight: 700 }}>{t.icon ?? "🧑‍🤝‍🧑"} {t.naam}</td>
                 <td style={{ textAlign: "right", fontWeight: 800, fontSize: "1.05rem", color: "#00d9ff" }}>{t.score}</td>
                 <td>{speeltijd(t) ? formateerTijd(speeltijd(t)) : "—"}</td>
                 <td>{km(verslagen[t.sessie_id]?.afstandM ?? 0)}</td>
@@ -154,7 +154,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
               <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#B8AED6" }}>{routeNaam}</span>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-              <h2 style={{ fontSize: "1.4rem" }}>{MEDAILLE[i] ?? `${i + 1}.`} {t.icon ?? "👥"} {t.naam}</h2>
+              <h2 style={{ fontSize: "1.4rem" }}>{MEDAILLE[i] ?? `${i + 1}.`} {t.icon ?? "🧑‍🤝‍🧑"} {t.naam}</h2>
               <span style={{ marginLeft: "auto", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, color: "#00d9ff" }}>{t.score} punten</span>
             </div>
             <div style={{ fontSize: "0.85rem", color: "#D4CCF0", marginTop: 4 }}>

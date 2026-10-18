@@ -71,7 +71,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       {/* Tegels zoals bovenaan het dashboard */}
       <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
         <StatKaart label="Actieve route" waarde={data.route.name} badgeKlas="pr-badge--orange" badge="🗺️" />
-        <StatKaart label="Spelers" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Spelers" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="🧑‍🤝‍🧑" />
         <StatKaart label="Foto's te keuren" waarde={String(data.wachtende_fotos ?? 0)} badgeKlas={data.wachtende_fotos ? "pr-badge--gold" : "pr-badge--green"} badge="📸" />
         <StatKaart label="Uitslag" waarde={data.uitslag_vrijgegeven ? "Zichtbaar" : "Verborgen"} badgeKlas={data.uitslag_vrijgegeven ? "pr-badge--green" : "pr-badge--gray"} badge={data.uitslag_vrijgegeven ? "🏆" : "🔒"} />
       </div>
@@ -98,7 +98,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
 
       {data.teams.length > 0 && (
         <div className="punten-snel" style={{ maxWidth: 360 }}>
-          <button type="button" className={`rl-knop${!perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(false)}>👥 Per team</button>
+          <button type="button" className={`rl-knop${!perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(false)}>🧑‍🤝‍🧑 Per team</button>
           <button type="button" className={`rl-knop${perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(true)}>📊 Per vraag</button>
         </div>
       )}
@@ -112,7 +112,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
         <div key={team.sessie_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
          <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{team.icon ?? "👥"}</span>
+            <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{team.icon ?? "🧑‍🤝‍🧑"}</span>
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff", flex: 1 }}>{team.naam}</span>
             <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--orange"}`}>
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}

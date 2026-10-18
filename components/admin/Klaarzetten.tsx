@@ -54,7 +54,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       id: "spelers", auto: true, klaar: spelers.length > 0,
       titel: spelers.length ? `${spelers.length} speler${spelers.length !== 1 ? "s" : ""} aangemaakt` : "Maak de spelers aan",
       uitleg: "Per team een loginnaam en wachtwoord.",
-      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop rl-knop--cyan">👥 Naar spelers</Link>,
+      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop rl-knop--cyan">🧑‍🤝‍🧑 Naar spelers</Link>,
     },
     {
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,

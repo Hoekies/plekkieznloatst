@@ -73,7 +73,7 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
   );
 }
 
-// "👥 Meerdere" — spelers in één keer aanmaken
+// "🧑‍🤝‍🧑 Meerdere" — spelers in één keer aanmaken
 export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
   const [open, setOpen] = useState(false);
   const [aantal, setAantal] = useState(4);
@@ -98,7 +98,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
   return (
     <>
       <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} title="Meerdere spelers in één keer aanmaken">
-        👥 <span className="alleen-pc">Meerdere</span>
+        🧑‍🤝‍🧑 <span className="alleen-pc">Meerdere</span>
       </button>
       {open && (
         <Venster label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>

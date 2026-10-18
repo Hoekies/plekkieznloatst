@@ -167,7 +167,7 @@ export default function GroepenBeheer() {
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Tegels zoals bovenaan het dashboard */}
       <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
-        <StatKaart label="Spelers" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👥" />
+        <StatKaart label="Spelers" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="🧑‍🤝‍🧑" />
         <StatKaart label="Ingelogd" waarde={String(groepen.filter((g) => g.active_device_id).length)} badgeKlas="pr-badge--green" badge="📱" />
         <StatKaart label="Aan het spelen" waarde={String(groepen.filter((g) => g.heeft_spel).length)} badgeKlas="pr-badge--orange" badge="⚡" />
         <StatKaart label="Uitgeschakeld" waarde={String(groepen.filter((g) => g.is_uitgeschakeld).length)} badgeKlas="pr-badge--gray" badge="⏸" />

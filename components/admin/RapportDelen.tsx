@@ -75,7 +75,7 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
     { sleutel: "alles", titel: "Hele rapport", bestand: `PointRush-${veilig(routeNaam)}.pdf`, selectors: ["[data-rapport]"] },
     ...teams.map((t) => ({
       sleutel: t.sessie_id,
-      titel: `${t.icon ?? "👥"} ${t.naam}`,
+      titel: `${t.icon ?? "🧑‍🤝‍🧑"} ${t.naam}`,
       bestand: `PointRush-${veilig(routeNaam)}-${veilig(t.naam)}.pdf`,
       // Per team: de eindstand, hun eigen verslag en het dankwoord
       selectors: ['[data-rapport="eindstand"]', `[data-rapport-team="${t.sessie_id}"]`, '[data-rapport="slot"]'],
@@ -155,13 +155,13 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
 
         {/* Per team */}
         <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} style={{ alignSelf: "flex-start" }} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>
-          👥 PDF per team {perTeam ? "▾" : "▸"}
+          🧑‍🤝‍🧑 PDF per team {perTeam ? "▾" : "▸"}
         </button>
         {perTeam && doelen.slice(1).map((d) => {
           const team = teams.find((t) => t.sessie_id === d.sleutel);
           return (
             <div key={d.sleutel} className="rapport-delen-rij">
-              <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>{team?.icon ?? "👥"}</span>
+              <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>{team?.icon ?? "🧑‍🤝‍🧑"}</span>
               <div style={{ flex: 1, minWidth: 140 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{team?.naam}</div>
                 <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, eigen verslag met kaart en dankwoord</div>
