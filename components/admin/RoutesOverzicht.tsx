@@ -344,7 +344,7 @@ export default function RoutesOverzicht() {
                   <div className="rl-tekstknoppen">
                   {/* Plek 1: de volgende stap: publiceren → activeren → deactiveren (computer) */}
                   <span className="rl-stap-plek">{stapKnop(r)}</span>
-                  <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>Bewerken</button>
+                  <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
                   </div>
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}
                   <div className="rl-icoonknoppen">

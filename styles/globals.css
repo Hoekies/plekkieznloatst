@@ -2497,3 +2497,19 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Route-editor: gereedschapsknoppen als smalle icoontjes naast elkaar */
 .editor-gereedschap .rl-knop { min-width: 38px; justify-content: center; padding: 0 10px; }
 .editor-gereedschap .rl-knop + .rl-knop { padding: 0 10px; }
+
+/* Routekaart: de volgende stap valt op (gevulde knop), Bewerken is rustig (alleen een rand) */
+.rl-stap.rl-knop--cyan { background: linear-gradient(180deg, #4BE3FF 0%, #08A9CC 100%) !important; color: #052430 !important; border-color: #8BEBFF !important; font-weight: 800; box-shadow: 0 3px 10px rgba(0,217,255,0.3); }
+.rl-stap:not(.rl-knop--cyan):not(.rl-knop--rood) { background: linear-gradient(180deg, #FFE27A 0%, #E8AE14 100%) !important; color: #2B1A00 !important; border-color: #FFE9A3 !important; font-weight: 800; }
+.rl-stap.rl-knop--rood { font-weight: 800; }
+.rl-bewerk { background: transparent !important; border: 1px solid rgba(255,255,255,0.28) !important; font-weight: 700; }
+.rl-bewerk:hover { background: rgba(255,255,255,0.08) !important; }
+@media (max-width: 768px) {
+  /* Ingeklapt: de stap-knop onder de naam, over de volle breedte (zelfde lijn als de rest) */
+  .rl-kop .rl-kop-stap { padding-left: 0 !important; }
+  /* Open: de stap-knop en Bewerken naast elkaar op één regel, de stap breder */
+  .rl-kaart--open .rl-kop-stap { display: none !important; }
+  .rl-kaart--open .rl-stap-plek { display: contents; }
+  .rl-tekstknoppen .rl-stap { flex: 1.4 1 0; width: auto !important; justify-content: center; }
+  .rl-tekstknoppen .rl-bewerk { flex: 1 1 0; }
+}
