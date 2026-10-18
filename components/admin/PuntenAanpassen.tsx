@@ -34,7 +34,7 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
 
   return (
     <>
-      <button type="button" className="rl-knop" onClick={() => setOpen(true)} title="Bonus of aftrek, met een reden">± Punten</button>
+      <button type="button" className="rl-knop" onClick={() => setOpen(true)} title="Bonus of aftrek, met een reden"><span className="knop-icoon" aria-hidden>±</span> Punten</button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 400 }}>

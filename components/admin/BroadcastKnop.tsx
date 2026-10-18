@@ -31,7 +31,7 @@ export default function BroadcastKnop({ alsIcoon = false, team }: { alsIcoon?: b
     <>
       {team ? (
         <button type="button" className="rl-knop sk-icoonknop" onClick={() => setOpen(true)} title={`Bericht aan ${team.naam}`} aria-label={`Bericht aan ${team.naam}`}>
-          📢<span className="alleen-pc"> Bericht</span>
+          <span className="knop-icoon" aria-hidden>📢</span><span className="alleen-pc"> Bericht</span>
         </button>
       ) : alsIcoon ? (
         <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}

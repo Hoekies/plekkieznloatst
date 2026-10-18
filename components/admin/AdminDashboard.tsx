@@ -367,7 +367,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
                 <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
                   vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
                   className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
-                  ⏭️ <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
+                  <span className="knop-icoon" aria-hidden>⏭️</span> <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
                 </BevestigKnop>
               )}
               {s.hulp && (
@@ -378,7 +378,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               {!beperkt && (
                 <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
                   vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
-                  ⏹️ <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
+                  <span className="knop-icoon" aria-hidden>⏹️</span> <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
                 </BevestigKnop>
               )}
             </div>

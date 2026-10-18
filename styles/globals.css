@@ -2513,3 +2513,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-tekstknoppen .rl-stap { flex: 1.4 1 0; width: auto !important; justify-content: center; }
   .rl-tekstknoppen .rl-bewerk { flex: 1 1 0; }
 }
+
+/* Icoon in een knop: iets groter dan de tekst */
+.knop-icoon { font-size: 1.35em; line-height: 1; display: inline-block; vertical-align: -0.12em; }
