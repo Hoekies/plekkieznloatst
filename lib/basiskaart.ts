@@ -31,6 +31,7 @@ type GlKaart = {
   getStyle: () => { layers?: { id: string; type: string }[] };
   setPaintProperty: (laag: string, eigenschap: string, waarde: unknown) => void;
   setLayoutProperty: (laag: string, eigenschap: string, waarde: unknown) => void;
+  setLayerZoomRange: (laag: string, min: number, max: number) => void;
 };
 
 // Kleuren per stijl. Licht: zoals de gewone OpenStreetMap-kaart (die in de route-editor).
@@ -85,9 +86,11 @@ function maakSpelklaar(kaart: GlKaart, stijl: KaartStijl) {
   zet("landuse_cemetery", "fill-color", p.begraaf);
   zet("water", "fill-color", p.water);
   for (const id of ["waterway_river", "waterway_other", "waterway_tunnel"]) zet(id, "line-color", p.water);
-  // Huizen: gevuld met een duidelijke rand, zoals op OpenStreetMap
+  // Huizen: gevuld met een duidelijke rand, zoals op OpenStreetMap. De platte laag stopt in deze
+  // stijl bij zoom 14 (daarboven 3D-gebouwen, die we niet tonen): laat hem op elk zoomniveau zien.
   zet("building", "fill-color", p.huis);
   zet("building", "fill-outline-color", p.huisRand);
+  if (lagen.has("building")) { try { kaart.setLayerZoomRange("building", 13, 24); } catch { /* overslaan */ } }
 
   for (const l of alle) {
     if (l.type !== "line" || !/^(road|bridge|tunnel)_/.test(l.id) || /rail/.test(l.id)) continue;
