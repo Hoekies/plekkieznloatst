@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-admin";
 import type { SpeciaalItem } from "@/types/database";
+import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -42,7 +43,7 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -65,6 +66,10 @@ export async function haalLiveData(): Promise<LiveData> {
     admin.from("routes").select("id, name, modus, uitslag_vrijgegeven, verwacht_aantal_teams").eq("is_active", true).maybeSingle(),
     admin.from("players").select("id, login_name, nickname, icon, active_device_id, is_uitgeschakeld").order("login_name"),
   ]);
+
+  // Eindtijd voorbij? Dan eerst de lopende spellen afsluiten, zodat het dashboard meteen de eindstand toont
+  const eindtijd = route ? await rondAfAlsTijdVoorbij(admin, route.id) : null;
+  const routeInfo = route ? { ...route, eindtijd } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
   const playerIds = (allePlayers ?? []).map((p) => p.id);
@@ -92,7 +97,7 @@ export async function haalLiveData(): Promise<LiveData> {
   const routePunten: RoutePuntKort[] = puntenRes?.data ?? [];
 
   if (!allePlayers?.length) {
-    return { route, route_punten: routePunten, spelers: [], speciale_items: specialeItems };
+    return { route: routeInfo, route_punten: routePunten, spelers: [], speciale_items: specialeItems };
   }
 
   const sessies = sessiesResult?.data ?? [];
@@ -209,5 +214,5 @@ export async function haalLiveData(): Promise<LiveData> {
     };
   });
 
-  return { route, route_punten: routePunten, spelers, speciale_items: specialeItems, wachtende_fotos: fotoRes.count ?? 0, fout };
+  return { route: routeInfo, route_punten: routePunten, spelers, speciale_items: specialeItems, wachtende_fotos: fotoRes.count ?? 0, fout };
 }

@@ -8,6 +8,8 @@ import AfbeeldingUpload from "./AfbeeldingUpload";
 import BevestigKnop from "./BevestigKnop";
 import { naamWoorden } from "@/lib/punt-naam";
 import NaamKiezer from "./NaamKiezer";
+import Vragenbank, { type BankVraag } from "./editor/Vragenbank";
+import { toonMelding } from "./Melding";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 
@@ -108,6 +110,28 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   // QR staat als knop in de bovenbalk; het paneel klapt eronder open
   const [qrOpen, setQrOpen] = useState(false);
   const qrUrl = qrSecret ? `${SITE_URL}/speler/qr?p=${punt.id}&s=${qrSecret}` : "";
+
+  // Vraag uit de vragenbank overnemen: vult het formulier, opslaan doe je zelf
+  function neemOver(v: BankVraag) {
+    setType(v.type as VraagType);
+    setTekst(v.question_text);
+    setVraagAfbeelding(v.question_image_path);
+    setPunten(v.points);
+    if (v.answer_options.length === 4) {
+      setAntwoorden(v.answer_options.map((a) => ({
+        color: a.color as typeof KLEUREN[number], text: a.text ?? "", image_path: a.image_path, is_correct: a.is_correct,
+        punten: a.punten === null || a.punten === undefined ? "" : String(a.punten),
+      })));
+    } else {
+      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" })));
+    }
+    setOpenAntwoorden((v.correct_text_answers ?? []).join("\n"));
+    const numeriek = v.numeric_answer !== null && v.numeric_answer !== undefined;
+    setIsNumeriek(numeriek);
+    setNumeriekeWaarde(numeriek ? String(v.numeric_answer) : "");
+    setTolerantie(String(v.numeric_tolerance ?? 0));
+    toonMelding("Vraag overgenomen: pas aan en sla op", "ok");
+  }
 
   function setCorrect(index: number) {
     setAntwoorden((a) => a.map((ant, i) => ({ ...ant, is_correct: i === index })));
@@ -254,6 +278,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           </>
         )}
         <span style={{ flex: 1 }} />
+        <Vragenbank puntId={punt.id} onKies={neemOver} />
         <button type="button" className={`btn ${qrEnabled ? "btn-cyan" : "btn-outline"}`} style={{ fontSize: "0.82rem", flexShrink: 0 }}
           onClick={() => setQrOpen((v) => !v)} aria-expanded={qrOpen}
           title="QR-code ontgrendeling: dit punt openen met een QR-code in plaats van GPS">

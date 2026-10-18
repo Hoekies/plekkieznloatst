@@ -187,6 +187,17 @@ plekkie-zn-loatst/
 | is_correct | boolean | |
 | points_awarded | integer | |
 
+#### `score_correcties` (migratie 006)
+| Kolom | Type | Opmerkingen |
+|---|---|---|
+| id | uuid PK | |
+| session_id | uuid FK → player_sessions | Cascade bij verwijderen |
+| delta | integer | Werkelijke bonus (+) of aftrek (−); de score zakt nooit onder 0 |
+| reden | text | Komt in de tijdlijn en het rapport |
+| created_at | timestamptz | |
+
+`routes.eindtijd` (timestamptz, migratie 006): is die voorbij, dan zet `lib/eindtijd.ts` alle actieve sessies van de route op `voltooid` met `finished_at = eindtijd` (aangeroepen door de spelers-app, het verwerken van antwoorden en het dashboard).
+
 #### `location_updates`
 | Kolom | Type | Opmerkingen |
 |---|---|---|
@@ -239,6 +250,7 @@ plekkie-zn-loatst/
 | `/admin/routes/[id]` | Admin | Route-editor: Leaflet kaart, punten plaatsen/verslepen |
 | `/admin/routes/[id]/punten/[pid]` | Admin | Punt bewerken + vraag-editor |
 | `/admin/live` | Admin | Live kaart met exacte locaties alle spelers |
+| `/admin`, `/admin/antwoorden`, `/admin/live` | Helper | Rol `helper` (app_metadata, e-mail `naam@plekkiehelper.nl`): meekijken, foto's keuren, punten vrijgeven. Andere beheerpagina's stuurt de middleware terug naar `/admin`; API's controleren `isAdmin` of `isBeheer` (lib/auth-server.ts) |
 | `/speler` | Speler | Intro 5 sec → locatiepermissie → startknop |
 | `/speler/kaart` | Speler | Spelerskaart, GPS-tracking, puntdetectie |
 | `/speler/finish` | Speler | Eindscherm: tijd, punten, top-3 leaderboard |

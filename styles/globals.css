@@ -1636,6 +1636,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .pr-hud-gem--purple { background: linear-gradient(180deg, rgba(124,58,237,0.4) 0%, rgba(124,58,237,0.12) 100%); border-color: rgba(124,58,237,0.5); }
 .pr-hud-gem--orange { background: linear-gradient(180deg, rgba(255,138,0,0.4) 0%, rgba(255,138,0,0.12) 100%); border-color: rgba(255,138,0,0.5); }
+.pr-hud-gem--rood { background: linear-gradient(180deg, rgba(255,59,92,0.55) 0%, rgba(255,59,92,0.2) 100%); border-color: rgba(255,59,92,0.8); animation: pr-pulse-rood 1.6s ease-in-out infinite; }
+@keyframes pr-pulse-rood { 50% { box-shadow: 0 0 14px rgba(255,59,92,0.7); } }
 /* Statistiekhokjes speler: zelfde buitenmaat als voorheen (48px), maar het getal vult het hokje */
 .pr-hud-gem--groot { height: 48px; box-sizing: border-box; padding: 0 8px; gap: 6px; min-width: 0; overflow: hidden; }
 .pr-hud-gem--groot .pr-hud-icoon { font-size: 1.05rem; line-height: 1; flex-shrink: 0; }
@@ -2320,3 +2322,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .klaar-waarschuwing { flex-basis: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; color: #FDE68A;
   background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.45); }
 .klaar-waarschuwing strong { color: #fff; }
+
+/* ± Punten: snelkeuze */
+.punten-snel { display: flex; gap: 6px; flex-wrap: wrap; }
+.punten-snel .rl-knop { flex: 1 1 0; min-width: 52px; height: 38px; padding: 0 8px; font-weight: 800; justify-content: center; }
+
+/* Vragenbank: één vraag per regel */
+.vragenbank-regel { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font: inherit; font-size: 0.86rem; }
+.vragenbank-regel:hover { background: rgba(0,217,255,0.1); border-color: rgba(0,217,255,0.45); }
+
+/* Punten importeren: voorbeeld van de gevonden punten */
+.import-regel { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }

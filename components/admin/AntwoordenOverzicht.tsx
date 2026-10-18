@@ -6,6 +6,7 @@ import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import StatKaart from "@/components/admin/StatKaart";
+import VraagStatistiek from "@/components/admin/VraagStatistiek";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -14,9 +15,12 @@ type Data = {
   wachtende_fotos: number;
 };
 
-export default function AntwoordenOverzicht() {
+// beperkt: helper van de spelleider, mag wel keuren maar niet de uitslag vrijgeven of het rapport openen
+export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boolean }) {
   const [data, setData] = useState<Data | null>(null);
   const [bezig, setBezig] = useState<string | null>(null);
+  // Per team (keuren) of per vraag (statistiek)
+  const [perVraag, setPerVraag] = useState(false);
 
   async function laad() {
     const res = await fetch("/api/admin/antwoorden");
@@ -74,7 +78,7 @@ export default function AntwoordenOverzicht() {
 
       {/* Uitslag en rapport */}
       {/* Uitslag links, rapport rechts */}
-      <div className="actie-rij">
+      {!beperkt && <div className="actie-rij">
         {data.uitslag_vrijgegeven ? (
           <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
         ) : (
@@ -90,13 +94,21 @@ export default function AntwoordenOverzicht() {
           title="Eindstand en per speler de vragen, items en gelopen route — als PDF te versturen">
           📄 Rapport (PDF)
         </a>
-      </div>
+      </div>}
+
+      {data.teams.length > 0 && (
+        <div className="punten-snel" style={{ maxWidth: 360 }}>
+          <button type="button" className={`rl-knop${!perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(false)}>👥 Per team</button>
+          <button type="button" className={`rl-knop${perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(true)}>📊 Per vraag</button>
+        </div>
+      )}
+      {perVraag && <VraagStatistiek teams={data.teams} />}
 
       {data.teams.length === 0 && (
         <div className="card leeg-scherm"><p>Nog geen spelers aan het spelen. Zodra iemand een vraag beantwoordt, zie je dat hier.</p><Link href="/admin" className="rl-knop actie-knop">🏠 Naar het dashboard</Link></div>
       )}
 
-      {data.teams.map((team) => (
+      {!perVraag && data.teams.map((team) => (
         <div key={team.sessie_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
          <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>

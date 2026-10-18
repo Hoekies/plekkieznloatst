@@ -31,7 +31,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 1. Ga naar **Routes** in de zijbalk.
 2. Klik op **Nieuwe route**.
 3. Geef de route een naam en **kies het speltype**: Sequentieel of Verspreid.
-4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Toevoegen gaat altijd via de kaart; een nieuw punt komt vóór de finish in de lijst.)
+4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst.) Veel punten tegelijk? Gebruik **📥 Importeren** bovenin de editor (zie hieronder).
 5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
    - **Vraag bewerken / toevoegen** — bovenaan, voor de vraag, antwoorden en afbeelding. De vraag opent als venster over de editor; na **Opslaan** of **← Terug** sta je weer precies waar je was.
@@ -42,6 +42,10 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 7. Sleep een punt op de kaart om de positie fijn te stellen.
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
+
+> **📥 Punten importeren**: kies een **GPX-bestand** (waypoints, of een spoor: dan komt er om de 150 m een punt) of een **KML-bestand** (bijv. uit Google My Maps), of plak een lijst met één punt per regel: `52.2215, 6.8937 Kerk`, een lange Google Maps-link, of een korte deellink uit de Google Maps-app (`maps.app.goo.gl/…`). Je ziet eerst welke punten gevonden zijn (✕ om er een weg te laten) en welke regels niet herkend zijn. Daarna komen ze vóór de finish, met de standaard punten en straal van de route. De vragen voeg je daarna toe.
+
+> **📚 Vragenbank**: in de vraag-editor staat bovenin **📚 Vragenbank**: alle vragen uit je andere routes, met zoeken op vraag, antwoord, route of punt. Tik op een vraag en het formulier wordt ermee ingevuld (type, tekst, afbeelding, antwoorden en punten). Pas aan wat je wilt en druk op **Opslaan**; de oorspronkelijke vraag blijft ongewijzigd.
 
 > **🧪 Testronde**: met **🧪 Test** bovenin de editor loop je de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
 
@@ -309,6 +313,12 @@ Met **⏹️ Stop spel** bij Spelers (op het Dashboard heet de knop **Spel stopp
 
 > De Spelers-pagina ververst zichzelf elke 10 seconden, dus knoppen verschijnen vanzelf zodra een team inlogt of begint.
 
+#### Helpers
+
+Wil je hulp bij het spelleiden, maak dan onderaan de Spelers-pagina bij **🧑‍💼 Helpers** een helper aan: vul een naam in (letters en cijfers, anders dan de loginnamen van de spelers) en klik **+ Helper**. Je krijgt één keer het wachtwoord te zien; verstuur het meteen met **💬 WhatsApp**. Een helper logt gewoon in op de inlogpagina, met die naam en dat wachtwoord.
+
+Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren**, antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Met **🔑 Wachtwoord** maak je een nieuw wachtwoord, met **🗑️ Verwijderen** kan de helper niet meer inloggen.
+
 ---
 
 ## Het spel starten
@@ -333,10 +343,10 @@ Het **Dashboard** (ververst elke paar seconden vanzelf):
 
 - **Tegels**: actieve route, aan het spelen, gefinisht en de koploper. Op de telefoon als één compacte strook.
 - **🎯 Spelleider**: hoe lang het spel loopt en hoeveel teams onderweg zijn, met daaronder alleen wat **je aandacht vraagt**: hulpvragen, foto's om te keuren, teams die 5 minuten **niet gezien** zijn (📵), en teams die wachten door een spook of plek zooi. Tik op een regel voor de details. Niets aan de hand? Dan staat er *"✅ Alles loopt"*.
-- **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand), met per team het aantal punten, de items in de balk en ingezet, en de knoppen **⏭️ Volgend punt vrijgeven** en **⏹️ Spel stoppen**.
+- **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand), met per team het aantal punten, de items in de balk en ingezet, en de knoppen **⏭️ Volgend punt vrijgeven**, **± Punten** en **⏹️ Spel stoppen**.
 - **Wacht een team door een spook of plek zooi**, dan zie je op de kaart een aftelklok met **−30 s**: daarmee haal je er 30 seconden af. De app van het team neemt de nieuwe tijd binnen een paar seconden over.
 - **Tik op een spelerskaart** voor alles van dat team: speeltijd, afstand, vragen goed, de gelopen route op een kaartje, alle bezochte punten met antwoorden en de items.
-- **📜 Wat gebeurt er**: een tijdlijn met starts, bereikte punten, goede en foute antwoorden, foto's, ingezette items en finishes.
+- **📜 Wat gebeurt er**: een tijdlijn met starts, bereikte punten, goede en foute antwoorden, foto's, ingezette items, bonus of aftrek van de spelleider en finishes.
 
 De **Live kaart** vult het hele scherm en toont iedereen in zijn eigen kleur, met een vervagend **spoor van de laatste 10 minuten**. Tik op een naam in de lijst om die speler te **volgen** (🎯); de kaart schuift dan mee. Slepen of nog eens tikken stopt het volgen.
 
@@ -351,6 +361,19 @@ Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht n
 ### Meldingen op je telefoon en horloge
 
 Met **🔔 Meldingen** in het menu (onder Spel) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
+
+### Eindtijd van het spel
+
+Met **⏰ Eindtijd** (in het Spelleider-blok, of al bij *Spel klaarzetten*) zet je de tijd waarop het spel stopt: kies **30 min**, **1 uur**, **1½ uur** of **2 uur** vanaf nu, of vul zelf een tijd in. Ligt die tijd vandaag al achter je, dan geldt morgen. De knop toont daarna *Stopt om 16:00* en bij de spelleider zie je hoe lang het nog duurt.
+
+- De teams zien bovenin hun app een **aftelklok ⏰**. In de laatste 10 minuten wordt die rood en krijgen ze één keer een groot venster: *"Nog 10 minuten! Om 16:00 stopt het spel."*
+- **Op de eindtijd** is elk team dat nog onderweg is gefinisht, met de punten van dat moment. Hun app gaat naar het finishscherm; antwoorden die later binnenkomen tellen niet meer. Nieuwe spellen starten kan dan niet meer.
+- Uitstellen of weghalen kan zolang de tijd nog niet voorbij is (**Geen eindtijd**). Teams die al door de eindtijd gefinisht zijn, gaan niet terug het spel in.
+- Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
+
+### Punten aanpassen (bonus of aftrek)
+
+Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. De score zakt nooit onder 0. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
 
 ### Punt vrijgeven voor een team
 
@@ -396,6 +419,7 @@ Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je 
 
 Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag in de volgorde waarin ze gelopen zijn: het gegeven antwoord, het goede antwoord en de punten.
 
+- **👥 Per team / 📊 Per vraag** — met *Per vraag* zie je per vraag (op volgorde van de route) hoeveel teams hem goed hadden, als percentage met een balk (groen, oranje of rood), en welke **foute antwoorden** vaak voorkwamen, met het goede antwoord erbij. Zo zie je snel of een vraag te moeilijk of verkeerd ingesteld is. Foto-opdrachten tellen mee zodra ze gekeurd zijn.
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
 - **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Tik je op de pushmelding *"📸 Nieuwe foto"*, dan opent dit venster meteen.

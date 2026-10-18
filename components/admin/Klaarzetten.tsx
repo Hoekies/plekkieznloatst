@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
+import EindtijdKnop from "@/components/admin/EindtijdKnop";
 
 const VOORVOEGSEL = "pointrush_klaarzetten_";
 const LEEG_EVENT = "pointrush-klaarzetten-leeg";
@@ -17,7 +18,7 @@ export function wisKlaarzetten() {
 
 // Stappenplan "Spel klaarzetten": wat kan, controleert de app zelf; de rest vink je af.
 // Afgevinkte stappen worden per route onthouden (in deze browser), tot een reset.
-export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { id: string; name: string; modus?: string; verwacht_aantal_teams?: number } | null; spelers: SpelerOverzicht[] }) {
+export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { id: string; name: string; modus?: string; verwacht_aantal_teams?: number; eindtijd?: string | null } | null; spelers: SpelerOverzicht[] }) {
   // Uitgeschakelde spelers doen niet mee
   const spelers = alleSpelers.filter((s) => !s.uitgeschakeld);
   // Verspreide route: klopt het aantal teams waarvoor de startplekken zijn verdeeld?
@@ -80,6 +81,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
           <span style={{ flex: 1, minWidth: 200, fontFamily: "var(--font-display)", fontWeight: 700, color: "#BBF7D0" }}>
             ✅ Alles klaar — wacht tot de spelers op ‘Ga op pad’ drukken
           </span>
+          {route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />}
           <button type="button" className="rl-knop" onClick={() => setToonStappen(true)}>Stappen tonen</button>
         {aantalWijkt && (
           <div className="klaar-waarschuwing">
@@ -105,6 +107,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
             {/* Eén keer uitleggen hoe je zelf afvinkt (i.p.v. bij elke stap) */}
             {stappen.some((s) => !s.auto && !s.klaar) && <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Tik op een bolletje om een stap af te vinken.</div>}
           </div>
+          {route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />}
           {klaar === stappen.length && <button type="button" className="rl-knop" onClick={() => setToonStappen(false)}>Inklappen</button>}
         </div>
         <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${(klaar / stappen.length) * 100}%` }} /></div>

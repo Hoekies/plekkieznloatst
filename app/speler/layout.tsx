@@ -10,7 +10,7 @@ import SchermAanHouden from "@/components/speler/SchermAanHouden";
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
   if (!user) redirect("/login");
-  if (user.app_metadata?.rol === "admin") redirect("/admin");
+  if (user.app_metadata?.rol === "admin" || user.app_metadata?.rol === "helper") redirect("/admin");
 
   return (
     <div className="speler-shell">

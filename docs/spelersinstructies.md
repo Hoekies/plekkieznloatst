@@ -28,6 +28,9 @@ Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van 
 **Locatie en geluid**
 Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
 
+**Eindtijd**
+Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.
+
 **Batterij**
 De app gebruikt continu GPS. Zorg dat je telefoon voldoende geladen is, of neem een powerbank mee.
 

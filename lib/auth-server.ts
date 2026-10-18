@@ -8,6 +8,16 @@ import { middlewareMerk, MERK_HEADER } from "@/lib/middleware-merk";
 // Dat scheelt per pagina of API-aanroep één of twee extra rondjes naar de database.
 export type Gebruiker = { id: string; app_metadata: { rol?: string } };
 
+// Rollen: "admin" (alles), "helper" (hulp van de spelleider: foto's keuren, punten vrijgeven,
+// meekijken), en spelers (geen rol)
+export function isAdmin(user: Gebruiker | null): boolean {
+  return user?.app_metadata?.rol === "admin";
+}
+export function isBeheer(user: Gebruiker | null): boolean {
+  const rol = user?.app_metadata?.rol;
+  return rol === "admin" || rol === "helper";
+}
+
 export async function haalGebruiker(): Promise<Gebruiker | null> {
   const h = headers();
   const id = h.get("x-pr-user-id");

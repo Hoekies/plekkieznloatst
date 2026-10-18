@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
 
@@ -7,7 +7,7 @@ import { bepaalVolgendPunt } from "@/lib/volgend-punt";
 // springt de vraag van dat punt open, waar ze ook zijn.
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data: sessie } = await admin

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isBeheer(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 

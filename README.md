@@ -36,6 +36,12 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Testronde in de route-editor; punten toevoegen of verwijderen tijdens een lopend spel; wijzigingen naar spelers sturen
 - Foto's één voor één keuren, ook vanuit de pushmelding
 - Routes exporteren, importeren en kopiëren; versienummer en laatste update in het menu
+- Punten importeren uit een GPX/KML-bestand, een lijst met coördinaten of Google Maps-links
+- Vragenbank: een vraag uit een andere route overnemen in de vraag-editor
+- Punten handmatig aanpassen per team (bonus of aftrek met reden, in tijdlijn en rapport)
+- Eindtijd van het spel: spelers zien een aftelklok en een waarschuwing 10 minuten van tevoren
+- Helpers: een tweede, beperkte inlog die alleen meekijkt, foto's keurt en punten vrijgeeft
+- Statistiek per vraag: hoeveel teams een vraag goed hadden en welke foute antwoorden vaak voorkwamen
 
 ### Speciale items
 Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
@@ -94,7 +100,7 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis.
+De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd.
 
 ### Starten
 

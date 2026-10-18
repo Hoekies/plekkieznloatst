@@ -17,11 +17,14 @@ import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
 import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
+import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
 
 const POLL_INTERVAL_MS = 5000;
 
 interface Props {
   initData: LiveData;
+  // Hulp (helper): alleen foto's keuren en punten vrijgeven, geen stoppen/reset/punten aanpassen
+  beperkt?: boolean;
 }
 
 function tijdGeleden(iso: string): string {
@@ -32,7 +35,7 @@ function tijdGeleden(iso: string): string {
 }
 
 
-export default function AdminDashboard({ initData }: Props) {
+export default function AdminDashboard({ initData, beperkt = false }: Props) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
@@ -170,9 +173,10 @@ export default function AdminDashboard({ initData }: Props) {
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
         <div style={{ marginBottom: 24 }}>
           {spelend.length === 0
-            ? <Klaarzetten route={route} spelers={spelers} />
+            ? !beperkt && <Klaarzetten route={route} spelers={spelers} />
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
-                uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)} />}
+                uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
+                routeId={route?.id} eindtijd={route?.eindtijd} beperkt={beperkt} />}
         </div>
 
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
@@ -212,6 +216,8 @@ export default function AdminDashboard({ initData }: Props) {
                     onVrijgeven={() => geefPuntVrij(s)}
                     onStop={() => stopSpel(s)}
                     onNegeer={negeerHulp}
+                    onGewijzigd={ververs}
+                    beperkt={beperkt}
                   />
                 ))}
               </div>
@@ -228,7 +234,7 @@ export default function AdminDashboard({ initData }: Props) {
 
         {/* Reset sectie */}
         {/* Zelfde kaartstijl als de spelers: één regel uitleg en een brede rode knop */}
-        <div className="pr-gem-card" style={{ marginTop: 32 }}>
+        {!beperkt && <div className="pr-gem-card" style={{ marginTop: 32 }}>
          <div className="pr-gem-card-inner reset-kaart" style={{ flexWrap: "wrap", alignItems: "center" }}>
           <div style={{ flex: "1 1 220px", minWidth: 0, fontSize: "0.9rem", color: "var(--text)" }}>
             <strong style={{ fontFamily: "var(--font-display)", color: "#fff" }}>Spel resetten</strong>
@@ -254,7 +260,7 @@ export default function AdminDashboard({ initData }: Props) {
             )}
           </div>
          </div>
-        </div>
+        </div>}
       </div>
     </>
   );
@@ -269,7 +275,7 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVerkort, onVrijgeven, onStop, onNegeer }: {
+function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVerkort, onVrijgeven, onStop, onNegeer, onGewijzigd, beperkt }: {
   rang: number;
   speler: SpelerOverzicht;
   kleur: string;
@@ -280,6 +286,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
   onVrijgeven: () => void;
   onStop: () => void;
   onNegeer: (hulpId: string) => void;
+  onGewijzigd: () => void;
+  beperkt: boolean;
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
   const speelt = s.sessie_status === "actief";
@@ -315,7 +323,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           {stil !== null && (
             <div className="stil-label">📵 Niet gezien sinds {stil} min{s.ingelogd ? "" : " · uitgelogd"}</div>
           )}
-          {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={() => onVerkort(s.wacht!.effect_id)} />}
+          {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
 
           {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -354,10 +362,19 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               {s.hulp && (
                 <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
               )}
-              <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
-                vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
-                ⏹️ Spel stoppen
-              </BevestigKnop>
+              {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
+              {!beperkt && (
+                <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
+                  vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
+                  ⏹️ Spel stoppen
+                </BevestigKnop>
+              )}
+            </div>
+          )}
+          {/* Gefinisht: punten aanpassen kan nog (bijv. een bonus voor de mooiste foto) */}
+          {!speelt && !beperkt && s.sessie_id && (
+            <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
+              <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />
             </div>
           )}
         </div>
@@ -372,7 +389,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
 }
 
 // Team moet wachten door een spook of plek zooi: resterende tijd (telt per seconde af) en inkorten
-function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["wacht"]>; onVerkort: () => void }) {
+function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["wacht"]>; onVerkort?: () => void }) {
   const [nu, setNu] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNu(Date.now()), 1000); return () => clearInterval(t); }, []);
   const rest = Math.max(0, Math.ceil((new Date(wacht.tot).getTime() - nu) / 1000));
@@ -386,7 +403,7 @@ function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["w
         <span style={{ color: "var(--text)" }}>{wacht.soort === "spook" ? " · volgende punt verborgen" : " · staat stil"}</span>
       </span>
       <span className="wacht-tijd">{tijd}</span>
-      <button type="button" className="rl-knop" onClick={onVerkort} title="Wachttijd 30 seconden korter maken">−30 s</button>
+      {onVerkort && <button type="button" className="rl-knop" onClick={onVerkort} title="Wachttijd 30 seconden korter maken">−30 s</button>}
     </div>
   );
 }

@@ -199,6 +199,24 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
               </table>
             )}
 
+            {(v?.correcties.length ?? 0) > 0 && (
+              <>
+                <h3 style={{ fontSize: "1.05rem", marginTop: 18, marginBottom: 6 }}>± Bonus en aftrek</h3>
+                <table>
+                  <thead><tr><th>Tijd</th><th>Reden</th><th style={{ textAlign: "right" }}>Punten</th></tr></thead>
+                  <tbody>
+                    {v!.correcties.map((c, n) => (
+                      <tr key={n} className="rapport-item">
+                        <td style={{ whiteSpace: "nowrap" }}>{new Date(c.tijd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</td>
+                        <td>{c.reden ?? "door de spelleider"}</td>
+                        <td style={{ textAlign: "right", fontWeight: 800, color: c.delta > 0 ? "#4ADE80" : "#F87171" }}>{c.delta > 0 ? `+${c.delta}` : c.delta}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
+
             <h3 style={{ fontSize: "1.05rem", marginTop: 18, marginBottom: 6 }}>🎁 Items</h3>
             {items.length === 0 ? <p style={{ fontSize: "0.85rem", color: "#B8AED6" }}>Geen items ingezet of ontvangen.</p> : (
               <table>

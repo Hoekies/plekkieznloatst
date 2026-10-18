@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { stuurPushNaarBeheer } from "@/lib/push";
 
@@ -7,7 +7,7 @@ import { stuurPushNaarBeheer } from "@/lib/push";
 // of een testmelding sturen (PUT).
 async function checkAdmin() {
   const user = await haalGebruiker();
-  return user?.app_metadata?.rol === "admin" ? user : null;
+  return isBeheer(user) ? user : null;
 }
 
 export async function POST(request: NextRequest) {

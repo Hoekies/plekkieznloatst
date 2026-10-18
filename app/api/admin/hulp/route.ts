@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Openstaande meldingen "punt niet bereikbaar" — voor de melding op elk admin-scherm
 export async function GET() {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data, error } = await admin

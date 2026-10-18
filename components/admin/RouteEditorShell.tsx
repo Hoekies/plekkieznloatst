@@ -19,6 +19,7 @@ import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
 import TestRonde from "./editor/TestRonde";
+import PuntenImporteren from "./editor/PuntenImporteren";
 import ControleVenster from "./editor/ControleVenster";
 import AlleVragenVenster from "./editor/AlleVragenVenster";
 import { routeControle } from "@/lib/route-controle";
@@ -1035,6 +1036,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, zonder elk punt apart te openen">
             📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
           </button>
+          <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
           <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
             title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
             🧪<span className="alleen-pc"> Test</span>

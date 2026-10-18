@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Tijdlijn voor het dashboard: wat er in het lopende spel gebeurt, nieuwste eerst.
@@ -23,7 +23,7 @@ const MAX = 40;
 
 export async function GET() {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data: route } = await admin.from("routes").select("id").eq("is_active", true).maybeSingle();
@@ -43,7 +43,7 @@ export async function GET() {
   const naam = new Map(sessies.map((s) => [s.id, s.players.nickname ?? s.players.login_name]));
   const speler = new Map(sessies.map((s) => [s.id, s.player_id]));
 
-  const [{ data: voortgang }, { data: fotos }, { data: logboek }, { data: hulp }] = await Promise.all([
+  const [{ data: voortgang }, { data: fotos }, { data: logboek }, { data: hulp }, { data: correcties }] = await Promise.all([
     admin.from("player_point_progress")
       .select("id, session_id, reached_at, answered_at, is_correct, points_awarded, route_points(name)")
       .in("session_id", sessieIds).order("reached_at", { ascending: false }).limit(MAX),
@@ -57,6 +57,10 @@ export async function GET() {
     admin.from("hulpverzoeken")
       .select("id, session_id, created_at, route_points(name)")
       .in("session_id", sessieIds).order("created_at", { ascending: false }).limit(10),
+    // Handmatige bonus/aftrek (migratie 006; zonder die tabel komt er gewoon niets terug)
+    admin.from("score_correcties")
+      .select("id, session_id, delta, reden, created_at")
+      .in("session_id", sessieIds).order("created_at", { ascending: false }).limit(MAX),
   ]);
 
   const puntNaam = (rp: unknown) => {
@@ -105,6 +109,13 @@ export async function GET() {
   type HulpRij = { id: string; session_id: string; created_at: string; route_points: unknown };
   for (const h of (hulp ?? []) as HulpRij[]) {
     uit.push({ id: `hulp-${h.id}`, tijd: h.created_at, speler_id: speler.get(h.session_id) ?? null, icoon: "⚠️", item: null, tekst: `${naam.get(h.session_id) ?? "Een speler"} kan ${puntNaam(h.route_points)} niet bereiken` });
+  }
+
+  type CorrectieRij = { id: string; session_id: string; delta: number; reden: string | null; created_at: string };
+  for (const c of (correcties ?? []) as CorrectieRij[]) {
+    const wie = naam.get(c.session_id) ?? "Een speler";
+    const punten = c.delta > 0 ? `+${c.delta}` : String(c.delta);
+    uit.push({ id: `correctie-${c.id}`, tijd: c.created_at, speler_id: speler.get(c.session_id) ?? null, icoon: c.delta > 0 ? "🎁" : "➖", item: null, tekst: `${wie} kreeg ${punten} pt van de spelleider${c.reden ? ` (${c.reden})` : ""}` });
   }
 
   uit.sort((a, b) => new Date(b.tijd).getTime() - new Date(a.tijd).getTime());

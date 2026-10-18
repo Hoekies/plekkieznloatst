@@ -16,7 +16,10 @@ import VersieRegel from "@/components/admin/VersieRegel";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
+  const rol = user?.app_metadata?.rol;
+  if (!user || (rol !== "admin" && rol !== "helper")) redirect("/login");
+  // Helper: alleen het dashboard, antwoorden (foto's keuren) en de live kaart
+  const helper = rol === "helper";
 
   return (
     <div className="admin-shell">
@@ -27,7 +30,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <img src="/logo-breed-strak.webp" alt="PointRush" className="admin-mobiel-logo" />
         {/* Bericht sturen en uitloggen als icoon; de rest staat in het menu */}
         <div style={{ display: "flex", gap: 8 }}>
-          <BroadcastKnop alsIcoon />
+          {!helper && <BroadcastKnop alsIcoon />}
           <UitlogKnop />
         </div>
       </div>
@@ -37,27 +40,29 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
         </div>
         {/* Bovenin het menu welke route er loopt */}
-        <ActieveRouteLabel />
+        {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🧑‍💼 Helper</div> : <ActieveRouteLabel />}
         <nav className="admin-nav">
           <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
-          <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Spelers</AdminNavLink>
+          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>👥</span> Spelers</AdminNavLink>}
           <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
-          <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>
+          {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}
         </nav>
         {/* Acties tijdens het spel: op pc en telefoon hetzelfde */}
         <div className="admin-menu-blok">
           <div className="admin-menu-kop">Spel</div>
           <div className="admin-menu-lijst">
-            <TussenstandKnop alsMenu />
-            <WhatsAppKnop alsMenu />
+            {!helper && <TussenstandKnop alsMenu />}
+            {!helper && <WhatsAppKnop alsMenu />}
             <PushMeldingenKnop />
           </div>
         </div>
-        <div className="admin-menu-blok admin-menu-blok--beheer">
-          <div className="admin-menu-kop">Beheer</div>
-          <SidebarActies />
-        </div>
+        {!helper && (
+          <div className="admin-menu-blok admin-menu-blok--beheer">
+            <div className="admin-menu-kop">Beheer</div>
+            <SidebarActies />
+          </div>
+        )}
         <div className="admin-menu-blok admin-menu-blok--info">
           <InfoKnop />
           {/* Versie en laatste update, klein onderaan */}
@@ -69,7 +74,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
       <div className="admin-uitlog-hoek">
-        <BroadcastKnop alsIcoon />
+        {!helper && <BroadcastKnop alsIcoon />}
         <UitlogKnop compact />
       </div>
       <HulpMeldingen />

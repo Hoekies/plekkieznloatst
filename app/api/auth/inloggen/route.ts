@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { loginNaarEmail } from "@/lib/login-naam";
+import { loginNaarEmail, helperNaarEmail } from "@/lib/login-naam";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
       }
       email = loginNaarEmail(naam);
     } else {
-      return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });
+      // Geen speler met deze naam: misschien een helper van de spelleider
+      email = helperNaarEmail(naam);
     }
   }
 
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
   await admin.from("players").update({ force_logout_at: null }).eq("auth_user_id", data.user.id);
 
   const rol = data.user.app_metadata?.rol;
-  const redirectNaar = rol === "admin" ? "/admin" : "/speler";
+  const redirectNaar = rol === "admin" || rol === "helper" ? "/admin" : "/speler";
   const isDev = process.env.NODE_ENV === "development";
 
   const response = NextResponse.redirect(new URL(redirectNaar, request.url), { status: 303 });

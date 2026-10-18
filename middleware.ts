@@ -2,6 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { middlewareMerk, MERK_HEADER } from "@/lib/middleware-merk";
 
+// Helper van de spelleider: meekijken, foto's keuren en punten vrijgeven. Geen routes, spelers of reset.
+const HELPER_PAGINAS = ["/admin", "/admin/antwoorden", "/admin/live", "/admin/uitleg", "/admin/leaderboard"];
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -33,10 +36,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Admin-pagina's: alleen voor admins
+  // Admin-pagina's: alleen voor admins, en voor helpers de pagina's voor tijdens het spel
   if (user && pad.startsWith("/admin")) {
     const rol = user.app_metadata?.rol;
-    if (rol !== "admin") {
+    if (rol === "helper") {
+      if (!HELPER_PAGINAS.some((p) => pad === p || pad.startsWith(`${p}/`))) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } else if (rol !== "admin") {
       return NextResponse.redirect(new URL("/speler", request.url));
     }
   }
@@ -44,7 +51,7 @@ export async function middleware(request: NextRequest) {
   // Speler-pagina's: alleen voor spelers
   if (user && pad.startsWith("/speler")) {
     const rol = user.app_metadata?.rol;
-    if (rol === "admin") {
+    if (rol === "admin" || rol === "helper") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
   }

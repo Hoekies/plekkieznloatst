@@ -4,6 +4,8 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 
 export type AntwoordRij = {
   voortgang_id: string;
+  punt_id: string;
+  punt_volgorde: number;
   punt_naam: string;
   vraag_type: string;
   vraag_tekst: string;
@@ -53,7 +55,7 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
   const sessies = (sessiesRaw ?? []) as unknown as SessieRij[];
   const sessieIds = sessies.map((s) => s.id);
 
-  const { data: punten } = await admin.from("route_points").select("id, name, points").eq("route_id", route.id);
+  const { data: punten } = await admin.from("route_points").select("id, name, points, order_index").eq("route_id", route.id);
   const puntIds = (punten ?? []).map((p) => p.id);
   const puntMap = new Map((punten ?? []).map((p) => [p.id, p]));
 
@@ -86,6 +88,8 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
       const isMeerkeuze = vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding";
       rijen.push({
         voortgang_id: v.id,
+        punt_id: v.route_point_id,
+        punt_volgorde: punt?.order_index ?? 0,
         punt_naam: punt?.name ?? "Onbekend punt",
         vraag_type: vraag.type,
         vraag_tekst: vraag.question_text,

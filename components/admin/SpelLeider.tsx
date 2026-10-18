@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
+import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 export const NIET_GEZIEN_MIN = 5;
@@ -23,12 +24,16 @@ function duur(ms: number): string {
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, beperkt = false }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
   uitslagVrij?: boolean;
   onKies: (s: SpelerOverzicht) => void;
+  routeId?: string;
+  eindtijd?: string | null;
+  // Hulp (helper): geen eindtijd en niet afronden
+  beperkt?: boolean;
 }) {
   // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
   const [nu, setNu] = useState(() => Date.now());
@@ -70,15 +75,17 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
             <div className="pr-gem-label">🎯 Spelleider</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
+              {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
             </div>
           </div>
+          {!beperkt && routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
           {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
-          <BevestigKnop venster gevaarlijk={false} icoon="🏁"
+          {!beperkt && <BevestigKnop venster gevaarlijk={false} icoon="🏁"
             titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
             vraag="" ja="Ja, uitslag vrijgeven en rapport openen" onBevestig={afronden}
             className="rl-knop rl-knop--cyan actie-knop">
             🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
-          </BevestigKnop>
+          </BevestigKnop>}
         </div>
 
         {aandacht.length === 0 ? (

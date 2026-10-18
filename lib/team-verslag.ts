@@ -23,17 +23,22 @@ export type VerslagItem = {
   lng: number | null;
 };
 
-export type RouteVerslag = { spoor: SpoorPunt[]; afstandM: number; punten: BezochtPunt[]; items: VerslagItem[] };
+// Bonus of aftrek van de spelleider (migratie 006)
+export type Correctie = { delta: number; reden: string | null; tijd: string };
+
+export type RouteVerslag = { spoor: SpoorPunt[]; afstandM: number; punten: BezochtPunt[]; items: VerslagItem[]; correcties: Correctie[] };
 
 // GPS-spoor, bezochte punten en items (op de plek waar ze gebeurden) van één sessie.
 // Gebruikt door de kaart "gelopen route" van de speler en het rapport van de beheerder.
 export async function haalRouteVerslag(admin: AdminClient, sessieId: string): Promise<RouteVerslag> {
-  const [{ data: locaties }, { data: voortgang }, { data: logRijen }] = await Promise.all([
+  const [{ data: locaties }, { data: voortgang }, { data: logRijen }, { data: correctieRijen }] = await Promise.all([
     admin.from("location_updates").select("latitude, longitude, accuracy_meters, created_at").eq("session_id", sessieId).order("created_at"),
     admin.from("player_point_progress")
       .select("reached_at, answered_at, points_awarded, is_correct, open_answer_text, selected_answer_id, route_points(name, latitude, longitude, questions(type, question_text, answer_options(id, text, answer_type)))")
       .eq("session_id", sessieId).order("reached_at"),
     admin.from("item_log").select("*").or(`gebruiker_session_id.eq.${sessieId},doel_session_id.eq.${sessieId}`).order("created_at"),
+    // Zonder migratie 006 bestaat de tabel niet: dan gewoon geen correcties
+    admin.from("score_correcties").select("delta, reden, created_at").eq("session_id", sessieId).order("created_at"),
   ]);
 
   // GPS-ruis eruit: onnauwkeurige metingen overslaan en alleen stappen van minstens 5 m
@@ -115,5 +120,8 @@ export async function haalRouteVerslag(admin: AdminClient, sessieId: string): Pr
     };
   });
 
-  return { spoor, afstandM: Math.round(afstandM), punten, items };
+  const correcties: Correctie[] = ((correctieRijen ?? []) as { delta: number; reden: string | null; created_at: string }[])
+    .map((c) => ({ delta: c.delta, reden: c.reden, tijd: c.created_at }));
+
+  return { spoor, afstandM: Math.round(afstandM), punten, items, correcties };
 }

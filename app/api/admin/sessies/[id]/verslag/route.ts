@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haalRouteVerslag } from "@/lib/team-verslag";
 
@@ -7,7 +7,7 @@ import { haalRouteVerslag } from "@/lib/team-verslag";
 // Voor het detailvenster op het dashboard.
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
   const admin = createAdminClient();

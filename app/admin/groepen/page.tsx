@@ -1,4 +1,5 @@
 import GroepenBeheer from "@/components/admin/GroepenBeheer";
+import HelpersBeheer from "@/components/admin/HelpersBeheer";
 
 export default function GroepenPagina() {
   return (
@@ -8,6 +9,7 @@ export default function GroepenPagina() {
       </div>
       <div className="admin-content">
         <GroepenBeheer />
+        <HelpersBeheer />
       </div>
     </>
   );

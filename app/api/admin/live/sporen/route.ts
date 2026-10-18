@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 
@@ -8,7 +8,7 @@ const MINUTEN = 10;
 
 export async function GET() {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data: route } = await admin.from("routes").select("id").eq("is_active", true).maybeSingle();

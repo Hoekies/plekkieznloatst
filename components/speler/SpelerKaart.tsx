@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
+import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
@@ -109,6 +110,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
+  // Eindtijd van het spel (door de beheerder ingesteld), telt af in de statistiekenbalk
+  const [eindtijd, setEindtijd] = useState<string | null>(null);
   const [plekzooiActief, setPlekzooiActief] = useState(false);
   const [plekzooiSecondsLeft, setPlekzooiSecondsLeft] = useState(0);
   const [tussenstand, setTussenstand] = useState<LeaderboardEntry[] | null>(null);
@@ -364,6 +367,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         const data = await res.json();
         // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
         if (data === null) { router.push("/speler?gestopt=1"); return; }
+        // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
+        if (data?.tijd_op) { speelFinish(); router.push("/speler/finish"); return; }
+        setEindtijd(data?.eindtijd ?? null);
         if (data?.score !== undefined) setScore(data.score);
         // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
         if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
@@ -719,6 +725,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           <span className="pr-hud-icoon">⭐</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
         </div>
+        {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} />}
         <button
           onClick={() => setLegendeOpen(true)}
           title="Wat doen de speciale items?"
