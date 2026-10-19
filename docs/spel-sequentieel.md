@@ -27,6 +27,7 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 Op de kaart zie je:
 
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje
+- **☀️ 🌙 🛰️** linksboven onder de zoomknoppen — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart — en zij jullie ook niet

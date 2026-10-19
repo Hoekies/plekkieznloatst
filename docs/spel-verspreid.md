@@ -41,6 +41,7 @@ Jullie route bestaat uit drie stukken:
 Op de kaart zie je:
 
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje
+- **☀️ 🌙 🛰️** linksboven onder de zoomknoppen — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen; zij zien jou niet.

@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import { speelgebiedLaag } from "@/lib/speelgebied";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -43,6 +44,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const gecenterRef = useRef(false);
   // Speelgebied: buiten de route iets grijzer
   const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
+  // Licht, donker of luchtfoto: de speler kiest zelf (onthouden op dit toestel)
+  const basiskaartRef = useRef<Basiskaart | null>(null);
+  const [stijl, setStijl] = useState<KaartStijl>("licht");
+  const [vector, setVector] = useState(false);
+  function kiesStijl(s: KaartStijl) {
+    setStijl(s);
+    bewaarStijl(s);
+    basiskaartRef.current?.zetStijl(s);
+  }
 
   // Kaart initialiseren
   useEffect(() => {
@@ -78,7 +88,13 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       gebiedRef.current = speelgebiedLaag(L, map);
       setKaartKlaar(true);
       // Scherpe kaart (vectortegels) met duidelijke paden, huizen en groen; anders de gewone OSM-plaatjes
-      voegBasiskaartToe(L, map, "licht");
+      const beginStijl = bewaardeStijl();
+      setStijl(beginStijl);
+      voegBasiskaartToe(L, map, beginStijl).then((b) => {
+        if (!mapRef.current) return;
+        basiskaartRef.current = b;
+        setVector(b.vector);
+      });
     }
 
     init();
@@ -311,8 +327,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
   // Speelgebied: alles buiten de route iets grijzer, zodat je ziet waar het spel is
   useEffect(() => {
-    gebiedRef.current?.(punten.map((p) => ({ lat: p.latitude, lng: p.longitude })));
-  }, [punten, kaartKlaar]);
+    gebiedRef.current?.(punten.map((p) => ({ lat: p.latitude, lng: p.longitude })), stijl === "donker");
+  }, [punten, kaartKlaar, stijl]);
 
   return (
     <>
@@ -328,6 +344,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         }
       `}</style>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+      {/* Linksboven onder de zoomknoppen: licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
+      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} />
     </>
   );
 }
