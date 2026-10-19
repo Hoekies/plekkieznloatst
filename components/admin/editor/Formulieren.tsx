@@ -101,15 +101,9 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
       {/* Eerst het soort punt; daaronder alleen wat bij dat soort hoort */}
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Soort punt</label>
-        <div style={{ display: "flex", gap: 3 }}>
+        <div className="segment" role="radiogroup" aria-label="Soort punt">
           {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
-            <button key={t} type="button" onClick={() => setType(t)}
-              style={{
-                flex: 1, padding: "7px 2px", borderRadius: 8, cursor: "pointer", fontSize: "0.72rem", fontWeight: 700,
-                border: `2px solid ${type === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                background: type === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                color: type === t ? "#fff" : "var(--muted)", whiteSpace: "nowrap",
-              }}>
+            <button key={t} type="button" role="radio" aria-checked={type === t} className={type === t ? "aan" : ""} onClick={() => setType(t)}>
               {label}
             </button>
           ))}
@@ -123,11 +117,9 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
 
       {type === "vraagpunt" && (
         <>
-          <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#86EFAC" : "#FBBF24" }}>
-            {heeftVraag ? "✅ De vraag is ingevuld." : "⚠️ Nog geen vraag: vul hem in."}
-          </div>
-          {heeftVraag && info?.vraagTekst && (
-            <div className="punt-vraagtekst" title={info.vraagTekst}>“{info.vraagTekst}”</div>
+          {!heeftVraag && <div className="editor-paneel-noot" style={{ fontWeight: 600, color: "#FBBF24" }}>⚠️ Nog geen vraag</div>}
+          {heeftVraag && (
+            <div className="punt-vraagtekst" title={info?.vraagTekst ?? undefined}>{info?.vraagTekst ? `“${info.vraagTekst}”` : "✓ Vraag ingevuld"}</div>
           )}
           <button type="button" onClick={onVraag} className={`rl-knop${heeftVraag ? "" : " rl-knop--cyan"}`} style={{ width: "100%", justifyContent: "center" }}>
             {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag invullen →"}
@@ -181,11 +173,10 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
 
       {/* Positie: verslepen op de kaart, of op de dichtstbijzijnde weg zetten */}
       <div className="punt-positie">
-        <span title="Positie (sleep het punt op de kaart om het te verplaatsen)">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
+        <span title="Verplaatsen: sleep het punt op de kaart. Straal en punten staan bij ⚙️ Instellingen.">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
         {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">🛣️ Op de weg</button>}
       </div>
 
-      <div className="editor-paneel-noot">Straal en punten: ⚙️ Instellingen. Verplaatsen: sleep het punt op de kaart.</div>
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
       <div style={{ display: "flex", gap: 6 }}>
         <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}
