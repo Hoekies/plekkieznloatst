@@ -53,9 +53,11 @@ type Palet = {
 };
 const PALET: Record<"licht" | "donker", Palet> = {
   licht: {
-    land: "#F2EFE9", wonen: "#E0DFDF", gras: "#CDEBB0", park: "#C8FACC", bos: "#ADD19E", sport: "#AAE0CB", school: "#F0F0D8", begraaf: "#AACBAF",
-    water: "#AAD3DF", huis: "#D9D0C9", huisRand: "#BFB1A6", weg: "#FFFFFF", wegRand: "#B4ABA1", grootWeg: "#FCD6A4", pad: "#FA8072",
-    tekst: "#333333", tekstRand: "#FFFFFF",
+    // Zoals OpenStreetMap, maar rustiger: geen rood, oranje of geel in de ondergrond, zodat de
+    // teamkleuren (rood, geel, groen…) er duidelijk uitspringen
+    land: "#F3F1ED", wonen: "#E6E4E1", gras: "#DCEDCC", park: "#D6F0D6", bos: "#C2DDB6", sport: "#CDE6DC", school: "#EEEDE2", begraaf: "#C8DACB",
+    water: "#B9DBE6", huis: "#E0DAD4", huisRand: "#CBC1B8", weg: "#FFFFFF", wegRand: "#C3BCB4", grootWeg: "#FFFFFF", pad: "#A39A92",
+    tekst: "#3A3631", tekstRand: "#FFFFFF",
   },
   donker: {
     land: "#1E1933", wonen: "#262040", gras: "#23402C", park: "#22452F", bos: "#1C3826", sport: "#21443F", school: "#2E2A44", begraaf: "#253A2E",

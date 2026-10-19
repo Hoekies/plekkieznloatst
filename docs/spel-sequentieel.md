@@ -31,7 +31,7 @@ Op de kaart zie je:
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart — en zij jullie ook niet
 - **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
-- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne roze stippellijntjes
+- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne grijze stippellijntjes
 - Geen items om op te pakken — wel kunnen er onzichtbare **Plek zooi**-vallen liggen
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.

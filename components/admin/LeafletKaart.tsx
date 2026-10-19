@@ -272,10 +272,15 @@ export default function LeafletKaart({
           return st.map((c) => verschuifRadiaal(c, t.coords[0], naarStart ? 0 : verschuivingM));
         });
         const lijnCoords = stukLijnen.flatMap((st, i) => (i === 0 ? st : st.slice(1)));
+        // Witte rand onder de lijn: valt zo op elke ondergrond op
+        const rand = L.polyline(lijnCoords, {
+          color: "#FFFFFF", weight: (uitgelicht ? 6 : 3.5) + 4, opacity: vaag ? 0.1 : 0.85, interactive: false, lineCap: "round", lineJoin: "round",
+        }).addTo(kaartRef.current!);
+        teamLijnenRef.current.push(rand);
         const lijn = L.polyline(lijnCoords, {
           color: t.kleur, weight: uitgelicht ? 6 : 3.5, opacity: vaag ? 0.15 : uitgelicht ? 1 : 0.9, interactive: false,
         }).addTo(kaartRef.current!);
-        if (uitgelicht) lijn.bringToFront();
+        if (uitgelicht) { rand.bringToFront(); lijn.bringToFront(); }
         teamLijnenRef.current.push(lijn);
 
         // Looprichting: een pijl halverwege elk stuk

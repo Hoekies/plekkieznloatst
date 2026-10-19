@@ -74,6 +74,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
         map.addSource("pr-punten", { type: "geojson", data: { type: "FeatureCollection", features: route_punten.map((p) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [p.longitude, p.latitude] } })) } });
         map.addLayer({ id: "pr-punten", type: "circle", source: "pr-punten", paint: { "circle-radius": 6, "circle-color": "#1E40AF", "circle-stroke-color": "#FFFFFF", "circle-stroke-width": 2, "circle-opacity": 0.85 } });
         map.addSource("pr-sporen", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+        map.addLayer({ id: "pr-sporen-rand", type: "line", source: "pr-sporen", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.8 } });
         map.addLayer({ id: "pr-sporen", type: "line", source: "pr-sporen", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": ["get", "kleur"], "line-width": 4, "line-opacity": 0.85 } });
         if (actief) setKlaar(true);
       });

@@ -244,6 +244,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       const lijn = speler.laatste_lat !== null ? [...punten, [speler.laatste_lat, speler.laatste_lng!] as [number, number]] : punten;
       if (lijn.length < 2) continue;
       const kleur = kleuren?.get(id) ?? "#F97316";
+      // Witte rand onder het hele spoor, zodat het op de kaart opvalt
+      L.polyline(lijn, { color: "#FFFFFF", weight: 9, opacity: 0.6, lineCap: "round", lineJoin: "round", interactive: false }).addTo(laag);
       const per = Math.ceil((lijn.length - 1) / STUKKEN);
       for (let i = 0, n = 0; i < lijn.length - 1; i += per, n++) {
         const stuk = lijn.slice(i, Math.min(lijn.length, i + per + 1));

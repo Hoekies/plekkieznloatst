@@ -46,7 +46,7 @@ Op de kaart zie je:
 - **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen; zij zien jou niet.
 - **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
 - **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
-- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne roze stippellijntjes
+- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne grijze stippellijntjes
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende.
 
