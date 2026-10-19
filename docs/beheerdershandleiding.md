@@ -48,7 +48,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Klaar? Klik op **✅ Klaarzetten**. De controle **🩺 Klaar om te spelen?** opent; is alles in orde, dan zet je de route daar klaar. Daarna verschijnt **▶ Activeren** (zie [Het spel starten](#het-spel-starten)).
 
-> **Status van een route**: **✏️ Concept** (nog bezig) → **✅ Klaar** (gecontroleerd, kan geactiveerd worden) → **▶ Actief** (de spelers kunnen spelen). In de routekop zie je dit als stappen: ✏️ Bewerken › 🩺 Controleren › ✅ Klaar › ▶ Actief, met daarnaast één opvallende knop voor de volgende stap. Klik op **🩺 Controleren** om de controle tussendoor te bekijken. Bij een klare route zet **↩ Concept** hem terug om verder te bewerken.
+> **Status van een route**: **✏️ Concept** (nog bezig) → **✅ Klaar** (gecontroleerd, kan geactiveerd worden) → **▶ Actief** (de spelers kunnen spelen). In de routekop zie je dit als stappen: Bewerken › Controleren › Klaar › Actief (de huidige gemarkeerd, gedane stappen met ✓), met daarnaast één opvallende knop voor de volgende stap. Klik op **Controleren** om de controle tussendoor te bekijken. Bij een klare route zet **↩ Concept** hem terug om verder te bewerken.
 
 > **Overzicht in de editor (computer)**:
 > - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap zoals ✅ Klaarzetten of ▶ Activeren, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, en het gereedschap 📥 Importeren, 🛣️ Op de weg en 🧹 Leegmaken).

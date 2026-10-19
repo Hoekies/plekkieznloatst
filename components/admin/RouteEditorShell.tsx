@@ -1089,22 +1089,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     <>
             {/* Computer: de stappen; telefoon: alleen het statuslabel */}
             <span className="route-stappen" aria-label="Voortgang van de route">
-              {([["✏️", "Bewerken"], ["🩺", "Controleren"], ["✅", "Klaar"], ["▶", "Actief"]] as const).map(([icoon, naam], i) => {
+              {(["Bewerken", "Controleren", "Klaar", "Actief"] as const).map((naam, i) => {
                 const cls = `route-stap${i < fase ? " route-stap--gedaan" : i === fase ? " route-stap--nu" : ""}`;
                 return (
                   <Fragment key={naam}>
                     {i > 0 && <span className="route-stap-pijl" aria-hidden>›</span>}
                     {i === 1 ? (
                       <button type="button" className={cls} onClick={() => setControleOpen(true)} title="Controleer of de route klaar is om te spelen">
-                        {icoon} <span className="route-stap-naam">{naam}</span>{controle.length ? <span className="editor-teller">{controle.length}</span> : null}
+                        {i < fase ? "✓ " : ""}{naam}{controle.length ? <span className="editor-teller">{controle.length}</span> : null}
                       </button>
-                    ) : <span className={cls} title={naam}>{icoon} <span className="route-stap-naam">{naam}</span></span>}
+                    ) : <span className={cls}>{i < fase ? "✓ " : ""}{naam}</span>}
                   </Fragment>
                 );
               })}
             </span>
             <span className="route-status-mobiel"><StatusPil status={route.status} isActief={route.is_active} /></span>
-            <span className="editor-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }} title={MODUS_INFO[route.modus].label}>
+            <span className="editor-chip editor-modus-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }} title={MODUS_INFO[route.modus].label}>
               <ModusIcoon modus={route.modus} size={14} />
               <span className="alleen-pc editor-modus-naam">{MODUS_INFO[route.modus].label}</span>
             </span>
@@ -1146,17 +1146,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         <div className="editor-kop" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <a href="/admin/routes" className="rl-knop editor-terug" title="Terug naar de routes">←<span className="alleen-pc"> Routes</span></a>
           {naamWijzig ? (
-            <div style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
+            <div className="editor-naam-wijzig" style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
               <input className="form-input" value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} style={{ flex: 1 }} autoFocus />
-              <button className="btn btn-primary" onClick={slaRouteNaamOp}>Opslaan</button>
-              <button className="btn btn-ghost" onClick={() => setNaamWijzig(false)}>✕</button>
+              <button className="rl-knop rl-knop--cyan" onClick={slaRouteNaamOp}>Opslaan</button>
+              <button className="rl-knop" onClick={() => setNaamWijzig(false)} title="Annuleren" aria-label="Annuleren">✕</button>
             </div>
           ) : (
             <h1 className="editor-naam" style={{ minWidth: 0, cursor: "pointer", fontSize: "1.1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
-          <span className="editor-status-kop">{statusGroep}</span>
+          {!naamWijzig && <span className="editor-status-kop">{statusGroep}</span>}
           <span className="editor-kop-ruimte" />
           <span className="editor-status-kop">{rechtsGroep}</span>
           {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}

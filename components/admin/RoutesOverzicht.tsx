@@ -214,7 +214,7 @@ export default function RoutesOverzicht() {
   return (
     <div>
       {/* Nieuwe route links, importeren rechts (zoals bij Groepen) */}
-      <div className="actie-rij">
+      <div className="actie-rij" style={{ marginBottom: 22 }}>
         <button className="btn btn-primary actie-knop" onClick={() => setAanmaken(true)}>
           + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>

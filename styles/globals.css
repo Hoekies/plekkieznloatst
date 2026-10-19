@@ -2659,11 +2659,43 @@ button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); 
   .vraag-rij { flex-wrap: wrap; }
 }
 
-/* Laptop: routekop compacter (alleen bij de huidige stap de naam, spelsoort als icoon) */
-@media (min-width: 769px) and (max-width: 1600px) {
-  .route-stap:not(.route-stap--nu) .route-stap-naam { display: none; }
-  .editor-modus-naam { display: none !important; }
-}
 @media (min-width: 769px) {
   .route-editor-topbar .editor-kop { flex-wrap: wrap; row-gap: 6px; }
+}
+
+/* Routeoverzicht: icoonknoppen echt met het icoon boven de tekst, even hoog als de andere knoppen */
+.pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 82px; height: 46px; padding: 0 4px; font-size: 1.2rem; line-height: 1; box-sizing: border-box;
+}
+.rl-knop-label { display: block; font-size: 0.62rem; font-weight: 700; line-height: 1; white-space: nowrap; color: rgba(255,255,255,0.85); }
+.rl-knop--rood .rl-knop-label { color: #FECACA; }
+@media (max-width: 768px) {
+  .pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: 100%; height: 50px; }
+}
+
+/* Route-editor: stappen als tekst, spelsoort alleen op de telefoon, naam wijzigen compact */
+.route-editor-topbar .editor-kop { flex-wrap: nowrap; }
+@media (min-width: 769px) {
+  .editor-modus-chip { display: none !important; }
+  .editor-naam-wijzig { flex: 0 1 460px !important; }
+  .editor-naam-wijzig .rl-knop { height: 36px; }
+}
+
+/* Zijbalk: altijd helemaal in beeld, ook « Inklappen en de versie (knoppen iets lager op een laag scherm) */
+@media (min-width: 769px) {
+  .admin-sidebar-logo img { max-height: clamp(84px, 20vh, 216px); }
+  .admin-nav-link {
+    height: clamp(28px, calc((100dvh - 330px) / 15), 42px);
+    font-size: clamp(13px, calc((100dvh - 330px) / 15 * 0.42), 17px);
+  }
+  .admin-nav-link > [aria-hidden] { font-size: clamp(15px, calc((100dvh - 330px) / 15 * 0.48), 20px); }
+}
+
+/* Routekop past ook op een laptop: stappen compact, opslagstatus alleen als er iets gebeurt */
+.route-editor-topbar .editor-kop .editor-opslag--rust { display: none; }
+@media (min-width: 769px) {
+  .route-stappen { gap: 2px; }
+  .route-stap { height: 26px; padding: 0 8px; font-size: 0.72rem; }
+  .route-stap-pijl { font-size: 0.8rem; }
 }
