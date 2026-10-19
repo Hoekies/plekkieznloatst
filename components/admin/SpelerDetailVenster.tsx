@@ -18,8 +18,10 @@ const ITEM_NAAM: Record<string, string> = {
 };
 
 // Alles van één speler in één venster: stand, gelopen route, antwoorden en items
-export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunten, onSluit }: {
+export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunten, onSluit, acties }: {
   speler: SpelerOverzicht; rang: number; kleur: string; totaalPunten: number; onSluit: () => void;
+  // Knoppen (punt vrijgeven, punten, bericht, stoppen): dezelfde als op de spelerskaart
+  acties?: React.ReactNode;
 }) {
   const [verslag, setVerslag] = useState<RouteVerslag | null>(null);
   const [fout, setFout] = useState(false);
@@ -65,6 +67,8 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
               <a className="wa-knop" href={waLink("", s.telefoon)} target="_blank" rel="noopener noreferrer"><WhatsAppLogo /> WhatsApp</a>
             </div>
           )}
+
+          {acties}
 
           {/* Kerngetallen */}
           <div className="detail-cijfers">

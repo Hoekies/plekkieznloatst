@@ -213,7 +213,10 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 
         {detail && (
           <SpelerDetailVenster speler={detail} rang={spelend.indexOf(detail) + 1} kleur={kleuren.get(detail.player_id) ?? "#A78BFA"}
-            totaalPunten={totaalPunten} onSluit={() => setDetailId(null)} />
+            totaalPunten={totaalPunten} onSluit={() => setDetailId(null)}
+            acties={<SpelerActies s={detail} kanVrijgeven beperkt={beperkt}
+              onVrijgeven={() => geefPuntVrij(detail)} onStop={() => { stopSpel(detail); setDetailId(null); }}
+              onNegeer={negeerHulp} onGewijzigd={ververs} />} />
         )}
 
         {/* Reset sectie */}
@@ -348,37 +351,50 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {duurKort(Math.max(0, Math.floor((Date.now() - new Date(s.hulp.sinds).getTime()) / 60000)))} geleden</span>
             </div>
           )}
-          {/* Knoppen: op de telefoon korte teksten, naast elkaar op één regel */}
-          {toonAlles && speelt && (
-            <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
-              {kanVrijgeven && (
-                <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
-                  vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
-                  className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
-                  <span className="knop-icoon" aria-hidden>⏭️</span> <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
-                </BevestigKnop>
-              )}
-              {s.hulp && (
-                <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
-              )}
-              {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
-              {!beperkt && <BroadcastKnop team={{ id: s.player_id, naam: s.display_name }} />}
-              {!beperkt && (
-                <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
-                  vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
-                  <span className="knop-icoon" aria-hidden>⏹️</span> <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
-                </BevestigKnop>
-              )}
-            </div>
-          )}
-          {/* Gefinisht: punten aanpassen kan nog (bijv. een bonus voor de mooiste foto) */}
-          {toonAlles && !speelt && !beperkt && s.sessie_id && (
-            <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
-              <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />
-            </div>
-          )}
+          {/* Knoppen (dezelfde als in het venster met alle details) */}
+          {toonAlles && <SpelerActies s={s} kanVrijgeven={kanVrijgeven} beperkt={beperkt}
+            onVrijgeven={onVrijgeven} onStop={onStop} onNegeer={onNegeer} onGewijzigd={onGewijzigd} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Knoppen bij een speler: punt vrijgeven, punten, bericht en stoppen (gefinisht: alleen punten).
+// Op de spelerskaart én in het venster met alle details. Op de telefoon korte teksten.
+function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer, onGewijzigd }: {
+  s: SpelerOverzicht; kanVrijgeven: boolean; beperkt: boolean;
+  onVrijgeven: () => void; onStop: () => void; onNegeer: (hulpId: string) => void; onGewijzigd: () => void;
+}) {
+  const speelt = s.sessie_status === "actief";
+  if (!speelt) {
+    if (beperkt || !s.sessie_id) return null;
+    return (
+      <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
+        <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />
+      </div>
+    );
+  }
+  return (
+    <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
+      {kanVrijgeven && (
+        <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
+          vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
+          className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
+          <span className="knop-icoon" aria-hidden>⏭️</span> <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
+        </BevestigKnop>
+      )}
+      {s.hulp && (
+        <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
+      )}
+      {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
+      {!beperkt && <BroadcastKnop team={{ id: s.player_id, naam: s.display_name }} />}
+      {!beperkt && (
+        <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
+          vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
+          <span className="knop-icoon" aria-hidden>⏹️</span> <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
+        </BevestigKnop>
+      )}
     </div>
   );
 }
