@@ -66,10 +66,10 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* Compacte strook (ook op de pc) in plaats van vier grote tegels */}
       <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
-        <span>🗺️ {data.route.name}</span>
-        <span>👫 {data.teams.length} {data.teams.length === 1 ? "speler" : "spelers"}</span>
-        <span className={data.wachtende_fotos ? "dash-strook--let-op" : undefined}>📸 {data.wachtende_fotos ?? 0} foto&apos;s te keuren</span>
-        <span>{data.uitslag_vrijgegeven ? "🏆 Uitslag zichtbaar" : "🔒 Uitslag verborgen"}</span>
+        <span className="strook-naam" title="Actieve route">🗺️ {data.route.name}</span>
+        <span title="Spelers">👫 {data.teams.length}<span className="st"> {data.teams.length === 1 ? "speler" : "spelers"}</span></span>
+        <span className={data.wachtende_fotos ? "dash-strook--let-op" : undefined} title="Foto's te keuren">📸 {data.wachtende_fotos ?? 0}<span className="st"> foto&apos;s te keuren</span></span>
+        <span title={data.uitslag_vrijgegeven ? "Uitslag zichtbaar" : "Uitslag verborgen"}>{data.uitslag_vrijgegeven ? "🏆" : "🔒"}<span className="st">{data.uitslag_vrijgegeven ? " Uitslag zichtbaar" : " Uitslag verborgen"}</span></span>
       </div>
 
       {/* Eén rij: per team / per vraag links, uitslag en rapport rechts */}
@@ -80,7 +80,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             <button type="button" className={`rl-knop${perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(true)}>📊 Per vraag</button>
           </div>
         )}
-        <span style={{ flex: 1 }} />
+        <span className="antw-ruimte" style={{ flex: 1 }} />
       {!beperkt && <>
         {data.uitslag_vrijgegeven ? (
           <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
@@ -112,7 +112,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             <span className="pr-gem-avatar" style={{ width: 40, height: 40, fontSize: "1.5rem" }}>{team.icon ?? "👫"}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{team.naam}</span>
-              {team.rijen.length === 0 && <span style={{ fontSize: "0.78rem", color: "var(--muted)", marginLeft: 10 }}>nog geen vragen beantwoord</span>}
+              {team.rijen.length === 0 && <span className="antw-nog-niets">nog geen vragen beantwoord</span>}
             </span>
             <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--cyan"}`}>
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}

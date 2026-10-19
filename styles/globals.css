@@ -2204,11 +2204,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .knop-icoon { font-size: 1.35em; line-height: 1; display: inline-block; vertical-align: -0.12em; }
 
 /* Replay: kaartstijl rechtsboven, camera-knoppen eronder (de kaart heeft linksboven zijn eigen knoppen) */
-.replay-stijl .kaart-stijl { left: auto; right: 10px; top: 10px; }
-.replay-camera { position: absolute; right: 10px; top: 54px; z-index: 5; display: flex; gap: 2px; padding: 3px; border-radius: 10px;
-  background: rgba(28,12,69,0.85); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
-.replay-camera button { width: 34px; height: 30px; border: none; border-radius: 7px; background: none; cursor: pointer; font-size: 1rem; opacity: 0.55; }
-.replay-camera button.aan { background: rgba(255,255,255,0.18); opacity: 1; }
 
 .kaart-stijl--onder { top: auto; bottom: max(22px, calc(env(safe-area-inset-bottom) + 12px)); }
 
@@ -2559,4 +2554,71 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .lijst-greep { display: inline-block; width: 16px; flex-shrink: 0; text-align: center; font-size: 1rem; line-height: 1; color: rgba(255,255,255,0.3); cursor: grab; }
   .lijst-rij:hover .lijst-greep { color: rgba(255,255,255,0.65); }
   .lijst-greep--vast { visibility: hidden; }
+}
+
+/* Replay: paneel rechtsboven, rij Camera boven rij Kaart */
+.kaart-bediening.replay-bediening { left: auto; right: 10px; top: 10px; bottom: auto; z-index: 5; }
+.kaart-bediening .kaart-lagen--camera::before { content: "Camera"; }
+/* Itempaneel: raster van 5 in dezelfde stijl als de segmentknop */
+.segment--raster { display: grid; grid-template-columns: repeat(5, 1fr); }
+.segment--raster > button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px; font-size: 0.58rem; }
+.segment--raster > button:disabled { opacity: 0.3; cursor: not-allowed; }
+.segment--raster > button img { width: 26px; height: 26px; }
+.route-editor-drawer .paneel-verwijder { background: transparent; border-color: rgba(239,68,68,0.3); }
+.route-editor-drawer .paneel-verwijder:hover { background: rgba(239,68,68,0.15); }
+
+/* Strook op de telefoon: icoon + getal op één regel, niet scrollen; namen worden zo nodig afgekapt */
+.gb-status-mobiel { display: none; }
+@media (max-width: 768px) {
+  .dash-strook--altijd { flex-wrap: nowrap; overflow: hidden; gap: 6px; }
+  .dash-strook--altijd > span { padding: 6px 10px; font-size: 0.78rem; flex-shrink: 0; }
+  .dash-strook--altijd > .strook-naam { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .dash-strook--altijd .st { display: none; }
+  /* Spelerskaart: status als bolletje vooraan, de tekst "Ingelogd" valt weg */
+  .gb-status-mobiel { display: inline; }
+  .gb-status-pc { display: none; }
+  /* Knoppenbalk rustiger: neutraal vlak, kleur alleen in de tekst */
+  .gb-kaart .gb-iconen > .rl-knop { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.12) !important; }
+}
+
+/* Telefoon: compacter na het meekijken op de telefoon */
+.antw-nog-niets { font-size: 0.78rem; color: var(--muted); margin-left: 10px; }
+@media (max-width: 768px) {
+  /* Dashboard: titel, foto's en live op één regel; live is dan alleen het bolletje */
+  .dashboard-topbar { flex-wrap: nowrap !important; gap: 8px !important; }
+  .dashboard-topbar .admin-live-badge--ok { font-size: 0; gap: 0; padding: 7px; }
+  .dashboard-topbar .header-knop { padding: 0 12px !important; }
+  /* Spelleider: pauze, eindtijd en afronden naast elkaar */
+  .spelleider-knoppen { flex-wrap: nowrap; }
+  .spelleider-knoppen > * { flex: 1 1 0 !important; font-size: 0.78rem !important; padding: 0 6px !important; }
+  /* Spelerskaart: cijfers op één regel */
+  .sk-stats { gap: 2px 8px; font-size: 0.72rem; }
+  /* Spel resetten staat ook in het menu: op de telefoon niet nog eens onderaan het dashboard */
+  .reset-blok { display: none; }
+  /* Antwoorden: knoppen netjes onder de tabbladen, "nog niets" op een eigen regel */
+  .antw-ruimte { display: none; }
+  .antw-balk > .rl-knop, .antw-balk > a.rl-knop { flex: 1 1 0; justify-content: center; }
+  .antw-nog-niets { display: block; margin-left: 0; font-size: 0.72rem; }
+}
+
+/* Route-editor op de telefoon (na meekijken) */
+.admin-main { min-width: 0; }
+.zijpaneel-kop-mobiel { display: none; }
+/* Lijst links: zelfde paars als de rest van de app (was marineblauw) */
+.route-editor-zijpaneel { background: rgba(24,10,60,0.9); }
+@media (max-width: 768px) {
+  /* Bovenbalk mag nooit breder worden dan het scherm (↶ en ⚙️ vielen rechts weg) */
+  .route-editor-topbar { min-width: 0; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
+  .route-editor-topbar .editor-kop, .route-editor-topbar .editor-balk { min-width: 0; max-width: 100%; }
+  .editor-gereedschap-rij { flex: 1 1 100%; min-width: 0; max-width: 100%; }
+  /* Kaartpaneel boven de knop "≡ Lijst" (rechtsonder), zodat ze niet overlappen */
+  .kaart-bediening { bottom: calc(max(22px, calc(env(safe-area-inset-bottom) + 12px)) + 58px); }
+  .zijpaneel-kop-mobiel { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 6px; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; color: #fff; }
+  .zijpaneel-kop-mobiel .editor-paneel-sluit { width: 32px; height: 32px; font-size: 1rem; margin-left: 0; }
+  /* Routekaart uitgeklapt: knoppen even breed, geen gat voor ontbrekende knoppen */
+  .rl-icoonknoppen { display: flex !important; gap: 6px !important; }
+  .rl-icoonknoppen > * { flex: 1 1 0; min-width: 0; }
+  .rl-icoonknoppen > .rl-leeg { display: none !important; }
+  .pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: auto !important; padding: 0 2px; }
+  .rl-knop-label { font-size: 0.58rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 }

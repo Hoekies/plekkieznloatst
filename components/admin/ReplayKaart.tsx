@@ -179,10 +179,13 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
         )}
         {!geenWebgl && (
           <>
-            <div className="replay-stijl"><KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} /></div>
-            <div className="replay-camera">
-              <button type="button" className={meebewegen ? "aan" : ""} onClick={() => setMeebewegen((m) => !m)} title="Camera beweegt mee met de teams">🎥</button>
-              <button type="button" className={schuin ? "aan" : ""} onClick={wisselSchuin} title={schuin ? "Plat bekijken" : "Schuin bekijken"}>{schuin ? "⛰️" : "⬜"}</button>
+            {/* Rechtsboven: camera en licht/donker/luchtfoto in één paneel, zoals op de andere kaarten */}
+            <div className="kaart-bediening replay-bediening" onClick={(e) => e.stopPropagation()}>
+              <div className="kaart-lagen kaart-lagen--camera">
+                <button type="button" className={meebewegen ? "aan" : ""} aria-pressed={meebewegen} onClick={() => setMeebewegen((m) => !m)} title="Camera beweegt mee met de teams">🎥 Meebewegen</button>
+                <button type="button" className={schuin ? "aan" : ""} aria-pressed={schuin} onClick={wisselSchuin} title={schuin ? "Plat bekijken" : "Schuin bekijken"}>⛰️ Schuin</button>
+              </div>
+              <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} inBlok />
             </div>
           </>
         )}

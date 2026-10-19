@@ -1250,6 +1250,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel — op mobiel een overlay i.p.v. vaste kolom */}
         <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}${lijstDicht ? " route-editor-zijpaneel--dicht" : ""}`}>
+          {/* Telefoon: kop met sluitknop (tikken naast het paneel sluit hem ook) */}
+          <div className="zijpaneel-kop-mobiel">
+            <span>≡ Punten en items</span>
+            <button type="button" className="editor-paneel-sluit" onClick={() => setMobielPaneelOpen(false)} title="Lijst sluiten" aria-label="Lijst sluiten">✕</button>
+          </div>
 
           {/* Verspreid-instellingen / afstand */}
           {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>

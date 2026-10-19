@@ -122,7 +122,9 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                 titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
                 vraag="" ja="Ja, uitslag vrijgeven en rapport openen" knopTekst="Ja, uitslag vrijgeven" onBevestig={afronden}
                 className="rl-knop rl-knop--cyan actie-knop">
-                🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
+                🏁 {uitslagVrij
+                  ? <><span className="alleen-pc">Rapport openen</span><span className="alleen-mobiel">Rapport</span></>
+                  : <><span className="alleen-pc">Spel afronden</span><span className="alleen-mobiel">Afronden</span></>}
               </BevestigKnop>
             </div>
           )}

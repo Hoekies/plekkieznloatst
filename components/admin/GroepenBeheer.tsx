@@ -100,10 +100,11 @@ export default function GroepenBeheer() {
             {g.nickname ?? "nog geen teamnaam gekozen"}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
+            <span className="gb-status-mobiel" style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: 700 }}>{isUit ? "Uit" : g.active_device_id ? "● " : "○ "}</span>
             {g.login_name && <span><span className="gb-login-woord">Login: </span><strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
             {g.toegang_tot && new Date(g.toegang_tot).getTime() > Date.now() && <span style={{ color: "#FFE680" }}>🔗 tot {tijdTekst(g.toegang_tot)} · </span>}
             {g.telefoon && <span className="gb-tel">📞 {toonTelefoon(g.telefoon)} · </span>}
-            <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
+            <span className="gb-status-pc" style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
               {isUit ? "Uitgeschakeld" : g.active_device_id ? "● Ingelogd" : "○ Niet ingelogd"}
             </span>
           </div>
@@ -180,10 +181,10 @@ export default function GroepenBeheer() {
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
       <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
-        <span>👫 {groepen.length} spelers</span>
-        <span>📱 {groepen.filter((g) => g.active_device_id).length} ingelogd</span>
-        <span>⚡ {groepen.filter((g) => g.heeft_spel).length} speelt</span>
-        {groepen.some((g) => g.is_uitgeschakeld) && <span>⏸ {groepen.filter((g) => g.is_uitgeschakeld).length} uit</span>}
+        <span title="Spelers">👫 {groepen.length}<span className="st"> spelers</span></span>
+        <span title="Ingelogd">📱 {groepen.filter((g) => g.active_device_id).length}<span className="st"> ingelogd</span></span>
+        <span title="Aan het spelen">⚡ {groepen.filter((g) => g.heeft_spel).length}<span className="st"> speelt</span></span>
+        {groepen.some((g) => g.is_uitgeschakeld) && <span title="Uitgeschakeld">⏸ {groepen.filter((g) => g.is_uitgeschakeld).length}<span className="st"> uit</span></span>}
       </div>
 
       {/* Nieuwe speler links (versturen via WhatsApp staat in het menu) */}

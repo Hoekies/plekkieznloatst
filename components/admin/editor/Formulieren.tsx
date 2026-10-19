@@ -32,20 +32,14 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
         <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
+      <label className="form-label" style={{ margin: 0 }}>Soort item</label>
+      <div className="segment segment--raster">
         {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
           const gekozen = type === t;
           const uit = alleenPlekzooi && t !== "plekzooi";
           return (
-            <button key={t} type="button" disabled={uit} title={ITEM_UITLEG[t] ?? t}
-              onClick={() => { if (!gekozen) onOpslaan({ type: t, points_effect: t === "ster" ? 50 : 0, name: t === "plekzooi" ? "Plek zooi" : "Speciaal item" }); }}
-              style={{
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 1, padding: "4px 2px",
-                borderRadius: 8, cursor: uit ? "not-allowed" : "pointer", opacity: uit ? 0.3 : 1,
-                border: `2px solid ${gekozen ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                background: gekozen ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                color: gekozen ? "#fff" : "var(--muted)", fontSize: "0.58rem", fontWeight: 700,
-              }}>
+            <button key={t} type="button" disabled={uit} title={ITEM_UITLEG[t] ?? t} className={gekozen ? "aan" : ""} aria-pressed={gekozen}
+              onClick={() => { if (!gekozen) onOpslaan({ type: t, points_effect: t === "ster" ? 50 : 0, name: t === "plekzooi" ? "Plek zooi" : "Speciaal item" }); }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/items/${t}.webp`} alt="" style={{ width: 26, height: 26 }} />
               {t === "plekzooi" ? "plek zooi" : t === "verdubbeling" ? "dubbel" : t}
@@ -62,7 +56,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
       )}
       {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
 
-      <button className="rl-knop rl-knop--rood" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Verwijderen</button>
+      <button className="rl-knop rl-knop--rood paneel-verwijder" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Item verwijderen</button>
     </div>
   );
 }

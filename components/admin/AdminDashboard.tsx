@@ -155,10 +155,10 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 
         {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
         <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 16 }}>
-          <span>🗺️ {route?.name ?? "Geen actieve route"}</span>
-          <span>⚡ {aantalActief} onderweg</span>
-          <span>🏁 {aantalKlaar} gefinisht</span>
-          {koploper && <span>🥇 {koploper.display_name} · {koploper.score} pt</span>}
+          <span className="strook-naam" title="Actieve route">🗺️ {route?.name ?? "Geen actieve route"}</span>
+          <span title="Onderweg">⚡ {aantalActief}<span className="st"> onderweg</span></span>
+          <span title="Gefinisht">🏁 {aantalKlaar}<span className="st"> gefinisht</span></span>
+          {koploper && <span className="strook-naam" title="Koploper">🥇 {koploper.display_name} · {koploper.score}<span className="st"> pt</span></span>}
         </div>
 
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
@@ -215,7 +215,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 
         {/* Reset sectie */}
         {/* Zelfde kaartstijl als de spelers: één regel uitleg en een brede rode knop */}
-        {!beperkt && <div className="pr-gem-card" style={{ marginTop: 32 }}>
+        {!beperkt && <div className="pr-gem-card reset-blok" style={{ marginTop: 32 }}>
          <div className="pr-gem-card-inner reset-kaart" style={{ flexWrap: "wrap", alignItems: "center" }}>
           <div style={{ flex: "1 1 220px", minWidth: 0, fontSize: "0.9rem", color: "var(--text)" }}>
             <strong style={{ fontFamily: "var(--font-display)", color: "#fff" }}>Spel resetten</strong>
