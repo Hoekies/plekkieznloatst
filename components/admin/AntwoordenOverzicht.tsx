@@ -5,7 +5,6 @@ import Link from "next/link";
 import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
-import StatKaart from "@/components/admin/StatKaart";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
 
 type Data = {
@@ -67,25 +66,25 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* Telefoon: compacte strook in plaats van de vier tegels */}
-      <div className="dash-strook" style={{ marginBottom: 0 }}>
-        <span title="Actieve route">🗺️ {data.route.name}</span>
-        <span title="Spelers">👫 {data.teams.length}</span>
-        <span title="Foto's te keuren">📸 {data.wachtende_fotos ?? 0}</span>
-        <span title="Uitslag">{data.uitslag_vrijgegeven ? "🏆 zichtbaar" : "🔒 verborgen"}</span>
-      </div>
-      {/* Tegels zoals bovenaan het dashboard */}
-      <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
-        <StatKaart label="Actieve route" waarde={data.route.name} badgeKlas="pr-badge--orange" badge="🗺️" />
-        <StatKaart label="Spelers" waarde={String(data.teams.length)} badgeKlas="pr-badge--purple" badge="👫" />
-        <StatKaart label="Foto's te keuren" waarde={String(data.wachtende_fotos ?? 0)} badgeKlas={data.wachtende_fotos ? "pr-badge--gold" : "pr-badge--green"} badge="📸" />
-        <StatKaart label="Uitslag" waarde={data.uitslag_vrijgegeven ? "Zichtbaar" : "Verborgen"} badgeKlas={data.uitslag_vrijgegeven ? "pr-badge--green" : "pr-badge--gray"} badge={data.uitslag_vrijgegeven ? "🏆" : "🔒"} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* Compacte strook (ook op de pc) in plaats van vier grote tegels */}
+      <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
+        <span>🗺️ {data.route.name}</span>
+        <span>👫 {data.teams.length} {data.teams.length === 1 ? "speler" : "spelers"}</span>
+        <span className={data.wachtende_fotos ? "dash-strook--let-op" : undefined}>📸 {data.wachtende_fotos ?? 0} foto&apos;s te keuren</span>
+        <span>{data.uitslag_vrijgegeven ? "🏆 Uitslag zichtbaar" : "🔒 Uitslag verborgen"}</span>
       </div>
 
-      {/* Uitslag en rapport */}
-      {/* Uitslag links, rapport rechts */}
-      {!beperkt && <div className="actie-rij">
+      {/* Eén rij: per team / per vraag links, uitslag en rapport rechts */}
+      <div className="actie-rij antw-balk">
+        {data.teams.length > 0 && (
+          <div className="punten-snel antw-tabs">
+            <button type="button" className={`rl-knop${!perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(false)}>👫 Per team</button>
+            <button type="button" className={`rl-knop${perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(true)}>📊 Per vraag</button>
+          </div>
+        )}
+        <span style={{ flex: 1 }} />
+      {!beperkt && <>
         {data.uitslag_vrijgegeven ? (
           <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
         ) : (
@@ -95,20 +94,13 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             🏆 Uitslag vrijgeven
           </BevestigKnop>
         )}
-        <span style={{ flex: 1 }} />
         <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
           style={{ textDecoration: "none" }}
           title="Eindstand en per speler de vragen, items en gelopen route — als PDF te versturen">
           📄 Rapport (PDF)
         </a>
-      </div>}
-
-      {data.teams.length > 0 && (
-        <div className="punten-snel" style={{ maxWidth: 360 }}>
-          <button type="button" className={`rl-knop${!perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(false)}>👫 Per team</button>
-          <button type="button" className={`rl-knop${perVraag ? " rl-knop--cyan" : ""}`} onClick={() => setPerVraag(true)}>📊 Per vraag</button>
-        </div>
-      )}
+      </>}
+      </div>
       {perVraag && <VraagStatistiek teams={data.teams} />}
 
       {data.teams.length === 0 && (
@@ -117,18 +109,20 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
 
       {!perVraag && data.teams.map((team) => (
         <div key={team.sessie_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
-         <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <span className="pr-gem-avatar" style={{ width: 52, height: 52, fontSize: "2rem" }}>{team.icon ?? "👫"}</span>
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff", flex: 1 }}>{team.naam}</span>
-            <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--orange"}`}>
+         <div className="pr-gem-card-inner antw-kaart" style={{ flexDirection: "column", alignItems: "stretch" }}>
+          {/* Eén regel: icoon, naam (nog niets beantwoord: dat erachter), status en punten */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span className="pr-gem-avatar" style={{ width: 40, height: 40, fontSize: "1.5rem" }}>{team.icon ?? "👫"}</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{team.naam}</span>
+              {team.rijen.length === 0 && <span style={{ fontSize: "0.78rem", color: "var(--muted)", marginLeft: 10 }}>nog geen vragen beantwoord</span>}
+            </span>
+            <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--cyan"}`}>
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
             </span>
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#FFE680" }}>{team.score} pt</span>
           </div>
-          {team.rijen.length === 0 ? (
-            <p style={{ fontSize: "0.82rem", color: "var(--muted)", margin: 0 }}>Nog geen vragen beantwoord.</p>
-          ) : (
+          {team.rijen.length === 0 ? null : (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {team.rijen.map((r) => (
                 <AntwoordRegel key={r.voortgang_id} rij={r} bezig={bezig}

@@ -2778,3 +2778,39 @@ button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); 
   .route-editor-topbar .editor-gereedschap-rij .schakel--aan { background: rgba(0,217,255,0.2); border-color: rgba(0,217,255,0.6); color: #A5F3FC; }
   .editor-gereedschap-rij .editor-telling { position: absolute; top: 2px; right: 3px; font-size: 0.55rem; font-weight: 800; color: #FFE680; }
 }
+
+/* Spelers- en helperkaart (pc): icoon zo groot als op het dashboard, kaart lager */
+@media (min-width: 769px) {
+  .gb-kaart { padding-top: 10px !important; padding-bottom: 10px !important; }
+  .gb-kaart > .pr-gem-avatar:not(.gb-avatar-uit) { width: 48px; height: 48px; font-size: 1.7rem; }
+}
+
+/* Antwoorden: strook ook op de pc (in plaats van tegels), knoppen en tabbladen op één rij */
+.dash-strook--altijd { display: flex; gap: 8px; flex-wrap: wrap; }
+.dash-strook--altijd > span { flex-shrink: 0; white-space: nowrap; padding: 7px 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,217,59,0.35); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; }
+.dash-strook--altijd > .dash-strook--let-op { background: rgba(255,217,59,0.18); border-color: #FFD93B; color: #FFE680; }
+@media (max-width: 768px) { .dash-strook--altijd { flex-wrap: nowrap; } }
+.antw-balk { margin-bottom: 0; }
+.antw-tabs { width: 300px; max-width: 100%; }
+.antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
+@media (max-width: 768px) { .antw-tabs { width: 100%; } }
+
+/* Kaartknoppen in de route-editor: één paneel, twee gelijke rijen (Lagen en Kaart), dezelfde knoppen.
+   Aan = overal cyaan (ook licht/donker/luchtfoto op de andere kaarten) */
+.kaart-stijl button.aan { background: rgba(0,217,255,0.22); box-shadow: inset 0 0 0 1px rgba(0,217,255,0.45); }
+.kaart-bediening { gap: 2px; padding: 4px; border-radius: 12px;
+  background: rgba(28,12,69,0.88); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+.kaart-bediening .kaart-lagen, .kaart-bediening .kaart-stijl {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 3px; padding: 0; border: none; background: none; box-shadow: none; border-radius: 0; }
+.kaart-bediening .kaart-lagen::before, .kaart-bediening .kaart-stijl::before {
+  width: 44px; padding-left: 4px; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.kaart-bediening .kaart-lagen::before { content: "Lagen"; }
+.kaart-bediening .kaart-stijl::before { content: "Kaart"; }
+.kaart-bediening .kaart-stijl button { width: auto; height: 28px; padding: 0 9px; border-radius: 7px; color: #fff;
+  font: inherit; font-size: 0.74rem; font-weight: 700; opacity: 0.5; white-space: nowrap; }
+.kaart-bediening .kaart-stijl button.aan { opacity: 1; }
+@media (max-width: 768px) {
+  .kaart-bediening .kaart-lagen::before, .kaart-bediening .kaart-stijl::before { display: none; }
+  .kaart-bediening .kaart-lagen button, .kaart-bediening .kaart-stijl button { padding: 0 7px; font-size: 0.7rem; }
+}

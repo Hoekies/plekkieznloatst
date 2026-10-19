@@ -6,14 +6,15 @@ import type { KaartStijl } from "@/lib/basiskaart";
 // onder = linksonder (in de route-editor, waar linksboven het puntpaneel opent)
 // inBlok = onderdeel van een groter blok knoppen (zoals in de route-editor, samen met de kaartlagen)
 export default function KaartStijlKnoppen({ stijl, onKies, onder = false, inBlok = false }: { stijl: KaartStijl; onKies: (s: KaartStijl) => void; onder?: boolean; inBlok?: boolean }) {
-  const knop = (s: KaartStijl, icoon: string, uitleg: string) => (
-    <button type="button" className={stijl === s ? "aan" : ""} onClick={() => onKies(s)} title={uitleg} aria-label={uitleg} aria-pressed={stijl === s}>{icoon}</button>
+  // In een blok met tekst erbij, net als de knoppen van de kaartlagen
+  const knop = (s: KaartStijl, icoon: string, uitleg: string, kort: string) => (
+    <button type="button" className={stijl === s ? "aan" : ""} onClick={() => onKies(s)} title={uitleg} aria-label={uitleg} aria-pressed={stijl === s}>{icoon}{inBlok && <> {kort}</>}</button>
   );
   return (
     <div className={`kaart-stijl${inBlok ? " kaart-stijl--in-blok" : onder ? " kaart-stijl--onder" : ""}`} onClick={(e) => e.stopPropagation()}>
-      {knop("licht", "☀️", "Lichte kaart")}
-      {knop("donker", "🌙", "Donkere kaart")}
-      {knop("luchtfoto", "🛰️", "Luchtfoto")}
+      {knop("licht", "☀️", "Lichte kaart", "Licht")}
+      {knop("donker", "🌙", "Donkere kaart", "Donker")}
+      {knop("luchtfoto", "🛰️", "Luchtfoto", "Luchtfoto")}
     </div>
   );
 }
