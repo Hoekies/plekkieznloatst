@@ -240,9 +240,9 @@ export default function LeafletKaart({
         const ring = isGeselecteerd ? "box-shadow:0 0 0 3px #fff,0 0 0 6px #00d9ff;" : "";
         const icon = L.divIcon({
           className: "",
-          html: `<img src="/items/${item.type}.webp" alt="" style="width:34px;height:34px;display:block;border-radius:50%;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));opacity:${item.claimed ? 0.35 : 1};${ring}" />`,
-          iconSize: [34, 34],
-          iconAnchor: [17, 17],
+          html: `<img src="/items/${item.type}.webp" alt="" style="width:28px;height:28px;display:block;border-radius:50%;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.45));opacity:${item.claimed ? 0.35 : 1};${ring}" />`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         });
         const marker = L.marker([item.latitude, item.longitude], { icon, draggable: true, zIndexOffset: 200 })
           .bindTooltip(`${emoji} ${escapeHtml(item.name)}`, { permanent: false })
@@ -378,15 +378,13 @@ export default function LeafletKaart({
         const icon = L.divIcon({
           className: "",
           html: `<div title="Voorstel: klik om hier een item te plaatsen" style="
-            width:34px;height:34px;border-radius:50%;cursor:pointer;
-            background:rgba(255,217,59,0.15);border:2px dashed rgba(255,217,59,0.9);
-            display:flex;align-items:center;justify-content:center;position:relative;
-            box-shadow:0 0 10px rgba(255,217,59,0.35);">
-            <img src="/items/${v.type}.webp" style="width:22px;height:22px;opacity:0.6" alt="">
-            <span style="position:absolute;right:-4px;top:-6px;font-size:13px;font-weight:900;color:#FFE680;text-shadow:0 1px 2px #000">+</span>
+            width:26px;height:26px;border-radius:50%;cursor:pointer;box-sizing:border-box;
+            background:rgba(255,255,255,0.35);border:1.5px dashed rgba(180,140,20,0.75);
+            display:flex;align-items:center;justify-content:center;position:relative;">
+            <img src="/items/${v.type}.webp" style="width:16px;height:16px;opacity:0.5" alt="">
           </div>`,
-          iconSize: [34, 34],
-          iconAnchor: [17, 17],
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
         });
         const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: 400 })
           .on("click", () => onItemVoorstelKlikRef.current?.(v))

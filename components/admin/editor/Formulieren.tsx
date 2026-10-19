@@ -86,6 +86,9 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
   // Alleen resetten bij wisselen van punt, niet bij elke prop-update (anders vecht dit met lokale invoer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [punt.id]);
+  // Naam elders gewijzigd (bij het opslaan van de vraag): meteen overnemen. Tijdens het typen hier
+  // verandert punt.name niet, dus dit vecht niet met lokale invoer.
+  useEffect(() => { setNaam(punt.name); }, [punt.name]);
 
   return (
     <div className="editor-paneel-inhoud">
@@ -126,7 +129,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           {heeftVraag && info?.vraagTekst && (
             <div className="punt-vraagtekst" title={info.vraagTekst}>“{info.vraagTekst}”</div>
           )}
-          <button type="button" onClick={onVraag} className="rl-knop rl-knop--cyan" style={{ width: "100%", justifyContent: "center" }}>
+          <button type="button" onClick={onVraag} className={`rl-knop${heeftVraag ? "" : " rl-knop--cyan"}`} style={{ width: "100%", justifyContent: "center" }}>
             {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag invullen →"}
           </button>
         </>

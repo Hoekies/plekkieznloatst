@@ -74,6 +74,8 @@ function richtIn(kaart: GlKaart) {
     // Van alle plekken (winkels, cafés…) alleen de parkeerplaatsen
     if (/^poi_r/.test(l.id)) {
       try { kaart.setFilter(l.id, ["all", kaart.getFilter(l.id) ?? true, ["==", ["get", "class"], "parking"]]); } catch { verberg(l.id); }
+      // Zachter, zodat ze niet concurreren met de punten en items
+      try { kaart.setPaintProperty(l.id, "icon-opacity", 0.55); kaart.setLayoutProperty(l.id, "icon-size", 0.8); kaart.setLayoutProperty(l.id, "text-field", ""); } catch { /* overslaan */ }
       continue;
     }
     if (l.id === "poi_transit" || /one_way/.test(l.id) || /shield/.test(l.id) || l.id === "building-3d" || l.id === "natural_earth") verberg(l.id);
