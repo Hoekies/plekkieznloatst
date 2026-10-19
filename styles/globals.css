@@ -2699,3 +2699,11 @@ button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); 
   .route-stap { height: 26px; padding: 0 8px; font-size: 0.72rem; }
   .route-stap-pijl { font-size: 0.8rem; }
 }
+
+/* Ingeklapt menu: iconen 1,5× zo groot (19 → 29px), balk iets breder zodat ze ruim passen */
+@media (min-width: 769px) {
+  .menu-smal .admin-sidebar { width: 76px; }
+  .menu-smal .admin-sidebar .admin-nav-link { height: clamp(36px, calc((100dvh - 250px) / 14), 48px); }
+  .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] { font-size: 29px; line-height: 1; }
+  .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] svg { width: 30px; height: 30px; }
+}
