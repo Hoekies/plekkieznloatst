@@ -13,6 +13,7 @@ import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
 import VersieRegel from "@/components/admin/VersieRegel";
+import MenuInklap from "@/components/admin/MenuInklap";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -65,6 +66,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         )}
         <div className="admin-menu-blok admin-menu-blok--info">
           <InfoKnop />
+          {/* Computer: menu inklappen tot een smalle balk met icoontjes */}
+          <MenuInklap />
           {/* Versie en laatste update, klein onderaan */}
           <VersieRegel />
         </div>

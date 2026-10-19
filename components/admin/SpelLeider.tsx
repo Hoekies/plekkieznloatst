@@ -108,7 +108,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
               <BevestigKnop venster gevaarlijk={false} icoon="🏁"
                 titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
-                vraag="" ja="Ja, uitslag vrijgeven en rapport openen" onBevestig={afronden}
+                vraag="" ja="Ja, uitslag vrijgeven en rapport openen" knopTekst="Ja, uitslag vrijgeven" onBevestig={afronden}
                 className="rl-knop rl-knop--cyan actie-knop">
                 🏁 {uitslagVrij ? "Rapport openen" : "Spel afronden"}
               </BevestigKnop>

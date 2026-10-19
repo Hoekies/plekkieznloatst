@@ -45,6 +45,13 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
 8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
 
+> **Overzicht in de editor (computer)**:
+> - Bovenin staan twee lage regels: de **routekop** (terug, naam, status en de volgende stap zoals 📢 Publiceer of ▶ Activeer) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, 🩺 Controle, het gereedschap 📥 📍 🧹, en rechts ✓ Opgeslagen, ↶ en ⚙️ Instellingen).
+> - **◧ Lijst** klapt de puntenlijst links in, voor meer kaartruimte. Met **« Inklappen** onderaan het menu wordt het hoofdmenu een smalle balk met alleen icoontjes (**»** klapt hem weer uit). Beide worden onthouden.
+> - In de puntenlijst openen **❓** en het oranje **⚠️** (nog geen vraag) meteen de vraag van dat punt.
+> - Klik je op een punt, dan zie je in het paneel ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **📍 Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
+> - **Kaartlagen** (linksonder, boven ☀️ 🌙 🛰️): zet **🧭 Routes**, **🎁 Items**, **✨ Voorstellen** en **⭕ Cirkel** los aan of uit, zodat de kaart rustiger wordt.
+
 > **📍 Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
 
 > **🧹 Leegmaken**: haalt alle punten (met hun vragen) en alle items van de route weg, na bevestiging. De naam en de instellingen blijven. Alleen bij een route die niet actief is.
@@ -66,12 +73,12 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > De knoppen staan bij elke route op een vaste plek:
 > - **De volgende stap** (met bevestiging): **📢 Publiceren** (concept) → **▶ Activeren** (gepubliceerd) → **⏹ Deactiveren** (actief). Deactiveren werkt zoals *Stop route*: lopende spellen worden netjes afgesloten.
 > - **Bewerken**
-> - 👀 **Voorproefje** (zie hieronder), ⧉ **Kopie maken** (alles, als concept), 💾 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩ **Terug naar concept** en 🗑️ **Verwijderen**.
+> - 📄 **Voorproefje** (zie hieronder), 📋 **Kopie maken** (alles, als concept), 💾 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩️ **Terug naar concept** en 🗑️ **Verwijderen**.
 > - Rechtsboven **📂 Route importeren**: een eerder geëxporteerd bestand terugzetten.
 >
 > Op de telefoon starten de routekaarten ingeklapt: tik op de naam om de knoppen te tonen.
 
-> **👀 Voorproefje**: één A4 om te laten zien wat een route inhoudt, zonder iets te verraden. Op het vel staan het speelgebied (een zone op de kaart, zonder route en zonder punten; de items staan er verschoven op), het aantal punten en vragen per soort, een schatting van afstand en speelduur, drie voorbeeldvragen zónder de goede antwoorden (je kiest zelf welke, of 🔀 voor andere) en de items in het spel. Met **📄 PDF maken** en daarna **📲 Versturen** deel je het via WhatsApp. Antwoorden, puntnamen en coördinaten komen niet eens in de browser.
+> **📄 Voorproefje**: één A4 om te laten zien wat een route inhoudt, zonder iets te verraden. Op het vel staan het speelgebied (een zone op de kaart, zonder route en zonder punten; de items staan er verschoven op), het aantal punten en vragen per soort, een schatting van afstand en speelduur, drie voorbeeldvragen zónder de goede antwoorden (je kiest zelf welke, of 🔀 voor andere) en de items in het spel. Met **📄 PDF maken** en daarna **📲 Versturen** deel je het via WhatsApp. Antwoorden, puntnamen en coördinaten komen niet eens in de browser.
 
 > Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd. Ook de finish kan een vraag of opdracht hebben, bijvoorbeeld **maak een selfie**: het team krijgt die eerst te zien. Bij een foto-opdracht is het team gefinisht zodra de foto is ingestuurd; de punten komen erbij als jij de foto goedkeurt bij **Antwoorden**.
 

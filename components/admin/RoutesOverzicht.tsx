@@ -200,7 +200,7 @@ export default function RoutesOverzicht() {
     }
     if (r.status === "gepubliceerd") {
       return (
-        <BevestigKnop venster gevaarlijk={false} icoon="▶️" titel={`"${r.name}" activeren?`} vraag="" ja="Ja, naar de controle"
+        <BevestigKnop venster gevaarlijk={false} icoon="▶️" titel={`"${r.name}" activeren?`} vraag="" ja="Ja, naar de controle" knopTekst="Ja, naar de controle"
           onBevestig={() => router.push(`/admin/routes/${r.id}?controle=1`)} className="rl-knop rl-knop--cyan rl-stap">▶ Activeren</BevestigKnop>
       );
     }
@@ -349,18 +349,18 @@ export default function RoutesOverzicht() {
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}
                   <div className="rl-icoonknoppen">
                   <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
-                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>👀</button>
-                  <BevestigKnop venster gevaarlijk={false} icoon="⧉" titel="Route kopiëren?"
+                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>📄</button>
+                  <BevestigKnop venster gevaarlijk={false} icoon="📋" titel="Route kopiëren?"
                     vraag={`Er komt een nieuwe route „${r.name} (kopie)” bij, met alle instellingen, punten, vragen en items. De kopie staat op concept.`}
                     ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
-                    {kopieBezig === r.id ? "…" : "⧉"}
+                    {kopieBezig === r.id ? "…" : "📋"}
                   </BevestigKnop>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
                     disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "💾"}</button>
                   {!r.is_active && r.status === "gepubliceerd" ? (
                     <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept" aria-label="Terug naar concept"
-                      onClick={() => togglePubliceer(r)}>↩</button>
+                      onClick={() => togglePubliceer(r)}>↩️</button>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                   {!r.is_active ? (
                     <BevestigKnop venster icoon="🗑️" titel="Route verwijderen?"

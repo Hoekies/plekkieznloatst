@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 // er een venster midden in beeld met alleen een icoon, de titel en twee knoppen (vraag geldt dan niet).
 export default function BevestigKnop({
   children, vraag, ja = "Ja", onBevestig, className = "btn btn-ghost", style, disabled, title,
-  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false,
+  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst,
 }: {
   children: ReactNode;
   vraag: string;
@@ -24,6 +24,9 @@ export default function BevestigKnop({
   icoon?: string;
   gevaarlijk?: boolean;   // rode bevestigknop (verwijderen); anders cyaan (bijv. kopiëren)
   tip?: string;           // info-balkje bij het aanwijzen (voor knoppen met alleen een icoon)
+  // Venster: tekst op de knop. Standaard "Ja" (de titel zegt al wat er gebeurt); alleen invullen als
+  // de knop iets extra's vertelt, zoals "Ja, naar de controle"
+  knopTekst?: string;
   tipOnder?: boolean;     // balkje onder de knop (knoppen bovenaan het scherm)
 }) {
   const [vragen, setVragen] = useState(false);
@@ -57,15 +60,16 @@ export default function BevestigKnop({
             position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)",
             display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
           }}>
-            <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420, position: "relative" }}>
+            <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 340, position: "relative" }}>
               <button type="button" className="editor-paneel-sluit venster-sluit" disabled={bezig} onClick={() => setVragen(false)} title="Annuleren" aria-label="Annuleren">✕</button>
-              <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "22px 20px 18px" }}>
-                {icoon && <div style={{ fontSize: "2.6rem", lineHeight: 1 }}>{icoon}</div>}
-                {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#fff" }}>{titel}</div>}
-                <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 44, padding: "0 22px" }}
+              {/* Compact: icoon, titel (de vraag) en één knop; annuleren met het kruisje */}
+              <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", padding: "18px 44px 14px" }}>
+                {icoon && <div style={{ fontSize: "2rem", lineHeight: 1 }}>{icoon}</div>}
+                {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.3 }}>{titel}</div>}
+                <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
+                  <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 40, minWidth: 120, padding: "0 22px", justifyContent: "center", fontWeight: 800 }}
                     disabled={bezig} onClick={bevestig} autoFocus>
-                    {bezig ? "Bezig…" : ja}
+                    {bezig ? "Bezig…" : knopTekst ?? "Ja"}
                   </button>
                 </div>
               </div>

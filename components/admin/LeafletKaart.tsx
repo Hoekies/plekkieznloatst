@@ -137,11 +137,17 @@ export default function LeafletKaart({
       setKaartKlaar(true);
     });
 
+    // Vak groter of kleiner (menu of puntenlijst ingeklapt): de kaart past zich aan
+    const vak = containerRef.current;
+    const meet = typeof ResizeObserver !== "undefined" && vak ? new ResizeObserver(() => kaartRef.current?.invalidateSize()) : null;
+    if (meet && vak) meet.observe(vak);
+
     const markers = markersRef.current;
     const specialeItemMarkers = specialeItemMarkersRef.current;
 
     return () => {
       mounted = false;
+      meet?.disconnect();
       kaartRef.current?.remove();
       kaartRef.current = null;
       markers.clear();

@@ -104,12 +104,18 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
     init();
 
+    // Vak groter of kleiner (menu ingeklapt): de kaart past zich aan
+    const vak = containerRef.current;
+    const meet = typeof ResizeObserver !== "undefined" && vak ? new ResizeObserver(() => mapRef.current?.invalidateSize()) : null;
+    if (meet && vak) meet.observe(vak);
+
     const spelerMarkers = spelerMarkersRef.current;
     const puntMarkers = puntMarkersRef.current;
     const specialeItemMarkers = specialeItemMarkersRef.current;
 
     return () => {
       mounted = false;
+      meet?.disconnect();
       mapRef.current?.remove();
       mapRef.current = null;
       LRef.current = null;
@@ -287,7 +293,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Licht, donker of luchtfoto (zonder vectorkaart: licht of luchtfoto) */}
-      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} />
+      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} onder />
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

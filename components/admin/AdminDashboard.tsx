@@ -292,6 +292,10 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
   const speelt = s.sessie_status === "actief";
+  // Inklapbaar: dicht = alleen kop, voortgang en wat aandacht vraagt; open = ook items en knoppen.
+  // Een hulpvraag klapt de kaart vanzelf open.
+  const [open, setOpen] = useState(false);
+  const toonAlles = open || !!s.hulp;
   const stil = minutenNietGezien(s);
   return (
     // Tik op de kaart: alles van deze speler in één venster (de knoppen erin doen hun eigen ding)
@@ -325,6 +329,11 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           <div className="sk-rechts">
             <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
+            <button type="button" className="sk-inklap" aria-expanded={toonAlles}
+              onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+              title={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>
+              {toonAlles ? "▾" : "▸"}<span className="alleen-pc">{toonAlles ? " Minder" : " Meer"}</span>
+            </button>
           </div>
         </div>
 
@@ -335,7 +344,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           )}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
 
-          {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
+          {toonAlles && (s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
               {s.items.in_balk.length > 0 && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
@@ -361,7 +370,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             </div>
           )}
           {/* Knoppen: op de telefoon korte teksten, naast elkaar op één regel */}
-          {speelt && (
+          {toonAlles && speelt && (
             <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
               {kanVrijgeven && (
                 <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
@@ -384,7 +393,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             </div>
           )}
           {/* Gefinisht: punten aanpassen kan nog (bijv. een bonus voor de mooiste foto) */}
-          {!speelt && !beperkt && s.sessie_id && (
+          {toonAlles && !speelt && !beperkt && s.sessie_id && (
             <div className="speler-knoppen" onClick={(e) => e.stopPropagation()}>
               <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />
             </div>

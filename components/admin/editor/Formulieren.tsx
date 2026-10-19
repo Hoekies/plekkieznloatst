@@ -67,10 +67,14 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden, onOpslaan, onVerwijder, onSluit }: {
+export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden, onOpslaan, onVerwijder, onSluit, info, onOpDeWeg }: {
   punt: RoutePunt; opslaan: boolean; fout: string; heeftVraag: boolean; onVraag: () => void;
   naamWoorden: string[];
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
+  // Extra: de vraag (kort), welke teams hier beginnen en welke items in de buurt liggen
+  info?: { vraagTekst?: string | null; teams?: { naam: string; kleur: string }[]; items?: string[] };
+  // Dit ene punt op de dichtstbijzijnde weg of het voetpad zetten
+  onOpDeWeg?: () => void;
 }) {
   const [naam, setNaam] = useState(punt.name);
   const [beschrijving, setBeschrijving] = useState(punt.description ?? "");
@@ -118,6 +122,9 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           <div className="editor-paneel-noot" style={{ fontWeight: 600, color: heeftVraag ? "#86EFAC" : "#FBBF24" }}>
             {heeftVraag ? "✅ De vraag is ingevuld." : "⚠️ Nog geen vraag: vul hem in."}
           </div>
+          {heeftVraag && info?.vraagTekst && (
+            <div className="punt-vraagtekst" title={info.vraagTekst}>“{info.vraagTekst}”</div>
+          )}
           <button type="button" onClick={onVraag} className="rl-knop rl-knop--cyan" style={{ width: "100%", justifyContent: "center" }}>
             {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag invullen →"}
           </button>
@@ -150,7 +157,31 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
         </>
       )}
 
-      <div className="editor-paneel-noot">Straal en punten: ⚙️ Instellingen.</div>
+      {/* Teams die hier beginnen en items in de buurt */}
+      {((info?.teams?.length ?? 0) > 0 || (info?.items?.length ?? 0) > 0) && (
+        <div className="punt-extra">
+          {info?.teams?.map((t) => (
+            <span key={t.naam} className="punt-team" style={{ borderColor: t.kleur, color: t.kleur }}>🚩 Start {t.naam}</span>
+          ))}
+          {(info?.items?.length ?? 0) > 0 && (
+            <span className="punt-items" title="Items binnen 40 meter">
+              In de buurt:
+              {info!.items!.map((type, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={`/items/${type}.webp`} alt={type} style={{ width: 18, height: 18 }} />
+              ))}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Positie: verslepen op de kaart, of op de dichtstbijzijnde weg zetten */}
+      <div className="punt-positie">
+        <span title="Positie (sleep het punt op de kaart om het te verplaatsen)">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
+        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">📍 Op de weg</button>}
+      </div>
+
+      <div className="editor-paneel-noot">Straal en punten: ⚙️ Instellingen. Verplaatsen: sleep het punt op de kaart.</div>
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
       <div style={{ display: "flex", gap: 6 }}>
         <button className="rl-knop rl-knop--cyan" style={{ flex: 1 }} disabled={opslaan}

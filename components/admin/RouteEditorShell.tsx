@@ -531,6 +531,41 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   // "🧹 Leegmaken": alle punten (met vragen) en items weg; de route en de instellingen blijven
+  // Eén punt op de dichtstbijzijnde weg of het voetpad (vanuit het puntpaneel)
+  async function puntOpDeWeg(p: RoutePunt) {
+    const [n] = await opDeWeg([{ lat: p.latitude, lng: p.longitude }]);
+    if (!n || haversine(p.latitude, p.longitude, n.lat, n.lng) < 3) { toonMelding("Dit punt ligt al op een weg of pad", "ok"); return; }
+    await markerVerplaatst(p.id, n.lat, n.lng);
+    setGeselecteerd((g) => (g && g.id === p.id ? { ...g, latitude: n.lat, longitude: n.lng } : g));
+    toonMelding("Punt op de weg gezet (↶ om terug te zetten)", "ok");
+  }
+
+  // Kaartlagen: los aan of uit, zodat de kaart rustiger wordt (onthouden per browser)
+  type Lagen = { routes: boolean; items: boolean; voorstellen: boolean; cirkel: boolean };
+  const [lagen, setLagen] = useState<Lagen>({ routes: true, items: true, voorstellen: true, cirkel: true });
+  useEffect(() => {
+    try { const l = localStorage.getItem("pr_editor_lagen"); if (l) setLagen((oud) => ({ ...oud, ...JSON.parse(l) })); } catch { /* geen opslag */ }
+  }, []);
+  function wisselLaag(laag: keyof Lagen) {
+    setLagen((oud) => {
+      const nieuw = { ...oud, [laag]: !oud[laag] };
+      try { localStorage.setItem("pr_editor_lagen", JSON.stringify(nieuw)); } catch { /* geen opslag */ }
+      return nieuw;
+    });
+  }
+
+  // Computer: puntenlijst links inklappen voor meer kaartruimte (onthouden per browser)
+  const [lijstDicht, setLijstDicht] = useState(false);
+  useEffect(() => {
+    try { setLijstDicht(localStorage.getItem("pr_editor_lijst_dicht") === "1"); } catch { /* geen opslag */ }
+  }, []);
+  function wisselLijst() {
+    setLijstDicht((d) => {
+      try { localStorage.setItem("pr_editor_lijst_dicht", d ? "0" : "1"); } catch { /* geen opslag */ }
+      return !d;
+    });
+  }
+
   async function maakRouteLeeg() {
     const res = await api(`/api/admin/routes/${route.id}/leegmaken`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
@@ -1004,12 +1039,61 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setOpslaan(false);
   }
 
+  // Status, spelsoort en de volgende stap (publiceren, activeren, naar spelers). Computer: in de
+  // routekop naast de naam; telefoon: in de knoppenrij eronder.
+  const statusGroep = (
+    <>
+            <StatusPil status={route.status} isActief={route.is_active} />
+            <span className="editor-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }}>
+              <ModusIcoon modus={route.modus} size={14} />
+              <span className="alleen-pc">{MODUS_INFO[route.modus].label}</span>
+            </span>
+            {!route.is_active && (
+              <button className="rl-knop"
+                onClick={async () => {
+                  const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
+                  const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
+                  if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
+                }}>
+                {route.status === "gepubliceerd" ? <>↩<span className="alleen-pc"> Concept</span></> : "📢 Publiceer"}
+              </button>
+            )}
+            {!route.is_active && route.status === "gepubliceerd" && (
+              <button className="rl-knop rl-knop--cyan" onClick={() => setControleOpen(true)}>▶ Activeer</button>
+            )}
+            {route.is_active && (
+              <BevestigKnop venster icoon="⏸️" titel="Route deactiveren en terug naar concept?" className="rl-knop rl-knop--rood"
+                vraag="" ja="Ja, deactiveer"
+                onBevestig={async () => {
+                  const res = await api(`/api/admin/routes/${route.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ is_active: false, status: "concept" }),
+                  });
+                  if (res.ok) { setRoute((r) => ({ ...r, is_active: false, status: "concept" })); meldActieveRouteGewijzigd(); }
+                }}>⏹ Deactiveer</BevestigKnop>
+            )}
+            {/* Actieve route: verschoven punten, nieuwe namen of stralen meteen bij de spelers (nieuwe of
+                verwijderde punten gaan vanzelf mee) */}
+            {route.is_active && (
+              <BevestigKnop venster gevaarlijk={false} icoon="📲" titel="Wijzigingen naar de spelers sturen?" vraag="" ja="Ja, versturen"
+                className="rl-knop rl-knop--cyan" tip="De apps van de spelers lezen de route opnieuw in" tipOnder
+                onBevestig={async () => {
+                  const res = await api(`/api/admin/routes/${route.id}/vernieuw`, { method: "POST" });
+                  const data = await res.json().catch(() => ({}));
+                  toonMelding(res.ok ? "Verstuurd: de spelers zien de wijzigingen binnen een paar seconden" : data.fout ?? "Versturen mislukt", res.ok ? "ok" : "fout");
+                }}>📲<span className="alleen-pc"> Naar spelers</span></BevestigKnop>
+            )}
+
+    </>
+  );
+
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       {/* Topbar */}
       <div className="admin-topbar route-editor-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
-        {/* Rij 1: navigatie + naam */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Rij 1: routekop (terug, naam, status en de volgende stap) */}
+        <div className="editor-kop" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <a href="/admin/routes" className="rl-knop editor-terug" title="Terug naar de routes">←<span className="alleen-pc"> Routes</span></a>
           {naamWijzig ? (
             <div style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
@@ -1022,6 +1106,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
+          <span className="editor-status-kop">{statusGroep}</span>
           {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}
           <button className="rl-knop rl-knop--goud alleen-mobiel-knop"
             onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen">⚙️</button>
@@ -1029,51 +1114,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Rij 2: status en route-stappen links, hulpmiddelen in het midden, ongedaan maken en opslagstatus rechts */}
         <div className="editor-balk">
-          <StatusPil status={route.status} isActief={route.is_active} />
-          <span className="editor-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }}>
-            <ModusIcoon modus={route.modus} size={14} />
-            <span className="alleen-pc">{MODUS_INFO[route.modus].label}</span>
-          </span>
-          {!route.is_active && (
-            <button className="rl-knop"
-              onClick={async () => {
-                const nieuweStatus = route.status === "gepubliceerd" ? "concept" : "gepubliceerd";
-                const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nieuweStatus }) });
-                if (res.ok) setRoute((r) => ({ ...r, status: nieuweStatus }));
-              }}>
-              {route.status === "gepubliceerd" ? <>↩<span className="alleen-pc"> Concept</span></> : "📢 Publiceer"}
-            </button>
-          )}
-          {!route.is_active && route.status === "gepubliceerd" && (
-            <button className="rl-knop rl-knop--cyan" onClick={() => setControleOpen(true)}>▶ Activeer</button>
-          )}
-          {route.is_active && (
-            <BevestigKnop venster icoon="⏸️" titel="Route deactiveren en terug naar concept?" className="rl-knop rl-knop--rood"
-              vraag="" ja="Ja, deactiveer"
-              onBevestig={async () => {
-                const res = await api(`/api/admin/routes/${route.id}`, {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ is_active: false, status: "concept" }),
-                });
-                if (res.ok) { setRoute((r) => ({ ...r, is_active: false, status: "concept" })); meldActieveRouteGewijzigd(); }
-              }}>⏹ Deactiveer</BevestigKnop>
-          )}
-          {/* Actieve route: verschoven punten, nieuwe namen of stralen meteen bij de spelers (nieuwe of
-              verwijderde punten gaan vanzelf mee) */}
-          {route.is_active && (
-            <BevestigKnop venster gevaarlijk={false} icoon="📲" titel="Wijzigingen naar de spelers sturen?" vraag="" ja="Ja, versturen"
-              className="rl-knop rl-knop--cyan" tip="De apps van de spelers lezen de route opnieuw in" tipOnder
-              onBevestig={async () => {
-                const res = await api(`/api/admin/routes/${route.id}/vernieuw`, { method: "POST" });
-                const data = await res.json().catch(() => ({}));
-                toonMelding(res.ok ? "Verstuurd: de spelers zien de wijzigingen binnen een paar seconden" : data.fout ?? "Versturen mislukt", res.ok ? "ok" : "fout");
-              }}>📲<span className="alleen-pc"> Naar spelers</span></BevestigKnop>
-          )}
+          <span className="editor-status-groep">{statusGroep}</span>
 
           <span className="editor-balk-scheiding" aria-hidden />
           {/* Telefoon: hier begint een nieuwe regel met het gereedschap */}
           <span className="editor-breuk" aria-hidden />
+
+          {/* Computer: puntenlijst links in- en uitklappen */}
+          <button type="button" className={`rl-knop alleen-pc-knop${lijstDicht ? "" : " rl-knop--cyan"}`} onClick={wisselLijst}
+            title={lijstDicht ? "Puntenlijst tonen" : "Puntenlijst verbergen (meer ruimte voor de kaart)"}>◧ Lijst</button>
 
           {/* Wegen: één knop; aan = opnieuw berekenen, ✕ = uit */}
           <span className="editor-groep">
@@ -1164,7 +1213,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       {/* Hoofdindeling */}
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel — op mobiel een overlay i.p.v. vaste kolom */}
-        <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}`}>
+        <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}${lijstDicht ? " route-editor-zijpaneel--dicht" : ""}`}>
 
           {/* Verspreid-instellingen / afstand */}
           {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1391,10 +1440,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {pt.name}
                     </div>
+                    {/* Klikbaar: opent meteen de vraag van dit punt */}
                     {vraagPuntIds.has(pt.id) ? (
-                      <span title="Aan dit punt hangt een vraag" style={{ fontSize: "0.8rem", flexShrink: 0 }}>❓</span>
+                      <button type="button" className="lijst-vraagknop" title="Vraag bewerken" aria-label="Vraag bewerken"
+                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>❓</button>
                     ) : pt.type === "vraagpunt" ? (
-                      <span title="Vraagpunt zonder vraag: spelers krijgen hier alleen informatie" style={{ fontSize: "0.8rem", flexShrink: 0 }}>⚠️</span>
+                      <button type="button" className="lijst-vraagknop lijst-vraagknop--leeg" title="Nog geen vraag: klik om hem in te vullen" aria-label="Vraag invullen"
+                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>⚠️</button>
                     ) : null}
                     <div style={{ display: "flex", flexDirection: "row", gap: 0 }}>
                       <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
@@ -2000,18 +2052,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           punten={punten}
           addModus={addModus || addSpeciaalModus || centrumModus || !!plaatsType}
           geselecteerdId={geselecteerd?.id ?? null}
-          specialeItems={specialeItems}
+          specialeItems={lagen.items ? specialeItems : []}
           guideCirkel={
-            route.modus === "verspreid" && doelAfstandKm > 0 && geselecteerd && punten.length > 0
+            lagen.cirkel && route.modus === "verspreid" && doelAfstandKm > 0 && geselecteerd && punten.length > 0
               ? { lat: geselecteerd.latitude, lng: geselecteerd.longitude, radiusM: doelAfstandKm * 1000 / punten.length }
               : null
           }
           hubModus={route.modus === "verspreid" && punten.length >= 3}
-          teamRoutes={teamRoutesKaart}
+          teamRoutes={lagen.routes ? teamRoutesKaart : []}
           hoofdStukken={hoofdStukken}
           centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
-          ghostPunten={ghostPunten}
-          ghostRadiusM={doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
+          ghostPunten={lagen.cirkel ? ghostPunten : []}
+          ghostRadiusM={lagen.cirkel && doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
           onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
@@ -2029,10 +2081,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
-          itemVoorstellen={toonVoorstellen && itemCheck ? itemCheck.voorstellen : []}
+          itemVoorstellen={toonVoorstellen && lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
           uitgelichtTeam={uitgelichtTeam}
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
+
+        {/* Kaartlagen: los tonen of verbergen (linksonder, boven licht/donker/luchtfoto) */}
+        <div className="kaart-lagen" onClick={(e) => e.stopPropagation()}>
+          {route.modus === "verspreid" && teamRoutes.length > 0 && (
+            <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭 Routes</button>
+          )}
+          <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁 Items</button>
+          {route.modus === "verspreid" && (
+            <>
+              <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨ Voorstellen</button>
+              <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕ Cirkel</button>
+            </>
+          )}
+        </div>
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
@@ -2103,6 +2169,12 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 onOpslaan={slaPuntOp}
                 onVerwijder={() => verwijderPunt(geselecteerd.id)}
                 onSluit={() => setGeselecteerd(null)}
+                info={{
+                  vraagTekst: (geselecteerd as RoutePunt & { questions?: { question_text?: string | null }[] }).questions?.[0]?.question_text ?? null,
+                  teams: teamRoutes.filter((t) => t.punten[1]?.id === geselecteerd.id).map((t) => ({ naam: `Team ${t.teamIndex}`, kleur: t.kleur })),
+                  items: specialeItems.filter((it) => haversine(it.latitude, it.longitude, geselecteerd.latitude, geselecteerd.longitude) <= 40).map((it) => it.type),
+                }}
+                onOpDeWeg={() => puntOpDeWeg(geselecteerd)}
               />
             )}
             {geselecteerdSpeciaal && !geselecteerd && (
