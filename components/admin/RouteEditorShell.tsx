@@ -1493,6 +1493,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                     <button className="lijst-rij-acties" title="Punt verwijderen (terugzetten kan met ↶)" aria-label="Punt verwijderen" onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
+                    {/* Greep: laat zien dat je de regel kunt verslepen (start en finish liggen vast) */}
+                    <span className={`lijst-greep${vast ? " lijst-greep--vast" : ""}`} aria-hidden>≡</span>
                   </div>
                 );
               })
