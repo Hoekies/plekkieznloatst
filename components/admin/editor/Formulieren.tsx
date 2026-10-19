@@ -7,9 +7,10 @@ import { ITEM_UITLEG } from "./item-uitleg";
 import NaamKiezer from "../NaamKiezer";
 
 export function StatusPil({ status, isActief }: { status: string; isActief: boolean }) {
-  if (isActief) return <span className="editor-chip" style={{ background: "var(--green-soft)", color: "var(--green)" }}>● Actief</span>;
-  if (status === "gepubliceerd") return <span className="editor-chip" style={{ background: "var(--cyan-soft)", color: "var(--cyan)" }}>Gepubliceerd</span>;
-  return <span className="editor-chip" style={{ background: "var(--line)", color: "var(--muted)" }}>Concept</span>;
+  if (isActief) return <span className="editor-chip" style={{ background: "var(--green-soft)", color: "var(--green)" }}>▶ Actief</span>;
+  // "gepubliceerd" in de database heet in beeld Klaar
+  if (status === "gepubliceerd") return <span className="editor-chip" style={{ background: "var(--cyan-soft)", color: "var(--cyan)" }}>✅ Klaar</span>;
+  return <span className="editor-chip" style={{ background: "var(--line)", color: "var(--muted)" }}>✏️ Concept</span>;
 }
 
 // ── SpeciaalItemForm ──────────────────────────────────────────────────────────
@@ -178,7 +179,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
       {/* Positie: verslepen op de kaart, of op de dichtstbijzijnde weg zetten */}
       <div className="punt-positie">
         <span title="Positie (sleep het punt op de kaart om het te verplaatsen)">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
-        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">📍 Op de weg</button>}
+        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">🛣️ Op de weg</button>}
       </div>
 
       <div className="editor-paneel-noot">Straal en punten: ⚙️ Instellingen. Verplaatsen: sleep het punt op de kaart.</div>

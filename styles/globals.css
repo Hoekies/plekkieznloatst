@@ -2614,3 +2614,56 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .kaart-stijl--in-blok { position: static !important; }
 .kaart-lagen button { opacity: 0.55; }
 .kaart-lagen button.aan { opacity: 1; background: rgba(0,217,255,0.22); box-shadow: inset 0 0 0 1px rgba(0,217,255,0.45); }
+
+/* Route-editor: stappen ✏️ Bewerken › 🩺 Controleren › ✅ Klaar › ▶ Actief */
+.route-stappen { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.route-stap { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 700;
+  color: var(--muted); border: 1px solid transparent; background: none; white-space: nowrap; font-family: inherit; }
+button.route-stap { cursor: pointer; border-color: rgba(255,255,255,0.14); }
+button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); }
+.route-stap--gedaan { color: #86EFAC; }
+.route-stap--nu { color: #fff; background: rgba(0,217,255,0.16); border-color: rgba(0,217,255,0.55); }
+.route-stap-pijl { color: rgba(255,255,255,0.3); font-size: 0.9rem; }
+.route-status-mobiel { display: none; }
+.editor-volgende { font-weight: 800; }
+@media (max-width: 768px) {
+  .route-stappen { display: none; }
+  .route-status-mobiel { display: inline-flex; }
+}
+/* Aan/uit-schakelaar in een knop (Wegen) */
+.schakel-bol { position: relative; display: inline-block; width: 26px; height: 14px; border-radius: 99px; background: rgba(255,255,255,0.22); margin-left: 6px; flex-shrink: 0; transition: background .15s; }
+.schakel-bol::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; transition: left .15s; }
+.schakel--aan .schakel-bol { background: var(--cyan); }
+.schakel--aan .schakel-bol::after { left: 14px; }
+/* Routeoverzicht: icoonknoppen met een korte tekst eronder (tooltips werken niet op een touchscherm) */
+.rl-icoonknoppen .rl-knop--icoon { flex-direction: column; justify-content: center; gap: 3px; }
+.pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: 72px; height: 52px; }
+.rl-knop-label { font-size: 0.6rem; font-weight: 700; line-height: 1; letter-spacing: 0; }
+@media (max-width: 768px) {
+  .pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: 100%; height: 52px; }
+}
+
+/* Vraag-editor: formulier met vaste opslaanbalk, rechts spelersweergave + kaartje */
+.vraag-form { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 16px; }
+.vraag-rij { display: flex; gap: 14px; align-items: flex-start; }
+.vraag-opslaanbalk { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px 24px 12px; border-top: 1px solid var(--line); background: rgba(8,28,48,0.85); }
+.vraag-kolom-kop { padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
+.vraag-meer { border: 1px solid var(--line); border-radius: 10px; }
+.vraag-meer-kop { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: none; border: none; cursor: pointer; color: var(--ink); font-weight: 700; font-size: 0.82rem; text-align: left; font-family: inherit; }
+.vraag-meer-samenvatting { font-weight: 400; color: var(--muted); font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.vraag-meer-inhoud { display: flex; flex-direction: column; gap: 16px; padding: 4px 12px 14px; border-top: 1px solid var(--line); }
+@media (max-height: 760px) { .vraag-kaart-kolom { display: none !important; } }
+@media (max-width: 768px) {
+  .vraag-form { padding: 14px; }
+  .vraag-opslaanbalk { padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); }
+  .vraag-rij { flex-wrap: wrap; }
+}
+
+/* Laptop: routekop compacter (alleen bij de huidige stap de naam, spelsoort als icoon) */
+@media (min-width: 769px) and (max-width: 1600px) {
+  .route-stap:not(.route-stap--nu) .route-stap-naam { display: none; }
+  .editor-modus-naam { display: none !important; }
+}
+@media (min-width: 769px) {
+  .route-editor-topbar .editor-kop { flex-wrap: wrap; row-gap: 6px; }
+}

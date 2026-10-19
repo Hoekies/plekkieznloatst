@@ -6,6 +6,7 @@ import type { SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 export const NIET_GEZIEN_MIN = 5;
@@ -69,7 +70,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pauze: aan }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) { toonMelding(data.fout ?? "Pauzeren mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Pauzeren", data.fout), "fout"); return; }
     setPauzeLokaal(data.pauze ?? null);
     toonMelding(aan ? "Spel gepauzeerd: alle teams zien het pauzescherm" : "Het spel gaat verder", "ok");
   }
@@ -80,7 +81,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     const res = await fetch("/api/admin/uitslag", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij: true }),
     }).catch(() => null);
-    toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : "Uitslag vrijgeven mislukt", res?.ok ? "ok" : "fout");
+    toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : uitlegBijStatus(res?.status ?? 0, "Uitslag vrijgeven"), res?.ok ? "ok" : "fout");
   }
 
   return (

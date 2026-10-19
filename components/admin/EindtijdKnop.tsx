@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 function hhmm(d: Date) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -50,7 +51,7 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
-    if (!res.ok) { toonMelding(data.fout ?? "Opslaan mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Opslaan", data.fout), "fout"); return; }
     setHuidig(waarde);
     setOpen(false);
     toonMelding(waarde ? `Het spel stopt om ${hhmm(new Date(waarde))}` : "Eindtijd weggehaald", "ok");

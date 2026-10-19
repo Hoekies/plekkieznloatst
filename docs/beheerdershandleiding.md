@@ -13,7 +13,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 👫 **Spelers** | Spelers aanmaken, inloggegevens, aan/uit, verwijderen |
 | 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
 | 📡 **Live kaart** | Waar iedereen loopt |
-| 🗺️ **Routes** | Routes maken, publiceren, activeren, voorproefje |
+| 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
 | **Spel** | 🏆 Tussenstand, WhatsApp (inloggegevens versturen), 🔔 Meldingen |
 | **Beheer** | Stop route, Reset spel |
 | **Info & uitleg** | Deze handleiding, de instructiekaarten, Ko-fi, en het versienummer met de datum van de laatste update |
@@ -39,20 +39,26 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **❓ Vraag**: of de vraag al is ingevuld (✅) of nog niet (⚠️), met **Vraag invullen / bewerken**. De vraag opent als venster over de editor; na **Opslaan** of **← Terug** sta je weer precies waar je was.
    - **ℹ️ Info**: de **tekst voor de spelers**, die ze lezen als ze er aankomen. Hangt er toch een vraag aan (zoals een startvraag), dan zie je dat, en krijgen de spelers die vraag in plaats van de tekst.
    - **🏁 Eind**: hier finisht het team; met **Opdracht bij de finish** hang je er eventueel een opdracht aan, zoals een selfie.
-   - Bij een meerkeuzevraag kun je per antwoord eigen **punten** invullen, ook negatief (bijv. −25 voor een fout antwoord). Leeg laten = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
+   - **De vraag-editor**: links het formulier (soort vraag → vraag → afbeelding en punten → antwoorden), rechts **Zo ziet de speler het** met het kaartje eronder. **💾 Vraag opslaan** staat altijd onderaan in beeld, met eventuele foutmelding erboven (bij een leeg antwoord staat de cursor meteen in dat veld). Ga je weg met niet-opgeslagen wijzigingen, dan vraagt de editor eerst of je ze wilt weggooien.
+   - **⚙️ Meer instellingen** (uitklapbaar, onder de antwoorden): de **naam van het punt**, **eigen punten per antwoord** en **📱 Openen met QR-code** (met 🖨️ printen).
+   - Bij een meerkeuzevraag kun je met **Eigen punten per antwoord** per antwoord punten invullen, ook negatief (bijv. −25 voor een fout antwoord). Uit = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
+   - Bij een open vraag kies je **🔤 Tekst** (één goed antwoord per regel) of **🔢 Getal**, met een **marge** (±).
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
-8. Ga terug naar **Routes** en klik bij de route op **📢 Publiceren** als hij klaar is, daarna op **▶ Activeren**. Beide vragen eerst om bevestiging. Bij activeren opent daarna de controle **🩺 Klaar om te spelen?** (zie [Het spel starten](#het-spel-starten)).
+8. Klaar? Klik op **✅ Klaarzetten**. De controle **🩺 Klaar om te spelen?** opent; is alles in orde, dan zet je de route daar klaar. Daarna verschijnt **▶ Activeren** (zie [Het spel starten](#het-spel-starten)).
+
+> **Status van een route**: **✏️ Concept** (nog bezig) → **✅ Klaar** (gecontroleerd, kan geactiveerd worden) → **▶ Actief** (de spelers kunnen spelen). In de routekop zie je dit als stappen: ✏️ Bewerken › 🩺 Controleren › ✅ Klaar › ▶ Actief, met daarnaast één opvallende knop voor de volgende stap. Klik op **🩺 Controleren** om de controle tussendoor te bekijken. Bij een klare route zet **↩ Concept** hem terug om verder te bewerken.
 
 > **Overzicht in de editor (computer)**:
-> - Bovenin staan twee lage regels: de **routekop** (terug, naam, status en de volgende stap zoals 📢 Publiceer of ▶ Activeer) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, 🩺 Controle, het gereedschap 📥 📍 🧹, en rechts ✓ Opgeslagen, ↶ en ⚙️ Instellingen).
+> - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap zoals ✅ Klaarzetten of ▶ Activeren, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, en het gereedschap 📥 Importeren, 🛣️ Op de weg en 🧹 Leegmaken).
+> - **🚶 Wegen** is een aan/uit-schakelaar: aan = lijnen en afstanden volgen wegen en voetpaden, uit = hemelsbreed. Staat hij aan, dan rekent **↻ Opnieuw** alles opnieuw uit.
 > - **◧ Lijst** klapt de puntenlijst links in, voor meer kaartruimte. Met **« Inklappen** onderaan het menu wordt het hoofdmenu een smalle balk met alleen icoontjes (**»** klapt hem weer uit). Beide worden onthouden.
 > - In de puntenlijst openen **❓** en het oranje **⚠️** (nog geen vraag) meteen de vraag van dat punt.
-> - Klik je op een punt, dan zie je in het paneel ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **📍 Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
+> - Klik je op een punt, dan zie je in het paneel ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **🛣️ Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
 > - **Kaartlagen** (linksonder, boven ☀️ 🌙 🛰️): zet **🧭 Routes**, **🎁 Items**, **✨ Voorstellen** en **⭕ Cirkel** los aan of uit, zodat de kaart rustiger wordt.
 
-> **📍 Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
+> **🛣️ Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
 
 > **🧹 Leegmaken**: haalt alle punten (met hun vragen) en alle items van de route weg, na bevestiging. De naam en de instellingen blijven. Alleen bij een route die niet actief is.
 
@@ -65,16 +71,18 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > **🧪 Testronde**: met **🧪 Test** bovenin de editor loop je de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
 
-> **Opslaan gaat vanzelf.** Rechtsboven in de editor zie je ⏳ *Opslaan…*, daarna ✓ *Opgeslagen*. Lukt het niet (bijvoorbeeld door een slechte verbinding), dan staat er ⚠️ *Niet opgeslagen* en krijg je een melding. Doe de wijziging dan opnieuw.
+> **Opslaan gaat vanzelf.** Rechtsboven in de editor zie je ⏳ *Opslaan…*, daarna ✓ *Opgeslagen*. Lukt het niet, dan staat er ⚠️ *Niet opgeslagen ⓘ* en krijg je een melding die zegt wat er misging en wat je kunt doen (bijv. "geen verbinding, controleer je internet" of "je bent uitgelogd, log opnieuw in"). Klik op ⓘ om die uitleg nog eens te zien. Doe de wijziging daarna opnieuw.
+
+> **Foutmeldingen** in het hele beheer zeggen voortaan wat er misging én hoe je het oplost, in plaats van alleen "mislukt".
 
 > **↶ Ongedaan maken.** Verwijderd, verschoven, toegevoegd of gewijzigd? Met **↶ Ongedaan maken** bovenin (of **Ctrl+Z**) zet je de laatste stappen één voor één terug, tot 30 stappen. Een verwijderd punt komt terug met zijn vraag en antwoorden, op dezelfde plek in de lijst. Verwijderen vraagt daarom geen bevestiging meer.
 
-> **Routes-overzicht**: de routes staan onder drie koppen: **● Actief**, **📢 Gepubliceerd** en **✏️ Concept**, binnen een team op naam. Bij elke route zie je het speltype en **✏️ Aangepast** (de laatste bewerking in de editor; het spelen zelf telt niet mee). Een lange naam schuift vanzelf heen en weer.
+> **Routes-overzicht**: de routes staan onder drie koppen: **▶ Actief**, **✅ Klaar** en **✏️ Concept**, binnen een groep op naam. Bij elke route zie je het speltype en **✏️ Aangepast** (de laatste bewerking in de editor; het spelen zelf telt niet mee). Een lange naam schuift vanzelf heen en weer.
 > De knoppen staan bij elke route op een vaste plek:
-> - **De volgende stap** (met bevestiging): **📢 Publiceren** (concept) → **▶ Activeren** (gepubliceerd) → **⏹ Deactiveren** (actief). Deactiveren werkt zoals *Stop route*: lopende spellen worden netjes afgesloten.
+> - **De volgende stap**, één opvallende knop: **✅ Klaarzetten** (concept) en **▶ Activeren** (klaar) openen de controle in de editor; **⏹ Deactiveren** (actief, met bevestiging) werkt zoals *Stop route*: lopende spellen worden netjes afgesloten en de route blijft Klaar. In de editor werkt Deactiveren precies zo.
 > - **Bewerken**
-> - 📄 **Voorproefje** (zie hieronder), 📋 **Kopie maken** (alles, als concept), 💾 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩️ **Terug naar concept** en 🗑️ **Verwijderen**.
-> - Rechtsboven **📂 Route importeren**: een eerder geëxporteerd bestand terugzetten.
+> - Knoppen met een korte tekst eronder: 📄 **Voorproefje** (zie hieronder), 📋 **Kopiëren** (alles, als concept), 📤 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩️ **Concept** (terug naar concept) en 🗑️ **Verwijderen**.
+> - Rechtsboven **📥 Route importeren**: een eerder geëxporteerd bestand terugzetten.
 >
 > Op de telefoon starten de routekaarten ingeklapt: tik op de naam om de knoppen te tonen.
 
@@ -198,7 +206,7 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 
 1. Stel de **doelafstand** in (bijv. 5 km).
 2. Stel het **aantal punten** in (bijv. 9).
-3. Klik op **🔄 Genereer punten in cirkel**.
+3. Kies met **🎯 Kies het middelpunt op de kaart** het midden en klik op **🎲 Punten maken in de cirkel**.
 4. Het systeem plaatst de punten in een gelijke cirkel rondom het middelpunt op de kaart.
 5. Het **middelpunt** (⊕) is versleepbaar — sleep het naar de gewenste locatie en de ghost-voorvertoning past zich direct aan.
 6. Sleep daarna elk punt afzonderlijk naar de exacte straat.
@@ -365,9 +373,9 @@ Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team)
 
 > **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *Reset spel* worden je eigen vinkjes gewist.
 
-1. Ga naar de gewenste route en klik op **▶ Activeer**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch activeren**. Met **🩺 Controle** in de editor bekijk je deze lijst ook tussendoor.
+1. Ga naar de gewenste route en klik op **▶ Activeren**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch activeren**. Met **🩺 Controleren** in de routekop bekijk je deze lijst ook tussendoor.
    - Er kan maar één route tegelijk actief zijn.
-   - De route moet op "Gepubliceerd" staan voordat je hem kunt activeren.
+   - De route moet op **✅ Klaar** staan voordat je hem kunt activeren (met ✅ Klaarzetten in hetzelfde venster).
 2. Spelers kunnen nu via hun inloggegevens inloggen en op **Ga op pad** drukken.
    - Vóór het starten toont de app automatisch de **spelregels van het actieve speltype**. Je hoeft dus niets vooraf uit te leggen.
    - Op een telefoon vraagt de app bij het openen of de speler PointRush **als app wil installeren** (Android) of legt hij uit hoe je hem **op het beginscherm** zet (iPhone). Als app opent PointRush volledig scherm, zonder balken.

@@ -47,7 +47,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
     {
       id: "route", auto: true, klaar: !!route,
       titel: route ? `Route actief: ${route.name}` : "Activeer een route",
-      uitleg: "Publiceren en activeren bij Routes.",
+      uitleg: "Klaarzetten en activeren bij Routes.",
       actie: !route && <Link href="/admin/routes" className="rl-knop rl-knop--cyan">🗺️ Naar routes</Link>,
     },
     {

@@ -19,6 +19,7 @@ import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
 import BroadcastKnop from "@/components/admin/BroadcastKnop";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -49,7 +50,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     const res = await fetch(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
-      toonMelding(fout ?? "Vrijgeven mislukt", "fout");
+      toonMelding(uitlegBijStatus(res.status, "Vrijgeven", fout), "fout");
     } else toonMelding(`Punt van ${naam} vrijgegeven`, "ok");
     ververs();
   }
@@ -59,7 +60,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
-      toonMelding(fout ?? "Stoppen mislukt", "fout");
+      toonMelding(uitlegBijStatus(res.status, "Stoppen", fout), "fout");
     }
     ververs();
   }
@@ -68,7 +69,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   async function verkortWachten(effectId: string) {
     const res = await fetch(`/api/admin/effecten/${effectId}/verkorten`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) toonMelding(data.fout ?? "Inkorten mislukt", "fout");
+    if (!res.ok) toonMelding(uitlegBijStatus(res.status, "Inkorten", data.fout), "fout");
     else if (data.voorbij) toonMelding("Wachttijd voorbij: het team kan weer verder", "ok");
     ververs();
   }

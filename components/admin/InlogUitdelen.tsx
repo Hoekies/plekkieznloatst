@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import KaartjeVersturen, { type Inlog } from "@/components/admin/InlogKaartje";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team het kaartje
 // via WhatsApp versturen (met de link erbij). Eén speler: 📲 Versturen op de spelerskaart.
@@ -89,7 +90,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
-    if (!res.ok) { toonMelding(data.fout ?? "Aanmaken mislukt", "fout"); if (data.gemaakt?.length) setGemaakt(data.gemaakt); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Aanmaken", data.fout), "fout"); if (data.gemaakt?.length) setGemaakt(data.gemaakt); return; }
     setGemaakt(data.gemaakt);
     onKlaar();
   }

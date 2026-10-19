@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // "± Punten": bonus of aftrek voor één team, met een reden (komt in de tijdlijn en het rapport)
 export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId: string; naam: string; onKlaar: () => void }) {
@@ -26,7 +27,7 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
-    if (!res.ok) { toonMelding(data.fout ?? "Aanpassen mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Aanpassen", data.fout), "fout"); return; }
     toonMelding(`${naam}: ${data.delta > 0 ? "+" : ""}${data.delta} punten`, "ok");
     setOpen(false); setReden(""); setDelta(10);
     onKlaar();

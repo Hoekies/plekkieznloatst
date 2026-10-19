@@ -12,6 +12,7 @@ import { maakWachtwoord } from "@/lib/wachtwoord";
 import InlogLinkSectie, { tijdTekst } from "@/components/admin/InlogLink";
 import TelefoonVenster from "@/components/admin/TelefoonVenster";
 import { toonTelefoon } from "@/lib/telefoon";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -58,7 +59,7 @@ export default function GroepenBeheer() {
   async function stopSpel(id: string, naam: string) {
     const res = await fetch(`/api/admin/groepen/${id}/spel-stoppen`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) { toonMelding(data.fout ?? "Stoppen mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Stoppen", data.fout), "fout"); return; }
     toonMelding(data.gestopt === 0 ? `${naam} had geen lopend spel.` : `Spel van ${naam} gestopt`, data.gestopt === 0 ? "info" : "ok");
     setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, heeft_spel: false } : g));
   }
@@ -66,7 +67,7 @@ export default function GroepenBeheer() {
   async function verwijderSpeler(id: string) {
     const res = await fetch(`/api/admin/groepen/${id}`, { method: "DELETE" });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) { toonMelding(data.fout ?? "Verwijderen mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Verwijderen", data.fout), "fout"); return; }
     toonMelding(`${data.naam ?? "Speler"} is verwijderd`, "ok");
     setGroepen((prev) => prev.filter((g) => g.id !== id));
   }

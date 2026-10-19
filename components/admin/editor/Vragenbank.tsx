@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
+import { foutUitleg } from "@/lib/fout-uitleg";
 
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
@@ -52,7 +53,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
     });
     if (!res.ok) {
       setVragen((lijst) => lijst?.map((x) => x.id === v.id ? v : x) ?? null);
-      toonMelding((await res.json().catch(() => ({}))).fout ?? "Opslaan mislukt", "fout");
+      toonMelding(await foutUitleg(res, "Opslaan"), "fout");
       return;
     }
     if (wijziging.verborgen === true) toonMelding("Uit de vragenbank gehaald (terug te zetten via 🗑️ Verwijderd)", "ok");

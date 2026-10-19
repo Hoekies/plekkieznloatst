@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 // er een venster midden in beeld met alleen een icoon, de titel en twee knoppen (vraag geldt dan niet).
 export default function BevestigKnop({
   children, vraag, ja = "Ja", onBevestig, className = "btn btn-ghost", style, disabled, title,
-  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst,
+  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst, uitleg,
 }: {
   children: ReactNode;
   vraag: string;
@@ -28,6 +28,8 @@ export default function BevestigKnop({
   // de knop iets extra's vertelt, zoals "Ja, naar de controle"
   knopTekst?: string;
   tipOnder?: boolean;     // balkje onder de knop (knoppen bovenaan het scherm)
+  // Venster: één korte regel met het gevolg (bijv. "Kan niet ongedaan worden gemaakt"), alleen als dat nodig is
+  uitleg?: string;
 }) {
   const [vragen, setVragen] = useState(false);
   const [bezig, setBezig] = useState(false);
@@ -66,6 +68,7 @@ export default function BevestigKnop({
               <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", padding: "18px 44px 14px" }}>
                 {icoon && <div style={{ fontSize: "2rem", lineHeight: 1 }}>{icoon}</div>}
                 {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.3 }}>{titel}</div>}
+                {uitleg && <div style={{ fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.4 }}>{uitleg}</div>}
                 <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
                   <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 40, minWidth: 120, padding: "0 22px", justifyContent: "center", fontWeight: 800 }}
                     disabled={bezig} onClick={bevestig} autoFocus>

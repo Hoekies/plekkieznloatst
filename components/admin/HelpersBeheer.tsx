@@ -7,6 +7,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { InlogKlaar } from "@/components/admin/InlogUitdelen";
 import { WijzigVenster, type BeheerModal } from "@/components/admin/GroepenBeheer";
 import { maakWachtwoord } from "@/lib/wachtwoord";
+import { foutUitleg } from "@/lib/fout-uitleg";
 
 type Helper = { id: string; naam: string; laatst_ingelogd: string | null };
 
@@ -26,7 +27,7 @@ export default function HelpersBeheer() {
 
   async function verwijder(h: Helper) {
     const res = await fetch("/api/admin/helpers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: h.id }) });
-    if (!res.ok) toonMelding((await res.json().catch(() => ({}))).fout ?? "Verwijderen mislukt", "fout");
+    if (!res.ok) toonMelding(await foutUitleg(res, "Verwijderen"), "fout");
     else toonMelding(`${h.naam} is verwijderd`, "ok");
     laad();
   }

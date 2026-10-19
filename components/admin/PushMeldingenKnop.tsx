@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
+import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // Menu-item "🔔 Meldingen": pushmeldingen op dit toestel aan- of uitzetten (nieuwe foto, hulpvraag).
 // Werkt ook als de app dicht is, en komt via de telefoon ook op een horloge.
@@ -58,7 +59,7 @@ export default function PushMeldingenKnop() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...abo.toJSON(), toestel: toestelNaam() }),
       });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).fout ?? "Aanmelden mislukt");
+      if (!res.ok) throw new Error(await foutUitleg(res, "Meldingen aanzetten"));
       setStand("aan");
       toonMelding("Meldingen staan aan op dit toestel", "ok");
     } catch (e) {
@@ -88,7 +89,7 @@ export default function PushMeldingenKnop() {
     setBezig(true);
     const res = await fetch("/api/admin/push", { method: "PUT" });
     const data = await res.json().catch(() => ({}));
-    toonMelding(res.ok ? "Testmelding verstuurd: die komt zo binnen" : data.fout ?? "Testmelding mislukt", res.ok ? "ok" : "fout");
+    toonMelding(res.ok ? "Testmelding verstuurd: die komt zo binnen" : uitlegBijStatus(res.status, "Testmelding", data.fout), res.ok ? "ok" : "fout");
     setBezig(false);
   }
 

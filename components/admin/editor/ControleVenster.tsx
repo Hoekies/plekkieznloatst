@@ -5,12 +5,13 @@ import type { ControleRegel } from "@/lib/route-controle";
 // "Klaar om te spelen?": de controle vóór het activeren van een route.
 // Zelfde stijl als de andere vensters: paars paneel met gouden rand, ✕ rechtsboven,
 // per punt een regel met een gekleurde streep (rood = moet opgelost, geel = let op).
-export default function ControleVenster({ controle, status, actief, onSluit, onActiveer }: {
+export default function ControleVenster({ controle, status, actief, onSluit, onActiveer, onKlaarzetten }: {
   controle: ControleRegel[];
   status: string;
   actief: boolean;
   onSluit: () => void;
   onActiveer: () => void;
+  onKlaarzetten: () => void;
 }) {
   const fouten = controle.filter((r) => r.niveau === "fout").length;
   const letOp = controle.length - fouten;
@@ -42,8 +43,20 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
             </div>
           )}
 
+          {!actief && (
+            <div style={{ fontSize: "0.76rem", color: "var(--muted)", textAlign: "center" }}>
+              {status === "gepubliceerd" ? "De route staat klaar. Activeer hem en de spelers kunnen beginnen." : "Is alles in orde? Zet de route dan klaar; daarna kun je hem activeren."}
+            </div>
+          )}
+
           {status !== "gepubliceerd" && !actief && (
-            <div className="controle-regel controle-regel--info">Publiceer de route eerst (📢 Publiceer), daarna kun je hem activeren.</div>
+            fouten ? (
+              <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je de route klaarzetten.</div>
+            ) : (
+              <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onKlaarzetten}>
+                ✅ {controle.length ? "Toch klaarzetten" : "Klaarzetten"}
+              </button>
+            )
           )}
 
           {!actief && status === "gepubliceerd" && (

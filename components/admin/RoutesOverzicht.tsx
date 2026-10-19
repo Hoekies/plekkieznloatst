@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import BevestigKnop from "@/components/admin/BevestigKnop";
-import StatKaart from "@/components/admin/StatKaart";
 import SectieKop from "@/components/admin/SectieKop";
 import SchuifTekst from "@/components/admin/SchuifTekst";
 import { toonMelding } from "@/components/admin/Melding";
 import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components/admin/ActieveRouteLabel";
+import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -36,10 +36,10 @@ export default function RoutesOverzicht() {
   const [importBezig, setImportBezig] = useState(false);
   const [importFout, setImportFout] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
-  // Ingedeeld in actief, gepubliceerd en concept (elk met een kop), binnen een groep op naam
+  // Ingedeeld in actief, klaar (database: gepubliceerd) en concept, elk met een kop; binnen een groep op naam
   const rang = (r: Route) => (r.is_active ? 0 : r.status === "gepubliceerd" ? 1 : 2);
   const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b) || a.name.localeCompare(b.name, "nl"));
-  const GROEP_KOP = ["● Actief", "📢 Gepubliceerd", "✏️ Concept"];
+  const GROEP_KOP = ["▶ Actief", "✅ Klaar", "✏️ Concept"];
   const aantalIn = (n: number) => gesorteerd.filter((r) => rang(r) === n).length;
 
   async function laad() {
@@ -68,7 +68,7 @@ export default function RoutesOverzicht() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: nieuweNaam, modus: nieuweModus, verwacht_aantal_teams: nieuwAantalTeams }),
     });
-    if (!res.ok) { setFout("Kon route niet aanmaken"); setBezig(false); return; }
+    if (!res.ok) { setFout(await foutUitleg(res, "Route aanmaken")); setBezig(false); return; }
     const route = await res.json();
     const query = plaats ? `?lat=${plaats.lat}&lng=${plaats.lng}` : "";
     router.push(`/admin/routes/${route.id}${query}`);
@@ -80,7 +80,7 @@ export default function RoutesOverzicht() {
     setExportBezig(id);
     try {
       const res = await fetch(`/api/admin/routes/${id}/export`);
-      if (!res.ok) { toonMelding("Exporteren mislukt", "fout"); return; }
+      if (!res.ok) { toonMelding(await foutUitleg(res, "Exporteren"), "fout"); return; }
       const data = await res.json();
       const afbeeldingen: Record<string, { type: string; data: string }> = {};
       let ontbreekt = 0;
@@ -140,21 +140,21 @@ export default function RoutesOverzicht() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setImportFout(data.fout ?? "Import mislukt");
+        setImportFout(uitlegBijStatus(res.status, "Importeren", data.fout));
         setImportBezig(false);
         return;
       }
       if (mislukt) toonMelding(`Route geïmporteerd, maar ${mislukt} afbeelding(en) konden niet worden teruggezet`, "fout");
       router.push(`/admin/routes/${data.id}`);
     } catch {
-      setImportFout("Ongeldig JSON-bestand");
+      setImportFout("Importeren mislukt: dit is geen geldig routebestand. Kies een .json-bestand dat je eerder met 📤 Exporteren hebt gemaakt.");
       setImportBezig(false);
     }
   }
 
   async function verwijder(id: string, naam: string) {
     const res = await fetch(`/api/admin/routes/${id}`, { method: "DELETE" });
-    toonMelding(res.ok ? `Route "${naam}" verwijderd` : "Verwijderen mislukt", res.ok ? "ok" : "fout");
+    toonMelding(res.ok ? `Route "${naam}" verwijderd` : await foutUitleg(res, "Verwijderen"), res.ok ? "ok" : "fout");
     laad();
   }
 
@@ -167,14 +167,14 @@ export default function RoutesOverzicht() {
     setKopieBezig(id);
     const res = await fetch(`/api/admin/routes/${id}/kopie`, { method: "POST" });
     setKopieBezig(null);
-    if (!res.ok) { toonMelding("Kopiëren mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(await foutUitleg(res, "Kopiëren"), "fout"); return; }
     toonMelding(`Kopie van "${naam}" gemaakt`, "ok");
     laad();
   }
 
   async function deactiveer() {
     const res = await fetch("/api/admin/routes/stoppen", { method: "POST" });
-    if (!res.ok) toonMelding("Deactiveren mislukt", "fout");
+    if (!res.ok) toonMelding(await foutUitleg(res, "Deactiveren"), "fout");
     meldActieveRouteGewijzigd();
     laad();
   }
@@ -189,37 +189,30 @@ export default function RoutesOverzicht() {
     laad();
   }
 
-  // Volgende stap voor een route, altijd eerst bevestigen: concept → publiceren, gepubliceerd → activeren
-  // (via de controle in de editor), actief → deactiveren
+  // De volgende stap voor een route, als één duidelijke knop:
+  // concept → ✅ Klaarzetten (eerst de controle), klaar → ▶ Activeren (ook via de controle), actief → ⏹ Deactiveren
   function stapKnop(r: Route) {
     if (r.is_active) {
       return (
-        <BevestigKnop venster icoon="⏹️" titel={`"${r.name}" deactiveren?`} vraag="" ja="Ja, deactiveren"
+        <BevestigKnop venster icoon="⏹️" titel={`"${r.name}" deactiveren?`} vraag="" knopTekst="Ja, deactiveren"
+          uitleg="Lopende spellen stoppen. De route blijft Klaar, dus je kunt hem later opnieuw activeren."
           onBevestig={deactiveer} className="rl-knop rl-knop--rood rl-stap">⏹ Deactiveren</BevestigKnop>
       );
     }
     if (r.status === "gepubliceerd") {
       return (
-        <BevestigKnop venster gevaarlijk={false} icoon="▶️" titel={`"${r.name}" activeren?`} vraag="" ja="Ja, naar de controle" knopTekst="Ja, naar de controle"
-          onBevestig={() => router.push(`/admin/routes/${r.id}?controle=1`)} className="rl-knop rl-knop--cyan rl-stap">▶ Activeren</BevestigKnop>
+        <button type="button" className="rl-knop rl-knop--cyan rl-stap" title="Laatste controle, daarna kunnen de spelers beginnen"
+          onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Activeren</button>
       );
     }
     return (
-      <BevestigKnop venster gevaarlijk={false} icoon="📢" titel={`"${r.name}" publiceren?`} vraag="" ja="Ja, publiceren"
-        onBevestig={() => togglePubliceer(r)} className="rl-knop rl-stap">📢 Publiceren</BevestigKnop>
+      <button type="button" className="rl-knop rl-stap" title="Eerst controleren; is alles in orde, dan zet je de route klaar"
+        onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>✅ Klaarzetten</button>
     );
   }
 
   return (
     <div>
-      {/* Tegels zoals bovenaan het dashboard */}
-      <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
-        <StatKaart label="Actieve route" waarde={routes.find((r) => r.is_active)?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
-        <StatKaart label="Routes" waarde={String(routes.length)} badgeKlas="pr-badge--purple" badge="📚" />
-        <StatKaart label="Gepubliceerd" waarde={String(routes.filter((r) => r.status === "gepubliceerd").length)} badgeKlas="pr-badge--green" badge="📢" />
-        <StatKaart label="Concept" waarde={String(routes.filter((r) => r.status !== "gepubliceerd" && !r.is_active).length)} badgeKlas="pr-badge--gray" badge="✏️" />
-      </div>
-
       {/* Nieuwe route links, importeren rechts (zoals bij Groepen) */}
       <div className="actie-rij">
         <button className="btn btn-primary actie-knop" onClick={() => setAanmaken(true)}>
@@ -228,7 +221,7 @@ export default function RoutesOverzicht() {
         <span style={{ flex: 1 }} />
         <button className="rl-knop actie-knop" title="Een eerder geëxporteerde route (bestand) toevoegen"
           onClick={() => importRef.current?.click()} disabled={importBezig}>
-          {importBezig ? "…" : <>📂 <span className="alleen-pc">Route importeren</span><span className="alleen-mobiel">Importeren</span></>}
+          {importBezig ? "…" : <>📥 <span className="alleen-pc">Route importeren</span><span className="alleen-mobiel">Importeren</span></>}
         </button>
         <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
       </div>
@@ -272,7 +265,7 @@ export default function RoutesOverzicht() {
           </div>
 
           <div className="form-group" style={{ width: 90 }}>
-            <label className="form-label">Teams</label>
+            <label className="form-label" title="Hoeveel teams spelen er tegelijk? Later aan te passen.">Teams</label>
             <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
               onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
           </div>
@@ -297,18 +290,13 @@ export default function RoutesOverzicht() {
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
       ) : routes.length === 0 ? (
         <div className="card">
-          <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Maak een nieuwe route aan.</p>
+          <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Klik op <strong>+ Nieuwe route</strong> om te beginnen, of importeer een route die je eerder hebt geëxporteerd.</p>
         </div>
       ) : (
         <div>
           {gesorteerd.map((r, i) => {
             const nieuweGroep = i === 0 || rang(gesorteerd[i - 1]) !== rang(r);
             const info = MODUS_INFO[r.modus];
-            const status = r.is_active
-              ? { tekst: "● Actief", cls: "pr-gem-chip--green" }
-              : r.status === "gepubliceerd"
-                ? { tekst: "Gepubliceerd", cls: "pr-gem-chip--cyan" }
-                : { tekst: "Concept", cls: "pr-gem-chip--gray" };
 
             return (
               <Fragment key={r.id}>
@@ -342,31 +330,31 @@ export default function RoutesOverzicht() {
                 <div className="rl-acties rl-acties--vast">
                   {/* Telefoon: eerst de knoppen met tekst over de hele breedte, daaronder de iconen */}
                   <div className="rl-tekstknoppen">
-                  {/* Plek 1: de volgende stap: publiceren → activeren → deactiveren (computer) */}
+                  {/* Plek 1: de volgende stap: klaarzetten → activeren → deactiveren (computer) */}
                   <span className="rl-stap-plek">{stapKnop(r)}</span>
                   <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
                   </div>
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}
                   <div className="rl-icoonknoppen">
                   <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
-                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>📄</button>
+                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>📄<span className="rl-knop-label">Voorproefje</span></button>
                   <BevestigKnop venster gevaarlijk={false} icoon="📋" titel="Route kopiëren?"
-                    vraag={`Er komt een nieuwe route „${r.name} (kopie)” bij, met alle instellingen, punten, vragen en items. De kopie staat op concept.`}
+                    vraag="" uitleg="Met alle instellingen, punten, vragen en items. De kopie staat op Concept."
                     ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
-                    {kopieBezig === r.id ? "…" : "📋"}
+                    {kopieBezig === r.id ? "…" : "📋"}<span className="rl-knop-label">Kopiëren</span>
                   </BevestigKnop>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
-                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "💾"}</button>
+                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}<span className="rl-knop-label">Exporteren</span></button>
                   {!r.is_active && r.status === "gepubliceerd" ? (
-                    <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept" aria-label="Terug naar concept"
-                      onClick={() => togglePubliceer(r)}>↩️</button>
+                    <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept (weer bewerken voordat je activeert)" aria-label="Terug naar concept"
+                      onClick={() => togglePubliceer(r)}>↩️<span className="rl-knop-label">Concept</span></button>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                   {!r.is_active ? (
-                    <BevestigKnop venster icoon="🗑️" titel="Route verwijderen?"
-                      vraag={`„${r.name}” wordt verwijderd, met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt. Wil je hem bewaren? Exporteer hem dan eerst (💾).`}
+                    <BevestigKnop venster icoon="🗑️" titel={`„${r.name}” verwijderen?`}
+                      vraag="" uitleg="Met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt; exporteer hem eerst (📤) als je hem wilt bewaren."
                       ja="Ja, verwijderen" onBevestig={() => verwijder(r.id, r.name)}
-                      className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️</BevestigKnop>
+                      className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️<span className="rl-knop-label">Verwijderen</span></BevestigKnop>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                   </div>
                 </div>

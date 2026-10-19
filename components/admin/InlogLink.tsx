@@ -6,6 +6,7 @@ import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { waLink, toonTelefoon } from "@/lib/telefoon";
+import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
 const DUUR: { uren: number; label: string }[] = [
   { uren: 4, label: "4 uur" },
@@ -39,13 +40,13 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
-    if (!res.ok) { toonMelding(data.fout ?? "Link maken mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Link maken", data.fout), "fout"); return; }
     setLink({ url: data.url, geldig_tot: data.geldig_tot });
   }
 
   async function intrekken() {
     const res = await fetch(`/api/admin/groepen/${spelerId}/link`, { method: "DELETE" });
-    if (!res.ok) { toonMelding((await res.json().catch(() => ({}))).fout ?? "Intrekken mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(await foutUitleg(res, "Intrekken"), "fout"); return; }
     toonMelding("Links ingetrokken: het team wordt binnen een halve minuut uitgelogd", "ok");
     setLink(null);
     onGewijzigd?.();

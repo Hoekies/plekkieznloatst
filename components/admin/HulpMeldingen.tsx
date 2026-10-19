@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { speelDong } from "@/lib/sounds";
 import { toonMelding } from "@/components/admin/Melding";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 type Melding = { id: string; sessie_id: string; team: string; punt: string | null; sinds: string };
 
@@ -54,7 +55,7 @@ export default function HulpMeldingen() {
     const res = await fetch(`/api/admin/sessies/${m.sessie_id}/punt-vrijgeven`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
-      toonMelding(fout ?? "Vrijgeven mislukt", "fout");
+      toonMelding(uitlegBijStatus(res.status, "Vrijgeven", fout), "fout");
     }
     setBezig(null);
     haalOp();

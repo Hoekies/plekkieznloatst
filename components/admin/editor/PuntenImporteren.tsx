@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { leesPunten, coordsUitLink, type ImportPunt } from "@/lib/punten-import";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // "📥 Importeren": punten uit een GPX/KML-bestand, of een lijst met coördinaten en Google Maps-links.
 // Ze komen vóór de finish, met de standaard punten en straal van de route.
@@ -57,7 +58,7 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
     });
     const data = await res.json().catch(() => ({}));
     setBezig(null);
-    if (!res.ok) { toonMelding(data.fout ?? "Importeren mislukt", "fout"); return; }
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Importeren", data.fout), "fout"); return; }
     toonMelding(`${data.aantal} punten toegevoegd`, "ok");
     setOpen(false); setTekst(""); setGevonden([]); setNietHerkend([]);
     onKlaar();
@@ -66,8 +67,8 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
   return (
     <>
       <button type="button" className="rl-knop" onClick={() => setOpen(true)}
-        data-tip="Punten importeren (GPX, KML, lijst of Google Maps-links)" data-tip-pos="onder" aria-label="Punten importeren">
-        📥
+        title="Punten importeren (GPX, KML, lijst of Google Maps-links)" aria-label="Punten importeren">
+        📥<span className="alleen-pc"> Importeren</span>
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>

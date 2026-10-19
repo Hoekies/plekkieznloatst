@@ -76,7 +76,8 @@ plekkie-zn-loatst/
 ├── lib/
 │   ├── supabase.ts                 → Supabase client (browser + server)
 │   ├── auth.ts                     → rol-check helpers, route guards
-│   └── geo.ts                      → Haversine, GPS utilities
+│   ├── geo.ts                      → Haversine, GPS utilities
+│   └── fout-uitleg.ts              → foutmelding met oorzaak + oplossing (op statuscode)
 ├── types/
 │   └── database.ts                 → TypeScript types van schema
 ├── styles/
@@ -103,7 +104,7 @@ plekkie-zn-loatst/
 |---|---|---|
 | id | uuid PK | |
 | name | text | |
-| status | text | `concept` / `gepubliceerd` |
+| status | text | `concept` / `gepubliceerd` (in beeld: Concept / Klaar) |
 | is_active | boolean | Max. 1 route actief tegelijk (constraint) |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
@@ -246,7 +247,7 @@ plekkie-zn-loatst/
 |---|---|---|
 | `/login` | Iedereen | Inlogpagina; redirect na login op rol |
 | `/admin` | Admin | Dashboard: speleroverzicht + live leaderboard |
-| `/admin/routes` | Admin | Lijst routes, aanmaken, publiceren, activeren |
+| `/admin/routes` | Admin | Lijst routes, aanmaken, klaarzetten, activeren |
 | `/admin/routes/[id]` | Admin | Route-editor: Leaflet kaart, punten plaatsen/verslepen |
 | `/admin/routes/[id]/punten/[pid]` | Admin | Punt bewerken + vraag-editor |
 | `/admin/live` | Admin | Live kaart met exacte locaties alle spelers |

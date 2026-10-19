@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { RoutePunt } from "@/types/database";
-import VraagEditorPagina, { type VraagMetAntwoorden } from "../VraagEditorPagina";
+import VraagEditorPagina, { NietOpgeslagenVenster, type VraagMetAntwoorden } from "../VraagEditorPagina";
 import type { KaartPunt } from "../PuntMiniKaart";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
@@ -35,6 +35,11 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
   }, [routeId, puntId]);
 
   const klaar = punten.filter((p) => heeftVraag(p.id)).length;
+  // Niet-opgeslagen wijzigingen: eerst vragen voordat je via de lijst of ✕ weggaat
+  const [gewijzigd, setGewijzigd] = useState(false);
+  const meldGewijzigd = useCallback((g: boolean) => setGewijzigd(g), []);
+  const [verlaatNa, setVerlaatNa] = useState<(() => void) | null>(null);
+  const verlaat = (doe: () => void) => { if (gewijzigd) setVerlaatNa(() => doe); else doe(); };
 
   return (
     <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex" }}>
@@ -45,11 +50,11 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
             <div style={{ fontWeight: 800, color: "var(--ink)" }}>📝 Alle vragen</div>
             <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>{klaar} van {punten.length} ingevuld</div>
           </div>
-          <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
+          <button type="button" className="editor-paneel-sluit" onClick={() => verlaat(onSluit)} title="Sluiten">✕</button>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "6px 0" }}>
           {punten.map((p, i) => (
-            <button key={p.id} type="button" onClick={() => setIndex(i)}
+            <button key={p.id} type="button" onClick={() => i !== index && verlaat(() => setIndex(i))}
               style={{
                 width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", border: "none", cursor: "pointer", textAlign: "left",
                 background: i === index ? "rgba(0,217,255,0.14)" : "transparent",
@@ -71,7 +76,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
           {!punt ? null : vraag === undefined ? (
             <p style={{ padding: 28, color: "var(--muted)" }}>Laden…</p>
           ) : (
-            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd}
+            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd}
               navigatie={{
                 positie: `${index + 1} van ${punten.length}`,
                 onVorige: index > 0 ? () => setIndex(index - 1) : undefined,
@@ -87,6 +92,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
           )}
         </div>
       </div>
+      {verlaatNa && <NietOpgeslagenVenster onSluit={() => setVerlaatNa(null)} onWeg={() => { const doe = verlaatNa; setVerlaatNa(null); setGewijzigd(false); doe(); }} />}
     </div>
   );
 }

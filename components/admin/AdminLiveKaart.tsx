@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { toonMelding } from "@/components/admin/Melding";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -44,7 +45,7 @@ export default function AdminLiveKaart({ initData }: Props) {
     try {
       const res = await fetch("/api/admin/live/replay");
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { toonMelding(data.fout ?? "Replay laden mislukt", "fout"); return; }
+      if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Replay laden", data.fout), "fout"); return; }
       if (!data.teams?.length) { toonMelding("Nog geen gelopen sporen om af te spelen", "info"); return; }
       setReplay(data.teams);
     } finally { setReplayLaden(false); }

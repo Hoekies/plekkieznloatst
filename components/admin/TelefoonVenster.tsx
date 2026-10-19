@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonTelefoon, waLink } from "@/lib/telefoon";
+import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // 📞 Telefoonnummer van een team: opslaan, bellen of meteen een WhatsApp-chat openen.
 // Met een nummer opent WhatsApp bij het versturen van inloggegevens direct de juiste chat.
@@ -30,7 +31,7 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
-    if (!res.ok) { setFout(data.fout ?? "Opslaan mislukt"); return; }
+    if (!res.ok) { setFout(uitlegBijStatus(res.status, "Opslaan", data.fout)); return; }
     onOpgeslagen(data.telefoon ?? null);
     toonMelding(data.telefoon ? "Telefoonnummer opgeslagen" : "Telefoonnummer weggehaald", "ok");
     onSluit();
