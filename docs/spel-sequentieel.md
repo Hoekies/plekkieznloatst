@@ -5,7 +5,7 @@
 
 ## Wat is het spel?
 
-Een GPS-speurtocht voor groepen. Jullie lopen een vaste route door de omgeving en bezoeken een reeks plekken **in een vaste volgorde**. Op elke plek staat een vraag. Wie de meeste punten verzamelt, wint.
+Een GPS-speurtocht voor teams. Jullie lopen een vaste route door de omgeving en bezoeken een reeks plekken **in een vaste volgorde**. Op elke plek staat een vraag. Wie de meeste punten verzamelt, wint.
 
 Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderweg tegenkomen.
 
@@ -14,11 +14,11 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 ## Hoe begin je?
 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
-2. Vul de naam van je groep in en log in.
+2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Kopieer de link en tik in de app op **🔗 Inloggen met link**.)
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
 4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent en jullie eerste punt verschijnt.
 
-> Een groep kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
+> Een team kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
 
 ---
 
@@ -30,6 +30,8 @@ Op de kaart zie je:
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart — en zij jullie ook niet
+- **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
+- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne roze stippellijntjes
 - Geen items om op te pakken — wel kunnen er onzichtbare **Plek zooi**-vallen liggen
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.

@@ -5,7 +5,7 @@
 
 ## Wat is het spel?
 
-Een GPS-speurtocht voor groepen, net als Route op volgorde — met één belangrijk verschil: **alle teams lopen hetzelfde rondje, maar ieder team begint op een andere plek in dat rondje.**
+Een GPS-speurtocht voor teams, net als Route op volgorde — met één belangrijk verschil: **alle teams lopen hetzelfde rondje, maar ieder team begint op een andere plek in dat rondje.**
 
 Iedereen loopt dezelfde totale afstand en bezoekt dezelfde punten, alleen in een andere volgorde. Zo staat er nooit een rij bij hetzelfde punt en heeft niemand voordeel van als eerste vertrekken.
 
@@ -16,11 +16,11 @@ Alle teams **starten en finishen op dezelfde plek** 🏠 — de verzamelplek van
 ## Hoe begin je?
 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
-2. Vul de naam van je groep in en log in.
+2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Kopieer de link en tik in de app op **🔗 Inloggen met link**.)
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
 4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent met het startpunt als eerste doel.
 
-> Een groep kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
+> Een team kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
 
 ---
 
@@ -45,6 +45,8 @@ Op de kaart zie je:
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen; zij zien jou niet.
 - **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
+- **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
+- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne roze stippellijntjes
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende.
 

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
+import { voegBasiskaartToe } from "@/lib/basiskaart";
+import { speelgebiedLaag } from "@/lib/speelgebied";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 
@@ -37,6 +39,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
+  // Speelgebied: buiten de route iets grijzer
+  const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
 
   // Kaart initialiseren
   useEffect(() => {
@@ -68,13 +72,11 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         attributionControl: false,
       });
 
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-        maxZoom: 19,
-      }).addTo(map);
-
       mapRef.current = map;
+      gebiedRef.current = speelgebiedLaag(L, map);
       setKaartKlaar(true);
+      // Scherpe kaart (vectortegels) met duidelijke paden, huizen en groen; anders de gewone OSM-plaatjes
+      voegBasiskaartToe(L, map, "licht");
     }
 
     init();
@@ -302,6 +304,11 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       }
     });
   }, [andereSpelers, kaartKlaar]);
+
+  // Speelgebied: alles buiten de route iets grijzer, zodat je ziet waar het spel is
+  useEffect(() => {
+    gebiedRef.current?.(punten.map((p) => ({ lat: p.latitude, lng: p.longitude })));
+  }, [punten, kaartKlaar]);
 
   return (
     <>

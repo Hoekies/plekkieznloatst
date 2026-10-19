@@ -5,6 +5,8 @@ import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { speelgebiedLaag } from "@/lib/speelgebied";
+import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 interface Props {
   spelers: SpelerOverzicht[];
@@ -41,6 +43,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");
   const [vector, setVector] = useState(false);
+  // Speelgebied: buiten de route iets grijzer
+  const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
   function kiesStijl(s: KaartStijl) {
     setStijl(s);
     bewaarStijl(s);
@@ -84,6 +88,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       sporenLaagRef.current = L.layerGroup().addTo(map);
 
       mapRef.current = map;
+      gebiedRef.current = speelgebiedLaag(L, map);
       setKaartKlaar(true);
 
       // Basiskaart daarna: vectortegels van OpenFreeMap (scherp op elk zoomniveau),
@@ -148,6 +153,11 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       puntMarkersRef.current.set(punt.id, marker);
     });
   }, [route_punten, kaartKlaar, modus]);
+
+  // Speelgebied: alles buiten de route iets grijzer (donkerder bij de donkere kaart)
+  useEffect(() => {
+    gebiedRef.current?.(route_punten.map((p) => ({ lat: p.latitude, lng: p.longitude })), stijl === "donker");
+  }, [route_punten, kaartKlaar, stijl]);
 
   // Spelermarkers bijwerken
   useEffect(() => {
@@ -274,13 +284,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   return (
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      {/* Licht of donker kaartbeeld (alleen bij de vectorkaart) */}
-      {vector && (
-        <div className="kaart-stijl">
-          <button type="button" className={stijl === "licht" ? "aan" : ""} onClick={() => kiesStijl("licht")} title="Lichte kaart">☀️</button>
-          <button type="button" className={stijl === "donker" ? "aan" : ""} onClick={() => kiesStijl("donker")} title="Donkere kaart">🌙</button>
-        </div>
-      )}
+      {/* Licht, donker of luchtfoto (zonder vectorkaart: licht of luchtfoto) */}
+      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} />
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

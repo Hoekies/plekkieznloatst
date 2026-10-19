@@ -16,6 +16,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 
 **Inloggen**
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je team, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
+Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Kopieer de link dan in WhatsApp en tik in de app op **🔗 Inloggen met link**.
 
 **Als app op je telefoon**
 Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (Android) of legt uit hoe je hem op je beginscherm zet (iPhone). Als app opent PointRush volledig scherm, zonder adresbalk.
@@ -30,6 +31,12 @@ Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spel
 
 **Eindtijd**
 Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.
+
+**Pauze**
+Zet de organisatie het spel even stil (bijvoorbeeld bij onweer of voor de lunch), dan zie je een groot scherm **⏸️ Even pauze**. Blijf waar je bent; zodra het verder gaat, verdwijnt het vanzelf. De eindtijd loopt tijdens de pauze niet door.
+
+**Berichten**
+De organisatie kan een bericht sturen aan alle teams, of alleen aan jullie team. Het verschijnt vanzelf groot in beeld.
 
 **Batterij**
 De app gebruikt continu GPS. Zorg dat je telefoon voldoende geladen is, of neem een powerbank mee.

@@ -3,13 +3,13 @@
 ## 1. Architectuuroverzicht
 
 ### Doel
-Een Nederlandstalige PWA voor een route-gebaseerd quizspel op een kaart. Groepen lopen een route langs GPS-waypoints. Bij elk punt verschijnt een vraag. Scores worden live bijgehouden op een leaderboard.
+Een Nederlandstalige PWA voor een route-gebaseerd quizspel op een kaart. Teams lopen een route langs GPS-waypoints. Bij elk punt verschijnt een vraag. Scores worden live bijgehouden op een leaderboard.
 
 ### Twee interfaces
 | Interface | Doelgroep | Apparaat |
 |---|---|---|
 | Beheerder-app | Spelleider | Desktop |
-| Speler-app | Deelnemende groepen | Mobiel |
+| Speler-app | Deelnemende teams | Mobiel |
 
 ### Stack
 | Onderdeel | Keuze |
@@ -157,7 +157,7 @@ plekkie-zn-loatst/
 | Kolom | Type | Opmerkingen |
 |---|---|---|
 | id | uuid PK | |
-| group_name | text | Naam van de groep |
+| group_name | text | Verouderd: wordt niet meer getoond (teams kiezen zelf een teamnaam, `nickname`) |
 | auth_user_id | uuid FK → auth.users | |
 | active_device_id | text | Browser-gegenereerde device ID |
 | created_at | timestamptz | |
@@ -217,8 +217,8 @@ plekkie-zn-loatst/
 | Regel | Hoe afdwingen |
 |---|---|
 | Max. 1 actieve route | Partial unique index op `routes(is_active)` WHERE `is_active = true` |
-| Max. 1 actieve sessie per groep | Unique constraint `player_sessions(player_id)` WHERE `status = 'actief'` |
-| Max. 1 apparaat per groep | Controleren in login-flow: `active_device_id` vergelijken, blokkeer tweede apparaat |
+| Max. 1 actieve sessie per team | Unique constraint `player_sessions(player_id)` WHERE `status = 'actief'` |
+| Max. 1 apparaat per team | Controleren in login-flow: `active_device_id` vergelijken, blokkeer tweede apparaat |
 | Exact 3 antwoorden per meerkeuzevraag | Server-side validatie bij opslaan vraag |
 | Exact 1 correct antwoord per vraag | Constraint: `CHECK` of server-side validatie |
 | `selected_answer_id` XOR `open_answer_text` | Check constraint in `player_point_progress` |
@@ -322,7 +322,7 @@ plekkie-zn-loatst/
 
 | Scenario | Aanpak |
 |---|---|
-| Tweede apparaat zelfde groep | Login-check op `active_device_id`; bij mismatch blokkeren met melding |
+| Tweede apparaat zelfde team | Login-check op `active_device_id`; bij mismatch blokkeren met melding |
 | Refresh tijdens spel | `player_sessions.current_point_id` opslaan; bij heropen sessie hervatten |
 | GPS valt weg | Melding tonen; GPS watcher blijft actief; spel pauzeert niet |
 | GPS accuracy te slecht | Melding + "Controleer locatie"-knop; puntdetectie tijdelijk uitschakelen |

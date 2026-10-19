@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
 
 export type KaartPunt = { id: string; lat: number; lng: number; label: string };
 
@@ -51,7 +52,7 @@ export default function PuntMiniKaart({ punt, radius, andere = [] }: {
       if (!actief || !containerRef.current || kaartRef.current) return;
       LRef.current = L;
       const kaart = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(kaart);
+      voegBasiskaartToe(L, kaart, bewaardeStijl());
       kaartRef.current = kaart;
       laagRef.current = L.layerGroup().addTo(kaart);
       teken();

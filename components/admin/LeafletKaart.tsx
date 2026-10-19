@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 // Leaflet wordt alleen client-side geladen
 declare global {
@@ -69,6 +71,14 @@ export default function LeafletKaart({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
+  // Kaartbeeld: licht, donker of luchtfoto (zelfde keuze als de live kaart)
+  const basiskaartRef = useRef<Basiskaart | null>(null);
+  const [stijl, setStijl] = useState<KaartStijl>("licht");
+  function kiesStijl(s: KaartStijl) {
+    setStijl(s);
+    bewaarStijl(s);
+    basiskaartRef.current?.zetStijl(s);
+  }
   const markersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
@@ -114,10 +124,10 @@ export default function LeafletKaart({
       if (!mounted || !containerRef.current || kaartRef.current) return;
 
       const kaart = L.map(containerRef.current).setView([52.3676, 4.9041], 13);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-        maxZoom: 19,
-      }).addTo(kaart);
+      // Zelfde kaart als de live kaart: scherp, licht/donker of luchtfoto (handig om te zien of een plek bereikbaar is)
+      const begin = bewaardeStijl();
+      setStijl(begin);
+      voegBasiskaartToe(L, kaart, begin).then((b) => { if (mounted) basiskaartRef.current = b; });
 
       kaart.on("click", (e) => {
         onKlikRef.current(e.latlng.lat, e.latlng.lng);
@@ -467,6 +477,7 @@ export default function LeafletKaart({
     // zouden "lekken" en boven pagina-elementen als het admin-hamburgermenu komen te staan.
     <div style={{ flex: 1, position: "relative", minWidth: 0, zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} onder />
     </div>
   );
 }
