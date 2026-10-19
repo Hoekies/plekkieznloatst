@@ -13,7 +13,7 @@ import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 import { maakKleurMap } from "@/lib/speler-kleur";
-import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
+import SpelLeider, { duurKort, minutenNietGezien } from "@/components/admin/SpelLeider";
 import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
@@ -27,6 +27,11 @@ interface Props {
   initData: LiveData;
   // Hulp (helper): alleen foto's keuren en punten vrijgeven, geen stoppen/reset/punten aanpassen
   beperkt?: boolean;
+}
+
+function speeltijdKort(sec: number): string {
+  const min = Math.floor(sec / 60);
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`;
 }
 
 function tijdGeleden(iso: string): string {
@@ -305,44 +310,40 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
       style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
       : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
       {/* Bovenaan: plek, icoon, naam en score op één regel; daaronder over de volle breedte de rest */}
+      {/* Compact (ook op de pc, zodat meerdere teams tegelijk in beeld passen): regel 1 naam, status en
+          score; regel 2 de cijfers; daaronder de voortgang. Items en knoppen achter ▸ */}
       <div className="pr-gem-card-inner sk-inner">
         <div className="sk-kop">
-          {/* Plek in de stand */}
-          <span className="rang-kolom" title={`${rang}e plaats`} style={{ width: 40, flexShrink: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: rang <= 3 ? "1.9rem" : "1.2rem", color: "#fff" }}>
+          <span className="sk-rang" title={`${rang}e plaats`} style={{ fontSize: rang <= 3 ? "1.5rem" : "1rem" }}>
             {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
           </span>
-          <div className="pr-gem-avatar speler-ring" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
+          <div className="pr-gem-avatar speler-ring sk-avatar" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
           <div className="sk-naam">
-            <div style={{
-              fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              color: s.nickname ? "#fff" : "var(--muted)", fontStyle: s.nickname ? "normal" : "italic",
-            }}>
-              {s.nickname ?? "nog geen naam gekozen"}
+            <div className="sk-titel">
+              <span className="sk-teamnaam" style={s.nickname ? undefined : { color: "var(--muted)", fontStyle: "italic" }}>{s.nickname ?? "nog geen naam gekozen"}</span>
+              <span className="sk-login">{s.login_name}</span>
             </div>
-            <div style={{ fontSize: "0.74rem", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {s.login_name} · 📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}
-              {s.laatste_gezien && ` · ${tijdGeleden(s.laatste_gezien)}`}
+            <div className="sk-stats">
+              <span title="Punten bezocht">📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}</span>
+              <span title="Gelopen">🚶 {(s.afstand_m / 1000).toFixed(2).replace(".", ",")} km</span>
+              {s.started_at && <span title="Speeltijd">⏱ {speeltijdKort(sessietijd(s))}</span>}
+              {s.huidig_punt_naam && <span className="sk-volgend" title={`Op weg naar ${s.huidig_punt_naam}`}>➡️ {s.huidig_punt_naam}</span>}
+              {stil !== null && <span className="sk-stil" title="Al een tijd geen locatie ontvangen">📵 {duurKort(stil)} niet gezien{s.ingelogd ? "" : " · uitgelogd"}</span>}
             </div>
-            {s.huidig_punt_naam && (
-              <div style={{ fontSize: "0.72rem", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>➡️ {s.huidig_punt_naam}</div>
-            )}
           </div>
           <div className="sk-rechts">
             <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
+            <span className="sk-score">{s.score} pt</span>
             <button type="button" className="sk-inklap" aria-expanded={toonAlles}
               onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-              title={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>
-              {toonAlles ? "▾" : "▸"}<span className="alleen-pc">{toonAlles ? " Minder" : " Meer"}</span>
+              title={toonAlles ? "Inklappen" : "Items en knoppen tonen"} aria-label={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>
+              {toonAlles ? "▾" : "▸"}
             </button>
           </div>
         </div>
 
         <div className="sk-lijf">
-          <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
-          {stil !== null && (
-            <div className="stil-label">📵 Niet gezien sinds {stil} min{s.ingelogd ? "" : " · uitgelogd"}</div>
-          )}
+          <div className="pr-xp-bar sk-balk" title={totaalPunten ? `${s.bezochte_punten} van ${totaalPunten} punten` : undefined}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
 
           {toonAlles && (s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
@@ -449,8 +450,8 @@ function StatusPil({ status, ingelogd }: { status: SpelerOverzicht["sessie_statu
   const cfg = {
     geen_sessie: { label: "Niet gestart", cls: "pr-gem-chip--gray" },
     // Spel loopt nog, maar de speler is uitgelogd: kan verder na opnieuw inloggen
-    actief:      ingelogd ? { label: "Actief", cls: "pr-gem-chip--orange" } : { label: "Uitgelogd", cls: "pr-gem-chip--gray" },
-    voltooid:    { label: "Voltooid",     cls: "pr-gem-chip--green" },
+    actief:      ingelogd ? { label: "Onderweg", cls: "pr-gem-chip--cyan" } : { label: "Uitgelogd", cls: "pr-gem-chip--gray" },
+    voltooid:    { label: "Gefinisht",    cls: "pr-gem-chip--green" },
     vervallen:   { label: "Vervallen",    cls: "pr-gem-chip--gray" },
   }[status];
   return (

@@ -2707,3 +2707,74 @@ button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); 
   .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] { font-size: 29px; line-height: 1; }
   .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] svg { width: 30px; height: 30px; }
 }
+
+/* Spelerskaart (dashboard): compact, ook op de pc */
+.speler-kaart-klik .sk-inner { padding: 10px 14px !important; gap: 6px !important; }
+.speler-kaart-klik .sk-kop { gap: 10px; }
+.sk-rang { width: 28px; flex-shrink: 0; text-align: center; font-family: var(--font-display); font-weight: 800; color: #fff; line-height: 1; }
+.speler-kaart-klik .sk-avatar { width: 48px; height: 48px; font-size: 1.7rem; }
+.sk-titel { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.sk-teamnaam { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.sk-login { font-size: 0.72rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.sk-stats { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 3px; font-size: 0.78rem; color: var(--text); }
+.sk-stats > span { white-space: nowrap; }
+.sk-volgend { color: var(--muted); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.sk-stil { color: #FCA5A5; font-weight: 700; }
+.speler-kaart-klik .sk-rechts { flex-direction: row; align-items: center; gap: 10px; }
+.sk-score { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: #FFE680; white-space: nowrap; min-width: 56px; text-align: right; }
+.speler-kaart-klik .sk-inklap { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+.speler-kaart-klik .sk-lijf { padding-left: 96px; }
+.speler-kaart-klik .sk-balk { height: 5px; margin: 0; }
+@media (max-width: 768px) {
+  .speler-kaart-klik .sk-inner { padding: 8px 10px !important; }
+  .speler-kaart-klik .sk-kop { gap: 8px; align-items: flex-start; }
+  .sk-rang { width: 22px; padding-top: 10px; }
+  .speler-kaart-klik .sk-avatar { width: 40px; height: 40px; font-size: 1.4rem; }
+  .sk-login, .sk-volgend { display: none; }
+  .sk-stats { gap: 2px 10px; font-size: 0.74rem; }
+  .speler-kaart-klik .sk-rechts { gap: 6px; }
+  .speler-kaart-klik .sk-rechts .pr-gem-chip { display: none; }
+  .sk-score { font-size: 1.05rem; min-width: 0; }
+  .speler-kaart-klik .sk-inklap { width: 28px; height: 28px; }
+  .speler-kaart-klik .sk-lijf { padding-left: 0; }
+}
+
+/* Spelers- en helperkaart: alle knoppen in één rij. Pc: rechts naast de naam; telefoon: één balk
+   met icoon en korte tekst, even breed */
+.gb-label { display: none; }
+.gb-label--altijd { display: inline; margin-left: 6px; }
+.gb-tekstknop { display: inline-flex; align-items: center; height: 34px; padding: 0 12px; }
+.gb-iconen { flex-wrap: nowrap; }
+@media (max-width: 768px) {
+  .gb-kaart .gb-iconen { display: flex; gap: 6px; margin-top: 8px; }
+  .gb-kaart .gb-iconen > .rl-knop {
+    flex: 1 1 0; min-width: 0; width: auto !important; height: 46px !important; padding: 0 2px !important;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-size: 1.05rem !important; line-height: 1;
+  }
+  .gb-label, .gb-label--altijd { display: block; margin: 0; font-size: 0.58rem; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .gb-kaart .gb-verwijder:disabled { display: none; }
+  .gb-tel, .gb-login-woord { display: none; }
+  .dash-strook > span { padding: 6px 10px; font-size: 0.74rem; }
+}
+
+/* Route-editor: ongedaan maken en opslaan altijd in de kop; gereedschap als één rij */
+.editor-rechts-kop { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.editor-gereedschap-rij { display: contents; }
+.editor-modus-chip { display: none !important; }
+@media (max-width: 768px) {
+  .route-editor-topbar .editor-rechts-kop .rl-knop { padding: 0 9px; }
+  .editor-gereedschap-rij {
+    display: flex; gap: 6px; width: 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+  }
+  .editor-gereedschap-rij::-webkit-scrollbar { display: none; }
+  .editor-gereedschap-rij .editor-groep { flex-shrink: 0; }
+  .route-editor-topbar .editor-gereedschap-rij .rl-knop {
+    position: relative; flex-shrink: 0; height: 44px; min-width: 50px; padding: 0 6px;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 1rem; line-height: 1;
+  }
+  .route-editor-topbar .editor-gereedschap-rij .rl-knop .alleen-pc { display: block !important; font-size: 0.58rem; font-weight: 700; line-height: 1; }
+  .editor-gereedschap-rij .schakel-bol { display: none; }
+  .route-editor-topbar .editor-gereedschap-rij .schakel--aan { background: rgba(0,217,255,0.2); border-color: rgba(0,217,255,0.6); color: #A5F3FC; }
+  .editor-gereedschap-rij .editor-telling { position: absolute; top: 2px; right: 3px; font-size: 0.55rem; font-weight: 800; color: #FFE680; }
+}

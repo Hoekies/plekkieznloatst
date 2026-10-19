@@ -349,7 +349,7 @@ Klik dan op **🔓 Apparaat** op de spelerskaart (alleen zichtbaar zolang er een
 
 #### Een team direct uitloggen
 
-De knop **🚪 Uitloggen** staat alleen op de spelerskaart zolang het team ingelogd is (groen "Actief"). Klik erop om een team meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt het team automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
+De knop **🚪 Uitloggen** staat alleen op de spelerskaart zolang het team ingelogd is (groen **● Ingelogd**). Alle knoppen van een speler (🔓 Apparaat, 🚪 Uitloggen, ⏹️ Stop spel, 📞, 🔑, 🗑️) staan in één rij; op de telefoon als één balk met onder elk icoon een korte tekst. Klik erop om een team meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt het team automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
 
 Handig als je een team bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
 
@@ -364,6 +364,8 @@ Met **⏹️ Stop spel** bij Spelers (op het Dashboard heet de knop **Spel stopp
 #### Helpers
 
 Wil je hulp bij het spelleiden, maak dan onderaan de Spelers-pagina bij **🦺 Helpers** een helper aan met **+ Nieuwe helper**: vul een naam in (letters en cijfers, anders dan de loginnamen van de spelers); het wachtwoord staat al voorgesteld. Na **Aanmaken** verstuur je het kaartje meteen met **WhatsApp**. Een helper logt gewoon in op de inlogpagina, met die naam en dat wachtwoord.
+
+Met de **schakelaar** (groen/rood) rechts op de helperkaart zet je een helper aan of uit, net als bij de spelers. Uit = de helper kan niet meer inloggen, wordt meteen uitgelogd (binnen een paar seconden, bij de volgende actie) en krijgt geen meldingen meer; op de kaart staat **⏸ Uit**. Zet je hem weer aan, dan kan hij met hetzelfde wachtwoord inloggen; meldingen (🔔) moet hij dan opnieuw aanzetten.
 
 Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren**, antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Helpers staan op dezelfde soort kaarten als de spelers. Met de **🔑** maak je een nieuw wachtwoord en verstuur je het kaartje; met de rode **🗑️** kan de helper niet meer inloggen.
 
@@ -391,7 +393,7 @@ Het **Dashboard** (ververst elke paar seconden vanzelf):
 
 - **Tegels**: actieve route, aan het spelen, gefinisht en de koploper. Op de telefoon als één compacte strook.
 - **🎯 Spelleider**: hoe lang het spel loopt en hoeveel teams onderweg zijn, met daaronder alleen wat **je aandacht vraagt**: hulpvragen, foto's om te keuren, teams die 5 minuten **niet gezien** zijn (📵), en teams die wachten door een spook of plek zooi. Tik op een regel voor de details. Niets aan de hand? Dan staat er *"✅ Alles loopt"*.
-- **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand), met per team het aantal punten, de items in de balk en ingezet, en de knoppen **⏭️ Volgend punt vrijgeven**, **± Punten** en **⏹️ Spel stoppen**.
+- **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand). Elke kaart is compact, zodat meerdere teams tegelijk in beeld passen: naam, status (**Onderweg**, **Uitgelogd** of **Gefinisht**) en punten, met daaronder 📍 bezochte punten, 🚶 gelopen km, ⏱ speeltijd, ➡️ het volgende punt en een voortgangsbalk. Is een team een tijd niet gezien, dan staat dat er in rood bij (bijv. *📵 25 u 52 min niet gezien*). Met **▸** klap je de items (in de balk en ingezet) en de knoppen **⏭️ Volgend punt vrijgeven**, **± Punten**, **📢 Bericht** en **⏹️ Spel stoppen** open.
 - **Wacht een team door een spook of plek zooi**, dan zie je op de kaart een aftelklok met **−30 s**: daarmee haal je er 30 seconden af. De app van het team neemt de nieuwe tijd binnen een paar seconden over.
 - **Tik op een spelerskaart** voor alles van dat team: speeltijd, afstand, vragen goed, de gelopen route op een kaartje, alle bezochte punten met antwoorden en de items.
 - **📜 Wat gebeurt er**: een tijdlijn met starts, bereikte punten, goede en foute antwoorden, foto's, ingezette items, bonus of aftrek van de spelleider en finishes.

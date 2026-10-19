@@ -1158,7 +1158,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           )}
           {!naamWijzig && <span className="editor-status-kop">{statusGroep}</span>}
           <span className="editor-kop-ruimte" />
-          <span className="editor-status-kop">{rechtsGroep}</span>
+          <span className="editor-rechts-kop">{rechtsGroep}</span>
           {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}
           <button className="rl-knop rl-knop--goud alleen-mobiel-knop"
             onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen">⚙️</button>
@@ -1171,6 +1171,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-balk-scheiding" aria-hidden />
           {/* Telefoon: hier begint een nieuwe regel met het gereedschap */}
           <span className="editor-breuk" aria-hidden />
+          <span className="editor-gereedschap-rij">
 
           {/* Computer: puntenlijst links in- en uitklappen */}
           <button type="button" className={`rl-knop alleen-pc-knop${lijstDicht ? "" : " rl-knop--cyan"}`} onClick={wisselLijst}
@@ -1191,7 +1192,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </span>
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
-            📝<span className="alleen-pc"> Vragen</span> {vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}
+            📝<span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
           </button>
           <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
             title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
@@ -1217,10 +1218,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               </BevestigKnop>
             )}
           </span>
+          </span>
 
-          {/* Telefoon: opslagstatus, ongedaan maken (op de computer in de routekop) */}
-          <span className="editor-ruimte" />
-          <span className="editor-status-groep">{rechtsGroep}</span>
         </div>
       </div>
 

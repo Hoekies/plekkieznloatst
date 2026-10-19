@@ -100,56 +100,53 @@ export default function GroepenBeheer() {
             {g.nickname ?? "nog geen teamnaam gekozen"}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
-            {g.login_name && <span>Login: <strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
+            {g.login_name && <span><span className="gb-login-woord">Login: </span><strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
             {g.toegang_tot && new Date(g.toegang_tot).getTime() > Date.now() && <span style={{ color: "#FFE680" }}>🔗 tot {tijdTekst(g.toegang_tot)} · </span>}
-            {g.telefoon && <span>📞 {toonTelefoon(g.telefoon)} · </span>}
+            {g.telefoon && <span className="gb-tel">📞 {toonTelefoon(g.telefoon)} · </span>}
             <span style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
-              {isUit ? "Uitgeschakeld" : g.active_device_id ? "Actief" : "Niet actief"}
+              {isUit ? "Uitgeschakeld" : g.active_device_id ? "● Ingelogd" : "○ Niet ingelogd"}
             </span>
           </div>
-          {/* Knoppen op één regel, zelfde stijl als het routes-overzicht; niet bij een uitgeschakelde speler */}
-          {!isUit && (g.active_device_id || g.heeft_spel) && <div className="gb-knoppen">
-            {g.active_device_id && (
-              <button className="rl-knop" onClick={() => resetApparaat(g.id)}
-                title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
-                🔓 Apparaat
-              </button>
-            )}
-            {/* Alleen tonen als er iets uit te loggen of te stoppen valt */}
-            {g.active_device_id && (
-              <button className="rl-knop rl-knop--rood" onClick={() => logGroepUit(g.id)}
-                title="Uitloggen; het spel blijft staan">
-                🚪 Uitloggen
-              </button>
-            )}
-            {g.heeft_spel && (
-              <BevestigKnop venster icoon="⏹️" titel={`Spel van ${displayNaam} stoppen?`} className="rl-knop rl-knop--rood" onBevestig={() => stopSpel(g.id, displayNaam)}
-                title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="" ja="Ja, stoppen">
-                ⏹️ Stop spel
-              </BevestigKnop>
-            )}
-          </div>}
         </div>
 
         {/* Rechts: verwijderen en de aan/uit-schakelaar */}
         {/* Op de telefoon: schakelaar naast de naam, de icoonknoppen op een eigen regel eronder */}
         <div className="gb-schakel gb-rechts">
         <div className="gb-iconen">
+        {/* Alleen als er iets te ontkoppelen, uit te loggen of te stoppen valt */}
+        {!isUit && g.active_device_id && (
+          <button className="rl-knop gb-tekstknop" onClick={() => resetApparaat(g.id)}
+            title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
+            <span aria-hidden>🔓</span><span className="gb-label gb-label--altijd">Apparaat</span>
+          </button>
+        )}
+        {!isUit && g.active_device_id && (
+          <button className="rl-knop rl-knop--rood gb-tekstknop" onClick={() => logGroepUit(g.id)}
+            title="Uitloggen; het spel blijft staan">
+            <span aria-hidden>🚪</span><span className="gb-label gb-label--altijd">Uitloggen</span>
+          </button>
+        )}
+        {!isUit && g.heeft_spel && (
+          <BevestigKnop venster icoon="⏹️" titel={`Spel van ${displayNaam} stoppen?`} className="rl-knop rl-knop--rood gb-tekstknop" onBevestig={() => stopSpel(g.id, displayNaam)}
+            title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="" ja="Ja, stoppen">
+            <span aria-hidden>⏹️</span><span className="gb-label gb-label--altijd">Stop spel</span>
+          </BevestigKnop>
+        )}
         {/* 📞 Telefoonnummer en 🔑 inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
         {!isUit && (
           <button type="button" className={`rl-knop rl-knop--icoon gb-icoon${g.telefoon ? " rl-knop--groen" : ""}`} aria-label="Telefoonnummer"
             title={g.telefoon ? `Telefoon: ${toonTelefoon(g.telefoon)}` : "Telefoonnummer toevoegen"}
-            onClick={() => setTelVoor(g)}>📞</button>
+            onClick={() => setTelVoor(g)}>📞<span className="gb-label">Telefoon</span></button>
         )}
         {!isUit && (
           <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
             title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
-            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}>🔑</button>
+            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}>🔑<span className="gb-label">Inlog</span></button>
         )}
         <BevestigKnop venster icoon="🗑️" titel={`${displayNaam} verwijderen?`} vraag="" ja="Ja, verwijderen"
           onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
           className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
-          tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}>🗑️</BevestigKnop>
+          tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}>🗑️<span className="gb-label">Verwijder</span></BevestigKnop>
         </div>
         <div className="gb-schakelaar"
           title={isUit ? "Aanzetten" : "Uitzetten"}
@@ -183,10 +180,10 @@ export default function GroepenBeheer() {
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Telefoon: compacte strook in plaats van de vier tegels */}
       <div className="dash-strook" style={{ marginBottom: 0 }}>
-        <span title="Spelers">👫 {groepen.length}</span>
-        <span title="Ingelogd">📱 {groepen.filter((g) => g.active_device_id).length}</span>
-        <span title="Aan het spelen">⚡ {groepen.filter((g) => g.heeft_spel).length}</span>
-        <span title="Uitgeschakeld">⏸ {groepen.filter((g) => g.is_uitgeschakeld).length}</span>
+        <span>👫 {groepen.length} spelers</span>
+        <span>📱 {groepen.filter((g) => g.active_device_id).length} ingelogd</span>
+        <span>⚡ {groepen.filter((g) => g.heeft_spel).length} speelt</span>
+        {groepen.some((g) => g.is_uitgeschakeld) && <span>⏸ {groepen.filter((g) => g.is_uitgeschakeld).length} uit</span>}
       </div>
       {/* Tegels zoals bovenaan het dashboard */}
       <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>

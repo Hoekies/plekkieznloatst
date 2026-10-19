@@ -11,6 +11,14 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 export const NIET_GEZIEN_MIN = 5;
 
+// Minuten leesbaar: "12 min", "3 u 5 min", "2 d 4 u"
+export function duurKort(min: number): string {
+  if (min < 60) return `${min} min`;
+  if (min < 1440) return `${Math.floor(min / 60)} u${min % 60 ? ` ${min % 60} min` : ""}`;
+  const u = Math.floor((min % 1440) / 60);
+  return `${Math.floor(min / 1440)} d${u ? ` ${u} u` : ""}`;
+}
+
 export function minutenNietGezien(s: SpelerOverzicht, nu = Date.now()): number | null {
   if (s.sessie_status !== "actief") return null;
   const sinds = s.laatste_gezien ?? s.started_at;
@@ -58,7 +66,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, link: "/admin/antwoorden" });
   for (const s of spelend) {
     const min = minutenNietGezien(s, nu);
-    if (min !== null) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} niet gezien sinds ${min} min${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
+    if (min !== null) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(min)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
   }
 
   // ⏸️ Pauze: alle teams staan stil; ▶️ Verder: de eindtijd schuift mee

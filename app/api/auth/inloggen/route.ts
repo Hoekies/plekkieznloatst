@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: wachtwoord });
 
   if (error || !data.user) {
-    return NextResponse.redirect(new URL("/login?fout=ongeldig", request.url), { status: 303 });
+    const geblokkeerd = error && (error.code === "user_banned" || /banned/i.test(error.message));
+    return NextResponse.redirect(new URL(`/login?fout=${geblokkeerd ? "uitgeschakeld" : "ongeldig"}`, request.url), { status: 303 });
   }
 
   // Een verse, geldige login mag nooit meteen gekelderd worden door een oude uitlog-vlag

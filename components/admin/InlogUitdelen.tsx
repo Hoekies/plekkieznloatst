@@ -99,7 +99,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
   return (
     <>
       <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} title="Meerdere spelers in één keer aanmaken">
-        👫 <span className="alleen-pc">Meerdere</span>
+        👫 Meerdere
       </button>
       {open && (
         <Venster label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>

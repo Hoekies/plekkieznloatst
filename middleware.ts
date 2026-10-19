@@ -36,6 +36,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // Uitgeschakelde helper: sessie beëindigen (API's krijgen 401, pagina's gaan naar de login)
+  if (user && user.app_metadata?.rol === "helper" && user.app_metadata?.uitgeschakeld === true && !pad.startsWith("/api/auth/")) {
+    await supabase.auth.signOut();
+    const weg = pad.startsWith("/api/")
+      ? NextResponse.json({ fout: "Dit account is uitgeschakeld" }, { status: 401 })
+      : NextResponse.redirect(new URL("/login?fout=uitgeschakeld", request.url));
+    supabaseResponse.cookies.getAll().forEach((c) => weg.cookies.set(c));
+    return weg;
+  }
+
   // Admin-pagina's: alleen voor admins, en voor helpers de pagina's voor tijdens het spel
   if (user && pad.startsWith("/admin")) {
     const rol = user.app_metadata?.rol;

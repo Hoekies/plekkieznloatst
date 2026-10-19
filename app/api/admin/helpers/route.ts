@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const helpers = await alleHelpers(createAdminClient());
   return NextResponse.json({
     helpers: helpers
-      .map((u) => ({ id: u.id, naam: (u.user_metadata?.naam as string | undefined) ?? u.email?.split("@")[0] ?? "helper", laatst_ingelogd: u.last_sign_in_at ?? null }))
+      .map((u) => ({ id: u.id, naam: (u.user_metadata?.naam as string | undefined) ?? u.email?.split("@")[0] ?? "helper", laatst_ingelogd: u.last_sign_in_at ?? null, uitgeschakeld: u.app_metadata?.uitgeschakeld === true }))
       .sort((a, b) => a.naam.localeCompare(b.naam)),
   });
 }
@@ -40,10 +40,25 @@ function kiesWachtwoord(waarde: unknown): string | null {
 }
 
 // Nieuw wachtwoord voor een helper: PATCH {id, wachtwoord?}
+// Aan- of uitzetten: PATCH {id, uitgeschakeld: true|false}
 export async function PATCH(request: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   if (typeof body?.id !== "string") return NextResponse.json({ fout: "id ontbreekt" }, { status: 400 });
+  if (typeof body.uitgeschakeld === "boolean") {
+    const admin = createAdminClient();
+    const { data } = await admin.auth.admin.getUserById(body.id);
+    if (data?.user?.app_metadata?.rol !== "helper") return NextResponse.json({ fout: "Helper niet gevonden" }, { status: 404 });
+    // Uit: kan niet meer inloggen (ban), een open sessie wordt door de middleware afgekapt,
+    // en meldingen naar zijn toestel stoppen
+    const { error } = await admin.auth.admin.updateUserById(body.id, {
+      app_metadata: { ...data.user.app_metadata, uitgeschakeld: body.uitgeschakeld },
+      ban_duration: body.uitgeschakeld ? "876000h" : "none",
+    });
+    if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+    if (body.uitgeschakeld) await admin.from("push_abonnementen").delete().eq("user_id", body.id);
+    return NextResponse.json({ ok: true, uitgeschakeld: body.uitgeschakeld });
+  }
   const wachtwoord = kiesWachtwoord(body.wachtwoord);
   if (!wachtwoord) return NextResponse.json({ fout: "Wachtwoord: minimaal 8 tekens" }, { status: 400 });
   const admin = createAdminClient();
