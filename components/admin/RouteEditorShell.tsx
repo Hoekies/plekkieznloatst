@@ -1458,6 +1458,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onDrop={(e) => { e.preventDefault(); if (sleepId) verplaatsNaar(sleepId, i); setSleepId(null); setSleepDoel(null); }}
                     onDragEnd={() => { setSleepId(null); setSleepDoel(null); }}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                    className={`lijst-rij${geselecteerd?.id === pt.id ? " lijst-rij--gekozen" : ""}`}
                     title={vast ? undefined : "Sleep om de volgorde te veranderen"}
                     style={{
                       padding: "4px 10px", cursor: vast ? "pointer" : "grab", display: "flex", alignItems: "center", gap: 7,
@@ -1484,13 +1485,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <button type="button" className="lijst-vraagknop lijst-vraagknop--leeg" title="Nog geen vraag: klik om hem in te vullen" aria-label="Vraag invullen"
                         onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>⚠️</button>
                     ) : null}
-                    <div style={{ display: "flex", flexDirection: "row", gap: 0 }}>
-                      <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
+                    <div className="lijst-rij-acties" style={{ display: "flex", flexDirection: "row", gap: 0 }}>
+                      <button title="Omhoog" aria-label="Omhoog" onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === 0 || isHub || (isVerspreid && i === 1)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▲</button>
-                      <button onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
+                      <button title="Omlaag" aria-label="Omlaag" onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omlaag"); }}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === punten.length - 1 || isHub || (isVerspreid && i === punten.length - 2)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
+                    <button className="lijst-rij-acties" title="Punt verwijderen (terugzetten kan met ↶)" aria-label="Punt verwijderen" onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
                   </div>
                 );
@@ -1598,6 +1599,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 return (
                   <div key={item.id}
                     onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
+                    className={`lijst-rij${geselecteerdSpeciaal?.id === item.id ? " lijst-rij--gekozen" : ""}`}
                     style={{
                       padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7,
                       background: geselecteerdSpeciaal?.id === item.id ? "rgba(255,255,255,0.12)" : "transparent",
@@ -1612,7 +1614,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     {item.claimed && (
                       <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>gepakt</span>
                     )}
-                    <button onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
+                    <button className="lijst-rij-acties" title="Item verwijderen (terugzetten kan met ↶)" aria-label="Item verwijderen" onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
                   </div>
                 );

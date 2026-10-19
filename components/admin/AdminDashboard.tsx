@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import BevestigKnop from "@/components/admin/BevestigKnop";
-import StatKaart from "@/components/admin/StatKaart";
 import SectieKop from "@/components/admin/SectieKop";
+import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 
 import { sessietijd } from "@/lib/admin-live";
@@ -32,13 +31,6 @@ interface Props {
 function speeltijdKort(sec: number): string {
   const min = Math.floor(sec / 60);
   return min < 60 ? `${min} min` : `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`;
-}
-
-function tijdGeleden(iso: string): string {
-  const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (sec < 60) return `${sec}s`;
-  if (sec < 3600) return `${Math.floor(sec / 60)}m`;
-  return `${Math.floor(sec / 3600)}u`;
 }
 
 
@@ -161,20 +153,12 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           </div>
         )}
 
-        {/* Telefoon: compacte strook in plaats van de vier tegels */}
-        <div className="dash-strook">
-          <span title="Actieve route">🗺️ {route?.name ?? "Geen route"}</span>
-          <span title="Aan het spelen">⚡ {aantalActief}</span>
-          <span title="Gefinisht">✓ {aantalKlaar}</span>
-          <span title="Koploper">🥇 {koploper ? `${koploper.display_name} · ${koploper.score}` : "—"}</span>
-        </div>
-
-        {/* Stat kaarten */}
-        <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 32 }}>
-          <StatKaart label="Actieve route" waarde={route?.name ?? "—"} badgeKlas="pr-badge--orange" badge="🗺️" />
-          <StatKaart label="Aan het spelen" waarde={String(aantalActief)} badgeKlas="pr-badge--purple" badge="⚡" />
-          <StatKaart label="Gefinisht" waarde={String(aantalKlaar)} badgeKlas="pr-badge--green" badge="✓" />
-          <StatKaart label="Koploper" waarde={koploper ? `${koploper.nickname ?? koploper.login_name} · ${koploper.score} pt` : "—"} badgeKlas="pr-badge--gold" badge="🥇" />
+        {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
+        <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 16 }}>
+          <span>🗺️ {route?.name ?? "Geen actieve route"}</span>
+          <span>⚡ {aantalActief} onderweg</span>
+          <span>🏁 {aantalKlaar} gefinisht</span>
+          {koploper && <span>🥇 {koploper.display_name} · {koploper.score} pt</span>}
         </div>
 
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
@@ -191,23 +175,13 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             {/* Spelende spelers, op volgorde van de stand */}
             <SectieKop titel="🏆 Spelende spelers" />
             {spelend.length === 0 ? (
-              <div className="card leeg-scherm">
-                {!route ? (
-                  <>
-                    <p>Er is geen actieve route. Kies eerst een route en activeer hem.</p>
-                    <Link href="/admin/routes" className="rl-knop rl-knop--cyan actie-knop">🗺️ Naar routes</Link>
-                  </>
-                ) : spelers.length === 0 ? (
-                  <>
-                    <p>Nog geen spelers aangemaakt.</p>
-                    <Link href="/admin/groepen" className="rl-knop rl-knop--cyan actie-knop">👫 Spelers aanmaken</Link>
-                  </>
-                ) : (
-                  <>
-                    <p>Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier.</p>
-                  </>
-                )}
-              </div>
+              !route ? (
+                <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Kies eerst een route en activeer hem.</LeegScherm>
+              ) : spelers.length === 0 ? (
+                <LeegScherm icoon="👫" knop={{ label: "👫 Spelers aanmaken", href: "/admin/groepen" }}>Nog geen spelers aangemaakt.</LeegScherm>
+              ) : (
+                <LeegScherm icoon="⏳">Er is nog geen speler gestart. Zodra een speler op ‘Ga op pad’ drukt, verschijnt hij hier.</LeegScherm>
+              )
             ) : (
               <div>
                 {spelend.map((s, i) => (
@@ -368,7 +342,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               fontSize: "0.8rem", color: "#FFD9A0", fontWeight: 600,
             }}>
               ⚠️ Kan {s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken
-              <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {tijdGeleden(s.hulp.sinds)} geleden</span>
+              <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {duurKort(Math.max(0, Math.floor((Date.now() - new Date(s.hulp.sinds).getTime()) / 60000)))} geleden</span>
             </div>
           )}
           {/* Knoppen: op de telefoon korte teksten, naast elkaar op één regel */}

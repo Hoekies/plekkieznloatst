@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { AntwoordRij, TeamAntwoorden } from "@/lib/admin-antwoorden";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
 
@@ -59,10 +59,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
 
   if (!data) return <p style={{ color: "var(--muted)" }}>Laden…</p>;
   if (!data.route) return (
-    <div className="card leeg-scherm">
-      <p>Er is geen actieve route. Activeer eerst een route, dan zie je hier de antwoorden.</p>
-      <Link href="/admin/routes" className="rl-knop rl-knop--cyan actie-knop">🗺️ Naar routes</Link>
-    </div>
+    <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Activeer eerst een route, dan zie je hier de antwoorden.</LeegScherm>
   );
 
   return (
@@ -104,7 +101,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       {perVraag && <VraagStatistiek teams={data.teams} />}
 
       {data.teams.length === 0 && (
-        <div className="card leeg-scherm"><p>Nog geen spelers aan het spelen. Zodra iemand een vraag beantwoordt, zie je dat hier.</p><Link href="/admin" className="rl-knop actie-knop">🏠 Naar het dashboard</Link></div>
+        <LeegScherm icoon="📝" knop={{ label: "🏠 Naar het dashboard", href: "/admin" }}>Nog geen spelers aan het spelen. Zodra iemand een vraag beantwoordt, zie je dat hier.</LeegScherm>
       )}
 
       {!perVraag && data.teams.map((team) => (

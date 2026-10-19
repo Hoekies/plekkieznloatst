@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import LeegScherm from "@/components/admin/LeegScherm";
 import SectieKop from "@/components/admin/SectieKop";
 import SchuifTekst from "@/components/admin/SchuifTekst";
 import { toonMelding } from "@/components/admin/Melding";
@@ -289,9 +290,9 @@ export default function RoutesOverzicht() {
       {laden ? (
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
       ) : routes.length === 0 ? (
-        <div className="card">
-          <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Nog geen routes. Klik op <strong>+ Nieuwe route</strong> om te beginnen, of importeer een route die je eerder hebt geëxporteerd.</p>
-        </div>
+        <LeegScherm icoon="🗺️" knop={{ label: "+ Nieuwe route", onClick: () => setAanmaken(true) }}>
+          Nog geen routes. Maak er een, of importeer een route die je eerder hebt geëxporteerd (📥 rechtsboven).
+        </LeegScherm>
       ) : (
         <div>
           {gesorteerd.map((r, i) => {

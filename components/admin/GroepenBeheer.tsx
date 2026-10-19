@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
-import StatKaart from "@/components/admin/StatKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { MeerdereSpelersKnop, InlogKlaar } from "@/components/admin/InlogUitdelen";
 import { maakWachtwoord } from "@/lib/wachtwoord";
@@ -13,6 +12,7 @@ import InlogLinkSectie, { tijdTekst } from "@/components/admin/InlogLink";
 import TelefoonVenster from "@/components/admin/TelefoonVenster";
 import { toonTelefoon } from "@/lib/telefoon";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import LeegScherm from "@/components/admin/LeegScherm";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -178,19 +178,12 @@ export default function GroepenBeheer() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      {/* Telefoon: compacte strook in plaats van de vier tegels */}
-      <div className="dash-strook" style={{ marginBottom: 0 }}>
+      {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
+      <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
         <span>👫 {groepen.length} spelers</span>
         <span>📱 {groepen.filter((g) => g.active_device_id).length} ingelogd</span>
         <span>⚡ {groepen.filter((g) => g.heeft_spel).length} speelt</span>
         {groepen.some((g) => g.is_uitgeschakeld) && <span>⏸ {groepen.filter((g) => g.is_uitgeschakeld).length} uit</span>}
-      </div>
-      {/* Tegels zoals bovenaan het dashboard */}
-      <div className="admin-stat-grid dash-tegels" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 18, marginBottom: 16 }}>
-        <StatKaart label="Spelers" waarde={String(groepen.length)} badgeKlas="pr-badge--purple" badge="👫" />
-        <StatKaart label="Ingelogd" waarde={String(groepen.filter((g) => g.active_device_id).length)} badgeKlas="pr-badge--green" badge="📱" />
-        <StatKaart label="Aan het spelen" waarde={String(groepen.filter((g) => g.heeft_spel).length)} badgeKlas="pr-badge--orange" badge="⚡" />
-        <StatKaart label="Uitgeschakeld" waarde={String(groepen.filter((g) => g.is_uitgeschakeld).length)} badgeKlas="pr-badge--gray" badge="⏸" />
       </div>
 
       {/* Nieuwe speler links (versturen via WhatsApp staat in het menu) */}
@@ -212,10 +205,9 @@ export default function GroepenBeheer() {
       {laden ? (
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
       ) : groepen.length === 0 ? (
-        <div className="card leeg-scherm">
-          <p>Nog geen spelers aangemaakt. Maak per team een speler aan met een loginnaam en wachtwoord.</p>
-          <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>+ Eerste speler aanmaken</button>
-        </div>
+        <LeegScherm icoon="👫" knop={{ label: "+ Eerste speler aanmaken", onClick: () => setToonFormulier(true) }}>
+          Nog geen spelers. Maak per team een speler aan met een loginnaam en wachtwoord.
+        </LeegScherm>
       ) : (
         <div>
           {/* Actieve spelers altijd zichtbaar; uitgeschakelde spelers achter een inklapbare kop */}

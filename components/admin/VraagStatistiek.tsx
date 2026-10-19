@@ -1,6 +1,7 @@
 "use client";
 
 import type { TeamAntwoorden } from "@/lib/admin-antwoorden";
+import LeegScherm from "@/components/admin/LeegScherm";
 
 type Stat = {
   punt_id: string; volgorde: number; punt_naam: string; vraag_tekst: string; vraag_type: string;
@@ -36,7 +37,7 @@ export default function VraagStatistiek({ teams }: { teams: TeamAntwoorden[] }) 
   }
   const lijst = [...stats.values()].sort((a, b) => a.volgorde - b.volgorde);
   if (lijst.length === 0) {
-    return <div className="card leeg-scherm"><p>Nog geen vragen beantwoord.</p></div>;
+    return <LeegScherm icoon="📊">Nog geen vragen beantwoord. Zodra teams antwoorden, zie je hier per vraag hoe het ging.</LeegScherm>;
   }
 
   return (

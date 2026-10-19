@@ -3,17 +3,20 @@
 import { useState } from "react";
 
 // Naamveld met knop 💡: toont de woorden uit de vraagzin; klik er één aan en dat wordt de naam.
-export default function NaamKiezer({ naam, onNaam, woorden, hoogte = 40 }: {
+export default function NaamKiezer({ naam, onNaam, woorden, hoogte = 40, startOpen = false, autoFocus = false }: {
   naam: string;
   onNaam: (naam: string) => void;
   woorden: string[];
   hoogte?: number;
+  startOpen?: boolean;   // de voorstellen meteen tonen (bijv. in het naamvenster bij opslaan)
+  autoFocus?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{ display: "flex", gap: 6 }}>
-        <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => onNaam(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
+        <input className="form-input" spellCheck lang="nl" value={naam} onChange={(e) => onNaam(e.target.value)} style={{ flex: 1, minWidth: 0 }}
+          autoFocus={autoFocus} onFocus={autoFocus ? (e) => e.currentTarget.select() : undefined} />
         {woorden.length > 0 && (
           <button type="button" className={`rl-knop rl-knop--icoon${open ? " rl-knop--cyan" : ""}`} onClick={() => setOpen((v) => !v)}
             title="Kies een woord uit de vraag als naam" aria-label="Naam kiezen uit de vraag" aria-expanded={open}

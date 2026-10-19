@@ -67,6 +67,36 @@ export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; o
   );
 }
 
+// "Hoe heet dit punt?": bij het opslaan van een vraag, met de woorden uit de vraag als voorstel
+function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
+  naam: string; onNaam: (n: string) => void; woorden: string[]; bezig: boolean; onSluit: () => void; onOpslaan: () => void;
+}) {
+  useEffect(() => {
+    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [onSluit]);
+  return createPortal(
+    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420, position: "relative" }}>
+        <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} title="Terug naar de vraag" aria-label="Terug naar de vraag">✕</button>
+        <form className="pr-gem-panel-inner" onSubmit={(e) => { e.preventDefault(); if (naam.trim()) onOpslaan(); }}
+          style={{ display: "flex", flexDirection: "column", gap: 10, padding: "18px 22px 16px" }}>
+          <div style={{ textAlign: "center", fontSize: "2rem", lineHeight: 1 }}>🏷️</div>
+          <div style={{ textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff" }}>Hoe heet dit punt?</div>
+          <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--muted)" }}>Spelers zien de naam pas na afloop. Tik op 💡 voor een woord uit de vraag.</div>
+          <NaamKiezer naam={naam} onNaam={onNaam} woorden={woorden} hoogte={42} startOpen autoFocus />
+          <button type="submit" className="rl-knop rl-knop--cyan" disabled={bezig || !naam.trim()}
+            style={{ height: 42, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}>
+            {bezig ? "Opslaan…" : "💾 Opslaan"}
+          </button>
+        </form>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 interface Props {
   routeId: string;
   punt: RoutePunt;
@@ -202,8 +232,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     antwoordRefs.current[i]?.focus();
   }
 
-  async function slaOp(e: React.FormEvent) {
-    e.preventDefault();
+  // Bij opslaan eerst de naam van het punt vragen (venster); daarna pas echt opslaan
+  const [naamVenster, setNaamVenster] = useState(false);
+
+  async function slaOp(e?: React.FormEvent, naamGekozen = false) {
+    e?.preventDefault();
     setFout(""); setOpslaan(true);
 
     if (!tekst.trim()) { setFout("De vraag is nog leeg. Typ bij Vraag wat de spelers moeten beantwoorden."); setOpslaan(false); return; }
@@ -251,6 +284,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         punten: a.punten.trim() === "" ? null : Math.round(Number(a.punten)),
       }));
     }
+
+    if (!naamGekozen) { setOpslaan(false); setNaamVenster(true); return; }
+    setNaamVenster(false);
 
     if (naam.trim() && naam.trim() !== punt.name) {
       const naamRes = await fetch(`/api/admin/routes/${routeId}/punten/${punt.id}`, {
@@ -366,7 +402,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
 
         {/* ── Formulier ── */}
-        <div style={{ flex: 1, minWidth: 0, maxWidth: 700, display: "flex", flexDirection: "column" }}>
+        <div className="vraag-form-kolom">
           <form id={`vraag-${punt.id}`} onSubmit={slaOp} className="vraag-form">
 
             <div className="form-group">
@@ -479,7 +515,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   <>
                     <textarea className="form-textarea" spellCheck lang="nl" value={openAntwoorden}
                       onChange={(e) => setOpenAntwoorden(e.target.value)}
-                      placeholder={"Amsterdam\nMokum"} style={{ minHeight: 70 }} />
+                      placeholder={"Amsterdam\nMokum"} rows={Math.max(3, openAntwoorden.split("\n").length + 1)} style={{ minHeight: 70, resize: "vertical" }} />
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Eén goed antwoord per regel. Hoofdletters maken niet uit.</span>
                   </>
                 ) : (
@@ -505,18 +541,12 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
                 <span>⚙️ Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
-                  {[naam.trim() && naam.trim() !== punt.name ? "nieuwe naam" : "", perAntwoord ? "punten per antwoord" : "", qrEnabled ? "QR aan" : ""].filter(Boolean).join(" · ") || "naam van het punt, punten per antwoord, QR-code"}
+                  {[perAntwoord ? "punten per antwoord" : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || (meerkeuze ? "punten per antwoord, QR-code om te testen" : "QR-code om te testen")}
                 </span>
                 <span style={{ marginLeft: "auto" }}>{meerOpen ? "▾" : "▸"}</span>
               </button>
               {meerOpen && (
                 <div className="vraag-meer-inhoud">
-                  <div className="form-group">
-                    <label className="form-label">Naam van het punt</label>
-                    <NaamKiezer naam={naam} onNaam={setNaam} woorden={woorden} hoogte={40} />
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Spelers zien deze naam pas na afloop. Wordt opgeslagen met de vraag.</span>
-                  </div>
-
                   {meerkeuze && (
                     <div className="form-group">
                       <label className="form-label">Punten per antwoord</label>
@@ -529,15 +559,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   )}
 
                   <div className="form-group">
-                    <label className="form-label">QR-code</label>
+                    <label className="form-label">Testen</label>
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <button type="button" className={`rl-knop schakel${qrEnabled ? " schakel--aan" : ""}`} role="switch" aria-checked={qrEnabled}
                         style={{ height: 32, fontSize: "0.8rem" }} disabled={qrOpslaan} onClick={() => toggleQr(!qrEnabled)}>
-                        📱 Openen met QR-code<span className="schakel-bol" aria-hidden />
+                        🧪 Openen met QR-code<span className="schakel-bol" aria-hidden />
                       </button>
                       {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}>🖨️ QR-code printen</button>}
                     </div>
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Spelers openen dit punt door een QR-code te scannen in plaats van via GPS. Wordt meteen opgeslagen.</span>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Alleen om te testen: open dit punt door de QR-code te scannen, zonder ernaartoe te lopen. Wordt meteen opgeslagen.</span>
                     {qrEnabled && qrUrl && (
                       <div id="qr-print-zone" style={{ marginTop: 8, padding: 10, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
                         <QRCodeSVG value={qrUrl} size={140} />
@@ -689,19 +719,24 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             </div>
           </div>
 
-          {/* Waar ligt dit punt? (alleen als er hoogte genoeg is) */}
-          <div className="vraag-kaart-kolom" style={{ flexShrink: 0, borderTop: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
-            <div className="vraag-kolom-kop">📍 Op de kaart</div>
-            <div style={{ height: 200, padding: 10 }}>
-              <PuntMiniKaart
-                punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
-                radius={punt.radius_meters ?? 10}
-                andere={kaartPunten} />
-            </div>
+        </div>
+
+        {/* ── Waar ligt dit punt? (breed scherm) ── */}
+        <div className="vraag-kaart-rechts">
+          <div className="vraag-kolom-kop">📍 Op de kaart</div>
+          <div style={{ flex: 1, minHeight: 0, padding: 10 }}>
+            <PuntMiniKaart
+              punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
+              radius={punt.radius_meters ?? 10}
+              andere={kaartPunten} />
           </div>
         </div>
       </div>
 
+      {naamVenster && (
+        <NaamVenster naam={naam} onNaam={setNaam} woorden={woorden} bezig={opslaan}
+          onSluit={() => setNaamVenster(false)} onOpslaan={() => slaOp(undefined, true)} />
+      )}
       {verlaatNa && <NietOpgeslagenVenster onSluit={() => setVerlaatNa(null)} onWeg={() => { const doe = verlaatNa; setVerlaatNa(null); doe(); }} />}
     </div>
   );

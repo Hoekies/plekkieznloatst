@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { haalLiveData } from "@/lib/admin-live";
 import { haalGebruiker } from "@/lib/auth-server";
 import AdminLiveKaart from "@/components/admin/AdminLiveKaart";
+import LeegScherm from "@/components/admin/LeegScherm";
 
 export default async function LiveKaartPagina() {
   const [initData, user] = await Promise.all([haalLiveData(), haalGebruiker()]);
@@ -15,10 +15,9 @@ export default async function LiveKaartPagina() {
           <span className="admin-topbar-titel">Live kaart</span>
         </div>
         <div className="admin-content">
-          <div className="card leeg-scherm">
-            <p>Er is geen actieve route, dus er is nog niets live te volgen.{helper ? " Vraag de spelleider om een route te activeren." : " Activeer eerst een route."}</p>
-            {!helper && <Link href="/admin/routes" className="rl-knop rl-knop--cyan actie-knop">🗺️ Naar routes</Link>}
-          </div>
+          <LeegScherm icoon="📡" knop={helper ? undefined : { label: "🗺️ Naar routes", href: "/admin/routes" }}>
+            Er is geen actieve route, dus er is nog niets live te volgen.{helper ? " Vraag de spelleider om een route te activeren." : " Activeer eerst een route."}
+          </LeegScherm>
         </div>
       </>
     );

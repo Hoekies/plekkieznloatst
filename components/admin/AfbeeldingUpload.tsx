@@ -254,16 +254,16 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
                 alt=""
                 style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
               />
-              <button type="button" className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "3px 8px" }}
-                onClick={onVerwijder}>
-                Verwijder
+              <button type="button" className="rl-knop rl-knop--rood" style={{ height: 32, display: "inline-flex", alignItems: "center", gap: 6 }}
+                onClick={onVerwijder} title="Afbeelding weghalen">
+                🗑️ Weghalen
               </button>
             </>
           ) : (
             <>
-              <button type="button" className="btn btn-outline" style={{ fontSize: "0.75rem", padding: "3px 10px" }}
+              <button type="button" className="rl-knop" style={{ height: 32, display: "inline-flex", alignItems: "center", gap: 6 }}
                 disabled={laden} onClick={() => inputRef.current?.click()}>
-                {laden ? "Uploaden…" : "Afbeelding kiezen"}
+                {laden ? "⏳ Uploaden…" : "🖼️ Afbeelding kiezen"}
               </button>
               {fout && <span style={{ fontSize: "0.72rem", color: "var(--red)" }}>{fout}</span>}
             </>

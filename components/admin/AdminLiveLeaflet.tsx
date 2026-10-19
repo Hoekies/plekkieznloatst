@@ -42,6 +42,15 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   // Vectorkaart (OpenFreeMap): licht of donker; null = de oude plaatjes (geen WebGL)
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");
+  // Kaartlagen: sporen en items los aan of uit (onthouden per toestel)
+  const [lagen, setLagen] = useState<{ sporen: boolean; items: boolean }>(() => {
+    try { return { sporen: true, items: true, ...JSON.parse(localStorage.getItem("pr_live_lagen") ?? "{}") }; } catch { return { sporen: true, items: true }; }
+  });
+  const wisselLaag = (k: "sporen" | "items") => setLagen((l) => {
+    const nieuw = { ...l, [k]: !l[k] };
+    try { localStorage.setItem("pr_live_lagen", JSON.stringify(nieuw)); } catch { /* geen opslag */ }
+    return nieuw;
+  });
   const [vector, setVector] = useState(false);
   // Speelgebied: buiten de route iets grijzer
   const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
@@ -242,6 +251,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     const laag = sporenLaagRef.current;
     if (!L || !laag) return;
     laag.clearLayers();
+    if (!lagen.sporen) return;
     const STUKKEN = 6;
     for (const [id, punten] of Object.entries(sporen)) {
       const speler = spelers.find((s) => s.player_id === id);
@@ -259,7 +269,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         L.polyline(stuk, { color: kleur, weight: 5, opacity: 0.12 + 0.75 * deel, lineCap: "round", lineJoin: "round", interactive: false }).addTo(laag);
       }
     }
-  }, [sporen, spelers, kleuren, kaartKlaar]);
+  }, [sporen, spelers, kleuren, kaartKlaar, lagen.sporen]);
 
   // Speciale item markers bijwerken (admin ziet geclaimd = transparant)
   useEffect(() => {
@@ -269,6 +279,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
     specialeItemMarkersRef.current.forEach((m) => m.remove());
     specialeItemMarkersRef.current.clear();
+    if (!lagen.items) return;
 
     speciale_items.forEach((item) => {
       const icon = L.divIcon({
@@ -282,7 +293,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         .addTo(map);
       specialeItemMarkersRef.current.set(item.id, marker);
     });
-  }, [speciale_items, kaartKlaar]);
+  }, [speciale_items, kaartKlaar, lagen.items]);
 
   // flex:1 i.p.v. height:100% — percentage-hoogtes door geneste containers bleken op
   // sommige mobiele browsers niet betrouwbaar te resolven (zelfde klasse bug als de
@@ -293,7 +304,14 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Licht, donker of luchtfoto (zonder vectorkaart: licht of luchtfoto) */}
-      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} onder />
+      {/* Linksonder: kaartlagen en licht/donker/luchtfoto in één paneel, zoals in de route-editor */}
+      <div className="kaart-bediening" onClick={(e) => e.stopPropagation()}>
+        <div className="kaart-lagen">
+          <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen">〰️ Sporen</button>
+          <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen">🎁 Items</button>
+        </div>
+        <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
+      </div>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

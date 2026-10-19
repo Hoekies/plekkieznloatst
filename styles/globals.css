@@ -2814,3 +2814,23 @@ button.route-stap:hover { border-color: rgba(0,217,255,0.5); color: var(--ink); 
   .kaart-bediening .kaart-lagen::before, .kaart-bediening .kaart-stijl::before { display: none; }
   .kaart-bediening .kaart-lagen button, .kaart-bediening .kaart-stijl button { padding: 0 7px; font-size: 0.7rem; }
 }
+
+/* Vraag-editor: formulier, spelersweergave en (breed scherm) het kaartje vullen samen de breedte */
+.vraag-form-kolom { flex: 1 1 0; min-width: 0; max-width: 760px; display: flex; flex-direction: column; }
+.vraag-kaart-rechts { display: none; }
+@media (min-width: 1300px) {
+  .vraag-kaart-rechts { display: flex; flex-direction: column; flex: 1 1 0; min-width: 280px; border-left: 1px solid var(--line); }
+}
+/* Schakelaar in een knop: tekst en bolletje netjes op één lijn */
+.rl-knop.schakel { display: inline-flex; align-items: center; }
+
+/* Lege schermen: icoon, uitleg en één knop, gecentreerd */
+.leeg-scherm { align-items: center !important; text-align: center; padding: 22px 18px !important; gap: 10px !important; }
+.leeg-scherm-icoon { font-size: 2rem; line-height: 1; }
+.leeg-scherm p { max-width: 460px; color: var(--text); }
+
+/* Punten- en itemlijst (pc): omhoog/omlaag/verwijderen pas bij aanwijzen of als de regel gekozen is */
+@media (hover: hover) and (min-width: 769px) {
+  .lijst-rij .lijst-rij-acties { visibility: hidden; }
+  .lijst-rij:hover .lijst-rij-acties, .lijst-rij--gekozen .lijst-rij-acties, .lijst-rij:focus-within .lijst-rij-acties { visibility: visible; }
+}

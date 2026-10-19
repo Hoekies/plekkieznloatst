@@ -6,11 +6,17 @@ import SectieKop from "@/components/admin/SectieKop";
 // Tijdlijn op het dashboard: wat er in het spel gebeurt, nieuwste bovenaan, in de kleur van de speler
 type Gebeurtenis = { id: string; tijd: string; speler_id: string | null; icoon: string; item: string | null; tekst: string };
 
+// "nu", "5 min", "07:12" (vandaag), "gisteren 20:10" of "12 okt 20:10"
 function geleden(iso: string): string {
-  const sec = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  const d = new Date(iso);
+  const sec = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
   if (sec < 60) return "nu";
-  if (sec < 3600) return `${Math.floor(sec / 60)}m`;
-  return `${Math.floor(sec / 3600)}u`;
+  if (sec < 3600) return `${Math.floor(sec / 60)} min`;
+  const tijd = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+  const dagen = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(iso).setHours(0, 0, 0, 0)) / 86400000);
+  if (dagen <= 0) return tijd;
+  if (dagen === 1) return `gisteren ${tijd}`;
+  return `${d.toLocaleDateString("nl-NL", { day: "numeric", month: "short" })} ${tijd}`;
 }
 
 export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) {
@@ -50,7 +56,7 @@ export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) 
                     : g.icoon}
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>{g.tekst}</span>
-                <span className="tijdlijn-tijd">{geleden(g.tijd)}</span>
+                <span className="tijdlijn-tijd" title={new Date(g.tijd).toLocaleString("nl-NL")}>{geleden(g.tijd)}</span>
               </div>
             ))}
           </div>

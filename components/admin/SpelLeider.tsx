@@ -64,9 +64,12 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     }
   }
   if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, link: "/admin/antwoorden" });
-  for (const s of spelend) {
-    const min = minutenNietGezien(s, nu);
-    if (min !== null) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(min)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
+  const stil = spelend.filter((s) => minutenNietGezien(s, nu) !== null);
+  if (stil.length === 1) {
+    const s = stil[0];
+    aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(minutenNietGezien(s, nu)!)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
+  } else if (stil.length > 1) {
+    aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${stil.length} teams een tijd niet gezien: ${stil.map((s) => s.display_name).join(", ")}` });
   }
 
   // ⏸️ Pauze: alle teams staan stil; ▶️ Verder: de eindtijd schuift mee
