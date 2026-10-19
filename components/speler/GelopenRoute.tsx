@@ -38,7 +38,7 @@ export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "
       <div style={{ flex: 1, minHeight: 380 }}>
         {spoor.length < 2 && punten.length === 0
           ? <p style={{ color: "rgba(255,255,255,0.7)" }}>Er is geen GPS-spoor opgeslagen voor jullie spel.</p>
-          : <GelopenRouteKaart spoor={spoor} punten={punten} items={items} />}
+          : <GelopenRouteKaart scherp spoor={spoor} punten={punten} items={items} />}
       </div>
     </div>
   );

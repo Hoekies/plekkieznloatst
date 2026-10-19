@@ -73,7 +73,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
               : !verslag ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kaart laden…</p>
               : verslag.spoor.length < 2 && verslag.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>
-              : <GelopenRouteKaart spoor={verslag.spoor} punten={verslag.punten}
+              : <GelopenRouteKaart scherp spoor={verslag.spoor} punten={verslag.punten}
                   items={verslag.items.filter((i) => i.lat != null && i.lng != null).map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! }))} />}
           </div>
 

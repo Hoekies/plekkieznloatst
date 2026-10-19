@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { escapeHtml } from "@/lib/html";
+import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
 
 export type RouteSpoorPunt = { lat: number; lng: number };
 export type BezochtPunt = {
@@ -21,7 +22,9 @@ const ITEM_NAAM: Record<string, string> = {
 };
 
 // Kaart met de werkelijk gelopen weg (GPS-spoor) en de bezochte punten in volgorde
-export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor: RouteSpoorPunt[]; punten: BezochtPunt[]; items?: KaartItem[] }) {
+// scherp = de vectorkaart (met kerken, cafés en restaurants); zonder (voor het PDF-rapport) de gewone
+// OSM-plaatjes, want een vectorkaart laat zich niet goed in een PDF zetten
+export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = false }: { spoor: RouteSpoorPunt[]; punten: BezochtPunt[]; items?: KaartItem[]; scherp?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,7 +40,8 @@ export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor
       }
       if (!containerRef.current) return;
       map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
+      if (scherp) voegBasiskaartToe(L, map, bewaardeStijl());
+      else L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
 
       const grenzen: [number, number][] = [];
       if (spoor.length > 1) {
@@ -93,7 +97,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [] }: { spoor
       else map.setView([52.37, 4.9], 13);
     })();
     return () => { map?.remove(); };
-  }, [spoor, punten, items]);
+  }, [spoor, punten, items, scherp]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%", minHeight: 380, borderRadius: 16, overflow: "hidden" }} />;
 }
