@@ -255,7 +255,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 > **Na de finish**: items die een team nog in de balk had (bijvoorbeeld een wissel), vervallen zodra het team finisht. Bij **🎁 Items inzetten na de finish** in de route-instellingen tik je per item aan wat na de finish nog mag (bom, spook, dief, banaan, wissel; groen = mag). Ster, vraagteken, verdubbeling en radar staan er niet bij: een ster en een vraagteken worden meteen gebruikt, en verdubbeling en radar hebben na de finish geen nut. Een gefinisht team houdt die items en kan ze vanaf het finishscherm nog inzetten op teams die onderweg zijn — tot jij de uitslag vrijgeeft; dan vervalt de rest. Een gefinisht team kan zelf ook nog geraakt worden, maar alleen met de groene items die op een gefinisht team iets doen: **bom**, **wissel** en **dief**. Spook en banaan werken op punten die nog komen en raken alleen teams die onderweg zijn. Na het vrijgeven van de uitslag kan niemand meer iets inzetten.
 
-> **Andere teams op de kaart**: spelers zien andere teams niet op hun kaart. Alleen wie een 📡 Radar inzet, ziet 2 minuten lang waar de anderen lopen — en daarna verdwijnen ze weer. De anderen zien het radarteam niet. Op jouw live kaart zie je als beheerder iedereen altijd.
+> **Andere teams op de kaart**: spelers zien andere teams alleen op hun kaart als die binnen 25 meter zijn. Wie een 📡 Radar inzet, ziet 2 minuten lang waar alle anderen lopen — en daarna verdwijnen ze weer. De anderen zien het radarteam niet. Op jouw live kaart zie je als beheerder iedereen altijd.
 
 > **Banaan-effect**: werkt alleen als de tegenstander nog minimaal 2 punten vóór het eindpunt te gaan heeft. Anders krijgt het aanvallende team een melding en blijft de banaan bewaard.
 

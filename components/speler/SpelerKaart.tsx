@@ -255,6 +255,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     const effectenTimer = setInterval(() => haalEffectenOp(), 3000);
     haalBerichtenOp();
     const berichtenTimer = setInterval(() => haalBerichtenOp(), 5000);
+    // Andere teams: binnen 25 meter zie je ze ook zonder radar; zo verschijnen ze vanzelf
+    const andereTimer = setInterval(() => haalAndereSpelersOp(), 10000);
 
     const supabase = createClient();
     const kanaal = supabase
@@ -272,6 +274,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       clearInterval(sessieCheckTimer);
       clearInterval(effectenTimer);
       clearInterval(berichtenTimer);
+      clearInterval(andereTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);

@@ -4,6 +4,11 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { doelwitNaFinishVan } from "@/lib/item-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
+import { haversine } from "@/lib/geo";
+
+// Zonder radar zie je een ander team alleen als het dichtbij is (en de plekken vers zijn)
+const DICHTBIJ_METER = 25;
+const DICHTBIJ_MAX_OUD_MS = 2 * 60 * 1000;
 
 export async function GET() {
   const user = await haalGebruiker();
@@ -54,46 +59,36 @@ export async function GET() {
 
   let locaties: SpelerLocatie[];
 
-  if (radarEffect) {
-    // Radar actief: exacte coördinaten uit location_updates
-    const { data: locatieRows } = await admin
-      .from("location_updates")
-      .select("session_id, latitude, longitude, created_at")
-      .in("session_id", sessieIds)
-      .order("created_at", { ascending: false })
-      .limit(sessieIds.length * 5);
+  // Laatste plek van elk team (ook van jezelf, voor "dichtbij")
+  const { data: locatieRows } = await admin
+    .from("location_updates")
+    .select("session_id, latitude, longitude, created_at")
+    .in("session_id", [...sessieIds, eigenSessie.id])
+    .order("created_at", { ascending: false })
+    .limit((sessieIds.length + 1) * 5);
+  const laatste = new Map<string, { latitude: number; longitude: number; created_at: string }>();
+  for (const row of locatieRows ?? []) if (!laatste.has(row.session_id)) laatste.set(row.session_id, row);
+  const eigen = laatste.get(eigenSessie.id);
+  const nu = Date.now();
+  const recent = (t: string) => nu - new Date(t).getTime() <= DICHTBIJ_MAX_OUD_MS;
 
-    const gezien = new Set<string>();
-    locaties = [];
-    for (const row of locatieRows ?? []) {
-      if (gezien.has(row.session_id)) continue;
-      gezien.add(row.session_id);
-      locaties.push({
-        session_id: row.session_id,
-        teamnaam: sessieNaarGroep.get(row.session_id) ?? "Onbekend",
-        icon: sessieNaarIcoon.get(row.session_id) ?? null,
-        latitude: row.latitude,
-        longitude: row.longitude,
-        created_at: row.created_at,
-        gefinisht: gefinisht.has(row.session_id),
-      });
-    }
-    for (const r of rijen) {
-      if (!gezien.has(r.id)) locaties.push({ session_id: r.id, teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend", icon: sessieNaarIcoon.get(r.id) ?? null, latitude: null, longitude: null, created_at: null, gefinisht: gefinisht.has(r.id) });
-    }
-  } else {
-    // Zonder radar zie je andere teams niet op de kaart: alleen de namen, voor het kiezen
-    // van een tegenstander bij een item
-    locaties = rijen.map((r) => ({
+  // Zichtbaar op de kaart: iedereen met een actieve radar (2 minuten), en anders alleen teams die
+  // nu binnen 25 meter van jou zijn. De rest alleen bij naam (voor het kiezen van een tegenstander).
+  locaties = rijen.map((r) => {
+    const plek = laatste.get(r.id);
+    const dichtbij = !!plek && !!eigen && recent(plek.created_at) && recent(eigen.created_at)
+      && haversine(eigen.latitude, eigen.longitude, plek.latitude, plek.longitude) <= DICHTBIJ_METER;
+    const zichtbaar = !!plek && (!!radarEffect || dichtbij);
+    return {
       session_id: r.id,
       teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend",
       icon: sessieNaarIcoon.get(r.id) ?? null,
-      latitude: null,
-      longitude: null,
-      created_at: null,
+      latitude: zichtbaar ? plek!.latitude : null,
+      longitude: zichtbaar ? plek!.longitude : null,
+      created_at: zichtbaar ? plek!.created_at : null,
       gefinisht: gefinisht.has(r.id),
-    }));
-  }
+    };
+  });
 
   // Welke items gefinishte teams nog mogen raken (instelling "items na de finish")
   const { data: routeInst } = await admin.from("routes").select("*").eq("id", eigenSessie.route_id).maybeSingle();

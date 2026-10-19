@@ -30,7 +30,7 @@ Op de kaart zie je:
 - **☀️ 🌙 🛰️** rechts onder elkaar, net boven de itembalk — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
-- **Andere teams** zie je niet op de kaart — en zij jullie ook niet
+- **Andere teams** zie je alleen als ze binnen 25 meter van jullie zijn (met hun icoon en naam) — en zij jullie ook
 - **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
 - **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne grijze stippellijntjes
 - Geen items om op te pakken — wel kunnen er onzichtbare **Plek zooi**-vallen liggen
