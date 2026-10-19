@@ -123,7 +123,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [type, setType] = useState<VraagType>(bestaandeVraag?.type ?? "meerkeuze_tekst");
   const [tekst, setTekst] = useState(bestaandeVraag?.question_text ?? "");
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
-  const [punten, setPunten] = useState(bestaandeVraag?.points ?? 50);
+  // Nieuwe vraag: standaard 65 punten
+  const [punten, setPunten] = useState(bestaandeVraag?.points ?? 65);
 
   const [antwoorden, setAntwoorden] = useState<{
     color: typeof KLEUREN[number];

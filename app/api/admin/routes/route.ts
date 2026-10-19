@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
   const { name } = body;
   if (!name?.trim()) return NextResponse.json({ fout: "Naam is verplicht" }, { status: 400 });
 
-  const nieuweRoute: Record<string, unknown> = { name: name.trim(), status: "concept", is_active: false };
+  // Nieuwe route: respawn van items standaard aan (in te stellen bij ⚙️ Instellingen → Items)
+  const nieuweRoute: Record<string, unknown> = { name: name.trim(), status: "concept", is_active: false, item_respawn: true };
   if (body.modus === "sequentieel" || body.modus === "verspreid") nieuweRoute.modus = body.modus;
   if (typeof body.verwacht_aantal_teams === "number" && body.verwacht_aantal_teams >= 2) nieuweRoute.verwacht_aantal_teams = body.verwacht_aantal_teams;
 

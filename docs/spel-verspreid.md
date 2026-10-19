@@ -40,11 +40,11 @@ Jullie route bestaat uit drie stukken:
 
 Op de kaart zie je:
 
-- **Jouw locatie** — jullie eigen teamicoon in een blauw rondje
-- **☀️ 🌙 🛰️** linksboven onder de zoomknoppen — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
+- **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
+- **☀️ 🌙 🛰️** rechts onder elkaar, net boven de itembalk — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
-- **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen; zij zien jou niet.
+- **Andere teams** zie je niet op de kaart, behalve 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen (hun teamicoon in een oranje rondje, met de naam eronder); zij zien jou niet.
 - **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
 - **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
 - **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne grijze stippellijntjes

@@ -2654,3 +2654,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .stat-vak-waarde { font-size: 0.85rem; max-width: 100%; }
   .stat-vak-label { font-size: 0.58rem; max-width: 100%; }
 }
+
+/* Spelerskaart: licht/donker/luchtfoto rechts, onder elkaar, net boven de itembalk en "Niet bereikbaar?" */
+.kaart-stijl--verticaal { top: auto; left: auto; right: 16px; flex-direction: column; }

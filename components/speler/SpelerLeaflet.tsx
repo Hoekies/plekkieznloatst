@@ -22,13 +22,17 @@ interface Props {
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
   spelerIcoon?: string | null;
+  // Teamnaam onder het eigen icoon (zoals op de live kaart)
+  spelerNaam?: string | null;
+  // Hoogte (px) waarboven de knoppen voor licht/donker/luchtfoto staan (boven de itembalk)
+  stijlOnder?: number;
   ghostedPuntId: string | null;
 }
 
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
@@ -122,12 +126,16 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     const latlng: [number, number] = [positie.latitude, positie.longitude];
 
     if (!spelerMarkerRef.current) {
+      // Eigen icoon met de teamnaam eronder (zelfde opbouw als de tegenstanders en de live kaart)
+      const naamLabel = spelerNaam
+        ? `<div style="background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;white-space:nowrap;padding:1px 5px;border-radius:4px;line-height:1.3">${escapeHtml(spelerNaam)}</div>`
+        : "";
       const icon = L.divIcon({
         className: "",
         html: spelerIcoon
-          ? `<div style="width:40px;height:40px;border-radius:50%;background:#fff;border:3px solid #3B82F6;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1">${spelerIcoon}</div>`
-          : `<div style="width:20px;height:20px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 6px rgba(0,0,0,0.4)"></div>`,
-        iconSize: spelerIcoon ? [40, 40] : [20, 20],
+          ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:40px;height:40px;border-radius:50%;box-sizing:border-box;background:#fff;border:3px solid #3B82F6;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1">${spelerIcoon}</div>${naamLabel}</div>`
+          : `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:20px;height:20px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 6px rgba(0,0,0,0.4)"></div>${naamLabel}</div>`,
+        iconSize: spelerIcoon ? [40, 60] : [20, 40],
         iconAnchor: spelerIcoon ? [20, 20] : [10, 10],
       });
       spelerMarkerRef.current = L.marker(latlng, { icon, interactive: false, zIndexOffset: 2000 }).addTo(map);
@@ -151,6 +159,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       map.setView(latlng, ZOOM_SPELER);
       gecenterRef.current = true;
     }
+  // Icoon en naam veranderen tijdens het spel niet: de marker wordt één keer gemaakt
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positie, kaartKlaar]);
 
   // Punt-markers en polyline bijwerken
@@ -297,11 +307,11 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         className: "",
         html: `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
           <div style="
-            width:32px;height:32px;border-radius:50%;
-            background:${kleur};border:${isVerouderd ? "2px dashed #9CA3AF" : "2px solid #fff"};
-            box-shadow:0 2px 6px rgba(0,0,0,0.25);
+            width:38px;height:38px;border-radius:50%;box-sizing:border-box;
+            background:${speler.icon && !isVerouderd ? "#fff" : kleur};border:3px ${isVerouderd ? "dashed" : "solid"} ${kleur};
+            box-shadow:0 0 0 3px rgba(249,115,22,0.25),0 2px 6px rgba(0,0,0,0.35);
             display:flex;align-items:center;justify-content:center;
-            font-size:${speler.icon && !isVerouderd ? 19 : 13}px;font-weight:700;color:#fff;
+            font-size:${speler.icon && !isVerouderd ? 21 : 13}px;font-weight:700;color:#fff;line-height:1;
           ">${label}</div>
           <div style="
             background:rgba(0,0,0,0.65);color:#fff;
@@ -310,8 +320,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
             text-align:center;
           ">${naam.replace("\n", "<br/>")}</div>
         </div>`,
-        iconSize: [32, 52],
-        iconAnchor: [16, 16],
+        iconSize: [38, 58],
+        iconAnchor: [19, 19],
       });
 
       const bestaand = andereSpelersMarkersRef.current.get(speler.session_id);
@@ -319,7 +329,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         bestaand.setLatLng([speler.latitude!, speler.longitude!]);
         bestaand.setIcon(icon);
       } else {
-        const marker = L.marker([speler.latitude!, speler.longitude!], { icon, interactive: false }).addTo(map);
+        const marker = L.marker([speler.latitude!, speler.longitude!], { icon, interactive: false, zIndexOffset: 1500 }).addTo(map);
         andereSpelersMarkersRef.current.set(speler.session_id, marker);
       }
     });
@@ -344,8 +354,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         }
       `}</style>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-      {/* Linksboven onder de zoomknoppen: licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
-      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} />
+      {/* Rechts, onder elkaar, net boven de itembalk: licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
+      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} verticaal onderAfstand={stijlOnder} />
     </>
   );
 }

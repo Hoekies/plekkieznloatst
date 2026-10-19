@@ -39,6 +39,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **❓ Vraag**: of de vraag al is ingevuld (✅) of nog niet (⚠️), met **Vraag invullen / bewerken**. De vraag opent als venster over de editor; na **Opslaan** of **← Terug** sta je weer precies waar je was.
    - **ℹ️ Info**: de **tekst voor de spelers**, die ze lezen als ze er aankomen. Hangt er toch een vraag aan (zoals een startvraag), dan zie je dat, en krijgen de spelers die vraag in plaats van de tekst.
    - **🏁 Eind**: hier finisht het team; met **Opdracht bij de finish** hang je er eventueel een opdracht aan, zoals een selfie.
+   - Een nieuwe vraag krijgt standaard **65 punten** (aan te passen bij *Punten*).
    - **De vraag-editor**: links het formulier (soort vraag → vraag → afbeelding en punten → antwoorden), daarnaast **Zo ziet de speler het**, en op een breed scherm rechts het kaartje met waar het punt ligt. **💾 Vraag opslaan** staat altijd onderaan in beeld, met eventuele foutmelding erboven (bij een leeg antwoord staat de cursor meteen in dat veld). Ga je weg met niet-opgeslagen wijzigingen, dan vraagt de editor eerst of je ze wilt weggooien.
    - **🏷️ Naam van het punt**: bij **Opslaan** vraagt de editor eerst *Hoe heet dit punt?*, met de huidige naam ingevuld en de woorden uit de vraag als voorstel (💡). Pas aan of druk meteen op **💾 Opslaan** (of Enter). Spelers zien de naam pas na afloop.
    - **🖼️ Afbeelding kiezen**: een foto wordt vierkant opgeslagen. Je ziet eerst de **hele foto** in het vierkant (niet-vierkant? dan vult een vervaagde versie de randen). Zoom in met de schuif of **⬛ Vierkant vullen** en sleep om te kiezen wat er in beeld komt; **🖼️ Hele foto** zet hem terug.
@@ -180,10 +181,10 @@ In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus st
 
 #### Respawn (items opnieuw laten verschijnen)
 
-Alleen bij verspreid-modus, in te schakelen via **⚙️ Instellingen** → "🔄 Respawn":
+Alleen bij verspreid-modus. Bij een **nieuwe route staat respawn standaard aan**; uitzetten kan via **⚙️ Instellingen** → "🔄 Respawn":
 
-- **Uit (standaard)** — speciale items verdwijnen permanent zodra een team ze opraapt.
-- **Aan** — een opgeraapt item komt na een instelbaar aantal minuten terug op de kaart, zodra het team dat het opraapte het heeft gebruikt. Het komt terug als **precies hetzelfde item op dezelfde plek**: de app verandert nooit zelf het type of de plek van een item.
+- **Uit** — speciale items verdwijnen permanent zodra een team ze opraapt.
+- **Aan (standaard bij een nieuwe route)** — een opgeraapt item komt na een instelbaar aantal minuten terug op de kaart, zodra het team dat het opraapte het heeft gebruikt. Het komt terug als **precies hetzelfde item op dezelfde plek**: de app verandert nooit zelf het type of de plek van een item.
 
 Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "Aan" staat.
 
