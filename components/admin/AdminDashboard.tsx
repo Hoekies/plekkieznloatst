@@ -17,7 +17,7 @@ import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
-import BroadcastKnop from "@/components/admin/BroadcastKnop";
+import ContactKnop from "@/components/admin/ContactKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import StatStrook from "@/components/admin/StatStrook";
 
@@ -388,7 +388,7 @@ function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer,
         <button className="rl-knop" onClick={() => onNegeer(s.hulp!.id)}>Negeren</button>
       )}
       {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
-      {!beperkt && <BroadcastKnop team={{ id: s.player_id, naam: s.display_name }} />}
+      {!beperkt && <ContactKnop team={{ id: s.player_id, naam: s.display_name, telefoon: s.telefoon }} />}
       {!beperkt && (
         <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
           vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">

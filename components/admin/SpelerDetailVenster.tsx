@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
-import { waLink } from "@/lib/telefoon";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import type { SpelerOverzicht } from "@/lib/admin-live";
@@ -46,29 +44,21 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
   return createPortal(
     <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
       <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 640, maxHeight: "94vh" }}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 14, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "16px 16px 18px" }}>
+        <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "14px 16px 16px" }}>
           {/* Kop: wie, plek en score */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="pr-gem-avatar speler-ring" style={{ width: 56, height: 56, fontSize: "2rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "👫"}</span>
+            <span className="pr-gem-avatar speler-ring" style={{ width: 46, height: 46, fontSize: "1.6rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "👫"}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : `#${rang}`} {s.display_name}
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Login: {s.login_name} · {s.sessie_status === "voltooid" ? "🏁 gefinisht" : "onderweg"}</div>
             </div>
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: "#FFE680" }}>{s.score} pt</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
             <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
           </div>
 
-          {/* Contact: bellen of WhatsApp (als het nummer bij Spelers is ingevuld) */}
-          {s.telefoon && (
-            <div className="melding-knoppen">
-              <a className="rl-knop" href={`tel:${s.telefoon}`} style={{ height: 40, textDecoration: "none" }}>📞 Bellen</a>
-              <a className="wa-knop" href={waLink("", s.telefoon)} target="_blank" rel="noopener noreferrer"><WhatsAppLogo /> WhatsApp</a>
-            </div>
-          )}
-
-          {acties}
+          {acties && <div className="detail-acties">{acties}</div>}
 
           {/* Kerngetallen */}
           <div className="detail-cijfers">
@@ -79,7 +69,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
           </div>
 
           {/* Gelopen route */}
-          <div style={{ height: 380, borderRadius: 16, overflow: "hidden", flexShrink: 0 }}>
+          <div style={{ height: 330, borderRadius: 14, overflow: "hidden", flexShrink: 0 }}>
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
               : !verslag ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kaart laden…</p>
               : verslag.spoor.length < 2 && verslag.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>

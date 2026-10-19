@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 
 // alsIcoon = 📢-knop in de bovenbalk; anders als regel in het menu.
 // Met team: bericht aan alleen dat team (knop op de spelerskaart van het dashboard).
-export default function BroadcastKnop({ alsIcoon = false, team }: { alsIcoon?: boolean; team?: { id: string; naam: string } }) {
+// groot = brede knop met tekst (in het contactvenster)
+export default function BroadcastKnop({ alsIcoon = false, team, groot = false }: { alsIcoon?: boolean; team?: { id: string; naam: string }; groot?: boolean }) {
   const [open, setOpen] = useState(false);
   const [tekst, setTekst] = useState("");
   const [fase, setFase] = useState<"idle" | "bezig" | "verzonden">("idle");
@@ -30,9 +31,13 @@ export default function BroadcastKnop({ alsIcoon = false, team }: { alsIcoon?: b
   return (
     <>
       {team ? (
-        <button type="button" className="rl-knop sk-icoonknop" onClick={() => setOpen(true)} title={`Bericht aan ${team.naam}`} aria-label={`Bericht aan ${team.naam}`}>
-          <span className="knop-icoon" aria-hidden>📢</span><span className="alleen-pc"> Bericht</span>
-        </button>
+        groot ? (
+          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setOpen(true)}>📢 Bericht in de app</button>
+        ) : (
+          <button type="button" className="rl-knop sk-icoonknop" onClick={() => setOpen(true)} title={`Bericht aan ${team.naam}`} aria-label={`Bericht aan ${team.naam}`}>
+            <span className="knop-icoon" aria-hidden>📢</span><span className="alleen-pc"> Bericht</span>
+          </button>
+        )
       ) : alsIcoon ? (
         <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}
           data-tip="Bericht sturen aan alle spelers" data-tip-pos="onder" aria-label="Bericht sturen">

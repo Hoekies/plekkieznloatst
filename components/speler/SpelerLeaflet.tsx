@@ -6,7 +6,6 @@ import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
-import { speelgebiedLaag } from "@/lib/speelgebied";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
 
@@ -46,8 +45,6 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
-  // Speelgebied: buiten de route iets grijzer
-  const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
   // Licht, donker of luchtfoto: de speler kiest zelf (onthouden op dit toestel)
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");
@@ -89,7 +86,6 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       });
 
       mapRef.current = map;
-      gebiedRef.current = speelgebiedLaag(L, map);
       setKaartKlaar(true);
       // Scherpe kaart (vectortegels) met duidelijke paden, huizen en groen; anders de gewone OSM-plaatjes
       const beginStijl = bewaardeStijl();
@@ -334,11 +330,6 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       }
     });
   }, [andereSpelers, kaartKlaar]);
-
-  // Speelgebied: alles buiten de route iets grijzer, zodat je ziet waar het spel is
-  useEffect(() => {
-    gebiedRef.current?.(punten.map((p) => ({ lat: p.latitude, lng: p.longitude })), stijl === "donker");
-  }, [punten, kaartKlaar, stijl]);
 
   return (
     <>

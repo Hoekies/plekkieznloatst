@@ -2661,3 +2661,21 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Spelersapp: het scherm zelf schuift nooit (na het toetsenbord bleef de pagina half omhoog staan);
    alleen de inhoud binnenin kan scrollen */
 .speler-shell { position: fixed; inset: 0; height: auto; overflow: hidden; }
+
+/* Spelervenster strakker: knoppen in hetzelfde raster als de cijfers, cijfers als lage vakjes */
+.detail-venster .editor-paneel-sluit { width: 32px; height: 32px; font-size: 1rem; background: transparent; border-color: transparent; color: rgba(248,113,113,0.85); }
+.detail-venster .editor-paneel-sluit:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); }
+.detail-acties .speler-knoppen { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.detail-acties .speler-knoppen > * { width: 100%; min-width: 0; height: 40px !important; padding: 0 8px !important; justify-content: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.detail-venster .detail-cijfers > div { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; justify-items: start; padding: 8px 10px; text-align: left; }
+.detail-venster .detail-cijfers > div > span { grid-row: 1 / span 2; font-size: 1.15rem; }
+.detail-venster .detail-cijfers strong { font-size: 0.95rem; line-height: 1.1; }
+.detail-venster .detail-cijfers small { font-size: 0.66rem; line-height: 1.1; }
+@media (max-width: 480px) {
+  .detail-acties .speler-knoppen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Contactvenster: bericht, bellen en WhatsApp als even brede knoppen onder elkaar */
+.contact-venster { display: flex; flex-direction: column; gap: 10px; padding: 18px 22px 18px !important; }
+.contact-venster > .rl-knop, .contact-venster > a.rl-knop, .contact-venster > .wa-knop {
+  width: 100%; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; }

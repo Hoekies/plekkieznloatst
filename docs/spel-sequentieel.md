@@ -31,8 +31,7 @@ Op de kaart zie je:
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je alleen als ze binnen 25 meter van jullie zijn (met hun icoon en naam) — en zij jullie ook
-- **Het speelgebied** — buiten de route is de kaart iets grijzer, met een paarse stippellijn eromheen
-- **Wegen, voetpaden en parkeerplaatsen** — voetpaden zijn dunne grijze stippellijntjes
+- **Wegen, voetpaden en herkenningspunten** — voetpaden zijn dunne grijze stippellijntjes; kerken, cafés en restaurants staan er met hun naam op, parkeerplaatsen met een P
 - Geen items om op te pakken — wel kunnen er onzichtbare **Plek zooi**-vallen liggen
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.
