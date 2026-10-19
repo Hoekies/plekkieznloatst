@@ -11,7 +11,7 @@ export default async function SpelerKaartPage() {
 
   const { data: speler } = await admin
     .from("players")
-    .select("id")
+    .select("id, icon")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -74,6 +74,7 @@ export default async function SpelerKaartPage() {
   return (
     <SpelerKaart
       sessie={sessie}
+      spelerIcoon={(speler as { icon?: string | null }).icon ?? null}
       punten={punten}
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}

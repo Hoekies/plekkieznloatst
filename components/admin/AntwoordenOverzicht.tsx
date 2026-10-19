@@ -6,6 +6,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
+import StatStrook from "@/components/admin/StatStrook";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -65,12 +66,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* Compacte strook (ook op de pc) in plaats van vier grote tegels */}
-      <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
-        <span className="strook-naam" title="Actieve route">🗺️ {data.route.name}</span>
-        <span title="Spelers">👫 {data.teams.length}<span className="st"> {data.teams.length === 1 ? "speler" : "spelers"}</span></span>
-        <span className={data.wachtende_fotos ? "dash-strook--let-op" : undefined} title="Foto's te keuren">📸 {data.wachtende_fotos ?? 0}<span className="st"> foto&apos;s te keuren</span></span>
-        <span title={data.uitslag_vrijgegeven ? "Uitslag zichtbaar" : "Uitslag verborgen"}>{data.uitslag_vrijgegeven ? "🏆" : "🔒"}<span className="st">{data.uitslag_vrijgegeven ? " Uitslag zichtbaar" : " Uitslag verborgen"}</span></span>
-      </div>
+      <StatStrook vakken={[
+        { icoon: "🗺️", waarde: data.route.name, label: "actieve route" },
+        { icoon: "👫", waarde: data.teams.length, label: data.teams.length === 1 ? "speler" : "spelers" },
+        { icoon: "📸", waarde: data.wachtende_fotos ?? 0, label: "foto's te keuren", letOp: !!data.wachtende_fotos },
+        { icoon: data.uitslag_vrijgegeven ? "🏆" : "🔒", waarde: data.uitslag_vrijgegeven ? "Zichtbaar" : "Verborgen", label: "uitslag" },
+      ]} />
 
       {/* Eén rij: per team / per vraag links, uitslag en rapport rechts */}
       <div className="actie-rij antw-balk">

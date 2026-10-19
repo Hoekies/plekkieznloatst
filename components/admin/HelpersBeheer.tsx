@@ -43,16 +43,17 @@ export default function HelpersBeheer() {
 
   return (
     <div className="helpers-blok" style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 32 }}>
-      {/* Kop met de knop ernaast; korte uitleg eronder */}
+      {/* Kop met korte uitleg; de knop links eronder, net als "+ Speler" */}
       <div>
-        <SectieKop titel="🦺 Helpers">
-          <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
-            + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
-          </button>
-        </SectieKop>
+        <SectieKop titel="🦺 Helpers" />
         <div style={{ fontSize: "0.76rem", color: "var(--muted)", marginTop: -6 }}>
           Kijken mee, keuren foto&apos;s en geven punten vrij.
         </div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
+          + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
+        </button>
       </div>
 
       {formulier && <NieuweHelperForm onSuccess={laad} onSluit={() => setFormulier(false)} />}

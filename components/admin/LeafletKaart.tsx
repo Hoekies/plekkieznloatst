@@ -379,9 +379,10 @@ export default function LeafletKaart({
           className: "",
           html: `<div title="Voorstel: klik om hier een item te plaatsen" style="
             width:26px;height:26px;border-radius:50%;cursor:pointer;box-sizing:border-box;
-            background:rgba(255,255,255,0.35);border:1.5px dashed rgba(180,140,20,0.75);
+            background:rgba(20,10,50,0.35);border:1.5px dashed rgba(255,255,255,0.85);
             display:flex;align-items:center;justify-content:center;position:relative;">
-            <img src="/items/${v.type}.webp" style="width:16px;height:16px;opacity:0.5" alt="">
+            <img src="/items/${v.type}.webp" style="width:15px;height:15px;opacity:0.55;filter:grayscale(1)" alt="">
+            <span style="position:absolute;right:-5px;top:-5px;width:13px;height:13px;border-radius:50%;background:#fff;color:#1c0c45;font:900 11px/13px sans-serif;text-align:center">+</span>
           </div>`,
           iconSize: [26, 26],
           iconAnchor: [13, 13],

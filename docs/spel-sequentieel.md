@@ -16,7 +16,7 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
 2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Kopieer de link en tik in de app op **🔗 Inloggen met link**.)
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
-4. Lees de uitleg, geef locatietoegang, en druk op **Ga op pad** — de kaart opent en jullie eerste punt verschijnt.
+4. Lees de uitleg, tik op **OK, begrepen** (je hoort een geluidje en de telefoon trilt), geef locatietoegang, en druk op **Ga op pad** — de kaart opent en jullie eerste punt verschijnt.
 
 > Een team kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
 
@@ -26,7 +26,7 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 
 Op de kaart zie je:
 
-- **Jouw locatie** — blauwe stip
+- **Jouw locatie** — jullie eigen teamicoon in een blauw rondje
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je niet op de kaart — en zij jullie ook niet

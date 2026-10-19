@@ -307,8 +307,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       {/* Linksonder: kaartlagen en licht/donker/luchtfoto in één paneel, zoals in de route-editor */}
       <div className="kaart-bediening" onClick={(e) => e.stopPropagation()}>
         <div className="kaart-lagen">
-          <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen">〰️ Sporen</button>
-          <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen">🎁 Items</button>
+          <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen">〰️<span className="laag-tekst"> Sporen</span></button>
+          <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen">🎁<span className="laag-tekst"> Items</span></button>
         </div>
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
       </div>

@@ -31,6 +31,8 @@ const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {
 
 interface Props {
   sessie: SpelerSessie;
+  // Het gekozen teamicoon: zo staat de speler zelf op de kaart
+  spelerIcoon?: string | null;
   punten: RoutePunt[];
   initVoortgang: SpelerPuntVoortgang[];
   modus: "sequentieel" | "verspreid";
@@ -59,7 +61,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -931,6 +933,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {/* Kaart */}
       <div style={{ flex: 1, position: "relative" }}>
         <SpelerLeaflet
+          spelerIcoon={spelerIcoon}
           positie={positie}
           punten={punten}
           verwerktIds={verwerktIds}

@@ -19,6 +19,7 @@ import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
 import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import StatStrook from "@/components/admin/StatStrook";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -154,11 +155,13 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         )}
 
         {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
-        <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 16 }}>
-          <span className="strook-naam" title="Actieve route">🗺️ {route?.name ?? "Geen actieve route"}</span>
-          <span title="Onderweg">⚡ {aantalActief}<span className="st"> onderweg</span></span>
-          <span title="Gefinisht">🏁 {aantalKlaar}<span className="st"> gefinisht</span></span>
-          {koploper && <span className="strook-naam" title="Koploper">🥇 {koploper.display_name} · {koploper.score}<span className="st"> pt</span></span>}
+        <div style={{ marginBottom: 16 }}>
+          <StatStrook vakken={[
+            { icoon: "🗺️", waarde: route?.name ?? "—", label: "actieve route" },
+            { icoon: "⚡", waarde: aantalActief, label: "onderweg" },
+            { icoon: "🏁", waarde: aantalKlaar, label: "gefinisht" },
+            { icoon: "🥇", waarde: koploper ? `${koploper.score} pt` : "—", label: koploper ? koploper.display_name : "koploper", titel: koploper ? `Koploper: ${koploper.display_name} (${koploper.score} pt)` : "Nog geen koploper" },
+          ]} />
         </div>
 
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}

@@ -37,7 +37,7 @@ SECTION 2 — "Hoe begin je?" (4 numbered steps, each with a small icon):
 Small note under the steps: "Soms krijg je bij de start al items gratis in je balk."
 
 SECTION 3 — "De kaart" (small stylized map illustration with legend of map symbols):
-- 🔵 blauwe stip = jouw locatie
+- 🦊 jullie teamicoon in een blauw rondje = jouw locatie
 - 🔢 genummerd cirkeltje = het volgende doel
 - ✅ groen vinkje = al bezocht
 - 👥 lichte stip = ander team, elders in de lus

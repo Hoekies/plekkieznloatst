@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
+import { ontgrendelAudio, speelPuntBereikt } from "@/lib/sounds";
 
 type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "starten";
 
@@ -32,6 +33,9 @@ export default function IntroScherm({ modus, melding = null }: Props) {
   const [fase, setFase] = useState<Fase>("profiel");
   const [fout, setFout] = useState("");
   const [teamnaam, setTeamnaam] = useState("");
+  // Typt de speler de teamnaam (toetsenbord open)? Dan het logo weg en het venster bovenaan,
+  // zodat het veld en de iconen boven het toetsenbord blijven
+  const [typt, setTypt] = useState(false);
   const [gekozenIcono, setGekozenIcono] = useState<string | null>(null);
   const [gebruikteIconen, setGebruikteIconen] = useState<string[]>([]);
   const [profielFout, setProfielFout] = useState("");
@@ -123,7 +127,7 @@ export default function IntroScherm({ modus, melding = null }: Props) {
     <div className="pr-stage" style={{
       position: "fixed", inset: 0, zIndex: 200,
       display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
+      alignItems: "center", justifyContent: typt ? "flex-start" : "center",
       overflowY: "auto",
     }}>
       {/* Kaartafbeelding */}
@@ -162,8 +166,8 @@ export default function IntroScherm({ modus, melding = null }: Props) {
         maxWidth: 380, width: "100%",
       }}>
         {/* Logo */}
-        <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />
-        <div className="pr-logo-wrap">
+        {!typt && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}
+        <div className="pr-logo-wrap" style={typt ? { display: "none" } : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.webp" alt="PointRush" style={{
             width: "clamp(110px, 36vw, 170px)", objectFit: "contain", display: "block",
@@ -182,6 +186,15 @@ export default function IntroScherm({ modus, melding = null }: Props) {
                 value={teamnaam}
                 onChange={(e) => setTeamnaam(e.target.value)}
                 maxLength={30}
+                // "Klaar" op het toetsenbord sluit het toetsenbord; geen woordsuggesties of autocorrectie
+                enterKeyHint="done"
+                onFocus={() => setTypt(true)}
+                onBlur={() => setTypt(false)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } }}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                autoCapitalize="words"
               />
 
               <label className="pr-field-label2" style={{ marginTop: 4 }}>Kies een icoon</label>
@@ -257,7 +270,13 @@ export default function IntroScherm({ modus, melding = null }: Props) {
                 </div>
               </div>
             </div>
-            <button className="btn-premium--compact" onClick={() => { setFase("permissie"); vraagLocatiePermissie(); }}>
+            {/* Meteen een geluidje en een tril: zo merkt de speler of het geluid aan staat (en het geluid
+                is ontgrendeld, wat op de iPhone een tik nodig heeft) */}
+            <button className="btn-premium--compact" onClick={() => {
+              ontgrendelAudio(); speelPuntBereikt();
+              try { navigator.vibrate?.([120, 80, 120]); } catch { /* trillen niet mogelijk */ }
+              setFase("permissie"); vraagLocatiePermissie();
+            }}>
               OK, BEGREPEN →
             </button>
           </div>
@@ -278,6 +297,9 @@ export default function IntroScherm({ modus, melding = null }: Props) {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", marginTop: 24 }}>
             <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.95rem", margin: 0 }}>
               Locatie gevonden. Druk op de knop om te starten.
+            </p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", margin: 0 }}>
+              🔔 Hoorde je net een geluidje? Dan staat je geluid goed. Niets gehoord? Zet je telefoon niet op stil.
             </p>
             {fout && (
               <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{fout}</p>

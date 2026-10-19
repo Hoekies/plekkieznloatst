@@ -13,6 +13,7 @@ import TelefoonVenster from "@/components/admin/TelefoonVenster";
 import { toonTelefoon } from "@/lib/telefoon";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import LeegScherm from "@/components/admin/LeegScherm";
+import StatStrook from "@/components/admin/StatStrook";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -180,12 +181,12 @@ export default function GroepenBeheer() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
-      <div className="dash-strook dash-strook--altijd" style={{ marginBottom: 0 }}>
-        <span title="Spelers">👫 {groepen.length}<span className="st"> spelers</span></span>
-        <span title="Ingelogd">📱 {groepen.filter((g) => g.active_device_id).length}<span className="st"> ingelogd</span></span>
-        <span title="Aan het spelen">⚡ {groepen.filter((g) => g.heeft_spel).length}<span className="st"> speelt</span></span>
-        {groepen.some((g) => g.is_uitgeschakeld) && <span title="Uitgeschakeld">⏸ {groepen.filter((g) => g.is_uitgeschakeld).length}<span className="st"> uit</span></span>}
-      </div>
+      <StatStrook vakken={[
+        { icoon: "👫", waarde: groepen.length, label: "spelers" },
+        { icoon: "📱", waarde: groepen.filter((g) => g.active_device_id).length, label: "ingelogd" },
+        { icoon: "⚡", waarde: groepen.filter((g) => g.heeft_spel).length, label: "speelt" },
+        { icoon: "⏸", waarde: groepen.filter((g) => g.is_uitgeschakeld).length, label: "uit" },
+      ]} />
 
       {/* Nieuwe speler links (versturen via WhatsApp staat in het menu) */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>

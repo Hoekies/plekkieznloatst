@@ -15,6 +15,13 @@ export default function KaartStijlKnoppen({ stijl, onKies, onder = false, inBlok
       {knop("licht", "☀️", "Lichte kaart", "Licht")}
       {knop("donker", "🌙", "Donkere kaart", "Donker")}
       {knop("luchtfoto", "🛰️", "Luchtfoto", "Luchtfoto")}
+      {/* Telefoon (in een blok): één knop die de volgende stijl kiest */}
+      {inBlok && (
+        <button type="button" className="kaart-stijl-wissel aan" onClick={() => onKies(stijl === "licht" ? "donker" : stijl === "donker" ? "luchtfoto" : "licht")}
+          title={`Kaart: ${stijl === "licht" ? "licht" : stijl === "donker" ? "donker" : "luchtfoto"} (tik voor de volgende)`} aria-label="Andere kaartstijl">
+          {stijl === "licht" ? "☀️" : stijl === "donker" ? "🌙" : "🛰️"}
+        </button>
+      )}
     </div>
   );
 }

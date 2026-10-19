@@ -1185,7 +1185,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {wegen.bezig ? "⏳" : "🚶"}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
             {wegenAan && (
-              <button className="rl-knop" onClick={wegen.herbereken} disabled={wegen.bezig} title="Alle lijnen en afstanden opnieuw berekenen">
+              <button className="rl-knop editor-opnieuw" onClick={wegen.herbereken} disabled={wegen.bezig} title="Alle lijnen en afstanden opnieuw berekenen">
                 ↻<span className="alleen-pc"> Opnieuw</span>
               </button>
             )}
@@ -2097,13 +2097,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           lagenKnoppen={
             <div className="kaart-lagen" onClick={(e) => e.stopPropagation()}>
               {route.modus === "verspreid" && teamRoutes.length > 0 && (
-                <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭 Routes</button>
+                <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭<span className="laag-tekst"> Routes</span></button>
               )}
-              <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁 Items</button>
+              <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁<span className="laag-tekst"> Items</span></button>
               {route.modus === "verspreid" && (
                 <>
-                  <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨ Voorstellen</button>
-                  <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕ Cirkel</button>
+                  <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨<span className="laag-tekst"> Voorstellen</span></button>
+                  <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕<span className="laag-tekst"> Cirkel</span></button>
                 </>
               )}
             </div>

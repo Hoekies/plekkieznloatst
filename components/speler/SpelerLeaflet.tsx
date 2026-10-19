@@ -19,20 +19,22 @@ interface Props {
   activePuntId: string | null;
   andereSpelers: SpelerLocatie[];
   specialeItems: SpeciaalItem[];
+  // Teamicoon van de speler zelf (anders een blauwe stip)
+  spelerIcoon?: string | null;
   ghostedPuntId: string | null;
 }
 
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
   const [kaartKlaar, setKaartKlaar] = useState(false);
   const LRef = useRef<typeof import("leaflet") | null>(null);
   const andereSpelersMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
-  const spelerMarkerRef = useRef<import("leaflet").CircleMarker | null>(null);
+  const spelerMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const accuracyCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -104,13 +106,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     const latlng: [number, number] = [positie.latitude, positie.longitude];
 
     if (!spelerMarkerRef.current) {
-      spelerMarkerRef.current = L.circleMarker(latlng, {
-        radius: 10,
-        color: "#1E40AF",
-        fillColor: "#3B82F6",
-        fillOpacity: 0.9,
-        weight: 3,
-      }).addTo(map);
+      const icon = L.divIcon({
+        className: "",
+        html: spelerIcoon
+          ? `<div style="width:40px;height:40px;border-radius:50%;background:#fff;border:3px solid #3B82F6;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1">${spelerIcoon}</div>`
+          : `<div style="width:20px;height:20px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 6px rgba(0,0,0,0.4)"></div>`,
+        iconSize: spelerIcoon ? [40, 40] : [20, 20],
+        iconAnchor: spelerIcoon ? [20, 20] : [10, 10],
+      });
+      spelerMarkerRef.current = L.marker(latlng, { icon, interactive: false, zIndexOffset: 2000 }).addTo(map);
     } else {
       spelerMarkerRef.current.setLatLng(latlng);
     }
@@ -245,7 +249,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         iconAnchor: [maat / 2, maat / 2],
       });
 
-      const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false }).addTo(map);
+      const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false, zIndexOffset: 1000 }).addTo(map);
       specialeItemMarkersRef.current.set(item.id, marker);
     });
   }, [specialeItems, kaartKlaar]);

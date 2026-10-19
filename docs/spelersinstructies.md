@@ -27,7 +27,7 @@ Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (
 Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude. Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
 
 **Locatie en geluid**
-Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
+Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Tik je bij de uitleg op **OK, begrepen**, dan hoor je meteen een geluidje en trilt je telefoon (Android): zo weet je dat je geluid goed staat. Hoor je niets, zet je telefoon dan niet op stil. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
 
 **Eindtijd**
 Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.
