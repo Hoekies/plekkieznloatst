@@ -2657,3 +2657,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Spelerskaart: licht/donker/luchtfoto rechts, onder elkaar, net boven de itembalk en "Niet bereikbaar?" */
 .kaart-stijl--verticaal { top: auto; left: auto; right: 16px; flex-direction: column; }
+
+/* Spelersapp: het scherm zelf schuift nooit (na het toetsenbord bleef de pagina half omhoog staan);
+   alleen de inhoud binnenin kan scrollen */
+.speler-shell { position: fixed; inset: 0; height: auto; overflow: hidden; }
