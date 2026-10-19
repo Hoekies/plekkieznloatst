@@ -2596,3 +2596,21 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .editor-status-groep { display: none; }
   .route-editor-topbar .editor-status-groep + .editor-balk-scheiding { display: none; }
 }
+
+/* Routekop: naam, direct daarachter de status; rechts (vóór de ruimte voor 📢 en uitloggen) opslaan/ongedaan/instellingen */
+.editor-naam { flex: 1 1 auto; }
+.editor-kop-ruimte { display: none; }
+@media (min-width: 769px) {
+  .editor-naam { flex: 0 1 auto; }
+  .editor-kop-ruimte { display: block; flex: 1; }
+  .route-editor-topbar .editor-kop { padding-right: 300px; }
+  .route-editor-topbar .editor-kop .editor-opslag { font-size: 0.74rem; white-space: nowrap; }
+}
+
+/* Route-editor: kaartlagen en kaartstijl samen in één blok linksonder op de kaart */
+.kaart-bediening { position: absolute; left: 10px; bottom: max(22px, calc(env(safe-area-inset-bottom) + 12px)); z-index: 1000;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: calc(100% - 20px); }
+.kaart-bediening .kaart-lagen { position: static; max-width: none; }
+.kaart-stijl--in-blok { position: static !important; }
+.kaart-lagen button { opacity: 0.55; }
+.kaart-lagen button.aan { opacity: 1; background: rgba(0,217,255,0.22); box-shadow: inset 0 0 0 1px rgba(0,217,255,0.45); }

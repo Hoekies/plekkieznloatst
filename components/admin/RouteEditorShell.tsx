@@ -1041,6 +1041,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Status, spelsoort en de volgende stap (publiceren, activeren, naar spelers). Computer: in de
   // routekop naast de naam; telefoon: in de knoppenrij eronder.
+  // Opslagstatus, ongedaan maken en instellingen (computer: rechts in de routekop)
+  const rechtsGroep = (
+    <>
+            <span className={`editor-opslag editor-opslag--${opslag}`}>
+              {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
+            </span>
+            <button type="button" className="rl-knop"
+              disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
+              title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
+              ↶<span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+            </button>
+            {/* Instellingen: goud, als laatste in dezelfde rij */}
+            <button className="rl-knop rl-knop--goud alleen-pc-knop"
+              onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
+              ⚙️<span className="alleen-pc"> Instellingen</span>
+            </button>
+    </>
+  );
+
   const statusGroep = (
     <>
             <StatusPil status={route.status} isActief={route.is_active} />
@@ -1102,11 +1121,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <button className="btn btn-ghost" onClick={() => setNaamWijzig(false)}>✕</button>
             </div>
           ) : (
-            <h1 style={{ flex: 1, minWidth: 0, cursor: "pointer", fontSize: "1.1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
+            <h1 className="editor-naam" style={{ minWidth: 0, cursor: "pointer", fontSize: "1.1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
               {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
             </h1>
           )}
           <span className="editor-status-kop">{statusGroep}</span>
+          <span className="editor-kop-ruimte" />
+          <span className="editor-status-kop">{rechtsGroep}</span>
           {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}
           <button className="rl-knop rl-knop--goud alleen-mobiel-knop"
             onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen">⚙️</button>
@@ -1170,20 +1191,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
           </span>
 
+          {/* Telefoon: opslagstatus, ongedaan maken (op de computer in de routekop) */}
           <span className="editor-ruimte" />
-          <span className={`editor-opslag editor-opslag--${opslag}`}>
-            {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen" : "✓ Opgeslagen"}
-          </span>
-          <button type="button" className="rl-knop"
-            disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
-            title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-            ↶<span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
-          </button>
-          {/* Instellingen: goud, als laatste in dezelfde rij */}
-          <button className="rl-knop rl-knop--goud alleen-pc-knop"
-            onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
-            ⚙️<span className="alleen-pc"> Instellingen</span>
-          </button>
+          <span className="editor-status-groep">{rechtsGroep}</span>
         </div>
       </div>
 
@@ -2049,6 +2059,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Kaart */}
         <LeafletKaart
+          lagenKnoppen={
+            <div className="kaart-lagen" onClick={(e) => e.stopPropagation()}>
+              {route.modus === "verspreid" && teamRoutes.length > 0 && (
+                <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭 Routes</button>
+              )}
+              <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁 Items</button>
+              {route.modus === "verspreid" && (
+                <>
+                  <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨ Voorstellen</button>
+                  <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕ Cirkel</button>
+                </>
+              )}
+            </div>
+          }
           punten={punten}
           addModus={addModus || addSpeciaalModus || centrumModus || !!plaatsType}
           geselecteerdId={geselecteerd?.id ?? null}
@@ -2086,19 +2110,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
 
-        {/* Kaartlagen: los tonen of verbergen (linksonder, boven licht/donker/luchtfoto) */}
-        <div className="kaart-lagen" onClick={(e) => e.stopPropagation()}>
-          {route.modus === "verspreid" && teamRoutes.length > 0 && (
-            <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭 Routes</button>
-          )}
-          <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁 Items</button>
-          {route.modus === "verspreid" && (
-            <>
-              <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨ Voorstellen</button>
-              <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕ Cirkel</button>
-            </>
-          )}
-        </div>
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (

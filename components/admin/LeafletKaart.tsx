@@ -32,6 +32,8 @@ export interface TeamRoute {
 }
 
 interface Props {
+  // Knoppen voor kaartlagen (route-editor), samen met licht/donker/luchtfoto linksonder
+  lagenKnoppen?: React.ReactNode;
   punten: RoutePunt[];
   addModus: boolean;
   geselecteerdId: string | null;
@@ -62,7 +64,7 @@ interface Props {
 }
 
 export default function LeafletKaart({
-  punten, addModus, geselecteerdId, specialeItems = [],
+  lagenKnoppen, punten, addModus, geselecteerdId, specialeItems = [],
   guideCirkel = null, hubModus = false, teamRoutes = [], hoofdStukken,
   centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
@@ -488,7 +490,11 @@ export default function LeafletKaart({
     // zouden "lekken" en boven pagina-elementen als het admin-hamburgermenu komen te staan.
     <div style={{ flex: 1, position: "relative", minWidth: 0, zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} onder />
+      {/* Linksonder op de kaart: kaartlagen en licht/donker/luchtfoto in één blok */}
+      <div className="kaart-bediening" onClick={(e) => e.stopPropagation()}>
+        {lagenKnoppen}
+        <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} inBlok />
+      </div>
     </div>
   );
 }
