@@ -46,7 +46,7 @@ Op de kaart zie je:
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je alleen als ze **binnen 25 meter** van jullie zijn, of 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen (hun teamicoon in een oranje rondje, met de naam eronder); zij zien jou niet.
 - **Items** — icoontjes op de kaart (let op: plek zooi is onzichtbaar)
-- **Wegen, voetpaden en herkenningspunten** — voetpaden zijn dunne grijze stippellijntjes; kerken, cafés en restaurants staan er met hun naam op, parkeerplaatsen met een P
+- **Wegen, voetpaden en herkenningspunten** — voetpaden zijn dunne grijze stippellijntjes; kerken, cafés, restaurants, speeltuinen, scholen, monumenten en dergelijke staan er als klein icoontje op, parkeerplaatsen met een P
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende.
 

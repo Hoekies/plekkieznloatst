@@ -2679,3 +2679,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .contact-venster { display: flex; flex-direction: column; gap: 10px; padding: 18px 22px 18px !important; }
 .contact-venster > .rl-knop, .contact-venster > a.rl-knop, .contact-venster > .wa-knop {
   width: 100%; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; }
+
+/* Spelervenster: korte knopteksten (Vrijgeven, Punten, Contact, Stoppen), zodat niets wordt afgekapt */
+.detail-acties .alleen-pc { display: none !important; }
+.detail-acties .alleen-mobiel { display: inline !important; }
+.detail-acties .speler-knoppen > * { gap: 6px; font-size: 0.8rem !important; }

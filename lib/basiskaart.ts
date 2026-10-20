@@ -66,8 +66,14 @@ const PALET: Record<"licht" | "donker", Palet> = {
   },
 };
 
-// Plekken die op de kaart blijven (OpenMapTiles-klassen): parkeren, kerken, cafés, kroegen, restaurants
-const POI_KLASSEN = ["parking", "place_of_worship", "cafe", "bar", "beer", "restaurant"];
+// Plekken die op de kaart blijven (OpenMapTiles-klassen), als herkenningspunt:
+// parkeren, kerken, horeca, speeltuinen, scholen, monumenten/musea en wat verder handig is
+const POI_KLASSEN = [
+  "parking", "place_of_worship", "cafe", "bar", "beer", "restaurant", "playground",
+  "school", "college", "kindergarten",
+  "monument", "memorial", "castle", "museum", "attraction",
+  "town_hall", "library", "toilets", "pitch", "stadium", "swimming", "sports_centre",
+];
 
 // Eenmalig na het laden van de stijl: wat zichtbaar is (los van de kleuren)
 function richtIn(kaart: GlKaart) {
@@ -78,11 +84,11 @@ function richtIn(kaart: GlKaart) {
     if (/^poi_r/.test(l.id)) {
       const isParkeren = ["==", ["get", "class"], "parking"];
       try { kaart.setFilter(l.id, ["all", kaart.getFilter(l.id) ?? true, ["in", ["get", "class"], ["literal", POI_KLASSEN]]]); } catch { verberg(l.id); }
-      // Parkeren zachter en zonder tekst; de rest duidelijk, met de naam erbij
+      // Alleen icoontjes, geen namen; parkeren iets zachter
       try {
         kaart.setPaintProperty(l.id, "icon-opacity", ["case", isParkeren, 0.55, 1]);
         kaart.setLayoutProperty(l.id, "icon-size", ["case", isParkeren, 0.8, 1]);
-        kaart.setLayoutProperty(l.id, "text-field", ["case", isParkeren, "", ["coalesce", ["get", "name:nl"], ["get", "name"], ""]]);
+        kaart.setLayoutProperty(l.id, "text-field", "");
       } catch { /* overslaan */ }
       continue;
     }
