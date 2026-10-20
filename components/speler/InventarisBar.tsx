@@ -38,7 +38,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
       left: 0,
       right: 0,
       zIndex: 800,
-      background: "linear-gradient(180deg, rgba(28,12,69,0.85), rgba(12,3,34,0.92))",
+      background: "linear-gradient(180deg, rgba(58,31,128,0.85), rgba(12,3,34,0.92))",
       backdropFilter: "blur(12px)",
       WebkitBackdropFilter: "blur(12px)",
       borderTop: "2px solid rgba(255,217,59,0.25)",

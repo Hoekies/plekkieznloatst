@@ -735,7 +735,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {/* Statistiekenbalk */}
       <div style={{
         display: "flex", gap: 10, padding: "10px 14px", flexShrink: 0,
-        background: "rgba(10, 27, 54, 0.45)",
+        background: "rgba(42,21,102, 0.45)",
         backdropFilter: "blur(14px) saturate(130%)",
         WebkitBackdropFilter: "blur(14px) saturate(130%)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",

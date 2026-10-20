@@ -157,15 +157,23 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [tussenstandInterval, setTussenstandInterval] = useState(initRoute.tussenstand_interval_minuten ?? 0);
   const [tussenstandDuur, setTussenstandDuur] = useState(initRoute.tussenstand_duur_seconden ?? 10);
   const [aantalPunten, setAantalPunten] = useState(6);
+  const [aantalHandmatig, setAantalHandmatig] = useState(false);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
   // 🚀 Eerste stappen: bij een nieuwe (lege) route meteen open; de stap wordt per route onthouden
   const stappenSleutel = `pr_eerste_stappen_${initRoute.id}`;
+  // Alleen bij een lege route (geen punten en geen items) vanzelf open
   const [stappenOpen, setStappenOpen] = useState(() => (initRoute.route_points ?? []).length === 0);
   const [stappenStap, setStappenStap] = useState(0);
   useEffect(() => {
     try { const n = Number(localStorage.getItem(stappenSleutel)); if (n > 0) setStappenStap(n); } catch { /* geen opslag */ }
   }, [stappenSleutel]);
+  // Schatting van het aantal punten uit de afstand en het aantal teams (tot je het zelf aanpast)
+  useEffect(() => {
+    if (aantalHandmatig || doelAfstandKm <= 0) return;
+    setAantalPunten(Math.max(3, Math.min(30, Math.max(verwachtTeams * 2, Math.round(doelAfstandKm * 2.5)))));
+  }, [doelAfstandKm, verwachtTeams, aantalHandmatig]);
+
   const zetStappenStap = (n: number) => { setStappenStap(n); try { localStorage.setItem(stappenSleutel, String(n)); } catch { /* geen opslag */ } };
   const [wizardKies, setWizardKies] = useState<KiesModus>(null);
   // Verspreid: finish op een eigen plek (anders op het startpunt)
@@ -195,7 +203,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       const res = await fetch(`/api/admin/geocode?q=${encodeURIComponent(plaatsZoekterm.trim())}`);
       const data = await res.json();
       if (!res.ok) { setPlaatsFout(data.fout ?? "Plaats niet gevonden"); return; }
-      setVliegNaar({ lat: data.lat, lng: data.lng, zoom: 14 });
+      setVliegNaar({ lat: data.lat, lng: data.lng, zoom: 18 });
     } catch {
       setPlaatsFout(uitlegBijStatus(0, "Zoeken"));
     } finally {
@@ -211,7 +219,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus, plaatsType]);
 
   useEffect(() => {
-    api(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then(setSpecialeItems);
+    api(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then((items: SpeciaalItem[]) => {
+      setSpecialeItems(items);
+      // Staan er al items op de kaart, dan is het geen lege route: de eerste stappen niet vanzelf openen
+      if (items.length > 0 && (initRoute.route_points ?? []).length === 0) setStappenOpen(false);
+    });
+  // Alleen bij het openen van de route
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.id]);
 
   useEffect(() => {
@@ -419,6 +433,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Check: zijn er genoeg items voor de lengte en speeltijd? En waar zouden extra items goed liggen?
   const [toonVoorstellen, setToonVoorstellen] = useState(true);
+  // Zelf gekozen aantal voorgestelde items (null = het advies van de app)
+  const [itemDoel, setItemDoel] = useState<number | null>(null);
   const itemCheck = useMemo(() => {
     if (route.modus !== "verspreid" || punten.length < 3) return null;
     const lus = lusPlekken;
@@ -448,6 +464,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     // Voorstellen langs de weg die de teams echt lopen (met 🚶 Wegen aan), niet over de rechte
     // lijn tussen de punten. Per stuk het laatste punt weglaten: dat is het begin van het volgende.
     const lusPad = lus.flatMap((p, i) => wegen.lijn(p, lus[(i + 1) % lus.length]).slice(0, -1));
+    // Zelf meer of minder gekozen: aanvullen met een rondgang langs de soorten, of inkorten
+    if (itemDoel !== null) {
+      const rond = ["ster", "bom", "verdubbeling", "spook", "radar", "banaan", "vraagteken", "dief", "wissel", "plekzooi"];
+      for (let k = 0; tekortTypes.length < itemDoel; k++) tekortTypes.push(rond[k % rond.length]);
+      tekortTypes.length = Math.min(tekortTypes.length, itemDoel);
+    }
     const plekken = voorgesteldePlekken(lusPad.length > 1 ? lusPad : lus, specialeItems.map((i) => ({ lat: i.latitude, lng: i.longitude })), vermijd, tekortTypes.length);
     return {
       advies, nuOppakbaar,
@@ -455,7 +477,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       teVeel: nuOppakbaar > advies.oppakbaar + 1,
       voorstellen: plekken.map((p, i) => ({ ...p, type: tekortTypes[i] })),
     };
-  }, [route.modus, punten, lusPlekken, lusMeterWeg, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems, wegen]);
+  }, [route.modus, punten, lusPlekken, lusMeterWeg, verwachtTeams, route.item_respawn, gemSpeelMinuten, specialeItems, wegen, itemDoel]);
   // "Klaar om te spelen?": alles wat vóór het activeren nog aandacht nodig heeft
   const [controleOpen, setControleOpen] = useState(() => zoekParams.get("controle") === "1");
   const controle = useMemo(() => routeControle({
@@ -586,6 +608,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       return nieuw;
     });
   }
+  // Eerste stappen: bij het voorbeeld de gestippelde punten, bij de items de voorstellen in beeld
+  useEffect(() => {
+    if (!stappenOpen || route.modus !== "verspreid") return;
+    if (stappenStap === 3 && !lagen.cirkel) wisselLaag("cirkel");
+    if (stappenStap === 4) { setToonVoorstellen(true); if (!lagen.voorstellen) wisselLaag("voorstellen"); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stappenOpen, stappenStap]);
+
 
   // Computer: puntenlijst links inklappen voor meer kaartruimte (onthouden per browser)
   const [lijstDicht, setLijstDicht] = useState(false);
@@ -1734,7 +1764,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             padding: "16px",
           }} onClick={() => setInstellingenOpen(false)}>
             <div style={{
-              background: "#0f1c2e", color: "#e8f0ff",
+              background: "#2a1566", color: "#e8f0ff",
               borderRadius: 18, padding: 24,
               maxWidth: 420, width: "100%", boxSizing: "border-box", maxHeight: "90vh", overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
@@ -2065,7 +2095,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
-            background: "rgba(8,28,48,0.95)", border: `1px solid ${TEAM_KLEUREN[(kiesInstapVoor - 1) % TEAM_KLEUREN.length]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(42,21,102,0.95)", border: `1px solid ${TEAM_KLEUREN[(kiesInstapVoor - 1) % TEAM_KLEUREN.length]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             📍 Klik op het punt waar Team {kiesInstapVoor} begint · Esc = stoppen
@@ -2078,7 +2108,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
-            background: "rgba(8,28,48,0.95)", border: "1px solid var(--cyan)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(42,21,102,0.95)", border: "1px solid var(--cyan)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2093,7 +2123,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 10, padding: "8px 8px 8px 14px", borderRadius: 12,
-            background: "rgba(8,28,48,0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(42,21,102,0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             🗑️ {herstelToast.charAt(0).toUpperCase() + herstelToast.slice(1)}
@@ -2114,7 +2144,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div style={{
               // Rechtsonder, zodat het tijdenpaneel rechtsboven zichtbaar blijft
               position: "absolute", bottom: 28, right: 12, zIndex: 500, width: 260, maxHeight: "calc(100% - 24px)", overflowY: "auto",
-              background: "rgba(8,28,48,0.92)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+              background: "rgba(42,21,102,0.92)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
               border: `1px solid ${t.kleur}`, borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
               padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8, fontSize: "0.78rem", color: "var(--text)",
             }}>
@@ -2181,6 +2211,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           teamRoutes={lagen.routes ? teamRoutesKaart : []}
           hoofdStukken={hoofdStukken}
           centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
+          finishPunt={route.modus === "verspreid" && punten.length === 0 ? (finishPunt ?? (finishZelfde ? centrumPunt : null)) : null}
           ghostPunten={lagen.cirkel ? ghostPunten : []}
           ghostRadiusM={lagen.cirkel && doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
           onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
@@ -2216,19 +2247,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onFinishZelfde={() => { setFinishPunt(null); setFinishZelfde(true); setWizardKies(null); }}
             teams={verwachtTeams} onTeams={setVerwachtTeams}
             km={doelAfstandKm} onKm={setDoelAfstandKm}
-            aantal={aantalPunten} onAantal={setAantalPunten}
+            aantal={aantalPunten} onAantal={(n) => { setAantalHandmatig(true); setAantalPunten(n); }}
             onBewaarInstellingen={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
             onMaakPunten={async () => { setMaakBezig(true); try { await genereerPuntenInCirkel(); } finally { setMaakBezig(false); } }}
             maakBezig={maakBezig}
             aantalPunten={punten.length}
             heeftFinish={punten[punten.length - 1]?.type === "eindpunt"}
-            itemVoorstellen={itemCheck?.voorstellen.length ?? 0} aantalItems={specialeItems.length}
+            itemAantal={itemCheck?.voorstellen.length ?? 0} onItemAantal={(n) => setItemDoel(n)} aantalItems={specialeItems.length}
             onItems={plaatsAlleVoorstellen} itemsBezig={autoItemsBezig}
             vraagpunten={vraagpunten.length} metVraag={vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}
             onVragen={() => setAlleVragenOpen(true)}
             onControleren={() => { setStappenOpen(false); setControleOpen(true); }}
           />
-        ) : !route.is_active && route.status !== "gepubliceerd" && (
+        ) : !route.is_active && route.status !== "gepubliceerd" && punten.length === 0 && specialeItems.length === 0 && (
           <button type="button" className="eerste-stappen-knop" onClick={() => setStappenOpen(true)} title="Stap voor stap de route opzetten">🚀 Eerste stappen</button>
         )}
 

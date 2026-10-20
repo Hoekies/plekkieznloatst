@@ -128,7 +128,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
         const el = document.createElement("div");
         const label = gefinisht ? "🏁" : escapeHtml(t.icon ?? t.naam.charAt(0).toUpperCase());
         el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-          <div style="width:32px;height:32px;border-radius:50%;background:#1c0c45;border:3px solid ${kleur};box-shadow:0 0 0 2px #fff,0 2px 8px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;">${label}</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:#3a1f80;border:3px solid ${kleur};box-shadow:0 0 0 2px #fff,0 2px 8px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;">${label}</div>
           <div style="background:rgba(0,0,0,0.7);color:#fff;font-size:10px;white-space:nowrap;padding:1px 5px;border-radius:4px;">${escapeHtml(t.naam)}</div>
         </div>`;
         const marker = new maplibre.Marker({ element: el, anchor: "top", offset: [0, -16] }).setLngLat([plek.lng, plek.lat]).addTo(map);

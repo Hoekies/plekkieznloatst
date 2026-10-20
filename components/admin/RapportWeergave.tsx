@@ -41,7 +41,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
       <style>{`
         .rapport-wrap { padding: 24px; }
         .rapport-papier {
-          background: linear-gradient(180deg, #3a1a73 0%, #1c0c45 55%, #0c0322 100%);
+          background: linear-gradient(180deg, #5b34a8 0%, #3a1f80 55%, #26125c 100%);
           color: #fff; max-width: 860px; margin: 0 auto 24px; padding: 30px 34px; border-radius: 18px;
           border: 2px solid rgba(255,217,59,0.55); box-shadow: 0 0 24px rgba(255,217,59,0.15);
           font-family: var(--font);
@@ -62,13 +62,13 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
           .admin-sidebar, .admin-mobile-topbar, .admin-topbar, .rapport-knoppen { display: none !important; }
           /* Donkere achtergrond op de hele pagina, ook waar de inhoud ophoudt: geen witte stukken */
           html, body, .admin-shell, .admin-main {
-            background: #1c0c45 !important; height: auto !important; overflow: visible !important;
+            background: #3a1f80 !important; height: auto !important; overflow: visible !important;
             -webkit-print-color-adjust: exact; print-color-adjust: exact;
           }
           .rapport-wrap { padding: 0; }
           .rapport-papier {
             max-width: none; margin: 0; border-radius: 0; border: none; box-shadow: none;
-            padding: 12mm 14mm; background: #1c0c45;
+            padding: 12mm 14mm; background: #3a1f80;
             -webkit-box-decoration-break: clone; box-decoration-break: clone;
           }
           .rapport-team, .rapport-slot { break-before: page; page-break-before: always; }

@@ -129,7 +129,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
       if (sw < CROP_W - 0.5 || sh < CROP_H - 0.5) {
         // Lege randen: dezelfde foto groot en vervaagd erachter, wat donkerder
         const vul = Math.max(UIT / img.naturalWidth, UIT / img.naturalHeight);
-        ctx.fillStyle = "#0f1c2e";
+        ctx.fillStyle = "#2a1566";
         ctx.fillRect(0, 0, UIT, UIT);
         ctx.save();
         ctx.filter = "blur(24px)";

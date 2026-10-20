@@ -107,7 +107,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
     try {
       await new Promise((r) => setTimeout(r, 400));  // kaart en afbeeldingen op ware grootte laten tekenen
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas-pro"), import("jspdf")]);
-      const canvas = await html2canvas(velRef.current, { scale: 2, useCORS: true, backgroundColor: "#1c0c45", logging: false });
+      const canvas = await html2canvas(velRef.current, { scale: 2, useCORS: true, backgroundColor: "#3a1f80", logging: false });
       const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
       doc.setFillColor(28, 12, 69);
       doc.rect(0, 0, 210, 297, "F");
@@ -191,7 +191,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               <style>{`
                 .vp-vel { width: ${A4_B}px; height: ${A4_H}px; box-sizing: border-box; padding: 26px 30px; overflow: hidden;
                   display: flex; flex-direction: column; gap: 14px; color: #fff; font-family: var(--font);
-                  background: linear-gradient(180deg, #3a1a73 0%, #1c0c45 55%, #0c0322 100%); }
+                  background: linear-gradient(180deg, #5b34a8 0%, #3a1f80 55%, #26125c 100%); }
                 .vp-vel h1, .vp-vel h2 { margin: 0; font-family: var(--font-display); font-weight: 800; color: #fff; }
                 .vp-tegels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
                 .vp-tegel { padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,217,59,0.45); }

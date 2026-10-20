@@ -325,7 +325,11 @@ export default function RoutesOverzicht() {
                     </span>
                   </span>
                   {/* Telefoon: de volgende stap naast de naam (de status staat al in de kop van de groep) */}
-                  <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>{stapKnop(r)}</span>
+                  {/* Telefoon (ingeklapt): de volgende stap en Bewerken naast elkaar, net als opengeklapt */}
+                  <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>
+                    {stapKnop(r)}
+                    <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
+                  </span>
                   <span className="rl-pijl" aria-hidden>{open.has(r.id) ? "▾" : "▸"}</span>
                 </div>
                 <div className="rl-acties rl-acties--vast">

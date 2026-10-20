@@ -81,7 +81,7 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
       padding: "16px",
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        background: "#0f1c2e",
+        background: "#2a1566",
         color: "#e8f0ff",
         borderRadius: "18px",
         padding: "20px 16px",

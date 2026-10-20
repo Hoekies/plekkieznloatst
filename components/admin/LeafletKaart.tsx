@@ -52,6 +52,8 @@ interface Props {
   hoofdStukken?: { lat: number; lng: number }[][];
   // Genereer-preview
   centrumPunt?: { lat: number; lng: number } | null;
+  // Gekozen finishplek bij een nieuwe route (eerste stappen), als vlaggetje op de kaart
+  finishPunt?: { lat: number; lng: number } | null;
   ghostPunten?: { lat: number; lng: number }[];
   ghostRadiusM?: number;
   onCentrumVerplaatst?: (lat: number, lng: number) => void;
@@ -72,7 +74,7 @@ interface Props {
 export default function LeafletKaart({
   lagenKnoppen, punten, addModus, geselecteerdId, specialeItems = [],
   guideCirkel = null, hubModus = false, teamRoutes = [], hoofdStukken,
-  centrumPunt = null, ghostPunten = [], ghostRadiusM = 0,
+  centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
   vliegNaar = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
@@ -389,7 +391,7 @@ export default function LeafletKaart({
             background:rgba(255,255,255,0.15);border:2px dashed #fff;
             display:flex;align-items:center;justify-content:center;position:relative;">
             <img src="/items/${v.type}.webp" style="width:20px;height:20px" alt="">
-            <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:#1c0c45;font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
+            <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:#3a1f80;font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
           </div>`,
           iconSize: [34, 34],
           iconAnchor: [17, 17],
@@ -463,17 +465,16 @@ export default function LeafletKaart({
 
       // Ghost punt-markers
       ghostPunten.forEach((p, i) => {
-        const isLaatste = i === ghostPunten.length - 1;
         const icon = L.divIcon({
           className: "",
           html: `<div style="
             width:30px;height:30px;border-radius:50%;
             background:rgba(0,217,255,0.1);
-            border:2px dashed rgba(0,217,255,${isLaatste ? "0.9" : "0.55"});
+            border:2px dashed rgba(0,217,255,0.7);
             display:flex;align-items:center;justify-content:center;
             font-size:0.7rem;font-weight:800;
-            color:rgba(0,217,255,${isLaatste ? "1" : "0.7"});
-          ">${isLaatste ? "🏁" : i + 1}</div>`,
+            color:rgba(0,217,255,0.9);
+          ">${i + 1}</div>`,
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         });
@@ -483,6 +484,24 @@ export default function LeafletKaart({
       });
     });
   }, [centrumPunt, ghostPunten, ghostRadiusM, kaartKlaar]);
+
+  // Finish (eerste stappen): een vlaggetje op de gekozen plek
+  const finishMarkerRef = useRef<import("leaflet").Marker | null>(null);
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      finishMarkerRef.current?.remove();
+      finishMarkerRef.current = null;
+      if (!finishPunt || !kaartRef.current) return;
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="width:38px;height:38px;border-radius:50%;background:#F59E0B;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:19px">🏁</div>`,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+      });
+      finishMarkerRef.current = L.marker([finishPunt.lat, finishPunt.lng], { icon, interactive: false, zIndexOffset: 1100 }).addTo(kaartRef.current);
+    });
+  }, [finishPunt, kaartKlaar]);
 
   // Navigeer naar een opgezochte plaatsnaam
   useEffect(() => {

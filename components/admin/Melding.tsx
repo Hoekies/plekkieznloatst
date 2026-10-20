@@ -34,7 +34,7 @@ export default function MeldingHouder() {
         <div key={m.id} onClick={() => setMeldingen((lijst) => lijst.filter((x) => x.id !== m.id))}
           style={{
             pointerEvents: "auto", cursor: "pointer", padding: "9px 16px", borderRadius: 12, fontSize: "0.85rem", fontWeight: 600, color: "#fff",
-            background: "rgba(8,28,48,0.96)", border: `1px solid ${KLEUR[m.soort]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(42,21,102,0.96)", border: `1px solid ${KLEUR[m.soort]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
           }}>
           {m.soort === "fout" ? "⚠️ " : m.soort === "ok" ? "✅ " : ""}{m.tekst}
         </div>

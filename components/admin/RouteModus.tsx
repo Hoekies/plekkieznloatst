@@ -8,14 +8,14 @@ export const MODUS_INFO: Record<RouteModus, {
   tint: string;
 }> = {
   sequentieel: {
-    label: "Sequentieel",
-    omschrijving: "Vaste route, punten op volgorde",
+    label: "Op volgorde",
+    omschrijving: "Alle teams lopen dezelfde punten in dezelfde volgorde",
     kleur: "#93C5FD",
     tint: "rgba(59,130,246,0.16)",
   },
   verspreid: {
-    label: "Verspreid",
-    omschrijving: "Rondje, elk team start op een eigen plek",
+    label: "Rondje",
+    omschrijving: "Eén rondje; elk team begint op een ander punt",
     kleur: "#67E8F9",
     tint: "rgba(6,182,212,0.16)",
   },

@@ -28,14 +28,14 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > 💻 **Tip:** een route maak je het makkelijkst op een pc of laptop. Op een groot scherm zie je de kaart, de puntenlijst en de instellingen tegelijk.
 
-> **🚀 Eerste stappen**: open je een nieuwe (lege) route, dan verschijnt bovenop de kaart een stappenvenster dat je één stap tegelijk door het opzetten leidt (met **Volgende →** en **← Terug**). De kaart blijft aan te tikken.
-> - **Verspreid**: 📍 startpunt aantikken (eerst eventueel de plaats zoeken) → 🏁 finish aantikken of *zelfde plek als de start* → 👥 aantal teams, lengte van het rondje en aantal punten → 🎲 punten maken (meteen op de weg) → ✨ items automatisch plaatsen → 📝 vragen invullen → ✅ controleren en klaarzetten.
-> - **Op volgorde**: 🔍 plaats zoeken → 📍 punten aantikken in de volgorde van lopen (of 📥 importeren) → 🏁 finish aantikken → 📝 vragen → ✅ controleren.
-> - Sluit je het venster, dan staat bovenop de kaart een knop **🚀 Eerste stappen** om verder te gaan waar je was (zolang de route nog concept is).
+> **🚀 Eerste stappen**: open je een nieuwe, lege route (nog geen punten en geen items), dan verschijnt bovenop de kaart een stappenvenster dat je één stap tegelijk door het opzetten leidt (met **Volgende →** en **← Terug**). De kaart blijft aan te tikken.
+> - **🔄 Rondje** (verspreid): 📍 plaats of adres zoeken (de kaart zoomt in tot de huisnummers leesbaar zijn) en het **startpunt** aantikken; zonder startpunt kun je niet verder, alleen stoppen → 🏁 **finish** aantikken of *zelfde plek als de start* (het vlaggetje staat op de kaart) → 👥 **teams en afstand**: het aantal punten rekent de app uit (aan te passen met − en +) → 🗺️ **voorbeeld**: de punten staan gestippeld op de kaart; klopt het, dan *Ja, maak de punten* → 🎁 **items**: het voorgestelde aantal staat doorzichtig op de kaart, met − en + aan te passen; *Plaatsen* of *Later* → 📝 **vragen** invullen of *Later* → 🩺 **controleren**: de route staat eerst op Concept; klaarzetten doe je later.
+> - **🎯 Op volgorde** (sequentieel): 📍 plaats of adres zoeken en het startpunt aantikken → 📍 de volgende punten aantikken in de volgorde van lopen (of 📥 importeren) → 🏁 finish aantikken → 📝 vragen of *Later* → 🩺 controleren.
+> - Sluit je het venster, dan staat bovenop de kaart een knop **🚀 Eerste stappen** zolang er nog geen punten en items op de kaart staan.
 
 1. Ga naar **Routes** in de zijbalk.
 2. Klik op **Nieuwe route**.
-3. Geef de route een naam en **kies het speltype**: Sequentieel of Verspreid.
+3. Geef de route een naam en **kies het speltype**: **🎯 Op volgorde** (sequentieel: alle teams lopen dezelfde punten in dezelfde volgorde) of **🔄 Rondje** (verspreid: één rondje, elk team begint op een ander punt). Klik op **Aanmaken**.
 4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst.) Veel punten tegelijk? Gebruik **📥 Importeren** bovenin de editor (zie hieronder).
 5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
