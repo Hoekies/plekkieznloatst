@@ -137,7 +137,7 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
       <div className="pr-gem-panel-inner rapport-delen">
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 160 }}>
-            <div className="pr-gem-label">Rapport delen</div>
+            <div className="pr-gem-label">📄 Rapport delen</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Als PDF via WhatsApp</div>
           </div>
           <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser">🖨️ Afdrukken</button>

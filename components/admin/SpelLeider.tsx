@@ -95,16 +95,42 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : uitlegBijStatus(res?.status ?? 0, "Uitslag vrijgeven"), res?.ok ? "ok" : "fout");
   }
 
+  // Niets aan de hand (geen aandachtspunten, geen pauze): standaard ingeklapt tot één regel.
+  // Vraagt iets je aandacht, dan klapt het blok vanzelf open.
+  const rustig = aandacht.length === 0 && !gepauzeerd;
+  const [handOpen, setHandOpen] = useState(false);
+  const open = !rustig || handOpen;
+  const status = (
+    <>
+      {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
+      {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
+    </>
+  );
+
+  if (!open) return (
+    <button type="button" className="pr-gem-panel spelleider spelleider--dicht" onClick={() => setHandOpen(true)} aria-expanded={false}
+      title="Spelleider openen: pauze, eindtijd en afronden">
+      <span className="pr-gem-panel-inner spelleider-dicht-inner">
+        <span aria-hidden>🎯</span>
+        <span className="spelleider-dicht-tekst">{status}</span>
+        <span className="spelleider-dicht-ok">✅ Alles loopt</span>
+        <span aria-hidden style={{ color: "var(--muted)" }}>▸</span>
+      </span>
+    </button>
+  );
+
   return (
     <div className="pr-gem-panel spelleider">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Status links, knoppen rechts; op de telefoon de knoppen op een eigen regel eronder */}
         <div className="spelleider-kop">
           <div className="spelleider-status">
-            <div className="pr-gem-label">🎯 Spelleider</div>
+            <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              🎯 Spelleider
+              {rustig && <button type="button" className="spelleider-inklap" onClick={() => setHandOpen(false)} title="Inklappen" aria-label="Inklappen">▾</button>}
+            </div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
-              {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
-              {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
+              {status}
             </div>
           </div>
           {!beperkt && (

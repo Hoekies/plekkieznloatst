@@ -338,7 +338,8 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
   const [fout, setFout] = useState("");
   const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string; link?: { url: string; geldig_tot: string } | null } | null>(null);
   const [laden, setLaden] = useState(false);
-  // Ook een link om direct in te loggen meesturen: zoveel uur geldig (0 = geen link)
+  // Ook een link om direct in te loggen meesturen (schakelaar), zoveel uur geldig
+  const [metLink, setMetLink] = useState(true);
   const [linkUren, setLinkUren] = useState(24);
   // Spelers: met wachtwoord, of met een link zonder wachtwoord (helpers alleen wachtwoord)
   const [modus, setModus] = useState<"wachtwoord" | "link">("wachtwoord");
@@ -374,7 +375,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
     }
     // Directe inloglink erbij (alleen spelers). Lukt dat niet, dan gewoon zonder.
     let link: { url: string; geldig_tot: string } | null = null;
-    if (!f && !modal.helper && linkUren > 0) {
+    if (!f && !modal.helper && metLink) {
       const res = await fetch(`/api/admin/groepen/${modal.id}/link`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uren: linkUren }),
       });
@@ -398,13 +399,13 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
               <div className="pr-gem-label">📲 Inloggegevens versturen</div>
               <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{modal.groepNaam}</div>
             </div>
-            <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
+            <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
           </div>
 
           {!modal.helper && !klaar && (
-            <div className="punten-snel">
-              <button type="button" className={`rl-knop${modus === "wachtwoord" ? " rl-knop--cyan" : ""}`} onClick={() => setModus("wachtwoord")}>🔑 Wachtwoord</button>
-              <button type="button" className={`rl-knop${modus === "link" ? " rl-knop--cyan" : ""}`} onClick={() => setModus("link")}>🔗 Link zonder wachtwoord</button>
+            <div className="segment" role="radiogroup" aria-label="Manier van inloggen">
+              <button type="button" role="radio" aria-checked={modus === "wachtwoord"} className={modus === "wachtwoord" ? "aan" : ""} onClick={() => setModus("wachtwoord")}>🔑 Met wachtwoord</button>
+              <button type="button" role="radio" aria-checked={modus === "link"} className={modus === "link" ? "aan" : ""} onClick={() => setModus("link")}>🔗 Alleen een link</button>
             </div>
           )}
 
@@ -414,11 +415,6 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
             <InlogKlaar inlog={{ ...klaar, helper: modal.helper, telefoon: modal.telefoon }} />
           ) : (
             <>
-              <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                {huidig === undefined ? "Huidig wachtwoord ophalen…"
-                  : huidig ? "Dit is het huidige wachtwoord. Met 🎲 maak je een nieuw; wie al is ingelogd, blijft ingelogd."
-                  : "Het huidige wachtwoord is niet bewaard: dit team krijgt eenmalig een nieuw wachtwoord."}
-              </div>
               {!modal.helper && (
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Loginnaam</label>
@@ -431,22 +427,36 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                 <div className="ww-veld">
                   <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
                     placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
-                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
+                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Nieuw wachtwoord bedenken">🎲</button>
                 </div>
+                {/* Eén korte regel: het belangrijkste eerst */}
+                <span className="inlog-noot">
+                  {huidig === undefined ? "Huidig wachtwoord ophalen…"
+                    : !huidig ? "Het oude wachtwoord is niet bewaard: dit team krijgt een nieuw."
+                    : wachtwoord === huidig ? "Huidig wachtwoord. Nieuw nodig? Tik op 🎲."
+                    : "Nieuw wachtwoord? Wie al is ingelogd, blijft ingelogd."}
+                </span>
               </div>
               {!modal.helper && (
-                <div>
-                  <label className="form-label">🔗 Link om direct in te loggen, geldig</label>
-                  <div className="punten-snel">
-                    {[[0, "Geen"], [4, "4 uur"], [12, "½ dag"], [24, "1 dag"], [48, "2 dagen"]].map(([u, label]) => (
-                      <button key={u} type="button" className={`rl-knop${linkUren === u ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(u as number)}>{label}</button>
-                    ))}
-                  </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <button type="button" className={`rl-knop schakel inlog-schakel${metLink ? " schakel--aan" : ""}`} role="switch" aria-checked={metLink} onClick={() => setMetLink((v) => !v)}>
+                    🔗 Ook een directe inloglink meesturen<span className="schakel-bol" aria-hidden />
+                  </button>
+                  {metLink && (
+                    <>
+                      <label className="form-label" style={{ marginTop: 8 }}>Hoe lang werkt de link?</label>
+                      <div className="punten-snel">
+                        {[[4, "4 uur"], [12, "½ dag"], [24, "1 dag"], [48, "2 dagen"]].map(([u, label]) => (
+                          <button key={u} type="button" className={`rl-knop${linkUren === u ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(u as number)}>{label}</button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
               <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={laden || huidig === undefined}>
-                {laden ? "Bezig…" : "Opslaan en versturen"}
+                {laden ? "Bezig…" : (wachtwoord !== huidig || (!modal.helper && login.trim() !== (modal.login ?? ""))) ? "💾 Opslaan en versturen" : "📤 Versturen"}
               </button>
             </>
           )}

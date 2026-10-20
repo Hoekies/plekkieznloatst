@@ -107,7 +107,7 @@ export default function PushMeldingenKnop() {
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">Op dit toestel</div>
+                  <div className="pr-gem-label">📱 Op dit toestel</div>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>{stand === "aan" ? "🔔 Meldingen staan aan" : "🔕 Meldingen staan uit"}</div>
                 </div>
                 <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>

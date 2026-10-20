@@ -56,7 +56,7 @@ export default function BroadcastKnop({ alsIcoon = false, team, groot = false }:
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">{team ? `Aan ${team.naam}` : "Aan alle spelers"}</div>
+                  <div className="pr-gem-label">📢 {team ? `Aan ${team.naam}` : "Aan alle spelers"}</div>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>📢 Bericht sturen</div>
                 </div>
                 <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>

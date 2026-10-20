@@ -32,7 +32,7 @@ export default function InfoKnop() {
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div className="info-paneel info-paneel--venster" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={{ flex: 1, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#fff" }}>Info &amp; uitleg</span>
+              <span style={{ flex: 1, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#fff" }}>ℹ️ Info &amp; uitleg</span>
               <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
             </div>
 

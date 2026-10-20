@@ -2741,3 +2741,21 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .eerste-stappen { top: 8px; max-height: calc(100% - 90px); }
   .eerste-stappen-knop { top: 56px; }
 }
+
+/* Inloggegevens versturen: kleine ✕, korte noot, schakelaar voor de directe link */
+.venster-sluit-klein { width: 32px !important; height: 32px !important; font-size: 1rem !important; background: transparent !important; border-color: transparent !important; color: rgba(248,113,113,0.85) !important; }
+.venster-sluit-klein:hover { background: rgba(239,68,68,0.15) !important; border-color: rgba(239,68,68,0.35) !important; }
+.inlog-noot { font-size: 0.74rem; color: var(--muted); }
+.inlog-schakel { width: 100%; height: 40px; justify-content: space-between; font-size: 0.82rem; }
+
+/* Alle vensters en panelen: dezelfde kleine, subtiele ✕ */
+.editor-paneel-sluit { width: 32px; height: 32px; border-radius: 9px; font-size: 1rem; background: transparent; border-color: transparent; color: rgba(248,113,113,0.9); }
+.editor-paneel-sluit:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); color: #FECACA; }
+
+/* Spelleider ingeklapt: één regel als alles loopt */
+.spelleider--dicht { display: block; width: 100%; padding: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.spelleider-dicht-inner { display: flex !important; align-items: center; gap: 10px; padding: 10px 14px !important; }
+.spelleider-dicht-tekst { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spelleider-dicht-ok { color: #86EFAC; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
+.spelleider-inklap { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 4px; }
+@media (max-width: 768px) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }

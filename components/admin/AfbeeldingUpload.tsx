@@ -168,19 +168,19 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
   const cropModalInhoud = cropBestand ? (
     <div style={{
       position: "fixed", inset: 0, zIndex: 9999,
-      background: "rgba(0,0,0,0.72)",
+      background: "rgba(12,3,34,0.72)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 16,
     }}>
-      <div style={{
-        background: "#0f1c2e", borderRadius: 16, padding: 24,
-        border: "1px solid var(--glass-border)",
-        display: "flex", flexDirection: "column", gap: 16,
-        maxWidth: 420, width: "100%", maxHeight: "90vh", overflow: "auto",
-        boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
+      <div className="pr-gem-panel" style={{ flex: "none", maxWidth: 420, width: "100%", position: "relative" }}>
+      <button type="button" className="editor-paneel-sluit venster-sluit" onClick={annuleren} disabled={laden} title="Annuleren" aria-label="Annuleren">✕</button>
+      <div className="pr-gem-panel-inner" style={{
+        display: "flex", flexDirection: "column", gap: 14, padding: "18px 18px 16px",
+        maxHeight: "90vh", overflow: "auto",
       }}>
-        <div style={{ fontWeight: 700, fontSize: "1rem", color: "#e8f0ff" }}>
-          Afbeelding bijsnijden
+        <div>
+          <div className="pr-gem-label">🖼️ Afbeelding</div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Bijsnijden</div>
         </div>
 
         {/* Crop viewport */}
@@ -253,16 +253,11 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
           <div style={{ fontSize: "0.8rem", color: "#ef4444" }}>⚠️ {fout}</div>
         )}
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button type="button" className="btn btn-primary" style={{ flex: 2 }}
-            onClick={toepassen} disabled={laden}>
-            {laden ? "Uploaden…" : "Toepassen & uploaden"}
-          </button>
-          <button type="button" className="btn btn-ghost" style={{ flex: 1 }}
-            onClick={annuleren} disabled={laden}>
-            Annuleren
-          </button>
-        </div>
+        <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}
+          onClick={toepassen} disabled={laden}>
+          {laden ? "⏳ Uploaden…" : "✓ Gebruiken"}
+        </button>
+      </div>
       </div>
     </div>
   ) : null;

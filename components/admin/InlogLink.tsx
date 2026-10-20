@@ -87,7 +87,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
         </div>
       )}
       <div>
-        <label className="form-label">Hoe lang geldig?</label>
+        <label className="form-label">Hoe lang werkt de link?</label>
         <div className="punten-snel">
           {DUUR.map((d) => (
             <button key={d.uren} type="button" className={`rl-knop${uren === d.uren ? " rl-knop--cyan" : ""}`} onClick={() => setUren(d.uren)}>{d.label}</button>
