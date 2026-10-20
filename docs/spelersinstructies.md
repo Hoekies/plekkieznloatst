@@ -29,6 +29,9 @@ Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van 
 **Locatie en geluid**
 Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Tik je bij de uitleg op **OK, begrepen**, dan hoor je meteen een geluidje en trilt je telefoon (Android): zo weet je dat je geluid goed staat. Hoor je niets, zet je telefoon dan niet op stil. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
 
+**Trillen** (Android)
+Je telefoon trilt bij een bereikt punt, een opgepakt item, je startitems, een goed of fout antwoord, een aanval van een ander team, een bericht van de organisatie en de finish. Zo merk je het ook als de telefoon in je zak zit.
+
 **Eindtijd**
 Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.
 

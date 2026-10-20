@@ -12,6 +12,11 @@ const STIJL_URL = "https://tiles.openfreemap.org/styles/liberty";
 const STIJL_KEY = "pr_kaart_stijl";
 // Luchtfoto van PDOK (Nederlandse overheid, gratis, zonder sleutel), hoge resolutie
 const LUCHTFOTO_URL = "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg";
+// Buiten Nederland heeft PDOK geen luchtfoto's: dan de wereldwijde satellietfoto van Esri
+const WERELD_LUCHTFOTO_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+function inNederland(lat: number, lng: number) {
+  return lat > 50.7 && lat < 53.7 && lng > 3.2 && lng < 7.3;
+}
 
 export function bewaardeStijl(): KaartStijl {
   try {
@@ -192,6 +197,7 @@ export function webglMogelijk(): boolean {
   return !!(proef.getContext("webgl2") || proef.getContext("webgl"));
 }
 type GlMetBronnen = GlKaart & {
+  getCenter: () => { lat: number; lng: number };
   getSource: (id: string) => unknown;
   addSource: (id: string, bron: object) => void;
   removeLayer: (id: string) => void;
@@ -201,14 +207,25 @@ export function pasStijlToe(kaart: unknown, stijl: KaartStijl, ookInrichten: boo
   const gl = kaart as GlMetBronnen;
   if (ookInrichten) richtIn(gl);
   if (stijl !== "luchtfoto") kleurIn(gl, stijl);
-  // Luchtfoto als laag onder de namen
+  // Luchtfoto als laag onder de namen: de wereldfoto (Esri) eronder, PDOK erboven (alleen in Nederland)
   const heeft = !!gl.getLayer("pr-luchtfoto");
   if (stijl === "luchtfoto" && !heeft) {
+    if (!gl.getSource("pr-wereld")) gl.addSource("pr-wereld", { type: "raster", tiles: [WERELD_LUCHTFOTO_URL], tileSize: 256, maxzoom: 19, attribution: "Luchtfoto © Esri" });
     if (!gl.getSource("pr-pdok")) gl.addSource("pr-pdok", { type: "raster", tiles: [LUCHTFOTO_URL], tileSize: 256, maxzoom: 19, attribution: "Luchtfoto © PDOK" });
     const eersteNaam = (gl.getStyle().layers ?? []).find((l) => l.type === "symbol")?.id;
+    gl.addLayer({ id: "pr-luchtfoto-wereld", type: "raster", source: "pr-wereld" }, eersteNaam);
     gl.addLayer({ id: "pr-luchtfoto", type: "raster", source: "pr-pdok" }, eersteNaam);
+    const werkBij = () => {
+      if (!gl.getLayer("pr-luchtfoto")) return;
+      const c = gl.getCenter();
+      try { gl.setLayoutProperty("pr-luchtfoto", "visibility", inNederland(c.lat, c.lng) ? "visible" : "none"); } catch { /* overslaan */ }
+    };
+    werkBij();
+    const g = gl as unknown as { __prLuchtVolgt?: boolean };
+    if (!g.__prLuchtVolgt) { g.__prLuchtVolgt = true; gl.on("moveend", werkBij); }
   } else if (stijl !== "luchtfoto" && heeft) {
     gl.removeLayer("pr-luchtfoto");
+    if (gl.getLayer("pr-luchtfoto-wereld")) gl.removeLayer("pr-luchtfoto-wereld");
   }
 }
 
@@ -216,11 +233,21 @@ export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, s
   // Werkt met zowel import("leaflet") als import("leaflet").default
   const L = ((Lin as unknown as { default?: typeof Leaflet }).default ?? Lin) as typeof Leaflet;
   // Luchtfoto: een laag bovenop de basiskaart, aan of uit
+  // In Nederland de PDOK-luchtfoto, daarbuiten de wereldwijde van Esri (PDOK is daar leeg/wit)
   let luchtfoto: Leaflet.TileLayer | null = null;
+  let luchtfotoNL = true;
+  let volgt = false;
   const zetLuchtfoto = (aan: boolean) => {
     try {
-      if (aan && !luchtfoto) luchtfoto = L.tileLayer(LUCHTFOTO_URL, { maxZoom: 21, maxNativeZoom: 19, zIndex: 5, attribution: "Luchtfoto © PDOK" }).addTo(map);
-      if (!aan && luchtfoto) { luchtfoto.remove(); luchtfoto = null; }
+      if (!aan) { if (luchtfoto) { luchtfoto.remove(); luchtfoto = null; } return; }
+      const c = map.getCenter();
+      const nl = inNederland(c.lat, c.lng);
+      if (luchtfoto && nl === luchtfotoNL) return;
+      if (luchtfoto) luchtfoto.remove();
+      luchtfotoNL = nl;
+      luchtfoto = L.tileLayer(nl ? LUCHTFOTO_URL : WERELD_LUCHTFOTO_URL,
+        { maxZoom: 21, maxNativeZoom: 19, zIndex: 5, attribution: nl ? "Luchtfoto © PDOK" : "Luchtfoto © Esri" }).addTo(map);
+      if (!volgt) { volgt = true; map.on("moveend", () => { if (luchtfoto) zetLuchtfoto(true); }); }
     } catch { /* kaart is intussen weg */ }
   };
 

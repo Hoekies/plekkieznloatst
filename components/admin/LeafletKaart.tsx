@@ -384,11 +384,11 @@ export default function LeafletKaart({
         const icon = L.divIcon({
           className: "",
           // Voorstel: het item in kleur (zo zie je welk), maar half doorzichtig in een witte stippelrand met ＋
-          html: `<div title="Voorstel: ${escapeHtml(VOORSTEL_NAAM[v.type] ?? v.type)} (klik om hier te plaatsen)" style="
-            width:34px;height:34px;border-radius:50%;cursor:pointer;box-sizing:border-box;
-            background:rgba(255,255,255,0.25);border:2px dashed rgba(255,255,255,0.95);
+          html: `<div class="pr-voorstel" title="Voorstel: ${escapeHtml(VOORSTEL_NAAM[v.type] ?? v.type)} (klik om hier te plaatsen)" style="
+            width:32px;height:32px;border-radius:50%;cursor:pointer;box-sizing:border-box;opacity:0.5;
+            background:rgba(255,255,255,0.15);border:2px dashed #fff;
             display:flex;align-items:center;justify-content:center;position:relative;">
-            <img src="/items/${v.type}.webp" style="width:24px;height:24px;opacity:0.7" alt="">
+            <img src="/items/${v.type}.webp" style="width:20px;height:20px" alt="">
             <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:#1c0c45;font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
           </div>`,
           iconSize: [34, 34],

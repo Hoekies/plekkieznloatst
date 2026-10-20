@@ -2765,3 +2765,16 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .stat-vak-tekst { width: 100%; }
 @media (max-width: 768px) { .stat-vak-tekst { text-align: center; } }
 .spelleider-status--klik { cursor: pointer; }
+
+/* Voorstel voor een item: half doorzichtig; aanwijzen maakt hem even helemaal zichtbaar */
+.pr-voorstel { transition: opacity 0.15s; }
+.pr-voorstel:hover { opacity: 1 !important; }
+
+/* Telefoon, route-editor en live kaart: ook niet "programmatisch" laten schuiven (Android schoof de
+   pagina omhoog bij tikken op de kaart, waardoor de onderste balk pas na scrollen in beeld kwam) */
+@media (max-width: 768px) {
+  html:has(.route-editor-topbar), html:has(.live-kaart-lijst),
+  html:has(.route-editor-topbar) body, html:has(.live-kaart-lijst) body { overflow: hidden; height: 100%; overscroll-behavior: none; }
+  .admin-shell:has(.route-editor-topbar), .admin-shell:has(.live-kaart-lijst),
+  .admin-shell:has(.route-editor-topbar) .admin-main, .admin-shell:has(.live-kaart-lijst) .admin-main { overflow: clip; }
+}

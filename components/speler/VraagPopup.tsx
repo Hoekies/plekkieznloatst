@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
 import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
+import { tril, TRIL } from "@/lib/tril";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -135,7 +136,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 
       const data = await res.json();
       voortgangRef.current = data.voortgang;
-      if (data.is_correct) speelGoedAntwoord(); else speelFoutAntwoord();
+      if (data.is_correct) { speelGoedAntwoord(); tril(TRIL.goed); } else { speelFoutAntwoord(); tril(TRIL.fout); }
       setFeedback({
         is_correct: data.is_correct,
         points_awarded: data.points_awarded,

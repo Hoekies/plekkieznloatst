@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { haversine, richting, afstandTekst } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
+import { tril, TRIL } from "@/lib/tril";
 import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
@@ -185,7 +186,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         if (data.items.length) {
           setInventaris((prev) => [...prev, ...data.items]);
           setStartitemsScherm(data.items.map((i) => i.type));
-          speelPuntBereikt();
+          speelPuntBereikt(); tril(TRIL.startitems);
         }
       })
       .catch(() => { startitemsBezigRef.current = false; });
@@ -198,7 +199,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (kmAfgelegd - startVraagVanaf >= STARTVRAAG_NA_METER) {
       setStartVraagVanaf(null);
       setStartVraagKlaar(true);
-      speelPuntBereikt();
+      speelPuntBereikt(); tril(TRIL.puntBereikt);
       setPopupPunt(startPunt);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -331,7 +332,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Redirect naar finish als alle punten verwerkt zijn
   useEffect(() => {
-    if (spelAfgelopen) { speelFinish(); router.push("/speler/finish"); }
+    if (spelAfgelopen) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); }
   }, [spelAfgelopen, router]);
 
   // Tussenstand-poll: elke 3s checken of admin de tussenstand nu toont
@@ -384,7 +385,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
         if (data === null) { router.push("/speler?gestopt=1"); return; }
         // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
-        if (data?.tijd_op) { speelFinish(); router.push("/speler/finish"); return; }
+        if (data?.tijd_op) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); return; }
         setEindtijd(data?.eindtijd ?? null);
         setPauze(data?.pauze ?? null);
         if (data?.score !== undefined) setScore(data.score);
@@ -401,7 +402,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         const v = vrijgaveRef.current;
         if (v.puntId && data?.current_point_id === v.puntId && !v.bereikt && !v.popup && !bezigRef.current) {
           onthoudVrijgegeven("organisatie");
-          speelPuntBereikt();
+          speelPuntBereikt(); tril(TRIL.puntBereikt);
           window.location.reload();
         }
       }
@@ -446,7 +447,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (data.status === "toegekend") {
         // Punt is vrijgegeven: herladen zet het als bereikt en opent de vraag (met eerst een melding)
         onthoudVrijgegeven("hulp");
-        speelPuntBereikt();
+        speelPuntBereikt(); tril(TRIL.puntBereikt);
         window.location.reload();
       } else if (data.status === "genegeerd") {
         setEffectNotificatie("📨 De organisatie heeft je melding bekeken: probeer het punt toch te bereiken.");
@@ -561,7 +562,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (data.status === "geclaimd" && data.item) {
         setSpecialeItems((prev) => prev.map((i) => i.id === item.id ? { ...i, claimed: true } : i));
 
-        speelPuntBereikt();
+        speelPuntBereikt(); tril(TRIL.itemGepakt);
         if (data.item.type === "ster") {
           // Direct inzetten: punten meteen bijschrijven
           const effectRes = await fetch("/api/speler/speciaal/effect", {
@@ -678,7 +679,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (res.ok) {
         const nieuweVoortgang: SpelerPuntVoortgang = await res.json();
         setVoortgang((v) => [...v, nieuweVoortgang]);
-        speelPuntBereikt();
+        speelPuntBereikt(); tril(TRIL.puntBereikt);
         setPopupPunt(punt);
       }
     } finally {
