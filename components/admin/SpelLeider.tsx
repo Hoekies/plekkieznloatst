@@ -124,10 +124,15 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Status links, knoppen rechts; op de telefoon de knoppen op een eigen regel eronder */}
         <div className="spelleider-kop">
-          <div className="spelleider-status">
+          {/* Als alles loopt: tik op de status (of ▾) om weer in te klappen */}
+          <div className={`spelleider-status${rustig ? " spelleider-status--klik" : ""}`}
+            onClick={rustig ? () => setHandOpen(false) : undefined}
+            role={rustig ? "button" : undefined} tabIndex={rustig ? 0 : undefined}
+            onKeyDown={rustig ? (e) => { if (e.key === "Enter") setHandOpen(false); } : undefined}
+            title={rustig ? "Inklappen" : undefined}>
             <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
               🎯 Spelleider
-              {rustig && <button type="button" className="spelleider-inklap" onClick={() => setHandOpen(false)} title="Inklappen" aria-label="Inklappen">▾</button>}
+              {rustig && <span className="spelleider-inklap" aria-hidden>▾</span>}
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {status}

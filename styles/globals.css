@@ -2764,3 +2764,4 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .stat-vak-waarde, .stat-vak-label { text-overflow: clip; max-width: 100%; }
 .stat-vak-tekst { width: 100%; }
 @media (max-width: 768px) { .stat-vak-tekst { text-align: center; } }
+.spelleider-status--klik { cursor: pointer; }
