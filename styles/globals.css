@@ -2759,3 +2759,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .spelleider-dicht-ok { color: #86EFAC; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
 .spelleider-inklap { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 4px; }
 @media (max-width: 768px) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }
+
+/* Stat-vakjes: schuivende tekst in plaats van "…" (SchuifTekst regelt overflow zelf) */
+.stat-vak-waarde, .stat-vak-label { text-overflow: clip; max-width: 100%; }
+.stat-vak-tekst { width: 100%; }
+@media (max-width: 768px) { .stat-vak-tekst { text-align: center; } }

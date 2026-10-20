@@ -41,6 +41,7 @@ Jullie route bestaat uit drie stukken:
 Op de kaart zie je:
 
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
+- **🎯 Centreren** — linksonder (naast 📍): zet de kaart weer op jullie plek
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
 - **☀️ 🌙 🛰️** rechts onder elkaar, net boven de itembalk — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
 - **Het volgende doel** — genummerd cirkeltje

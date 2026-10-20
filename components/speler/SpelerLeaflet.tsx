@@ -23,6 +23,8 @@ interface Props {
   spelerIcoon?: string | null;
   // Teamnaam onder het eigen icoon (zoals op de live kaart)
   spelerNaam?: string | null;
+  // Elke keer dat dit getal verandert: de kaart centreren op de eigen plek (knop 🎯)
+  centreerVerzoek?: number;
   // Hoogte (px) waarboven de knoppen voor licht/donker/luchtfoto staan (boven de itembalk)
   stijlOnder?: number;
   ghostedPuntId: string | null;
@@ -31,7 +33,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
@@ -112,6 +114,14 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       gecenterRef.current = false;
     };
   }, []);
+
+  // 🎯 Centreren op de eigen plek (zoomt zo nodig in tot het gewone spelersniveau)
+  useEffect(() => {
+    if (!centreerVerzoek || !positie || !mapRef.current) return;
+    const map = mapRef.current;
+    map.setView([positie.latitude, positie.longitude], Math.max(map.getZoom(), ZOOM_SPELER), { animate: true });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centreerVerzoek]);
 
   // Spelermarker bijwerken bij positiewijziging
   useEffect(() => {

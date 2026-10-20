@@ -89,7 +89,11 @@ function richtIn(kaart: GlKaart) {
         kaart.setPaintProperty(l.id, "icon-opacity", ["case", isParkeren, 0.55, 1]);
         kaart.setLayoutProperty(l.id, "icon-size", ["case", isParkeren, 0.8, 1]);
         kaart.setLayoutProperty(l.id, "text-field", "");
+        // Altijd tonen: niet wegvallen achter huisnummers bij ver inzoomen (overlap mag)
+        kaart.setLayoutProperty(l.id, "icon-allow-overlap", true);
       } catch { /* overslaan */ }
+      // Al vanaf zoom 14 (de stijl begon pas bij 15 tot 17, afhankelijk van hoe belangrijk de plek is)
+      try { kaart.setLayerZoomRange(l.id, 14, 24); } catch { /* overslaan */ }
       continue;
     }
     if (l.id === "poi_transit" || /one_way/.test(l.id) || /shield/.test(l.id) || l.id === "building-3d" || l.id === "natural_earth") verberg(l.id);

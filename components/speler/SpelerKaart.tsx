@@ -104,6 +104,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [inventaris, setInventaris] = useState<SpeciaalItem[]>([]);
   const [legendeItems, setLegendeItems] = useState<SpeciaalItem[]>([]);
   const [ghostTot, setGhostTot] = useState<number | null>(null);
+  // Knop 🎯: de kaart op de eigen plek centreren
+  const [centreerVerzoek, setCentreerVerzoek] = useState(0);
   const [ghostSecondsLeft, setGhostSecondsLeft] = useState(0);
   const gehadPlekzooiRef = useRef<Set<string>>(new Set());
   const [opgepakt, setOpgepakt] = useState<{ item: SpeciaalItem; extra: string } | null>(null);
@@ -940,6 +942,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <SpelerLeaflet
           spelerIcoon={spelerIcoon}
           spelerNaam={spelerNaam}
+          centreerVerzoek={centreerVerzoek}
           stijlOnder={knoepBottomOffset + 48}
           positie={positie}
           punten={punten}
@@ -958,6 +961,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
               style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude)}deg)` }}>➤</span>
             <span>{afstandTekst(haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude))}</span>
           </div>
+        )}
+
+        {/* Centreren op de eigen plek (naast 📍, of op die plek als 📍 er niet staat) */}
+        {positie && !popupPunt && (
+          <button onClick={() => setCentreerVerzoek((n) => n + 1)} title="Kaart op mijn plek zetten" aria-label="Kaart op mijn plek zetten"
+            className="pr-loc-btn"
+            style={{ bottom: knoepBottomOffset, left: activePunt && !bereiktIds.has(activePunt.id) && gpsStatus !== "laden" ? 64 : 16, zIndex: 1000 }}>
+            🎯
+          </button>
         )}
 
         {/* Controleer locatie-knop */}
