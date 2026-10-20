@@ -21,6 +21,7 @@ import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
 import TestRonde from "./editor/TestRonde";
 import { meldActieveRouteGewijzigd } from "./ActieveRouteLabel";
 import PuntenImporteren from "./editor/PuntenImporteren";
+import EersteStappen, { type KiesModus } from "@/components/admin/editor/EersteStappen";
 import ControleVenster from "./editor/ControleVenster";
 import AlleVragenVenster from "./editor/AlleVragenVenster";
 import { routeControle } from "@/lib/route-controle";
@@ -158,6 +159,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [aantalPunten, setAantalPunten] = useState(6);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
+  // 🚀 Eerste stappen: bij een nieuwe (lege) route meteen open; de stap wordt per route onthouden
+  const stappenSleutel = `pr_eerste_stappen_${initRoute.id}`;
+  const [stappenOpen, setStappenOpen] = useState(() => (initRoute.route_points ?? []).length === 0);
+  const [stappenStap, setStappenStap] = useState(0);
+  useEffect(() => {
+    try { const n = Number(localStorage.getItem(stappenSleutel)); if (n > 0) setStappenStap(n); } catch { /* geen opslag */ }
+  }, [stappenSleutel]);
+  const zetStappenStap = (n: number) => { setStappenStap(n); try { localStorage.setItem(stappenSleutel, String(n)); } catch { /* geen opslag */ } };
+  const [wizardKies, setWizardKies] = useState<KiesModus>(null);
+  // Verspreid: finish op een eigen plek (anders op het startpunt)
+  const [finishPunt, setFinishPunt] = useState<{ lat: number; lng: number } | null>(null);
+  const [finishZelfde, setFinishZelfde] = useState(false);
+  const [maakBezig, setMaakBezig] = useState(false);
   const [mobielPaneelOpen, setMobielPaneelOpen] = useState(false);
   const [mobielTikPositie, setMobielTikPositie] = useState<{ lat: number; lng: number } | null>(null);
   const [plaatsZoekterm, setPlaatsZoekterm] = useState("");
@@ -549,7 +563,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       : "Alle punten liggen al op een weg of pad", "ok");
   }
 
-  // "🧹 Leegmaken": alle punten (met vragen) en items weg; de route en de instellingen blijven
+  // "🗑️ Leegmaken": alle punten (met vragen) en items weg; de route en de instellingen blijven
   // Eén punt op de dichtstbijzijnde weg of het voetpad (vanuit het puntpaneel)
   async function puntOpDeWeg(p: RoutePunt) {
     const [n] = await opDeWeg([{ lat: p.latitude, lng: p.longitude }]);
@@ -631,11 +645,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       if (res.ok) nieuwePunten.push(await res.json());
     }
 
-    // Finish op het middelpunt
+    // Finish op de gekozen plek (eerste stappen), anders op het middelpunt
+    const finish = finishPunt ?? centrumPunt;
     const resEind = await api(`/api/admin/routes/${route.id}/punten`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ latitude: centrumPunt.lat, longitude: centrumPunt.lng, type: "eindpunt", name: "Finish", points: 0 }),
+      body: JSON.stringify({ latitude: finish.lat, longitude: finish.lng, type: "eindpunt", name: "Finish", points: 0 }),
     });
     if (resEind.ok) nieuwePunten.push(await resEind.json());
 
@@ -688,7 +703,41 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     }
   }
 
+  // ✨ Items automatisch plaatsen: alle voorstellen (zoveel als het advies voor deze route) in één keer
+  const [autoItemsBezig, setAutoItemsBezig] = useState(false);
+  async function plaatsAlleVoorstellen() {
+    const lijst = itemCheck?.voorstellen ?? [];
+    if (!lijst.length) return;
+    setAutoItemsBezig(true);
+    for (const v of lijst) await voegSpeciaalItemToeOp(v.lat, v.lng, v.type, false);
+    setAutoItemsBezig(false);
+    toonMelding(`${lijst.length} items geplaatst langs de route. Terugzetten kan met ↶ Ongedaan.`, "ok");
+  }
+
+  // Op volgorde: de finish achteraan (staat er al een, dan die verplaatsen)
+  async function voegFinishToe(lat: number, lng: number) {
+    const laatste = punten[punten.length - 1];
+    if (laatste && laatste.type === "eindpunt") {
+      const res = await api(`/api/admin/routes/${route.id}/punten/${laatste.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ latitude: lat, longitude: lng }) });
+      if (res.ok) { const bij: RoutePunt = await res.json(); setPunten((p) => p.map((x) => x.id === bij.id ? bij : x)); }
+      return;
+    }
+    const res = await api(`/api/admin/routes/${route.id}/punten`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: lat, longitude: lng, type: "eindpunt", name: "Finish", points: 0, radius_meters: puntRadius }),
+    });
+    if (res.ok) { const nieuw: RoutePunt = await res.json(); onthoud({ soort: "punt-erbij", id: nieuw.id }); setPunten((p) => [...p, nieuw]); }
+  }
+
   async function kaartKlik(lat: number, lng: number) {
+    // Eerste stappen: start, finish of punten aantikken
+    if (wizardKies === "start") { setCentrumPunt({ lat, lng }); setWizardKies(null); return; }
+    if (wizardKies === "finish") {
+      setWizardKies(null);
+      if (route.modus === "verspreid") { setFinishPunt({ lat, lng }); setFinishZelfde(false); return; }
+      return voegFinishToe(lat, lng);
+    }
+    if (wizardKies === "punten") return voegPuntToeOp(lat, lng);
     if (centrumModus) {
       setCentrumPunt({ lat, lng });
       setCentrumModus(false);
@@ -1203,18 +1252,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* Gereedschap voor de punten: icoontjes met uitleg bij aanwijzen */}
           <span className="editor-groep editor-gereedschap">
             <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
-            <BevestigKnop venster gevaarlijk={false} icoon="🛣️" titel="Alle punten op de weg zetten?"
+            <BevestigKnop venster gevaarlijk={false} icoon="🧲" titel="Alle punten op de weg zetten?"
               vraag="" uitleg={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Terugzetten kan met ↶ Ongedaan.`}
               ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
               className="rl-knop" tip="Alle punten op de weg of het voetpad zetten" tipOnder>
-              {opDeWegBezig ? "⏳" : "🛣️"}<span className="alleen-pc"> Op de weg</span>
+              {opDeWegBezig ? "⏳" : "🧲"}<span className="alleen-pc"> Op de weg</span>
             </BevestigKnop>
             {!route.is_active && (
-              <BevestigKnop venster icoon="🧹" titel="Route leegmaken?"
+              <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
                 vraag="" uitleg={`Alle ${punten.length} punten (met hun vragen) en ${specialeItems.length} items gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`}
                 ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length}
                 className="rl-knop" tip="Route leegmaken: alle punten en items weg" tipOnder>
-                🧹<span className="alleen-pc"> Leegmaken</span>
+                🗑️<span className="alleen-pc"> Leegmaken</span>
               </BevestigKnop>
             )}
           </span>
@@ -1232,7 +1281,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       )}
 
       {/* Plaatsnaam zoeken — alleen zinvol zolang de route nog geen eigen punten heeft om op te centreren */}
-      {punten.length === 0 && (
+      {punten.length === 0 && !stappenOpen && (
         <form onSubmit={zoekPlaats} style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 16px", borderBottom: "1px solid var(--line)", flexShrink: 0, background: "rgba(255,255,255,0.03)" }}>
           <input
             className="form-input" style={{ flex: 1, fontSize: "0.85rem" }}
@@ -1506,6 +1555,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
 
             {/* Items-tab */}
+            {/* Automatisch: alle voorgestelde items in één keer (verspreid, zodra er een rondje is) */}
+            {actieveTab === "items" && itemCheck && itemCheck.voorstellen.length > 0 && (
+              <div style={{ margin: "0 10px 8px" }}>
+                <BevestigKnop venster gevaarlijk={false} icoon="✨" titel={`${itemCheck.voorstellen.length} items automatisch plaatsen?`} vraag=""
+                  uitleg="Langs de route die de teams lopen, verdeeld over de soorten. Terugzetten kan met ↶ Ongedaan." knopTekst="Ja, plaatsen"
+                  onBevestig={plaatsAlleVoorstellen} disabled={autoItemsBezig}
+                  className="rl-knop rl-knop--cyan" style={{ width: "100%", height: 36, justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  {autoItemsBezig ? "⏳ Plaatsen…" : `✨ Items automatisch plaatsen (${itemCheck.voorstellen.length})`}
+                </BevestigKnop>
+              </div>
+            )}
             {/* Snel plaatsen: item aanklikken, daarna op de kaart klikken (zo vaak als je wilt) */}
             {actieveTab === "items" && (
               <div style={{ margin: "0 10px 8px", display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -2145,6 +2205,33 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
 
+        {stappenOpen ? (
+          <EersteStappen
+            modus={route.modus}
+            stap={stappenStap} onStap={zetStappenStap}
+            onSluit={() => { setStappenOpen(false); setWizardKies(null); }}
+            zoekterm={plaatsZoekterm} onZoekterm={setPlaatsZoekterm} onZoek={zoekPlaats} zoekBezig={plaatsBezig} zoekFout={plaatsFout}
+            kies={wizardKies} onKies={setWizardKies}
+            startGekozen={!!centrumPunt} finishGekozen={!!finishPunt} finishZelfde={finishZelfde}
+            onFinishZelfde={() => { setFinishPunt(null); setFinishZelfde(true); setWizardKies(null); }}
+            teams={verwachtTeams} onTeams={setVerwachtTeams}
+            km={doelAfstandKm} onKm={setDoelAfstandKm}
+            aantal={aantalPunten} onAantal={setAantalPunten}
+            onBewaarInstellingen={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
+            onMaakPunten={async () => { setMaakBezig(true); try { await genereerPuntenInCirkel(); } finally { setMaakBezig(false); } }}
+            maakBezig={maakBezig}
+            aantalPunten={punten.length}
+            heeftFinish={punten[punten.length - 1]?.type === "eindpunt"}
+            itemVoorstellen={itemCheck?.voorstellen.length ?? 0} aantalItems={specialeItems.length}
+            onItems={plaatsAlleVoorstellen} itemsBezig={autoItemsBezig}
+            vraagpunten={vraagpunten.length} metVraag={vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}
+            onVragen={() => setAlleVragenOpen(true)}
+            onControleren={() => { setStappenOpen(false); setControleOpen(true); }}
+          />
+        ) : !route.is_active && route.status !== "gepubliceerd" && (
+          <button type="button" className="eerste-stappen-knop" onClick={() => setStappenOpen(true)} title="Stap voor stap de route opzetten">🚀 Eerste stappen</button>
+        )}
+
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
@@ -2173,6 +2260,12 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                   <div className="route-editor-tijden-voet">4,5 km/u · 2 min/vraag · 70% goed · items meegerekend</div>
                 )}
                 {/* Voorgestelde plekken voor extra items (gouden ➕) tonen of verbergen */}
+                {itemCheck && itemCheck.voorstellen.length > 0 && (
+                  <button onClick={plaatsAlleVoorstellen} disabled={autoItemsBezig}
+                    style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "#A5F3FC", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
+                    {autoItemsBezig ? "⏳ Items plaatsen…" : `✨ Alle ${itemCheck.voorstellen.length} voorstellen als item plaatsen`}
+                  </button>
+                )}
                 {itemCheck && itemCheck.voorstellen.length > 0 && (
                   <button onClick={() => setToonVoorstellen((v) => !v)}
                     style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>

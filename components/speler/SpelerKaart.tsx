@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { haversine } from "@/lib/geo";
+import { haversine, richting, afstandTekst } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import EindtijdTeller from "@/components/speler/EindtijdTeller";
@@ -950,6 +950,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
           ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
         />
+
+        {/* Afstand en richting naar het volgende punt (de kaart staat altijd met het noorden boven) */}
+        {positie && activePunt && !wachtOpStartVraag && !ghostTot && !popupPunt && !bereiktIds.has(activePunt.id) && (
+          <div className="doel-wijzer" title="Afstand en richting naar het volgende punt" aria-live="polite">
+            <span className="doel-wijzer-pijl" aria-hidden
+              style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude)}deg)` }}>➤</span>
+            <span>{afstandTekst(haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude))}</span>
+          </div>
+        )}
 
         {/* Controleer locatie-knop */}
         {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && gpsStatus !== "laden" && (

@@ -11,6 +11,12 @@ declare global {
   interface Window { L: typeof import("leaflet"); }
 }
 
+// Naam van een voorgesteld item (tooltip)
+const VOORSTEL_NAAM: Record<string, string> = {
+  ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook",
+  dief: "Dief", banaan: "Banaan", wissel: "Wissel", vraagteken: "Vraagteken", plekzooi: "Plek zooi",
+};
+
 const SPECIAAL_EMOJI: Record<string, string> = {
   spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡",
   banaan: "🍌", plekzooi: "⛔", vraagteken: "❓",
@@ -377,15 +383,16 @@ export default function LeafletKaart({
       itemVoorstellen.forEach((v) => {
         const icon = L.divIcon({
           className: "",
-          html: `<div title="Voorstel: klik om hier een item te plaatsen" style="
-            width:26px;height:26px;border-radius:50%;cursor:pointer;box-sizing:border-box;
-            background:rgba(20,10,50,0.35);border:1.5px dashed rgba(255,255,255,0.85);
+          // Voorstel: het item in kleur (zo zie je welk), maar half doorzichtig in een witte stippelrand met ＋
+          html: `<div title="Voorstel: ${escapeHtml(VOORSTEL_NAAM[v.type] ?? v.type)} (klik om hier te plaatsen)" style="
+            width:34px;height:34px;border-radius:50%;cursor:pointer;box-sizing:border-box;
+            background:rgba(255,255,255,0.25);border:2px dashed rgba(255,255,255,0.95);
             display:flex;align-items:center;justify-content:center;position:relative;">
-            <img src="/items/${v.type}.webp" style="width:15px;height:15px;opacity:0.55;filter:grayscale(1)" alt="">
-            <span style="position:absolute;right:-5px;top:-5px;width:13px;height:13px;border-radius:50%;background:#fff;color:#1c0c45;font:900 11px/13px sans-serif;text-align:center">+</span>
+            <img src="/items/${v.type}.webp" style="width:24px;height:24px;opacity:0.7" alt="">
+            <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:#1c0c45;font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
           </div>`,
-          iconSize: [26, 26],
-          iconAnchor: [13, 13],
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
         });
         const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: 400 })
           .on("click", () => onItemVoorstelKlikRef.current?.(v))

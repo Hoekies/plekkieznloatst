@@ -28,6 +28,11 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > 💻 **Tip:** een route maak je het makkelijkst op een pc of laptop. Op een groot scherm zie je de kaart, de puntenlijst en de instellingen tegelijk.
 
+> **🚀 Eerste stappen**: open je een nieuwe (lege) route, dan verschijnt bovenop de kaart een stappenvenster dat je één stap tegelijk door het opzetten leidt (met **Volgende →** en **← Terug**). De kaart blijft aan te tikken.
+> - **Verspreid**: 📍 startpunt aantikken (eerst eventueel de plaats zoeken) → 🏁 finish aantikken of *zelfde plek als de start* → 👥 aantal teams, lengte van het rondje en aantal punten → 🎲 punten maken (meteen op de weg) → ✨ items automatisch plaatsen → 📝 vragen invullen → ✅ controleren en klaarzetten.
+> - **Op volgorde**: 🔍 plaats zoeken → 📍 punten aantikken in de volgorde van lopen (of 📥 importeren) → 🏁 finish aantikken → 📝 vragen → ✅ controleren.
+> - Sluit je het venster, dan staat bovenop de kaart een knop **🚀 Eerste stappen** om verder te gaan waar je was (zolang de route nog concept is).
+
 1. Ga naar **Routes** in de zijbalk.
 2. Klik op **Nieuwe route**.
 3. Geef de route een naam en **kies het speltype**: Sequentieel of Verspreid.
@@ -54,16 +59,18 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > **Status van een route**: **✏️ Concept** (nog bezig) → **✅ Klaar** (gecontroleerd, kan geactiveerd worden) → **▶ Actief** (de spelers kunnen spelen). In de routekop zie je dit als stappen: Bewerken › Controleren › Klaar › Actief (de huidige gemarkeerd, gedane stappen met ✓), met daarnaast één opvallende knop voor de volgende stap. Klik op **Controleren** om de controle tussendoor te bekijken. Bij een klare route zet **↩ Concept** hem terug om verder te bewerken.
 
 > **Overzicht in de editor (computer)**:
-> - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap zoals ✅ Klaarzetten of ▶ Activeren, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, en het gereedschap 📥 Importeren, 🛣️ Op de weg en 🧹 Leegmaken).
+> - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap zoals ✅ Klaarzetten of ▶ Activeren, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, en het gereedschap 📥 Importeren, 🧲 Op de weg en 🗑️ Leegmaken).
 > - **🚶 Wegen** is een aan/uit-schakelaar: aan = lijnen en afstanden volgen wegen en voetpaden, uit = hemelsbreed. Staat hij aan, dan rekent **↻ Opnieuw** alles opnieuw uit.
 > - **◧ Lijst** klapt de puntenlijst links in, voor meer kaartruimte. Met **« Inklappen** onderaan het menu wordt het hoofdmenu een smalle balk met alleen icoontjes (**»** klapt hem weer uit). Beide worden onthouden.
 > - In de puntenlijst openen **❓** (gedempt: de vraag is er) en het oranje **⚠️** (nog geen vraag, valt op) meteen de vraag van dat punt. **▲ ▼ 🗑️** verschijnen op de pc pas als je een regel aanwijst of kiest. De greep **≡** achteraan laat zien dat je een punt kunt verslepen (start en finish liggen vast).
-> - Klik je op een punt, dan opent het **puntpaneel**: bovenin kies je het soort punt (❓ Vraag · ℹ️ Info · 🏁 Eind), daaronder de naam. Je ziet ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **🛣️ Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
-> - **Kaartpaneel** (linksonder): de rij **Lagen** zet **🧭 Routes**, **🎁 Items**, **✨ Voorstellen** en **⭕ Cirkel** los aan of uit (aan = cyaan), zodat de kaart rustiger wordt; de rij **Kaart** kiest ☀️ Licht, 🌙 Donker of 🛰️ Luchtfoto. Een **voorstel** is een grijs item-icoontje met een witte stippelrand en een ＋ (tik erop om daar echt een item te plaatsen); echte items zijn in kleur.
+> - Klik je op een punt, dan opent het **puntpaneel**: bovenin kies je het soort punt (❓ Vraag · ℹ️ Info · 🏁 Eind), daaronder de naam. Je ziet ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **🧲 Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
+> - **Kaartpaneel** (linksonder): de rij **Lagen** zet **🧭 Routes**, **🎁 Items**, **✨ Voorstellen** en **⭕ Cirkel** los aan of uit (aan = cyaan), zodat de kaart rustiger wordt; de rij **Kaart** kiest ☀️ Licht, 🌙 Donker of 🛰️ Luchtfoto. Een **voorstel** is een half doorzichtig item in een witte stippelrand met een ＋ (aanwijzen toont welk item; tik erop om het daar echt te plaatsen); echte items zijn vol en zonder stippelrand.
 
-> **🛣️ Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
+> **🧲 Op de weg**: zet alle punten in één keer op de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m), zodat er geen punt midden in een weiland of tuin ligt. Bij Verspreid blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
 
-> **🧹 Leegmaken**: haalt alle punten (met hun vragen) en alle items van de route weg, na bevestiging. De naam en de instellingen blijven. Alleen bij een route die niet actief is.
+> **✨ Items automatisch plaatsen** (Verspreid): op het tabblad 🎁 Items en in het paneel *Afstand, tijd & punten* staat een knop die alle voorgestelde items in één keer neerzet: zoveel als de app voor deze route aanraadt, langs de weg die de teams lopen en verdeeld over de soorten. Terugzetten kan met ↶ Ongedaan.
+
+> **🗑️ Leegmaken**: haalt alle punten (met hun vragen) en alle items van de route weg, na bevestiging. De naam en de instellingen blijven. Alleen bij een route die niet actief is.
 
 > **📥 Punten importeren**: kies een **GPX-bestand** (waypoints, of een spoor: dan komt er om de 150 m een punt) of een **KML-bestand** (bijv. uit Google My Maps), of plak een lijst met één punt per regel: `52.2215, 6.8937 Kerk`, een lange Google Maps-link, of een korte deellink uit de Google Maps-app (`maps.app.goo.gl/…`). Je ziet eerst welke punten gevonden zijn (✕ om er een weg te laten) en welke regels niet herkend zijn. Daarna komen ze vóór de finish, met de standaard punten en straal van de route. De vragen voeg je daarna toe.
 

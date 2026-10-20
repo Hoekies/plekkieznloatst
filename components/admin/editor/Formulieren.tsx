@@ -168,7 +168,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
       {/* Positie: verslepen op de kaart, of op de dichtstbijzijnde weg zetten */}
       <div className="punt-positie">
         <span title="Verplaatsen: sleep het punt op de kaart. Straal en punten staan bij ⚙️ Instellingen.">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
-        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">🛣️ Op de weg</button>}
+        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">🧲 Op de weg</button>}
       </div>
 
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}

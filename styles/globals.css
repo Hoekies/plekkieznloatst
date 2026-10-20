@@ -2684,3 +2684,60 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .detail-acties .alleen-pc { display: none !important; }
 .detail-acties .alleen-mobiel { display: inline !important; }
 .detail-acties .speler-knoppen > * { gap: 6px; font-size: 0.8rem !important; }
+
+/* Spelersapp: afstand en richting naar het volgende punt, rechtsboven op de kaart */
+.doel-wijzer { position: absolute; top: 12px; right: 12px; z-index: 950; display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px 7px 10px; border-radius: 999px; background: rgba(28,12,69,0.92); border: 2px solid #fff; color: #fff;
+  font-family: var(--font-display); font-weight: 800; font-size: 1rem; box-shadow: 0 4px 14px rgba(0,0,0,0.35); pointer-events: none; }
+/* ➤ wijst naar rechts (oost); -90° zodat 0° (noord) omhoog wijst */
+.doel-wijzer-pijl { display: inline-block; color: #FFD93B; font-size: 1.1rem; line-height: 1; translate: 0 0; rotate: -90deg; transition: transform 0.4s ease; }
+
+/* Telefoon: route-editor en live kaart passen precies in het zichtbare scherm en schuiven niet
+   (Android rekende de adresbalk mee, waardoor de editor een stuk omhoog kon schuiven) */
+@media (max-width: 768px) {
+  .admin-shell:has(.route-editor-topbar), .admin-shell:has(.live-kaart-lijst) { height: 100dvh; min-height: 0; overflow: hidden; }
+  .admin-shell:has(.route-editor-topbar) .admin-main, .admin-shell:has(.live-kaart-lijst) .admin-main { min-height: 0; overflow: hidden; }
+}
+
+/* Telefoon: het uitgeklapte menu ligt altijd bovenop (ook boven het punt-/itempaneel en de
+   kaartpanelen van de route-editor); vensters (z-index 2500) blijven er weer boven */
+@media (max-width: 768px) {
+  .admin-sidebar { z-index: 2400; }
+}
+
+/* 🚀 Eerste stappen: venster bovenop de kaart (de kaart blijft aan te tikken) */
+.eerste-stappen { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1200;
+  width: min(400px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px; border-radius: 16px;
+  background: rgba(28,12,69,0.96); border: 1px solid rgba(255,217,59,0.45); box-shadow: 0 10px 30px rgba(0,0,0,0.45); color: var(--ink); }
+.es-kop { display: flex; align-items: center; gap: 8px; }
+.es-titel { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
+.es-teller { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
+.es-kop .editor-paneel-sluit { width: 30px; height: 30px; font-size: 1rem; background: transparent; border-color: transparent; color: rgba(248,113,113,0.85); }
+.es-balk { display: flex; gap: 4px; }
+.es-balk > span { flex: 1; height: 4px; border-radius: 99px; background: rgba(255,255,255,0.14); }
+.es-balk > span.gedaan { background: rgba(134,239,172,0.8); }
+.es-balk > span.nu { background: var(--cyan); }
+.es-stapnaam { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: #fff; }
+.es-inhoud { display: flex; flex-direction: column; gap: 8px; }
+.es-inhoud p { margin: 0; font-size: 0.82rem; color: var(--text); line-height: 1.45; }
+.es-groot { width: 100%; height: 42px; justify-content: center; display: inline-flex; align-items: center; gap: 6px; font-weight: 800; }
+.es-zoek { display: flex; gap: 6px; flex-wrap: wrap; }
+.es-zoek .form-input { flex: 1; min-width: 0; }
+.es-zoek .rl-knop { height: 40px; }
+.es-fout { flex-basis: 100%; font-size: 0.74rem; color: #FCA5A5; }
+.es-ok { font-size: 0.78rem; color: #86EFAC; font-weight: 700; }
+.es-let-op { font-size: 0.78rem; color: #FFE680; font-weight: 700; }
+.es-getal { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.85rem; font-weight: 700; color: #fff; }
+.es-getal-veld { display: inline-flex; align-items: center; gap: 8px; }
+.es-getal-veld .rl-knop { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: 1.1rem; }
+.es-getal-veld strong { min-width: 64px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
+.es-voet { display: flex; gap: 8px; }
+.es-voet .rl-knop { height: 38px; }
+.eerste-stappen-knop { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1100;
+  height: 34px; padding: 0 14px; border-radius: 999px; cursor: pointer; font-family: var(--font-display); font-weight: 800; font-size: 0.8rem;
+  background: rgba(28,12,69,0.92); color: #FFE680; border: 1px solid rgba(255,217,59,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
+@media (max-width: 768px) {
+  .eerste-stappen { top: 8px; max-height: calc(100% - 90px); }
+  .eerste-stappen-knop { top: 56px; }
+}

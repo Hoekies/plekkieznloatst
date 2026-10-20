@@ -14,6 +14,20 @@ export function haversine(
   return AARDE_STRAAL_METERS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Kompasrichting van punt 1 naar punt 2 in graden (0 = noord, 90 = oost)
+export function richting(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const r = Math.PI / 180;
+  const y = Math.sin((lng2 - lng1) * r) * Math.cos(lat2 * r);
+  const x = Math.cos(lat1 * r) * Math.sin(lat2 * r) - Math.sin(lat1 * r) * Math.cos(lat2 * r) * Math.cos((lng2 - lng1) * r);
+  return (Math.atan2(y, x) / r + 360) % 360;
+}
+
+// Afstand leesbaar: "40 m", "120 m", "1,2 km"
+export function afstandTekst(meter: number): string {
+  if (meter >= 1000) return `${(meter / 1000).toFixed(1).replace(".", ",")} km`;
+  return `${meter < 100 ? Math.round(meter / 5) * 5 : Math.round(meter / 10) * 10} m`;
+}
+
 // Afronden op ~50m voor het tonen van andere spelers
 export function afrondenOpRaster(lat: number, lng: number, rasterMeters = 50) {
   const graden = rasterMeters / 111320;
