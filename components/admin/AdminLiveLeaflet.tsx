@@ -7,6 +7,7 @@ import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 import { speelgebiedLaag } from "@/lib/speelgebied";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
+import KaartBediening from "@/components/shared/KaartBediening";
 
 interface Props {
   spelers: SpelerOverzicht[];
@@ -305,13 +306,13 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Licht, donker of luchtfoto (zonder vectorkaart: licht of luchtfoto) */}
       {/* Linksonder: kaartlagen en licht/donker/luchtfoto in één paneel, zoals in de route-editor */}
-      <div className="kaart-bediening" onClick={(e) => e.stopPropagation()}>
+      <KaartBediening>
         <div className="kaart-lagen">
           <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen">〰️<span className="laag-tekst"> Sporen</span></button>
           <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen">🎁<span className="laag-tekst"> Items</span></button>
         </div>
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
-      </div>
+      </KaartBediening>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

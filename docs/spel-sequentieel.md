@@ -38,6 +38,8 @@ Op de kaart zie je:
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.
 
+Bij een **infopunt** verschijnt onderin een kaartje met de tekst en **Doorgaan →**; de kaart blijft zichtbaar. Een vraag krijg je op het hele scherm.
+
 Heeft de organisatie de **hele route zichtbaar** gezet (bijvoorbeeld bij een ingelezen wandeling), dan zie je meteen alle punten en een paarse stippellijn ertussen; het volgende punt knippert. Kleine bolletjes op de lijn zijn **doorlooppunten** (zonder venster): loop er gewoon langs, je telefoon trilt kort en je ziet "✓ gepasseerd". Een bocht afgesneden? Zodra je het volgende punt bereikt, telt het gemiste bolletje ook.
 
 ---
@@ -85,7 +87,7 @@ Gooit een tegenstander een banaan naar jullie, dan hoor je een diepe klokslag (o
 
 ## Uitleg in de app (i)
 
-Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
+Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel), **🗺️ Op de kaart** (wat de rondjes, kleuren en tekens betekenen) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
 
 ---
 

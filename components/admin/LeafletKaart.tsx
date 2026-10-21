@@ -5,6 +5,7 @@ import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
+import KaartBediening from "@/components/shared/KaartBediening";
 import { itemNaam, itemEmoji } from "@/components/speler/SpeciaalItemLegende";
 
 // Leaflet wordt alleen client-side geladen
@@ -522,10 +523,10 @@ export default function LeafletKaart({
     <div style={{ flex: 1, position: "relative", minWidth: 0, zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Linksonder op de kaart: kaartlagen en licht/donker/luchtfoto in één blok */}
-      <div className="kaart-bediening" onClick={(e) => e.stopPropagation()}>
+      <KaartBediening>
         {lagenKnoppen}
         <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} inBlok />
-      </div>
+      </KaartBediening>
     </div>
   );
 }

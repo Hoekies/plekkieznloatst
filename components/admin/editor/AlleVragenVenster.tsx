@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { RoutePunt } from "@/types/database";
 import VraagEditorPagina, { NietOpgeslagenVenster, type VraagMetAntwoorden } from "../VraagEditorPagina";
 import type { KaartPunt } from "../PuntMiniKaart";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
@@ -74,7 +75,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <div style={{ flex: 1, minHeight: 0 }}>
           {!punt ? null : vraag === undefined ? (
-            <p style={{ padding: 28, color: "var(--muted)" }}>Laden…</p>
+            <div style={{ padding: 20 }}><LaadBlokjes aantal={3} hoogte={56} /></div>
           ) : (
             <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd}
               navigatie={{

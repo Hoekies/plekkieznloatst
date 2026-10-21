@@ -53,7 +53,7 @@ export default function TussenstandPopup({ tussenstand, resterendeSeconden, onSl
         </div>
 
         {tussenstand.length === 0 ? (
-          <p style={{ color: "#6b84a8", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
+          <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[...tussenstand].sort((a, b) => b.score - a.score).map((entry) => (

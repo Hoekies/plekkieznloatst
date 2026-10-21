@@ -14,6 +14,7 @@ import SchuifTekst from "@/components/admin/SchuifTekst";
 import { toonMelding } from "@/components/admin/Melding";
 import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components/admin/ActieveRouteLabel";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -332,7 +333,7 @@ export default function RoutesOverzicht() {
 
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}>⚠️ {fout}</div>}
 
-              <button className="rl-knop rl-knop--cyan nieuwe-route-knop" type="submit" disabled={bezig || !nieuweNaam.trim()}>
+              <button className="rl-knop hoofdknop nieuwe-route-knop" type="submit" disabled={bezig || !nieuweNaam.trim()}>
                 {bezig ? "⏳ Aanmaken…" : gpx ? "Aanmaken met deze punten →" : "Aanmaken en beginnen →"}
               </button>
               {!gpx && <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>Daarna helpt de app je stap voor stap.</div>}
@@ -344,7 +345,7 @@ export default function RoutesOverzicht() {
       )}
 
       {laden ? (
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
+        <LaadBlokjes aantal={3} hoogte={86} />
       ) : routes.length === 0 ? (
         <LeegScherm icoon="🗺️" knop={{ label: "+ Nieuwe route", onClick: () => setAanmaken(true) }}>
           Nog geen routes. Maak er een, of importeer een route die je eerder hebt geëxporteerd (📥 rechtsboven).

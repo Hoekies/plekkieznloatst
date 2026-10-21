@@ -110,7 +110,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
             color: isInfo ? "rgba(255,255,255,0.6)" : isCorrect ? "#4ade80" : isCorrect === false ? "#f87171" : "#fbbf24",
           }}>
             {isInfo ? "" : (isCorrect === null ? "⏳" : isCorrect ? "✓" : "✗")}
-            {" "}{item.punten_behaald}<span style={{ fontWeight: 400, fontSize: "0.68rem", color: "rgba(255,255,255,0.4)" }}>/{item.max_punten} pt</span>
+            {" "}{item.punten_behaald}<span style={{ fontWeight: 400, fontSize: "0.68rem", color: "var(--muted)" }}>/{item.max_punten} pt</span>
           </span>
         </div>
       </div>
@@ -159,7 +159,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
           padding: "8px 12px",
           display: "flex", alignItems: "flex-start", gap: 8,
         }}>
-          <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Jouw antwoord</span>
+          <span style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 2 }}>Jouw antwoord</span>
           <span style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 600 }}>{item.open_antwoord}</span>
           <span style={{ marginLeft: "auto", fontSize: "1rem" }}>{item.is_correct ? "✅" : "❌"}</span>
         </div>
@@ -181,7 +181,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
         </div>
       )}
       {isFoto && !item.foto_pad && (
-        <p style={{ margin: 0, color: "rgba(255,255,255,0.45)", fontSize: "0.82rem" }}>Geen foto ingediend.</p>
+        <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.82rem" }}>Geen foto ingediend.</p>
       )}
     </div>
   );
@@ -202,7 +202,7 @@ function AntwoordRij({
       display: "flex", alignItems: "center", gap: 10,
       background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 12px",
     }}>
-      <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.4)", minWidth: 80 }}>{label}</span>
+      <span style={{ fontSize: "0.68rem", color: "var(--muted)", minWidth: 80 }}>{label}</span>
       {afbeelding ? (
         <img
           src={afbeeldingUrl("vraag-afbeeldingen", afbeelding)}

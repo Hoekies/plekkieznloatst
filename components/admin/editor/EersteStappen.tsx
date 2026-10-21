@@ -172,7 +172,7 @@ export default function EersteStappen(p: Props) {
           {extra && <button type="button" className="rl-knop es-extra" disabled={extra.uit} onClick={extra.onClick}>{extra.tekst}</button>}
         </div>
       )}
-      <button type="button" className="rl-knop rl-knop--cyan es-hoofd" disabled={hoofd.uit || !!nogNiet} onClick={hoofd.onClick}>{hoofd.tekst}</button>
+      <button type="button" className="rl-knop hoofdknop es-hoofd" disabled={hoofd.uit || !!nogNiet} onClick={hoofd.onClick}>{hoofd.tekst}</button>
       {nogNiet && <div className="es-hint">{nogNiet}</div>}
     </div>
   );

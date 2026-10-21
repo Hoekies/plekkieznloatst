@@ -77,7 +77,7 @@ export default function InAppBrowserWaarschuwing() {
         onClick={() => setToon(false)}
         style={{
           background: "none", border: "none", cursor: "pointer",
-          color: "#6b84a8", fontSize: "0.82rem", padding: "4px 8px",
+          color: "var(--muted)", fontSize: "0.82rem", padding: "4px 8px",
         }}
       >
         Toch hier verder gaan

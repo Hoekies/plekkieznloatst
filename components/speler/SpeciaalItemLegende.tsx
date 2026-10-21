@@ -126,8 +126,25 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
             </ul>
           </Regel>
 
+          {/* Wat de rondjes en tekens op de kaart betekenen */}
+          <Regel
+            icoon={<span style={{ fontSize: "1.7rem", lineHeight: 1 }}>🗺️</span>}
+            titel="Op de kaart"
+            open={open === "kaart"}
+            onTik={() => wissel("kaart")}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {LEGENDA.map(([teken, uitleg]) => (
+                <div key={uitleg} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ width: 28, display: "inline-flex", justifyContent: "center", flexShrink: 0 }}>{teken}</span>
+                  <span>{uitleg}</span>
+                </div>
+              ))}
+            </div>
+          </Regel>
+
           {items.length > 0 && (
-            <div style={{ margin: "10px 2px 0", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b84a8" }}>
+            <div style={{ margin: "10px 2px 0", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)" }}>
               Items
             </div>
           )}
@@ -148,6 +165,23 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
     </div>
   );
 }
+
+// Legenda van de kaart: zelfde rondjes en kleuren als op de spelerskaart
+const rondje = (kleur: string, teken: string, puls = false) => (
+  <span style={{ width: 24, height: 24, borderRadius: "50%", background: kleur, border: "2px solid #fff", color: "#fff", fontSize: 11, fontWeight: 800,
+    display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: puls ? "0 0 0 3px rgba(30,64,175,0.45)" : "none" }}>{teken}</span>
+);
+const LEGENDA: [React.ReactNode, string][] = [
+  [rondje("#1E40AF", "?", true), "Jullie volgende punt: hier krijg je een vraag"],
+  [rondje("#1E40AF", "i", true), "Volgende punt met informatie"],
+  [rondje("#1E40AF", "•", true), "Volgende punt om gewoon langs te lopen"],
+  [rondje("#F59E0B", "!"), "Punt bereikt: rond het af"],
+  [rondje("#16A34A", "✓"), "Punt gehaald"],
+  [rondje("#7C3AED", "?"), "Later punt (als de hele route zichtbaar is)"],
+  [<span key="b" style={{ width: 12, height: 12, borderRadius: "50%", background: "#7C3AED", border: "2px solid #fff", display: "inline-block" }} />, "Punt om langs te lopen, zonder scherm"],
+  [<span key="f" style={{ fontSize: 18 }}>🏁</span>, "De finish"],
+  [<span key="t" style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "3px solid #F97316", display: "inline-block" }} />, "Een ander team (dichtbij, of met een radar)"],
+];
 
 // Eén inklapbare regel: icoon + titel, uitleg verschijnt na aantikken
 function Regel({ icoon, titel, open, onTik, children }: {
@@ -170,7 +204,7 @@ function Regel({ icoon, titel, open, onTik, children }: {
         <span style={{ width: 36, display: "flex", justifyContent: "center", flexShrink: 0 }}>{icoon}</span>
         <span style={{ flex: 1, fontWeight: 700, fontSize: "0.95rem" }}>{titel}</span>
         <span aria-hidden style={{
-          color: "#6b84a8", fontSize: "0.8rem",
+          color: "var(--muted)", fontSize: "0.8rem",
           transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s",
         }}>▼</span>
       </button>

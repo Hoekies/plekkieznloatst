@@ -195,6 +195,25 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
     }
   }
 
+  // ── Infopunt zonder vraag: een kaartje onderin, de kaart blijft in beeld ──────
+  // (vragen, de start en de finish blijven op het volledige scherm)
+  const alsKaartje = !start && punt.type === "informatiepunt" && (popupFase === "informatie" || popupFase === "laden");
+  if (alsKaartje) {
+    return (
+      <div className="info-kaartje" role="dialog" aria-label={punt.name}>
+        <TypeBadge type={punt.type} />
+        {popupFase === "laden" ? (
+          <div style={{ display: "flex", justifyContent: "center", padding: "18px 0" }}><div className="spinner" /></div>
+        ) : (
+          <div className="info-kaartje-inhoud"><InfoInhoud punt={punt} /></div>
+        )}
+        <button className="btn btn-primary" style={KNOP_ONDERAAN_STIJL} disabled={bezig || popupFase === "laden"} onClick={verwerkDirect}>
+          {bezig ? "Even geduld…" : "Doorgaan →"}
+        </button>
+      </div>
+    );
+  }
+
   // ── Volledig scherm shell ─────────────────────────────────────────────────
   return (
     <div style={{

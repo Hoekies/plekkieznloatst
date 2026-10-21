@@ -119,7 +119,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
               <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
                 Bijv. <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}1</strong>, <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}2</strong>, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord.
               </div>
-              <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={bezig || !voorvoegsel}>
+              <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig || !voorvoegsel}>
                 {bezig ? "Aanmaken…" : `+ ${aantal} spelers aanmaken`}
               </button>
             </form>

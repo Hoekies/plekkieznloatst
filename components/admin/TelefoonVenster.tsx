@@ -55,7 +55,7 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
           <input className="form-input" type="tel" inputMode="tel" value={waarde} onChange={(e) => setWaarde(e.target.value)}
             placeholder="06 12 34 56 78" autoFocus style={{ fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.03em" }} />
           {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
-          <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={bezig}>
+          <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig}>
             {bezig ? "Bezig…" : waarde.trim() ? "Opslaan" : "Nummer weghalen"}
           </button>
           {telefoon && (

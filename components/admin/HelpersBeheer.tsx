@@ -8,6 +8,7 @@ import { InlogKlaar } from "@/components/admin/InlogUitdelen";
 import { WijzigVenster, type BeheerModal } from "@/components/admin/GroepenBeheer";
 import { maakWachtwoord } from "@/lib/wachtwoord";
 import { foutUitleg } from "@/lib/fout-uitleg";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 type Helper = { id: string; naam: string; laatst_ingelogd: string | null; uitgeschakeld?: boolean };
 
@@ -59,7 +60,7 @@ export default function HelpersBeheer() {
       {formulier && <NieuweHelperForm onSuccess={laad} onSluit={() => setFormulier(false)} />}
 
       {helpers === null ? (
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
+        <LaadBlokjes aantal={2} hoogte={64} />
       ) : helpers.length === 0 ? (
         <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: 0 }}>Nog geen helpers.</p>
       ) : (
@@ -176,7 +177,7 @@ function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSlu
           </div>
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-          <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
+          <button type="submit" className="rl-knop hoofdknop actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
         </div>
         {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
       </form>

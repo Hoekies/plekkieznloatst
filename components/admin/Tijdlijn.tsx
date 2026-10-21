@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SectieKop from "@/components/admin/SectieKop";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 // Tijdlijn op het dashboard: wat er in het spel gebeurt, nieuwste bovenaan, in de kleur van de speler
 type Gebeurtenis = { id: string; tijd: string; speler_id: string | null; icoon: string; item: string | null; tekst: string };
@@ -42,7 +43,7 @@ export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) 
     <div className="pr-gem-panel">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {items === null ? (
-          <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Laden…</div>
+          <LaadBlokjes aantal={4} hoogte={22} gap={8} />
         ) : items.length === 0 ? (
           <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Nog niets gebeurd. Zodra spelers op pad gaan, zie je hier wat ze doen.</div>
         ) : (

@@ -30,6 +30,9 @@ export function routeControle({ punten, modus, vraagPuntIds, verwachtTeams, item
   }
   const zonderVraag = punten.filter((p) => p.type === "vraagpunt" && !vraagPuntIds.has(p.id));
   if (zonderVraag.length) regels.push({ niveau: "let op", tekst: `${zonderVraag.length} vraagpunt${zonderVraag.length !== 1 ? "en" : ""} zonder vraag: ${lijst(zonderVraag)}.` });
+  // Infopunt zonder tekst, foto of vraag: de spelers zien dan alleen de naam (bedoeld om door te lopen? Kies 🚶 Door)
+  const legeInfo = punten.filter((p, i) => p.type === "informatiepunt" && !(modus === "verspreid" && i === 0) && !p.description?.trim() && !p.image_path && !vraagPuntIds.has(p.id));
+  if (legeInfo.length) regels.push({ niveau: "let op", tekst: `${legeInfo.length} infopunt${legeInfo.length !== 1 ? "en" : ""} zonder tekst: ${lijst(legeInfo)}. Bedoeld om door te lopen? Kies dan 🚶 Door.` });
   const zonderNaam = punten.filter((p) => !p.name?.trim());
   if (zonderNaam.length) regels.push({ niveau: "let op", tekst: `${zonderNaam.length} punt${zonderNaam.length !== 1 ? "en" : ""} zonder naam.` });
   if (modus === "verspreid") {

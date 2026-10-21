@@ -86,7 +86,7 @@ function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
           <div style={{ textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff" }}>Hoe heet dit punt?</div>
           <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--muted)" }}>Spelers zien de naam pas na afloop. Tik op 💡 voor een woord uit de vraag.</div>
           <NaamKiezer naam={naam} onNaam={onNaam} woorden={woorden} hoogte={42} startOpen autoFocus />
-          <button type="submit" className="rl-knop rl-knop--cyan" disabled={bezig || !naam.trim()}
+          <button type="submit" className="rl-knop hoofdknop" disabled={bezig || !naam.trim()}
             style={{ height: 42, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}>
             {bezig ? "Opslaan…" : "💾 Opslaan"}
           </button>
@@ -587,7 +587,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               {gewijzigd && !opslaan && <span style={{ fontSize: "0.74rem", color: "var(--gold)" }}>● Niet opgeslagen wijzigingen</span>}
               <span style={{ flex: 1 }} />
-              <button type="submit" form={`vraag-${punt.id}`} className="rl-knop rl-knop--cyan" disabled={opslaan}
+              <button type="submit" form={`vraag-${punt.id}`} className="rl-knop hoofdknop" disabled={opslaan}
                 style={{ height: 42, padding: "0 22px", fontWeight: 800, fontSize: "0.9rem" }}>
                 {opslaan ? "Opslaan…" : `💾 ${opslaanLabel ?? (bestaandeVraag ? "Vraag opslaan" : "Vraag toevoegen")}`}
               </button>
@@ -701,7 +701,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                   }}>
                     <span style={{ fontSize: "1.6rem" }}>📷</span>
-                    <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>Maak een foto en upload hem</span>
+                    <span style={{ fontSize: "0.65rem", color: "#6B7280" }}>Maak een foto en upload hem</span>
                   </div>
                 )}
               </div>

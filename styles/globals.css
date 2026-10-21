@@ -7,7 +7,7 @@
   /* ── Tekst ── */
   --ink: #e8f0ff;
   --text: #d6cdf2;
-  --muted: #c3b6e6;  /* lichter: goed leesbaar op het (lichtere) paars */
+  --muted: #cbc0ec;  /* lichter: minstens 4,5:1 contrast, ook op het lichtste paars */
 
   /* ── Accenten ── */
   --blue: #00d9ff;
@@ -309,7 +309,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.55);
 }
 .form-input:focus,
 .form-textarea:focus {
@@ -1110,7 +1110,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   font-family: var(--font); font-size: 0.95rem; color: #fff;
   outline: none;
 }
-.pr-field-input2::placeholder { color: rgba(255,255,255,0.32); }
+.pr-field-input2::placeholder { color: rgba(255,255,255,0.55); }
 .pr-field-input2:focus { box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), inset 0 0 0 1.5px rgba(255,217,59,0.6); }
 
 /* glanzende 3D-knop met bewegende shine */
@@ -1922,7 +1922,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 /* Versie en laatste update (menu en Info & uitleg) */
-.versie-regel { margin-top: 6px; text-align: center; font-size: 0.66rem; line-height: 1.35; color: rgba(255,255,255,0.45); }
+.versie-regel { margin-top: 6px; text-align: center; font-size: 0.66rem; line-height: 1.35; color: var(--muted); }
 .versie-regel strong { color: rgba(255,255,255,0.7); font-weight: 700; }
 .info-paneel .versie-regel { margin-top: 2px; font-size: 0.72rem; }
 /* Telefoon: kaartje actieve route schaalt mee, zodat het hele menu in beeld past */
@@ -2507,7 +2507,7 @@ button.route-stap:hover { color: var(--ink); }
 button.route-stap { border-color: transparent; }
 button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .route-stap--gedaan { color: rgba(134,239,172,0.8); }
-.route-stap-pijl { color: rgba(255,255,255,0.2); }
+.route-stap-pijl { color: rgba(255,255,255,0.4); }
 .route-stap .editor-teller { opacity: 0.8; }
 /* Puntenlijst: ❓ (heeft een vraag) gedempt; alleen ⚠️ (nog geen vraag) valt op, zonder knipperen */
 .lijst-vraagknop:not(.lijst-vraagknop--leeg) { opacity: 0.4; filter: grayscale(0.6); }
@@ -2859,3 +2859,46 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .es-extra { height: 32px; font-size: 0.8rem; }
 .es-hoofd { width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 0.92rem; }
 .es-gedaan { border-color: rgba(134,239,172,0.55) !important; color: #BBF7D0 !important; }
+
+/* Hoofdknop van een scherm of venster: overal dezelfde volle cyaan kleur met donkere tekst
+   (zoals ✅ Klaarzetten). Andere knoppen blijven rustig; cyaan-omrande knoppen zijn keuzes die aan staan. */
+.hoofdknop, .admin-shell .btn-primary, .admin-main .btn-primary {
+  background: linear-gradient(180deg, #4BE3FF 0%, #08A9CC 100%) !important; color: #04212B !important;
+  border: 1px solid #8BEBFF !important; font-weight: 800; box-shadow: 0 3px 10px rgba(0,217,255,0.25); backdrop-filter: none;
+}
+.hoofdknop:hover:not(:disabled), .admin-shell .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.hoofdknop:disabled { opacity: 0.45; box-shadow: none; }
+
+/* Kaartpaneel linksonder: in te klappen tot één knopje (✓ bedekt dan geen punten meer) */
+.kaart-bediening-dicht { position: absolute; top: -10px; right: -10px; z-index: 1; width: 24px; height: 24px; padding: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: 800; line-height: 1;
+  background: #3a1f80; color: #fff; border: 1px solid rgba(255,255,255,0.35); box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+.kaart-bediening--in { padding: 0 !important; background: none !important; border: none !important; box-shadow: none !important; }
+.kaart-bediening-open { width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; padding: 0;
+  background: rgba(58,31,128,0.92); border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+
+/* Puntenlijst: doorlooppunten lager en rustiger, zodat vraag- en infopunten opvallen */
+.lijst-rij--door { padding-top: 1px !important; padding-bottom: 1px !important; }
+.lijst-rij--door .lijst-badge { width: 20px !important; height: 20px !important; font-size: 0.66rem !important; border-width: 1.5px !important; margin: 0 3.5px; }
+.lijst-rij--door > div:nth-child(2) { font-size: 0.74rem !important; font-weight: 500 !important; color: var(--muted) !important; }
+
+/* Editorbalk rustiger: het gereedschap (importeren, op de weg, leegmaken) en ↻ opnieuw alleen als icoon,
+   met uitleg bij aanwijzen; de hoofdzaken (lijst, wegen, vragen, test) houden hun tekst */
+@media (min-width: 769px) {
+  .route-editor-topbar .editor-gereedschap .alleen-pc, .route-editor-topbar .editor-opnieuw .alleen-pc { display: none !important; }
+  .route-editor-topbar .editor-gereedschap .rl-knop, .route-editor-topbar .editor-opnieuw { min-width: 40px; padding: 0 10px; justify-content: center; font-size: 1rem; }
+}
+
+/* Spelersapp: infopunt als kaartje onderin (de kaart blijft zichtbaar); vragen blijven volledig scherm */
+.info-kaartje { position: fixed; left: 12px; right: 12px; bottom: max(14px, calc(env(safe-area-inset-bottom) + 10px)); z-index: 1000;
+  max-width: 520px; margin: 0 auto; max-height: 62vh; display: flex; flex-direction: column; gap: 12px; padding: 16px;
+  border-radius: 20px; background: #ffffff; color: #0A1B36; box-shadow: 0 -4px 28px rgba(0,0,0,0.35); animation: info-kaartje-in 0.22s ease-out; }
+.info-kaartje-inhoud { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
+@keyframes info-kaartje-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Laadblokjes: grijze vlakken met een zachte glans die eroverheen schuift */
+.laad-blokjes { display: flex; flex-direction: column; width: 100%; }
+.laad-blokje { border-radius: 14px; background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.11) 50%, rgba(255,255,255,0.05) 100%);
+  background-size: 200% 100%; animation: laad-glans 1.3s ease-in-out infinite; }
+@keyframes laad-glans { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .laad-blokje { animation: none; } }

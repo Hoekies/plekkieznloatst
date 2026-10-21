@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -108,7 +109,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
               </div>
 
               {laden && inzendingen.length === 0 ? (
-                <p style={{ color: "var(--muted)", textAlign: "center", margin: 0 }}>Laden…</p>
+                <LaadBlokjes aantal={2} hoogte={120} />
               ) : inzendingen.length === 0 ? (
                 <p style={{ color: "var(--text)", textAlign: "center", margin: "12px 0" }}>Geen foto&apos;s die op keuring wachten. 🎉</p>
               ) : (() => {
@@ -161,7 +162,7 @@ function FotoViewer({ pad }: { pad: string }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: "55vh", objectFit: "contain", display: "block" }} />
       ) : (
-        <span style={{ color: "#9ca3af", fontSize: "0.85rem" }}>📷 Foto laden…</span>
+        <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>📷 Foto laden…</span>
       )}
     </div>
   );

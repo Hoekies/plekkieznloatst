@@ -1568,7 +1568,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onDrop={(e) => { e.preventDefault(); if (sleepId) verplaatsNaar(sleepId, i); setSleepId(null); setSleepDoel(null); }}
                     onDragEnd={() => { setSleepId(null); setSleepDoel(null); }}
                     onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
-                    className={`lijst-rij${geselecteerd?.id === pt.id ? " lijst-rij--gekozen" : ""}`}
+                    className={`lijst-rij${geselecteerd?.id === pt.id ? " lijst-rij--gekozen" : ""}${pt.type === "doorlooppunt" ? " lijst-rij--door" : ""}`}
                     title={vast ? undefined : "Sleep om de volgorde te veranderen"}
                     style={{
                       padding: "4px 10px", cursor: vast ? "pointer" : "grab", display: "flex", alignItems: "center", gap: 7,
@@ -1578,7 +1578,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       boxShadow: isDoel ? `inset 0 ${(punten.findIndex((p) => p.id === sleepId) < i) ? "-3px" : "3px"} 0 var(--cyan)` : undefined,
                       opacity: sleepId === pt.id ? 0.4 : 1,
                     }}>
-                    <div style={{
+                    <div className="lijst-badge" style={{
                       width: 27, height: 27, borderRadius: "50%", flexShrink: 0,
                       background: badgeBg, border: "2px solid #fff", boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
                       color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
@@ -1596,6 +1596,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>⚠️</button>
                     ) : pt.type === "doorlooppunt" ? (
                       <span className="lijst-doorloop" title="Doorlopen: de spelers krijgen hier geen scherm">🚶</span>
+                    ) : pt.type === "informatiepunt" && !isHub ? (
+                      <span className="lijst-doorloop" title={pt.description ? `Info: ${pt.description}` : "Info (nog zonder tekst)"}>{pt.description ? "ℹ️" : "⚠️"}</span>
                     ) : null}
                     <div className="lijst-rij-acties" style={{ display: "flex", flexDirection: "row", gap: 0 }}>
                       <button title="Omhoog" aria-label="Omhoog" onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}

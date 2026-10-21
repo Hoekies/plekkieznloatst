@@ -81,7 +81,7 @@ Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS 
 
 ## Uitleg in de app (i)
 
-Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**:
+Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het** (met ook **🗺️ Op de kaart**: wat de rondjes, kleuren en tekens betekenen):
 
 - **🎯 Het spel** — de spelregels in drie zinnen.
 - **Items** — alle items die in jullie route voorkomen.

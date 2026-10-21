@@ -14,6 +14,7 @@ import { toonTelefoon } from "@/lib/telefoon";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import LeegScherm from "@/components/admin/LeegScherm";
 import StatStrook from "@/components/admin/StatStrook";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -205,7 +206,7 @@ export default function GroepenBeheer() {
       )}
 
       {laden ? (
-        <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>
+        <LaadBlokjes aantal={4} hoogte={76} />
       ) : groepen.length === 0 ? (
         <LeegScherm icoon="👫" knop={{ label: "+ Eerste speler aanmaken", onClick: () => setToonFormulier(true) }}>
           Nog geen spelers. Maak per team een speler aan met een loginnaam en wachtwoord.
@@ -306,7 +307,7 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
           </div>
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-          <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>
+          <button type="submit" className="rl-knop hoofdknop actie-knop" disabled={laden}>
             {laden ? "Aanmaken…" : "Aanmaken"}
           </button>
         </div>
@@ -455,7 +456,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                 </div>
               )}
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
-              <button type="submit" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={laden || huidig === undefined}>
+              <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={laden || huidig === undefined}>
                 {laden ? "Bezig…" : (wachtwoord !== huidig || (!modal.helper && login.trim() !== (modal.login ?? ""))) ? "💾 Opslaan en versturen" : "📤 Versturen"}
               </button>
             </>

@@ -7,6 +7,7 @@ import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
 import StatStrook from "@/components/admin/StatStrook";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 type Data = {
   route: { id: string; name: string } | null;
@@ -58,7 +59,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
     data?.wachtende_fotos ? `${data.wachtende_fotos} foto${data.wachtende_fotos !== 1 ? "'s" : ""} niet gekeurd.` : "",
   ].filter(Boolean).join(" ");
 
-  if (!data) return <p style={{ color: "var(--muted)" }}>Laden…</p>;
+  if (!data) return <LaadBlokjes aantal={4} hoogte={72} />;
   if (!data.route) return (
     <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Activeer eerst een route, dan zie je hier de antwoorden.</LeegScherm>
   );

@@ -172,7 +172,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
 
                 <div className="import-voet">
                   <button type="button" className="rl-knop" onClick={opnieuw} disabled={bezig !== null}>← Ander bestand</button>
-                  <button type="button" className="rl-knop rl-knop--groen" style={{ flex: 1, fontWeight: 800 }} disabled={!gevonden.length || bezig !== null} onClick={toevoegen}>
+                  <button type="button" className="rl-knop hoofdknop" style={{ flex: 1 }} disabled={!gevonden.length || bezig !== null} onClick={toevoegen}>
                     {bezig === "opslaan" ? "⏳ Toevoegen…" : `+ ${gevonden.length} punt${gevonden.length === 1 ? "" : "en"} toevoegen`}
                   </button>
                 </div>

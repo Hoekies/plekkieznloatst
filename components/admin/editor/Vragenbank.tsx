@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg } from "@/lib/fout-uitleg";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
@@ -106,7 +107,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
                 {aantalWeg > 0 && filterKnop({ soort: "verwijderd" }, <>🗑️ <span className="alleen-pc">Verwijderd </span>{aantalWeg}</>, "Uit de bank gehaald")}
               </div>
               <div style={{ overflowY: "auto", minHeight: 0, flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-                {vragen === null ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Laden…</p>
+                {vragen === null ? <LaadBlokjes aantal={4} hoogte={48} gap={6} />
                   : gevonden.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{alle.length ? "Niets gevonden." : "Nog geen vragen in andere routes."}</p>
                   : gevonden.map((v, i) => {
                     const goed = v.type === "open"
