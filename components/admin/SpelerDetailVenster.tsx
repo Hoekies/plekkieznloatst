@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import type { SpelerOverzicht } from "@/lib/admin-live";
@@ -35,6 +35,9 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
     return () => window.removeEventListener("keydown", toets);
   }, [onSluit]);
 
+  // Eén keer per verslag: anders bouwt het kaartje bij elke verversing van het dashboard opnieuw op
+  const kaartItems = useMemo(() => (verslag?.items ?? []).filter((i) => i.lat != null && i.lng != null)
+    .map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! })), [verslag]);
   const vragen = verslag?.punten.filter((p) => p.heeftVraag) ?? [];
   const goed = vragen.filter((p) => p.goed).length;
 
@@ -70,8 +73,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
               : !verslag ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kaart laden…</p>
               : verslag.spoor.length < 2 && verslag.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>
-              : <GelopenRouteKaart scherp spoor={verslag.spoor} punten={verslag.punten}
-                  items={verslag.items.filter((i) => i.lat != null && i.lng != null).map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! }))} />}
+              : <GelopenRouteKaart scherp spoor={verslag.spoor} punten={verslag.punten} items={kaartItems} />}
           </div>
 
           {/* Antwoorden */}
