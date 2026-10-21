@@ -4,18 +4,22 @@ import type { RouteModus } from "@/types/database";
 export const MODUS_INFO: Record<RouteModus, {
   label: string;
   omschrijving: string;
+  // Korte uitleg voor kleine tegels (venster nieuwe route)
+  kort: string;
   kleur: string;
   tint: string;
 }> = {
   sequentieel: {
     label: "Op volgorde",
     omschrijving: "Alle teams lopen dezelfde punten in dezelfde volgorde",
+    kort: "Zelfde punten, zelfde volgorde",
     kleur: "#93C5FD",
     tint: "rgba(59,130,246,0.16)",
   },
   verspreid: {
     label: "Rondje",
     omschrijving: "Eén rondje; elk team begint op een ander punt",
+    kort: "Elk team begint ergens anders",
     kleur: "#67E8F9",
     tint: "rgba(6,182,212,0.16)",
   },

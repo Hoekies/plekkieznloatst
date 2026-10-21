@@ -2816,20 +2816,21 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .import-voet .rl-knop { height: 44px; }
 
 /* Nieuwe route: venster met naam en speltype (twee tegels naast elkaar, op de telefoon onder elkaar) */
-.nieuwe-route { display: flex; flex-direction: column; gap: 14px; padding: 18px 18px 16px; }
-.nieuwe-route-typen { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-.nieuwe-route-type { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;
-  padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text); }
+.nieuwe-route { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 14px; }
+.nieuwe-route .form-group { gap: 5px; }
+.nieuwe-route-bij { font-weight: 400; color: var(--muted); }
+.nieuwe-route-typen { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.nieuwe-route-type { display: flex; align-items: center; gap: 8px; text-align: left; cursor: pointer;
+  padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text); }
 .nieuwe-route-type:hover { background: rgba(255,255,255,0.08); }
-.nieuwe-route-type-naam { font-size: 0.95rem; font-weight: 800; color: #fff; }
-.nieuwe-route-type-uitleg { font-size: 0.74rem; color: var(--muted); line-height: 1.35; }
-.nieuwe-route-type-vink { position: absolute; top: 10px; right: 12px; font-weight: 800; }
+.nieuwe-route-type-naam { display: block; font-size: 0.88rem; font-weight: 800; color: #fff; }
+.nieuwe-route-type-uitleg { display: block; font-size: 0.7rem; color: var(--muted); line-height: 1.3; }
 .nieuwe-route-noot { font-size: 0.74rem; color: var(--muted); }
-.nieuwe-route-knop { height: 48px; justify-content: center; font-weight: 800; font-size: 0.95rem; }
+.nieuwe-route-knop { height: 44px; justify-content: center; font-weight: 800; font-size: 0.95rem; }
 @media (max-width: 420px) { .nieuwe-route-typen { grid-template-columns: 1fr; } }
 
 /* Nieuwe route: gekozen GPX-bestand met samenvatting */
-.nieuwe-route-gpx { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px;
+.nieuwe-route-gpx { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 10px; border-radius: 10px;
   background: rgba(22,163,74,0.12); border: 1px solid rgba(74,222,128,0.3); }
 .nieuwe-route-gpx-naam { font-size: 0.74rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nieuwe-route-gpx-aantal { font-size: 0.95rem; font-weight: 800; color: #fff; }

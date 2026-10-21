@@ -264,11 +264,8 @@ export default function RoutesOverzicht() {
           <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 480 }}>
             <form onSubmit={nieuwRoute} className="pr-gem-panel-inner nieuwe-route">
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.5rem" }}>🗺️</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="pr-gem-label">🚀 Nieuwe route</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Naam en speltype</div>
-                </div>
+                <span className="pr-gem-avatar" style={{ width: 34, height: 34, fontSize: "1.15rem" }}>🗺️</span>
+                <div style={{ flex: 1, minWidth: 0, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#fff" }}>Nieuwe route</div>
                 <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setAanmaken(false)} title="Sluiten" aria-label="Sluiten">✕</button>
               </div>
 
@@ -279,7 +276,7 @@ export default function RoutesOverzicht() {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <span className="form-label">Speltype</span>
+                <span className="form-label">Speltype <span className="nieuwe-route-bij">· kan later niet meer veranderen</span></span>
                 <div className="nieuwe-route-typen" role="radiogroup" aria-label="Speltype">
                   {(["sequentieel", "verspreid"] as const).map((m) => {
                     const info = MODUS_INFO[m];
@@ -288,20 +285,20 @@ export default function RoutesOverzicht() {
                       <button key={m} type="button" role="radio" aria-checked={gekozen} onClick={() => { setNieuweModus(m); if (m === "verspreid") setGpx(null); }}
                         className={`nieuwe-route-type${gekozen ? " aan" : ""}`}
                         style={gekozen ? { borderColor: `${info.kleur}aa`, background: info.tint } : undefined}>
-                        <ModusTegel modus={m} size={40} />
-                        <span className="nieuwe-route-type-naam" style={gekozen ? { color: info.kleur } : undefined}>{info.label}</span>
-                        <span className="nieuwe-route-type-uitleg">{info.omschrijving}</span>
-                        {gekozen && <span className="nieuwe-route-type-vink" style={{ color: info.kleur }}>✓</span>}
+                        <ModusTegel modus={m} size={30} />
+                        <span style={{ minWidth: 0 }}>
+                          <span className="nieuwe-route-type-naam" style={gekozen ? { color: info.kleur } : undefined}>{info.label}</span>
+                          <span className="nieuwe-route-type-uitleg">{info.kort}</span>
+                        </span>
                       </button>
                     );
                   })}
                 </div>
-                <span className="nieuwe-route-noot">⚠️ Het speltype kan later niet meer veranderen.</span>
               </div>
 
               {/* Beginnen met een GPX (alleen Op volgorde): de punten komen er meteen in */}
               <div className="form-group" style={{ margin: 0 }}>
-                <span className="form-label">Beginnen met een bestand <span style={{ fontWeight: 400, color: "var(--muted)" }}>(mag ook later)</span></span>
+                <span className="form-label">Bestand <span className="nieuwe-route-bij">· GPX of KML, mag ook later</span></span>
                 {gpx ? (
                   <div className="nieuwe-route-gpx">
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -314,8 +311,9 @@ export default function RoutesOverzicht() {
                     <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setGpx(null)} title="Bestand weghalen" aria-label="Bestand weghalen">✕</button>
                   </div>
                 ) : (
-                  <button type="button" className="rl-knop" style={{ justifyContent: "center", height: 44 }} onClick={() => gpxRef.current?.click()}>
-                    📂 GPX- of KML-bestand inlezen
+                  <button type="button" className="rl-knop" style={{ justifyContent: "center", height: 38 }} onClick={() => gpxRef.current?.click()}
+                    title="Alleen bij Op volgorde: een wandeling uit een app of van een Garmin wordt meteen je route">
+                    📂 Bestand inlezen
                   </button>
                 )}
                 <input ref={gpxRef} type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={kiesGpx} style={{ display: "none" }} />
@@ -328,12 +326,8 @@ export default function RoutesOverzicht() {
                     <button type="button" role="radio" aria-checked={gpxStil} className={gpxStil ? "aan" : ""} onClick={() => setGpxStil(true)}>🚶 Gewoon doorlopen</button>
                     <button type="button" role="radio" aria-checked={!gpxStil} className={!gpxStil ? "aan" : ""} onClick={() => setGpxStil(false)}>ℹ️ Tekst bij elk punt</button>
                   </div>
-                  <span className="nieuwe-route-noot">
-                    {gpxStil ? "De spelers volgen de route; elk punt telt vanzelf als gepasseerd." : `Bij elk punt: "${IMPORT_INFO_TEKST}"`} Per punt kun je later een tekst of vraag toevoegen. Een spoor krijgt een 🏁 finish aan het eind.
-                  </span>
-                </>) : (
-                  <span className="nieuwe-route-noot">Alleen bij Op volgorde. Een wandeling uit een app of van een Garmin wordt meteen je route.</span>
-                )}
+                  <span className="nieuwe-route-noot">{gpxStil ? "Elk punt telt vanzelf als gepasseerd." : `Bij elk punt: "${IMPORT_INFO_TEKST}"`}</span>
+                </>) : null}
               </div>
 
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}>⚠️ {fout}</div>}
@@ -341,9 +335,7 @@ export default function RoutesOverzicht() {
               <button className="rl-knop rl-knop--cyan nieuwe-route-knop" type="submit" disabled={bezig || !nieuweNaam.trim()}>
                 {bezig ? "⏳ Aanmaken…" : gpx ? "Aanmaken met deze punten →" : "Aanmaken en beginnen →"}
               </button>
-              <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>
-                {gpx ? "Daarna kun je de punten in de editor nalopen, verslepen en er vragen aan hangen." : <>Daarna helpt de app je stap voor stap: startpunt, {nieuweModus === "verspreid" ? "finish, teams en afstand" : "punten en finish"}.</>}
-              </div>
+              {!gpx && <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>Daarna helpt de app je stap voor stap.</div>}
               <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: 0 }}>💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop.</div>
             </form>
           </div>
