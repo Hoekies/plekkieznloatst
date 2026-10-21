@@ -1,5 +1,6 @@
 export type RouteStatus = "concept" | "gepubliceerd";
-export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt";
+// doorlooppunt: de speler krijgt geen scherm, het punt telt vanzelf als gepasseerd (migratie 013)
+export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt" | "doorlooppunt";
 export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
 export type AntwoordKleur = "geel" | "blauw" | "rood" | "groen";
 export type AntwoordType = "tekst" | "afbeelding";

@@ -317,7 +317,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       kleur: t.kleur,
       ...schatTeamTijd(t.coords, {
         vragen: t.punten.filter((p) => vraagPuntIds.has(p.id)).length,
-        infopunten: t.punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "eindpunt").length,
+        infopunten: t.punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "eindpunt" && p.type !== "doorlooppunt").length,
         items: schattingItems,
         teams: verwachtTeams,
         respawn: !!route.item_respawn,
@@ -1532,7 +1532,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const isHub = isHubStart || isHubEind;
                 const badge = isHubStart ? "🏠" : pt.type === "eindpunt" ? "🏁" : (isVerspreid ? i : i + 1);
                 // Zelfde kleuren als de markers op de kaart
-                const badgeBg = isHubStart ? "#16A34A" : pt.type === "eindpunt" ? "#F59E0B" : pt.type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
+                const badgeBg = isHubStart ? "#16A34A" : pt.type === "eindpunt" ? "#F59E0B" : pt.type === "informatiepunt" ? "#06B6D4" : pt.type === "doorlooppunt" ? "#64748B" : "#1E40AF";
                 // Slepen: start en finish (en een eindpunt achteraan) liggen vast
                 const vast = isHub || (pt.type === "eindpunt" && i === punten.length - 1);
                 const isDoel = sleepId !== null && sleepDoel === i && sleepId !== pt.id;
@@ -1570,6 +1570,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     ) : pt.type === "vraagpunt" ? (
                       <button type="button" className="lijst-vraagknop lijst-vraagknop--leeg" title="Nog geen vraag: klik om hem in te vullen" aria-label="Vraag invullen"
                         onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>⚠️</button>
+                    ) : pt.type === "doorlooppunt" ? (
+                      <span className="lijst-doorloop" title="Doorlopen: de spelers krijgen hier geen scherm">🚶</span>
                     ) : null}
                     <div className="lijst-rij-acties" style={{ display: "flex", flexDirection: "row", gap: 0 }}>
                       <button title="Omhoog" aria-label="Omhoog" onClick={(e) => { e.stopPropagation(); verplaatsVolgorde(pt.id, "omhoog"); }}
@@ -1834,7 +1836,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       ))}
                     </div>
                     <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Een infopunt zonder tekst, foto of vraag passeren de spelers stil, zonder venster.
+                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Per punt kies je ❓ Vraag, ℹ️ Info of 🚶 Door (geen scherm).
                     </span>
                   </div>
                 )}

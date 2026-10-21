@@ -6,7 +6,7 @@ import { IMPORT_START_NAAM, IMPORT_START_TEKST } from "@/lib/punten-import";
 
 // Punten importeren: meerdere punten in één keer, vóór de finish (als die er is). Alleen bij "Op volgorde".
 // Ze worden infopunten met dezelfde tekst (bijv. "Punt bereikt! Loop door naar het volgende punt.").
-// Zonder tekst zijn het stille punten: de speler loopt er gewoon langs, zonder venster.
+// Zonder tekst worden het doorlooppunten: de speler loopt er gewoon langs, zonder venster.
 // Body: { punten: [{ lat, lng, naam?, finish? }], beschrijving?, radius_meters? }
 // finish (alleen bij het laatste punt): wordt de 🏁 finish, als de route er nog geen heeft
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { data: nieuw, error } = await admin.from("route_points").insert(lijst.map((p, i) => ({
     route_id: params.id,
     order_index: start + i,
-    type: p.finish ? "eindpunt" : "informatiepunt",
+    type: p.finish ? "eindpunt" : beschrijving ? "informatiepunt" : "doorlooppunt",
     name: p.finish ? "Finish" : metStart && i === 0 ? p.naam || IMPORT_START_NAAM : p.naam || `Punt ${metStart ? i : alle.length + i + 1}`,
     latitude: p.lat,
     longitude: p.lng,

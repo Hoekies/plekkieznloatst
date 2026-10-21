@@ -87,7 +87,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
   return (
     <div className="editor-paneel-inhoud">
       <div className="editor-paneel-kop">
-        <span style={{ fontSize: "1.1rem" }}>{type === "eindpunt" ? "🏁" : type === "informatiepunt" ? "ℹ️" : "📍"}</span>
+        <span style={{ fontSize: "1.1rem" }}>{type === "eindpunt" ? "🏁" : type === "informatiepunt" ? "ℹ️" : type === "doorlooppunt" ? "🚶" : "📍"}</span>
         <span>Punt</span>
         <button onClick={onSluit} className="editor-paneel-sluit" aria-label="Sluiten">✕</button>
       </div>
@@ -96,7 +96,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
       <div className="form-group" style={{ margin: 0 }}>
         <label className="form-label">Soort punt</label>
         <div className="segment" role="radiogroup" aria-label="Soort punt">
-          {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
+          {([["vraagpunt", "❓ Vraag"], ["informatiepunt", "ℹ️ Info"], ["doorlooppunt", "🚶 Door"], ["eindpunt", "🏁 Eind"]] as const).map(([t, label]) => (
             <button key={t} type="button" role="radio" aria-checked={type === t} className={type === t ? "aan" : ""} onClick={() => setType(t)}>
               {label}
             </button>
@@ -126,7 +126,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           <div className="form-group" style={{ margin: 0 }}>
             <label className="form-label">Tekst voor de spelers</label>
             <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)}
-              placeholder="Leeg laten: de spelers lopen er stil langs (geen venster)" style={{ fontSize: "0.85rem", minHeight: 60 }} />
+              placeholder="Dit lezen de spelers als ze hier aankomen" style={{ fontSize: "0.85rem", minHeight: 60 }} />
           </div>
           {/* Een infopunt met een vraag (zoals een startvraag): de spelers krijgen dan de vraag */}
           {heeftVraag && (
@@ -136,6 +136,10 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
             </>
           )}
         </>
+      )}
+
+      {type === "doorlooppunt" && (
+        <div className="editor-paneel-noot">🚶 <strong>Doorlopen:</strong> de spelers krijgen hier geen scherm. Het punt telt vanzelf als gepasseerd en het volgende punt verschijnt.{heeftVraag && " De vraag die hier hangt wordt niet gesteld."}</div>
       )}
 
       {type === "eindpunt" && (

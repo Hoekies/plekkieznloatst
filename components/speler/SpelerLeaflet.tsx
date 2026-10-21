@@ -17,7 +17,7 @@ interface Props {
   verwerktIds: Set<string>;
   bereiktIds: Set<string>;
   activePuntId: string | null;
-  // Stille punten (geen venster): klein bolletje in plaats van een rondje met teken
+  // Doorlooppunten (geen scherm): klein bolletje in plaats van een rondje met teken
   stilleIds?: Set<string>;
   // Op volgorde: alle punten en de lijn ertussen meteen tonen
   heleRoute?: boolean;

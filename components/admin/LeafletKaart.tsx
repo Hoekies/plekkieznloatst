@@ -543,7 +543,7 @@ function maakIcoon(
   isHubStart: boolean,
   geselecteerd: boolean
 ) {
-  const bg = isHubStart ? "#16A34A" : type === "eindpunt" ? "#F59E0B" : type === "informatiepunt" ? "#06B6D4" : "#1E40AF";
+  const bg = isHubStart ? "#16A34A" : type === "eindpunt" ? "#F59E0B" : type === "informatiepunt" ? "#06B6D4" : type === "doorlooppunt" ? "#64748B" : "#1E40AF";
   const ring = geselecteerd ? `box-shadow:0 0 0 3px #fff,0 0 0 5px ${bg};` : "";
   return L.divIcon({
     html: `<div style="width:32px;height:32px;border-radius:50%;background:${bg};color:#fff;

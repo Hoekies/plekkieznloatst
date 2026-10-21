@@ -68,7 +68,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 012 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 013 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```
@@ -95,7 +95,7 @@ plekkie-zn-loatst/
 | id | uuid PK | |
 | route_id | uuid FK → routes | |
 | order_index | integer | Volgorde |
-| type | text | `vraagpunt` / `informatiepunt` / `eindpunt` |
+| type | text | `vraagpunt` / `informatiepunt` / `eindpunt` / `doorlooppunt` (geen scherm, migratie 013) |
 | name | text | |
 | description | text | |
 | latitude | float8 | |

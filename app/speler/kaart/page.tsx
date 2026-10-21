@@ -64,14 +64,9 @@ export default async function SpelerKaartPage() {
     redirect("/speler");
   }
 
-  // Stille punten: infopunt zonder tekst, foto of vraag. De speler loopt er gewoon langs (geen venster).
-  // Niet bij een rondje: daar is het eerste punt de start met het welkomstscherm.
-  const infoIds = (ruwePunten ?? []).filter((p) => p.type === "informatiepunt" && !p.description?.trim() && !p.image_path).map((p) => p.id);
-  const { data: metVraag } = infoIds.length && route.modus !== "verspreid"
-    ? await admin.from("questions").select("route_point_id").in("route_point_id", infoIds)
-    : { data: [] as { route_point_id: string }[] };
-  const vraagIds = new Set((metVraag ?? []).map((v) => v.route_point_id));
-  const stilleIds = route.modus === "verspreid" ? [] : infoIds.filter((id) => !vraagIds.has(id));
+  // Doorlooppunten: de speler loopt er gewoon langs (geen scherm), het volgende punt verschijnt
+  // Niet het eerste punt van een rondje: dat is de start met het welkomstscherm
+  const stilleIds = (ruwePunten ?? []).filter((p, i) => p.type === "doorlooppunt" && !(route.modus === "verspreid" && i === 0)).map((p) => p.id);
 
   // Sorteer punten op de teamvolgorde
   let punten = ruwePunten ?? [];

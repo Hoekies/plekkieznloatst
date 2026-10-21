@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
   // moet die beantwoord worden: zonder antwoord wordt het punt niet verwerkt.
   // Ook de finish kan een vraag of opdracht hebben; zonder vraag telt alleen de puntwaarde.
   {
-    // Vraag ophalen
-    const { data: vraag } = await admin
+    // Vraag ophalen (een doorlooppunt stelt nooit een vraag, ook als er nog een aan hangt)
+    const { data: vraag } = punt.type === "doorlooppunt" ? { data: null } : await admin
       .from("questions")
       .select("*, answer_options(*)")
       .eq("route_point_id", route_point_id)
@@ -79,9 +79,9 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (!vraag) {
-      // Vraagpunt zonder vraag → doorgaan als informatiepunt
+      // Vraagpunt zonder vraag → doorgaan als informatiepunt; een doorlooppunt levert niets op
       isCorrect = true;
-      puntWaarde = punt.points;
+      puntWaarde = punt.type === "doorlooppunt" ? 0 : punt.points;
     } else if (vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") {
       if (!selected_answer_id) return NextResponse.json({ fout: "Geen antwoord opgegeven" }, { status: 400 });
 

@@ -2836,3 +2836,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .nieuwe-route-gpx-aantal { font-size: 0.95rem; font-weight: 800; color: #fff; }
 .nieuwe-route-gpx-aantal span { font-weight: 500; color: var(--muted); }
 .import-nr--start { background: #16A34A; font-size: 0.8rem; }
+
+/* Puntenlijst: doorlooppunt (geen scherm voor de speler) */
+.lijst-doorloop { flex-shrink: 0; width: 26px; text-align: center; font-size: 0.85rem; opacity: 0.8; }

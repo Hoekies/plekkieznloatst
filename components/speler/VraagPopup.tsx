@@ -482,6 +482,7 @@ function TypeBadge({ type }: { type: RoutePunt["type"] }) {
   const cfg = {
     vraagpunt:      { label: "❓ VRAAG",      bg: "#DBEAFE", kleur: "#1E40AF" },
     informatiepunt: { label: "ℹ️ INFORMATIE", bg: "#CFFAFE", kleur: "#0E7490" },
+    doorlooppunt:   { label: "🚶 DOORLOPEN",  bg: "#E2E8F0", kleur: "#334155" },
     eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3", kleur: "#A16207" },
   }[type];
   return (
