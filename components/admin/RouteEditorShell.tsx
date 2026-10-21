@@ -161,21 +161,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [aantalHandmatig, setAantalHandmatig] = useState(false);
   const [centrumPunt, setCentrumPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [centrumModus, setCentrumModus] = useState(false);
-  // 🚀 Eerste stappen: bij een nieuwe (lege) route meteen open; de stap wordt per route onthouden
-  const stappenSleutel = `pr_eerste_stappen_${initRoute.id}`;
-  // Alleen bij een lege route (geen punten en geen items) vanzelf open
+  // Rondje: de punten op de cirkel verdraaid met zoveel graden ("Ander voorbeeld" in de eerste stappen)
+  const [cirkelDraai, setCirkelDraai] = useState(0);
+  // 🚀 Eerste stappen: bij een nieuwe (lege) route meteen open. Een lege kaart begint altijd bij
+  // stap 1 (startpunt): de gekozen start en finish staan nog nergens opgeslagen.
   const [stappenOpen, setStappenOpen] = useState(() => (initRoute.route_points ?? []).length === 0);
   const [stappenStap, setStappenStap] = useState(0);
-  useEffect(() => {
-    try { const n = Number(localStorage.getItem(stappenSleutel)); if (n > 0) setStappenStap(n); } catch { /* geen opslag */ }
-  }, [stappenSleutel]);
   // Schatting van het aantal punten uit de afstand en het aantal teams (tot je het zelf aanpast)
   useEffect(() => {
     if (aantalHandmatig || doelAfstandKm <= 0) return;
     setAantalPunten(Math.max(3, Math.min(30, Math.max(verwachtTeams * 2, Math.round(doelAfstandKm * 2.5)))));
   }, [doelAfstandKm, verwachtTeams, aantalHandmatig]);
 
-  const zetStappenStap = (n: number) => { setStappenStap(n); try { localStorage.setItem(stappenSleutel, String(n)); } catch { /* geen opslag */ } };
   const [wizardKies, setWizardKies] = useState<KiesModus>(null);
   // Verspreid: finish op een eigen plek (anders op het startpunt)
   const [finishPunt, setFinishPunt] = useState<{ lat: number; lng: number } | null>(null);
@@ -527,10 +524,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, items_na_finish_types: nieuw, items_na_finish: nieuw.length > 0 }));
   }
 
-  function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number) {
+  function puntenOpCirkel(lat: number, lng: number, radiusM: number, n: number, draaiGraden = 0) {
     const R = 6371000;
     return Array.from({ length: n }, (_, i) => {
-      const hoek = (2 * Math.PI / n) * i - Math.PI / 2;
+      const hoek = (2 * Math.PI / n) * i - Math.PI / 2 + (draaiGraden * Math.PI) / 180;
       const dLat = (radiusM * Math.cos(hoek)) / R * (180 / Math.PI);
       const dLng = (radiusM * Math.sin(hoek)) / (R * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
       return { lat: lat + dLat, lng: lng + dLng };
@@ -540,9 +537,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const ghostPunten = useMemo(() => {
     if (route.modus !== "verspreid" || doelAfstandKm <= 0 || !centrumPunt) return [];
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
-    return puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten);
+    return puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten, cirkelDraai);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.modus, doelAfstandKm, centrumPunt, aantalPunten]);
+  }, [route.modus, doelAfstandKm, centrumPunt, aantalPunten, cirkelDraai]);
 
   async function herlaadPunten() {
     const res = await api(`/api/admin/routes/${route.id}/punten`);
@@ -631,13 +628,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function maakRouteLeeg() {
-    const res = await api(`/api/admin/routes/${route.id}/leegmaken`, { method: "POST" });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Leegmaken", data.fout), "fout"); return; }
+    // Alleen een gekozen start/finish (nog geen punten of items): niets op de server weg te halen
+    if (punten.length || specialeItems.length) {
+      const res = await api(`/api/admin/routes/${route.id}/leegmaken`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Leegmaken", data.fout), "fout"); return; }
+    }
     setPunten([]);
     setSpecialeItems([]);
     setGeselecteerd(null);
     setStappen([]);  // eerdere stappen verwijzen naar punten die niet meer bestaan
+    // Lege kaart: de eerste stappen opnieuw, vanaf het startpunt
+    setCentrumPunt(null); setFinishPunt(null); setFinishZelfde(false); setWizardKies(null); setCirkelDraai(0);
+    setStappenStap(0);
+    if (!route.is_active) setStappenOpen(true);
     toonMelding("De route is leeg", "ok");
   }
 
@@ -645,7 +649,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (!centrumPunt || doelAfstandKm <= 0) return;
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
     // Op de cirkel, en dan elk punt naar de dichtstbijzijnde weg of het voetpad
-    const coords = await opDeWeg(puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten));
+    const coords = await opDeWeg(puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten, cirkelDraai));
     for (const pt of punten) {
       const res = await api(`/api/admin/routes/${route.id}/punten/${pt.id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -1292,8 +1296,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </BevestigKnop>
             {!route.is_active && (
               <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
-                vraag="" uitleg={`Alle ${punten.length} punten (met hun vragen) en ${specialeItems.length} items gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`}
-                ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length}
+                vraag="" uitleg={punten.length || specialeItems.length
+                  ? `Alle ${punten.length} punten (met hun vragen), ${specialeItems.length} items en de gekozen start en finish gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`
+                  : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
+                ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
                 className="rl-knop" tip="Route leegmaken: alle punten en items weg" tipOnder>
                 🗑️<span className="alleen-pc"> Leegmaken</span>
               </BevestigKnop>
@@ -2267,7 +2273,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {stappenOpen ? (
           <EersteStappen
             modus={route.modus}
-            stap={stappenStap} onStap={zetStappenStap}
+            stap={stappenStap} onStap={setStappenStap}
             onSluit={() => { setStappenOpen(false); setWizardKies(null); }}
             zoekterm={plaatsZoekterm} onZoekterm={setPlaatsZoekterm} onZoek={zoekPlaats} zoekBezig={plaatsBezig} zoekFout={plaatsFout}
             kies={wizardKies} onKies={setWizardKies}
@@ -2279,6 +2285,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onBewaarInstellingen={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
             onMaakPunten={async () => { setMaakBezig(true); try { await genereerPuntenInCirkel(); } finally { setMaakBezig(false); } }}
             maakBezig={maakBezig}
+            onAnderVoorbeeld={() => setCirkelDraai((d) => (d + 15) % 360)}
             aantalPunten={punten.length}
             heeftFinish={punten[punten.length - 1]?.type === "eindpunt"}
             itemAantal={itemCheck?.voorstellen.length ?? 0} onItemAantal={(n) => setItemDoel(n)} aantalItems={specialeItems.length}
@@ -2288,7 +2295,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onControleren={() => { setStappenOpen(false); setControleOpen(true); }}
           />
         ) : !route.is_active && route.status !== "gepubliceerd" && punten.length === 0 && specialeItems.length === 0 && (
-          <button type="button" className="eerste-stappen-knop" onClick={() => setStappenOpen(true)} title="Stap voor stap de route opzetten">🚀 Eerste stappen</button>
+          <button type="button" className="eerste-stappen-knop" onClick={() => { setStappenStap(0); setStappenOpen(true); }} title="Stap voor stap de route opzetten">🚀 Eerste stappen</button>
         )}
 
 

@@ -2839,3 +2839,19 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Puntenlijst: doorlooppunt (geen scherm voor de speler) */
 .lijst-doorloop { flex-shrink: 0; width: 26px; text-align: center; font-size: 0.85rem; opacity: 0.8; }
+
+/* Route-editor (groot scherm): 📢 en Uitloggen klein, alleen icoon, op de hoogte van de bovenste regel.
+   Zo lopen bij een smaller venster de editorknoppen er niet onder door; past de kop niet, dan loopt
+   hij door naar een tweede regel. De routenaam blijft altijd (ingekort) zichtbaar. */
+@media (min-width: 769px) {
+  body:has(.route-editor-topbar) .admin-uitlog-hoek { height: 58px; right: 14px; gap: 6px; }
+  body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop { height: 38px; padding: 0 8px; gap: 0; font-size: 0; }
+  body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop-icoon { width: 24px; font-size: 1.2rem; }
+  body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop svg { width: 20px; height: 20px; }
+  body:has(.route-editor-topbar) .admin-uitlog-hoek .info-knop { width: 40px; }
+  .route-editor-topbar .editor-kop { padding-right: 110px; flex-wrap: wrap; row-gap: 6px; }
+  .route-editor-topbar .editor-naam { min-width: 90px; }
+}
+
+/* Eerste stappen: drie knoppen (Terug, Ander voorbeeld, Ja) passen op een smal scherm ook */
+.es-voet { flex-wrap: wrap; row-gap: 6px; }

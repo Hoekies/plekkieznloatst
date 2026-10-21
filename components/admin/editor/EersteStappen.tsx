@@ -33,6 +33,8 @@ type Props = {
   onBewaarInstellingen: () => void;
   onMaakPunten: () => Promise<void>;
   maakBezig: boolean;
+  // Voorbeeld: de punten 15° verder over de cirkel
+  onAnderVoorbeeld: () => void;
   // Stand van de route
   aantalPunten: number;
   heeftFinish: boolean;
@@ -116,15 +118,16 @@ export default function EersteStappen(p: Props) {
     </>);
     else if (stap === 3) {
       inhoud = (<>
-        <p>Zo komen de <strong>{p.aantal} punten</strong> ongeveer te liggen (gestippeld op de kaart). Klopt dit? Dan maakt de app ze, meteen op de weg of het voetpad.</p>
+        <p>Zo komen de <strong>{p.aantal} punten</strong> ongeveer te liggen (gestippeld op de kaart). Klopt dit? Dan maakt de app ze, meteen op de weg of het voetpad. Liever iets anders? Met <strong>🔄 Ander voorbeeld</strong> schuiven ze een stukje over de cirkel.</p>
         {p.aantalPunten >= 3 && <div className="es-ok">✓ {p.aantalPunten} punten staan op de kaart. Verslepen kan altijd nog.</div>}
       </>);
-      eigenVoet = (
+      eigenVoet = (<>
+        <button type="button" className="rl-knop" disabled={p.maakBezig} onClick={p.onAnderVoorbeeld} title="De punten 15° verder over de cirkel">🔄 Ander voorbeeld</button>
         <button type="button" className="rl-knop rl-knop--cyan" disabled={p.maakBezig}
           onClick={async () => { await p.onMaakPunten(); naar(stap + 1); }}>
           {p.maakBezig ? "⏳ Punten maken…" : p.aantalPunten >= 3 ? "✓ Opnieuw maken" : "✓ Ja, maak de punten"}
         </button>
-      );
+      </>);
     }
     else if (stap === 4) {
       inhoud = (<>
