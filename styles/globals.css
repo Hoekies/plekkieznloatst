@@ -2903,13 +2903,19 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 @keyframes laad-glans { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .laad-blokje { animation: none; } }
 
-/* Puntenlijst: meerdere punten tegelijk kiezen en aanpassen */
-.meerdere { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
-.meerdere--aan { background: rgba(0,217,255,0.06); padding-top: 8px; margin-top: -8px; }
-.meerdere-knop { height: 30px; justify-content: center; font-size: 0.76rem; }
-.meerdere-rij { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 0.74rem; color: var(--muted); }
-.meerdere-rij > span { margin-right: 2px; }
-.meerdere-rij .rl-knop { height: 28px; padding: 0 8px; font-size: 0.74rem; }
+/* Puntenlijst: meerdere punten tegelijk kiezen en aanpassen (past in de smalle lijst) */
+.meerdere { padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.meerdere--aan { display: flex; flex-direction: column; gap: 6px; background: rgba(0,217,255,0.06); padding-top: 8px; margin-top: -8px; }
+.meerdere-open { width: 100%; padding: 4px 0; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.74rem; font-weight: 700; color: var(--muted); text-align: left; }
+.meerdere-open:hover { color: #fff; }
+.meerdere-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.78rem; color: var(--muted); }
+.meerdere-kop strong { color: #fff; }
+.meerdere-kop .rl-knop { height: 26px; padding: 0 10px; font-size: 0.74rem; }
+.meerdere-kies > button { font-size: 0.72rem; padding: 5px 2px; }
+.meerdere-kies > button:disabled { opacity: 0.4; cursor: default; }
+.meerdere-acties { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.meerdere-acties .rl-knop { height: 40px; padding: 0 2px; flex-direction: column; justify-content: center; gap: 1px; font-size: 0.95rem; line-height: 1; }
+.meerdere-acties .rl-knop span { font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.85); }
 .lijst-vink { flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid rgba(255,255,255,0.4); display: inline-flex; align-items: center;
   justify-content: center; font-size: 0.7rem; font-weight: 800; color: transparent; }
 .lijst-vink.aan { background: var(--cyan); border-color: var(--cyan); color: #04212B; }

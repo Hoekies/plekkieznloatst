@@ -94,7 +94,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 >
 > **⌨️ Sneltoetsen (pc).** **Ctrl+Z** ongedaan · **Delete** het gekozen punt of item weg · **Esc** paneel dicht · **← →** vorig of volgend punt kiezen. Ze werken niet tijdens het typen in een veld of als er een venster open staat.
 >
-> **☑️ Meerdere tegelijk aanpassen** (boven de puntenlijst): kies punten door ze aan te tikken, of met **Alles**, **Elk 2e** of **Elk 3e** (start en finish doen niet mee). Daarna zet je ze in één keer op **❓ vraag**, **ℹ️ info** of **🚶 door**, of geef je ze met **🏷️ Straatnaam** de naam van de straat of van een bekend gebouw of plek ernaast (bijv. "Kerkstraat", "De Zwaan"; dezelfde straat vaker krijgt een nummertje). Namen opzoeken gaat één punt per seconde.
+> **☑️ Meerdere punten tegelijk aanpassen** (boven de puntenlijst): kies punten door ze aan te tikken, of met **Alles**, **Elk 2e** of **Elk 3e** (start en finish doen niet mee). Daarna zet je ze in één keer op **❓ vraag**, **ℹ️ info** of **🚶 door**, of geef je ze met **🏷️ Naam** de naam van de straat of van een bekend gebouw of plek ernaast (bijv. "Kerkstraat", "De Zwaan"; dezelfde straat vaker krijgt een nummertje). Namen opzoeken gaat één punt per seconde.
 >
 > **💡 Ideeën** (in de vraag-editor, naast "Vraag"): de app kijkt wat er binnen 150 m op de kaart staat (kerk, molen, monument, café, speeltuin…) en stelt vragen voor, zoals "In welk jaar is de Sint-Lambertuskerk gebouwd?" of een foto-opdracht. Tik er een aan om hem over te nemen; het antwoord zoek je zelf op.
 

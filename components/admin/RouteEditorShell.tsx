@@ -1615,25 +1615,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* Meerdere punten tegelijk */}
             {actieveTab === "punten" && punten.length > 1 && (
               <div className={`meerdere${kiesModus ? " meerdere--aan" : ""}`}>
-                <button type="button" className={`rl-knop meerdere-knop${kiesModus ? " rl-knop--cyan" : ""}`}
-                  onClick={() => { setKiesModus((k) => !k); setGekozenIds(new Set()); setGeselecteerd(null); }}>
-                  {kiesModus ? "✓ Klaar met kiezen" : "☑️ Meerdere tegelijk aanpassen"}
-                </button>
-                {kiesModus && (<>
-                  <div className="meerdere-rij">
-                    <span>Kies:</span>
-                    <button type="button" className="rl-knop" onClick={() => kiesElke(1)}>Alles</button>
-                    <button type="button" className="rl-knop" onClick={() => kiesElke(2)}>Elk 2e</button>
-                    <button type="button" className="rl-knop" onClick={() => kiesElke(3)}>Elk 3e</button>
-                    <button type="button" className="rl-knop" onClick={() => setGekozenIds(new Set())} disabled={!gekozenIds.size}>Geen</button>
+                {!kiesModus ? (
+                  <button type="button" className="meerdere-open" onClick={() => { setKiesModus(true); setGekozenIds(new Set()); setGeselecteerd(null); }}>
+                    ☑️ Meerdere punten tegelijk aanpassen
+                  </button>
+                ) : (<>
+                  {/* Kop: hoeveel gekozen, en klaar */}
+                  <div className="meerdere-kop">
+                    <span>☑️ <strong>{gekozenIds.size}</strong> gekozen</span>
+                    <button type="button" className="rl-knop" onClick={() => { setKiesModus(false); setGekozenIds(new Set()); }}>✓ Klaar</button>
                   </div>
-                  <div className="meerdere-rij">
-                    <span><strong>{gekozenIds.size}</strong> gekozen:</span>
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("vraagpunt")} title="Vraagpunt maken">❓</button>
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("informatiepunt")} title="Infopunt maken">ℹ️</button>
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("doorlooppunt")} title="Doorlooppunt maken (geen scherm)">🚶</button>
+                  {/* Snel kiezen */}
+                  <div className="segment meerdere-kies" aria-label="Snel kiezen">
+                    <button type="button" onClick={() => kiesElke(1)}>Alles</button>
+                    <button type="button" onClick={() => kiesElke(2)}>Elk 2e</button>
+                    <button type="button" onClick={() => kiesElke(3)}>Elk 3e</button>
+                    <button type="button" onClick={() => setGekozenIds(new Set())} disabled={!gekozenIds.size}>Geen</button>
+                  </div>
+                  {/* Wat er met de gekozen punten gebeurt */}
+                  <div className="meerdere-acties">
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("vraagpunt")} title="Vraagpunt maken">❓<span>Vraag</span></button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("informatiepunt")} title="Infopunt maken">ℹ️<span>Info</span></button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("doorlooppunt")} title="Doorlooppunt maken (geen scherm)">🚶<span>Door</span></button>
                     <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={geefStraatnamen} title="Elk gekozen punt de naam van de straat of plek geven">
-                      {namenBezig ? `⏳ ${namenBezig}` : "🏷️ Straatnaam"}
+                      {namenBezig ? <>⏳<span>{namenBezig}</span></> : <>🏷️<span>Naam</span></>}
                     </button>
                   </div>
                 </>)}
