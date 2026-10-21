@@ -2834,3 +2834,4 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .nieuwe-route-gpx-naam { font-size: 0.74rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nieuwe-route-gpx-aantal { font-size: 0.95rem; font-weight: 800; color: #fff; }
 .nieuwe-route-gpx-aantal span { font-weight: 500; color: var(--muted); }
+.import-nr--start { background: #16A34A; font-size: 0.8rem; }

@@ -9,6 +9,9 @@ export type ImportResultaat = { punten: ImportPunt[]; nietHerkend: string[]; kor
 
 // Tekst van geïmporteerde punten (infopunten); in het importvenster aan te passen
 export const IMPORT_INFO_TEKST = "Punt bereikt! Loop door naar het volgende punt.";
+// Eerste punt bij import in een lege route: de start
+export const IMPORT_START_NAAM = "Start";
+export const IMPORT_START_TEKST = "Welkom bij de start! Loop naar het volgende punt: de pijl wijst de weg.";
 // Standaard straal van geïmporteerde punten bij een nieuwe route (zelfde als in de editor)
 export const IMPORT_STRAAL_M = 15;
 

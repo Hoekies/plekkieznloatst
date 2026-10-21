@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
-import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
+import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, IMPORT_START_NAAM, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { afstandTekst } from "@/lib/geo";
 
@@ -11,8 +11,9 @@ import { afstandTekst } from "@/lib/geo";
 // met coördinaten en Google Maps-links. Twee stappen: kiezen, dan controleren en toevoegen.
 // Ze worden infopunten met één tekst, vóór de finish, met de standaard straal van de route.
 // Een GPX-spoor krijgt een 🏁 finish aan het eind, tenzij de route al een finish heeft.
-export default function PuntenImporteren({ routeId, straal, heeftFinish, onKlaar }: {
-  routeId: string; straal: number; heeftFinish: boolean; onKlaar: () => void;
+// Is de route nog leeg (leeg), dan wordt het eerste punt de 🚩 start met een welkomsttekst.
+export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, onKlaar }: {
+  routeId: string; straal: number; heeftFinish: boolean; leeg: boolean; onKlaar: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [plakken, setPlakken] = useState(false);
@@ -151,8 +152,8 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, onKlaar
                 <div className="import-lijst">
                   {gevonden.map((p, i) => (
                     <div key={i} className="import-regel" title={`${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`}>
-                      <span className={`import-nr${p.finish ? " import-nr--finish" : ""}`}>{p.finish ? "🏁" : i + 1}</span>
-                      <span className="import-naam">{p.finish ? "Finish" : p.naam || `Punt ${i + 1}`}</span>
+                      <span className={`import-nr${p.finish ? " import-nr--finish" : leeg && i === 0 ? " import-nr--start" : ""}`}>{p.finish ? "🏁" : leeg && i === 0 ? "🚩" : leeg ? i : i + 1}</span>
+                      <span className="import-naam">{p.finish ? "Finish" : leeg && i === 0 ? p.naam || IMPORT_START_NAAM : p.naam || `Punt ${leeg ? i : i + 1}`}</span>
                       <button type="button" className="editor-paneel-sluit" aria-label="Weglaten" onClick={() => setGevonden((g) => g.filter((_, j) => j !== i))}>✕</button>
                     </div>
                   ))}

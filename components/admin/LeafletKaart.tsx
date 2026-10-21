@@ -217,6 +217,8 @@ export default function LeafletKaart({
       if (punten.length !== prevPuntenLenRef.current && punten.length > 0) {
         prevPuntenLenRef.current = punten.length;
         const bounds = L.latLngBounds(punten.map((p) => [p.latitude, p.longitude]));
+        // Eerst de echte maat van de kaart (de puntenlijst ernaast kan net verschenen zijn), anders valt een deel buiten beeld
+        kaart.invalidateSize();
         if (punten.length === 1) {
           kaart.setView([punten[0].latitude, punten[0].longitude], 16);
         } else {

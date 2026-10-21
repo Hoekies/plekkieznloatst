@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { voegPuntToeAanLopendeSpellen } from "@/lib/route-sessies";
+import { IMPORT_START_NAAM, IMPORT_START_TEKST } from "@/lib/punten-import";
 
 // Punten importeren: meerdere punten in één keer, vóór de finish (als die er is). Alleen bij "Op volgorde".
 // Ze worden infopunten met dezelfde tekst (bijv. "Punt bereikt! Loop door naar het volgende punt.").
@@ -42,16 +43,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     start = hoogste;
   }
 
+  // Lege route: het eerste punt is de start (met welkomsttekst); de nummering begint daarna bij 1
+  const metStart = alle.length === 0;
   const { data: nieuw, error } = await admin.from("route_points").insert(lijst.map((p, i) => ({
     route_id: params.id,
     order_index: start + i,
     type: p.finish ? "eindpunt" : "informatiepunt",
-    name: p.finish ? "Finish" : p.naam || `Punt ${alle.length + i + 1}`,
+    name: p.finish ? "Finish" : metStart && i === 0 ? p.naam || IMPORT_START_NAAM : p.naam || `Punt ${metStart ? i : alle.length + i + 1}`,
     latitude: p.lat,
     longitude: p.lng,
     radius_meters: straal,
     points: 0,
-    description: p.finish ? null : beschrijving || null,
+    description: p.finish ? null : metStart && i === 0 ? IMPORT_START_TEKST : beschrijving || null,
   }))).select();
   if (error || !nieuw) {
     // Finish terugzetten als het invoegen mislukt
