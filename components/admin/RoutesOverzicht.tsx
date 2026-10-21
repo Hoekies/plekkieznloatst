@@ -35,6 +35,9 @@ export default function RoutesOverzicht() {
   const [aanmaken, setAanmaken] = useState(false);
   // Beginnen met een GPX-bestand (alleen Op volgorde): de punten komen er meteen in
   const [gpx, setGpx] = useState<{ bestand: string; resultaat: ImportResultaat } | null>(null);
+  // Met GPX: hele route meteen zichtbaar en zonder vensters langs de punten (beide aan te passen)
+  const [gpxHeleRoute, setGpxHeleRoute] = useState(true);
+  const [gpxStil, setGpxStil] = useState(true);
   const gpxRef = useRef<HTMLInputElement>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
@@ -90,8 +93,14 @@ export default function RoutesOverzicht() {
     if (gpx) {
       const imp = await fetch(`/api/admin/routes/${route.id}/punten/meerdere`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ punten: gpx.resultaat.punten, beschrijving: IMPORT_INFO_TEKST, radius_meters: IMPORT_STRAAL_M }),
+        body: JSON.stringify({ punten: gpx.resultaat.punten, beschrijving: gpxStil ? "" : IMPORT_INFO_TEKST, radius_meters: IMPORT_STRAAL_M }),
       });
+      if (gpxHeleRoute) {
+        const zicht = await fetch(`/api/admin/routes/${route.id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ alle_punten_zichtbaar: true }),
+        });
+        if (!zicht.ok) toonMelding(`Hele route zichtbaar lukte niet: ${await foutUitleg(zicht, "Opslaan")}`, "fout");
+      }
       if (!imp.ok) toonMelding(`Route aangemaakt, maar de punten uit het bestand lukten niet: ${await foutUitleg(imp, "Importeren")} Probeer het in de editor met 📥 Importeren.`, "fout");
     }
     router.push(`/admin/routes/${route.id}`);
@@ -310,9 +319,21 @@ export default function RoutesOverzicht() {
                   </button>
                 )}
                 <input ref={gpxRef} type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={kiesGpx} style={{ display: "none" }} />
-                <span className="nieuwe-route-noot">
-                  {gpx ? `De punten worden ℹ️ infopunten ("${IMPORT_INFO_TEKST}"), een spoor krijgt een 🏁 finish aan het eind.` : "Alleen bij Op volgorde. Een wandeling uit een app of van een Garmin wordt meteen je route."}
-                </span>
+                {gpx ? (<>
+                  <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
+                    <button type="button" role="radio" aria-checked={gpxHeleRoute} className={gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(true)}>🗺️ Hele route zichtbaar</button>
+                    <button type="button" role="radio" aria-checked={!gpxHeleRoute} className={!gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(false)}>📍 Alleen volgend punt</button>
+                  </div>
+                  <div className="segment" role="radiogroup" aria-label="Wat krijgt de speler bij een punt">
+                    <button type="button" role="radio" aria-checked={gpxStil} className={gpxStil ? "aan" : ""} onClick={() => setGpxStil(true)}>🚶 Gewoon doorlopen</button>
+                    <button type="button" role="radio" aria-checked={!gpxStil} className={!gpxStil ? "aan" : ""} onClick={() => setGpxStil(false)}>ℹ️ Tekst bij elk punt</button>
+                  </div>
+                  <span className="nieuwe-route-noot">
+                    {gpxStil ? "De spelers volgen de route; elk punt telt vanzelf als gepasseerd." : `Bij elk punt: "${IMPORT_INFO_TEKST}"`} Per punt kun je later een tekst of vraag toevoegen. Een spoor krijgt een 🏁 finish aan het eind.
+                  </span>
+                </>) : (
+                  <span className="nieuwe-route-noot">Alleen bij Op volgorde. Een wandeling uit een app of van een Garmin wordt meteen je route.</span>
+                )}
               </div>
 
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}>⚠️ {fout}</div>}

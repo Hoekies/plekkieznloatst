@@ -40,6 +40,10 @@ interface Props {
   initVoortgang: SpelerPuntVoortgang[];
   modus: "sequentieel" | "verspreid";
   waarden: RouteWaarden;
+  // Punten zonder tekst, foto of vraag: tellen vanzelf als gepasseerd, zonder venster
+  stilleIds?: string[];
+  // Op volgorde: alle punten en de lijn ertussen meteen op de kaart
+  heleRoute?: boolean;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -71,7 +75,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -159,6 +163,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const verwerktIds = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
+  const stilSet = new Set(stilleIds);
   const spelAfgelopen = verwerktIds.size >= punten.length;
   // Voor de check of de organisatie het punt heeft vrijgegeven (die draait in een timer en zou
   // anders de waarden van het begin blijven zien)
@@ -229,7 +234,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   useEffect(() => {
     if (bereiktIds.size > 0 && activePunt && bereiktIds.has(activePunt.id) && !popupPunt) {
-      setPopupPunt(activePunt);
+      // Stil punt al bereikt maar nog niet afgerond (bijv. verbinding weg): alsnog stil afronden
+      if (stilSet.has(activePunt.id)) verwerkStil(activePunt);
+      else setPopupPunt(activePunt);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -318,9 +325,20 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Puntdetectie bij iedere positiewijziging
   useEffect(() => {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || bezigRef.current || popupPunt || plekzooiActief || ghostTot) return;
-    const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
-    if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
+    if (!positie || !activePunt || bezigRef.current || popupPunt || plekzooiActief || ghostTot) return;
+    // Stil punt wel bereikt maar het afronden mislukte (verbinding): opnieuw proberen
+    if (bereiktIds.has(activePunt.id)) {
+      if (stilSet.has(activePunt.id)) { bezigRef.current = true; verwerkStil(activePunt).finally(() => { bezigRef.current = false; }); }
+      return;
+    }
+    const binnen = (p: RoutePunt) => haversine(positie.latitude, positie.longitude, p.latitude, p.longitude) <= p.radius_meters;
+    if (binnen(activePunt)) { markeerBereikt(activePunt); return; }
+    // Een stil punt gemist (bocht afgesneden)? Bereikt het team een later punt en zijn alle punten
+    // daartussen stil, dan tellen die als gepasseerd
+    for (let i = verwerktIds.size; i < punten.length && stilSet.has(punten[i].id); i++) {
+      const later = punten[i + 1];
+      if (later && binnen(later)) { passeerTot(i + 1); return; }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positie]);
 
@@ -708,12 +726,61 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (res.ok) {
         const nieuweVoortgang: SpelerPuntVoortgang = await res.json();
         setVoortgang((v) => [...v, nieuweVoortgang]);
+        // Stil punt: meteen verwerken, zonder venster; alleen een kort seintje
+        if (stilSet.has(punt.id)) {
+          const klaar = await verwerkStil(punt);
+          if (klaar) toonGepasseerd(punt);
+          return;
+        }
         speelPuntBereikt(); tril(TRIL.puntBereikt);
         setPopupPunt(punt);
       }
     } finally {
       bezigRef.current = false;
     }
+  }
+
+  // Stil punt afronden op de server (zoals "Doorgaan" bij een infopunt)
+  async function verwerkStil(punt: RoutePunt): Promise<boolean> {
+    const res = await fetch("/api/speler/voortgang/verwerk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ route_point_id: punt.id }),
+    }).catch(() => null);
+    if (!res?.ok) return false;
+    const data = await res.json();
+    puntVerwerkt(data.voortgang ?? data);
+    return true;
+  }
+
+  function toonGepasseerd(punt: RoutePunt) {
+    tril(TRIL.gepasseerd);
+    setOpgehaaldToast(`✓ ${punt.name} gepasseerd`);
+    if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
+    opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 2000);
+  }
+
+  // Gemiste stille punten tot (niet met) index tot afronden, daarna het bereikte punt zelf
+  async function passeerTot(tot: number) {
+    if (bezigRef.current) return;
+    bezigRef.current = true;
+    try {
+      for (let i = verwerktIds.size; i < tot; i++) {
+        const punt = punten[i];
+        const res = await fetch("/api/speler/voortgang/bereik", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ route_point_id: punt.id }),
+        });
+        // 409 = al bereikt (bijv. na herladen): dan alleen nog verwerken
+        if (!res.ok && res.status !== 409) return;
+        if (res.ok) { const v: SpelerPuntVoortgang = await res.json(); setVoortgang((oud) => [...oud, v]); }
+        if (!await verwerkStil(punt)) return;
+      }
+    } finally {
+      bezigRef.current = false;
+    }
+    markeerBereikt(punten[tot]);
   }
 
   function puntVerwerkt(bijgewerktVoortgang: SpelerPuntVoortgang) {
@@ -980,6 +1047,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           punten={punten}
           verwerktIds={verwerktIds}
           bereiktIds={bereiktIds}
+          stilleIds={stilSet}
+          heleRoute={heleRoute}
           activePuntId={wachtOpStartVraag ? null : activePunt?.id ?? null}
           andereSpelers={andereSpelers}
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}

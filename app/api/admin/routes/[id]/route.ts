@@ -35,6 +35,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.ster_waarde === "number" && body.ster_waarde >= 0) toegestaan.ster_waarde = body.ster_waarde;
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
+  if (typeof body.alle_punten_zichtbaar === "boolean") toegestaan.alle_punten_zichtbaar = body.alle_punten_zichtbaar;
   if (Array.isArray(body.items_na_finish_types)) {
     // Keuze per item; de oude schakelaar staat aan zolang er minstens één item aan staat
     toegestaan.items_na_finish_types = ITEMS_NA_FINISH.filter((t) => body.items_na_finish_types.includes(t));
@@ -64,6 +65,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .eq("id", params.id)
     .select()
     .single();
+  if (error && /alle_punten_zichtbaar/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
+  }
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json(data);
 }

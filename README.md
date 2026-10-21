@@ -56,7 +56,7 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Live kaart met lagen (sporen, items) en licht/donker/luchtfoto in één paneel
 - Helpers aan- en uitzetten, net als spelers
 - 🚀 Eerste stappen bij een nieuwe route (startpunt, finish, teams en km, punten maken, items automatisch, vragen, controleren)
-- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar; één knop voor licht/donker/luchtfoto (begint licht)
+- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar; één knop voor licht/donker/luchtfoto (begint licht); op volgorde optioneel de hele route zichtbaar, met stille punten (zonder venster)
 
 ### Speciale items
 Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
@@ -115,7 +115,7 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren, `011_wachtwoord_bewaren.sql` om hetzelfde wachtwoord opnieuw te kunnen versturen.
+De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren, `011_wachtwoord_bewaren.sql` om hetzelfde wachtwoord opnieuw te kunnen versturen, `012_hele_route_zichtbaar.sql` om bij een route op volgorde de hele route te tonen.
 
 ### Starten
 

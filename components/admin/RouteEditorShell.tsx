@@ -1815,6 +1815,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>
 
+                {/* Op volgorde: wat zien de spelers op de kaart */}
+                {route.modus === "sequentieel" && (
+                  <div className="form-group">
+                    <label className="form-label">🗺️ Wat zien de spelers?</label>
+                    <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
+                      {([[false, "📍 Alleen volgend punt"], [true, "🗺️ Hele route"]] as const).map(([waarde, tekst]) => (
+                        <button key={tekst} type="button" role="radio" aria-checked={!!route.alle_punten_zichtbaar === waarde}
+                          className={!!route.alle_punten_zichtbaar === waarde ? "aan" : ""}
+                          onClick={async () => {
+                            if (!!route.alle_punten_zichtbaar === waarde) return;
+                            const res = await api(`/api/admin/routes/${route.id}`, {
+                              method: "PATCH", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ alle_punten_zichtbaar: waarde }),
+                            });
+                            if (res.ok) setRoute((r) => ({ ...r, alle_punten_zichtbaar: waarde }));
+                          }}>{tekst}</button>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Een infopunt zonder tekst, foto of vraag passeren de spelers stil, zonder venster.
+                    </span>
+                  </div>
+                )}
+
                 {/* Tussenstand */}
                 <div className="form-group">
                   <label className="form-label">🏆 Tussenstand — automatische reveal</label>

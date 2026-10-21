@@ -25,6 +25,8 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
   // De route had al een finish: die van het spoor is weggelaten
   const [finishWeg, setFinishWeg] = useState(false);
   const [infoTekst, setInfoTekst] = useState(IMPORT_INFO_TEKST);
+  // Stil = de speler loopt gewoon langs de punten, zonder venster
+  const [stil, setStil] = useState(true);
   const [bezig, setBezig] = useState<"lezen" | "opslaan" | null>(null);
 
   const controleren = gevonden.length > 0 || nietHerkend.length > 0;
@@ -77,13 +79,13 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
     setBezig("opslaan");
     const res = await fetch(`/api/admin/routes/${routeId}/punten/meerdere`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ punten: gevonden, beschrijving: infoTekst, radius_meters: straal }),
+      body: JSON.stringify({ punten: gevonden, beschrijving: stil ? "" : infoTekst, radius_meters: straal }),
     });
     const data = await res.json().catch(() => ({}));
     setBezig(null);
     if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Importeren", data.fout), "fout"); return; }
     toonMelding(`${data.aantal} punten toegevoegd`, "ok");
-    setOpen(false); setTekst(""); setPlakken(false); setInfoTekst(IMPORT_INFO_TEKST); opnieuw();
+    setOpen(false); setTekst(""); setPlakken(false); setInfoTekst(IMPORT_INFO_TEKST); setStil(true); opnieuw();
     onKlaar();
   }
 
@@ -141,9 +143,13 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
                 {/* Wat het worden */}
                 {gewoon > 0 && (
                   <div className="import-blok">
-                    <label className="import-label" htmlFor="import-tekst">ℹ️ Het worden infopunten met deze tekst</label>
-                    <input id="import-tekst" className="form-input" value={infoTekst} onChange={(e) => setInfoTekst(e.target.value)} maxLength={500} />
-                    <div className="import-noot">Straal {straal} m. Per punt kun je later de tekst aanpassen, een vraag toevoegen of er een vraagpunt van maken.</div>
+                    <span className="import-label">Wat krijgt de speler bij een punt?</span>
+                    <div className="segment" role="radiogroup" aria-label="Wat krijgt de speler bij een punt">
+                      <button type="button" role="radio" aria-checked={stil} className={stil ? "aan" : ""} onClick={() => setStil(true)}>🚶 Niets, gewoon doorlopen</button>
+                      <button type="button" role="radio" aria-checked={!stil} className={!stil ? "aan" : ""} onClick={() => setStil(false)}>ℹ️ Een tekst</button>
+                    </div>
+                    {!stil && <input className="form-input" value={infoTekst} onChange={(e) => setInfoTekst(e.target.value)} maxLength={500} aria-label="Tekst voor de spelers" />}
+                    <div className="import-noot">{stil ? "De speler volgt de route; elk punt telt vanzelf als gepasseerd." : "Bij elk punt opent een venster met deze tekst."} Straal {straal} m. Per punt kun je later een tekst of een vraag toevoegen.</div>
                   </div>
                 )}
 

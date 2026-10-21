@@ -38,6 +38,8 @@ Op de kaart zie je:
 
 Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huidige punt hebt afgerond, verschijnt het volgende. Je kunt dus niet vooruit kijken of punten overslaan.
 
+Heeft de organisatie de **hele route zichtbaar** gezet (bijvoorbeeld bij een ingelezen wandeling), dan zie je meteen alle punten en een paarse stippellijn ertussen; het volgende punt knippert. Kleine bolletjes op de lijn zijn **punten zonder venster**: loop er gewoon langs, je telefoon trilt kort en je ziet "✓ gepasseerd". Een bocht afgesneden? Zodra je het volgende punt bereikt, telt het gemiste bolletje ook.
+
 ---
 
 ## Een punt bezoeken

@@ -17,6 +17,10 @@ interface Props {
   verwerktIds: Set<string>;
   bereiktIds: Set<string>;
   activePuntId: string | null;
+  // Stille punten (geen venster): klein bolletje in plaats van een rondje met teken
+  stilleIds?: Set<string>;
+  // Op volgorde: alle punten en de lijn ertussen meteen tonen
+  heleRoute?: boolean;
   andereSpelers: SpelerLocatie[];
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
@@ -33,7 +37,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
@@ -42,9 +46,10 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const andereSpelersMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const spelerMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const accuracyCirkelRef = useRef<import("leaflet").Circle | null>(null);
-  const puntMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
+  const puntMarkersRef = useRef<Map<string, import("leaflet").Layer>>(new Map());
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
+  const heleLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
   // Licht, donker of luchtfoto met één knop; de kaart begint altijd licht
@@ -182,6 +187,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       .filter((p) => verwerktIds.has(p.id))
       .map((p): [number, number] => [p.latitude, p.longitude]);
 
+    // Hele route: gestippelde lijn langs alle punten, onder de gelopen lijn
+    heleLijnRef.current?.remove();
+    heleLijnRef.current = null;
+    if (heleRoute && punten.length >= 2) {
+      heleLijnRef.current = L.polyline(punten.map((p): [number, number] => [p.latitude, p.longitude]), {
+        color: "#7C3AED", weight: 3, opacity: 0.55, dashArray: "6 6",
+      }).addTo(map);
+    }
+
     if (polylineRef.current) { polylineRef.current.remove(); polylineRef.current = null; }
     if (polylinePunten.length >= 2) {
       polylineRef.current = L.polyline(polylinePunten, {
@@ -194,8 +208,20 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const isActief = punt.id === activePuntId;
       const isBereikt = bereiktIds.has(punt.id);
 
-      // Verborgen toekomstige punten
-      if (!isVerwerkt && !isActief && !isBereikt) return;
+      const isStil = !!stilleIds?.has(punt.id);
+      const isLater = !isVerwerkt && !isActief && !isBereikt;
+
+      // Toekomstige punten: verborgen, tenzij de hele route zichtbaar is
+      if (isLater && !heleRoute) return;
+
+      // Hele route: een later of gepasseerd stil punt is een klein bolletje op de lijn
+      if (isStil && !isActief && !isBereikt && punt.type !== "eindpunt") {
+        const bolletje = L.circleMarker([punt.latitude, punt.longitude], {
+          radius: 5, color: "#fff", weight: 2, fillColor: isVerwerkt ? "#16A34A" : "#7C3AED", fillOpacity: 1, interactive: false,
+        }).addTo(map);
+        puntMarkersRef.current.set(punt.id, bolletje);
+        return;
+      }
 
       // Ghosted punt: onzichtbaar maken
       if (punt.id === ghostedPuntId && !isVerwerkt) return;
@@ -207,9 +233,13 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         kleur = "#16A34A"; label = "✓";
       } else if (isBereikt) {
         kleur = "#F59E0B"; label = "!";
+      } else if (isLater) {
+        // Hele route: een later punt staat er al, maar rustiger
+        kleur = "#7C3AED";
+        label = punt.type === "eindpunt" ? "🏁" : punt.type === "informatiepunt" ? "i" : "?";
       } else {
         kleur = "#1E40AF";
-        label = punt.type === "eindpunt" ? "🏁" : "?";
+        label = punt.type === "eindpunt" ? "🏁" : isStil ? "•" : punt.type === "informatiepunt" ? "i" : "?";
       }
 
       const puls = isActief
@@ -233,7 +263,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const marker = L.marker([punt.latitude, punt.longitude], { icon, interactive: false }).addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId, kaartKlaar]);
+  }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId, kaartKlaar, heleRoute, stilleIds]);
 
   // Stippellijn naar het actieve punt, zodra dat punt zichtbaar is
   useEffect(() => {

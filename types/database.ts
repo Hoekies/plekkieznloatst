@@ -19,6 +19,8 @@ export interface Route {
   ster_waarde: number;
   bom_waarde: number;
   item_respawn: boolean;
+  // Op volgorde: spelers zien meteen alle punten en de lijn ertussen (migratie 012)
+  alle_punten_zichtbaar?: boolean;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;
   spook_duur_seconden: number;

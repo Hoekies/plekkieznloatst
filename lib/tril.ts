@@ -2,6 +2,7 @@
 // Elk moment een eigen ritme, zodat je het in je zak ook voelt.
 export const TRIL = {
   puntBereikt: [100, 60, 100],
+  gepasseerd: [40],
   itemGepakt: [60, 40, 60],
   startitems: [60, 40, 60, 40, 60],
   goed: [80],

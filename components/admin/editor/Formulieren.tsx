@@ -126,7 +126,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           <div className="form-group" style={{ margin: 0 }}>
             <label className="form-label">Tekst voor de spelers</label>
             <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)}
-              placeholder="Dit lezen de spelers als ze hier aankomen" style={{ fontSize: "0.85rem", minHeight: 60 }} />
+              placeholder="Leeg laten: de spelers lopen er stil langs (geen venster)" style={{ fontSize: "0.85rem", minHeight: 60 }} />
           </div>
           {/* Een infopunt met een vraag (zoals een startvraag): de spelers krijgen dan de vraag */}
           {heeftVraag && (
