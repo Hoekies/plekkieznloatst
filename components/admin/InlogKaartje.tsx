@@ -80,6 +80,18 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
 // Geeft terug of de reserveknop zinvol is.
 async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "klaar" | "geannuleerd"> {
   const tekst = waTekst(inlog);
+  // Computer: WhatsApp maakt van "plaatje + tekst" via het deelmenu twee losse berichten. Daarom: kaartje op het
+  // klembord en de chat openen met de tekst al ingevuld. Plak je het kaartje (Ctrl+V), dan wordt de tekst het
+  // bijschrift eronder: één bericht, net als op de telefoon.
+  const computer = !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && window.matchMedia("(pointer: fine)").matches;
+  if (beeld && computer && typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ [beeld.type]: beeld })]);
+      window.open(waLink(tekst, inlog.telefoon), "_blank");
+      toonMelding("Kaartje gekopieerd: plak het in de chat met Ctrl+V, de tekst komt er als bijschrift onder", "info");
+      return "klaar";
+    } catch { /* klembord niet toegestaan: dan via het deelmenu */ }
+  }
   if (beeld && navigator.canShare?.({ files: [beeld] })) {
     try {
       await navigator.share({ files: [beeld], text: tekst });
@@ -134,7 +146,7 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
       <div className="kaartje-acties">
         <button type="button" className="wa-knop" disabled={!beeld}
           onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
-          title="Het kaartje versturen, met het bericht (links en inlog) eronder">
+          title="Het kaartje versturen, met het bericht (links en inlog) als bijschrift eronder">
           <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "kaartje" ? "WhatsApp" : "✓ Verstuurd · nog een keer"}
         </button>
       </div>

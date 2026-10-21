@@ -319,7 +319,7 @@ Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de a
 - wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**);
 - en onderaan 👉 **Direct inloggen** met de link (en tot wanneer die werkt).
 
-Op de telefoon zet WhatsApp dat bericht meestal als bijschrift bij het kaartje. Op de computer laat WhatsApp de tekst soms weg; tik dan op **Tekst ontbreekt? Stuur het bericht erachteraan** onder de knop en kies dezelfde chat (die staat bovenaan).
+Op de telefoon zet WhatsApp dat bericht als bijschrift bij het kaartje: één bericht. Op de computer kopieert de app het kaartje en opent WhatsApp met de tekst al ingevuld (bij een bekend nummer meteen de goede chat); plak het kaartje met **Ctrl+V**, dan komt de tekst er als bijschrift onder, ook als één bericht. Lukt dat niet, dan gaat het via het deelmenu; laat WhatsApp de tekst dan weg, tik op **Tekst ontbreekt? Stuur het bericht erachteraan**.
 
 Kan je browser geen afbeeldingen delen, dan wordt het kaartje gedownload en opent WhatsApp meteen met het bericht; voeg het kaartje dan zelf toe.
 
