@@ -91,6 +91,12 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > **Foutmeldingen** in het hele beheer zeggen voortaan wat er misging én hoe je het oplost, in plaats van alleen "mislukt".
 
 > **↶ Ongedaan maken.** Verwijderd, verschoven, toegevoegd of gewijzigd? Met **↶ Ongedaan maken** bovenin (of **Ctrl+Z**) zet je de laatste stappen één voor één terug, tot 30 stappen. Een verwijderd punt komt terug met zijn vraag en antwoorden, op dezelfde plek in de lijst. Verwijderen vraagt daarom geen bevestiging meer.
+>
+> **⌨️ Sneltoetsen (pc).** **Ctrl+Z** ongedaan · **Delete** het gekozen punt of item weg · **Esc** paneel dicht · **← →** vorig of volgend punt kiezen. Ze werken niet tijdens het typen in een veld of als er een venster open staat.
+>
+> **☑️ Meerdere tegelijk aanpassen** (boven de puntenlijst): kies punten door ze aan te tikken, of met **Alles**, **Elk 2e** of **Elk 3e** (start en finish doen niet mee). Daarna zet je ze in één keer op **❓ vraag**, **ℹ️ info** of **🚶 door**, of geef je ze met **🏷️ Straatnaam** de naam van de straat of van een bekend gebouw of plek ernaast (bijv. "Kerkstraat", "De Zwaan"; dezelfde straat vaker krijgt een nummertje). Namen opzoeken gaat één punt per seconde.
+>
+> **💡 Ideeën** (in de vraag-editor, naast "Vraag"): de app kijkt wat er binnen 150 m op de kaart staat (kerk, molen, monument, café, speeltuin…) en stelt vragen voor, zoals "In welk jaar is de Sint-Lambertuskerk gebouwd?" of een foto-opdracht. Tik er een aan om hem over te nemen; het antwoord zoek je zelf op.
 
 > **Routes-overzicht**: de routes staan onder drie koppen: **▶ Actief**, **✅ Klaar** en **✏️ Concept**, binnen een groep op naam. Bij elke route zie je het speltype en **✏️ Aangepast** (de laatste bewerking in de editor; het spelen zelf telt niet mee). Een lange naam schuift vanzelf heen en weer.
 > De knoppen staan bij elke route op een vaste plek:
@@ -388,7 +394,7 @@ Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team)
 
 ## Het spel starten
 
-> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *Reset spel* worden je eigen vinkjes gewist.
+> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan met bovenaan **👉 Wat nu:** de eerstvolgende stap (die valt ook op in de lijst). Is er geen actieve route, dan staan de routes die op ✅ Klaar staan er meteen als knop (**▶ naam**: laatste controle en activeren). De stappen: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *Reset spel* worden je eigen vinkjes gewist.
 
 1. Ga naar de gewenste route en klik op **▶ Activeren**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch activeren**. Met **🩺 Controleren** in de routekop bekijk je deze lijst ook tussendoor.
    - Er kan maar één route tegelijk actief zijn.

@@ -112,6 +112,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
+  // Meerdere punten tegelijk: kiezen in de lijst, dan soort wijzigen of een straatnaam geven
+  const [kiesModus, setKiesModus] = useState(false);
+  const [gekozenIds, setGekozenIds] = useState<Set<string>>(new Set());
+  const [namenBezig, setNamenBezig] = useState<string | null>(null);
   const [instellingenOpen, setInstellingenOpen] = useState(false);
   // Verspreid: teams die het rondje andersom lopen
   const [omgekeerdeTeams, setOmgekeerdeTeams] = useState<number[]>(initRoute.omgekeerde_teams ?? []);
@@ -559,6 +563,49 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stappenOpen, stappenStap, ghostPunten, finishPunt, punten.length]);
 
+  // Start en finish van een rondje en de finish doen niet mee met "meerdere tegelijk"
+  function kiesbaar(pt: RoutePunt, i: number) {
+    const hub = route.modus === "verspreid" && punten.length >= 3 && (i === 0 || i === punten.length - 1);
+    return !hub && pt.type !== "eindpunt";
+  }
+  function kiesElke(stap: number) {
+    const lijst = punten.filter(kiesbaar);
+    setGekozenIds(new Set(lijst.filter((_, j) => (j + 1) % stap === 0).map((p) => p.id)));
+  }
+  async function zetSoortVoorGekozen(type: RoutePunt["type"]) {
+    const ids = [...gekozenIds];
+    const res = await Promise.all(ids.map((id) => api(`/api/admin/routes/${route.id}/punten/${id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type }),
+    })));
+    const gelukt = res.filter((r) => r.ok).length;
+    setPunten((ps) => ps.map((p) => gekozenIds.has(p.id) ? { ...p, type } : p));
+    toonMelding(gelukt === ids.length ? `${gelukt} punten aangepast` : `${gelukt} van ${ids.length} punten aangepast`, gelukt === ids.length ? "ok" : "fout");
+  }
+  // Straatnaam (of de naam van een gebouw of plek) opzoeken; de kaartdienst wil hooguit één vraag per seconde
+  async function geefStraatnamen() {
+    const lijst = punten.filter((p) => gekozenIds.has(p.id));
+    const gebruikt = new Map<string, number>();
+    punten.filter((p) => !gekozenIds.has(p.id)).forEach((p) => gebruikt.set(p.name, 1));
+    let gelukt = 0;
+    for (let k = 0; k < lijst.length; k++) {
+      setNamenBezig(`${k + 1}/${lijst.length}`);
+      if (k > 0) await new Promise((r) => setTimeout(r, 1100));
+      const res = await fetch(`/api/admin/geocode?lat=${lijst[k].latitude}&lng=${lijst[k].longitude}`).catch(() => null);
+      const naam = res?.ok ? (await res.json()).naam as string : null;
+      if (!naam) continue;
+      // Zelfde straat vaker? Dan een nummertje erachter
+      const keer = (gebruikt.get(naam) ?? 0) + 1;
+      gebruikt.set(naam, keer);
+      const nieuw = keer > 1 ? `${naam} ${keer}` : naam;
+      const opgeslagen = await api(`/api/admin/routes/${route.id}/punten/${lijst[k].id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: nieuw }),
+      });
+      if (opgeslagen.ok) { gelukt++; setPunten((ps) => ps.map((p) => p.id === lijst[k].id ? { ...p, name: nieuw } : p)); }
+    }
+    setNamenBezig(null);
+    toonMelding(`${gelukt} van ${lijst.length} punten hebben een naam gekregen`, gelukt ? "ok" : "fout");
+  }
+
   async function herlaadPunten() {
     const res = await api(`/api/admin/routes/${route.id}/punten`);
     if (res.ok) setPunten(await res.json());
@@ -976,21 +1023,43 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       setBezigMetHerstel(false);
     }
   }
-  // Ctrl+Z (of Cmd+Z), behalve tijdens het typen in een veld
+  // Sneltoetsen (pc), niet tijdens het typen in een veld of met een venster open:
+  // Ctrl+Z ongedaan · Delete het gekozen punt of item weg · Esc paneel dicht · ← → vorig of volgend punt
   const maakOngedaanRef = useRef(maakOngedaan);
   maakOngedaanRef.current = maakOngedaan;
+  const toetsRef = useRef({ geselecteerd, geselecteerdSpeciaal, punten });
+  toetsRef.current = { geselecteerd, geselecteerdSpeciaal, punten };
   useEffect(() => {
     function toets(e: KeyboardEvent) {
-      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
       const doel = e.target as HTMLElement | null;
       if (doel && (doel.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(doel.tagName))) return;
-      if (document.querySelector("[data-vraagvenster]")) return;
-      e.preventDefault();
-      maakOngedaanRef.current();
+      if (document.querySelector("[data-vraagvenster], [role=dialog]")) return;
+      const { geselecteerd: punt, geselecteerdSpeciaal: item, punten: lijst } = toetsRef.current;
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        maakOngedaanRef.current();
+      } else if ((e.key === "Delete" || e.key === "Backspace") && (punt || item)) {
+        e.preventDefault();
+        if (item) { verwijderSpeciaalItemRef.current(item.id); setGeselecteerdSpeciaal(null); }
+        else if (punt) { verwijderPuntRef.current(punt.id); setGeselecteerd(null); }
+      } else if (e.key === "Escape" && (punt || item)) {
+        setGeselecteerd(null); setGeselecteerdSpeciaal(null);
+      } else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && lijst.length && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const i = punt ? lijst.findIndex((p) => p.id === punt.id) : -1;
+        const nieuw = e.key === "ArrowRight" ? Math.min(lijst.length - 1, i + 1) : Math.max(0, i < 0 ? 0 : i - 1);
+        e.preventDefault();
+        setGeselecteerdSpeciaal(null);
+        setGeselecteerd(lijst[nieuw]);
+      }
     }
     window.addEventListener("keydown", toets);
     return () => window.removeEventListener("keydown", toets);
   }, []);
+
+  const verwijderSpeciaalItemRef = useRef<(id: string) => void>(() => {});
+  const verwijderPuntRef = useRef<(id: string) => void>(() => {});
+  verwijderSpeciaalItemRef.current = (id) => { verwijderSpeciaalItem(id); };
+  verwijderPuntRef.current = (id) => { verwijderPunt(id); };
 
   async function verwijderSpeciaalItem(id: string) {
     // Geen bevestiging: met "Ongedaan maken" komt het terug
@@ -1543,6 +1612,34 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
 
+            {/* Meerdere punten tegelijk */}
+            {actieveTab === "punten" && punten.length > 1 && (
+              <div className={`meerdere${kiesModus ? " meerdere--aan" : ""}`}>
+                <button type="button" className={`rl-knop meerdere-knop${kiesModus ? " rl-knop--cyan" : ""}`}
+                  onClick={() => { setKiesModus((k) => !k); setGekozenIds(new Set()); setGeselecteerd(null); }}>
+                  {kiesModus ? "✓ Klaar met kiezen" : "☑️ Meerdere tegelijk aanpassen"}
+                </button>
+                {kiesModus && (<>
+                  <div className="meerdere-rij">
+                    <span>Kies:</span>
+                    <button type="button" className="rl-knop" onClick={() => kiesElke(1)}>Alles</button>
+                    <button type="button" className="rl-knop" onClick={() => kiesElke(2)}>Elk 2e</button>
+                    <button type="button" className="rl-knop" onClick={() => kiesElke(3)}>Elk 3e</button>
+                    <button type="button" className="rl-knop" onClick={() => setGekozenIds(new Set())} disabled={!gekozenIds.size}>Geen</button>
+                  </div>
+                  <div className="meerdere-rij">
+                    <span><strong>{gekozenIds.size}</strong> gekozen:</span>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("vraagpunt")} title="Vraagpunt maken">❓</button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("informatiepunt")} title="Infopunt maken">ℹ️</button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("doorlooppunt")} title="Doorlooppunt maken (geen scherm)">🚶</button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={geefStraatnamen} title="Elk gekozen punt de naam van de straat of plek geven">
+                      {namenBezig ? `⏳ ${namenBezig}` : "🏷️ Straatnaam"}
+                    </button>
+                  </div>
+                </>)}
+              </div>
+            )}
+
             {/* Punten-tab */}
             {actieveTab === "punten" && (
               punten.length === 0 ? (
@@ -1562,12 +1659,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 const isDoel = sleepId !== null && sleepDoel === i && sleepId !== pt.id;
                 return (
                   <div key={pt.id}
-                    draggable={!vast}
+                    draggable={!vast && !kiesModus}
                     onDragStart={(e) => { setSleepId(pt.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", pt.id); }}
                     onDragOver={(e) => { if (sleepId) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; if (sleepDoel !== i) setSleepDoel(i); } }}
                     onDrop={(e) => { e.preventDefault(); if (sleepId) verplaatsNaar(sleepId, i); setSleepId(null); setSleepDoel(null); }}
                     onDragEnd={() => { setSleepId(null); setSleepDoel(null); }}
-                    onClick={() => setGeselecteerd(geselecteerd?.id === pt.id ? null : pt)}
+                    onClick={() => {
+                      if (!kiesModus) { setGeselecteerd(geselecteerd?.id === pt.id ? null : pt); return; }
+                      if (!kiesbaar(pt, i)) return;
+                      setGekozenIds((g) => { const n = new Set(g); if (n.has(pt.id)) n.delete(pt.id); else n.add(pt.id); return n; });
+                    }}
                     className={`lijst-rij${geselecteerd?.id === pt.id ? " lijst-rij--gekozen" : ""}${pt.type === "doorlooppunt" ? " lijst-rij--door" : ""}`}
                     title={vast ? undefined : "Sleep om de volgorde te veranderen"}
                     style={{
@@ -1578,6 +1679,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       boxShadow: isDoel ? `inset 0 ${(punten.findIndex((p) => p.id === sleepId) < i) ? "-3px" : "3px"} 0 var(--cyan)` : undefined,
                       opacity: sleepId === pt.id ? 0.4 : 1,
                     }}>
+                    {kiesModus && <span className={`lijst-vink${gekozenIds.has(pt.id) ? " aan" : ""}${kiesbaar(pt, i) ? "" : " uit"}`} aria-hidden>✓</span>}
                     <div className="lijst-badge" style={{
                       width: 27, height: 27, borderRadius: "50%", flexShrink: 0,
                       background: badgeBg, border: "2px solid #fff", boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
@@ -1794,27 +1896,21 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           }} onClick={() => setInstellingenOpen(false)}>
             <div style={{
               background: "#2a1566", color: "#e8f0ff",
-              borderRadius: 18, padding: 24,
+              borderRadius: 18, padding: "16px 18px 20px",
               maxWidth: 420, width: "100%", boxSizing: "border-box", maxHeight: "90vh", overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
             }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--cyan)" }}>⚙️ Instellingen</h2>
-                <button onClick={() => setInstellingenOpen(false)} style={{ border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 16, color: "#e8f0ff", fontWeight: 700 }}>✕</button>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 800, color: "#fff" }}>⚙️ Instellingen</h2>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setInstellingenOpen(false)} title="Sluiten" aria-label="Sluiten">✕</button>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
                 {/* Onderwerpen als knoppen */}
-                <div style={{ display: "flex", gap: 4 }}>
-                  {([["algemeen", "⚙️ Algemeen"], ["punten", "📍 Punten & vragen"], ["items", "🎁 Items"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
-                    <button key={t} type="button" onClick={() => setInstellingenTab(t)}
-                      style={{
-                        flex: 1, padding: "8px 4px", borderRadius: 9, cursor: "pointer", fontSize: "0.78rem", fontWeight: 700,
-                        border: `2px solid ${instellingenTab === t ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                        background: instellingenTab === t ? "rgba(0,217,255,0.15)" : "rgba(255,255,255,0.04)",
-                        color: instellingenTab === t ? "#fff" : "var(--muted)",
-                      }}>{label}</button>
+                <div className="segment" role="tablist" aria-label="Onderwerp">
+                  {([["algemeen", "⚙️ Algemeen"], ["punten", "📍 Punten"], ["items", "🎁 Items"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
+                    <button key={t} type="button" role="tab" aria-selected={instellingenTab === t} className={instellingenTab === t ? "aan" : ""} onClick={() => setInstellingenTab(t)}>{label}</button>
                   ))}
                 </div>
 
@@ -1842,30 +1938,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
                 </div>
 
-                {/* Op volgorde: wat zien de spelers op de kaart */}
-                {route.modus === "sequentieel" && (
-                  <div className="form-group">
-                    <label className="form-label">🗺️ Wat zien de spelers?</label>
-                    <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
-                      {([[false, "📍 Alleen volgend punt"], [true, "🗺️ Hele route"]] as const).map(([waarde, tekst]) => (
-                        <button key={tekst} type="button" role="radio" aria-checked={!!route.alle_punten_zichtbaar === waarde}
-                          className={!!route.alle_punten_zichtbaar === waarde ? "aan" : ""}
-                          onClick={async () => {
-                            if (!!route.alle_punten_zichtbaar === waarde) return;
-                            const res = await api(`/api/admin/routes/${route.id}`, {
-                              method: "PATCH", headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ alle_punten_zichtbaar: waarde }),
-                            });
-                            if (res.ok) setRoute((r) => ({ ...r, alle_punten_zichtbaar: waarde }));
-                          }}>{tekst}</button>
-                      ))}
-                    </div>
-                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Per punt kies je ❓ Vraag, ℹ️ Info of 🚶 Door (geen scherm).
-                    </span>
-                  </div>
-                )}
-
                 {/* Tussenstand */}
                 <div className="form-group">
                   <label className="form-label">🏆 Tussenstand — automatische reveal</label>
@@ -1890,6 +1962,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {instellingenTab === "punten" && (
                   <>
+                {/* Op volgorde: wat zien de spelers op de kaart */}
+                {route.modus === "sequentieel" && (
+                  <div className="form-group">
+                    <label className="form-label">🗺️ Wat zien de spelers?</label>
+                    <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
+                      {([[false, "📍 Alleen volgend punt"], [true, "🗺️ Hele route"]] as const).map(([waarde, tekst]) => (
+                        <button key={tekst} type="button" role="radio" aria-checked={!!route.alle_punten_zichtbaar === waarde}
+                          className={!!route.alle_punten_zichtbaar === waarde ? "aan" : ""}
+                          onClick={async () => {
+                            if (!!route.alle_punten_zichtbaar === waarde) return;
+                            const res = await api(`/api/admin/routes/${route.id}`, {
+                              method: "PATCH", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ alle_punten_zichtbaar: waarde }),
+                            });
+                            if (res.ok) setRoute((r) => ({ ...r, alle_punten_zichtbaar: waarde }));
+                          }}>{tekst}</button>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Per punt kies je ❓ Vraag, ℹ️ Info of 🚶 Door (geen scherm).
+                    </span>
+                  </div>
+                )}
+
                     <div className="form-group">
                       <label className="form-label">📏 Radius van de punten (m)</label>
                       <input className="form-input" type="number" min={3} value={puntRadius}

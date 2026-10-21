@@ -28,6 +28,13 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
   const [handmatig, setHandmatig] = useState<Record<string, boolean>>({});
   // Alles klaar: ingeklapt tot één regel, tenzij je de stappen zelf weer openklapt
   const [toonStappen, setToonStappen] = useState(false);
+  // Geen actieve route: welke routes staan klaar om te activeren?
+  const [klaarRoutes, setKlaarRoutes] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    if (route) return;
+    fetch("/api/admin/routes").then((r) => (r.ok ? r.json() : [])).then((lijst: { id: string; name: string; status: string }[]) =>
+      setKlaarRoutes(lijst.filter((r) => r.status === "gepubliceerd").slice(0, 3))).catch(() => {});
+  }, [route]);
   useEffect(() => {
     try { setHandmatig(JSON.parse(localStorage.getItem(sleutel) ?? "{}")); } catch { setHandmatig({}); }
     const leeg = () => setHandmatig({});
@@ -48,13 +55,18 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       id: "route", auto: true, klaar: !!route,
       titel: route ? `Route actief: ${route.name}` : "Activeer een route",
       uitleg: "Klaarzetten en activeren bij Routes.",
-      actie: !route && <Link href="/admin/routes" className="rl-knop rl-knop--cyan">🗺️ Naar routes</Link>,
+      // Staat er een route klaar? Dan meteen naar de laatste controle en activeren
+      actie: !route && (klaarRoutes.length
+        ? <span style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-end" }}>
+            {klaarRoutes.map((r) => <Link key={r.id} href={`/admin/routes/${r.id}?controle=1`} className="rl-knop hoofdknop" title="Laatste controle, daarna activeren">▶ {r.name}</Link>)}
+          </span>
+        : <Link href="/admin/routes" className="rl-knop hoofdknop">🗺️ Naar routes</Link>),
     },
     {
       id: "spelers", auto: true, klaar: spelers.length > 0,
       titel: spelers.length ? `${spelers.length} speler${spelers.length !== 1 ? "s" : ""} aangemaakt` : "Maak de spelers aan",
       uitleg: "Per team een loginnaam en wachtwoord.",
-      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop rl-knop--cyan">👫 Naar spelers</Link>,
+      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop hoofdknop">👫 Naar spelers</Link>,
     },
     {
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,
@@ -73,6 +85,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
     },
   ];
   const klaar = stappen.filter((s) => s.klaar).length;
+  // Wat nu? De eerste stap die nog niet klaar is
+  const nu = stappen.find((s) => !s.klaar);
 
   if (klaar === stappen.length && !toonStappen) {
     return (
@@ -102,8 +116,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <div className="pr-gem-label">📋 Spel klaarzetten</div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff" }}>{klaar} van {stappen.length} stappen klaar</div>
+            <div className="pr-gem-label">📋 Spel klaarzetten · {klaar} van {stappen.length} klaar</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff" }}>{nu ? <>👉 Wat nu: {nu.titel}</> : "Alles klaar"}</div>
             {/* Eén keer uitleggen hoe je zelf afvinkt (i.p.v. bij elke stap) */}
             {stappen.some((s) => !s.auto && !s.klaar) && <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Tik op een bolletje om een stap af te vinken.</div>}
           </div>
@@ -112,7 +126,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
         </div>
         <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${(klaar / stappen.length) * 100}%` }} /></div>
         {stappen.map((s, i) => (
-          <div key={s.id} className={`klaar-stap${s.klaar ? " klaar-stap--klaar" : ""}`}>
+          <div key={s.id} className={`klaar-stap${s.klaar ? " klaar-stap--klaar" : ""}${s === nu ? " klaar-stap--nu" : ""}`}>
             {s.auto ? (
               <span className="klaar-vinkje" aria-hidden>{s.klaar ? "✓" : i + 1}</span>
             ) : (

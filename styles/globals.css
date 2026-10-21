@@ -2902,3 +2902,25 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   background-size: 200% 100%; animation: laad-glans 1.3s ease-in-out infinite; }
 @keyframes laad-glans { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .laad-blokje { animation: none; } }
+
+/* Puntenlijst: meerdere punten tegelijk kiezen en aanpassen */
+.meerdere { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.meerdere--aan { background: rgba(0,217,255,0.06); padding-top: 8px; margin-top: -8px; }
+.meerdere-knop { height: 30px; justify-content: center; font-size: 0.76rem; }
+.meerdere-rij { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 0.74rem; color: var(--muted); }
+.meerdere-rij > span { margin-right: 2px; }
+.meerdere-rij .rl-knop { height: 28px; padding: 0 8px; font-size: 0.74rem; }
+.lijst-vink { flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid rgba(255,255,255,0.4); display: inline-flex; align-items: center;
+  justify-content: center; font-size: 0.7rem; font-weight: 800; color: transparent; }
+.lijst-vink.aan { background: var(--cyan); border-color: var(--cyan); color: #04212B; }
+.lijst-vink.uit { opacity: 0.2; }
+
+/* Dashboard, spel klaarzetten: de eerstvolgende stap valt op */
+.klaar-stap--nu { box-shadow: inset 0 0 0 1px rgba(0,217,255,0.6); background: rgba(0,217,255,0.08) !important; }
+
+/* Vraag-editor: 💡 vraagideeën uit de kaart rond het punt */
+.vraag-ideeen { display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 10px; background: rgba(255,217,59,0.06); border: 1px solid rgba(255,217,59,0.3); }
+.vraag-idee { text-align: left; padding: 7px 10px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.82rem; color: #fff;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.vraag-idee:hover { background: rgba(255,217,59,0.14); border-color: rgba(255,217,59,0.45); }
+.vraag-ideeen-leeg { font-size: 0.72rem; color: var(--muted); padding: 2px 4px; }

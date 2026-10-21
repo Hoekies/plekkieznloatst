@@ -122,6 +122,19 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
   const [type, setType] = useState<VraagType>(bestaandeVraag?.type ?? "meerkeuze_tekst");
   const [tekst, setTekst] = useState(bestaandeVraag?.question_text ?? "");
+  // 💡 Vraagideeën uit wat er rond het punt op de kaart staat
+  const [ideeen, setIdeeen] = useState<{ tekst: string; type: "open" | "foto_opdracht"; bij: string }[] | null>(null);
+  const [ideeenStatus, setIdeeenStatus] = useState<"dicht" | "laden" | "open">("dicht");
+  async function haalIdeeen() {
+    if (ideeenStatus === "open") { setIdeeenStatus("dicht"); return; }
+    if (ideeen) { setIdeeenStatus("open"); return; }
+    setIdeeenStatus("laden");
+    const res = await fetch(`/api/admin/vraag-ideeen?lat=${punt.latitude}&lng=${punt.longitude}`).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { toonMelding(data.fout ?? "Ideeën ophalen lukte niet", "fout"); setIdeeenStatus("dicht"); return; }
+    setIdeeen(data.ideeen ?? []);
+    setIdeeenStatus("open");
+  }
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   // Nieuwe vraag: standaard 65 punten
   const [punten, setPunten] = useState(bestaandeVraag?.points ?? 65);
@@ -422,7 +435,26 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             </div>
 
             <div className="form-group">
-              <label className="form-label">Vraag</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <label className="form-label" style={{ flex: 1, margin: 0 }}>Vraag</label>
+                <button type="button" className={`rl-knop${ideeenStatus === "open" ? " rl-knop--cyan" : ""}`} style={{ height: 28, fontSize: "0.76rem" }}
+                  onClick={haalIdeeen} disabled={ideeenStatus === "laden"} title="Vraagideeën uit wat er rond dit punt op de kaart staat (kerk, molen, café…)">
+                  {ideeenStatus === "laden" ? "⏳ Zoeken…" : "💡 Ideeën"}
+                </button>
+              </div>
+              {ideeenStatus === "open" && ideeen && (
+                <div className="vraag-ideeen">
+                  {ideeen.length === 0
+                    ? <span className="vraag-ideeen-leeg">Niets bijzonders gevonden binnen 150 m van dit punt.</span>
+                    : ideeen.map((idee) => (
+                      <button key={idee.tekst} type="button" className="vraag-idee"
+                        onClick={() => { setTekst(idee.tekst); if (idee.type === "foto_opdracht") setType("foto_opdracht"); else if (type === "foto_opdracht") setType("open"); setIdeeenStatus("dicht"); }}>
+                        {idee.type === "foto_opdracht" ? "📸 " : ""}{idee.tekst}
+                      </button>
+                    ))}
+                  {ideeen.length > 0 && <span className="vraag-ideeen-leeg">Het antwoord zoek je zelf op, het liefst ter plekke.</span>}
+                </div>
+              )}
               <textarea className="form-textarea" spellCheck lang="nl" value={tekst} onChange={(e) => setTekst(e.target.value)}
                 placeholder={type === "foto_opdracht" ? "Bijv. Maak een groepsfoto bij de molen" : "Typ hier de vraag…"} style={{ minHeight: 70 }} />
             </div>
