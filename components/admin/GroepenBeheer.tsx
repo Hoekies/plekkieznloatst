@@ -15,6 +15,7 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import LeegScherm from "@/components/admin/LeegScherm";
 import StatStrook from "@/components/admin/StatStrook";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -189,12 +190,15 @@ export default function GroepenBeheer() {
         { icoon: "⏸", waarde: groepen.filter((g) => g.is_uitgeschakeld).length, label: "uit" },
       ]} />
 
-      {/* Nieuwe speler links (versturen via WhatsApp staat in het menu) */}
+      {/* Nieuwe speler en meerdere links, WhatsApp rechts */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
             + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <MeerdereSpelersKnop onKlaar={laadGroepen} />
+          {/* Inloggegevens en uitleg versturen: hier, waar je de spelers maakt */}
+          <span style={{ flex: 1 }} />
+          <WhatsAppKnop />
       </div>
 
 

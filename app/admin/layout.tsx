@@ -8,9 +8,7 @@ import SidebarToggle from "@/components/admin/SidebarToggle";
 import HulpMeldingen from "@/components/admin/HulpMeldingen";
 import MeldingHouder from "@/components/admin/Melding";
 import InfoKnop from "@/components/admin/InfoKnop";
-import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
-import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
 import VersieRegel from "@/components/admin/VersieRegel";
 import MenuInklap from "@/components/admin/MenuInklap";
@@ -49,12 +47,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}
         </nav>
-        {/* Acties tijdens het spel: op pc en telefoon hetzelfde */}
+        {/* Meldingen op dit toestel aan of uit (een instelling, geen actie: WhatsApp en tussenstand staan
+            op de pagina's waar je ze gebruikt) */}
         <div className="admin-menu-blok">
-          <div className="admin-menu-kop">Spel</div>
+          <div className="admin-menu-kop">Dit toestel</div>
           <div className="admin-menu-lijst">
-            {!helper && <TussenstandKnop alsMenu />}
-            {!helper && <WhatsAppKnop alsMenu />}
             <PushMeldingenKnop />
           </div>
         </div>

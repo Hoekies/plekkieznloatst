@@ -6,6 +6,7 @@ import type { SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
+import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 
@@ -135,6 +136,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                   vraag="Alle teams zien een pauzescherm en kunnen even niets doen. De eindtijd loopt niet door." ja="Ja, pauzeren"
                   onBevestig={() => wisselPauze(true)} className="rl-knop actie-knop">⏸️ Pauze</BevestigKnop>
               )}
+              {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
               {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
               <BevestigKnop venster gevaarlijk={false} icoon="🏁"

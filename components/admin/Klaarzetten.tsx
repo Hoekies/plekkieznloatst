@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import EindtijdKnop from "@/components/admin/EindtijdKnop";
+import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 
 const VOORVOEGSEL = "pointrush_klaarzetten_";
 const LEEG_EVENT = "pointrush-klaarzetten-leeg";
@@ -71,7 +72,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
     {
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,
       titel: "Inloggegevens verstuurd",
-      uitleg: "Via WhatsApp in het menu.",
+      uitleg: "Daarna het bolletje afvinken.",
+      actie: <WhatsAppKnop tekst="Versturen" />,
     },
     {
       id: "test", auto: false, klaar: !!handmatig.test,

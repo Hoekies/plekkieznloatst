@@ -1755,9 +1755,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 /* WhatsApp in het menu: groen zoals de WhatsApp-knop */
-.admin-nav-link--whatsapp { border-color: rgba(37,211,102,0.6); background: rgba(37,211,102,0.16); color: #86EFAC; }
-.admin-nav-link--whatsapp:hover:not(:disabled) { background: rgba(37,211,102,0.26); border-color: rgba(37,211,102,0.8); color: #BBF7D0; }
-.admin-nav-link--whatsapp > [aria-hidden] { display: inline-flex; justify-content: center; color: #25D366; }
 /* Actieve route op de pc: past in de smalle zijbalk */
 @media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: clamp(5px, 0.8vh, 9px) 10px; } .admin-menu-route-naam { font-size: clamp(0.8rem, 1.6vh, 0.95rem); } }
 

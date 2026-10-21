@@ -296,7 +296,7 @@ Elke "speler" in het beheer is één team met één inlog.
 
 1. Ga naar **Spelers** in het menu.
 2. Klik op **+ Nieuwe speler** en vul een **loginnaam** en een **wachtwoord** (minimaal 8 tekens) in. De loginnaam is wat het team typt bij het inloggen (bijv. "speler1"); hoofdletters maken daarbij niet uit.
-3. Verstuur de inloggegevens met **WhatsApp** in het menu (onder Spel). Er opent eerst **Wat verstuur je?**:
+3. Verstuur de inloggegevens met de groene knop **WhatsApp** rechtsboven op de Spelers-pagina (of met **Versturen** bij de stap *Inloggegevens verstuurd* op het dashboard). Er opent eerst **Wat verstuur je?**:
    - **✉️ Berichttekst** — standaard *"Hoi! Log in op PointRush via deze link 🎯 … 🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht. … Veel plezier! René"*, aan te passen in het venster. De inlog stuur je daarna per team met de **🔑** bij Spelers;
    - **📲 Uitleg** hoe je de app op het beginscherm zet;
    - **Afbeeldingen:** de spelershandleiding en/of de speluitleg van route op volgorde of verspreid.
@@ -437,7 +437,7 @@ Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht n
 
 ### Meldingen op je telefoon en horloge
 
-Met **🔔 Meldingen** in het menu (onder Spel) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
+Met **🔔 Meldingen** in het menu (onder Dit toestel) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
 
 ### Eindtijd van het spel
 
@@ -475,7 +475,7 @@ Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeve
 
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:
 
-- **Handmatig** — via **🏆 Tussenstand** in het menu (onder Spel), na bevestiging.
+- **Handmatig** — via **🏆 Tussenstand** bij de spelleider op het dashboard (naast Pauze en Eindtijd), na bevestiging.
 - **Automatisch** — via **⚙️ Instellingen** → "🏆 Tussenstand": stel een interval in hele minuten in (minimaal 1, 0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
 
 De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste punten bovenaan. Plaatsnummers, tijd en afstand staan er bewust niet bij. Aan het eind zien ze de volledige **eindstand** met medailles, speeltijd en afstand.
