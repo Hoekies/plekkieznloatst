@@ -289,7 +289,8 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
   return (
     // Compact, in de stijl van de spelerkaarten: icoon, twee velden naast elkaar en de knoppen rechts
     <div className="pr-gem-card">
-      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
+      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end", position: "relative" }}>
+        <button type="button" className="editor-paneel-sluit venster-sluit venster-sluit-klein" onClick={onAnnuleer} title="Sluiten" aria-label="Sluiten">✕</button>
         <div className="pr-gem-avatar nieuwe-speler-icoon">👤</div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Loginnaam</label>
@@ -308,7 +309,6 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
           <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>
             {laden ? "Aanmaken…" : "Aanmaken"}
           </button>
-          <button type="button" className="rl-knop actie-knop" onClick={onAnnuleer}>Annuleren</button>
         </div>
         {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
       </form>

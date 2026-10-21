@@ -174,6 +174,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, [doelAfstandKm, verwachtTeams, aantalHandmatig]);
 
   const [wizardKies, setWizardKies] = useState<KiesModus>(null);
+  // Eerste stappen: kaart passend zetten op de getoonde punten (onder het venster)
+  const [pasIn, setPasIn] = useState<{ punten: { lat: number; lng: number }[]; boven: number } | null>(null);
   // Verspreid: finish op een eigen plek (anders op het startpunt)
   const [finishPunt, setFinishPunt] = useState<{ lat: number; lng: number } | null>(null);
   const [finishZelfde, setFinishZelfde] = useState(false);
@@ -540,6 +542,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     return puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten, cirkelDraai);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.modus, doelAfstandKm, centrumPunt, aantalPunten, cirkelDraai]);
+
+  // Rondje, eerste stappen: bij teams/afstand en het voorbeeld de hele cirkel in beeld, bij de items alle punten.
+  // Het venster bovenaan blijft vrij (zijn hoogte telt mee).
+  useEffect(() => {
+    if (!stappenOpen || route.modus !== "verspreid" || stappenStap < 2 || stappenStap > 4) return;
+    const plekken = stappenStap === 4 && punten.length
+      ? punten.map((p) => ({ lat: p.latitude, lng: p.longitude }))
+      : [...ghostPunten, ...(centrumPunt ? [centrumPunt] : []), ...(finishPunt ? [finishPunt] : [])];
+    if (!plekken.length) return;
+    const t = setTimeout(() => {
+      const venster = document.querySelector<HTMLElement>(".eerste-stappen");
+      setPasIn({ punten: plekken, boven: venster ? venster.offsetTop + venster.offsetHeight : 0 });
+    }, 50);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stappenOpen, stappenStap, ghostPunten, finishPunt, punten.length]);
 
   async function herlaadPunten() {
     const res = await api(`/api/admin/routes/${route.id}/punten`);
@@ -1742,7 +1760,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <>
             <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
             <div className="route-editor-tik-kiezer">
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 4 }}>Hier toevoegen:</div>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ flex: 1, fontSize: "0.8rem", fontWeight: 700 }}>Hier toevoegen:</span>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setMobielTikPositie(null)} title="Sluiten" aria-label="Sluiten">✕</button>
+              </div>
               {route.modus === "verspreid" && (
                 <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
                   onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
@@ -1756,10 +1777,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
                 {route.modus === "sequentieel" ? "⛔ Plek zooi" : "🎁 Item"}
-              </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => setMobielTikPositie(null)}>
-                Annuleer
               </button>
             </div>
           </>
@@ -2265,6 +2282,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
+          pasIn={pasIn}
           itemVoorstellen={toonVoorstellen && lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
           uitgelichtTeam={uitgelichtTeam}
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}

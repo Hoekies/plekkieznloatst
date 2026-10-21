@@ -158,7 +158,8 @@ function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSlu
 
   return (
     <div className="pr-gem-card">
-      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
+      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end", position: "relative" }}>
+        <button type="button" className="editor-paneel-sluit venster-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
         <div className="pr-gem-avatar nieuwe-speler-icoon">🦺</div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Naam</label>
@@ -176,7 +177,6 @@ function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSlu
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
           <button type="submit" className="rl-knop rl-knop--cyan actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
-          <button type="button" className="rl-knop actie-knop" onClick={onSluit}>Annuleren</button>
         </div>
         {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
       </form>

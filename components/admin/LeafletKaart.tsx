@@ -55,6 +55,8 @@ interface Props {
   onSpeciaalItemKlik?: (id: string) => void;
   geselecteerdSpeciaalId?: string | null;
   vliegNaar?: { lat: number; lng: number; zoom?: number } | null;
+  // Kaart zo zetten dat deze plekken allemaal in beeld zijn; boven = vrij te houden ruimte bovenaan (px, voor een venster)
+  pasIn?: { punten: { lat: number; lng: number }[]; boven: number } | null;
   // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
   itemVoorstellen?: { lat: number; lng: number; type: string }[];
   // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
@@ -68,7 +70,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
+  vliegNaar = null, pasIn = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -495,6 +497,17 @@ export default function LeafletKaart({
       finishMarkerRef.current = L.marker([finishPunt.lat, finishPunt.lng], { icon, interactive: false, zIndexOffset: 1100 }).addTo(kaartRef.current);
     });
   }, [finishPunt, kaartKlaar]);
+
+  // Alle gevraagde plekken in beeld, onder het venster bovenaan
+  useEffect(() => {
+    if (!kaartRef.current || !pasIn || pasIn.punten.length === 0) return;
+    const kaart = kaartRef.current;
+    import("leaflet").then((L) => {
+      kaart.invalidateSize();
+      kaart.fitBounds(L.latLngBounds(pasIn.punten.map((p) => [p.lat, p.lng] as [number, number])),
+        { paddingTopLeft: [30, pasIn.boven + 20], paddingBottomRight: [30, 30], maxZoom: 17 });
+    });
+  }, [pasIn, kaartKlaar]);
 
   // Navigeer naar een opgezochte plaatsnaam
   useEffect(() => {

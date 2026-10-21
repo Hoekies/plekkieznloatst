@@ -2732,8 +2732,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .es-getal-veld { display: inline-flex; align-items: center; gap: 8px; }
 .es-getal-veld .rl-knop { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: 1.1rem; }
 .es-getal-veld strong { min-width: 64px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
-.es-voet { display: flex; gap: 8px; }
-.es-voet .rl-knop { height: 38px; }
 .eerste-stappen-knop { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1100;
   height: 34px; padding: 0 14px; border-radius: 999px; cursor: pointer; font-family: var(--font-display); font-weight: 800; font-size: 0.8rem;
   background: rgba(58,31,128,0.92); color: #FFE680; border: 1px solid rgba(255,217,59,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
@@ -2787,7 +2785,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 }
 
 /* Eerste stappen: hint als "Volgende" nog niet kan, toelichting bij een getal */
-.es-hint { font-size: 0.72rem; color: #FFE680; text-align: right; }
+.es-hint { font-size: 0.72rem; color: #FFE680; text-align: center; margin-top: -4px; }
 .es-getal small { display: block; font-size: 0.66rem; color: var(--muted); font-weight: 500; }
 
 /* Spelerskaart: één knop voor licht, donker en luchtfoto */
@@ -2853,5 +2851,11 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .route-editor-topbar .editor-naam { min-width: 90px; }
 }
 
-/* Eerste stappen: drie knoppen (Terug, Ander voorbeeld, Ja) passen op een smal scherm ook */
-.es-voet { flex-wrap: wrap; row-gap: 6px; }
+/* Eerste stappen: één zin uitleg, inhoud, rij met ← Terug en een tweede keuze, brede hoofdknop onderaan */
+.es-zin { margin: 0; font-size: 0.84rem; color: var(--text); line-height: 1.45; }
+.es-neven { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.es-link { background: none; border: none; padding: 4px 2px; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.es-link:hover { color: #fff; }
+.es-extra { height: 32px; font-size: 0.8rem; }
+.es-hoofd { width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 0.92rem; }
+.es-gedaan { border-color: rgba(134,239,172,0.55) !important; color: #BBF7D0 !important; }
