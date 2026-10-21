@@ -8,9 +8,13 @@ import type { SpeciaalItem } from "@/types/database";
 import type { RouteWaarden } from "./SpeciaalItemLegende";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import StandRij from "./StandRij";
+import Oorkonde from "./Oorkonde";
 
 interface Props {
   groepNaam: string;
+  // Voor de oorkonde
+  teamIcoon: string | null;
+  routeNaam: string | null;
   score: number;
   tijdSeconden: number;
   distanceMeters: number;
@@ -51,7 +55,7 @@ function maakConfetti(): ConfettiStuk[] {
   }));
 }
 
-export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
+export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
@@ -155,6 +159,10 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
           <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
           <StatKaart waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="var(--green, #16A34A)" />
         </div>
+
+        {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is) */}
+        <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
+          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>

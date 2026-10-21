@@ -32,6 +32,15 @@ Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spel
 **Trillen** (Android)
 Je telefoon trilt bij een bereikt punt, een opgepakt item, je startitems, een goed of fout antwoord, een aanval van een ander team, een bericht van de organisatie en de finish. Zo merk je het ook als de telefoon in je zak zit.
 
+**Geen bereik?**
+Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld in het buitengebied), dan bewaart de app wat je doet: punten bereiken, doorgaan en je antwoorden. Bovenin staat dan een oranje strook **📡 Geen bereik**. Zodra er weer bereik is, gaat alles vanzelf mee en zie je je punten. De vragen van de volgende punten heeft de app al opgehaald. Alleen een foto insturen lukt pas weer met bereik.
+
+**Scherm aan laten**
+Onder de oranje **i**-knop staat **🔆 Scherm aan laten**. Dan valt je telefoon tijdens het spel niet in slaap en werken geluid en trillen altijd. Het kost wel wat meer batterij.
+
+**Oorkonde**
+Bij de finish staat **🏅 Oorkonde delen**: een mooie afbeelding met jullie teamnaam, punten, tijd en afstand (en jullie plaats zodra de uitslag bekend is), om te delen in de groepsapp.
+
 **Kaart**
 De kaart begint altijd licht. Met de knop **☀️** rechts boven de itembalk wissel je naar een donkere kaart (🌙) of een luchtfoto (🛰️).
 

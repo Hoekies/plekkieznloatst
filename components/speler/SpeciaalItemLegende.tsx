@@ -64,9 +64,11 @@ interface Props {
   speciaalItems?: SpeciaalItem[];
   modus: "sequentieel" | "verspreid";
   waarden: RouteWaarden;
+  // Scherm aan laten (alleen als de browser het kan)
+  schermAan?: { aan: boolean; kan: boolean; wissel: () => void };
 }
 
-export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden }: Props) {
+export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden, schermAan }: Props) {
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
@@ -114,6 +116,20 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Scherm aan laten: telefoon valt niet in slaap, geluid en trillen werken altijd */}
+          {schermAan?.kan && (
+            <button type="button" onClick={schermAan.wissel} role="switch" aria-checked={schermAan.aan}
+              style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 12, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+                background: schermAan.aan ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.05)", border: `1px solid ${schermAan.aan ? "rgba(74,222,128,0.5)" : "rgba(255,255,255,0.08)"}`, color: "#e8f0ff" }}>
+              <span style={{ fontSize: "1.6rem", lineHeight: 1 }}>🔆</span>
+              <span style={{ flex: 1 }}>
+                <span style={{ display: "block", fontWeight: 700 }}>Scherm aan laten</span>
+                <span style={{ display: "block", fontSize: "0.76rem", color: "var(--muted)" }}>Je telefoon valt niet in slaap: geluid en trillen werken altijd. Kost wat meer batterij.</span>
+              </span>
+              <span className={`schakel-bol${schermAan.aan ? " schakel-bol--aan" : ""}`} aria-hidden />
+            </button>
+          )}
+
           {/* Korte speluitleg */}
           <Regel
             icoon={<span style={{ fontSize: "1.7rem", lineHeight: 1 }}>🎯</span>}

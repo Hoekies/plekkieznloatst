@@ -22,6 +22,7 @@ import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
 import TestRonde from "./editor/TestRonde";
 import { meldActieveRouteGewijzigd } from "./ActieveRouteLabel";
 import PuntenImporteren from "./editor/PuntenImporteren";
+import { loopNaar, NIEUWE_PROEF, type ProefStand } from "./editor/proeflopen";
 import EersteStappen, { type KiesModus } from "@/components/admin/editor/EersteStappen";
 import ControleVenster from "./editor/ControleVenster";
 import AlleVragenVenster from "./editor/AlleVragenVenster";
@@ -112,6 +113,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
+  // 🚶 Proeflopen: klik over de kaart en loop als testspeler mee (er wordt niets opgeslagen)
+  const [proef, setProef] = useState<ProefStand | null>(null);
   // Meerdere punten tegelijk: kiezen in de lijst, dan soort wijzigen of een straatnaam geven
   const [kiesModus, setKiesModus] = useState(false);
   const [gekozenIds, setGekozenIds] = useState<Set<string>>(new Set());
@@ -830,6 +833,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
+    // Proeflopen: de klik is de plek waar je naartoe loopt
+    if (proef) { setProef((s) => s && loopNaar(s, { lat, lng }, punten, specialeItems, vraagPuntIds)); return; }
     // Eerste stappen: start, finish of punten aantikken
     if (wizardKies === "start") { setCentrumPunt({ lat, lng }); setWizardKies(null); return; }
     if (wizardKies === "finish") {
@@ -1364,6 +1369,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
             📝<span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
+          </button>
+          <button className={`rl-knop${proef ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
+            onClick={() => { setProef((p) => (p ? null : NIEUWE_PROEF)); setGeselecteerd(null); setTestOpen(false); }}
+            title="Proeflopen: klik over de kaart en loop als testspeler mee; punten, items en vallen gaan af zoals op straat">
+            🚶<span className="alleen-pc"> Proeflopen</span>
           </button>
           <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
             title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
@@ -2220,6 +2230,32 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} onKlaarzetten={() => zetStatus("gepubliceerd")} />
         )}
 
+        {/* Proeflopen: wat er gebeurt terwijl je over de kaart klikt */}
+        {proef && (() => {
+          const volgende = punten[proef.volgende];
+          const afstand = proef.pos && volgende ? haversine(proef.pos.lat, proef.pos.lng, volgende.latitude, volgende.longitude) : null;
+          return (
+            <div className="proefloop" role="status">
+              <div className="proefloop-kop">
+                <span className="proefloop-titel">🚶 Proeflopen</span>
+                <span className="proefloop-km">{(proef.gelopenM / 1000).toFixed(2).replace(".", ",")} km</span>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setProef(null)} title="Stoppen" aria-label="Stoppen">✕</button>
+              </div>
+              <div className="proefloop-nu">
+                {!proef.pos ? "👆 Klik op de kaart waar je begint, en dan steeds waar je heen loopt."
+                  : proef.klaar ? "🏁 Klaar: de hele route is gelopen."
+                  : volgende ? <>Volgende: <strong>{volgende.name}</strong>{afstand !== null && <> · {afstand < 1000 ? `${Math.round(afstand)} m` : `${(afstand / 1000).toFixed(1).replace(".", ",")} km`}</>}</> : null}
+              </div>
+              {proef.log.length > 0 && (
+                <div className="proefloop-log">
+                  {proef.log.slice(0, 6).map((r, i) => <div key={`${proef.log.length - i}`} className={`proefloop-regel proefloop-regel--${r.soort}`}>{r.tekst}</div>)}
+                </div>
+              )}
+              {proef.pos && <button type="button" className="es-link" onClick={() => setProef(NIEUWE_PROEF)}>↺ Opnieuw beginnen</button>}
+            </div>
+          );
+        })()}
+
         {/* Testronde */}
         {testOpen && (
           <TestRonde routeId={route.id} punten={punten} items={specialeItems} verspreid={route.modus === "verspreid"}
@@ -2385,6 +2421,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           onSpeciaalItemKlik={(id) => { setGeselecteerdSpeciaal(specialeItems.find((i) => i.id === id) ?? null); setGeselecteerd(null); }}
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
+          loper={proef?.pos ?? null} loperSpoor={proef?.spoor ?? []}
           pasIn={pasIn}
           itemVoorstellen={toonVoorstellen && lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
           uitgelichtTeam={uitgelichtTeam}

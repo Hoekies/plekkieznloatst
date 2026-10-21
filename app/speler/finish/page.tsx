@@ -14,7 +14,7 @@ export default async function FinishPage() {
 
   const { data: speler } = await admin
     .from("players")
-    .select("id, login_name, nickname")
+    .select("id, login_name, nickname, icon")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -127,6 +127,8 @@ export default async function FinishPage() {
   return (
     <FinishScherm
       groepNaam={displayNaam}
+      teamIcoon={(speler as { icon?: string | null }).icon ?? null}
+      routeNaam={route?.name ?? null}
       score={sessie.score}
       tijdSeconden={tijdSeconden}
       distanceMeters={eigenAfstand}

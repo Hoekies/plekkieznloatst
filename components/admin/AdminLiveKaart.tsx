@@ -87,6 +87,16 @@ export default function AdminLiveKaart({ initData }: Props) {
     };
   }, []);
 
+  // 📺 Beamerscherm: link ophalen, openen in een nieuw tabblad en kopiëren (om op een ander toestel te openen)
+  async function openBeamer() {
+    const res = await fetch("/api/admin/beamer").catch(() => null);
+    const json = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok || !json.pad) { toonMelding(json.fout ?? "Beamerlink ophalen lukte niet", "fout"); return; }
+    const url = `${window.location.origin}${json.pad}`;
+    window.open(url, "_blank");
+    navigator.clipboard?.writeText(url).then(() => toonMelding("Beamerlink gekopieerd: open hem op de tv of laptop bij de beamer", "ok")).catch(() => {});
+  }
+
   const { spelers, route_punten } = data;
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
@@ -103,6 +113,9 @@ export default function AdminLiveKaart({ initData }: Props) {
           <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}>📡 Terug naar live</button>
         ) : (
           <>
+            <button type="button" className="rl-knop" onClick={openBeamer} title="Live kaart, stand en gebeurtenissen groot op een tv of beamer (zonder inloggen)">
+              📺<span className="alleen-pc"> Beamer</span>
+            </button>
             <button type="button" className="rl-knop" onClick={startReplay} disabled={replayLaden} title="Het hele spel versneld afspelen">
               {replayLaden ? "⏳" : "⏪"} Replay
             </button>

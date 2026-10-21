@@ -7,6 +7,9 @@ import { haversine, richting, afstandTekst } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import { tril, TRIL } from "@/lib/tril";
+import { useSchermAan } from "@/lib/scherm-aan";
+import { stuur, verstuurWachtrij, opWachtrij, wachtrijAantal } from "@/lib/wachtrij";
+import { laadVragenVooruit } from "@/lib/vraag-cache";
 import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
@@ -164,6 +167,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
   const stilSet = new Set(stilleIds);
+  // 🔆 Scherm aan laten (keuze in ℹ️)
+  const schermAan = useSchermAan();
   const spelAfgelopen = verwerktIds.size >= punten.length;
   // Voor de check of de organisatie het punt heeft vrijgegeven (die draait in een timer en zou
   // anders de waarden van het begin blijven zien)
@@ -357,10 +362,38 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positie, specialeItems]);
 
-  // Redirect naar finish als alle punten verwerkt zijn
+  // Redirect naar finish als alle punten verwerkt zijn. Staat er nog iets te wachten (geen bereik),
+  // dan eerst dat versturen: anders kent de server de finish nog niet
   useEffect(() => {
-    if (spelAfgelopen) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); }
+    if (!spelAfgelopen) return;
+    let weg = false;
+    const naarFinish = async () => {
+      await verstuurWachtrij();
+      if (weg) return;
+      if (wachtrijAantal()) { setTimeout(naarFinish, 5000); return; }
+      speelFinish(); tril(TRIL.finish); router.push("/speler/finish");
+    };
+    naarFinish();
+    return () => { weg = true; };
   }, [spelAfgelopen, router]);
+
+  // Zonder bereik: hoeveel stappen er nog wachten; versturen zodra er weer bereik is (en elke 15 s)
+  const [wachtend, setWachtend] = useState(0);
+  useEffect(() => {
+    setWachtend(wachtrijAantal());
+    const af = opWachtrij(setWachtend);
+    const probeer = () => { if (wachtrijAantal()) verstuurWachtrij(); };
+    probeer();
+    window.addEventListener("online", probeer);
+    const t = setInterval(probeer, 15000);
+    return () => { af(); window.removeEventListener("online", probeer); clearInterval(t); };
+  }, []);
+
+  // Vragen van het volgende punt en de twee daarna alvast ophalen (ook bruikbaar zonder bereik)
+  useEffect(() => {
+    laadVragenVooruit(punten.slice(verwerktIds.size, verwerktIds.size + 3).map((p) => p.id));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verwerktIds.size, punten]);
 
   async function haalStatusOp() {
     try {
@@ -717,14 +750,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (bezigRef.current) return;
     bezigRef.current = true;
     try {
-      const res = await fetch("/api/speler/voortgang/bereik", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ route_point_id: punt.id }),
-      });
-      if (res.status === 423) { bezigRef.current = false; return; }
-      if (res.ok) {
-        const nieuweVoortgang: SpelerPuntVoortgang = await res.json();
+      const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id });
+      if (r.status === "fout" && r.res.status === 423) { bezigRef.current = false; return; }
+      if (r.status !== "fout") {
+        // Zonder bereik: alvast zo in de app, de server krijgt het later uit de wachtrij
+        const nieuweVoortgang: SpelerPuntVoortgang = r.status === "ok" ? await r.res.json() : lokaleVoortgang(punt.id, false);
         setVoortgang((v) => [...v, nieuweVoortgang]);
         // Stil punt: meteen verwerken, zonder venster; alleen een kort seintje
         if (stilSet.has(punt.id)) {
@@ -742,15 +772,19 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Stil punt afronden op de server (zoals "Doorgaan" bij een infopunt)
   async function verwerkStil(punt: RoutePunt): Promise<boolean> {
-    const res = await fetch("/api/speler/voortgang/verwerk", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ route_point_id: punt.id }),
-    }).catch(() => null);
-    if (!res?.ok) return false;
-    const data = await res.json();
+    const r = await stuur("/api/speler/voortgang/verwerk", { route_point_id: punt.id });
+    if (r.status === "bewaard") { puntVerwerkt(lokaleVoortgang(punt.id, true)); return true; }
+    if (r.status !== "ok") return false;
+    const data = await r.res.json();
     puntVerwerkt(data.voortgang ?? data);
     return true;
+  }
+
+  // Punt bereikt of afgerond zonder bereik: zo staat het alvast in de app
+  function lokaleVoortgang(puntId: string, afgerond: boolean): SpelerPuntVoortgang {
+    const nu = new Date().toISOString();
+    return { id: `lokaal-${puntId}`, session_id: sessie.id, route_point_id: puntId, reached_at: nu, answered_at: afgerond ? nu : null,
+      selected_answer_id: null, open_answer_text: null, is_correct: null, points_awarded: 0 };
   }
 
   function toonGepasseerd(punt: RoutePunt) {
@@ -767,14 +801,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     try {
       for (let i = verwerktIds.size; i < tot; i++) {
         const punt = punten[i];
-        const res = await fetch("/api/speler/voortgang/bereik", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ route_point_id: punt.id }),
-        });
+        const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id });
         // 409 = al bereikt (bijv. na herladen): dan alleen nog verwerken
-        if (!res.ok && res.status !== 409) return;
-        if (res.ok) { const v: SpelerPuntVoortgang = await res.json(); setVoortgang((oud) => [...oud, v]); }
+        if (r.status === "fout" && r.res.status !== 409) return;
+        if (r.status !== "fout") {
+          const v: SpelerPuntVoortgang = r.status === "ok" ? await r.res.json() : lokaleVoortgang(punt.id, false);
+          setVoortgang((oud) => [...oud, v]);
+        }
         if (!await verwerkStil(punt)) return;
       }
     } finally {
@@ -900,6 +933,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       )}
 
       {/* Item opgehaald toast */}
+      {/* Zonder bereik: wat er nog wacht om verstuurd te worden */}
+      {wachtend > 0 && (
+        <div className="geen-bereik" role="status">
+          {spelAfgelopen
+            ? <>🏁 Bijna klaar! Je laatste {wachtend === 1 ? "stap gaat" : `${wachtend} stappen gaan`} mee zodra er bereik is.</>
+            : <>📡 Geen bereik · {wachtend === 1 ? "1 stap wacht" : `${wachtend} stappen wachten`}, gaat vanzelf mee</>}
+        </div>
+      )}
+
       {opgehaaldToast && (
         <div style={{
           position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
@@ -1140,6 +1182,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           speciaalItems={legendeItems}
           modus={modus}
           waarden={waarden}
+          schermAan={schermAan}
         />
       )}
 

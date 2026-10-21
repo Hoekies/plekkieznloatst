@@ -58,6 +58,9 @@ interface Props {
   vliegNaar?: { lat: number; lng: number; zoom?: number } | null;
   // Kaart zo zetten dat deze plekken allemaal in beeld zijn; boven = vrij te houden ruimte bovenaan (px, voor een venster)
   pasIn?: { punten: { lat: number; lng: number }[]; boven: number } | null;
+  // Proeflopen: de testspeler en de weg die hij al liep
+  loper?: { lat: number; lng: number } | null;
+  loperSpoor?: [number, number][];
   // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
   itemVoorstellen?: { lat: number; lng: number; type: string }[];
   // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
@@ -71,7 +74,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, pasIn = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
+  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -498,6 +501,26 @@ export default function LeafletKaart({
       finishMarkerRef.current = L.marker([finishPunt.lat, finishPunt.lng], { icon, interactive: false, zIndexOffset: 1100 }).addTo(kaartRef.current);
     });
   }, [finishPunt, kaartKlaar]);
+
+  // Proeflopen: 🚶 op de plek van de testspeler, met een oranje lijn van de gelopen weg
+  const loperRef = useRef<{ marker: import("leaflet").Marker; lijn: import("leaflet").Polyline } | null>(null);
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      loperRef.current?.marker.remove();
+      loperRef.current?.lijn.remove();
+      loperRef.current = null;
+      if (!loper || !kaartRef.current) return;
+      const lijn = L.polyline(loperSpoor, { color: "#F97316", weight: 4, opacity: 0.85, dashArray: "8 6", interactive: false }).addTo(kaartRef.current);
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="width:38px;height:38px;border-radius:50%;background:#F97316;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;font-size:20px">🚶</div>`,
+        iconSize: [38, 38], iconAnchor: [19, 19],
+      });
+      const marker = L.marker([loper.lat, loper.lng], { icon, interactive: false, zIndexOffset: 3000 }).addTo(kaartRef.current);
+      loperRef.current = { marker, lijn };
+    });
+  }, [loper, loperSpoor, kaartKlaar]);
 
   // Alle gevraagde plekken in beeld, onder het venster bovenaan
   useEffect(() => {

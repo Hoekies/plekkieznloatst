@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
 import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
 import { tril, TRIL } from "@/lib/tril";
+import { stuur } from "@/lib/wachtrij";
+import { haalVraag } from "@/lib/vraag-cache";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -50,7 +52,15 @@ type Feedback = {
   numeric_tolerance: number | null;
 };
 
-type PopupFase = "laden" | "start" | "informatie" | "vraag" | "foto_ingestuurd" | "feedback";
+// geen_bereik: de vraag kon niet geladen worden; bewaard: antwoord bewaard, gaat mee zodra er bereik is
+type PopupFase = "laden" | "start" | "informatie" | "vraag" | "foto_ingestuurd" | "feedback" | "geen_bereik" | "bewaard";
+
+// Punt afgerond zonder bereik: alvast zo in de app, de server krijgt het later uit de wachtrij
+function lokaalAfgerond(puntId: string): SpelerPuntVoortgang {
+  const nu = new Date().toISOString();
+  return { id: `lokaal-${puntId}`, session_id: "", route_point_id: puntId, reached_at: nu, answered_at: nu,
+    selected_answer_id: null, open_answer_text: null, is_correct: null, points_awarded: 0 };
+}
 
 interface Props {
   punt: RoutePunt;
@@ -83,29 +93,26 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   const fotoInputRef = useRef<HTMLInputElement>(null);
   const voortgangRef = useRef<SpelerPuntVoortgang | null>(null);
 
+  const [laadPoging, setLaadPoging] = useState(0);
   useEffect(() => {
     // Ook een informatiepunt of de finish kan een vraag hebben (bijv. een selfie);
-    // die moet dan eerst beantwoord worden
-    fetch(`/api/speler/vraag/${punt.id}`)
-      .then((r) => r.json())
-      .then((data: VraagData | null) => {
+    // die moet dan eerst beantwoord worden. Meestal is de vraag al vooruit geladen (ook zonder bereik).
+    haalVraag<VraagData>(punt.id)
+      .then((data) => {
         if (data) setVraag(data);
         if (start === "uitleg") setPopupFase("start");
         else setPopupFase(data ? "vraag" : "informatie");
       })
-      .catch(() => setPopupFase(start === "uitleg" ? "start" : "informatie"));
-  }, [punt, start]);
+      .catch(() => setPopupFase(start === "uitleg" ? "start" : punt.type === "vraagpunt" ? "geen_bereik" : "informatie"));
+  }, [punt, start, laadPoging]);
 
   async function verwerkDirect() {
     setBezig(true);
     try {
-      const res = await fetch("/api/speler/voortgang/verwerk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ route_point_id: punt.id }),
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const r = await stuur("/api/speler/voortgang/verwerk", { route_point_id: punt.id });
+      if (r.status === "bewaard") { onVerwerkt(lokaalAfgerond(punt.id)); return; }
+      if (r.status === "ok") {
+        const data = await r.res.json();
         onVerwerkt(data.voortgang ?? data);
       }
     } finally {
@@ -118,15 +125,18 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
     setFout("");
     setBezig(true);
     try {
-      const res = await fetch("/api/speler/voortgang/verwerk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          route_point_id: punt.id,
-          selected_answer_id: answerId ?? undefined,
-          open_answer_text: openTekst,
-        }),
+      const r = await stuur("/api/speler/voortgang/verwerk", {
+        route_point_id: punt.id,
+        selected_answer_id: answerId ?? undefined,
+        open_answer_text: openTekst,
       });
+      // Geen bereik: het antwoord is bewaard en telt zodra er weer bereik is
+      if (r.status === "bewaard") {
+        voortgangRef.current = lokaalAfgerond(punt.id);
+        setPopupFase("bewaard");
+        return;
+      }
+      const res = r.res;
 
       if (!res.ok) {
         const data = await res.json();
@@ -425,6 +435,22 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         )}
 
         {/* Foto ingestuurd: meteen door, keuring volgt na afloop */}
+        {/* Geen bereik en de vraag was nog niet geladen */}
+        {popupFase === "geen_bereik" && (
+          <div style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#92400E" }}>📡 Even geen bereik</div>
+            <div style={{ fontSize: "0.92rem", color: "#78350F", lineHeight: 1.5 }}>De vraag kon niet geladen worden. Loop een paar stappen en probeer het opnieuw.</div>
+          </div>
+        )}
+
+        {/* Antwoord gegeven zonder bereik */}
+        {popupFase === "bewaard" && (
+          <div style={{ background: "#E0F2FE", border: "1px solid #7DD3FC", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#075985" }}>📡 Antwoord bewaard</div>
+            <div style={{ fontSize: "0.92rem", color: "#0C4A6E", lineHeight: 1.5 }}>Er is even geen bereik. Je antwoord gaat vanzelf mee zodra er weer bereik is; daarna zie je je punten. Je kunt gewoon door.</div>
+          </div>
+        )}
+
         {popupFase === "foto_ingestuurd" && (
           <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#15803D" }}>📸 Foto ingestuurd!</div>
@@ -483,7 +509,12 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             {bezig ? "Uploaden…" : "📤 Foto insturen"}
           </button>
         )}
-        {(popupFase === "feedback" || popupFase === "foto_ingestuurd") && (
+        {popupFase === "geen_bereik" && (
+          <button className="btn btn-primary" style={KNOP_ONDERAAN_STIJL} onClick={() => { setPopupFase("laden"); setLaadPoging((n) => n + 1); }}>
+            🔄 Opnieuw proberen
+          </button>
+        )}
+        {(popupFase === "feedback" || popupFase === "foto_ingestuurd" || popupFase === "bewaard") && (
           <button
             className="btn btn-primary"
             style={KNOP_ONDERAAN_STIJL}

@@ -2930,3 +2930,69 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Kaartpaneel op een kleine kaart (spelervenster, finishscherm): gewoon linksonder, niet hoger zoals in de editor */
 .kaart-bediening.kaart-bediening--klein { bottom: 10px !important; left: 10px !important; }
+
+/* Schakelaar los (bijv. Scherm aan laten in ℹ️) */
+.schakel-bol--aan { background: #4ADE80; }
+.schakel-bol--aan::after { left: 14px; }
+
+/* 🏅 Oorkonde (wordt een plaatje om te delen) */
+.oorkonde { width: 540px; padding: 34px 36px 26px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+  border-radius: 28px; border: 4px solid #FFD93B; color: #fff; font-family: var(--font);
+  background: radial-gradient(circle at 50% 0%, #7c4dd8 0%, #5b34a8 45%, #3a1f80 100%); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15); }
+.oorkonde-logo { width: 230px; height: auto; }
+.oorkonde-kop { font-family: var(--font-display); font-weight: 800; font-size: 2.1rem; letter-spacing: 0.12em; text-transform: uppercase; color: #FFE680; }
+.oorkonde-icoon { width: 112px; height: 112px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;
+  background: rgba(255,255,255,0.12); border: 3px solid rgba(255,255,255,0.35); }
+.oorkonde-team { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1.15; }
+.oorkonde-zin { font-size: 1.05rem; color: #e9e3fb; }
+.oorkonde-zin strong { color: #fff; }
+.oorkonde-plaats { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; color: #FFE680; }
+.oorkonde-plaats span { font-size: 1rem; color: #e9e3fb; font-weight: 600; }
+.oorkonde-cijfers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin-top: 6px; }
+.oorkonde-cijfers > div { display: flex; flex-direction: column; gap: 2px; padding: 12px 6px; border-radius: 16px; background: rgba(255,255,255,0.1); }
+.oorkonde-cijfers strong { font-family: var(--font-display); font-size: 1.5rem; }
+.oorkonde-cijfers span { font-size: 0.85rem; color: #d6cdf2; }
+.oorkonde-voet { margin-top: 6px; font-size: 0.85rem; color: #d6cdf2; }
+
+/* 📺 Beamerscherm: grote kaart links, stand en gebeurtenissen rechts; groot leesbaar, geen knoppen */
+.beamer { position: fixed; inset: 0; display: flex; background: var(--game-bg); color: #fff; }
+.beamer-kaart { flex: 1; min-width: 0; display: flex; position: relative; }
+.beamer-zij { width: clamp(320px, 30vw, 520px); display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 14px; box-sizing: border-box;
+  background: rgba(38,18,92,0.92); border-left: 1px solid rgba(255,255,255,0.12); overflow: hidden; }
+.beamer-logo { width: 62%; align-self: center; height: auto; }
+.beamer-route { text-align: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.5vw, 1.5rem); color: #FFE680; }
+.beamer-kop { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.4vw, 1.4rem); margin-top: 6px; }
+.beamer-stand { display: flex; flex-direction: column; gap: 6px; }
+.beamer-rij { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.07); border-left: 5px solid; font-size: clamp(0.95rem, 1.3vw, 1.35rem); }
+.beamer-plek { width: 2em; text-align: center; font-weight: 800; }
+.beamer-icoon { font-size: 1.3em; }
+.beamer-naam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.beamer-score { font-family: var(--font-display); font-weight: 800; color: #FFE680; }
+.beamer-gebeurd { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 5px; }
+.beamer-gebeurtenis { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border-left: 4px solid;
+  font-size: clamp(0.8rem, 1vw, 1.05rem); animation: info-kaartje-in 0.3s ease-out; }
+.beamer-gebeurtenis img { width: 26px; height: 26px; }
+.beamer-gebeurtenis small { color: var(--muted); white-space: nowrap; }
+.beamer-leeg { color: var(--muted); font-size: 0.95rem; }
+.beamer-melding { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center;
+  background: var(--game-bg); color: #fff; font-family: var(--font-display); font-size: 1.4rem; }
+@media (max-width: 800px) { .beamer { flex-direction: column; } .beamer-zij { width: 100%; max-height: 45vh; } }
+
+/* 🚶 Proeflopen in de route-editor: klein paneel rechtsboven op de kaart */
+.proefloop { position: absolute; top: 12px; right: 12px; z-index: 1150; width: min(320px, calc(100% - 80px)); display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 14px; background: rgba(58,31,128,0.95); border: 1px solid rgba(249,115,22,0.6); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.proefloop-kop { display: flex; align-items: center; gap: 8px; }
+.proefloop-titel { flex: 1; font-family: var(--font-display); font-weight: 800; color: #fff; }
+.proefloop-km { font-size: 0.78rem; font-weight: 700; color: #FDBA74; }
+.proefloop-nu { font-size: 0.8rem; color: var(--text); }
+.proefloop-log { display: flex; flex-direction: column; gap: 3px; max-height: 180px; overflow-y: auto; }
+.proefloop-regel { font-size: 0.76rem; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; }
+.proefloop-regel--let-op { background: rgba(251,191,36,0.14); color: #FDE68A; }
+.proefloop-regel--val { background: rgba(239,68,68,0.15); color: #FECACA; }
+.proefloop-regel--finish { background: rgba(74,222,128,0.15); color: #BBF7D0; font-weight: 700; }
+.proefloop .es-link { align-self: flex-start; font-size: 0.74rem; }
+
+/* Spelersapp zonder bereik: kleine strook bovenaan met wat er nog wacht */
+.geen-bereik { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); z-index: 960; max-width: calc(100% - 24px); width: max-content;
+  padding: 8px 14px; border-radius: 999px; background: rgba(180,83,9,0.95); color: #fff; font-size: 0.82rem; font-weight: 700; text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
