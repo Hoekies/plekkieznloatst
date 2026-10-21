@@ -7,6 +7,16 @@ export type ImportPunt = { lat: number; lng: number; naam: string | null; finish
 // spoor: alleen bij een GPX-spoor, voor de samenvatting in het importvenster
 export type ImportResultaat = { punten: ImportPunt[]; nietHerkend: string[]; korteLinks: string[]; spoor?: { meter: number; rondje: boolean } };
 
+// Tekst van geïmporteerde punten (infopunten); in het importvenster aan te passen
+export const IMPORT_INFO_TEKST = "Punt bereikt! Loop door naar het volgende punt.";
+// Standaard straal van geïmporteerde punten bij een nieuwe route (zelfde als in de editor)
+export const IMPORT_STRAAL_M = 15;
+
+// Routenaam uit een bestandsnaam: zonder extensie en zonder nummer vooraan ("35904. Wandeling.gpx" → "Wandeling")
+export function naamUitBestand(bestand: string): string {
+  return bestand.replace(/\.[a-z0-9]+$/i, "").replace(/^\s*\d+[.\-_\s]+/, "").replace(/[_]+/g, " ").trim().slice(0, 80);
+}
+
 // Spoor uit een GPX (duizenden metingen): één punt per zoveel meter
 const SPOOR_AFSTAND_M = 150;
 // Eindigt een spoor binnen zoveel meter van het begin, dan is het een rondje: finish op de startplek

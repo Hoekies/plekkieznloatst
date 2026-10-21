@@ -2,8 +2,11 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
+import { leesPunten, naamUitBestand, IMPORT_INFO_TEKST, IMPORT_STRAAL_M, type ImportResultaat } from "@/lib/punten-import";
+import { afstandTekst } from "@/lib/geo";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import SectieKop from "@/components/admin/SectieKop";
@@ -29,9 +32,10 @@ export default function RoutesOverzicht() {
   const [laden, setLaden] = useState(true);
   const [nieuweNaam, setNieuweNaam] = useState("");
   const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid">("sequentieel");
-  const [nieuwAantalTeams, setNieuwAantalTeams] = useState(2);
-  const [nieuwePlaats, setNieuwePlaats] = useState("");
   const [aanmaken, setAanmaken] = useState(false);
+  // Beginnen met een GPX-bestand (alleen Op volgorde): de punten komen er meteen in
+  const [gpx, setGpx] = useState<{ bestand: string; resultaat: ImportResultaat } | null>(null);
+  const gpxRef = useRef<HTMLInputElement>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const [importBezig, setImportBezig] = useState(false);
@@ -52,27 +56,45 @@ export default function RoutesOverzicht() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { laad(); return opActieveRouteGewijzigd(laad); }, []);
 
+  // Venster "Nieuwe route": Escape sluit het; dicht = gekozen bestand vergeten
+  useEffect(() => {
+    if (!aanmaken) { setGpx(null); return; }
+    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setAanmaken(false); };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [aanmaken]);
+
+  async function kiesGpx(e: React.ChangeEvent<HTMLInputElement>) {
+    const bestand = e.target.files?.[0];
+    e.target.value = "";
+    if (!bestand) return;
+    const resultaat = leesPunten(await bestand.text());
+    if (!resultaat.punten.length) { setFout("In dit bestand staan geen punten of spoor"); return; }
+    setFout("");
+    setGpx({ bestand: bestand.name, resultaat });
+    setNieuweModus("sequentieel");
+    if (!nieuweNaam.trim()) setNieuweNaam(naamUitBestand(bestand.name));
+  }
+
   async function nieuwRoute(e: React.FormEvent) {
     e.preventDefault();
     setBezig(true); setFout("");
-
-    let plaats: { lat: number; lng: number } | null = null;
-    if (nieuwePlaats.trim()) {
-      const geoRes = await fetch(`/api/admin/geocode?q=${encodeURIComponent(nieuwePlaats.trim())}`);
-      const geoData = await geoRes.json();
-      if (!geoRes.ok) { setFout(geoData.fout ?? "Plaats niet gevonden"); setBezig(false); return; }
-      plaats = { lat: geoData.lat, lng: geoData.lng };
-    }
-
     const res = await fetch("/api/admin/routes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: nieuweNaam, modus: nieuweModus, verwacht_aantal_teams: nieuwAantalTeams }),
+      body: JSON.stringify({ name: nieuweNaam.trim(), modus: nieuweModus }),
     });
     if (!res.ok) { setFout(await foutUitleg(res, "Route aanmaken")); setBezig(false); return; }
     const route = await res.json();
-    const query = plaats ? `?lat=${plaats.lat}&lng=${plaats.lng}` : "";
-    router.push(`/admin/routes/${route.id}${query}`);
+    // Met GPX: de punten meteen toevoegen (infopunten, finish aan het eind van een spoor)
+    if (gpx) {
+      const imp = await fetch(`/api/admin/routes/${route.id}/punten/meerdere`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ punten: gpx.resultaat.punten, beschrijving: IMPORT_INFO_TEKST, radius_meters: IMPORT_STRAAL_M }),
+      });
+      if (!imp.ok) toonMelding(`Route aangemaakt, maar de punten uit het bestand lukten niet: ${await foutUitleg(imp, "Importeren")} Probeer het in de editor met 📥 Importeren.`, "fout");
+    }
+    router.push(`/admin/routes/${route.id}`);
   }
 
   // Export: de server levert alle gegevens, de browser pakt daarna de afbeeldingen in het bestand in
@@ -228,64 +250,85 @@ export default function RoutesOverzicht() {
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
 
-      {aanmaken && (
-        <form onSubmit={nieuwRoute} className="card" style={{ marginBottom: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-          <div className="pc-tip">💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop. Op een groot scherm zie je de kaart, de puntenlijst en de instellingen tegelijk.</div>
-          <div className="form-group">
-            <label className="form-label">Naam van de route</label>
-            <input className="form-input" placeholder="Bijv. Voorjaarsrit"
-              value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus />
-          </div>
+      {aanmaken && createPortal(
+        <div onClick={() => setAanmaken(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 480 }}>
+            <form onSubmit={nieuwRoute} className="pr-gem-panel-inner nieuwe-route">
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.5rem" }}>🗺️</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="pr-gem-label">🚀 Nieuwe route</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Naam en speltype</div>
+                </div>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setAanmaken(false)} title="Sluiten" aria-label="Sluiten">✕</button>
+              </div>
 
-          <div className="form-group">
-            <label className="form-label">Speltype</label>
-            <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Kan na aanmaken niet meer gewijzigd worden.</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
-              {(["sequentieel", "verspreid"] as const).map((m) => {
-                const info = MODUS_INFO[m];
-                const gekozen = nieuweModus === m;
-                return (
-                  <button key={m} type="button"
-                    onClick={() => setNieuweModus(m)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 12, textAlign: "left",
-                      padding: "10px 12px", borderRadius: 10, cursor: "pointer",
-                      border: `1px solid ${gekozen ? `${info.kleur}88` : "rgba(255,255,255,0.12)"}`,
-                      background: gekozen ? info.tint : "transparent",
-                    }}>
-                    <ModusTegel modus={m} size={36} />
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" htmlFor="nieuwe-route-naam">Naam van de route</label>
+                <input id="nieuwe-route-naam" className="form-input" placeholder="Bijv. Rondje Berghem"
+                  value={nieuweNaam} onChange={(e) => setNieuweNaam(e.target.value)} required autoFocus maxLength={80} />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">Speltype</span>
+                <div className="nieuwe-route-typen" role="radiogroup" aria-label="Speltype">
+                  {(["sequentieel", "verspreid"] as const).map((m) => {
+                    const info = MODUS_INFO[m];
+                    const gekozen = nieuweModus === m;
+                    return (
+                      <button key={m} type="button" role="radio" aria-checked={gekozen} onClick={() => { setNieuweModus(m); if (m === "verspreid") setGpx(null); }}
+                        className={`nieuwe-route-type${gekozen ? " aan" : ""}`}
+                        style={gekozen ? { borderColor: `${info.kleur}aa`, background: info.tint } : undefined}>
+                        <ModusTegel modus={m} size={40} />
+                        <span className="nieuwe-route-type-naam" style={gekozen ? { color: info.kleur } : undefined}>{info.label}</span>
+                        <span className="nieuwe-route-type-uitleg">{info.omschrijving}</span>
+                        {gekozen && <span className="nieuwe-route-type-vink" style={{ color: info.kleur }}>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span className="nieuwe-route-noot">⚠️ Het speltype kan later niet meer veranderen.</span>
+              </div>
+
+              {/* Beginnen met een GPX (alleen Op volgorde): de punten komen er meteen in */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">Beginnen met een bestand <span style={{ fontWeight: 400, color: "var(--muted)" }}>(mag ook later)</span></span>
+                {gpx ? (
+                  <div className="nieuwe-route-gpx">
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: gekozen ? info.kleur : "var(--ink)" }}>{info.label}</div>
-                      <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>{info.omschrijving}</div>
+                      <div className="nieuwe-route-gpx-naam" title={gpx.bestand}>📄 {gpx.bestand}</div>
+                      <div className="nieuwe-route-gpx-aantal">
+                        ✓ {gpx.resultaat.punten.filter((p) => !p.finish).length} punten{gpx.resultaat.punten.some((p) => p.finish) && " + 🏁 finish"}
+                        {gpx.resultaat.spoor && <span> · {afstandTekst(gpx.resultaat.spoor.meter)}</span>}
+                      </div>
                     </div>
-                    {gekozen && <span style={{ color: info.kleur, fontWeight: 700, flexShrink: 0 }}>✓</span>}
+                    <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setGpx(null)} title="Bestand weghalen" aria-label="Bestand weghalen">✕</button>
+                  </div>
+                ) : (
+                  <button type="button" className="rl-knop" style={{ justifyContent: "center", height: 44 }} onClick={() => gpxRef.current?.click()}>
+                    📂 GPX- of KML-bestand inlezen
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                )}
+                <input ref={gpxRef} type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={kiesGpx} style={{ display: "none" }} />
+                <span className="nieuwe-route-noot">
+                  {gpx ? `De punten worden ℹ️ infopunten ("${IMPORT_INFO_TEKST}"), een spoor krijgt een 🏁 finish aan het eind.` : "Alleen bij Op volgorde. Een wandeling uit een app of van een Garmin wordt meteen je route."}
+                </span>
+              </div>
 
-          <div className="form-group" style={{ width: 90 }}>
-            <label className="form-label" title="Hoeveel teams spelen er tegelijk? Later aan te passen.">Teams</label>
-            <input className="form-input" type="number" min={2} value={nieuwAantalTeams}
-              onChange={(e) => setNieuwAantalTeams(Math.max(2, Number(e.target.value)))} />
-          </div>
+              {fout && <div className="melding melding-fout" style={{ margin: 0 }}>⚠️ {fout}</div>}
 
-          <div className="form-group">
-            <label className="form-label">Plaatsnaam (optioneel)</label>
-            <input className="form-input" placeholder="Bijv. Berghem — kaart start daar i.p.v. Amsterdam"
-              value={nieuwePlaats} onChange={(e) => setNieuwePlaats(e.target.value)} />
+              <button className="rl-knop rl-knop--cyan nieuwe-route-knop" type="submit" disabled={bezig || !nieuweNaam.trim()}>
+                {bezig ? "⏳ Aanmaken…" : gpx ? "Aanmaken met deze punten →" : "Aanmaken en beginnen →"}
+              </button>
+              <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>
+                {gpx ? "Daarna kun je de punten in de editor nalopen, verslepen en er vragen aan hangen." : <>Daarna helpt de app je stap voor stap: startpunt, {nieuweModus === "verspreid" ? "finish, teams en afstand" : "punten en finish"}.</>}
+              </div>
+              <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: 0 }}>💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop.</div>
+            </form>
           </div>
-
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button className="rl-knop rl-knop--cyan" type="submit" disabled={bezig}>
-              {bezig ? "…" : "Aanmaken"}
-            </button>
-            <button className="rl-knop" type="button" onClick={() => setAanmaken(false)}>Annuleren</button>
-          </div>
-        </form>
+        </div>,
+        document.body,
       )}
-      {fout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {fout}</div>}
 
       {laden ? (
         <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Laden…</p>

@@ -34,8 +34,9 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > - Sluit je het venster, dan staat bovenop de kaart een knop **🚀 Eerste stappen** zolang er nog geen punten en items op de kaart staan.
 
 1. Ga naar **Routes** in de zijbalk.
-2. Klik op **Nieuwe route**.
-3. Geef de route een naam en **kies het speltype**: **🎯 Op volgorde** (sequentieel: alle teams lopen dezelfde punten in dezelfde volgorde) of **🔄 Rondje** (verspreid: één rondje, elk team begint op een ander punt). Klik op **Aanmaken**.
+2. Klik op **+ Nieuwe route**: er opent een venster.
+3. Geef de route een naam en **kies het speltype**: **🎯 Op volgorde** (sequentieel: alle teams lopen dezelfde punten in dezelfde volgorde) of **🔄 Rondje** (verspreid: één rondje, elk team begint op een ander punt). Het speltype kan later niet meer veranderen. Klik op **Aanmaken en beginnen →**: de editor opent met het stappenvenster (plaats, startpunt, teams enzovoort vraagt dat venster).
+   Heb je een wandeling als **GPX** (uit een app of van een Garmin) of **KML**? Kies bij **Op volgorde** dan **📂 GPX- of KML-bestand inlezen**: je ziet meteen hoeveel punten erin zitten (en de lengte van het spoor), de naam van de route wordt uit de bestandsnaam ingevuld als je die nog leeg had, en met **Aanmaken met deze punten →** staan ze meteen in de route: als ℹ️ infopunten met *Punt bereikt! Loop door naar het volgende punt.*, en bij een spoor een 🏁 finish aan het eind. Kies je Rondje, dan vervalt het bestand.
 4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst.) Veel punten tegelijk? Gebruik bij een route op volgorde **📥 Importeren** bovenin de editor (zie hieronder).
 5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met

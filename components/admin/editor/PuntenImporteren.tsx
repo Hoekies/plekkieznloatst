@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
-import { leesPunten, coordsUitLink, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
+import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { afstandTekst } from "@/lib/geo";
-
-const STANDAARD_TEKST = "Punt bereikt! Loop door naar het volgende punt.";
 
 // "📥 Importeren" (alleen bij een route op volgorde): punten uit een GPX/KML-bestand, of een lijst
 // met coördinaten en Google Maps-links. Twee stappen: kiezen, dan controleren en toevoegen.
@@ -25,7 +23,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, onKlaar
   const [spoor, setSpoor] = useState<ImportResultaat["spoor"]>(undefined);
   // De route had al een finish: die van het spoor is weggelaten
   const [finishWeg, setFinishWeg] = useState(false);
-  const [infoTekst, setInfoTekst] = useState(STANDAARD_TEKST);
+  const [infoTekst, setInfoTekst] = useState(IMPORT_INFO_TEKST);
   const [bezig, setBezig] = useState<"lezen" | "opslaan" | null>(null);
 
   const controleren = gevonden.length > 0 || nietHerkend.length > 0;
@@ -84,7 +82,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, onKlaar
     setBezig(null);
     if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Importeren", data.fout), "fout"); return; }
     toonMelding(`${data.aantal} punten toegevoegd`, "ok");
-    setOpen(false); setTekst(""); setPlakken(false); setInfoTekst(STANDAARD_TEKST); opnieuw();
+    setOpen(false); setTekst(""); setPlakken(false); setInfoTekst(IMPORT_INFO_TEKST); opnieuw();
     onKlaar();
   }
 
