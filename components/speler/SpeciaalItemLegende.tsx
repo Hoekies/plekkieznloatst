@@ -34,6 +34,10 @@ export const ITEM_INFO: Record<string, ItemInfo> = {
   plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val op de kaart. Loop je erover, dan sta je ${duur(w.plekzooiSec)} stil: je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer.` },
 };
 
+// Naam en emoji van een itemtype (onbekend: het type zelf)
+export const itemNaam = (type: string) => ITEM_INFO[type]?.naam ?? type;
+export const itemEmoji = (type: string) => ITEM_INFO[type]?.emoji ?? "❓";
+
 // Korte speluitleg bovenaan het info-venster, per speltype
 export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
   // Kort en in één oogopslag: lopen → vraag → volgend punt, en wat je met items doet

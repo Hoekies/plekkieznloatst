@@ -7,7 +7,8 @@ import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/d
 import { haversine } from "@/lib/geo";
 import { useWegen } from "@/lib/wegen";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
-import { schatTeamTijd, schatTeamPunten, formateerMinuten } from "@/lib/tijd-schatting";
+import { schatTeamTijd, schatTeamPunten } from "@/lib/tijd-schatting";
+import { duurKort } from "@/lib/tijd";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
 import BevestigKnop from "@/components/admin/BevestigKnop";
@@ -2278,12 +2279,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     onClick={() => setUitgelichtTeam(uitgelichtTeam === s.teamIndex ? null : s.teamIndex)}
                     style={{ cursor: "pointer", borderRadius: 6, background: uitgelichtTeam === s.teamIndex ? "rgba(255,255,255,0.1)" : undefined }}
                     title={`Klik om de route van Team ${s.teamIndex} te zien
-Tijd: lopen ≈ ${formateerMinuten(s.lopenMin)} · vragen ≈ ${formateerMinuten(s.vragenMin)} · items ≈ ${formateerMinuten(s.itemsMin)}
+Tijd: lopen ≈ ${duurKort(s.lopenMin)} · vragen ≈ ${duurKort(s.vragenMin)} · items ≈ ${duurKort(s.itemsMin)}
 Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed) · items ≈ ${s.punten.items >= 0 ? "+" : ""}${s.punten.items}`}>
                     <span style={{ width: 9, height: 9, borderRadius: 3, background: s.kleur, flexShrink: 0 }} />
                     <span style={{ color: s.kleur, fontWeight: 700 }}>Team {s.teamIndex}</span>
                     <span style={{ marginLeft: "auto" }}>{(s.afstandM / 1000).toFixed(2).replace(".", ",")} km</span>
-                    <span style={{ fontWeight: 700, minWidth: 54, textAlign: "right" }}>≈ {formateerMinuten(s.totaalMin)}</span>
+                    <span style={{ fontWeight: 700, minWidth: 54, textAlign: "right" }}>≈ {duurKort(s.totaalMin)}</span>
                     <span style={{ fontWeight: 700, minWidth: 50, textAlign: "right", color: "#FFE680" }}>≈ {s.punten.totaal} pt</span>
                   </div>
                 ))}

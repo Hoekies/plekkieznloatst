@@ -32,6 +32,9 @@ Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spel
 **Trillen** (Android)
 Je telefoon trilt bij een bereikt punt, een opgepakt item, je startitems, een goed of fout antwoord, een aanval van een ander team, een bericht van de organisatie en de finish. Zo merk je het ook als de telefoon in je zak zit.
 
+**Kaart**
+De kaart begint altijd licht. Met de knop **☀️** rechts boven de itembalk wissel je naar een donkere kaart (🌙) of een luchtfoto (🛰️).
+
 **Eindtijd**
 Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.
 

@@ -56,7 +56,7 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Live kaart met lagen (sporen, items) en licht/donker/luchtfoto in één paneel
 - Helpers aan- en uitzetten, net als spelers
 - 🚀 Eerste stappen bij een nieuwe route (startpunt, finish, teams en km, punten maken, items automatisch, vragen, controleren)
-- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar
+- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar; één knop voor licht/donker/luchtfoto (begint licht)
 
 ### Speciale items
 Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
@@ -164,9 +164,9 @@ docs/             → Beheerdershandleiding, spelersinstructies
 
 ### Afbeelding-handleidingen genereren
 
-Voor elke speluitleg hierboven, plus de beheerdershandleiding, staat een kant-en-klare
+Voor elke speluitleg hierboven staat een kant-en-klare
 ChatGPT-prompt om er een geïllustreerde posterhandleiding van te laten maken:
-[Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md) · [Admin](docs/afbeelding-prompt-admin.md).
+[Sequentieel](docs/afbeelding-prompt-sequentieel.md) · [Verspreid](docs/afbeelding-prompt-verspreid.md).
 Plak de codeblok uit zo'n bestand in ChatGPT (met beeldgeneratie) om de afbeelding te maken.
 Voor een korte, printbare spelershandleiding op A5 met het logo: [spelers-a5](docs/afbeelding-prompt-spelers-a5.md).
 

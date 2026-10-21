@@ -126,7 +126,7 @@ In de route-editor opent het **⚙️-tandwiel** bovenin de instellingen. Daar s
 
 Een verspreide route bestaat uit drie delen:
 
-- **🏠 Startpunt** — het **eerste** punt in de lijst. Hier krijgen alle teams een welkomstscherm met de korte speluitleg. Zet je een vraag op het startpunt, dan krijgen ze die pas nadat ze 25 meter gelopen hebben.
+- **🏠 Startpunt** — het **eerste** punt in de lijst. Hier krijgen alle teams een welkomstscherm met de korte speluitleg. Zet je een vraag op het startpunt, dan krijgen ze die pas nadat ze 25 meter richting hun eerste punt gelopen hebben (een pijl wijst de kant op).
 - **De lus** — alle punten daartussen. Elk team krijgt een eigen instapplek in de lus: ongeveer even ver van de startplek (gelijke aanloop) en zo goed mogelijk verspreid, zodat teams niet achter elkaar aan lopen. Verschuif je punten, dan rekent de editor de instappunten opnieuw uit.
 - **🏁 Finish** — het **laatste** punt in de lijst, op dezelfde plek als het startpunt. Hier komen alle teams na hun lus weer samen.
 

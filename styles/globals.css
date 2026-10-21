@@ -2789,3 +2789,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Eerste stappen: hint als "Volgende" nog niet kan, toelichting bij een getal */
 .es-hint { font-size: 0.72rem; color: #FFE680; text-align: right; }
 .es-getal small { display: block; font-size: 0.66rem; color: var(--muted); font-weight: 500; }
+
+/* Spelerskaart: één knop voor licht, donker en luchtfoto */
+.kaart-stijl--enkel .kaart-stijl-wissel { display: inline-flex; }

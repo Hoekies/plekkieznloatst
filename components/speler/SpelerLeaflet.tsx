@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -47,13 +47,14 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
-  // Licht, donker of luchtfoto: de speler kiest zelf (onthouden op dit toestel)
+  // Licht, donker of luchtfoto met één knop; de kaart begint altijd licht
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");
   const [vector, setVector] = useState(false);
   function kiesStijl(s: KaartStijl) {
+    // Zonder scherpe kaart (vectortegels) bestaat donker niet: door naar de luchtfoto
+    if (s === "donker" && !vector) s = "luchtfoto";
     setStijl(s);
-    bewaarStijl(s);
     basiskaartRef.current?.zetStijl(s);
   }
 
@@ -69,15 +70,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         const link = document.createElement("link");
         link.id = "leaflet-css";
         link.rel = "stylesheet";
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.href = "/leaflet/1.9.4/leaflet.css";
         document.head.appendChild(link);
       }
 
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        iconRetinaUrl: "/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "/leaflet/1.9.4/images/marker-shadow.png",
       });
 
       const map = L.map(containerRef.current!, {
@@ -90,9 +91,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       mapRef.current = map;
       setKaartKlaar(true);
       // Scherpe kaart (vectortegels) met duidelijke paden, huizen en groen; anders de gewone OSM-plaatjes
-      const beginStijl = bewaardeStijl();
-      setStijl(beginStijl);
-      voegBasiskaartToe(L, map, beginStijl).then((b) => {
+      voegBasiskaartToe(L, map, "licht").then((b) => {
         if (!mapRef.current) return;
         basiskaartRef.current = b;
         setVector(b.vector);
@@ -356,7 +355,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       `}</style>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {/* Rechts, onder elkaar, net boven de itembalk: licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
-      <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} verticaal onderAfstand={stijlOnder} />
+      <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} verticaal enkel onderAfstand={stijlOnder} />
     </>
   );
 }

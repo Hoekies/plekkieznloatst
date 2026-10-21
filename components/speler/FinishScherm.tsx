@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { formateerTijd } from "@/lib/geo";
+import { formateerTijd, afstandTekst } from "@/lib/geo";
 import type { LeaderboardEntry, SpelerLocatie } from "@/lib/types";
 import type { SpeciaalItem } from "@/types/database";
 import type { RouteWaarden } from "./SpeciaalItemLegende";
@@ -49,12 +49,6 @@ function maakConfetti(): ConfettiStuk[] {
     duur: 2.5 + Math.random() * 2,
     rotatie: Math.random() * 360,
   }));
-}
-
-function formateerAfstand(meters: number): string {
-  if (meters === 0) return "—";
-  if (meters < 1000) return `${meters} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
 }
 
 export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
@@ -159,7 +153,7 @@ export default function FinishScherm({ groepNaam, score: initScore, tijdSeconden
         <div style={{ display: "flex", gap: 12, width: "100%" }}>
           <StatKaart waarde={String(score)} label={vrij ? "punten" : "punten (voorlopig)"} kleur="var(--blue)" />
           <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
-          <StatKaart waarde={formateerAfstand(distanceMeters)} label="afstand" kleur="var(--green, #16A34A)" />
+          <StatKaart waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="var(--green, #16A34A)" />
         </div>
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}

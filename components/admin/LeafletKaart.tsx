@@ -5,22 +5,13 @@ import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
+import { itemNaam, itemEmoji } from "@/components/speler/SpeciaalItemLegende";
 
 // Leaflet wordt alleen client-side geladen
 declare global {
   interface Window { L: typeof import("leaflet"); }
 }
 
-// Naam van een voorgesteld item (tooltip)
-const VOORSTEL_NAAM: Record<string, string> = {
-  ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook",
-  dief: "Dief", banaan: "Banaan", wissel: "Wissel", vraagteken: "Vraagteken", plekzooi: "Plek zooi",
-};
-
-const SPECIAAL_EMOJI: Record<string, string> = {
-  spook: "👻", bom: "💣", ster: "⭐", verdubbeling: "🔴", wissel: "🔄", dief: "🦹", radar: "📡",
-  banaan: "🍌", plekzooi: "⛔", vraagteken: "❓",
-};
 
 interface GuideCirkel {
   lat: number;
@@ -126,7 +117,7 @@ export default function LeafletKaart({
       const link = document.createElement("link");
       link.id = "leaflet-css";
       link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      link.href = "/leaflet/1.9.4/leaflet.css";
       document.head.appendChild(link);
     }
 
@@ -243,7 +234,7 @@ export default function LeafletKaart({
       specialeItemMarkersRef.current.forEach((m) => m.remove());
       specialeItemMarkersRef.current.clear();
       specialeItems.forEach((item) => {
-        const emoji = SPECIAAL_EMOJI[item.type] ?? "❓";
+        const emoji = itemEmoji(item.type);
         const isGeselecteerd = item.id === geselecteerdSpeciaalId;
         const ring = isGeselecteerd ? "box-shadow:0 0 0 3px #fff,0 0 0 6px #00d9ff;" : "";
         const icon = L.divIcon({
@@ -386,7 +377,7 @@ export default function LeafletKaart({
         const icon = L.divIcon({
           className: "",
           // Voorstel: het item in kleur (zo zie je welk), maar half doorzichtig in een witte stippelrand met ＋
-          html: `<div class="pr-voorstel" title="Voorstel: ${escapeHtml(VOORSTEL_NAAM[v.type] ?? v.type)} (klik om hier te plaatsen)" style="
+          html: `<div class="pr-voorstel" title="Voorstel: ${escapeHtml(itemNaam(v.type))} (klik om hier te plaatsen)" style="
             width:32px;height:32px;border-radius:50%;cursor:pointer;box-sizing:border-box;opacity:0.5;
             background:rgba(255,255,255,0.15);border:2px dashed #fff;
             display:flex;align-items:center;justify-content:center;position:relative;">

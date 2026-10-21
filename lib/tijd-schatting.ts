@@ -85,11 +85,6 @@ export function schatTeamTijd(route: Plek[], o: {
   };
 }
 
-export function formateerMinuten(min: number): string {
-  const m = Math.round(min);
-  if (m < 60) return `${m} min`;
-  return `${Math.floor(m / 60)} u ${String(m % 60).padStart(2, "0")}`;
-}
 
 // ── Puntenschatting ──────────────────────────────────────────────────────────
 const KANS_GOED = 0.7; // aanname: een team beantwoordt ongeveer 70% van de vragen goed

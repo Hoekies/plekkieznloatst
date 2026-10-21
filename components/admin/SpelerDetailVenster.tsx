@@ -7,13 +7,10 @@ import type { SpelerOverzicht } from "@/lib/admin-live";
 import { sessietijd } from "@/lib/admin-live";
 import type { RouteVerslag } from "@/lib/team-verslag";
 import { formateerTijd } from "@/lib/geo";
+import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 
 const GelopenRouteKaart = dynamic(() => import("@/components/speler/GelopenRouteKaart"), { ssr: false });
 
-const ITEM_NAAM: Record<string, string> = {
-  ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook",
-  dief: "Dief", banaan: "Banaan", wissel: "Wissel", vraagteken: "Vraagteken", plekzooi: "Plek zooi",
-};
 
 // Alles van één speler in één venster: stand, gelopen route, antwoorden en items
 export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunten, onSluit, acties }: {
@@ -108,8 +105,8 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
                   <img src={`/items/${i.type}.webp`} alt="" style={{ width: 24, height: 24 }} />
                   <span style={{ flex: 1 }}>
                     {i.soort === "ingezet"
-                      ? `${ITEM_NAAM[i.type] ?? i.type} ingezet${i.ander ? ` op ${i.ander}` : ""}`
-                      : `${ITEM_NAAM[i.type] ?? i.type} gekregen${i.ander ? ` van ${i.ander}` : ""}`}
+                      ? `${itemNaam(i.type)} ingezet${i.ander ? ` op ${i.ander}` : ""}`
+                      : `${itemNaam(i.type)} gekregen${i.ander ? ` van ${i.ander}` : ""}`}
                   </span>
                   <span style={{ color: "var(--muted)", fontSize: "0.74rem" }}>{new Date(i.tijd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</span>
                 </div>

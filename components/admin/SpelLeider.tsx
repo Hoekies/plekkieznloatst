@@ -7,17 +7,10 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import { duurKort } from "@/lib/tijd";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 export const NIET_GEZIEN_MIN = 5;
-
-// Minuten leesbaar: "12 min", "3 u 5 min", "2 d 4 u"
-export function duurKort(min: number): string {
-  if (min < 60) return `${min} min`;
-  if (min < 1440) return `${Math.floor(min / 60)} u${min % 60 ? ` ${min % 60} min` : ""}`;
-  const u = Math.floor((min % 1440) / 60);
-  return `${Math.floor(min / 1440)} d${u ? ` ${u} u` : ""}`;
-}
 
 export function minutenNietGezien(s: SpelerOverzicht, nu = Date.now()): number | null {
   if (s.sessie_status !== "actief") return null;
@@ -25,11 +18,6 @@ export function minutenNietGezien(s: SpelerOverzicht, nu = Date.now()): number |
   if (!sinds) return null;
   const min = Math.floor((nu - new Date(sinds).getTime()) / 60000);
   return min >= NIET_GEZIEN_MIN ? min : null;
-}
-
-function duur(ms: number): string {
-  const min = Math.max(0, Math.floor(ms / 60000));
-  return min < 60 ? `${min} min` : `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")} uur`;
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
@@ -102,7 +90,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   const open = !rustig || handOpen;
   const status = (
     <>
-      {start ? `Speelt sinds ${duur(nu - new Date(start).getTime())}` : "Spel loopt"} · {onderweg} onderweg
+      {start ? `Speelt sinds ${duurKort(Math.floor((nu - new Date(start).getTime()) / 60000))}` : "Spel loopt"} · {onderweg} onderweg
       {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
     </>
   );
@@ -163,7 +151,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
 
         {gepauzeerd && (
           <div className="spelleider-regel spelleider-pauze">
-            ⏸️ <strong>Gepauzeerd</strong> sinds {new Date(gepauzeerd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · {duur(nu - new Date(gepauzeerd).getTime())}
+            ⏸️ <strong>Gepauzeerd</strong> sinds {new Date(gepauzeerd).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · {duurKort((nu - new Date(gepauzeerd).getTime()) / 60000)}
           </div>
         )}
         {aandacht.length === 0 ? (

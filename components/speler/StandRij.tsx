@@ -1,12 +1,7 @@
-import { formateerTijd } from "@/lib/geo";
+import { formateerTijd, afstandTekst } from "@/lib/geo";
 import type { LeaderboardEntry } from "@/lib/types";
 
 const MEDAILLE = ["🥇", "🥈", "🥉"];
-
-function formateerAfstand(meters: number): string {
-  if (meters < 1000) return `${meters} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
-}
 
 // Eén regel in de tussenstand en de eindstand: grote medaille (of plaatsnummer),
 // het teamicoon, de naam en een groot puntenaantal.
@@ -59,7 +54,7 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
         {!compact && (
           <div style={{ fontSize: "0.8rem", color: "#9fb3d1", marginTop: 2, display: "flex", gap: 10, fontVariantNumeric: "tabular-nums" }}>
             <span>⏱ {formateerTijd(entry.tijd_seconden)}</span>
-            {entry.distance_meters > 0 && <span>📍 {formateerAfstand(entry.distance_meters)}</span>}
+            {entry.distance_meters > 0 && <span>📍 {afstandTekst(entry.distance_meters)}</span>}
           </div>
         )}
       </div>

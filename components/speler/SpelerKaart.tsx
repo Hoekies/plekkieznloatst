@@ -55,6 +55,13 @@ const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 // Voor de "gelopen route" na de finish: ook tussendoor opslaan zodra de speler een stukje verder is
 const SPOOR_STAP_M = 10;
 const SPOOR_MIN_INTERVAL_MS = 4000;
+// Score, items, aanvallen, berichten en tussenstand: samen in één verzoek, zo vaak
+const STATUS_POLL_MS = 4000;
+
+// Antwoorden van de server zoals de app ze verwerkt (ongetypeerde JSON, net als bij de losse verzoeken)
+type EffectenData = any;
+type TussenstandData = any;
+type BerichtenData = { berichten: { id: string; bericht: string }[] };
 
 
 // Getal in de statistiekhokjes zo groot mogelijk; bij meer cijfers iets kleiner zodat het past
@@ -73,6 +80,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
   // Startvraag: afgelegde meters op het moment dat het team "Op pad!" tikte (null = niet aan het wachten)
   const [startVraagVanaf, setStartVraagVanaf] = useState<number | null>(null);
+  // Afstand tot het eerste punt na de start op het moment dat het team begon te lopen
+  const [startVraagAfstand, setStartVraagAfstand] = useState<number | null>(null);
   const [startVraagKlaar, setStartVraagKlaar] = useState(false);
   const [andereSpelers, setAndereSpelers] = useState<SpelerLocatie[]>([]);
   // Items waarmee je een al gefinisht team nog mag raken (instelling van de beheerder)
@@ -165,7 +174,14 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // Verspreid: het eerste punt is het startpunt (start en finish op dezelfde plek)
   const startPunt = modus === "verspreid" && punten.length >= 3 ? punten[0] : null;
   const wachtOpStartVraag = startVraagVanaf !== null;
-  const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(STARTVRAAG_NA_METER - (kmAfgelegd - startVraagVanaf))) : 0;
+  // Richting voor de eerste meters: het punt na de start. Alleen meters díe kant op tellen;
+  // zonder GPS-plek of volgend punt telt gewoon elke gelopen meter.
+  const richtPunt = startPunt ? punten[1] ?? null : null;
+  const afstandTotRichtPunt = positie && richtPunt ? haversine(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) : null;
+  const richtingTelt = startVraagAfstand !== null && afstandTotRichtPunt !== null && !!richtPunt;
+  const startDoelMeter = richtingTelt ? Math.min(STARTVRAAG_NA_METER, Math.max(5, startVraagAfstand! - richtPunt!.radius_meters)) : STARTVRAAG_NA_METER;
+  const startGelopen = !wachtOpStartVraag ? 0 : richtingTelt ? startVraagAfstand! - afstandTotRichtPunt! : kmAfgelegd - startVraagVanaf!;
+  const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(startDoelMeter - startGelopen)) : 0;
 
   // 100 meter gelopen → startitems van de organisatie ophalen en het welkomstscherm tonen
   useEffect(() => {
@@ -193,17 +209,20 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kmAfgelegd]);
 
-  // 25 meter gelopen na het welkomstscherm → de vraag van het startpunt verschijnt
+  // 25 meter de goede kant op gelopen na het welkomstscherm → de vraag van het startpunt verschijnt
   useEffect(() => {
     if (startVraagVanaf === null || !startPunt) return;
-    if (kmAfgelegd - startVraagVanaf >= STARTVRAAG_NA_METER) {
+    // Eerste GPS-plek na het welkomstscherm: vanaf hier tellen de meters richting het volgende punt
+    if (startVraagAfstand === null && afstandTotRichtPunt !== null) { setStartVraagAfstand(afstandTotRichtPunt); return; }
+    if (nogTeLopen <= 0) {
       setStartVraagVanaf(null);
+      setStartVraagAfstand(null);
       setStartVraagKlaar(true);
       speelPuntBereikt(); tril(TRIL.puntBereikt);
       setPopupPunt(startPunt);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kmAfgelegd, startVraagVanaf]);
+  }, [kmAfgelegd, startVraagVanaf, positie]);
 
   const heeftInventaris = inventaris.length > 0;
   const knoepBottomOffset = heeftInventaris ? 92 : 28;
@@ -245,19 +264,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     // Al getoonde aanval niet opnieuw laten piepen na herladen van de pagina
     try { effectNotificatieAtRef.current = localStorage.getItem(effectGezienKey); } catch { /* geen opslag */ }
     haalAndereSpelersOp();
-    haalSpecialeItemsOp();
-    haalEffectenOp();
     haalInventarisOp();
-    haalScoreOp();
     haalHulpOp();
-    // Realtime mist soms een update; zo verdwijnt een item dat een ander team pakte binnen 5s
-    const itemsTimer = setInterval(() => haalSpecialeItemsOp(), 5000);
-    // Score vaak verversen: punten van items (ook van anderen) moeten snel zichtbaar zijn
-    const sessieCheckTimer = setInterval(() => haalScoreOp(), 5000);
-    // Realtime mist soms een event; pollen zorgt dat een aanval altijd binnen 5s binnenkomt
-    const effectenTimer = setInterval(() => haalEffectenOp(), 3000);
-    haalBerichtenOp();
-    const berichtenTimer = setInterval(() => haalBerichtenOp(), 5000);
+    haalStatusOp();
+    // Eén verzoek elke 4s voor score, items, aanvallen, berichten en tussenstand. Realtime mist
+    // soms een update; zo komt alles toch binnen 4s binnen (een ander team pakte een item, een aanval, …)
+    const statusTimer = setInterval(() => haalStatusOp(), STATUS_POLL_MS);
     // Andere teams: binnen 25 meter zie je ze ook zonder radar; zo verschijnen ze vanzelf
     const andereTimer = setInterval(() => haalAndereSpelersOp(), 10000);
 
@@ -273,10 +285,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
     return () => {
       supabase.removeChannel(kanaal);
-      clearInterval(itemsTimer);
-      clearInterval(sessieCheckTimer);
-      clearInterval(effectenTimer);
-      clearInterval(berichtenTimer);
+      clearInterval(statusTimer);
       clearInterval(andereTimer);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
@@ -335,13 +344,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (spelAfgelopen) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); }
   }, [spelAfgelopen, router]);
 
-  // Tussenstand-poll: elke 3s checken of admin de tussenstand nu toont
-  useEffect(() => {
-    haalTussenstandOp();
-    const timer = setInterval(haalTussenstandOp, 3000);
-    return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  async function haalStatusOp() {
+    try {
+      const res = await fetch("/api/speler/status");
+      if (!res.ok) return;
+      type Deel = { status: number; data: unknown };
+      const s = await res.json() as Record<"sessie" | "speciaal" | "effecten" | "berichten" | "tussenstand", Deel>;
+      const ok = (d: Deel) => d.status >= 200 && d.status < 300;
+      // Eerst de sessie: is het spel voorbij of gestopt, dan de rest overslaan
+      if (verwerkScore(s.sessie.status, s.sessie.data)) return;
+      if (ok(s.speciaal)) verwerkSpecialeItems(s.speciaal.data as SpeciaalItem[]);
+      if (ok(s.effecten)) verwerkEffecten(s.effecten.data as EffectenData);
+      if (ok(s.berichten)) verwerkBerichten(s.berichten.data as BerichtenData);
+      if (ok(s.tussenstand)) verwerkTussenstand(s.tussenstand.data as TussenstandData);
+    } catch { /* verbindingsfout */ }
+  }
 
   async function haalAndereSpelersOp() {
     try {
@@ -357,16 +374,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   async function haalSpecialeItemsOp() {
     try {
       const res = await fetch("/api/speler/speciaal");
-      if (!res.ok) return;
-      const items: SpeciaalItem[] = await res.json();
-      setSpecialeItems(items);
-      // Uitleg (ℹ️) onthoudt elk itemtype dat ooit in de route zat, ook na oppakken of respawn
-      setLegendeItems((prev) => {
-        const bekend = new Set(prev.map((i) => i.type));
-        const nieuw = items.filter((i) => !bekend.has(i.type) && bekend.add(i.type));
-        return nieuw.length > 0 ? [...prev, ...nieuw] : prev;
-      });
+      if (res.ok) verwerkSpecialeItems(await res.json());
     } catch { /* verbindingsfout */ }
+  }
+
+  function verwerkSpecialeItems(items: SpeciaalItem[]) {
+    setSpecialeItems(items);
+    // Uitleg (ℹ️) onthoudt elk itemtype dat ooit in de route zat, ook na oppakken of respawn
+    setLegendeItems((prev) => {
+      const bekend = new Set(prev.map((i) => i.type));
+      const nieuw = items.filter((i) => !bekend.has(i.type) && bekend.add(i.type));
+      return nieuw.length > 0 ? [...prev, ...nieuw] : prev;
+    });
   }
 
   async function haalInventarisOp() {
@@ -379,34 +398,40 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   async function haalScoreOp() {
     try {
       const res = await fetch("/api/speler/sessie");
-      if (res.status === 403) { router.push("/speler"); return; }
-      if (res.ok) {
-        const data = await res.json();
-        // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
-        if (data === null) { router.push("/speler?gestopt=1"); return; }
-        // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
-        if (data?.tijd_op) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); return; }
-        setEindtijd(data?.eindtijd ?? null);
-        setPauze(data?.pauze ?? null);
-        if (data?.score !== undefined) setScore(data.score);
-        // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
-        if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
-          router.refresh();
-          setOpgehaaldToast("🔄 De route is bijgewerkt");
-          if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
-          opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 3500);
-        }
-        if (data) vernieuwRef.current = data.vernieuw_at ?? null;
-        // De organisatie heeft ons volgende punt vrijgegeven ("Volgend punt vrijgeven" op het dashboard):
-        // de server zet dat punt als bereikt. Herladen opent de vraag, net als na een hulpmelding.
-        const v = vrijgaveRef.current;
-        if (v.puntId && data?.current_point_id === v.puntId && !v.bereikt && !v.popup && !bezigRef.current) {
-          onthoudVrijgegeven("organisatie");
-          speelPuntBereikt(); tril(TRIL.puntBereikt);
-          window.location.reload();
-        }
-      }
+      verwerkScore(res.status, res.ok ? await res.json() : null);
     } catch { /* verbindingsfout */ }
+  }
+
+  // Geeft true als de speler weg moet van de kaart (gestopt, uitgelogd of het spel is voorbij)
+  function verwerkScore(status: number, data: any): boolean {
+    if (status === 403) { router.push("/speler"); return true; }
+    if (status >= 200 && status < 300) {
+      // Geen lopend spel meer: gestopt of gereset door de beheerder (gefinisht gaat via /speler door naar de finish)
+      if (data === null) { router.push("/speler?gestopt=1"); return true; }
+      // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
+      if (data?.tijd_op) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); return true; }
+      setEindtijd(data?.eindtijd ?? null);
+      setPauze(data?.pauze ?? null);
+      if (data?.score !== undefined) setScore(data.score);
+      // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
+      if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
+        router.refresh();
+        setOpgehaaldToast("🔄 De route is bijgewerkt");
+        if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
+        opgehaaldTimerRef.current = setTimeout(() => setOpgehaaldToast(null), 3500);
+      }
+      if (data) vernieuwRef.current = data.vernieuw_at ?? null;
+      // De organisatie heeft ons volgende punt vrijgegeven ("Volgend punt vrijgeven" op het dashboard):
+      // de server zet dat punt als bereikt. Herladen opent de vraag, net als na een hulpmelding.
+      const v = vrijgaveRef.current;
+      if (v.puntId && data?.current_point_id === v.puntId && !v.bereikt && !v.popup && !bezigRef.current) {
+        onthoudVrijgegeven("organisatie");
+        speelPuntBereikt(); tril(TRIL.puntBereikt);
+        window.location.reload();
+        return true;
+      }
+    }
+    return false;
   }
 
   // Berichten van de organisatie: elk nieuw bericht één keer tonen, als groot venster dat
@@ -414,20 +439,22 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   async function haalBerichtenOp() {
     try {
       const res = await fetch("/api/speler/berichten");
-      if (!res.ok) return;
-      const { berichten } = await res.json() as { berichten: { id: string; bericht: string }[] };
-      const sleutel = `pr_berichten_gezien_${sessie.id}`;
-      let gezien: string[] = [];
-      try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
-      const nieuw = berichten.filter((b) => !gezien.includes(b.id));
-      if (nieuw.length === 0) return;
-      try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...nieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
-      const laatste = nieuw[nieuw.length - 1];
-      if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
-      setEffectNotificatie(`📢 ${laatste.bericht}`);
-      speelDong();
-      navigator.vibrate?.([200, 100, 200]);
+      if (res.ok) verwerkBerichten(await res.json());
     } catch { /* verbindingsfout */ }
+  }
+
+  function verwerkBerichten({ berichten }: BerichtenData) {
+    const sleutel = `pr_berichten_gezien_${sessie.id}`;
+    let gezien: string[] = [];
+    try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
+    const nieuw = berichten.filter((b) => !gezien.includes(b.id));
+    if (nieuw.length === 0) return;
+    try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...nieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
+    const laatste = nieuw[nieuw.length - 1];
+    if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
+    setEffectNotificatie(`📢 ${laatste.bericht}`);
+    speelDong();
+    navigator.vibrate?.([200, 100, 200]);
   }
 
   async function haalHulpOp() {
@@ -492,46 +519,48 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   async function haalEffectenOp() {
     try {
       const res = await fetch("/api/speler/speciaal/effecten");
-      if (!res.ok) return;
-      const data = await res.json();
-      setGhostTot(data.ghost?.active && data.ghost.expires_at ? new Date(data.ghost.expires_at).getTime() : null);
-      if (data.notification && data.notification_at !== effectNotificatieAtRef.current) {
-        effectNotificatieAtRef.current = data.notification_at;
-        try { localStorage.setItem(effectGezienKey, data.notification_at); } catch { /* geen opslag */ }
-        // Aanval: blijft staan tot het team hem zelf wegklikt
-        if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
-        setEffectNotificatie(data.notification);
-        setEffectVan(data.notification_van ?? null);
-        speelDong();
-        navigator.vibrate?.([300, 120, 300, 120, 300]);
-        haalScoreOp();
-        // Banaan: de puntvolgorde is op de server omgewisseld — kaart opnieuw laden met de nieuwe volgorde
-        if (data.notification.startsWith("🍌")) router.refresh();
-      }
-
-      // Plek zooi actief: herstel afteltimer bij herverbinding
-      if (data.plekzooi?.active && data.plekzooi.expires_at) {
-        activeerPlekzooi(new Date(data.plekzooi.expires_at));
-      } else if (plekzooiTimerRef.current) {
-        // De organisatie heeft de wachttijd ingekort: niet langer stilstaan
-        clearInterval(plekzooiTimerRef.current);
-        plekzooiTimerRef.current = null;
-        setPlekzooiActief(false);
-      }
-
-      // Radar actief: poll andere spelers elke 5 seconden
-      if (data.radar?.active) {
-        if (!radarPollRef.current) {
-          radarPollRef.current = setInterval(() => haalAndereSpelersOp(), 5000);
-        }
-      } else {
-        if (radarPollRef.current) {
-          clearInterval(radarPollRef.current);
-          radarPollRef.current = null;
-          haalAndereSpelersOp(); // radar afgelopen: de andere teams verdwijnen weer van de kaart
-        }
-      }
+      if (res.ok) verwerkEffecten(await res.json());
     } catch { /* verbindingsfout */ }
+  }
+
+  function verwerkEffecten(data: EffectenData) {
+    setGhostTot(data.ghost?.active && data.ghost.expires_at ? new Date(data.ghost.expires_at).getTime() : null);
+    if (data.notification && data.notification_at !== effectNotificatieAtRef.current) {
+      effectNotificatieAtRef.current = data.notification_at;
+      try { localStorage.setItem(effectGezienKey, data.notification_at); } catch { /* geen opslag */ }
+      // Aanval: blijft staan tot het team hem zelf wegklikt
+      if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
+      setEffectNotificatie(data.notification);
+      setEffectVan(data.notification_van ?? null);
+      speelDong();
+      navigator.vibrate?.([300, 120, 300, 120, 300]);
+      haalScoreOp();
+      // Banaan: de puntvolgorde is op de server omgewisseld — kaart opnieuw laden met de nieuwe volgorde
+      if (data.notification.startsWith("🍌")) router.refresh();
+    }
+
+    // Plek zooi actief: herstel afteltimer bij herverbinding
+    if (data.plekzooi?.active && data.plekzooi.expires_at) {
+      activeerPlekzooi(new Date(data.plekzooi.expires_at));
+    } else if (plekzooiTimerRef.current) {
+      // De organisatie heeft de wachttijd ingekort: niet langer stilstaan
+      clearInterval(plekzooiTimerRef.current);
+      plekzooiTimerRef.current = null;
+      setPlekzooiActief(false);
+    }
+
+    // Radar actief: poll andere spelers elke 5 seconden
+    if (data.radar?.active) {
+      if (!radarPollRef.current) {
+        radarPollRef.current = setInterval(() => haalAndereSpelersOp(), 5000);
+      }
+    } else {
+      if (radarPollRef.current) {
+        clearInterval(radarPollRef.current);
+        radarPollRef.current = null;
+        haalAndereSpelersOp(); // radar afgelopen: de andere teams verdwijnen weer van de kaart
+      }
+    }
   }
 
   // Plek van het team nu, meegestuurd bij oppakken/inzetten (voor het verslag en de routekaart)
@@ -705,18 +734,20 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   async function haalTussenstandOp() {
     try {
       const res = await fetch("/api/speler/tussenstand");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.zichtbaar) {
-        if (!tussenstandActiefRef.current) {
-          tussenstandActiefRef.current = true;
-          setTussenstand(data.tussenstand);
-          setTussenstandResterend(data.resterende_seconden);
-        }
-      } else {
-        tussenstandActiefRef.current = false;
-      }
+      if (res.ok) verwerkTussenstand(await res.json());
     } catch { /* verbindingsfout */ }
+  }
+
+  function verwerkTussenstand(data: TussenstandData) {
+    if (data.zichtbaar) {
+      if (!tussenstandActiefRef.current) {
+        tussenstandActiefRef.current = true;
+        setTussenstand(data.tussenstand);
+        setTussenstandResterend(data.resterende_seconden);
+      }
+    } else {
+      tussenstandActiefRef.current = false;
+    }
   }
 
   function sluitTussenstand() {
@@ -767,7 +798,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </button>
       </div>
 
-      {/* Na het welkomstscherm: eerst 25 meter lopen voor de startvraag */}
+      {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
       {wachtOpStartVraag && (
         <div style={{
           position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 950,
@@ -775,7 +806,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           background: "rgba(124,58,237,0.95)", color: "#fff", padding: "12px 20px", borderRadius: 16,
           fontSize: "0.95rem", fontWeight: 700, textAlign: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
         }}>
-          🚶 Loop nog {nogTeLopen} meter, dan krijg je je eerste vraag!
+          🚶 Loop nog {nogTeLopen} meter{richtingTelt && positie && richtPunt ? <> deze kant op <span aria-hidden style={{ display: "inline-block", transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude)}deg)` }}>➤</span></> : null}, dan krijg je je eerste vraag!
         </div>
       )}
 

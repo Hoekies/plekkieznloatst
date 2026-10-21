@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
+import { itemNaam } from "./SpeciaalItemLegende";
 
 export type RouteSpoorPunt = { lat: number; lng: number };
 export type BezochtPunt = {
@@ -16,10 +17,6 @@ export type BezochtPunt = {
 };
 export type KaartItem = { soort: "ingezet" | "ontvangen"; type: string; ander: string | null; lat: number; lng: number };
 
-const ITEM_NAAM: Record<string, string> = {
-  ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook",
-  dief: "Dief", banaan: "Banaan", wissel: "Wissel", vraagteken: "Vraagteken", plekzooi: "Plek zooi",
-};
 
 // Kaart met de werkelijk gelopen weg (GPS-spoor) en de bezochte punten in volgorde
 // scherp = de vectorkaart (met kerken, cafés en restaurants); zonder (voor het PDF-rapport) de gewone
@@ -35,7 +32,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
         const link = document.createElement("link");
         link.id = "leaflet-css";
         link.rel = "stylesheet";
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.href = "/leaflet/1.9.4/leaflet.css";
         document.head.appendChild(link);
       }
       if (!containerRef.current) return;
@@ -80,7 +77,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
         const sleutel = `${it.lat.toFixed(5)},${it.lng.toFixed(5)}`;
         const i = opPlek.get(sleutel) ?? 0;
         opPlek.set(sleutel, i + 1);
-        const naam = ITEM_NAAM[it.type] ?? it.type;
+        const naam = itemNaam(it.type);
         const tekst = it.soort === "ingezet"
           ? `${naam} ingezet${it.ander ? ` op ${it.ander}` : ""}`
           : it.type === "plekzooi" ? "In een plek zooi gelopen" : `${naam} gekregen van ${it.ander ?? "een ander team"}`;

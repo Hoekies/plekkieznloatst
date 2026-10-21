@@ -44,7 +44,7 @@ export default function PuntMiniKaart({ punt, radius, andere = [] }: {
       const link = document.createElement("link");
       link.id = "leaflet-css";
       link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      link.href = "/leaflet/1.9.4/leaflet.css";
       document.head.appendChild(link);
     }
     let actief = true;

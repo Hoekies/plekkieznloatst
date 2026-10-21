@@ -28,7 +28,7 @@ Alle teams **starten en finishen op dezelfde plek** 🏠 — de verzamelplek van
 
 Jullie route bestaat uit drie stukken:
 
-1. **🚩 Startpunt** — de verzamelplek waar iedereen begint. Daar krijg je een korte uitleg van het spel. Tik op **🚀 Op pad!** en loop 25 meter: dan krijg je je eerste vraag.
+1. **🚩 Startpunt** — de verzamelplek waar iedereen begint. Daar krijg je een korte uitleg van het spel. Tik op **🚀 Op pad!** en loop 25 meter de kant op die de pijl ➤ aanwijst: dan krijg je je eerste vraag.
 2. **Jullie eigen rondje** — daarna loop je naar jullie eigen instappunt in het rondje, zo ver mogelijk van de andere teams, en loop je het rondje rond.
 3. **🏁 Finish** — heb je alle punten van het rondje gehad, dan verschijnt als laatste de finish, op dezelfde plek als de start. Daar is het spel voor jullie afgerond.
 
@@ -43,7 +43,7 @@ Op de kaart zie je:
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
 - **🎯 Centreren** — linksonder (naast 📍): zet de kaart weer op jullie plek
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
-- **☀️ 🌙 🛰️** rechts onder elkaar, net boven de itembalk — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
+- **☀️** rechts, net boven de itembalk — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je alleen als ze **binnen 25 meter** van jullie zijn, of 2 minuten lang met een 📡 Radar. Zet jij een radar in, dan zie jij de anderen (hun teamicoon in een oranje rondje, met de naam eronder); zij zien jou niet.

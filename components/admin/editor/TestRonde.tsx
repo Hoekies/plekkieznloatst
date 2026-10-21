@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { haversine } from "@/lib/geo";
+import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 
 // "🧪 Testronde": de route punt voor punt doorlopen zonder naar buiten te gaan. De kaart vliegt
 // naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd),
@@ -12,10 +13,6 @@ type Vraag = { type: string; question_text: string; points: number; correct_text
 
 const KLEUR: Record<string, string> = { geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A" };
 const SOORT: Record<string, string> = { meerkeuze_tekst: "Meerkeuze", meerkeuze_afbeelding: "Meerkeuze met plaatjes", open: "Open vraag", foto_opdracht: "Foto-opdracht" };
-const ITEM_NAAM: Record<string, string> = {
-  ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook",
-  dief: "Dief", banaan: "Banaan", wissel: "Wissel", vraagteken: "Vraagteken", plekzooi: "Plek zooi",
-};
 
 export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar, onSluit }: {
   routeId: string;
@@ -101,7 +98,7 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", fontSize: "0.76rem", color: "var(--text)" }}>
             <span style={{ color: "var(--muted)" }}>In de buurt:</span>
             {dichtbij.slice(0, 8).map(({ i, m }) => (
-              <span key={i.id} className="testronde-item" title={`${ITEM_NAAM[i.type] ?? i.type} op ${m} m`}>
+              <span key={i.id} className="testronde-item" title={`${itemNaam(i.type)} op ${m} m`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/items/${i.type}.webp`} alt="" style={{ width: 18, height: 18 }} /> {m} m
               </span>

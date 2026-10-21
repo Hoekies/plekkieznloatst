@@ -34,63 +34,43 @@ Een Nederlandstalige PWA voor een route-gebaseerd quizspel op een kaart. Teams l
 
 ## 2. Mappenstructuur
 
+Op hoofdlijnen (niet elk bestand):
+
 ```
 plekkie-zn-loatst/
 ├── app/
-│   ├── layout.tsx                  → root layout
-│   ├── page.tsx                    → redirect op rol (admin/speler)
-│   ├── login/
-│   │   └── page.tsx                → inlogpagina
-│   ├── admin/
-│   │   ├── layout.tsx              → admin shell + navigatie
-│   │   ├── page.tsx                → dashboard (speleroverzicht + leaderboard)
-│   │   ├── routes/
-│   │   │   ├── page.tsx            → route-overzicht
-│   │   │   └── [id]/
-│   │   │       ├── page.tsx        → route-editor (Leaflet kaart)
-│   │   │       └── punten/
-│   │   │           └── [pid]/
-│   │   │               └── page.tsx → punt + vraag-editor
-│   │   └── live/
-│   │       └── page.tsx            → live kaart alle spelers
-│   └── speler/
-│       ├── layout.tsx              → speler shell
-│       ├── page.tsx                → intro-scherm (5 sec) → startflow
-│       ├── kaart/
-│       │   └── page.tsx            → spelerskaart + GPS
-│       └── finish/
-│           └── page.tsx            → eindscherm + leaderboard
+│   ├── layout.tsx, page.tsx          → root layout; redirect op rol (admin/speler)
+│   ├── login/, l/[code]/, auth/      → inloggen, inloglink, Supabase-callback
+│   ├── gedeeld/[id]/                 → gedeeld teamverslag (zonder inloggen)
+│   ├── admin/                        → dashboard, routes (+ editor, punt/vraag, voorproefje), groepen,
+│   │                                   antwoorden, live, rapport, kaartjes, leaderboard, uitleg
+│   ├── speler/                       → intro, kaart, finish, terugkijk, qr
+│   └── api/
+│       ├── admin/                    → beheer: routes, punten, items, groepen, live, broadcast, pauze, …
+│       ├── auth/                     → inloggen, uitloggen, apparaatcheck
+│       └── speler/                   → sessie, voortgang, vraag, items, locatie(s), berichten, hulp, …
+│           └── status/               → alles wat de app elke 4 s nodig heeft in één verzoek
 ├── components/
-│   ├── admin/
-│   │   ├── RouteEditor.tsx
-│   │   ├── PuntForm.tsx
-│   │   ├── VraagEditor.tsx
-│   │   └── LiveKaart.tsx
-│   ├── speler/
-│   │   ├── SpeelKaart.tsx
-│   │   ├── VraagPopup.tsx
-│   │   └── Leaderboard.tsx
-│   └── shared/
-│       ├── GeenInternet.tsx
-│       └── LoadingSpinner.tsx
+│   ├── admin/                        → dashboard, RouteEditorShell, LeafletKaart, GroepenBeheer, …
+│   │   └── editor/                   → EersteStappen, ControleVenster, TestRonde, Vragenbank, …
+│   ├── speler/                       → SpelerKaart, SpelerLeaflet, VraagPopup, FinishScherm, …
+│   └── shared/                       → KaartStijlKnoppen, GeenInternet, AppInstallatie, …
 ├── lib/
-│   ├── supabase.ts                 → Supabase client (browser + server)
-│   ├── auth.ts                     → rol-check helpers, route guards
-│   ├── geo.ts                      → Haversine, GPS utilities
-│   └── fout-uitleg.ts              → foutmelding met oorzaak + oplossing (op statuscode)
-├── types/
-│   └── database.ts                 → TypeScript types van schema
-├── styles/
-│   └── globals.css
+│   ├── supabase-*.ts                 → Supabase clients (browser, server, service role)
+│   ├── auth-server.ts, middleware-merk.ts → ingelogde gebruiker (vertrouwt de middleware-headers)
+│   ├── basiskaart.ts                 → vectorkaart (OpenFreeMap), luchtfoto (PDOK / Esri)
+│   ├── geo.ts, tijd.ts               → afstand, richting, tijd- en duurteksten
+│   ├── fout-uitleg.ts                → foutmelding met oorzaak + oplossing (op statuscode)
+│   └── …                             → items, eindtijd, push, wegen, tijd-schatting, tril, …
+├── types/database.ts                 → TypeScript types van het schema
+├── styles/globals.css
 ├── public/
-│   └── intro-map.png               → placeholder kaart (fase 6)
-├── supabase/
-│   └── migrations/
-│       ├── 001_schema.sql
-│       └── 002_rls.sql
-├── next.config.ts
-├── package.json
-└── .env.local.example
+│   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
+│   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
+│   └── sw.js, manifest.webmanifest   → PWA
+├── supabase/migrations/              → 001 … 011 (nieuwe tabellen: altijd expliciete GRANTs)
+├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
+└── next.config.mjs                   → CSP en cache-headers
 ```
 
 ---

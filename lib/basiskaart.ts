@@ -185,7 +185,7 @@ export async function laadMaplibre() {
     const link = document.createElement("link");
     link.id = "maplibre-css";
     link.rel = "stylesheet";
-    link.href = "https://unpkg.com/maplibre-gl@6.15.0/dist/maplibre-gl.css";
+    link.href = "/maplibre/maplibre-gl-6.15.0.css";
     document.head.appendChild(link);
   }
   const maplibre = await import("maplibre-gl");
@@ -256,7 +256,7 @@ export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, s
       const link = document.createElement("link");
       link.id = "maplibre-css";
       link.rel = "stylesheet";
-      link.href = "https://unpkg.com/maplibre-gl@6.15.0/dist/maplibre-gl.css";
+      link.href = "/maplibre/maplibre-gl-6.15.0.css";
       document.head.appendChild(link);
     }
     // Test of WebGL er is: anders werkt de vectorkaart niet

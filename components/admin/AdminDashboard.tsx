@@ -12,7 +12,8 @@ import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 import { maakKleurMap } from "@/lib/speler-kleur";
-import SpelLeider, { duurKort, minutenNietGezien } from "@/components/admin/SpelLeider";
+import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
+import { duurKort } from "@/lib/tijd";
 import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
@@ -29,10 +30,6 @@ interface Props {
   beperkt?: boolean;
 }
 
-function speeltijdKort(sec: number): string {
-  const min = Math.floor(sec / 60);
-  return min < 60 ? `${min} min` : `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`;
-}
 
 
 export default function AdminDashboard({ initData, beperkt = false }: Props) {
@@ -306,7 +303,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             <div className="sk-stats">
               <span title="Punten bezocht">📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}</span>
               <span title="Gelopen">🚶 {(s.afstand_m / 1000).toFixed(2).replace(".", ",")} km</span>
-              {s.started_at && <span title="Speeltijd">⏱ {speeltijdKort(sessietijd(s))}</span>}
+              {s.started_at && <span title="Speeltijd">⏱ {duurKort(Math.floor(sessietijd(s) / 60))}</span>}
               {s.huidig_punt_naam && <span className="sk-volgend" title={`Op weg naar ${s.huidig_punt_naam}`}>➡️ {s.huidig_punt_naam}</span>}
               {stil !== null && <span className="sk-stil" title="Al een tijd geen locatie ontvangen">📵 {duurKort(stil)} niet gezien{s.ingelogd ? "" : " · uitgelogd"}</span>}
             </div>

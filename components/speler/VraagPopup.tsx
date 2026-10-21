@@ -228,7 +228,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#0A1B36" }}>Welkom bij de start! 🚩</h2>
             <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 10, fontSize: "1rem", lineHeight: 1.55, color: "#0A1B36" }}>
               {startUitleg.regels.map((r) => <li key={r}>{r}</li>)}
-              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen.</strong></li>}
+              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen, in de richting van de pijl.</strong></li>}
             </ul>
             <div style={{ background: "#FEF9C3", border: "1px solid #FDE68A", borderRadius: 14, padding: "14px 16px", color: "#713F12" }}>
               <div style={{ fontWeight: 700, fontSize: "1rem", lineHeight: 1.5 }}>{startUitleg.afsluiting}</div>

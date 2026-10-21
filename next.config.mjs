@@ -20,10 +20,10 @@ const config = {
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
-      "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
       // tiles.openfreemap.org: vectorkaart (stijl, tegels, lettertypen, symbolen)
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://unpkg.com https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
       // De vectorkaart rekent in web workers die als blob worden gestart
       "worker-src 'self' blob:",
       "child-src 'self' blob:",
@@ -53,7 +53,7 @@ const config = {
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
       {
-        source: "/maplibre/:bestand*",
+        source: "/:pad(maplibre|leaflet)/:bestand*",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, immutable" }],
       },
       {

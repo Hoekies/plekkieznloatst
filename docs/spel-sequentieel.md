@@ -29,7 +29,7 @@ Op de kaart zie je:
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
 - **🎯 Centreren** — linksonder (naast 📍): zet de kaart weer op jullie plek
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
-- **☀️ 🌙 🛰️** rechts onder elkaar, net boven de itembalk — kies zelf een lichte of donkere kaart, of een luchtfoto (wordt onthouden)
+- **☀️** rechts, net boven de itembalk — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je alleen als ze binnen 25 meter van jullie zijn (met hun icoon en naam) — en zij jullie ook
