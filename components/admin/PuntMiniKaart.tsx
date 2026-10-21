@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp } from "@/lib/basiskaart";
 
 export type KaartPunt = { id: string; lat: number; lng: number; label: string };
 
@@ -59,7 +59,7 @@ export default function PuntMiniKaart({ punt, radius, andere = [] }: {
       // De kolom krijgt zijn hoogte pas na de eerste opmaak
       setTimeout(() => kaartRef.current?.invalidateSize(), 100);
     });
-    return () => { actief = false; kaartRef.current?.remove(); kaartRef.current = null; };
+    return () => { actief = false; ruimKaartOp(kaartRef.current); kaartRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

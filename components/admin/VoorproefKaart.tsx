@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { haversine } from "@/lib/geo";
+import { ruimKaartOp } from "@/lib/basiskaart";
 
 type Plek = { lat: number; lng: number };
 
@@ -64,7 +65,7 @@ export default function VoorproefKaart({ punten, items }: { punten: Plek[]; item
       }
       map.fitBounds(zone.getBounds(), { padding: [10, 10] });
     })();
-    return () => { weg = true; map?.remove(); };
+    return () => { weg = true; ruimKaartOp(map); };
   }, [punten, items]);
 
   return <div ref={ref} style={{ width: "100%", height: "100%" }} />;

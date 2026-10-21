@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -109,7 +109,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     const specialeItemMarkers = specialeItemMarkersRef.current;
 
     return () => {
-      mapRef.current?.remove();
+      ruimKaartOp(mapRef.current);
       mapRef.current = null;
       LRef.current = null;
       puntMarkers.clear();

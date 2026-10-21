@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoutePuntKort } from "@/lib/admin-live";
 import { escapeHtml } from "@/lib/html";
-import { laadMaplibre, pasStijlToe, webglMogelijk, bewaardeStijl, bewaarStijl, VECTOR_STIJL_URL, type KaartStijl } from "@/lib/basiskaart";
+import { laadMaplibre, pasStijlToe, webglMogelijk, bewaardeStijl, bewaarStijl, VECTOR_STIJL_URL, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 export type ReplayTeam = { player_id: string; naam: string; icon: string | null; gefinisht_op: number | null; spoor: [number, number, number][] };
@@ -86,7 +86,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
       actief = false;
       markers.forEach((m) => m.marker.remove());
       markers.clear();
-      mapRef.current?.remove();
+      ruimKaartOp(mapRef.current);
       mapRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp } from "@/lib/basiskaart";
 import { itemNaam } from "./SpeciaalItemLegende";
 
 export type RouteSpoorPunt = { lat: number; lng: number };
@@ -26,8 +26,10 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
 
   useEffect(() => {
     let map: import("leaflet").Map | null = null;
+    let weg = false;
     (async () => {
       const L = (await import("leaflet")).default;
+      if (weg) return;
       if (!document.querySelector("#leaflet-css")) {
         const link = document.createElement("link");
         link.id = "leaflet-css";
@@ -93,7 +95,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
       if (grenzen.length) map.fitBounds(grenzen, { padding: [30, 30] });
       else map.setView([52.37, 4.9], 13);
     })();
-    return () => { map?.remove(); };
+    return () => { weg = true; ruimKaartOp(map); };
   }, [spoor, punten, items, scherp]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%", minHeight: 380, borderRadius: 16, overflow: "hidden" }} />;

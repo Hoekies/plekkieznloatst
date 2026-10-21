@@ -36,6 +36,13 @@ function osmPlaatjes(L: typeof Leaflet, map: Leaflet.Map) {
 
 export type Basiskaart = { vector: boolean; zetStijl: (stijl: KaartStijl) => void };
 
+// Een kaart opruimen (bij sluiten of wegnavigeren). Is een deel al weg, bijvoorbeeld de scherpe kaartlaag
+// waarvan het element al uit de pagina is, dan gooit Leaflet een fout ("parentNode"): die negeren we,
+// anders crasht het hele scherm terwijl er niets meer te tonen valt.
+export function ruimKaartOp(kaart: { remove: () => unknown } | null | undefined) {
+  try { kaart?.remove(); } catch { /* al (deels) opgeruimd */ }
+}
+
 type Filter = unknown[] | null | undefined;
 type GlKaart = {
   on: (e: string, f: () => void) => void;

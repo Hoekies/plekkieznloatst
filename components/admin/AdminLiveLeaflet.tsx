@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import { speelgebiedLaag } from "@/lib/speelgebied";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
@@ -126,7 +126,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     return () => {
       mounted = false;
       meet?.disconnect();
-      mapRef.current?.remove();
+      ruimKaartOp(mapRef.current);
       mapRef.current = null;
       LRef.current = null;
       sporenLaagRef.current = null;

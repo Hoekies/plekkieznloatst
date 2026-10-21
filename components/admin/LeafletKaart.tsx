@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
 import { itemNaam, itemEmoji } from "@/components/speler/SpeciaalItemLegende";
@@ -152,7 +152,7 @@ export default function LeafletKaart({
     return () => {
       mounted = false;
       meet?.disconnect();
-      kaartRef.current?.remove();
+      ruimKaartOp(kaartRef.current);
       kaartRef.current = null;
       markers.clear();
       specialeItemMarkers.clear();
