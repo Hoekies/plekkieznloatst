@@ -108,7 +108,9 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
         L.marker([it.lat, it.lng], { icon: icoon, zIndexOffset: 500 }).addTo(map!).bindPopup(escapeHtml(tekst));
       });
 
-      if (grenzen.length) map.fitBounds(grenzen, { padding: [30, 30] });
+      // Eén plek: gewoon daar inzoomen (fitBounds op één punt zoomt oneindig ver in: grijze kaart)
+      if (grenzen.length > 1) map.fitBounds(grenzen, { padding: [30, 30], maxZoom: 17 });
+      else if (grenzen.length === 1) map.setView(grenzen[0], 16);
       else map.setView([52.37, 4.9], 13);
     })();
     // Venster groter of kleiner: de kaart past zich aan
@@ -119,7 +121,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
   }, [spoor, punten, items, scherp]);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 380, borderRadius: 16, overflow: "hidden", zIndex: 0 }}>
+    <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 300, borderRadius: 16, overflow: "hidden", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Zelfde paneel als in de route-editor; niet in het PDF-rapport (daar is de kaart een plaatje) */}
       {scherp && (
