@@ -2927,3 +2927,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .vraag-idee:hover { background: rgba(255,217,59,0.14); border-color: rgba(255,217,59,0.45); }
 .vraag-ideeen-leeg { font-size: 0.72rem; color: var(--muted); padding: 2px 4px; }
+
+/* Kaartpaneel op een kleine kaart (spelervenster, finishscherm): gewoon linksonder, niet hoger zoals in de editor */
+.kaart-bediening.kaart-bediening--klein { bottom: 10px !important; left: 10px !important; }

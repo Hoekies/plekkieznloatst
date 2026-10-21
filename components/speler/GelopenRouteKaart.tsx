@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, ruimKaartOp, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import KaartBediening from "@/components/shared/KaartBediening";
+import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import { itemNaam } from "./SpeciaalItemLegende";
 
 export type RouteSpoorPunt = { lat: number; lng: number };
@@ -23,6 +25,16 @@ export type KaartItem = { soort: "ingezet" | "ontvangen"; type: string; ander: s
 // OSM-plaatjes, want een vectorkaart laat zich niet goed in een PDF zetten
 export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = false }: { spoor: RouteSpoorPunt[]; punten: BezochtPunt[]; items?: KaartItem[]; scherp?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Scherpe kaart: licht, donker of luchtfoto, zoals in de route-editor (zelfde keuze, onthouden op dit toestel)
+  const basiskaartRef = useRef<Basiskaart | null>(null);
+  const [stijl, setStijl] = useState<KaartStijl>("licht");
+  const [vector, setVector] = useState(false);
+  function kiesStijl(s: KaartStijl) {
+    if (s === "donker" && !vector) s = "luchtfoto";
+    setStijl(s);
+    bewaarStijl(s);
+    basiskaartRef.current?.zetStijl(s);
+  }
 
   useEffect(() => {
     let map: import("leaflet").Map | null = null;
@@ -39,7 +51,11 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
       }
       if (!containerRef.current) return;
       map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      if (scherp) voegBasiskaartToe(L, map, bewaardeStijl());
+      if (scherp) {
+        const begin = bewaardeStijl();
+        setStijl(begin);
+        voegBasiskaartToe(L, map, begin).then((b) => { if (!weg) { basiskaartRef.current = b; setVector(b.vector); } });
+      }
       else L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
 
       const grenzen: [number, number][] = [];
@@ -95,8 +111,22 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
       if (grenzen.length) map.fitBounds(grenzen, { padding: [30, 30] });
       else map.setView([52.37, 4.9], 13);
     })();
-    return () => { weg = true; ruimKaartOp(map); };
+    // Venster groter of kleiner: de kaart past zich aan
+    const vak = containerRef.current;
+    const meet = typeof ResizeObserver !== "undefined" && vak ? new ResizeObserver(() => { try { map?.invalidateSize(); } catch { /* al weg */ } }) : null;
+    if (meet && vak) meet.observe(vak);
+    return () => { weg = true; meet?.disconnect(); basiskaartRef.current = null; ruimKaartOp(map); };
   }, [spoor, punten, items, scherp]);
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100%", minHeight: 380, borderRadius: 16, overflow: "hidden" }} />;
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 380, borderRadius: 16, overflow: "hidden", zIndex: 0 }}>
+      <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      {/* Zelfde paneel als in de route-editor; niet in het PDF-rapport (daar is de kaart een plaatje) */}
+      {scherp && (
+        <KaartBediening extraKlasse="kaart-bediening--klein">
+          <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
+        </KaartBediening>
+      )}
+    </div>
+  );
 }

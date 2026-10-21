@@ -62,10 +62,11 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
       const beginStijl = bewaardeStijl();
       setStijl(beginStijl);
       const alle = teams.flatMap((t) => t.spoor.map((p): [number, number] => [p[2], p[1]]));
-      const grenzen = alle.reduce((b, c) => b.extend(c), new maplibre.LngLatBounds(alle[0], alle[0]));
+      const grenzen = alle.length ? alle.reduce((b, c) => b.extend(c), new maplibre.LngLatBounds(alle[0], alle[0])) : null;
       const map = new maplibre.Map({
         container: containerRef.current, style: VECTOR_STIJL_URL, attributionControl: false,
-        bounds: grenzen, fitBoundsOptions: { padding: 50, maxZoom: 17 }, pitch: SCHUIN, bearing: -12, maxPitch: 70,
+        ...(grenzen ? { bounds: grenzen, fitBoundsOptions: { padding: 50, maxZoom: 17 } } : { center: [5.3, 52.1] as [number, number], zoom: 7 }),
+        pitch: SCHUIN, bearing: -12, maxPitch: 70,
       });
       map.addControl(new maplibre.NavigationControl({ visualizePitch: true }), "top-left");
       map.on("style.load", () => {

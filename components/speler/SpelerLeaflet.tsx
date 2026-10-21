@@ -66,9 +66,11 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   // Kaart initialiseren
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
+    let weg = false;
 
     async function init() {
       const L = (await import("leaflet")).default;
+      if (weg || !containerRef.current) return;
       LRef.current = L;
 
       if (!document.querySelector("#leaflet-css")) {
@@ -86,7 +88,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         shadowUrl: "/leaflet/1.9.4/images/marker-shadow.png",
       });
 
-      const map = L.map(containerRef.current!, {
+      const map = L.map(containerRef.current, {
         zoom: ZOOM_INIT,
         center: [52.37, 4.9],
         zoomControl: true,
@@ -109,6 +111,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     const specialeItemMarkers = specialeItemMarkersRef.current;
 
     return () => {
+      weg = true;
       ruimKaartOp(mapRef.current);
       mapRef.current = null;
       LRef.current = null;

@@ -503,7 +503,7 @@ function TypeBadge({ type }: { type: RoutePunt["type"] }) {
     informatiepunt: { label: "ℹ️ INFORMATIE", bg: "#CFFAFE", kleur: "#0E7490" },
     doorlooppunt:   { label: "🚶 DOORLOPEN",  bg: "#E2E8F0", kleur: "#334155" },
     eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3", kleur: "#A16207" },
-  }[type];
+  }[type] ?? { label: "📍 PUNT", bg: "#E2E8F0", kleur: "#334155" };
   return (
     <span style={{
       fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em",
