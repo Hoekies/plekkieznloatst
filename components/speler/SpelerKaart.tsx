@@ -861,7 +861,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, height: "100%", position: "relative" }}>
 
       {/* Statistiekenbalk */}
       <div style={{
@@ -898,18 +898,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         </button>
       </div>
 
-      {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
-      {wachtOpStartVraag && (
-        <div style={{
-          position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 950,
-          maxWidth: "calc(100% - 32px)", width: "max-content",
-          background: "rgba(124,58,237,0.95)", color: "#fff", padding: "12px 20px", borderRadius: 16,
-          fontSize: "0.95rem", fontWeight: 700, textAlign: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
-        }}>
-          🚶 Loop nog {nogTeLopen} meter{richtingTelt && positie && richtPunt ? <> deze kant op <span aria-hidden style={{ display: "inline-block", transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude)}deg)` }}>➤</span></> : null}, dan krijg je je eerste vraag!
-        </div>
-      )}
-
       {/* GPS / realtime toasts */}
       {!realtimeVerbonden && (
         <div style={{ position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 900, whiteSpace: "nowrap", background: "rgba(234, 179, 8, 0.85)", backdropFilter: "blur(10px)", color: "#fff", padding: "7px 18px", borderRadius: 30, fontSize: "0.78rem", fontWeight: 600, boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
@@ -933,15 +921,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       )}
 
       {/* Item opgehaald toast */}
-      {/* Zonder bereik: wat er nog wacht om verstuurd te worden */}
-      {wachtend > 0 && (
-        <div className="geen-bereik" role="status">
-          {spelAfgelopen
-            ? <>🏁 Bijna klaar! Je laatste {wachtend === 1 ? "stap gaat" : `${wachtend} stappen gaan`} mee zodra er bereik is.</>
-            : <>📡 Geen bereik · {wachtend === 1 ? "1 stap wacht" : `${wachtend} stappen wachten`}, gaat vanzelf mee</>}
-        </div>
-      )}
-
       {opgehaaldToast && (
         <div style={{
           position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)",
@@ -1079,7 +1058,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       })()}
 
       {/* Kaart */}
-      <div style={{ flex: 1, position: "relative" }}>
+      <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
         <SpelerLeaflet
           spelerIcoon={spelerIcoon}
           spelerNaam={spelerNaam}
@@ -1096,6 +1075,28 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
           ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
         />
+
+        {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
+        {wachtOpStartVraag && (
+          // Naast de zoomknoppen (niet eroverheen); de pijl in een rondje, net als rechtsboven bij het volgende punt
+          <div className="startvraag-melding">
+            {richtingTelt && positie && richtPunt && (
+              <span className="startvraag-pijl" aria-hidden>
+                <span style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90}deg)` }}>➤</span>
+              </span>
+            )}
+            <span>🚶 Loop nog <strong>{nogTeLopen} meter</strong>{richtingTelt ? " de kant van de pijl op" : ""}, dan krijg je je eerste vraag!</span>
+          </div>
+        )}
+
+        {/* Zonder bereik: wat er nog wacht om verstuurd te worden */}
+        {wachtend > 0 && (
+          <div className="geen-bereik" role="status">
+            {spelAfgelopen
+              ? <>🏁 Bijna klaar! Je laatste {wachtend === 1 ? "stap gaat" : `${wachtend} stappen gaan`} mee zodra er bereik is.</>
+              : <>📡 Geen bereik · {wachtend === 1 ? "1 stap wacht" : `${wachtend} stappen wachten`}, gaat vanzelf mee</>}
+          </div>
+        )}
 
         {/* Afstand en richting naar het volgende punt (de kaart staat altijd met het noorden boven) */}
         {positie && activePunt && !wachtOpStartVraag && !ghostTot && !popupPunt && !bereiktIds.has(activePunt.id) && (

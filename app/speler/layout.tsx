@@ -5,7 +5,6 @@ import IOSFixes from "@/components/speler/IOSFixes";
 import DeviceGuard from "@/components/speler/DeviceGuard";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
-import SchermAanHouden from "@/components/speler/SchermAanHouden";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -17,7 +16,6 @@ export default async function SpelerLayout({ children }: { children: React.React
       <AudioUnlock />
       <IOSFixes />
       <DeviceGuard />
-      <SchermAanHouden />
       <AutoVolledigScherm />
       <header className="speler-header">
         <VolledigSchermKnop />
