@@ -3,19 +3,34 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
-import { leesPunten, coordsUitLink, type ImportPunt } from "@/lib/punten-import";
+import { leesPunten, coordsUitLink, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import { afstandTekst } from "@/lib/geo";
 
-// "📥 Importeren": punten uit een GPX/KML-bestand, of een lijst met coördinaten en Google Maps-links.
-// Ze komen vóór de finish, met de standaard punten en straal van de route.
-export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
-  routeId: string; punten: number; straal: number; onKlaar: () => void;
+const STANDAARD_TEKST = "Punt bereikt! Loop door naar het volgende punt.";
+
+// "📥 Importeren" (alleen bij een route op volgorde): punten uit een GPX/KML-bestand, of een lijst
+// met coördinaten en Google Maps-links. Twee stappen: kiezen, dan controleren en toevoegen.
+// Ze worden infopunten met één tekst, vóór de finish, met de standaard straal van de route.
+// Een GPX-spoor krijgt een 🏁 finish aan het eind, tenzij de route al een finish heeft.
+export default function PuntenImporteren({ routeId, straal, heeftFinish, onKlaar }: {
+  routeId: string; straal: number; heeftFinish: boolean; onKlaar: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [plakken, setPlakken] = useState(false);
   const [tekst, setTekst] = useState("");
+  const [bestandsnaam, setBestandsnaam] = useState<string | null>(null);
   const [gevonden, setGevonden] = useState<ImportPunt[]>([]);
   const [nietHerkend, setNietHerkend] = useState<string[]>([]);
+  const [spoor, setSpoor] = useState<ImportResultaat["spoor"]>(undefined);
+  // De route had al een finish: die van het spoor is weggelaten
+  const [finishWeg, setFinishWeg] = useState(false);
+  const [infoTekst, setInfoTekst] = useState(STANDAARD_TEKST);
   const [bezig, setBezig] = useState<"lezen" | "opslaan" | null>(null);
+
+  const controleren = gevonden.length > 0 || nietHerkend.length > 0;
+  const gewoon = gevonden.filter((p) => !p.finish).length;
+  const metFinish = gevonden.some((p) => p.finish);
 
   useEffect(() => {
     if (!open) return;
@@ -23,6 +38,10 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
     window.addEventListener("keydown", toets);
     return () => window.removeEventListener("keydown", toets);
   }, [open]);
+
+  function opnieuw() {
+    setGevonden([]); setNietHerkend([]); setSpoor(undefined); setFinishWeg(false); setBestandsnaam(null);
+  }
 
   async function lees(invoer: string) {
     setBezig("lezen");
@@ -36,9 +55,13 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
       const c = lang ? coordsUitLink(lang) : null;
       if (c) extra.push(c); else fout.push(kort);
     }
-    setGevonden([...r.punten, ...extra]);
+    const alle = [...r.punten, ...extra];
+    setFinishWeg(heeftFinish && alle.some((p) => p.finish));
+    setGevonden(heeftFinish ? alle.filter((p) => !p.finish) : alle);
     setNietHerkend(fout);
+    setSpoor(r.spoor);
     setBezig(null);
+    if (!alle.length && !fout.length) toonMelding("Geen punten gevonden in dit bestand", "fout");
   }
 
   async function bestand(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,6 +70,7 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
     if (!f) return;
     const inhoud = await f.text();
     setTekst("");
+    setBestandsnaam(f.name);
     lees(inhoud);
   }
 
@@ -54,15 +78,20 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
     setBezig("opslaan");
     const res = await fetch(`/api/admin/routes/${routeId}/punten/meerdere`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ punten: gevonden, points: punten, radius_meters: straal }),
+      body: JSON.stringify({ punten: gevonden, beschrijving: infoTekst, radius_meters: straal }),
     });
     const data = await res.json().catch(() => ({}));
     setBezig(null);
     if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Importeren", data.fout), "fout"); return; }
     toonMelding(`${data.aantal} punten toegevoegd`, "ok");
-    setOpen(false); setTekst(""); setGevonden([]); setNietHerkend([]);
+    setOpen(false); setTekst(""); setPlakken(false); setInfoTekst(STANDAARD_TEKST); opnieuw();
     onKlaar();
   }
+
+  // Samenvatting bovenaan de controle: wat er gevonden is en waar de finish komt
+  const herkomst = spoor
+    ? `Spoor van ${afstandTekst(spoor.meter)}${metFinish ? spoor.rondje ? " · eindigt bij de start, dus de finish ligt op de startplek" : " · de finish ligt aan het eind van het spoor" : ""}`
+    : "Op de volgorde van het bestand";
 
   return (
     <>
@@ -73,48 +102,76 @@ export default function PuntenImporteren({ routeId, punten, straal, onKlaar }: {
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 520, maxHeight: "88vh", display: "flex" }}>
-            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, padding: "16px 16px 14px", minHeight: 0, flex: 1, overflowY: "auto" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ flex: 1, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>📥 Punten importeren</div>
+            <div className="pr-gem-panel-inner import-venster">
+              <div className="import-kop">
+                <span className="import-titel">📥 Punten importeren</span>
+                <span className="import-stap">{controleren ? "2. Controleren" : "1. Kiezen"}</span>
                 <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} aria-label="Sluiten">✕</button>
               </div>
-              <label className="rl-knop" style={{ justifyContent: "center", cursor: "pointer" }}>
-                📂 GPX- of KML-bestand kiezen
-                <input type="file" accept=".gpx,.kml,.txt,.csv,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={bestand} style={{ display: "none" }} />
-              </label>
-              <div style={{ fontSize: "0.76rem", color: "var(--muted)", textAlign: "center" }}>of plak hieronder: één punt per regel</div>
-              <textarea className="form-input" rows={5} value={tekst} onChange={(e) => setTekst(e.target.value)}
-                placeholder={"52.2215, 6.8937 Kerk\nhttps://maps.app.goo.gl/…\nhttps://www.google.com/maps/place/…"}
-                style={{ fontFamily: "monospace", fontSize: "0.8rem", resize: "vertical" }} />
-              <button type="button" className="rl-knop rl-knop--cyan" disabled={!tekst.trim() || bezig !== null} onClick={() => lees(tekst)}>
-                {bezig === "lezen" ? "Bezig…" : "🔍 Lezen"}
-              </button>
 
-              {(gevonden.length > 0 || nietHerkend.length > 0) && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {!controleren && (<>
+                <p className="import-uitleg">Zet de punten van een wandeling in deze route, in de volgorde van het bestand.</p>
+                <label className="rl-knop rl-knop--cyan import-groot">
+                  {bezig === "lezen" ? "⏳ Lezen…" : "📂 GPX- of KML-bestand kiezen"}
+                  <input type="file" accept=".gpx,.kml,.txt,.csv,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={bestand} style={{ display: "none" }} />
+                </label>
+                <div className="import-noot">GPX uit een wandel-app of van een Garmin, KML uit Google My Maps.</div>
+                {!plakken ? (
+                  <button type="button" className="rl-knop" onClick={() => setPlakken(true)}>📋 Of plak een lijst met coördinaten of Google Maps-links</button>
+                ) : (<>
+                  <textarea className="form-input" rows={5} value={tekst} onChange={(e) => setTekst(e.target.value)} autoFocus
+                    placeholder={"Eén punt per regel, bijvoorbeeld:\n52.2215, 6.8937 Kerk\nhttps://maps.app.goo.gl/…"}
+                    style={{ fontFamily: "monospace", fontSize: "0.8rem", resize: "vertical" }} />
+                  <button type="button" className="rl-knop rl-knop--cyan" disabled={!tekst.trim() || bezig !== null} onClick={() => { setBestandsnaam(null); lees(tekst); }}>
+                    {bezig === "lezen" ? "⏳ Lezen…" : "🔍 Lezen"}
+                  </button>
+                </>)}
+              </>)}
+
+              {controleren && (<>
+                {/* Wat er gevonden is */}
+                <div className="import-samenvatting">
+                  {bestandsnaam && <div className="import-bestand" title={bestandsnaam}>📄 {bestandsnaam}</div>}
+                  <div className="import-aantal">
+                    {gevonden.length ? <>✓ {gewoon} punt{gewoon === 1 ? "" : "en"}{metFinish && <> + 🏁 finish</>}</> : "Geen punten gevonden"}
+                  </div>
+                  {gevonden.length > 0 && <div className="import-noot">{herkomst}</div>}
+                  {finishWeg && <div className="import-noot" style={{ color: "#FFE680" }}>🏁 De route heeft al een finish; die blijft staan.</div>}
+                </div>
+
+                {/* Wat het worden */}
+                {gewoon > 0 && (
+                  <div className="import-blok">
+                    <label className="import-label" htmlFor="import-tekst">ℹ️ Het worden infopunten met deze tekst</label>
+                    <input id="import-tekst" className="form-input" value={infoTekst} onChange={(e) => setInfoTekst(e.target.value)} maxLength={500} />
+                    <div className="import-noot">Straal {straal} m. Per punt kun je later de tekst aanpassen, een vraag toevoegen of er een vraagpunt van maken.</div>
+                  </div>
+                )}
+
+                {/* De punten zelf */}
+                {gevonden.length > 0 && <div className="import-label">Punten <span style={{ fontWeight: 400, color: "var(--muted)" }}>(✕ = weglaten)</span></div>}
+                <div className="import-lijst">
                   {gevonden.map((p, i) => (
-                    <div key={i} className="import-regel">
-                      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        <strong style={{ color: "#fff" }}>{p.naam || `Punt ${i + 1}`}</strong>
-                        <span style={{ color: "var(--muted)" }}> · {p.lat.toFixed(5)}, {p.lng.toFixed(5)}</span>
-                      </span>
+                    <div key={i} className="import-regel" title={`${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`}>
+                      <span className={`import-nr${p.finish ? " import-nr--finish" : ""}`}>{p.finish ? "🏁" : i + 1}</span>
+                      <span className="import-naam">{p.finish ? "Finish" : p.naam || `Punt ${i + 1}`}</span>
                       <button type="button" className="editor-paneel-sluit" aria-label="Weglaten" onClick={() => setGevonden((g) => g.filter((_, j) => j !== i))}>✕</button>
                     </div>
                   ))}
                   {nietHerkend.map((r, i) => (
                     <div key={`f${i}`} className="import-regel" style={{ color: "#FCA5A5" }}>
-                      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>⚠️ Niet herkend: {r}</span>
+                      <span className="import-naam">⚠️ Niet herkend: {r}</span>
                     </div>
                   ))}
                 </div>
-              )}
 
-              {gevonden.length > 0 && (
-                <button type="button" className="rl-knop rl-knop--groen" style={{ height: 44, fontWeight: 800 }} disabled={bezig !== null} onClick={toevoegen}>
-                  {bezig === "opslaan" ? "Bezig…" : `+ ${gevonden.length} punt${gevonden.length === 1 ? "" : "en"} toevoegen`}
-                </button>
-              )}
-              <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Komen vóór de finish, met {punten} punten en {straal} m straal. Vragen voeg je daarna toe.</div>
+                <div className="import-voet">
+                  <button type="button" className="rl-knop" onClick={opnieuw} disabled={bezig !== null}>← Ander bestand</button>
+                  <button type="button" className="rl-knop rl-knop--groen" style={{ flex: 1, fontWeight: 800 }} disabled={!gevonden.length || bezig !== null} onClick={toevoegen}>
+                    {bezig === "opslaan" ? "⏳ Toevoegen…" : `+ ${gevonden.length} punt${gevonden.length === 1 ? "" : "en"} toevoegen`}
+                  </button>
+                </div>
+              </>)}
             </div>
           </div>
         </div>,

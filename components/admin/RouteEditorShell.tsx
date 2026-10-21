@@ -1282,7 +1282,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-balk-scheiding" aria-hidden />
           {/* Gereedschap voor de punten: icoontjes met uitleg bij aanwijzen */}
           <span className="editor-groep editor-gereedschap">
-            <PuntenImporteren routeId={route.id} punten={puntPunten} straal={puntRadius} onKlaar={herlaadPunten} />
+            {/* Importeren alleen bij "Op volgorde": bij een rondje maakt de app de punten zelf */}
+            {route.modus === "sequentieel" && <PuntenImporteren routeId={route.id} straal={puntRadius} heeftFinish={punten[punten.length - 1]?.type === "eindpunt"} onKlaar={herlaadPunten} />}
             <BevestigKnop venster gevaarlijk={false} icoon="🧲" titel="Alle punten op de weg zetten?"
               vraag="" uitleg={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Terugzetten kan met ↶ Ongedaan.`}
               ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}

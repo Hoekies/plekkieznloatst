@@ -2792,3 +2792,25 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Spelerskaart: één knop voor licht, donker en luchtfoto */
 .kaart-stijl--enkel .kaart-stijl-wissel { display: inline-flex; }
+
+/* Punten importeren: twee stappen (kiezen → controleren), samenvatting, lijst die zelf scrollt */
+.import-venster { display: flex; flex-direction: column; gap: 10px; padding: 16px 16px 14px; min-height: 0; flex: 1; overflow-y: auto; }
+.import-kop { display: flex; align-items: center; gap: 8px; }
+.import-titel { flex: 1; font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: #fff; }
+.import-stap { font-size: 0.72rem; font-weight: 700; color: var(--muted); }
+.import-uitleg { margin: 0; font-size: 0.86rem; color: var(--text); }
+.import-groot { justify-content: center; cursor: pointer; height: 52px; font-weight: 800; font-size: 0.95rem; }
+.import-noot { font-size: 0.74rem; color: var(--muted); line-height: 1.4; }
+.import-samenvatting { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(22,163,74,0.12); border: 1px solid rgba(74,222,128,0.3); }
+.import-bestand { font-size: 0.74rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.import-aantal { font-size: 1.05rem; font-weight: 800; color: #fff; }
+.import-blok { display: flex; flex-direction: column; gap: 5px; }
+.import-label { font-size: 0.8rem; font-weight: 700; color: #fff; }
+.import-lijst { display: flex; flex-direction: column; gap: 4px; max-height: 32vh; overflow-y: auto; flex-shrink: 0; }
+.import-nr { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: #06B6D4; color: #fff; font-size: 0.7rem; font-weight: 800; }
+.import-nr--finish { background: #F59E0B; font-size: 0.8rem; }
+.import-naam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fff; }
+.import-voet { display: flex; gap: 8px; align-items: stretch; }
+.import-voet .rl-knop { height: 44px; }
