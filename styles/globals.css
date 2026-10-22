@@ -3017,3 +3017,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Dashboard op de telefoon: een lange melding ("niet gezien · uitgelogd") mag afbreken, zodat score en ▸ in beeld blijven */
 .speler-kaart-klik, .speler-kaart-klik .pr-gem-card-inner, .speler-kaart-klik .sk-kop { min-width: 0; max-width: 100%; }
 .sk-stats > .sk-stil { white-space: normal; }
+
+/* Kaartjes (routes, spelers, …) nooit breder dan het scherm: lange (schuivende) namen passen zich aan
+   in plaats van het kaartje op te rekken */
+.pr-gem-card { min-width: 0; max-width: 100%; }
+.pr-gem-card-inner { min-width: 0; }
