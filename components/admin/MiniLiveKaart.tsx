@@ -16,10 +16,12 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
   const LRef = useRef<typeof import("leaflet") | null>(null);
   const puntLaag = useRef<import("leaflet").LayerGroup | null>(null);
   const teamLaag = useRef<import("leaflet").LayerGroup | null>(null);
-  const ingezoomd = useRef(false);
+  // Laatst ingezoomde gebied: alleen opnieuw inzoomen als dat verandert (geen gespring bij elke update)
+  const gebiedRef = useRef("");
 
   useEffect(() => {
     let weg = false;
+    let waarnemer: ResizeObserver | null = null;
     (async () => {
       const L = (await import("leaflet")).default;
       if (weg || !containerRef.current || mapRef.current) return;
@@ -38,8 +40,11 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
       teamLaag.current = L.layerGroup().addTo(map);
       voegBasiskaartToe(L, map, bewaardeStijl()).catch(() => {});
       tekenen();
+      // Pas na de opbouw van de pagina weet de kaart hoe groot hij is: dan opnieuw passend inzoomen
+      waarnemer = new ResizeObserver(() => { map.invalidateSize(); gebiedRef.current = ""; tekenen(); });
+      waarnemer.observe(containerRef.current);
     })();
-    return () => { weg = true; ruimKaartOp(mapRef.current); mapRef.current = null; };
+    return () => { weg = true; waarnemer?.disconnect(); ruimKaartOp(mapRef.current); mapRef.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -53,19 +58,21 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
     const plekken: [number, number][] = [];
     for (const p of punten) {
       plekken.push([p.latitude, p.longitude]);
-      L.circleMarker([p.latitude, p.longitude], { radius: 3, color: "#64748B", weight: 1, fillColor: "#94A3B8", fillOpacity: 0.9, interactive: false }).addTo(puntLaag.current);
+      L.circleMarker([p.latitude, p.longitude], { radius: 5, color: "#fff", weight: 2, fillColor: "#7C3AED", fillOpacity: 1, interactive: false }).addTo(puntLaag.current);
     }
     for (const s of spelers) {
       if (s.sessie_status !== "actief" || s.laatste_lat == null || s.laatste_lng == null) continue;
       plekken.push([s.laatste_lat, s.laatste_lng]);
-      L.circleMarker([s.laatste_lat, s.laatste_lng], { radius: 6, color: "#fff", weight: 2, fillColor: kleuren.get(s.player_id) ?? "#A78BFA", fillOpacity: 1, interactive: false }).addTo(teamLaag.current);
+      L.circleMarker([s.laatste_lat, s.laatste_lng], { radius: 8, color: "#1E1B4B", weight: 3, fillColor: kleuren.get(s.player_id) ?? "#A78BFA", fillOpacity: 1, interactive: false }).addTo(teamLaag.current);
     }
-    // Eén keer inzoomen op alles; daarna blijft de kaart staan (geen gespring bij elke update)
-    if (!ingezoomd.current && plekken.length) {
-      ingezoomd.current = true;
-      if (plekken.length === 1) map.setView(plekken[0], 15);
-      else map.fitBounds(L.latLngBounds(plekken), { padding: [16, 16], maxZoom: 16 });
-    }
+    // Alle punten en teams in beeld
+    if (!plekken.length) return;
+    const grenzen = L.latLngBounds(plekken);
+    const sleutel = grenzen.toBBoxString().split(",").map((g) => Number(g).toFixed(3)).join(",");
+    if (sleutel === gebiedRef.current) return;
+    gebiedRef.current = sleutel;
+    if (plekken.length === 1) map.setView(plekken[0], 15);
+    else map.fitBounds(grenzen, { padding: [18, 18], maxZoom: 16 });
   }
 
   const onderweg = spelers.filter((s) => s.sessie_status === "actief" && s.laatste_lat != null).length;
