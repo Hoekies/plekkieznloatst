@@ -84,7 +84,8 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
       position: "fixed", inset: 0, zIndex: 2000,
       background: "rgba(0,0,0,0.75)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "16px",
+      // Niet onder de statusbalk of de thuisbalk van de iPhone
+      padding: "max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom))",
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
         background: "#2a1566",

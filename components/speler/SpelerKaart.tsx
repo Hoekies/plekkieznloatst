@@ -1063,7 +1063,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           spelerIcoon={spelerIcoon}
           spelerNaam={spelerNaam}
           centreerVerzoek={centreerVerzoek}
-          stijlOnder={knoepBottomOffset + 48}
+          // Op dezelfde hoogte als 🎯 linksonder; staat "Niet bereikbaar?" rechtsonder, dan erboven
+          stijlOnder={activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot ? knoepBottomOffset + 46 : knoepBottomOffset}
           positie={positie}
           punten={punten}
           verwerktIds={verwerktIds}
