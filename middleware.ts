@@ -34,7 +34,9 @@ export async function middleware(request: NextRequest) {
   // Niet ingelogd → naar login (auth-API routes zijn altijd toegankelijk)
   if (!user && pad !== "/login" && !pad.startsWith("/api/auth/") && !pad.startsWith("/gedeeld/") && !pad.startsWith("/l/")
     // Beamerscherm: openbaar met een geheime link (de sleutel controleert de API zelf)
-    && !pad.startsWith("/beamer/") && !pad.startsWith("/api/beamer/")) {
+    && !pad.startsWith("/beamer/") && !pad.startsWith("/api/beamer/")
+    // Fotoalbum: openbaar met een geheime link (de pagina controleert de sleutel)
+    && !pad.startsWith("/album/")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

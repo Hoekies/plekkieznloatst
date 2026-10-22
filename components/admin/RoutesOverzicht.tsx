@@ -109,42 +109,92 @@ export default function RoutesOverzicht() {
 
   // Export: de server levert alle gegevens, de browser pakt daarna de afbeeldingen in het bestand in
   const [exportBezig, setExportBezig] = useState<string | null>(null);
+  // Eén route met al zijn afbeeldingen (als tekst in het bestand); ontbreekt = afbeeldingen die niet mee konden
+  async function routeGegevens(id: string): Promise<{ data: Record<string, unknown>; ontbreekt: number } | null> {
+    const res = await fetch(`/api/admin/routes/${id}/export`);
+    if (!res.ok) { toonMelding(await foutUitleg(res, "Exporteren"), "fout"); return null; }
+    const data = await res.json();
+    const afbeeldingen: Record<string, { type: string; data: string }> = {};
+    let ontbreekt = 0;
+    for (const sleutel of (data.afbeeldingen_lijst ?? []) as string[]) {
+      try {
+        const r = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${sleutel}`);
+        if (!r.ok) { ontbreekt++; continue; }
+        const blob = await r.blob();
+        const base64 = await new Promise<string>((klaar) => {
+          const lezer = new FileReader();
+          lezer.onload = () => klaar(String(lezer.result).split(",")[1] ?? "");
+          lezer.readAsDataURL(blob);
+        });
+        afbeeldingen[sleutel] = { type: blob.type || "image/jpeg", data: base64 };
+      } catch { ontbreekt++; }
+    }
+    delete data.afbeeldingen_lijst;
+    data.afbeeldingen = afbeeldingen;
+    return { data, ontbreekt };
+  }
+  // Bestandsnaam: spel, naam en datum, bijv. PointRush_Op-zn-Loatst_2026-10-16.json
+  function download(inhoud: unknown, naam: string) {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(inhoud)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    const schoon = naam.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+    a.download = `PointRush_${schoon}_${new Date().toLocaleDateString("sv-SE")}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
   async function exporteer(id: string, naam: string) {
     setExportBezig(id);
     try {
-      const res = await fetch(`/api/admin/routes/${id}/export`);
-      if (!res.ok) { toonMelding(await foutUitleg(res, "Exporteren"), "fout"); return; }
-      const data = await res.json();
-      const afbeeldingen: Record<string, { type: string; data: string }> = {};
-      let ontbreekt = 0;
-      for (const sleutel of (data.afbeeldingen_lijst ?? []) as string[]) {
-        try {
-          const r = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${sleutel}`);
-          if (!r.ok) { ontbreekt++; continue; }
-          const blob = await r.blob();
-          const base64 = await new Promise<string>((klaar) => {
-            const lezer = new FileReader();
-            lezer.onload = () => klaar(String(lezer.result).split(",")[1] ?? "");
-            lezer.readAsDataURL(blob);
-          });
-          afbeeldingen[sleutel] = { type: blob.type || "image/jpeg", data: base64 };
-        } catch { ontbreekt++; }
-      }
-      delete data.afbeeldingen_lijst;
-      data.afbeeldingen = afbeeldingen;
-      const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
-      const a = document.createElement("a");
-      a.href = url;
-      // Bestandsnaam: spel, route en datum, bijv. PointRush_Op-zn-Loatst_2026-10-16.json
-      const route = naam.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
-      const datum = new Date().toLocaleDateString("sv-SE");  // JJJJ-MM-DD
-      a.download = `PointRush_${route}_${datum}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      toonMelding(ontbreekt ? `Geëxporteerd, maar ${ontbreekt} afbeelding(en) konden niet worden meegenomen` : "Route geëxporteerd, met alle afbeeldingen", ontbreekt ? "fout" : "ok");
+      const r = await routeGegevens(id);
+      if (!r) return;
+      download(r.data, naam);
+      toonMelding(r.ontbreekt ? `Geëxporteerd, maar ${r.ontbreekt} afbeelding(en) konden niet worden meegenomen` : "Route geëxporteerd, met alle afbeeldingen", r.ontbreekt ? "fout" : "ok");
     } finally {
       setExportBezig(null);
     }
+  }
+  // 💾 Back-up: alle routes in één bestand (terugzetten gaat met 📥 Route importeren)
+  const [backupStand, setBackupStand] = useState<string | null>(null);
+  async function maakBackup() {
+    const lijst = [...routes];
+    const alle: Record<string, unknown>[] = [];
+    let ontbreekt = 0;
+    try {
+      for (let k = 0; k < lijst.length; k++) {
+        setBackupStand(`${k + 1}/${lijst.length}`);
+        const r = await routeGegevens(lijst[k].id);
+        if (!r) return;
+        alle.push(r.data);
+        ontbreekt += r.ontbreekt;
+      }
+      download({ _backup: 1, gemaakt: new Date().toISOString(), routes: alle }, "back-up-alle-routes");
+      toonMelding(ontbreekt ? `Back-up gemaakt van ${alle.length} routes; ${ontbreekt} afbeelding(en) konden niet mee` : `Back-up gemaakt van ${alle.length} routes, met alle afbeeldingen`, ontbreekt ? "fout" : "ok");
+    } finally {
+      setBackupStand(null);
+    }
+  }
+
+  // Eén route terugzetten: eerst de afbeeldingen (los, zodat geen enkel verzoek te groot wordt), dan de route
+  async function zetRouteTerug(json: Record<string, unknown>): Promise<{ id?: string; fout?: string; mislukt: number }> {
+    const afbeeldingen = (json.afbeeldingen ?? {}) as Record<string, { type: string; data: string }>;
+    let mislukt = 0;
+    for (const [sleutel, beeld] of Object.entries(afbeeldingen)) {
+      const r = await fetch("/api/admin/routes/import/afbeelding", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sleutel, type: beeld.type, data: beeld.data }),
+      }).catch(() => null);
+      if (!r?.ok) mislukt++;
+    }
+    const zonderBeelden = { ...json };
+    delete zonderBeelden.afbeeldingen;
+    const res = await fetch("/api/admin/routes/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(zonderBeelden),
+    });
+    const data = await res.json();
+    return res.ok ? { id: data.id, mislukt } : { fout: uitlegBijStatus(res.status, "Importeren", data.fout), mislukt };
   }
 
   async function importeer(e: React.ChangeEvent<HTMLInputElement>) {
@@ -155,32 +205,29 @@ export default function RoutesOverzicht() {
     setImportFout("");
     try {
       const json = JSON.parse(await bestand.text());
-      // Eerst de afbeeldingen terugzetten (los, zodat geen enkel verzoek te groot wordt)
-      const afbeeldingen = (json.afbeeldingen ?? {}) as Record<string, { type: string; data: string }>;
-      let mislukt = 0;
-      for (const [sleutel, beeld] of Object.entries(afbeeldingen)) {
-        const r = await fetch("/api/admin/routes/import/afbeelding", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sleutel, type: beeld.type, data: beeld.data }),
-        }).catch(() => null);
-        if (!r?.ok) mislukt++;
+      // Back-up van alle routes: elke route terugzetten (als nieuwe route, naast wat er al staat)
+      if (json._backup && Array.isArray(json.routes)) {
+        let gelukt = 0, mislukt = 0;
+        for (const route of json.routes as Record<string, unknown>[]) {
+          const r = await zetRouteTerug(route);
+          if (r.id) gelukt++;
+          mislukt += r.mislukt;
+        }
+        await laad();
+        setImportBezig(false);
+        toonMelding(`${gelukt} van ${json.routes.length} routes teruggezet${mislukt ? `, ${mislukt} afbeelding(en) niet` : ""}`, gelukt === json.routes.length && !mislukt ? "ok" : "fout");
+        return;
       }
-      delete json.afbeeldingen;
-      const res = await fetch("/api/admin/routes/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(json),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setImportFout(uitlegBijStatus(res.status, "Importeren", data.fout));
+      const r = await zetRouteTerug(json);
+      if (!r.id) {
+        setImportFout(r.fout ?? "Importeren mislukt");
         setImportBezig(false);
         return;
       }
-      if (mislukt) toonMelding(`Route geïmporteerd, maar ${mislukt} afbeelding(en) konden niet worden teruggezet`, "fout");
-      router.push(`/admin/routes/${data.id}`);
+      if (r.mislukt) toonMelding(`Route geïmporteerd, maar ${r.mislukt} afbeelding(en) konden niet worden teruggezet`, "fout");
+      router.push(`/admin/routes/${r.id}`);
     } catch {
-      setImportFout("Importeren mislukt: dit is geen geldig routebestand. Kies een .json-bestand dat je eerder met 📤 Exporteren hebt gemaakt.");
+      setImportFout("Importeren mislukt: dit is geen geldig routebestand. Kies een .json-bestand dat je eerder met 📤 Exporteren of 💾 Back-up hebt gemaakt.");
       setImportBezig(false);
     }
   }
@@ -252,7 +299,11 @@ export default function RoutesOverzicht() {
           + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>
         <span style={{ flex: 1 }} />
-        <button className="rl-knop actie-knop" title="Een eerder geëxporteerde route (bestand) toevoegen"
+        <button className="rl-knop actie-knop" title="Alle routes met vragen en afbeeldingen in één bestand bewaren (terugzetten met Route importeren)"
+          onClick={maakBackup} disabled={!!backupStand || !routes.length}>
+          {backupStand ? `⏳ ${backupStand}` : <>💾 <span className="alleen-pc">Back-up</span></>}
+        </button>
+        <button className="rl-knop actie-knop" title="Een eerder geëxporteerde route of back-up (bestand) toevoegen"
           onClick={() => importRef.current?.click()} disabled={importBezig}>
           {importBezig ? "…" : <>📥 <span className="alleen-pc">Route importeren</span><span className="alleen-mobiel">Importeren</span></>}
         </button>

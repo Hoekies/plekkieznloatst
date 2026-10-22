@@ -55,7 +55,18 @@ async function maakPdf(elementen: HTMLElement[]): Promise<Blob> {
   return pdf.output("blob");
 }
 
-export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; teams: { sessie_id: string; naam: string; icon: string | null; kaartLink?: string }[] }) {
+export default function RapportDelen({ routeNaam, teams, albumLink }: { routeNaam: string; teams: { sessie_id: string; naam: string; icon: string | null; kaartLink?: string }[]; albumLink?: string }) {
+  // 📸 Link naar het fotoalbum (openbaar, met geheime code): delen via het deelmenu, anders kopiëren
+  async function deelAlbum() {
+    if (!albumLink) return;
+    const tekst = `📸 Alle foto's van ${routeNaam} in één album!`;
+    if (navigator.share) {
+      try { await navigator.share({ title: "PointRush — fotoalbum", text: tekst, url: albumLink }); return; } catch (e) { if ((e as Error).name === "AbortError") return; }
+    }
+    navigator.clipboard?.writeText(`${tekst}
+${albumLink}`).catch(() => {});
+    window.open(albumLink, "_blank");
+  }
   // Link naar de kaart met de gelopen route van één team (openbaar, met geheime code)
   async function deelKaart(team: { naam: string; kaartLink?: string }) {
     if (!team.kaartLink) return;
@@ -152,6 +163,19 @@ export default function RapportDelen({ routeNaam, teams }: { routeNaam: string; 
           </div>
           {knoppen(doelen[0], "PDF maken")}
         </div>
+
+        {/* Fotoalbum: alle foto's van de foto-opdrachten op één pagina */}
+        {albumLink && (
+          <div className="rapport-delen-rij">
+            <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>📸</span>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>Fotoalbum</div>
+              <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Alle foto&apos;s van de teams op één pagina, te openen zonder inloggen</div>
+            </div>
+            <button className="rl-knop rl-knop--goud" onClick={deelAlbum} title="Link naar het fotoalbum delen">📲 Delen</button>
+            <a className="rl-knop" href={albumLink} target="_blank" rel="noopener noreferrer">👀 Bekijken</a>
+          </div>
+        )}
 
         {/* Per team */}
         <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} style={{ alignSelf: "flex-start" }} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>

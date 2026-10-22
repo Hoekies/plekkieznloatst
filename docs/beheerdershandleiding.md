@@ -105,7 +105,8 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > - **De volgende stap**, één opvallende knop: **✅ Klaarzetten** (concept) en **▶ Activeren** (klaar) openen de controle in de editor; **⏹ Deactiveren** (actief, met bevestiging) werkt zoals *Stop route*: lopende spellen worden netjes afgesloten en de route blijft Klaar. In de editor werkt Deactiveren precies zo.
 > - **Bewerken**
 > - Knoppen met een korte tekst eronder: 📄 **Voorproefje** (zie hieronder), 📋 **Kopiëren** (alles, als concept), 📤 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩️ **Concept** (terug naar concept) en 🗑️ **Verwijderen**.
-> - Rechtsboven **📥 Route importeren**: een eerder geëxporteerd bestand terugzetten.
+> - Rechtsboven **💾 Back-up**: alle routes met vragen en afbeeldingen in één bestand (PointRush_back-up-alle-routes_datum.json). Bewaar het goed; terugzetten gaat met **📥 Route importeren** (elke route komt er als nieuwe route bij, naast wat er al staat). Foto's van spelers zitten er niet in.
+> - Rechtsboven **📥 Route importeren**: een eerder geëxporteerde route of back-up terugzetten.
 >
 > Op de telefoon starten de routekaarten ingeklapt: tik op de naam om de knoppen te tonen.
 
@@ -517,6 +518,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 - **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groepsapp of persoon. Met **👫 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
+- **📸 Fotoalbum** (bij Rapport delen) — alle foto's van de foto-opdrachten op één pagina, met teamnaam en punt; tik op een foto om hem groot te zien en door te bladeren. Met **📲 Delen** stuur je de link (bijvoorbeeld in de groepsapp); openen kan zonder inloggen. Afgekeurde foto's staan er niet in.
 
 > **🏁 Spel afronden** (in het Spelleider-blok op het dashboard): geeft in één keer de uitslag vrij en opent het rapport. De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
 
@@ -540,3 +542,14 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 - **Eén login per apparaat**: een team kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur het team naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Spelers) als dat niet meer lukt, of log het team vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
+
+## 🩺 Systeemcheck
+
+In het menu onder **Beheer** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
+
+- **Database** — de verbinding, en per database-migratie (003 t/m 013) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
+- **Opslag** — of de mappen voor afbeeldingen en foto's bestaan.
+- **Instellingen** — of de sleutels in Vercel staan (alleen óf ze er zijn, nooit de waarde), bijvoorbeeld voor pushmeldingen.
+- **Spel** — welke route actief is.
+
+Werkt iets niet zoals verwacht na een update, kijk dan eerst hier. Met **🔄 Opnieuw controleren** kijk je na het draaien van een migratie meteen of het gelukt is.
