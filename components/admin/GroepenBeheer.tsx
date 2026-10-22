@@ -16,10 +16,22 @@ import LeegScherm from "@/components/admin/LeegScherm";
 import StatStrook from "@/components/admin/StatStrook";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
+import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
-type Groep = Speler & { heeft_spel?: boolean };
+type Groep = Speler & { heeft_spel?: boolean; gefinisht?: boolean };
+
+// Status in één oogopslag: kleurstip op het icoon en een woord erbij
+type Status = { sleutel: "speelt" | "ingelogd" | "gefinisht" | "uit" | "weg"; tekst: string; kleur: string; volgorde: number };
+function statusVan(g: Groep): Status {
+  if (g.is_uitgeschakeld) return { sleutel: "uit", tekst: "Uitgeschakeld", kleur: "#F87171", volgorde: 4 };
+  if (g.heeft_spel) return { sleutel: "speelt", tekst: g.active_device_id ? "Speelt" : "Speelt · uitgelogd", kleur: "#4ADE80", volgorde: 0 };
+  if (g.gefinisht) return { sleutel: "gefinisht", tekst: "Gefinisht", kleur: "#FBBF24", volgorde: 2 };
+  if (g.active_device_id) return { sleutel: "ingelogd", tekst: "Ingelogd", kleur: "#22D3EE", volgorde: 1 };
+  return { sleutel: "weg", tekst: "Niet ingelogd", kleur: "#94A3B8", volgorde: 3 };
+}
+type Sortering = "naam" | "status" | "nieuw";
 
 // helper: wachtwoord van een helper (gaat via /api/admin/helpers)
 // Inloggegevens versturen (met een nieuw wachtwoord); helper = via /api/admin/helpers
@@ -35,6 +47,17 @@ export default function GroepenBeheer() {
   // 📞 Telefoonnummer van dit team
   const [telVoor, setTelVoor] = useState<Groep | null>(null);
   const [uitOpen, setUitOpen] = useState(false);
+  // ✏️ Teamnaam aanpassen
+  const [naamVoor, setNaamVoor] = useState<Groep | null>(null);
+  // Zoeken en sorteren (onthouden per toestel)
+  const [zoek, setZoek] = useState("");
+  const [sortering, setSortering] = useState<Sortering>(() => {
+    try { return (localStorage.getItem("pr_spelers_sortering") as Sortering) || "naam"; } catch { return "naam"; }
+  });
+  function kiesSortering(s: Sortering) {
+    setSortering(s);
+    try { localStorage.setItem("pr_spelers_sortering", s); } catch { /* geen opslag */ }
+  }
 
   async function laadGroepen() {
     const res = await fetch("/api/admin/groepen");
@@ -76,14 +99,22 @@ export default function GroepenBeheer() {
   }
 
   // Uitgeschakelde spelers staan apart onderaan, standaard ingeklapt
-  const actieveSpelers = groepen.filter((g) => !g.is_uitgeschakeld);
+  const zoekterm = zoek.trim().toLowerCase();
+  const naamVan = (g: Groep) => (g.nickname ?? g.login_name ?? "").toLowerCase();
+  const gesorteerd = groepen
+    .filter((g) => !zoekterm || [g.nickname, g.login_name, g.telefoon].some((v) => v?.toLowerCase().includes(zoekterm)))
+    .sort((a, b) => sortering === "status" ? statusVan(a).volgorde - statusVan(b).volgorde || naamVan(a).localeCompare(naamVan(b))
+      : sortering === "nieuw" ? (b.created_at ?? "").localeCompare(a.created_at ?? "")
+      : naamVan(a).localeCompare(naamVan(b), "nl", { numeric: true }));
+  const actieveSpelers = gesorteerd.filter((g) => !g.is_uitgeschakeld);
   // Zelfde kleur per speler als op het dashboard en de live kaart
   const kleuren = maakKleurMap(groepen.map((g) => g.id));
-  const uitgeschakeld = groepen.filter((g) => g.is_uitgeschakeld);
+  const uitgeschakeld = gesorteerd.filter((g) => g.is_uitgeschakeld);
 
   const spelerKaart = (g: Groep) => {
     const displayNaam = g.nickname ?? g.login_name ?? "Nieuwe speler";
     const isUit = g.is_uitgeschakeld;
+    const status = statusVan(g);
     return (
       <div key={g.id} className="pr-gem-card" style={{ opacity: isUit ? 0.8 : 1 }}>
        <div className="pr-gem-card-inner gb-kaart">
@@ -95,21 +126,21 @@ export default function GroepenBeheer() {
           ["--speler-kleur" as string]: kleuren.get(g.id),
         }}>
           {g.icon ?? displayNaam.slice(0, 2).toUpperCase()}
+          <span className="gb-stip" style={{ background: status.kleur }} title={status.tekst} aria-label={status.tekst} />
         </div>
 
         {/* Tekst + knoppen */}
         <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
             {g.nickname ?? "nog geen teamnaam gekozen"}
+            {!isUit && <button type="button" className="gb-naam-wijzig" onClick={() => setNaamVoor(g)} title="Teamnaam aanpassen" aria-label="Teamnaam aanpassen">✏️</button>}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
-            <span className="gb-status-mobiel" style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: 700 }}>{isUit ? "Uit" : g.active_device_id ? "● " : "○ "}</span>
+
             {g.login_name && <span><span className="gb-login-woord">Login: </span><strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
             {g.toegang_tot && new Date(g.toegang_tot).getTime() > Date.now() && <span style={{ color: "#FFE680" }}>🔗 tot {tijdTekst(g.toegang_tot)} · </span>}
             {g.telefoon && <span className="gb-tel">📞 {toonTelefoon(g.telefoon)} · </span>}
-            <span className="gb-status-pc" style={{ color: isUit ? "#FCA5A5" : g.active_device_id ? "#4ADE80" : "var(--muted)", fontWeight: isUit || g.active_device_id ? 700 : 400 }}>
-              {isUit ? "Uitgeschakeld" : g.active_device_id ? "● Ingelogd" : "○ Niet ingelogd"}
-            </span>
+            <span className="gb-status-pc" style={{ color: status.kleur, fontWeight: status.sleutel === "weg" ? 400 : 700 }}>{status.tekst}</span>
           </div>
         </div>
 
@@ -196,11 +227,24 @@ export default function GroepenBeheer() {
             + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <MeerdereSpelersKnop onKlaar={laadGroepen} />
+          {groepen.some((g) => !g.is_uitgeschakeld) && <AlleKaartjesKnop />}
           {/* Inloggegevens en uitleg versturen: hier, waar je de spelers maakt */}
           <span style={{ flex: 1 }} />
           <WhatsAppKnop />
       </div>
 
+
+      {/* Zoeken en sorteren: pas bij een handvol spelers */}
+      {groepen.length > 4 && (
+        <div className="gb-zoekbalk">
+          <input className="form-input" type="search" value={zoek} onChange={(e) => setZoek(e.target.value)} placeholder="🔍 Zoek op naam, login of telefoon" />
+          <div className="segment" role="radiogroup" aria-label="Sorteren">
+            {([["naam", "🔤 Naam"], ["status", "⚡ Status"], ["nieuw", "🆕 Nieuwst"]] as [Sortering, string][]).map(([s, label]) => (
+              <button key={s} type="button" role="radio" aria-checked={sortering === s} className={sortering === s ? "aan" : ""} onClick={() => kiesSortering(s)}>{label}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {toonFormulier && (
         <NieuweGroepForm
@@ -218,6 +262,7 @@ export default function GroepenBeheer() {
       ) : (
         <div>
           {/* Actieve spelers altijd zichtbaar; uitgeschakelde spelers achter een inklapbare kop */}
+          {zoekterm && gesorteerd.length === 0 && <div style={{ color: "var(--muted)", fontSize: "0.85rem", padding: 8 }}>Geen speler gevonden voor “{zoek}”.</div>}
           {actieveSpelers.map(spelerKaart)}
           {uitgeschakeld.length > 0 && (
             <>
@@ -231,6 +276,10 @@ export default function GroepenBeheer() {
         </div>
       )}
 
+      {naamVoor && (
+        <TeamnaamVenster spelerId={naamVoor.id} naam={naamVoor.nickname} icoon={naamVoor.icon} onSluit={() => setNaamVoor(null)}
+          onOpgeslagen={(n) => setGroepen((prev) => prev.map((x) => x.id === naamVoor.id ? { ...x, nickname: n } : x))} />
+      )}
       {telVoor && (
         <TelefoonVenster spelerId={telVoor.id} naam={telVoor.nickname ?? telVoor.login_name ?? "Speler"} icoon={telVoor.icon} telefoon={telVoor.telefoon ?? null}
           onSluit={() => setTelVoor(null)}

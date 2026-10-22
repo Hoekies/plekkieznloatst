@@ -38,6 +38,9 @@ Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld
 **Batterij**
 De app gaat zuinig met je batterij om: staat je scherm uit of zit de app op de achtergrond, dan vraagt hij niets op. Ben je nog ver van een punt, dan bewaart hij je plek minder vaak.
 
+**Foto-opdracht**
+Na het keuren van je foto kan de organisatie een korte opmerking sturen; die verschijnt als bericht in de app.
+
 **Open vraag**
 Hoofdletters, accenten en spaties maken niet uit, en bij langere woorden mag er één tikfout in zitten: *Amsterdm* telt goed voor *Amsterdam*.
 

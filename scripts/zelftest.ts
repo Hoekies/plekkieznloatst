@@ -1,6 +1,6 @@
 // Snelle zelftest van de rekenregels die het spel eerlijk houden (draait in npm run controle)
 import assert from "node:assert/strict";
-import { tekstKlopt, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
+import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 
 let goed = 0;
@@ -18,6 +18,10 @@ test("open antwoord: korte woorden en echte fouten niet", () => {
   assert.equal(tekstKlopt("kar", "kat"), false);
   assert.equal(tekstKlopt("Rotterdam", "Amsterdam"), false);
   assert.equal(tekstKlopt("", "iets"), false);
+});
+test("bijna goed (voor de beheerder)", () => {
+  assert.equal(tekstAfstand("Amstrdm", "Amsterdam"), 2);
+  assert.equal(tekstAfstand("AMSTERDAM!", "amsterdam"), 0);
 });
 test("getal met komma", () => {
   assert.equal(normaliserenNumeriek("3,5"), 3.5);

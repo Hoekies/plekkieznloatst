@@ -32,6 +32,8 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
   const [aantal, setAantal] = useState(initAantal);
   const [bezig, setBezig] = useState<string | null>(null);
   const [puntenMap, setPuntenMap] = useState<Record<string, number>>({});
+  // 💬 Opmerking voor het team (komt als bericht in hun app)
+  const [opmerkingMap, setOpmerkingMap] = useState<Record<string, string>>({});
 
   async function haalOp() {
     setLaden(true);
@@ -65,7 +67,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
       await fetch(`/api/admin/foto/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, punten: puntenMap[id] ?? inzendingen.find((i) => i.id === id)?.max_punten ?? 0 }),
+        body: JSON.stringify({ status, punten: puntenMap[id] ?? inzendingen.find((i) => i.id === id)?.max_punten ?? 0, opmerking: opmerkingMap[id] ?? "" }),
       });
       setInzendingen((prev) => prev.filter((i) => i.id !== id));
       setAantal((n) => Math.max(0, n - 1));
@@ -127,6 +129,9 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
                         value={punten} onChange={(e) => setPuntenMap((m) => ({ ...m, [inz.id]: Number(e.target.value) }))} />
                       <span style={{ fontSize: "0.86rem", color: "var(--muted)" }}>/ {inz.max_punten}</span>
                     </div>
+                    <input className="form-input" value={opmerkingMap[inz.id] ?? ""} maxLength={110}
+                      onChange={(e) => setOpmerkingMap((m) => ({ ...m, [inz.id]: e.target.value }))}
+                      placeholder="💬 Opmerking voor het team (mag leeg), bijv. Jullie staan er niet allemaal op" />
                     <div className="keur-knoppen">
                       <button type="button" className="rl-knop rl-knop--rood" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "afgekeurd")}>✗ Afkeuren</button>
                       <button type="button" className="rl-knop rl-knop--groen" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "goedgekeurd")}>

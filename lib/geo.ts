@@ -53,13 +53,22 @@ export function normaliserenNumeriek(invoer: string): number | null {
 
 // Open antwoord vergelijken: hoofdletters, accenten, spaties en leestekens tellen niet mee, en bij
 // antwoorden van 5+ tekens mag er één tikfout in zitten (letter mis, te veel, te weinig of twee omgedraaid)
+export function normaliseerAntwoord(s: string): string {
+  return s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
 export function tekstKlopt(invoer: string, goed: string): boolean {
-  const n = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const a = n(invoer), b = n(goed);
+  const a = normaliseerAntwoord(invoer), b = normaliseerAntwoord(goed);
   if (!a || !b) return false;
   if (a === b) return true;
   if (b.length < 5 || Math.abs(a.length - b.length) > 1) return false;
-  // Damerau-Levenshtein (beperkt) met afstand ≤ 1
+  return tekstAfstand(a, b) <= 1;
+}
+
+// Voor de beheerder: hoeveel tikfouten scheelt een antwoord met het goede? (zelfde normalisering)
+export function tekstAfstand(invoer: string, goed: string): number {
+  const a = normaliseerAntwoord(invoer), b = normaliseerAntwoord(goed);
+  // Damerau-Levenshtein (beperkt)
   const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
   for (let j = 1; j <= b.length; j++) d[0][j] = j;
   for (let i = 1; i <= a.length; i++) {
@@ -69,7 +78,7 @@ export function tekstKlopt(invoer: string, goed: string): boolean {
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
     }
   }
-  return d[a.length][b.length] <= 1;
+  return d[a.length][b.length];
 }
 
 // Ligt een plek binnen een vlak (lijst hoekpunten [lat, lng])? Straal-methode, goed genoeg voor kleine gebieden.

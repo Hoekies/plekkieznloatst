@@ -2454,6 +2454,29 @@ button.route-stap:hover { color: var(--ink); }
 .antw-balk { margin-bottom: 0; }
 .antw-tabs { width: 300px; max-width: 100%; }
 .antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
+/* Antwoorden per team: kop is de inklapknop; dicht = alleen de telling */
+.antw-kop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
+.antw-telling { display: block; font-size: 0.76rem; font-weight: 700; margin-top: 1px; }
+.antw-filterbalk { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* 📊 Per vraag: een fout antwoord is aan te tikken om het toch goed te rekenen */
+.stat-fout-knop { padding: 1px 6px; border-radius: 6px; border: 1px dashed rgba(252,165,165,0.45); background: none; color: #FCA5A5; font: inherit; cursor: pointer; }
+.stat-fout-knop:hover { border-style: solid; background: rgba(74,222,128,0.08); }
+.stat-fout-plus { color: #4ADE80; font-weight: 800; margin-left: 2px; }
+/* 📸 Foto's als galerij */
+.foto-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.foto-tegel { position: relative; aspect-ratio: 1; padding: 0; border-radius: 12px; overflow: hidden; cursor: pointer; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+.foto-tegel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-tegel--wacht { border-color: #FBBF24; }
+.foto-tegel--goedgekeurd { border-color: rgba(74,222,128,0.7); }
+.foto-tegel--afgekeurd { border-color: rgba(248,113,113,0.7); opacity: 0.75; }
+.foto-tegel-label { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 8px 6px; font-size: 0.74rem; font-weight: 700; color: #fff; text-align: left; background: linear-gradient(transparent, rgba(0,0,0,0.75)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.foto-tegel-status { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff; background: rgba(0,0,0,0.6); }
+.foto-laden { font-size: 1.6rem; opacity: 0.4; }
+.foto-groot { position: relative; display: flex; align-items: center; justify-content: center; min-height: 200px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.35); }
+.foto-groot-beeld { max-width: 100%; max-height: 58vh; object-fit: contain; display: block; }
+.foto-pijl { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 56px; border: 0; border-radius: 10px; background: rgba(0,0,0,0.5); color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; z-index: 1; }
+.foto-pijl--links { left: 6px; }
+.foto-pijl--rechts { right: 6px; }
 @media (max-width: 768px) { .antw-tabs { width: 100%; } }
 
 /* Kaartknoppen in de route-editor: één paneel, twee gelijke rijen (Lagen en Kaart), dezelfde knoppen.
@@ -2560,6 +2583,14 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Strook op de telefoon: icoon + getal op één regel, niet scrollen; namen worden zo nodig afgekapt */
 .gb-status-mobiel { display: none; }
+/* Status-stip rechtsonder op het icoon (op de telefoon de enige statusaanduiding) */
+.gb-kaart > .pr-gem-avatar { position: relative; }
+.gb-stip { position: absolute; right: 2px; bottom: 2px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #1c0c45; filter: none; }
+.gb-naam-wijzig { margin-left: 6px; padding: 0 4px; border: 0; background: none; cursor: pointer; font-size: 0.8rem; opacity: 0.55; vertical-align: middle; }
+.gb-naam-wijzig:hover, .gb-naam-wijzig:focus-visible { opacity: 1; }
+.gb-zoekbalk { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.gb-zoekbalk > .form-input { flex: 1 1 220px; margin: 0; }
+.gb-zoekbalk > .segment { flex: 0 1 320px; }
 @media (max-width: 768px) {
   /* Spelerskaart: status als bolletje vooraan, de tekst "Ingelogd" valt weg */
   .gb-status-mobiel { display: inline; }

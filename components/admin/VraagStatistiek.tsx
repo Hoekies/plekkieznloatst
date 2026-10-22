@@ -2,23 +2,27 @@
 
 import type { TeamAntwoorden } from "@/lib/admin-antwoorden";
 import LeegScherm from "@/components/admin/LeegScherm";
+import BevestigKnop from "@/components/admin/BevestigKnop";
 
 type Stat = {
   punt_id: string; volgorde: number; punt_naam: string; vraag_tekst: string; vraag_type: string;
   aantal: number; goed: number; wacht: number; juiste: string | null;
-  fout: Map<string, { tekst: string; n: number }>;
+  fout: Map<string, { tekst: string; n: number; ids: string[] }>;
+  // Alle foute antwoorden (voor "iedereen goed")
+  foutIds: string[];
 };
 
 // "📊 Per vraag": hoeveel teams elke vraag goed of fout hadden, en welke foute antwoorden vaak voorkwamen.
 // Zo zie je meteen of een vraag te moeilijk (of fout ingesteld) is.
-export default function VraagStatistiek({ teams }: { teams: TeamAntwoorden[] }) {
+// onOokGoed: achteraf goed rekenen voor alle teams met dat antwoord (tekst = open vraag: telt voortaan ook goed)
+export default function VraagStatistiek({ teams, onOokGoed }: { teams: TeamAntwoorden[]; onOokGoed?: (ids: string[], tekst: string | null) => Promise<void> }) {
   const stats = new Map<string, Stat>();
   for (const t of teams) {
     for (const r of t.rijen) {
       let s = stats.get(r.punt_id);
       if (!s) {
         s = { punt_id: r.punt_id, volgorde: r.punt_volgorde, punt_naam: r.punt_naam, vraag_tekst: r.vraag_tekst, vraag_type: r.vraag_type,
-          aantal: 0, goed: 0, wacht: 0, juiste: r.juiste_antwoord, fout: new Map() };
+          aantal: 0, goed: 0, wacht: 0, juiste: r.juiste_antwoord, fout: new Map(), foutIds: [] };
         stats.set(r.punt_id, s);
       }
       s.aantal++;
@@ -29,8 +33,10 @@ export default function VraagStatistiek({ teams }: { teams: TeamAntwoorden[] }) 
         // Foute antwoorden samen tellen, ongeacht hoofdletters en spaties
         const tekst = (r.antwoord ?? "").trim() || "(geen antwoord)";
         const sleutel = tekst.toLowerCase().replace(/\s+/g, " ");
-        const f = s.fout.get(sleutel) ?? { tekst, n: 0 };
+        const f = s.fout.get(sleutel) ?? { tekst, n: 0, ids: [] };
         f.n++;
+        f.ids.push(r.voortgang_id);
+        s.foutIds.push(r.voortgang_id);
         s.fout.set(sleutel, f);
       }
     }
@@ -64,11 +70,27 @@ export default function VraagStatistiek({ teams }: { teams: TeamAntwoorden[] }) 
               {fouten.length > 0 && (
                 <div style={{ fontSize: "0.78rem", color: "var(--muted)", display: "flex", flexWrap: "wrap", gap: "4px 10px" }}>
                   <span>Fout:</span>
-                  {fouten.slice(0, 6).map((f) => (
+                  {fouten.slice(0, 6).map((f) => onOokGoed && f.tekst !== "(geen antwoord)" ? (
+                    // Tik op een fout antwoord om het voor alle teams alsnog goed te rekenen
+                    <BevestigKnop key={f.tekst} venster gevaarlijk={false} icoon="✅" titel={`“${f.tekst}” ook goed rekenen?`}
+                      className="stat-fout-knop" tip="Dit antwoord toch goed rekenen"
+                      vraag={`${f.n} ${f.n === 1 ? "team krijgt" : "teams krijgen"} alsnog de punten.${s.vraag_type === "open" ? " Bij deze open vraag telt het antwoord voortaan ook goed." : ""}`}
+                      ja="✓ Ook goed rekenen" onBevestig={() => onOokGoed(f.ids, s.vraag_type === "open" ? f.tekst : null)}>
+                      “{f.tekst}”{f.n > 1 && <strong> {f.n}×</strong>} <span className="stat-fout-plus">✓</span>
+                    </BevestigKnop>
+                  ) : (
                     <span key={f.tekst} style={{ color: "#FCA5A5" }}>“{f.tekst}”{f.n > 1 && <strong> {f.n}×</strong>}</span>
                   ))}
                   {s.juiste && <span style={{ color: "#BBF7D0" }}>· goed: {s.juiste}</span>}
                 </div>
+              )}
+              {/* Klopte de vraag zelf niet? Dan iedereen goed */}
+              {onOokGoed && s.foutIds.length > 1 && (
+                <BevestigKnop venster gevaarlijk={false} icoon="🏳️" titel="Iedereen goed rekenen?" className="es-link" tip="Bijv. als de vraag of het goede antwoord niet klopte"
+                  vraag={`Alle ${s.foutIds.length} teams met een fout antwoord krijgen alsnog de punten van deze vraag.`}
+                  ja="✓ Iedereen goed" onBevestig={() => onOokGoed(s.foutIds, null)}>
+                  🏳️ Klopte de vraag niet? Iedereen goed rekenen
+                </BevestigKnop>
               )}
             </div>
           </div>

@@ -13,7 +13,7 @@ export async function PATCH(
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { status, punten } = await request.json();
+  const { status, punten, opmerking } = await request.json();
   if (status !== "goedgekeurd" && status !== "afgekeurd") {
     return NextResponse.json({ fout: "Ongeldige status" }, { status: 400 });
   }
@@ -38,6 +38,21 @@ export async function PATCH(
     punten_toegekend: puntentoekenend,
     beoordeeld_op: new Date().toISOString(),
   }).eq("id", params.id);
+
+  // 💬 Opmerking bij het keuren: komt meteen als bericht bij het team (zoals een teambericht)
+  const tekst = typeof opmerking === "string" ? opmerking.trim().slice(0, 110) : "";
+  if (tekst) {
+    const [{ data: sessie }, { data: punt }] = await Promise.all([
+      admin.from("player_sessions").select("player_id").eq("id", inzending.session_id).maybeSingle(),
+      admin.from("route_points").select("name").eq("id", inzending.route_point_id).maybeSingle(),
+    ]);
+    if (sessie?.player_id) {
+      await admin.from("broadcasts").insert({
+        bericht: `📸 ${status === "goedgekeurd" ? "Foto goedgekeurd" : "Foto afgekeurd"}${punt?.name ? ` (${punt.name})` : ""}: ${tekst}`.slice(0, 150),
+        player_id: sessie.player_id,
+      });
+    }
+  }
 
   // Voortgang bijwerken. Het punt is normaal al afgerond bij het insturen (het team speelde
   // meteen door); alleen bij oudere inzendingen zetten we answered_at hier alsnog.

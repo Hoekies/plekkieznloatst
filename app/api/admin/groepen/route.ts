@@ -14,14 +14,16 @@ export async function GET() {
   const admin = createAdminClient();
   const [{ data, error }, { data: lopend }] = await Promise.all([
     admin.from("players").select("*").order("created_at"),
-    admin.from("player_sessions").select("player_id").eq("status", "actief"),
+    admin.from("player_sessions").select("player_id, status").in("status", ["actief", "voltooid"]),
   ]);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
   // Heeft de groep een lopend spel? (bepaalt of 'Spel stoppen' zichtbaar is)
-  const metSpel = new Set((lopend ?? []).map((s) => s.player_id));
+  const metSpel = new Set((lopend ?? []).filter((s) => s.status === "actief").map((s) => s.player_id));
+  // Gefinisht (en niet opnieuw bezig): voor de status-stip
+  const klaar = new Set((lopend ?? []).filter((s) => s.status === "voltooid").map((s) => s.player_id));
   // De versleutelde wachtwoordkopie gaat niet mee naar de browser
-  return NextResponse.json((data ?? []).map(({ wachtwoord_versleuteld: _ww, ...g }) => ({ ...g, heeft_spel: metSpel.has(g.id) })));
+  return NextResponse.json((data ?? []).map(({ wachtwoord_versleuteld: _ww, ...g }) => ({ ...g, heeft_spel: metSpel.has(g.id), gefinisht: !metSpel.has(g.id) && klaar.has(g.id) })));
 }
 
 // POST — nieuwe groep aanmaken

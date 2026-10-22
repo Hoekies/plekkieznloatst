@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
+// ✏️ Teamnaam aanpassen door de beheerder (bijv. een ongepaste naam): PATCH { nickname }
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const user = await haalGebruiker();
+  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  // Zelfde regel als bij de speler zelf: hooguit 30 tekens; leeg = de speler kiest opnieuw
+  const naam = typeof body?.nickname === "string" ? body.nickname.trim().slice(0, 30) : null;
+  if (naam === null) return NextResponse.json({ fout: "Teamnaam ontbreekt" }, { status: 400 });
+  const { error } = await createAdminClient().from("players").update({ nickname: naam || null }).eq("id", params.id);
+  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true, nickname: naam || null });
+}
+
 // Een speler helemaal verwijderen: inlogaccount, spellen (score, antwoorden, gelopen route, foto's)
 // en zijn regels in het itemlogboek. Daarna is de loginnaam weer vrij.
 // Niet zolang er een spel loopt: dan eerst "Stop spel" (voorkomt een vergissing midden in het spel).

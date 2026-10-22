@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
+import { tekstAfstand, normaliseerAntwoord } from "@/lib/geo";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -20,6 +21,8 @@ export type AntwoordRij = {
   foto_status: "wacht" | "goedgekeurd" | "afgekeurd" | null;
   // Fout of half goed beantwoord: de beheerder kan het alsnog goedkeuren
   kan_goedkeuren: boolean;
+  // Open vraag fout, maar hooguit twee tikfouten van een goed antwoord: waarschijnlijk toch goed
+  bijna_goed: boolean;
 };
 
 export type TeamAntwoorden = {
@@ -106,6 +109,8 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
         foto_pad: foto?.foto_pad ?? null,
         foto_status: (foto?.status as AntwoordRij["foto_status"]) ?? null,
         kan_goedkeuren: (isMeerkeuze || vraag.type === "open") && v.is_correct !== true,
+        bijna_goed: vraag.type === "open" && v.is_correct !== true && vraag.numeric_answer == null && !!v.open_answer_text
+          && (vraag.correct_text_answers ?? []).some((g) => normaliseerAntwoord(g).length >= 4 && tekstAfstand(v.open_answer_text!, g) <= 2),
       });
     }
     return {

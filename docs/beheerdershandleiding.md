@@ -308,6 +308,11 @@ Elke "speler" in het beheer is één team met één inlog.
 
 Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook op het dashboard, de tijdlijn en de live kaart.
 
+- **Status in één oogopslag**: het stipje rechtsonder op het icoon is groen (speelt), blauw (ingelogd), goud (gefinisht), grijs (niet ingelogd) of rood (uitgeschakeld). Op de pc staat het woord er ook bij.
+- **🔍 Zoeken en sorteren** (vanaf 5 spelers): zoek op naam, login of telefoonnummer en sorteer op **🔤 Naam**, **⚡ Status** of **🆕 Nieuwst** (wordt onthouden).
+- **✏️ Teamnaam aanpassen**: het potloodje achter de naam. Handig bij een ongepaste naam; leeg maken = het team kiest bij de start opnieuw.
+- **🖨️ Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
+
 #### Meerdere spelers tegelijk
 
 Met **👫 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spelers aan. Kies het aantal en hoe de loginnaam begint (standaard *speler*): je krijgt dan bijvoorbeeld speler1, speler2, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord zoals *tijger47*. Daarna zie je meteen de lijst met inloggegevens (zie hieronder).
@@ -513,7 +518,13 @@ Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je 
 
 Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag in de volgorde waarin ze gelopen zijn: het gegeven antwoord, het goede antwoord en de punten.
 
+- **Per team inklapbaar** — dicht zie je alleen de telling (✓ goed, ✗ fout, 🤏 bijna goed, 📸 te keuren); tik op de kop om open te klappen. Teams waar iets te doen is staan vanzelf open. Met **▾ Alles open / ▸ Alles dicht** in één keer.
+- **🤏 Bijna goed** — een fout open antwoord dat maar één of twee tikfouten van het goede scheelt, staat oranje gemarkeerd met een groene **✓ Toch goed**. De knop **🤏 Te bekijken** bovenaan toont alleen die antwoorden en de foto's die nog gekeurd moeten worden.
 - **👫 Per team / 📊 Per vraag** — met *Per vraag* zie je per vraag (op volgorde van de route) hoeveel teams hem goed hadden, als percentage met een balk (groen, oranje of rood), en welke **foute antwoorden** vaak voorkwamen, met het goede antwoord erbij. Zo zie je snel of een vraag te moeilijk of verkeerd ingesteld is. Foto-opdrachten tellen mee zodra ze gekeurd zijn.
+- **Achteraf goed rekenen voor alle teams** (📊 Per vraag) — tik op een fout antwoord (gestippeld, met ✓) om het voor álle teams met dat antwoord alsnog goed te rekenen; bij een open vraag telt dat antwoord daarna ook goed voor teams die nog moeten komen. Klopte de vraag zelf niet? Met **🏳️ Iedereen goed rekenen** krijgen alle teams de punten.
+- **📸 Foto's** — alle ingestuurde foto's als galerij; de foto's die nog gekeurd moeten worden staan vooraan (oranje rand). Tik voor groot, blader met ‹ › of de pijltjestoetsen, en keur met punten en eventueel een **💬 opmerking**.
+- **💬 Opmerking bij het keuren** (galerij en 📷 Foto's beoordelen): bijv. *Jullie staan er niet allemaal op*. Het team krijgt die meteen als bericht in de app.
+- **📥 Excel** — alle antwoorden als bestand (per team en per vraag: antwoord, goed antwoord, goed/fout en punten) om in Excel te openen.
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
 - **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Tik je op de pushmelding *"📸 Nieuwe foto"*, dan opent dit venster meteen.
