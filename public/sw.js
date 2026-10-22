@@ -1,6 +1,7 @@
 // Kleine service worker: maakt PointRush installeerbaar als app (Android: "App installeren").
-// Hij bewaart niets: alles komt altijd vers van het internet. Alleen als er geen verbinding is,
-// krijgt een geopende pagina een nette melding in plaats van de foutpagina van de browser.
+// Pagina's komen altijd vers van het internet; zonder verbinding krijgt een geopende pagina een nette
+// melding in plaats van de foutpagina van de browser. Alleen kaarttegels worden bewaard, zodat de kaart
+// ook werkt waar het bereik wegvalt (bos, weiland).
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
@@ -45,8 +46,45 @@ self.addEventListener("notificationclick", (event) => {
   })());
 });
 
+// Kaarttegels: eerst uit de opslag (tegels veranderen bijna nooit), anders van internet en bewaren.
+// Stijl- en tegelbeschrijvingen (.json) juist eerst van internet, met de bewaarde versie als reserve.
+const KAART_CACHE = "pr-kaart-v1";
+const KAART_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org", "service.pdok.nl", "server.arcgisonline.com"];
+const MAX_KAART = 4000;
+let bewaard = 0;
+async function kaartVerzoek(request) {
+  const cache = await caches.open(KAART_CACHE);
+  const tegel = /\.(pbf|mvt|png|jpe?g|webp)$/i.test(new URL(request.url).pathname) || /\/tile\/\d+\/\d+\/\d+$/.test(request.url);
+  if (tegel) {
+    const oud = await cache.match(request);
+    if (oud) return oud;
+  }
+  try {
+    const res = await fetch(request);
+    // Ondoorzichtige antwoorden (plaatjes zonder CORS) niet: die nemen in de opslag veel te veel ruimte in
+    if (res.ok && res.type !== "opaque") {
+      await cache.put(request, res.clone());
+      if (++bewaard % 200 === 0) ruimKaartCacheOp(cache);
+    }
+    return res;
+  } catch (fout) {
+    const oud = await cache.match(request);
+    if (oud) return oud;
+    throw fout;
+  }
+}
+// Te veel tegels bewaard: de oudste weg
+async function ruimKaartCacheOp(cache) {
+  const sleutels = await cache.keys();
+  for (const s of sleutels.slice(0, Math.max(0, sleutels.length - MAX_KAART))) await cache.delete(s);
+}
+
 self.addEventListener("fetch", (event) => {
-  // Alleen het openen van pagina's; al het andere gaat zoals altijd rechtstreeks naar het netwerk
+  if (event.request.method === "GET" && KAART_HOSTS.includes(new URL(event.request.url).hostname)) {
+    event.respondWith(kaartVerzoek(event.request));
+    return;
+  }
+  // Verder alleen het openen van pagina's; al het andere gaat zoals altijd rechtstreeks naar het netwerk
   if (event.request.mode !== "navigate") return;
   event.respondWith(
     fetch(event.request).catch(() => new Response(OFFLINE, { headers: { "Content-Type": "text/html; charset=utf-8" } })),

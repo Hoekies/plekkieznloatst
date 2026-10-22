@@ -14,13 +14,15 @@ type Vraag = { type: string; question_text: string; points: number; correct_text
 const KLEUR: Record<string, string> = { geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A" };
 const SOORT: Record<string, string> = { meerkeuze_tekst: "Meerkeuze", meerkeuze_afbeelding: "Meerkeuze met plaatjes", open: "Open vraag", foto_opdracht: "Foto-opdracht" };
 
-export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar, onSluit }: {
+export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar, onSluit, onLopen }: {
   routeId: string;
   punten: RoutePunt[];
   items: SpeciaalItem[];
   verspreid: boolean;
   onGaNaar: (lat: number, lng: number) => void;
   onSluit: () => void;
+  // Terug naar testen door over de kaart te lopen
+  onLopen?: () => void;
 }) {
   const [stap, setStap] = useState(0);
   const [vraag, setVraag] = useState<Vraag | null | undefined>(undefined);
@@ -52,12 +54,13 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 14px 12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="pr-gem-label">🧪 Testronde · {stap + 1} van {punten.length}</div>
+            <div className="pr-gem-label">🧪 Testen · 📋 punt voor punt · {stap + 1} van {punten.length}</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {label} · {punt.name || "naamloos"}
             </div>
           </div>
-          <button type="button" className="editor-paneel-sluit" onClick={onSluit} aria-label="Testronde sluiten">✕</button>
+          {onLopen && <button type="button" className="es-link" onClick={onLopen} title="Over de kaart lopen als testspeler">🚶 Lopen</button>}
+          <button type="button" className="editor-paneel-sluit" onClick={onSluit} aria-label="Testen sluiten">✕</button>
         </div>
 
         <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>

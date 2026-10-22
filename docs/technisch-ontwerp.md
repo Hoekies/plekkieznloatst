@@ -68,7 +68,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 013 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 015 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```
@@ -191,6 +191,11 @@ plekkie-zn-loatst/
 | public_longitude | float8 | Afgerond ~50m (voor andere spelers) |
 | created_at | timestamptz | |
 
+Ouder dan 30 dagen: elke nacht verwijderd (pg_cron-job `pointrush-opruimen`, migratie 015), of met de knop in de Systeemcheck. De speler stuurt een plek bij 10 m verplaatsing (ver van elk open punt: 25 m, max. elke 10 s) en anders hooguit een levensteken per minuut.
+
+#### `client_fouten` (migratie 015)
+Fouten van het foutscherm (`components/shared/FoutScherm.tsx` → `POST /api/fout`): rol, wie, pad, bericht, details (stack), browser. Alleen de service role (RLS aan, geen policies); getoond in de Systeemcheck via `/api/admin/fouten`. Ook na 30 dagen weg.
+
 ---
 
 ## 4. Constraints & regels
@@ -311,6 +316,9 @@ plekkie-zn-loatst/
 | Reset tijdens actief spel | Sessie markeert als `vervallen`; speler ziet melding bij volgende actie |
 | Import JSON | Validatie vóór opslaan; route wordt niet automatisch actief |
 | Numerieke invoer komma/punt | Normaliseren: `"1,5"` → `1.5` vóór vergelijking |
+| Open tekstantwoord met tikfout | `tekstKlopt` (lib/geo.ts): zonder hoofdletters, accenten en leestekens; bij 5+ tekens Damerau-Levenshtein ≤ 1 |
+| Geen bereik onderweg | Service worker bewaart kaarttegels (`pr-kaart-v1`, max. 4000, cache-first); bij de start haalt `lib/kaart-offline.ts` de vectortegels z10–14 rond de punten op (max. 200) |
+| Scherm uit / app op achtergrond | Status- en locatiepolls slaan over; bij terugkomen meteen bijwerken |
 
 ---
 

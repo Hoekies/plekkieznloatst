@@ -58,7 +58,7 @@ Punten die je nog niet mag bezoeken zijn **niet zichtbaar**. Pas als je het huid
 
 Navigeer naar het genummerde punt. Ben je er, dan springt de vraag vanzelf open.
 
-- **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten.
+- **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten. Bij een open vraag mag er in een langer woord één tikfout zitten.
 - **Infopunt** — Er verschijnt informatie, geen vraag.
 - **Eindpunt** — Je hebt de lus rond. Je eindtijd en eindscore worden vastgelegd.
 

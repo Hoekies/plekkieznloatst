@@ -22,6 +22,11 @@ export interface Route {
   item_respawn: boolean;
   // Op volgorde: spelers zien meteen alle punten en de lijn ertussen (migratie 012)
   alle_punten_zichtbaar?: boolean;
+  // 🧩 Puzzelwoord (leeg = uit) en de bonus bij goed raden; verboden gebieden op de kaart (migratie 014)
+  puzzelwoord?: string | null;
+  puzzel_bonus?: number;
+  puzzel_omschrijving?: string | null;
+  verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;
   spook_duur_seconden: number;
@@ -81,6 +86,10 @@ export interface Vraag {
   correct_text_answers: string[] | null;
   numeric_answer: number | null;
   numeric_tolerance: number | null;
+  // Per vraag aan of uit (migratie 014)
+  antwoorden_husselen?: boolean;
+  geluid_pad?: string | null;           // geluidsfragment in de opslag "vraag-geluid"
+  tijdslimiet_seconden?: number | null;  // null = geen tijdslimiet
   created_at: string;
   updated_at: string;
 }

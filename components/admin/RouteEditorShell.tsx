@@ -12,23 +12,26 @@ import { duurKort } from "@/lib/tijd";
 import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
 import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
 import BevestigKnop from "@/components/admin/BevestigKnop";
-import VraagEditorPagina, { type VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
+import type { VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
 import { toonMelding } from "@/components/admin/Melding";
 import { naamWoorden, isStandaardNaam } from "@/lib/punt-naam";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
 import { MODUS_INFO, ModusIcoon, ModusTegel } from "./RouteModus";
 import { ITEM_UITLEG } from "./editor/item-uitleg";
 import { StatusPil, SpeciaalItemForm, PuntForm } from "./editor/Formulieren";
-import TestRonde from "./editor/TestRonde";
 import { meldActieveRouteGewijzigd } from "./ActieveRouteLabel";
 import PuntenImporteren from "./editor/PuntenImporteren";
 import { loopNaar, NIEUWE_PROEF, type ProefStand } from "./editor/proeflopen";
-import EersteStappen, { type KiesModus } from "@/components/admin/editor/EersteStappen";
+import type { KiesModus } from "@/components/admin/editor/EersteStappen";
 import ControleVenster from "./editor/ControleVenster";
-import AlleVragenVenster from "./editor/AlleVragenVenster";
 import { routeControle } from "@/lib/route-controle";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
+// Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
+const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
+const TestRonde = dynamic(() => import("./editor/TestRonde"), { ssr: false });
+const AlleVragenVenster = dynamic(() => import("./editor/AlleVragenVenster"), { ssr: false });
+const EersteStappen = dynamic(() => import("@/components/admin/editor/EersteStappen"), { ssr: false });
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
 
 type RouteMetPunten = Route & {
@@ -115,11 +118,52 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   // 🚶 Proeflopen: klik over de kaart en loop als testspeler mee (er wordt niets opgeslagen)
   const [proef, setProef] = useState<ProefStand | null>(null);
+  // ⛔ Verboden gebieden: tekenen door hoekpunten aan te tikken
+  const [gebieden, setGebieden] = useState<{ naam: string; punten: [number, number][] }[]>(initRoute.verboden_gebieden ?? []);
+  const [tekenGebied, setTekenGebied] = useState<[number, number][] | null>(null);
+  const [gebiedNaam, setGebiedNaam] = useState("");
+  async function slaGebiedenOp(nieuw: { naam: string; punten: [number, number][] }[]) {
+    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ verboden_gebieden: nieuw }) });
+    if (res.ok) setGebieden(nieuw);
+    return res.ok;
+  }
+  async function gebiedKlaar() {
+    if (!tekenGebied || tekenGebied.length < 3) return;
+    if (await slaGebiedenOp([...gebieden, { naam: gebiedNaam.trim() || `Verboden gebied ${gebieden.length + 1}`, punten: tekenGebied }])) {
+      setTekenGebied(null); setGebiedNaam("");
+      toonMelding("Verboden gebied opgeslagen: teams krijgen een waarschuwing als ze erin lopen", "ok");
+    }
+  }
   // Meerdere punten tegelijk: kiezen in de lijst, dan soort wijzigen of een straatnaam geven
   const [kiesModus, setKiesModus] = useState(false);
   const [gekozenIds, setGekozenIds] = useState<Set<string>>(new Set());
   const [namenBezig, setNamenBezig] = useState<string | null>(null);
   const [instellingenOpen, setInstellingenOpen] = useState(false);
+  // Instellingen die bijna niemand aanpast staan achter "⚙️ Meer instellingen"
+  const [meerInstellingen, setMeerInstellingen] = useState(false);
+  // 🧩 Puzzelwoord (opslaan bij het verlaten van het veld)
+  const [puzzelwoord, setPuzzelwoord] = useState(initRoute.puzzelwoord ?? "");
+  const [puzzelBonus, setPuzzelBonus] = useState(initRoute.puzzel_bonus ?? 100);
+  const [puzzelOmschrijving, setPuzzelOmschrijving] = useState(initRoute.puzzel_omschrijving ?? "");
+  // ✨ Woord laten bedenken uit de omschrijving (Claude, of gratis via Wiktionary)
+  const [puzzelVoorstellen, setPuzzelVoorstellen] = useState<{ woord: string; omschrijving: string }[] | null>(null);
+  const [puzzelZoekt, setPuzzelZoekt] = useState(false);
+  async function bedenkPuzzelwoord() {
+    setPuzzelZoekt(true); setPuzzelVoorstellen(null);
+    const res = await fetch(`/api/admin/puzzel-ideeen?vraag=${encodeURIComponent(puzzelOmschrijving)}`).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    setPuzzelZoekt(false);
+    if (!res?.ok) { toonMelding(data.fout ?? "Bedenken lukte niet", "fout"); return; }
+    setPuzzelVoorstellen(data.woorden);
+  }
+  async function kiesPuzzelvoorstel(v: { woord: string; omschrijving: string }) {
+    setPuzzelwoord(v.woord); setPuzzelOmschrijving(v.omschrijving); setPuzzelVoorstellen(null);
+    await slaPuzzelOp({ puzzelwoord: v.woord, puzzel_omschrijving: v.omschrijving });
+  }
+  async function slaPuzzelOp(velden: { puzzelwoord?: string; puzzel_bonus?: number; puzzel_omschrijving?: string }) {
+    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
+    if (res.ok) setRoute((r) => ({ ...r, ...velden }));
+  }
   // Verspreid: teams die het rondje andersom lopen
   const [omgekeerdeTeams, setOmgekeerdeTeams] = useState<number[]>(initRoute.omgekeerde_teams ?? []);
   async function wisselAndersom(team: number) {
@@ -783,7 +827,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       }
       setGeselecteerd(nieuw);
       setAddModus(false);
+      geefNieuwPuntEenNaam(nieuw);
     }
+  }
+
+  // Nieuw punt krijgt vanzelf de straatnaam (of de naam van een gebouw); lukt dat niet, dan blijft "Punt N"
+  async function geefNieuwPuntEenNaam(nieuw: RoutePunt) {
+    const res = await fetch(`/api/admin/geocode?lat=${nieuw.latitude}&lng=${nieuw.longitude}`).catch(() => null);
+    const naam = res?.ok ? (await res.json()).naam as string : null;
+    if (!naam) return;
+    const bezet = new Set(punten.map((p) => p.name));
+    let keer = 1;
+    while (bezet.has(keer > 1 ? `${naam} ${keer}` : naam)) keer++;
+    const nieuweNaam = keer > 1 ? `${naam} ${keer}` : naam;
+    const opgeslagen = await api(`/api/admin/routes/${route.id}/punten/${nieuw.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: nieuweNaam }),
+    });
+    if (!opgeslagen.ok) return;
+    // Alleen als de naam intussen niet zelf veranderd is
+    setPunten((ps) => ps.map((p) => p.id === nieuw.id && p.name === nieuw.name ? { ...p, name: nieuweNaam } : p));
+    setGeselecteerd((g) => g && g.id === nieuw.id && g.name === nieuw.name ? { ...g, name: nieuweNaam } : g);
   }
 
   async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string, openPaneel = true) {
@@ -833,6 +896,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
 
   async function kaartKlik(lat: number, lng: number) {
+    // Verboden gebied tekenen: elke klik is een hoekpunt
+    if (tekenGebied) { setTekenGebied((t) => t && [...t, [lat, lng]]); return; }
     // Proeflopen: de klik is de plek waar je naartoe loopt
     if (proef) { setProef((s) => s && loopNaar(s, { lat, lng }, punten, specialeItems, vraagPuntIds)); return; }
     // Eerste stappen: start, finish of punten aantikken
@@ -1258,14 +1323,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     </>
   );
 
-  // Waar staat de route: ✏️ Bewerken → 🩺 Controleren → ✅ Klaar → ▶ Actief
-  // (database: concept / gepubliceerd / is_active). Daarnaast één opvallende knop voor de volgende stap.
-  const fase = route.is_active ? 3 : route.status === "gepubliceerd" ? 2 : 0;
+  // Waar staat de route: ✏️ Bewerken → 🩺 Controleren → ▶ Actief (database: concept / gepubliceerd / is_active).
+  // "Klaar" (gepubliceerd, niet actief) telt als gecontroleerd. Daarnaast één opvallende knop: ▶ Starten.
+  const fase = route.is_active ? 2 : route.status === "gepubliceerd" ? 1 : 0;
   const statusGroep = (
     <>
             {/* Computer: de stappen; telefoon: alleen het statuslabel */}
             <span className="route-stappen" aria-label="Voortgang van de route">
-              {(["Bewerken", "Controleren", "Klaar", "Actief"] as const).map((naam, i) => {
+              {(["Bewerken", "Controleren", "Actief"] as const).map((naam, i) => {
                 const cls = `route-stap${i < fase ? " route-stap--gedaan" : i === fase ? " route-stap--nu" : ""}`;
                 return (
                   <Fragment key={naam}>
@@ -1287,12 +1352,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* De volgende stap */}
             {!route.is_active && route.status !== "gepubliceerd" && (
               <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                title="Eerst controleren; is alles in orde, dan zet je de route klaar">✅ Klaarzetten</button>
+                title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen">▶ Starten</button>
             )}
             {!route.is_active && route.status === "gepubliceerd" && (
               <>
                 <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                  title="Laatste controle, daarna kunnen de spelers beginnen">▶ Activeren</button>
+                  title="Laatste controle, daarna kunnen de spelers beginnen">▶ Starten</button>
                 <button className="rl-knop" onClick={() => zetStatus("concept")}
                   title="Terug naar concept (weer bewerken voordat je activeert)">↩<span className="alleen-pc"> Concept</span></button>
               </>
@@ -1370,14 +1435,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
             📝<span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
           </button>
-          <button className={`rl-knop${proef ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
-            onClick={() => { setProef((p) => (p ? null : NIEUWE_PROEF)); setGeselecteerd(null); setTestOpen(false); }}
-            title="Proeflopen: klik over de kaart en loop als testspeler mee; punten, items en vallen gaan af zoals op straat">
-            🚶<span className="alleen-pc"> Proeflopen</span>
-          </button>
-          <button className={`rl-knop${testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length} onClick={() => setTestOpen((o) => !o)}
-            title="Testronde: de route punt voor punt doorlopen, met de vragen zoals de speler ze ziet">
-            🧪<span className="alleen-pc"> Test</span>
+          <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
+            onClick={() => { const aan = !(proef || testOpen); setProef(aan ? NIEUWE_PROEF : null); setTestOpen(false); setGeselecteerd(null); }}
+            title="Testen: klik over de kaart en loop als testspeler mee (punten, items en vallen gaan af zoals op straat), of bekijk de vragen punt voor punt">
+            🧪<span className="alleen-pc"> Testen</span>
           </button>
 
           <span className="editor-balk-scheiding" aria-hidden />
@@ -1385,6 +1446,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-groep editor-gereedschap">
             {/* Importeren alleen bij "Op volgorde": bij een rondje maakt de app de punten zelf */}
             {route.modus === "sequentieel" && <PuntenImporteren routeId={route.id} straal={puntRadius} heeftFinish={punten[punten.length - 1]?.type === "eindpunt"} leeg={punten.length === 0} onKlaar={herlaadPunten} />}
+            <button type="button" className={`rl-knop${tekenGebied ? " rl-knop--cyan" : ""}`} onClick={() => { setTekenGebied((t) => (t ? null : [])); setProef(null); setGeselecteerd(null); }}
+              title="Verboden gebied tekenen: tik de hoeken aan op de kaart (bijv. een drukke weg of privéterrein)">
+              ⛔<span className="alleen-pc"> Verboden gebied</span>
+            </button>
             <BevestigKnop venster gevaarlijk={false} icoon="🧲" titel="Alle punten op de weg zetten?"
               vraag="" uitleg={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Terugzetten kan met ↶ Ongedaan.`}
               ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
@@ -1975,8 +2040,54 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </>
                 )}
 
+                {/* 🧩 Puzzelwoord: elke goede vraag geeft een letter; bij de finish raden voor bonuspunten */}
+                {instellingenTab === "algemeen" && (
+                  <div className="form-group">
+                    <label className="form-label">🧩 Puzzelwoord</label>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <input className="form-input" value={puzzelwoord} maxLength={30} placeholder="Leeg = uit, bijv. KASTEEL"
+                        onChange={(e) => setPuzzelwoord(e.target.value.toUpperCase())} onBlur={() => slaPuzzelOp({ puzzelwoord })} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
+                      <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>bonus</span>
+                      <input className="form-input" type="number" min={0} value={puzzelBonus} style={{ width: 80 }}
+                        onChange={(e) => setPuzzelBonus(Math.max(0, Number(e.target.value)))} onBlur={() => slaPuzzelOp({ puzzel_bonus: puzzelBonus })} />
+                    </div>
+                    {/* Omschrijving voor de spelers; ook de vraag voor ✨ Bedenk een woord */}
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <input className="form-input" value={puzzelOmschrijving} maxLength={120} placeholder="Omschrijving, bijv. Een ander woord voor slot (7 letters)"
+                        onChange={(e) => setPuzzelOmschrijving(e.target.value)} onBlur={() => slaPuzzelOp({ puzzel_omschrijving: puzzelOmschrijving })} style={{ flex: "1 1 220px" }} />
+                      <button type="button" className="rl-knop" disabled={!puzzelOmschrijving.trim() || puzzelZoekt} onClick={bedenkPuzzelwoord}
+                        title="De app bedenkt woorden die bij de omschrijving passen">{puzzelZoekt ? "⏳ Bedenken…" : "✨ Bedenk een woord"}</button>
+                    </div>
+                    {puzzelVoorstellen && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {puzzelVoorstellen.map((v) => (
+                          <button key={v.woord} type="button" className="rl-knop" onClick={() => kiesPuzzelvoorstel(v)} title={v.omschrijving}
+                            style={{ letterSpacing: "0.08em", fontWeight: 800 }}>{v.woord} <span style={{ fontWeight: 400, color: "var(--muted)", letterSpacing: 0 }}>({v.woord.length})</span></button>
+                        ))}
+                      </div>
+                    )}
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      De spelers zien de omschrijving boven de tegeltjes. Elke goede vraag geeft een letter op een willekeurige plek; bij de finish raden de teams het woord voor de bonus.
+                      {puzzelwoord.replace(/[^A-Z0-9]/gi, "").length > vraagpunten.length && ` ⚠️ Het woord heeft meer letters dan er vragen zijn (${vraagpunten.length}).`}
+                    </span>
+                  </div>
+                )}
+
                 {instellingenTab === "punten" && (
                   <>
+                    {/* ⛔ Verboden gebieden: overzicht, verwijderen */}
+                    {gebieden.length > 0 && (
+                      <div className="form-group">
+                        <label className="form-label">⛔ Verboden gebieden</label>
+                        {gebieden.map((g, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem" }}>
+                            <span style={{ flex: 1 }}>{g.naam} <span style={{ color: "var(--muted)" }}>· {g.punten.length} hoeken</span></span>
+                            <button type="button" className="rl-knop" title="Verwijderen" onClick={() => slaGebiedenOp(gebieden.filter((_, j) => j !== i))}>🗑️</button>
+                          </div>
+                        ))}
+                        <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Teams zien deze gebieden rood op de kaart en krijgen een waarschuwing als ze erin lopen. Nieuw gebied: ⛔ bovenin de editor.</span>
+                      </div>
+                    )}
                 {/* Op volgorde: wat zien de spelers op de kaart */}
                 {route.modus === "sequentieel" && (
                   <div className="form-group">
@@ -2008,13 +2119,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
                     </div>
-                    <div className="form-group">
+                    <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                      {meerInstellingen ? "▾ Minder instellingen" : "⚙️ Meer instellingen ▸"}
+                    </button>
+                    {meerInstellingen && <div className="form-group">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
                       <input className="form-input" type="number" min={0} value={puntPunten}
                         onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
                         onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
-                    </div>
+                    </div>}
                   </>
                 )}
 
@@ -2028,7 +2142,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle items.</span>
                     </div>
                 {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
-                {route.modus === "verspreid" && (
+                {meerInstellingen && route.modus === "verspreid" && (
                   <div className="form-group">
                     <label className="form-label">⭐ Item-waarden</label>
                     <div style={{ display: "flex", gap: 10 }}>
@@ -2055,7 +2169,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Duur van spook en plekzooi */}
-                {(
+                {meerInstellingen && (
                   <div className="form-group">
                     <label className="form-label">⏱️ Duur van effecten (minuten)</label>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -2131,7 +2245,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Items na de finish */}
-                {(
+                {meerInstellingen && (
                   <div className="form-group">
                     <label className="form-label">🎁 Items inzetten na de finish</label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -2161,7 +2275,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                 {/* Respawn */}
-                {route.modus === "verspreid" && (
+                {meerInstellingen && route.modus === "verspreid" && (
                   <div className="form-group">
                     <label className="form-label">🔄 Respawn (verspreid-modus)</label>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -2209,7 +2323,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       )}
                     </div>
                   </div>
-                )}                  </>
+                )}
+                <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                  {meerInstellingen ? "▾ Minder instellingen" : "⚙️ Meer instellingen ▸"}
+                </button>
+                  </>
                 )}
 
               </div>
@@ -2230,6 +2348,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} onKlaarzetten={() => zetStatus("gepubliceerd")} />
         )}
 
+        {/* ⛔ Verboden gebied tekenen */}
+        {tekenGebied && (
+          <div className="proefloop" role="status" style={{ borderColor: "rgba(220,38,38,0.7)" }}>
+            <div className="proefloop-kop">
+              <span className="proefloop-titel">⛔ Verboden gebied</span>
+              <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => { setTekenGebied(null); setGebiedNaam(""); }} title="Stoppen" aria-label="Stoppen">✕</button>
+            </div>
+            <div className="proefloop-nu">{tekenGebied.length < 3 ? `👆 Tik de hoeken aan op de kaart (nog ${3 - tekenGebied.length} of meer).` : `${tekenGebied.length} hoeken. Tik er meer aan, of sla op.`}</div>
+            <input className="form-input" value={gebiedNaam} onChange={(e) => setGebiedNaam(e.target.value)} placeholder="Naam, bijv. Drukke weg" maxLength={40} />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button type="button" className="rl-knop" disabled={!tekenGebied.length} onClick={() => setTekenGebied((t) => t && t.slice(0, -1))}>↶ Laatste hoek</button>
+              <button type="button" className="rl-knop hoofdknop" style={{ flex: 1, justifyContent: "center" }} disabled={tekenGebied.length < 3} onClick={gebiedKlaar}>✓ Opslaan</button>
+            </div>
+          </div>
+        )}
+
         {/* Proeflopen: wat er gebeurt terwijl je over de kaart klikt */}
         {proef && (() => {
           const volgende = punten[proef.volgende];
@@ -2237,7 +2371,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           return (
             <div className="proefloop" role="status">
               <div className="proefloop-kop">
-                <span className="proefloop-titel">🚶 Proeflopen</span>
+                <span className="proefloop-titel">🧪 Testen · 🚶 lopen</span>
                 <span className="proefloop-km">{(proef.gelopenM / 1000).toFixed(2).replace(".", ",")} km</span>
                 <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setProef(null)} title="Stoppen" aria-label="Stoppen">✕</button>
               </div>
@@ -2251,7 +2385,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {proef.log.slice(0, 6).map((r, i) => <div key={`${proef.log.length - i}`} className={`proefloop-regel proefloop-regel--${r.soort}`}>{r.tekst}</div>)}
                 </div>
               )}
-              {proef.pos && <button type="button" className="es-link" onClick={() => setProef(NIEUWE_PROEF)}>↺ Opnieuw beginnen</button>}
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                {proef.pos && <button type="button" className="es-link" onClick={() => setProef(NIEUWE_PROEF)}>↺ Opnieuw beginnen</button>}
+                <button type="button" className="es-link" onClick={() => { setProef(null); setTestOpen(true); }}>📋 Vragen punt voor punt</button>
+              </div>
             </div>
           );
         })()}
@@ -2259,6 +2396,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Testronde */}
         {testOpen && (
           <TestRonde routeId={route.id} punten={punten} items={specialeItems} verspreid={route.modus === "verspreid"}
+            onLopen={() => { setTestOpen(false); setProef(NIEUWE_PROEF); }}
             onGaNaar={(lat, lng) => setVliegNaar({ lat, lng, zoom: 18 })} onSluit={() => setTestOpen(false)} />
         )}
 
@@ -2422,6 +2560,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           geselecteerdSpeciaalId={geselecteerdSpeciaal?.id ?? null}
           vliegNaar={vliegNaar}
           loper={proef?.pos ?? null} loperSpoor={proef?.spoor ?? []}
+          verbodenGebieden={gebieden} tekenGebied={tekenGebied}
           pasIn={pasIn}
           itemVoorstellen={toonVoorstellen && lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
           uitgelichtTeam={uitgelichtTeam}

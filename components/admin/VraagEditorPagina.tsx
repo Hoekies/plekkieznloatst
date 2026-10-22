@@ -138,6 +138,25 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   // Nieuwe vraag: standaard 65 punten
   const [punten, setPunten] = useState(bestaandeVraag?.points ?? 65);
+  // Per vraag aan of uit: antwoorden husselen, een geluidsfragment, een tijdslimiet (migratie 014)
+  const [husselen, setHusselen] = useState(!!bestaandeVraag?.antwoorden_husselen);
+  const [geluidPad, setGeluidPad] = useState<string | null>(bestaandeVraag?.geluid_pad ?? null);
+  const [tijdslimiet, setTijdslimiet] = useState<number | null>(bestaandeVraag?.tijdslimiet_seconden ?? null);
+  const [geluidBezig, setGeluidBezig] = useState(false);
+  async function kiesGeluid(e: React.ChangeEvent<HTMLInputElement>) {
+    const bestand = e.target.files?.[0];
+    e.target.value = "";
+    if (!bestand) return;
+    setGeluidBezig(true);
+    const data = new FormData();
+    data.append("bestand", bestand);
+    data.append("bucket", "vraag-geluid");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: data }).catch(() => null);
+    const json = res ? await res.json().catch(() => ({})) : {};
+    setGeluidBezig(false);
+    if (!res?.ok) { toonMelding(json.fout ?? "Geluid uploaden lukte niet", "fout"); return; }
+    setGeluidPad(json.pad);
+  }
 
   const [antwoorden, setAntwoorden] = useState<{
     color: typeof KLEUREN[number];
@@ -226,6 +245,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     setIsNumeriek(numeriek);
     setNumeriekeWaarde(numeriek ? String(v.numeric_answer) : "");
     setTolerantie(String(v.numeric_tolerance ?? 0));
+    setHusselen(v.antwoorden_husselen);
+    setGeluidPad(v.geluid_pad);
+    setTijdslimiet(v.tijdslimiet_seconden);
     toonMelding("Vraag overgenomen: pas aan en sla op", "ok");
   }
 
@@ -260,6 +282,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       question_text: tekst.trim(),
       question_image_path: vraagAfbeelding,
       points: punten,
+      antwoorden_husselen: husselen,
+      geluid_pad: geluidPad,
+      tijdslimiet_seconden: type === "foto_opdracht" ? null : tijdslimiet,
     };
 
     if (type === "foto_opdracht") {
@@ -574,12 +599,54 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
                 <span>⚙️ Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
-                  {[perAntwoord ? "punten per antwoord" : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || (meerkeuze ? "punten per antwoord, QR-code om te testen" : "QR-code om te testen")}
+                  {[perAntwoord ? "punten per antwoord" : "", husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
                 </span>
                 <span style={{ marginLeft: "auto" }}>{meerOpen ? "▾" : "▸"}</span>
               </button>
               {meerOpen && (
                 <div className="vraag-meer-inhoud">
+                  {/* 🔀 Antwoorden husselen: elk team ziet de antwoorden in een andere volgorde (tegen afkijken) */}
+                  {meerkeuze && (
+                    <div className="form-group">
+                      <label className="form-label">Volgorde van de antwoorden</label>
+                      <button type="button" className={`rl-knop schakel${husselen ? " schakel--aan" : ""}`} role="switch" aria-checked={husselen}
+                        style={{ height: 32, alignSelf: "flex-start", fontSize: "0.8rem" }} onClick={() => setHusselen((v) => !v)}>
+                        🔀 Antwoorden husselen<span className="schakel-bol" aria-hidden />
+                      </button>
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt.</span>
+                    </div>
+                  )}
+
+                  {/* 🔊 Geluidsfragment bij de vraag, bijvoorbeeld "welk lied is dit?" */}
+                  <div className="form-group">
+                    <label className="form-label">🔊 Geluidsfragment</label>
+                    {geluidPad ? (
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                        <audio controls src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${geluidPad}`} style={{ height: 34, maxWidth: "100%" }} />
+                        <button type="button" className="rl-knop" onClick={() => setGeluidPad(null)} title="Geluid weghalen">🗑️</button>
+                      </div>
+                    ) : (
+                      <label className="rl-knop" style={{ alignSelf: "flex-start", cursor: "pointer", height: 32, fontSize: "0.8rem" }}>
+                        {geluidBezig ? "⏳ Uploaden…" : "🎵 Geluid kiezen (mp3, m4a, wav)"}
+                        <input type="file" accept="audio/*" onChange={kiesGeluid} style={{ display: "none" }} disabled={geluidBezig} />
+                      </label>
+                    )}
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>De spelers kunnen het afspelen bij de vraag. Maximaal 3 MB, kort fragment is genoeg.</span>
+                  </div>
+
+                  {/* ⏱️ Tijdslimiet: daarna telt de vraag als fout */}
+                  {type !== "foto_opdracht" && (
+                    <div className="form-group">
+                      <label className="form-label">⏱️ Tijdslimiet</label>
+                      <div className="segment" role="radiogroup" aria-label="Tijdslimiet">
+                        {([[null, "Uit"], [30, "30 s"], [60, "1 min"], [90, "1½ min"], [120, "2 min"]] as const).map(([s, label]) => (
+                          <button key={label} type="button" role="radio" aria-checked={tijdslimiet === s} className={tijdslimiet === s ? "aan" : ""} onClick={() => setTijdslimiet(s)}>{label}</button>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: de spelers zien een aftelklok; is de tijd om, dan telt de vraag als fout.</span>
+                    </div>
+                  )}
+
                   {meerkeuze && (
                     <div className="form-group">
                       <label className="form-label">Punten per antwoord</label>

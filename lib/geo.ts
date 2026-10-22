@@ -50,3 +50,34 @@ export function normaliserenNumeriek(invoer: string): number | null {
   const getal = parseFloat(genormaliseerd);
   return isNaN(getal) ? null : getal;
 }
+
+// Open antwoord vergelijken: hoofdletters, accenten, spaties en leestekens tellen niet mee, en bij
+// antwoorden van 5+ tekens mag er één tikfout in zitten (letter mis, te veel, te weinig of twee omgedraaid)
+export function tekstKlopt(invoer: string, goed: string): boolean {
+  const n = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const a = n(invoer), b = n(goed);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (b.length < 5 || Math.abs(a.length - b.length) > 1) return false;
+  // Damerau-Levenshtein (beperkt) met afstand ≤ 1
+  const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const kost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + kost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[a.length][b.length] <= 1;
+}
+
+// Ligt een plek binnen een vlak (lijst hoekpunten [lat, lng])? Straal-methode, goed genoeg voor kleine gebieden.
+export function binnenVlak(lat: number, lng: number, punten: [number, number][]): boolean {
+  let binnen = false;
+  for (let i = 0, j = punten.length - 1; i < punten.length; j = i++) {
+    const [ai, bi] = punten[i], [aj, bj] = punten[j];
+    if ((bi > lng) !== (bj > lng) && lat < ((aj - ai) * (lng - bi)) / (bj - bi) + ai) binnen = !binnen;
+  }
+  return binnen;
+}

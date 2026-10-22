@@ -9,6 +9,7 @@ import LaadBlokjes from "@/components/shared/LaadBlokjes";
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
   correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null;
+  antwoorden_husselen: boolean; geluid_pad: string | null; tijdslimiet_seconden: number | null;
   answer_options: { color: string; text: string | null; image_path: string | null; is_correct: boolean; punten: number | null }[];
   punt_naam: string; route_naam: string;
   favoriet: boolean; verborgen: boolean;

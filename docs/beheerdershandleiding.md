@@ -15,7 +15,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 📡 **Live kaart** | Waar iedereen loopt |
 | 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
 | **Spel** | 🏆 Tussenstand, WhatsApp (inloggegevens versturen), 🔔 Meldingen |
-| **Beheer** | Stop route, Reset spel |
+| **Beheer** | 🩺 Systeemcheck |
 | **Info & uitleg** | Deze handleiding, de instructiekaarten, Ko-fi, en het versienummer met de datum van de laatste update |
 
 Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
@@ -37,7 +37,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 2. Klik op **+ Nieuwe route**: er opent een venster.
 3. Geef de route een naam en **kies het speltype**: **🎯 Op volgorde** (sequentieel: alle teams lopen dezelfde punten in dezelfde volgorde) of **🔄 Rondje** (verspreid: één rondje, elk team begint op een ander punt). Het speltype kan later niet meer veranderen. Klik op **Aanmaken en beginnen →**: de editor opent met het stappenvenster (plaats, startpunt, teams enzovoort vraagt dat venster).
    Heb je een wandeling als **GPX** (uit een app of van een Garmin) of **KML**? Kies bij **Op volgorde** dan **📂 Bestand inlezen**. Daarna kies je met twee knoppenrijen wat de spelers zien (**🗺️ Hele route zichtbaar** of **📍 Alleen volgend punt**) en wat ze bij een punt krijgen (**🚶 Gewoon doorlopen** of **ℹ️ Tekst bij elk punt**). Verder: je ziet meteen hoeveel punten erin zitten (en de lengte van het spoor), de naam van de route wordt uit de bestandsnaam ingevuld als je die nog leeg had, en met **Aanmaken met deze punten →** staan ze meteen in de route: als ℹ️ infopunten met *Punt bereikt! Loop door naar het volgende punt.*, en bij een spoor een 🏁 finish aan het eind. Kies je Rondje, dan vervalt het bestand.
-4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst.) Veel punten tegelijk? Gebruik bij een route op volgorde **📥 Importeren** bovenin de editor (zie hieronder).
+4. **Tik op de kaart** waar het punt moet komen en kies **📍 Punt**. (Een nieuw punt komt vóór de finish in de lijst, en krijgt vanzelf de straatnaam of de naam van een gebouw als naam; lukt dat niet, dan heet het *Punt 3* enz.) Veel punten tegelijk? Gebruik bij een route op volgorde **📥 Importeren** bovenin de editor (zie hieronder).
 5. Herhaal voor alle punten. De volgorde pas je aan door een punt in de lijst te **slepen** naar een andere plek (of stap voor stap met ▲▼).
 6. Klik op een punt (op de kaart of in de lijst): linksboven op de kaart opent een klein paneel met
    - **Soort punt** — bovenaan: ❓ Vraag, ℹ️ Info, 🚶 Door of 🏁 Eind. Daaronder staat alleen wat bij dat soort hoort.
@@ -53,16 +53,16 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **🖼️ Afbeelding kiezen**: een foto wordt vierkant opgeslagen. Je ziet eerst de **hele foto** in het vierkant (niet-vierkant? dan vult een vervaagde versie de randen). Zoom in met de schuif of **⬛ Vierkant vullen** en sleep om te kiezen wat er in beeld komt; **🖼️ Hele foto** zet hem terug.
    - **⚙️ Meer instellingen** (uitklapbaar, onder de antwoorden): **eigen punten per antwoord** en **🧪 Openen met QR-code**. Die QR-code is alleen om te testen: je opent het punt door de code te scannen, zonder ernaartoe te lopen (met 🖨️ printen).
    - Bij een meerkeuzevraag kun je met **Eigen punten per antwoord** per antwoord punten invullen, ook negatief (bijv. −25 voor een fout antwoord). Uit = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
-   - Bij een open vraag kies je **🔤 Tekst** (één goed antwoord per regel) of **🔢 Getal**, met een **marge** (±).
+   - Bij een open vraag kies je **🔤 Tekst** (één goed antwoord per regel) of **🔢 Getal**, met een **marge** (±). Bij tekst tellen hoofdletters, accenten, spaties en leestekens niet mee, en bij antwoorden van 5 letters of meer mag er **één tikfout** in zitten (*Amsterdm* is goed voor *Amsterdam*). Korte antwoorden moeten precies kloppen.
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
    **Radius en punten** gelden voor de hele route: ⚙️ Instellingen → **📍 Punten & vragen**.
-8. Klaar? Klik op **✅ Klaarzetten**. De controle **🩺 Klaar om te spelen?** opent; is alles in orde, dan zet je de route daar klaar. Daarna verschijnt **▶ Activeren** (zie [Het spel starten](#het-spel-starten)).
+8. Klaar? Klik op **▶ Starten**. De controle **🩺 Klaar om te spelen?** opent; is alles in orde, dan start je de route daar meteen en kunnen de spelers beginnen (zie [Het spel starten](#het-spel-starten)). Wil je hem pas later starten, kies dan *Nog niet starten, alleen klaarzetten*.
 
 > **Status van een route**: **✏️ Concept** (nog bezig) → **✅ Klaar** (gecontroleerd, kan geactiveerd worden) → **▶ Actief** (de spelers kunnen spelen). In de routekop zie je dit als stappen: Bewerken › Controleren › Klaar › Actief (de huidige gemarkeerd, gedane stappen met ✓), met daarnaast één opvallende knop voor de volgende stap. Klik op **Controleren** om de controle tussendoor te bekijken. Bij een klare route zet **↩ Concept** hem terug om verder te bewerken.
 
 > **Overzicht in de editor (computer)**:
-> - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap zoals ✅ Klaarzetten of ▶ Activeren, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Test, en het gereedschap 📥 Importeren, 🧲 Op de weg en 🗑️ Leegmaken).
+> - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap ▶ Starten, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 📝 Vragen, 🧪 Testen, en het gereedschap 📥 Importeren, 🧲 Op de weg en 🗑️ Leegmaken, als icoontjes).
 > - **🚶 Wegen** is een aan/uit-schakelaar: aan = lijnen en afstanden volgen wegen en voetpaden, uit = hemelsbreed. Staat hij aan, dan rekent **↻ Opnieuw** alles opnieuw uit.
 > - **◧ Lijst** klapt de puntenlijst links in, voor meer kaartruimte. Met **« Inklappen** onderaan het menu wordt het hoofdmenu een smalle balk met alleen icoontjes (**»** klapt hem weer uit). Beide worden onthouden.
 > - In de puntenlijst openen **❓** (gedempt: de vraag is er) en het oranje **⚠️** (nog geen vraag, valt op) meteen de vraag van dat punt. **▲ ▼ 🗑️** verschijnen op de pc pas als je een regel aanwijst of kiest. De greep **≡** achteraan laat zien dat je een punt kunt verslepen (start en finish liggen vast).
@@ -84,9 +84,10 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > - **🗑️ Uit de bank halen**: de vraag verdwijnt uit de vragenbank, maar blijft gewoon in zijn eigen route staan. Handig voor dubbele vragen (bijv. na een kopie van een route). Met **🗑️ Verwijderd** zie je ze terug en zet je ze met **↩ Terug** weer in de bank.
 > - Hiervoor moet SQL-bestand 007 in Supabase gedraaid zijn.
 
-> **🚶 Proeflopen**: met **🚶 Proeflopen** bovenin de editor loop je als testspeler over de kaart. Klik waar je begint en daarna steeds waar je heen loopt. Rechtsboven zie je wat er gebeurt, zoals op straat: welk punt opengaat (en of er een vraag of tekst bij hoort), doorlooppunten die je passeert (ook als je een bocht afsnijdt), items die je oppakt en vallen waar je in loopt, met het volgende punt, de afstand en de gelopen kilometers. Er wordt niets opgeslagen; **↺ Opnieuw beginnen** of **✕** om te stoppen.
+> **🧪 Testen** bovenin de editor heeft twee manieren. Standaard **🚶 lopen**: je loopt als testspeler over de kaart. Klik waar je begint en daarna steeds waar je heen loopt. Rechtsboven zie je wat er gebeurt, zoals op straat: welk punt opengaat (en of er een vraag of tekst bij hoort), doorlooppunten die je passeert (ook als je een bocht afsnijdt), items die je oppakt en vallen waar je in loopt, met het volgende punt, de afstand en de gelopen kilometers. Er wordt niets opgeslagen; **↺ Opnieuw beginnen** of **✕** om te stoppen. Met **📋 Vragen punt voor punt** wissel je naar de andere manier (en met **🚶 Lopen** weer terug):
 >
-> **🧪 Testronde**: met **🧪 Test** bovenin de editor loop je de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
+>
+> **📋 Punt voor punt**: je loopt de route punt voor punt door zonder naar buiten te gaan. De kaart vliegt naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd), de afstand vanaf het vorige punt, de straal en de items binnen 150 meter. Met **◀ Vorige** en **Volgende ▶** blader je door.
 
 > **Opslaan gaat vanzelf.** Rechtsboven in de editor zie je ⏳ *Opslaan…*, daarna ✓ *Opgeslagen*. Lukt het niet, dan staat er ⚠️ *Niet opgeslagen ⓘ* en krijg je een melding die zegt wat er misging en wat je kunt doen (bijv. "geen verbinding, controleer je internet" of "je bent uitgelogd, log opnieuw in"). Klik op ⓘ om die uitleg nog eens te zien. Doe de wijziging daarna opnieuw.
 
@@ -102,11 +103,11 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > **Routes-overzicht**: de routes staan onder drie koppen: **▶ Actief**, **✅ Klaar** en **✏️ Concept**, binnen een groep op naam. Bij elke route zie je het speltype en **✏️ Aangepast** (de laatste bewerking in de editor; het spelen zelf telt niet mee). Een lange naam schuift vanzelf heen en weer.
 > De knoppen staan bij elke route op een vaste plek:
-> - **De volgende stap**, één opvallende knop: **✅ Klaarzetten** (concept) en **▶ Activeren** (klaar) openen de controle in de editor; **⏹ Deactiveren** (actief, met bevestiging) werkt zoals *Stop route*: lopende spellen worden netjes afgesloten en de route blijft Klaar. In de editor werkt Deactiveren precies zo.
+> - **De volgende stap**, één opvallende knop: **▶ Starten** opent de controle in de editor en start de route als alles in orde is; **⏹ Deactiveren** (actief, met bevestiging) stopt de route: lopende spellen worden netjes afgesloten en de route blijft Klaar. In de editor werkt Deactiveren precies zo.
 > - **Bewerken**
 > - Knoppen met een korte tekst eronder: 📄 **Voorproefje** (zie hieronder), 📋 **Kopiëren** (alles, als concept), 📤 **Exporteren** (opslaan als bestand, met afbeeldingen), ↩️ **Concept** (terug naar concept) en 🗑️ **Verwijderen**.
 > - Rechtsboven **💾 Back-up**: alle routes met vragen en afbeeldingen in één bestand (PointRush_back-up-alle-routes_datum.json). Bewaar het goed; terugzetten gaat met **📥 Route importeren** (elke route komt er als nieuwe route bij, naast wat er al staat). Foto's van spelers zitten er niet in.
-> - Rechtsboven **📥 Route importeren**: een eerder geëxporteerde route of back-up terugzetten.
+> - Rechtsboven **📥 Bestand openen**: de app herkent zelf wat het is. Een wandeling (**GPX** of **KML**) opent het venster *Nieuwe route* met die punten; een geëxporteerde route of een **back-up** wordt teruggezet.
 >
 > Op de telefoon starten de routekaarten ingeklapt: tik op de naam om de knoppen te tonen.
 
@@ -202,7 +203,7 @@ In het tabblad **📍 Punten** verschijnen, zodra de route op verspreid-modus st
 
 #### Respawn (items opnieuw laten verschijnen)
 
-Alleen bij verspreid-modus. Bij een **nieuwe route staat respawn standaard aan**; uitzetten kan via **⚙️ Instellingen** → "🔄 Respawn":
+Alleen bij verspreid-modus. Bij een **nieuwe route staat respawn standaard aan**; uitzetten kan via **⚙️ Instellingen** → 🎁 Items → **⚙️ Meer instellingen** → "🔄 Respawn":
 
 - **Uit** — speciale items verdwijnen permanent zodra een team ze opraapt.
 - **Aan (standaard bij een nieuwe route)** — een opgeraapt item komt na een instelbaar aantal minuten terug op de kaart, zodra het team dat het opraapte het heeft gebruikt. Het komt terug als **precies hetzelfde item op dezelfde plek**: de app verandert nooit zelf het type of de plek van een item.
@@ -245,7 +246,7 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 
 > **Sequentieel:** op de kaart plaats je alleen **⛔ Plek zooi**. Elk team krijgt bij de start automatisch
 > één **🍌 banaan** in de balk, die ze op een tegenstander kunnen gooien. Die startbananen zie je niet in de
-> editor en ze worden bij *Reset spel* opgeruimd.
+> editor en ze worden bij *🧹 Nieuw spel voorbereiden* opgeruimd.
 
 1. **Tik op de kaart** waar het item moet liggen en kies **🎁 Item** (bij Sequentieel: ⛔ Plek zooi).
 2. Linksboven op de kaart opent het itempaneel: kies het **type** met de icoonknoppen — het wordt meteen opgeslagen.
@@ -284,7 +285,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 
 #### Duur van Spook en Plek zooi instellen
 
-Via **⚙️ Instellingen** → "⏱️ Duur van effecten" stel je per route in, in minuten:
+Via **⚙️ Instellingen** → 🎁 Items → **⚙️ Meer instellingen** → "⏱️ Duur van effecten" stel je per route in, in minuten:
 
 - **👻 Spook** — hoe lang het volgende punt van het getroffen team verdwenen is (standaard 10 minuten).
 - **⛔ Plekzooi** — hoe lang een team vastzit na het raken van een plekzooi (standaard 5 minuten).
@@ -313,7 +314,7 @@ Met **👫 Meerdere** naast *+ Nieuwe speler* maak je in één keer tot 30 spele
 
 #### Inloggegevens per team uitdelen
 
-Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (**Geen**, 4 uur, ½ dag, **1 dag** of 2 dagen).
+Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (4 uur, ½ dag, **1 dag** of 2 dagen). Standaard gaan wachtwoord én directe link samen mee op het kaartje. Wil je alleen een link sturen (zonder wachtwoord), tik dan onderaan op *🔗 Alleen een link sturen*.
 - Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
 - Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 
@@ -397,11 +398,11 @@ Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team)
 
 ## Het spel starten
 
-> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan met bovenaan **👉 Wat nu:** de eerstvolgende stap (die valt ook op in de lijst). Is er geen actieve route, dan staan de routes die op ✅ Klaar staan er meteen als knop (**▶ naam**: laatste controle en activeren). De stappen: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *Reset spel* worden je eigen vinkjes gewist.
+> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan met bovenaan **👉 Wat nu:** de eerstvolgende stap (die valt ook op in de lijst). Is er geen actieve route, dan staan de routes die op ✅ Klaar staan er meteen als knop (**▶ naam**: laatste controle en starten). De stappen: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *🧹 Nieuw spel voorbereiden* worden je eigen vinkjes gewist.
 
-1. Ga naar de gewenste route en klik op **▶ Activeren**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch activeren**. Met **🩺 Controleren** in de routekop bekijk je deze lijst ook tussendoor.
+1. Ga naar de gewenste route en klik op **▶ Starten**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch starten**. Met **🩺 Controleren** in de routekop bekijk je deze lijst ook tussendoor.
    - Er kan maar één route tegelijk actief zijn.
-   - De route moet op **✅ Klaar** staan voordat je hem kunt activeren (met ✅ Klaarzetten in hetzelfde venster).
+   - Starten zet de route meteen op Klaar en actief; een andere actieve route stopt dan.
 2. Spelers kunnen nu via hun inloggegevens inloggen en op **Ga op pad** drukken.
    - Vóór het starten toont de app automatisch de **spelregels van het actieve speltype**. Je hoeft dus niets vooraf uit te leggen.
    - Op een telefoon vraagt de app bij het openen of de speler PointRush **als app wil installeren** (Android) of legt hij uit hoe je hem **op het beginscherm** zet (iPhone). Als app opent PointRush volledig scherm, zonder balken.
@@ -418,6 +419,7 @@ Het **Dashboard** (ververst elke paar seconden vanzelf):
 - **Bovenaan één compacte strook**: actieve route, aantal teams onderweg, gefinisht en de koploper. (Ook op Spelers en Antwoorden staat zo'n strook in plaats van grote tegels.)
 - **🎯 Spelleider**: hoe lang het spel loopt en hoeveel teams onderweg zijn, met daaronder alleen wat **je aandacht vraagt**: hulpvragen, foto's om te keuren, teams die 5 minuten **niet gezien** zijn (📵, bij meerdere teams samen op één regel), en teams die wachten door een spook of plek zooi. Tik op een regel voor de details. Niets aan de hand? Dan is het blok ingeklapt tot één regel (*"… onderweg · ✅ Alles loopt"*); tik erop voor pauze, eindtijd en afronden. Vraagt iets je aandacht, dan klapt het vanzelf open.
 - **🏆 Spelende spelers** op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand). Elke kaart is compact, zodat meerdere teams tegelijk in beeld passen: naam, status (**Onderweg**, **Uitgelogd** of **Gefinisht**) en punten, met daaronder 📍 bezochte punten, 🚶 gelopen km, ⏱ speeltijd, ➡️ het volgende punt en een voortgangsbalk. Is een team een tijd niet gezien, dan staat dat er in rood bij (bijv. *📵 25 u 52 min niet gezien*). Met **▸** klap je de items (in de balk en ingezet) en de knoppen **⏭️ Volgend punt vrijgeven**, **± Punten**, **💬 Contact** (📢 bericht in de app, 📞 bellen of WhatsApp) en **⏹️ Spel stoppen** open.
+- **📡 Mini-kaart** (naast de spelers op een breed scherm, op de telefoon erboven bij de tijdlijn): de punten in grijs en waar elk team nu is, in hun eigen kleur. Tik erop voor de grote live kaart.
 - **Wacht een team door een spook of plek zooi**, dan zie je op de kaart een aftelklok met **−30 s**: daarmee haal je er 30 seconden af. De app van het team neemt de nieuwe tijd binnen een paar seconden over.
 - **Tik op een spelerskaart** voor alles van dat team: speeltijd, afstand, vragen goed, de gelopen route op een kaartje, alle bezochte punten met antwoorden en de items. Bovenin het venster staan dezelfde knoppen als op de kaart: **⏭️ Volgend punt vrijgeven**, **± Punten**, **💬 Contact** (📢 bericht in de app, 📞 bellen of WhatsApp) en **⏹️ Spel stoppen**.
 - **📜 Wat gebeurt er**: een tijdlijn met starts, bereikte punten, goede en foute antwoorden, foto's, ingezette items, bonus of aftrek van de spelleider en finishes. De tijd staat erbij als *nu*, *5 min*, *07:12* (vandaag) of *gisteren 20:10*.
@@ -489,11 +491,11 @@ De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste pun
 
 ### Route stoppen
 
-Met **Stop route** in het menu (of **⏹ Deactiveren** bij de route) haal je de route uit de actieve stand, na bevestiging. Lopende spellen worden afgesloten: de teams zien binnen een paar seconden *"🛑 De route is gestopt"* en gaan terug naar het startscherm. Gegevens worden niet gewist.
+Met **⏹ Deactiveren** bij de route (Routes of de editor) haal je de route uit de actieve stand, na bevestiging. Lopende spellen worden afgesloten: de teams zien binnen een paar seconden *"🛑 De route is gestopt"* en gaan terug naar het startscherm. Gegevens worden niet gewist.
 
 ### Spel resetten
 
-Onderaan het dashboard en in het menu staat **💣 Reset spel** (met bevestiging). Dit wist:
+Na **🏁 Spel afronden** staat bij de spelleider op het dashboard **🧹 Nieuw spel voorbereiden** (met bevestiging; maak eerst het rapport en het fotoalbum als je die wilt bewaren). Dit wist:
 
 - Alle spellen van alle teams, ook van gefinishte teams: niemand is daarna nog bezig of gefinisht
 - Alle locatiegeschiedenis (gelopen routes), voortgang, antwoorden en scores
@@ -522,7 +524,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 
 > **🏁 Spel afronden** (in het Spelleider-blok op het dashboard): geeft in één keer de uitslag vrij en opent het rapport. De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
 
-Bij het activeren van een route en bij **Reset spel** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
+Bij het starten van een route en bij **🧹 Nieuw spel voorbereiden** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 
 ---
 
@@ -547,9 +549,29 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 
 In het menu onder **Beheer** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
 
-- **Database** — de verbinding, en per database-migratie (003 t/m 013) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
+- **🐞 Foutmeldingen uit de app** — zag een speler of beheerder het scherm *Er ging iets mis*, dan staat de fout hier (wanneer, wie en op welke pagina; tik voor de details). Handig om door te geven als iets steeds misgaat. **🗑️ Logboek wissen** maakt de lijst leeg; **🧹 Oude gegevens opruimen** haalt GPS-plekken en fouten ouder dan 30 dagen weg (dat gebeurt ook elke nacht vanzelf, voor de privacy). Daarna is de gelopen route van die oude spellen niet meer te zien.
+- **Database** — de verbinding, en per database-migratie (003 t/m 015) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
 - **Opslag** — of de mappen voor afbeeldingen en foto's bestaan.
 - **Instellingen** — of de sleutels in Vercel staan (alleen óf ze er zijn, nooit de waarde), bijvoorbeeld voor pushmeldingen.
 - **Spel** — welke route actief is.
 
 Werkt iets niet zoals verwacht na een update, kijk dan eerst hier. Met **🔄 Opnieuw controleren** kijk je na het draaien van een migratie meteen of het gelukt is.
+
+## Extra's per vraag en per route
+
+Nodig: migratie `014_vraagopties_puzzel_verboden.sql` (zie 🩺 Systeemcheck).
+
+**Per vraag** (vraag-editor → ⚙️ Meer instellingen), elk aan of uit:
+- **🔀 Antwoorden husselen** (meerkeuze): elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt.
+- **🔊 Geluidsfragment**: kies een mp3, m4a of wav (max 3 MB), bijvoorbeeld voor "welk lied is dit?". De spelers spelen het af bij de vraag.
+- **⏱️ Tijdslimiet**: Uit, 30 s, 1 min, 1½ min of 2 min. De spelers zien een aftelklok (rood in de laatste 10 seconden); is de tijd om, dan telt de vraag als fout.
+
+**🧩 Puzzelwoord** (⚙️ Instellingen → Algemeen): vul een woord in, bijvoorbeeld KASTEEL, en de bonus (standaard 100 punten). Vul ook een **omschrijving** in, bijvoorbeeld *Een ander woord voor slot (7 letters)*: die zien de spelers boven de tegeltjes. Geen woord bedacht? Typ de omschrijving en tik op **✨ Bedenk een woord**: je krijgt een paar voorstellen, tik er een aan. Zonder extra instelling zoekt de app gratis in de Nederlandse Wiktionary (werkt met *ander woord voor …*, met of zonder aantal letters). Staat er een **ANTHROPIC_API_KEY** in Vercel, dan bedenkt Claude de woorden en begrijpt hij elke omschrijving (een fractie van een cent per keer); de spelers en andere beheerders hebben daar niets voor nodig. Elke goed beantwoorde vraag geeft het team één letter, op een vaste maar per team andere plek. Tijdens het spel zien ze onder de puntenbalk de tegeltjes (`_ A _ _ E _ _`). Bij de finish raden ze het woord; goed = de bonus erbij (één keer, zichtbaar in de tijdlijn en het rapport). Het woord zelf staat nooit op de telefoon. Zorg voor minstens zoveel vragen als letters; de editor waarschuwt als het woord te lang is. Leeg = uit.
+
+**⛔ Verboden gebieden** (⛔ bovenin de editor): tik de hoeken van een gebied aan op de kaart (minstens 3), geef het een naam (bijv. *Drukke weg* of *Privéterrein*) en sla op. De spelers zien het gebied rood op hun kaart; lopen ze erin, dan trilt de telefoon en staat er een rode melding tot ze eruit zijn. Verwijderen kan in ⚙️ Instellingen → 📍 Punten.
+
+**📦 Soort uitje** (venster Nieuwe route): kies **⚙️ Standaard**, **🎈 Kinderfeest** (kortere effecten, vaak de tussenstand, iedereen een banaan), **🏢 Bedrijfsuitje** (meer punten per item, startitems om te saboteren, tussenstand elk kwartier) of **🥾 Wandeling** (hele route zichtbaar, geen tussenstand, geen startitems). Het zet alleen de instellingen; alles is daarna aan te passen.
+
+**📤 Exporteren en 📥 Bestand openen** nemen alles mee: ook husselen, geluidsfragmenten, tijdslimieten, het puzzelwoord, de verboden gebieden en de hele-route-instelling. Hetzelfde geldt voor een vraag uit de **📚 Vragenbank**.
+
+**📊 Per vraag** (Antwoorden): hoeveel teams elke vraag goed hadden en welke foute antwoorden vaak voorkwamen, om je vragen voor de volgende keer te verbeteren.

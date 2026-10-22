@@ -1,14 +1,17 @@
 {
   "name": "plekkie-zn-loatst",
-  "version": "0.12.8",
+  "version": "0.12.9",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "controle": "node scripts/controle.mjs",
+    "zelftest": "npx --yes tsx scripts/zelftest.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.43.0",
@@ -21,7 +24,8 @@
     "qrcode.react": "^4.2.0",
     "react": "^18",
     "react-dom": "^18",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.8",

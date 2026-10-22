@@ -13,7 +13,17 @@ export function ontgrendelAudio() {
   } catch { /* geen AudioContext support */ }
 }
 
+// 🔊 Geluid aan of uit (keuze van de speler in ℹ️, onthouden op dit toestel); trillen blijft gewoon werken
+const GELUID_SLEUTEL = "pr_geluid_uit";
+export function geluidAan(): boolean {
+  try { return localStorage.getItem(GELUID_SLEUTEL) !== "1"; } catch { return true; }
+}
+export function zetGeluid(aan: boolean) {
+  try { localStorage.setItem(GELUID_SLEUTEL, aan ? "0" : "1"); } catch { /* geen opslag */ }
+}
+
 function speel(frequenties: number[], duur: number, type: OscillatorType = "sine", volume = 0.3) {
+  if (!geluidAan()) return;
   try {
     const ac = getCtx();
     if (ac.state === "suspended") ac.resume();
@@ -58,6 +68,7 @@ export function speelFinish() {
 export function speelDong() {
   // Diepe klokslag — een ander team heeft een item tegen jou ingezet.
   // Grondtoon plus een paar niet-harmonische boventonen, zoals bij een echte klok.
+  if (!geluidAan()) return;
   try {
     const ac = getCtx();
     if (ac.state === "suspended") ac.resume();

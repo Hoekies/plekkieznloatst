@@ -100,6 +100,19 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (insertFout) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${insertFout.message}` }, { status: 500 });
   }
 
+  // Per vraag: husselen, geluid en tijdslimiet (migratie 014). Los opgeslagen, zodat een vraag zonder deze
+  // opties ook werkt als de migratie nog niet gedraaid is.
+  const limiet = Number(body.tijdslimiet_seconden);
+  const extra = {
+    antwoorden_husselen: body.antwoorden_husselen === true,
+    geluid_pad: typeof body.geluid_pad === "string" && body.geluid_pad ? body.geluid_pad : null,
+    tijdslimiet_seconden: Number.isFinite(limiet) && limiet >= 10 ? Math.min(600, Math.round(limiet)) : null,
+  };
+  const { error: extraFout } = await admin.from("questions").update(extra).eq("id", vraagId);
+  if (extraFout && (extra.antwoorden_husselen || extra.geluid_pad || extra.tijdslimiet_seconden)) {
+    return NextResponse.json({ fout: "Vraag opgeslagen, maar husselen, geluid of tijdslimiet niet: draai eerst migratie 014 in Supabase" }, { status: 500 });
+  }
+
   // Teruggeven inclusief antwoorden
   const { data: resultaat } = await admin
     .from("questions")

@@ -2,7 +2,6 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 import UitlogKnop from "@/components/admin/UitlogKnop";
 import AdminNavLink from "@/components/admin/AdminNavLink";
-import SidebarActies from "@/components/admin/SidebarActies";
 import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import SidebarToggle from "@/components/admin/SidebarToggle";
 import HulpMeldingen from "@/components/admin/HulpMeldingen";
@@ -58,7 +57,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {!helper && (
           <div className="admin-menu-blok admin-menu-blok--beheer">
             <div className="admin-menu-kop">Beheer</div>
-            <SidebarActies />
             <AdminNavLink href="/admin/systeem"><span aria-hidden>🩺</span> Systeemcheck</AdminNavLink>
           </div>
         )}

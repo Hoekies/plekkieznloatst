@@ -36,6 +36,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
   if (typeof body.alle_punten_zichtbaar === "boolean") toegestaan.alle_punten_zichtbaar = body.alle_punten_zichtbaar;
+  if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
+  if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
+  if (typeof body.puzzel_bonus === "number" && body.puzzel_bonus >= 0) toegestaan.puzzel_bonus = Math.min(10000, Math.round(body.puzzel_bonus));
+  if ("verboden_gebieden" in body) {
+    // Alleen geldige vlakken: een naam en minstens 3 hoekpunten
+    const lijst = Array.isArray(body.verboden_gebieden) ? body.verboden_gebieden : [];
+    toegestaan.verboden_gebieden = lijst
+      .filter((g: { punten?: unknown }) => Array.isArray(g?.punten) && g.punten.length >= 3)
+      .slice(0, 20)
+      .map((g: { naam?: unknown; punten: unknown[] }) => ({
+        naam: typeof g.naam === "string" ? g.naam.trim().slice(0, 40) : "Verboden gebied",
+        punten: g.punten.slice(0, 60).map((p) => (Array.isArray(p) ? [Number(p[0]), Number(p[1])] : [0, 0])).filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b)),
+      }));
+  }
   if (Array.isArray(body.items_na_finish_types)) {
     // Keuze per item; de oude schakelaar staat aan zolang er minstens één item aan staat
     toegestaan.items_na_finish_types = ITEMS_NA_FINISH.filter((t) => body.items_na_finish_types.includes(t));
@@ -67,6 +81,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .single();
   if (error && /alle_punten_zichtbaar/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
+  }
+  if (error && /puzzel|verboden_gebieden/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 014 (puzzelwoord en verboden gebieden) in Supabase" }, { status: 500 });
   }
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json(data);

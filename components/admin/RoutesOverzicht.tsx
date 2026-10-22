@@ -7,6 +7,7 @@ import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import { leesPunten, naamUitBestand, IMPORT_INFO_TEKST, IMPORT_STRAAL_M, type ImportResultaat } from "@/lib/punten-import";
 import { afstandTekst } from "@/lib/geo";
+import { SJABLONEN } from "@/lib/sjablonen";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import SectieKop from "@/components/admin/SectieKop";
@@ -39,6 +40,8 @@ export default function RoutesOverzicht() {
   // Met GPX: hele route meteen zichtbaar en zonder vensters langs de punten (beide aan te passen)
   const [gpxHeleRoute, setGpxHeleRoute] = useState(true);
   const [gpxStil, setGpxStil] = useState(true);
+  // 📦 Sjabloon: kant-en-klare instellingen voor een soort uitje
+  const [sjabloon, setSjabloon] = useState("standaard");
   const gpxRef = useRef<HTMLInputElement>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
@@ -71,13 +74,17 @@ export default function RoutesOverzicht() {
   async function kiesGpx(e: React.ChangeEvent<HTMLInputElement>) {
     const bestand = e.target.files?.[0];
     e.target.value = "";
-    if (!bestand) return;
+    if (bestand) await leesGpxBestand(bestand);
+  }
+  // GPX of KML: een nieuwe route op volgorde met deze punten (ook via 📥 Bestand openen)
+  async function leesGpxBestand(bestand: File) {
     const resultaat = leesPunten(await bestand.text());
     if (!resultaat.punten.length) { setFout("In dit bestand staan geen punten of spoor"); return; }
     setFout("");
     setGpx({ bestand: bestand.name, resultaat });
     setNieuweModus("sequentieel");
-    if (!nieuweNaam.trim()) setNieuweNaam(naamUitBestand(bestand.name));
+    setNieuweNaam((n) => n.trim() ? n : naamUitBestand(bestand.name));
+    setAanmaken(true);
   }
 
   async function nieuwRoute(e: React.FormEvent) {
@@ -90,6 +97,12 @@ export default function RoutesOverzicht() {
     });
     if (!res.ok) { setFout(await foutUitleg(res, "Route aanmaken")); setBezig(false); return; }
     const route = await res.json();
+    // Sjabloon: de instellingen voor dit soort uitje meteen zetten
+    const inst = SJABLONEN.find((s) => s.sleutel === sjabloon)?.instellingen ?? {};
+    if (Object.keys(inst).length) {
+      const r = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(inst) });
+      if (!r.ok) toonMelding(`Route aangemaakt, maar de instellingen van het sjabloon niet: ${await foutUitleg(r, "Opslaan")}`, "fout");
+    }
     // Met GPX: de punten meteen toevoegen (infopunten, finish aan het eind van een spoor)
     if (gpx) {
       const imp = await fetch(`/api/admin/routes/${route.id}/punten/meerdere`, {
@@ -154,7 +167,7 @@ export default function RoutesOverzicht() {
       setExportBezig(null);
     }
   }
-  // 💾 Back-up: alle routes in één bestand (terugzetten gaat met 📥 Route importeren)
+  // 💾 Back-up: alle routes in één bestand (terugzetten gaat met 📥 Bestand openen)
   const [backupStand, setBackupStand] = useState<string | null>(null);
   async function maakBackup() {
     const lijst = [...routes];
@@ -197,10 +210,12 @@ export default function RoutesOverzicht() {
     return res.ok ? { id: data.id, mislukt } : { fout: uitlegBijStatus(res.status, "Importeren", data.fout), mislukt };
   }
 
+  // 📥 Bestand openen: herkent zelf wat het is. GPX/KML → nieuwe route met die punten; JSON → route of back-up terugzetten
   async function importeer(e: React.ChangeEvent<HTMLInputElement>) {
     const bestand = e.target.files?.[0];
     if (!bestand) return;
     e.target.value = "";
+    if (/.(gpx|kml)$/i.test(bestand.name)) { await leesGpxBestand(bestand); return; }
     setImportBezig(true);
     setImportFout("");
     try {
@@ -282,12 +297,12 @@ export default function RoutesOverzicht() {
     if (r.status === "gepubliceerd") {
       return (
         <button type="button" className="rl-knop rl-knop--cyan rl-stap" title="Laatste controle, daarna kunnen de spelers beginnen"
-          onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Activeren</button>
+          onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Starten</button>
       );
     }
     return (
-      <button type="button" className="rl-knop rl-stap" title="Eerst controleren; is alles in orde, dan zet je de route klaar"
-        onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>✅ Klaarzetten</button>
+      <button type="button" className="rl-knop rl-knop--cyan rl-stap" title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen"
+        onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Starten</button>
     );
   }
 
@@ -299,15 +314,15 @@ export default function RoutesOverzicht() {
           + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>
         <span style={{ flex: 1 }} />
-        <button className="rl-knop actie-knop" title="Alle routes met vragen en afbeeldingen in één bestand bewaren (terugzetten met Route importeren)"
+        <button className="rl-knop actie-knop" title="Alle routes met vragen en afbeeldingen in één bestand bewaren (terugzetten met Bestand openen)"
           onClick={maakBackup} disabled={!!backupStand || !routes.length}>
           {backupStand ? `⏳ ${backupStand}` : <>💾 <span className="alleen-pc">Back-up</span></>}
         </button>
-        <button className="rl-knop actie-knop" title="Een eerder geëxporteerde route of back-up (bestand) toevoegen"
+        <button className="rl-knop actie-knop" title="Open een bestand: een wandeling (GPX of KML) wordt een nieuwe route; een geëxporteerde route of back-up wordt teruggezet"
           onClick={() => importRef.current?.click()} disabled={importBezig}>
-          {importBezig ? "…" : <>📥 <span className="alleen-pc">Route importeren</span><span className="alleen-mobiel">Importeren</span></>}
+          {importBezig ? "…" : <>📥 <span className="alleen-pc">Bestand openen</span><span className="alleen-mobiel">Openen</span></>}
         </button>
-        <input ref={importRef} type="file" accept=".json" style={{ display: "none" }} onChange={importeer} />
+        <input ref={importRef} type="file" accept=".json,.gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" style={{ display: "none" }} onChange={importeer} />
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
 
@@ -346,6 +361,17 @@ export default function RoutesOverzicht() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* 📦 Sjabloon: instellingen in één keer goed voor het soort uitje */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">Soort uitje <span className="nieuwe-route-bij">· instellingen, later aan te passen</span></span>
+                <div className="segment" role="radiogroup" aria-label="Soort uitje">
+                  {SJABLONEN.map((s) => (
+                    <button key={s.sleutel} type="button" role="radio" aria-checked={sjabloon === s.sleutel} className={sjabloon === s.sleutel ? "aan" : ""} onClick={() => setSjabloon(s.sleutel)}>{s.naam}</button>
+                  ))}
+                </div>
+                <span className="nieuwe-route-noot">{SJABLONEN.find((s) => s.sleutel === sjabloon)?.uitleg}</span>
               </div>
 
               {/* Beginnen met een GPX (alleen Op volgorde): de punten komen er meteen in */}

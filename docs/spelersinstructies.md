@@ -24,7 +24,7 @@ Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (
 - **iPhone:** tik op de deelknop (vierkantje met pijl omhoog; in Safari onderin, in Chrome bovenin) → **Zet op beginscherm**.
 
 **Eén apparaat per team**
-Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude. Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
+Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude: tijdens het spel staat **🚪 Uitloggen** onderaan onder de oranje **i**-knop (zo tik je er niet per ongeluk op). Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
 
 **Locatie en geluid**
 Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Tik je bij de uitleg op **OK, begrepen**, dan hoor je meteen een geluidje en trilt je telefoon (Android): zo weet je dat je geluid goed staat. Hoor je niets, zet je telefoon dan niet op stil. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
@@ -33,13 +33,28 @@ Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spel
 Je telefoon trilt bij een bereikt punt, een opgepakt item, je startitems, een goed of fout antwoord, een aanval van een ander team, een bericht van de organisatie en de finish. Zo merk je het ook als de telefoon in je zak zit.
 
 **Geen bereik?**
-Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld in het buitengebied), dan bewaart de app wat je doet: punten bereiken, doorgaan en je antwoorden. Bovenin staat dan een oranje strook **📡 Geen bereik**. Zodra er weer bereik is, gaat alles vanzelf mee en zie je je punten. De vragen van de volgende punten heeft de app al opgehaald. Alleen een foto insturen lukt pas weer met bereik.
+Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld in het buitengebied), dan bewaart de app wat je doet: punten bereiken, doorgaan en je antwoorden. Bovenin staat dan een oranje strook **📡 Geen bereik**. Zodra er weer bereik is, gaat alles vanzelf mee en zie je je punten. De vragen van de volgende punten heeft de app al opgehaald, en de kaart van het speelgebied ook. Alleen een foto insturen lukt pas weer met bereik.
+
+**Batterij**
+De app gaat zuinig met je batterij om: staat je scherm uit of zit de app op de achtergrond, dan vraagt hij niets op. Ben je nog ver van een punt, dan bewaart hij je plek minder vaak.
+
+**Open vraag**
+Hoofdletters, accenten en spaties maken niet uit, en bij langere woorden mag er één tikfout in zitten: *Amsterdm* telt goed voor *Amsterdam*.
 
 **Scherm aan laten**
 Tijdens het spel blijft je scherm aan, zodat je telefoon niet in slaap valt en geluid en trillen altijd werken. Wil je batterij sparen? Zet dan onder de oranje **i**-knop **🔆 Scherm aan laten** uit.
 
 **Oorkonde**
 Bij de finish staat **🏅 Oorkonde delen**: een mooie afbeelding met jullie teamnaam, punten, tijd en afstand (en jullie plaats zodra de uitslag bekend is), om te delen in de groepsapp.
+
+**Geluid**
+In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i**-knop (**🔊 Geluid**). Trillen blijft werken.
+
+**Puzzelwoord en tijdslimiet**
+Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes 🧩. Elke goed beantwoorde vraag geeft een letter. Bij de finish raad je het woord voor bonuspunten. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
+
+**Verboden gebied**
+Rode vlakken op de kaart zijn verboden gebieden (bijvoorbeeld een drukke weg). Loop je erin, dan trilt je telefoon en krijg je een melding: loop terug.
 
 **Kaart**
 De kaart begint altijd licht. Met de knop **☀️** rechts boven de itembalk wissel je naar een donkere kaart (🌙) of een luchtfoto (🛰️).

@@ -148,7 +148,7 @@ export default function EersteStappen(p: Props) {
     hoofd = { tekst: "📝 Vragen invullen", onClick: p.onVragen, uit: !p.vraagpunten };
     extra = { tekst: "Later →", onClick: () => naar(stap + 1) };
   } else {
-    zin = <>De route staat op <strong>✏️ Concept</strong>. Laat de app nakijken wat er nog ontbreekt; daarna zet je hem klaar.</>;
+    zin = <>De route staat op <strong>✏️ Concept</strong>. Laat de app nakijken wat er nog ontbreekt; is alles in orde, dan start je hem.</>;
     hoofd = { tekst: "🩺 Controleren", onClick: p.onControleren };
   }
 

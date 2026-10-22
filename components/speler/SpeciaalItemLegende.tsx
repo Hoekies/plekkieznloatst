@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { geluidAan, zetGeluid } from "@/lib/sounds";
 import type { SpeciaalItem } from "@/types/database";
 
 // Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
@@ -72,6 +73,8 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
+  const [geluid, setGeluid] = useState(true);
+  useEffect(() => { setGeluid(geluidAan()); }, []);
 
   // Alleen itemtypen die in deze route voorkomen (zonder lijst: alles), in de vaste volgorde
   const inRoute = new Set<string>((speciaalItems ?? []).map((i) => i.type));
@@ -117,6 +120,18 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* 🔊 Geluid aan of uit (bijv. in een kerk of museum); trillen blijft werken */}
+          <button type="button" onClick={() => { const nieuw = !geluid; zetGeluid(nieuw); setGeluid(nieuw); }} role="switch" aria-checked={geluid}
+            style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 12, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+              background: geluid ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.05)", border: `1px solid ${geluid ? "rgba(74,222,128,0.5)" : "rgba(255,255,255,0.08)"}`, color: "#e8f0ff" }}>
+            <span style={{ fontSize: "1.6rem", lineHeight: 1 }}>{geluid ? "🔊" : "🔇"}</span>
+            <span style={{ flex: 1 }}>
+              <span style={{ display: "block", fontWeight: 700 }}>Geluid</span>
+              <span style={{ display: "block", fontSize: "0.76rem", color: "var(--muted)" }}>Uit in een stille omgeving; trillen blijft werken.</span>
+            </span>
+            <span className={`schakel-bol${geluid ? " schakel-bol--aan" : ""}`} aria-hidden />
+          </button>
+
           {/* Scherm aan laten: telefoon valt niet in slaap, geluid en trillen werken altijd */}
           {schermAan?.kan && (
             <button type="button" onClick={schermAan.wissel} role="switch" aria-checked={schermAan.aan}
@@ -177,6 +192,14 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
               {item.beschrijving(waarden)}
             </Regel>
           ))}
+
+          {/* Uitloggen: hier en met een bevestiging, zodat niemand het per ongeluk tijdens het spel doet */}
+          <form action="/api/auth/uitloggen" method="post" style={{ marginTop: 14, textAlign: "center" }}
+            onSubmit={(e) => { if (!confirm("Uitloggen? Je spel loopt door; log daarna opnieuw in om verder te spelen.")) e.preventDefault(); }}>
+            <button type="submit" style={{ background: "none", border: "1px solid rgba(248,113,113,0.5)", borderRadius: 10, padding: "8px 16px", color: "#FCA5A5", fontWeight: 700, fontFamily: "inherit", cursor: "pointer" }}>
+              🚪 Uitloggen
+            </button>
+          </form>
         </div>
       </div>
     </div>

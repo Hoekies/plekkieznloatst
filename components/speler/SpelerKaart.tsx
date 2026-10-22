@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { haversine, richting, afstandTekst } from "@/lib/geo";
+import { haversine, richting, afstandTekst, binnenVlak } from "@/lib/geo";
 import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import { tril, TRIL } from "@/lib/tril";
@@ -20,9 +20,11 @@ const STARTVRAAG_NA_METER = 25;
 // Startitems van de organisatie komen pas als het team zoveel meter heeft gelopen
 const STARTITEMS_NA_METER = 100;
 import InventarisBar from "./InventarisBar";
+import PuzzelWoord from "./PuzzelWoord";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
 import type { RoutePunt, SpelerSessie, SpelerPuntVoortgang, SpeciaalItem } from "@/types/database";
+import { bewaarKaartGebied } from "@/lib/kaart-offline";
 
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {
   ssr: false,
@@ -47,6 +49,8 @@ interface Props {
   stilleIds?: string[];
   // Op volgorde: alle punten en de lijn ertussen meteen op de kaart
   heleRoute?: boolean;
+  // ⛔ Verboden gebieden: rood op de kaart, waarschuwing als het team erin loopt
+  verbodenGebieden?: { naam: string; punten: [number, number][] }[];
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -62,6 +66,12 @@ const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 // Voor de "gelopen route" na de finish: ook tussendoor opslaan zodra de speler een stukje verder is
 const SPOOR_STAP_M = 10;
 const SPOOR_MIN_INTERVAL_MS = 4000;
+// Ver van elk open punt: grover spoor (scheelt batterij en data); dichtbij weer fijn
+const VER_AF_M = 300;
+const SPOOR_STAP_VER_M = 25;
+const SPOOR_INTERVAL_VER_MS = 10000;
+// Stilstaan: toch af en toe een plek sturen, zodat de spelleider ziet dat de telefoon er nog is
+const LEVENSTEKEN_MS = 60000;
 // Score, items, aanvallen, berichten en tussenstand: samen in één verzoek, zo vaak
 const STATUS_POLL_MS = 4000;
 
@@ -78,7 +88,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [] }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -167,6 +177,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
   const stilSet = new Set(stilleIds);
+  // ⛔ In welk verboden gebied staat het team nu (naam), of null; trillen bij binnenlopen
+  const inVerbodenGebied = positie ? verbodenGebieden.find((g) => g.punten.length >= 3 && binnenVlak(positie.latitude, positie.longitude, g.punten))?.naam ?? null : null;
+  const vorigVerbodenRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (inVerbodenGebied && inVerbodenGebied !== vorigVerbodenRef.current) tril(TRIL.fout);
+    vorigVerbodenRef.current = inVerbodenGebied;
+  }, [inVerbodenGebied]);
   // 🔆 Scherm aan laten (keuze in ℹ️)
   const schermAan = useSchermAan();
   const spelAfgelopen = verwerktIds.size >= punten.length;
@@ -246,6 +263,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Kaart van het speelgebied alvast bewaren voor als het bereik wegvalt
+  useEffect(() => {
+    const t = setTimeout(() => bewaarKaartGebied(sessie.route_id, punten), 5000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // GPS starten
   useEffect(() => {
     if (!navigator?.geolocation) { setGpsStatus("weg"); return; }
@@ -261,10 +285,22 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Locatie publiceren elke 60 seconden
+  // Ver van elk open punt? (bijgehouden in een ref: de GPS-handler hieronder is maar één keer gekoppeld)
+  const verAfRef = useRef(false);
+  useEffect(() => {
+    if (!positie) return;
+    const klaar = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
+    const open = punten.filter((p) => !klaar.has(p.id));
+    verAfRef.current = open.length > 0 && open.every((p) => haversine(positie.latitude, positie.longitude, p.latitude, p.longitude) > VER_AF_M);
+  }, [positie, punten, voortgang]);
+
+  // Locatie publiceren: alleen als je een stukje verder bent, of als levensteken na een minuut stilstaan
   useEffect(() => {
     locatieTimerRef.current = setInterval(() => {
-      if (positieRef.current) publiceerLocatie(positieRef.current);
+      const p = positieRef.current, laatst = laatstGepubliceerdRef.current;
+      if (!p) return;
+      const verplaatst = !laatst || haversine(laatst.lat, laatst.lng, p.latitude, p.longitude) >= SPOOR_STAP_M;
+      if (verplaatst || Date.now() - laatst!.tijd >= LEVENSTEKEN_MS) publiceerLocatie(p);
     }, LOCATIE_PUBLICEER_INTERVAL_MS);
     return () => { if (locatieTimerRef.current) clearInterval(locatieTimerRef.current); };
   // publiceerLocatie gebruikt enkel het meegegeven coords-argument + de stabiele router-ref/kmAfgelegdRef
@@ -281,9 +317,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     haalStatusOp();
     // Eén verzoek elke 4s voor score, items, aanvallen, berichten en tussenstand. Realtime mist
     // soms een update; zo komt alles toch binnen 4s binnen (een ander team pakte een item, een aanval, …)
-    const statusTimer = setInterval(() => haalStatusOp(), STATUS_POLL_MS);
+    // Scherm uit of app op de achtergrond: niet pollen (batterij); bij terugkomen meteen bijwerken
+    const statusTimer = setInterval(() => { if (!document.hidden) haalStatusOp(); }, STATUS_POLL_MS);
     // Andere teams: binnen 25 meter zie je ze ook zonder radar; zo verschijnen ze vanzelf
-    const andereTimer = setInterval(() => haalAndereSpelersOp(), 10000);
+    const andereTimer = setInterval(() => { if (!document.hidden) haalAndereSpelersOp(); }, 10000);
+    const weerZichtbaar = () => { if (!document.hidden) { haalStatusOp(); haalAndereSpelersOp(); } };
+    document.addEventListener("visibilitychange", weerZichtbaar);
 
     const supabase = createClient();
     const kanaal = supabase
@@ -299,6 +338,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       supabase.removeChannel(kanaal);
       clearInterval(statusTimer);
       clearInterval(andereTimer);
+      document.removeEventListener("visibilitychange", weerZichtbaar);
       if (radarPollRef.current) clearInterval(radarPollRef.current);
       if (plekzooiTimerRef.current) clearInterval(plekzooiTimerRef.current);
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
@@ -738,10 +778,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         vorigePositieRef.current = pos.coords;
       }
     }
-    // Spoor bijhouden: 10 m verder dan de laatst opgeslagen plek (en niet vaker dan elke 4 s)
+    // Spoor bijhouden: 10 m verder dan de laatst opgeslagen plek (en niet vaker dan elke 4 s);
+    // ver van elk open punt 25 m en elke 10 s
     const laatst = laatstGepubliceerdRef.current;
-    if (!laatst || (Date.now() - laatst.tijd >= SPOOR_MIN_INTERVAL_MS &&
-        haversine(laatst.lat, laatst.lng, pos.coords.latitude, pos.coords.longitude) >= SPOOR_STAP_M)) {
+    const ver = verAfRef.current;
+    if (!laatst || (Date.now() - laatst.tijd >= (ver ? SPOOR_INTERVAL_VER_MS : SPOOR_MIN_INTERVAL_MS) &&
+        haversine(laatst.lat, laatst.lng, pos.coords.latitude, pos.coords.longitude) >= (ver ? SPOOR_STAP_VER_M : SPOOR_STAP_M))) {
       publiceerLocatie(pos.coords);
     }
   }
@@ -897,6 +939,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           i
         </button>
       </div>
+
+      {/* 🧩 Puzzelwoord (alleen als de route er een heeft): ververst bij elke goede vraag */}
+      <PuzzelWoord ververs={voortgang.filter((v) => v.is_correct === true).length} />
 
       {/* GPS / realtime toasts */}
       {!realtimeVerbonden && (
@@ -1071,6 +1116,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           bereiktIds={bereiktIds}
           stilleIds={stilSet}
           heleRoute={heleRoute}
+          verbodenGebieden={verbodenGebieden}
           activePuntId={wachtOpStartVraag ? null : activePunt?.id ?? null}
           andereSpelers={andereSpelers}
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
@@ -1097,6 +1143,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
               ? <>🏁 Bijna klaar! Je laatste {wachtend === 1 ? "stap gaat" : `${wachtend} stappen gaan`} mee zodra er bereik is.</>
               : <>📡 Geen bereik · {wachtend === 1 ? "1 stap wacht" : `${wachtend} stappen wachten`}, gaat vanzelf mee</>}
           </div>
+        )}
+
+        {/* ⛔ In een verboden gebied: duidelijke waarschuwing tot het team eruit is */}
+        {inVerbodenGebied && (
+          <div className="verboden-melding" role="alert">⛔ Je bent in een verboden gebied: <strong>{inVerbodenGebied}</strong>. Loop terug!</div>
         )}
 
         {/* Afstand en richting naar het volgende punt (de kaart staat altijd met het noorden boven) */}

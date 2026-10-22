@@ -5,6 +5,7 @@ import IOSFixes from "@/components/speler/IOSFixes";
 import DeviceGuard from "@/components/speler/DeviceGuard";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
+import SpelerUitlog from "@/components/speler/SpelerUitlog";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -22,11 +23,7 @@ export default async function SpelerLayout({ children }: { children: React.React
         {/* Logo zonder lege randen: vult de hoogte van de balk, links uitgelijnd */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-breed-strak.webp" alt="PointRush" className="speler-header-logo" />
-        <form action="/api/auth/uitloggen" method="post" style={{ flexShrink: 0 }}>
-          <button type="submit" className="speler-uitlog-btn">
-            Uitloggen
-          </button>
-        </form>
+        <SpelerUitlog />
       </header>
       <main className="speler-content">
         {children}

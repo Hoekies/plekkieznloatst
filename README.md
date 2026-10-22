@@ -54,11 +54,13 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Foutmeldingen die uitleggen wat er misging en hoe je het oplost
 - Bij het opslaan van een vraag kies je meteen de naam van het punt (met voorstellen uit de vraag)
 - Live kaart met lagen (sporen, items) en licht/donker/luchtfoto in één paneel; 📺 beamerscherm (kaart, stand, gebeurtenissen) via een geheime link
+- Per vraag: 🔀 husselen, 🔊 geluid, ⏱️ tijdslimiet; per route: 🧩 puzzelwoord, ⛔ verboden gebieden; 📦 sjablonen bij een nieuwe route
 - 🩺 Systeemcheck (migraties, opslag, instellingen), 💾 back-up van alle routes, 📸 fotoalbum om te delen
 - Route-editor: 🚶 proeflopen (als testspeler over de kaart klikken), meerdere punten tegelijk aanpassen, straatnamen, 💡 vraagideeën
 - Helpers aan- en uitzetten, net als spelers
 - 🚀 Eerste stappen bij een nieuwe route (startpunt, finish, teams en km, punten maken, items automatisch, vragen, controleren)
-- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar; één knop voor licht/donker/luchtfoto (begint licht); op volgorde optioneel de hele route zichtbaar, met doorlooppunten (zonder scherm); speelt door zonder bereik (wachtrij); 🔆 scherm aan laten; 🏅 oorkonde bij de finish
+- Spelersapp: afstand en richting naar het volgende punt; tegenstanders binnen 25 meter zichtbaar; één knop voor licht/donker/luchtfoto (begint licht); op volgorde optioneel de hele route zichtbaar, met doorlooppunten (zonder scherm); speelt door zonder bereik (wachtrij); kaart van het speelgebied wordt bewaard voor plekken zonder bereik; zuinig met GPS en batterij; open antwoorden met één tikfout tellen goed; 🔆 scherm aan laten; 🏅 oorkonde bij de finish
+- Dashboard met mini live kaart; nieuwe punten krijgen vanzelf de straatnaam; 🐞 foutlogboek in de Systeemcheck; GPS-plekken na 30 dagen automatisch weg
 
 ### Speciale items
 Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk team bij de start één Banaan.
@@ -117,7 +119,7 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren, `011_wachtwoord_bewaren.sql` om hetzelfde wachtwoord opnieuw te kunnen versturen, `012_hele_route_zichtbaar.sql` om bij een route op volgorde de hele route te tonen, `013_doorlooppunt.sql` voor punten zonder scherm (🚶 Door).
+De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren, `011_wachtwoord_bewaren.sql` om hetzelfde wachtwoord opnieuw te kunnen versturen, `012_hele_route_zichtbaar.sql` om bij een route op volgorde de hele route te tonen, `013_doorlooppunt.sql` voor punten zonder scherm (🚶 Door), `014_vraagopties_puzzel_verboden.sql` voor husselen, geluid en tijdslimiet per vraag, het puzzelwoord en verboden gebieden, `015_indexen_opruimen_foutlog.sql` voor snellere zoekopdrachten, het nachtelijk opruimen van GPS-plekken ouder dan 30 dagen (pg_cron) en het foutlogboek in de Systeemcheck.
 
 ### Starten
 
@@ -126,6 +128,14 @@ npm run dev
 ```
 
 De app draait op [http://localhost:3000](http://localhost:3000).
+
+### Controle vóór een push
+
+```bash
+npm run controle
+```
+
+Types, lint, een zelftest van de spelregels (`scripts/zelftest.ts`) en een proefbouw (in `.next-controle`, zodat `npm run dev` gewoon door kan draaien). Na `git config core.hooksPath .githooks` gebeurt dit vanzelf bij elke `git push`; gaat iets mis, dan wordt er niet gepusht.
 
 ### Admin-account aanmaken
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Vóór elke push: npm run controle (types, lint, zelftest, proefbouw). Overslaan: git push --no-verify
+npm run controle

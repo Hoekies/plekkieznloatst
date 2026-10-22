@@ -48,7 +48,7 @@ Heeft de organisatie de **hele route zichtbaar** gezet (bijvoorbeeld bij een ing
 
 Navigeer naar het genummerde punt. Ben je er, dan springt de vraag vanzelf open.
 
-- **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten.
+- **Vraagpunt** — Er verschijnt een vraag. Beantwoord die correct voor punten. Bij een open vraag mag er in een langer woord één tikfout zitten.
 - **Infopunt** — Er verschijnt informatie, geen vraag.
 - **Eindpunt** — Je hebt de route voltooid. Je eindtijd en eindscore worden vastgelegd.
 

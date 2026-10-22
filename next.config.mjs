@@ -6,6 +6,8 @@ const { version } = JSON.parse(readFileSync(new URL("./package.json", import.met
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  // npm run controle bouwt in een eigen map, zodat een draaiende dev-server er geen last van heeft
+  distDir: process.env.PR_DIST || ".next",
   env: {
     NEXT_PUBLIC_VERSIE: version,
     NEXT_PUBLIC_BOUWDATUM: new Date().toISOString(),
@@ -23,7 +25,8 @@ const config = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
       // tiles.openfreemap.org: vectorkaart (stijl, tegels, lettertypen, symbolen)
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
+      // tile.openstreetmap.org: de service worker haalt ook de gewone kaartplaatjes op (en bewaart ze)
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://service.pdok.nl https://server.arcgisonline.com",
       // De vectorkaart rekent in web workers die als blob worden gestart
       "worker-src 'self' blob:",
       "child-src 'self' blob:",

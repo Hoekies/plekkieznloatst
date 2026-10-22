@@ -14,6 +14,7 @@ type VraagImport = {
   type: string; question_text: string; question_image_path: string | null; points: number;
   correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null;
   antwoord_opties: AntwoordOptieImport[];
+  antwoorden_husselen?: boolean; geluid_pad?: string | null; tijdslimiet_seconden?: number | null;
 };
 type PuntImport = {
   order_index: number; type: string; name: string; description: string | null; latitude: number; longitude: number;
@@ -34,6 +35,8 @@ const INSTELLINGEN = [
   "item_respawn", "respawn_minuten", "plekzooi_duur_seconden", "spook_duur_seconden", "startitems",
   "items_na_finish", "items_na_finish_types", "tussenstand_interval_minuten", "tussenstand_duur_seconden",
 ];
+// Nieuwere instellingen (migratie 012 en 014): los bijgewerkt, zodat importeren ook zonder die migraties lukt
+const EXTRA_INSTELLINGEN = ["alle_punten_zichtbaar", "puzzelwoord", "puzzel_bonus", "puzzel_omschrijving", "verboden_gebieden"];
 const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken"];
 
 export async function POST(request: Request) {
@@ -47,14 +50,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ fout: "Ongeldig export-bestand (verkeerde versie of structuur)" }, { status: 400 });
   }
 
-  const veiligPad = /^[\w\-\/]+\.(jpg|jpeg|png|mp3|webp)$/i;
+  const veiligPad = /^[\w\-\/]+\.(jpg|jpeg|png|webp|mp3|m4a|aac|wav|ogg|webm)$/i;
   const geldigePlek = (lat: unknown, lng: unknown) => {
     const a = Number(lat), b = Number(lng);
     return !isNaN(a) && a >= -90 && a <= 90 && !isNaN(b) && b >= -180 && b <= 180;
   };
   for (const punt of body.route_punten) {
     if (!geldigePlek(punt.latitude, punt.longitude)) return NextResponse.json({ fout: `Ongeldig coördinaat bij punt: ${punt.name}` }, { status: 400 });
-    for (const pad of [punt.image_path, punt.vraag?.question_image_path, ...(punt.vraag?.antwoord_opties ?? []).map((o) => o.image_path)]) {
+    for (const pad of [punt.image_path, punt.vraag?.question_image_path, punt.vraag?.geluid_pad, ...(punt.vraag?.antwoord_opties ?? []).map((o) => o.image_path)]) {
       if (pad && !veiligPad.test(pad)) return NextResponse.json({ fout: `Ongeldig afbeeldingspad bij punt: ${punt.name}` }, { status: 400 });
     }
   }
@@ -70,6 +73,8 @@ export async function POST(request: Request) {
     .select("id")
     .single();
   if (routeError || !nieuweRoute) return NextResponse.json({ fout: `Kon route niet aanmaken: ${routeError?.message ?? ""}` }, { status: 500 });
+  const extra = Object.fromEntries(Object.entries(body.route.instellingen ?? {}).filter(([k]) => EXTRA_INSTELLINGEN.includes(k)));
+  if (Object.keys(extra).length) await admin.from("routes").update(extra).eq("id", nieuweRoute.id);
 
   const nieuwPuntVoorVolgorde = new Map<number, string>();
   for (const punt of body.route_punten) {
@@ -112,6 +117,12 @@ export async function POST(request: Request) {
       .select("id")
       .single();
     if (vraagError || !nieuweVraag) continue;
+    // Husselen, geluid en tijdslimiet (migratie 014); zonder die migratie gewoon overslaan
+    if (punt.vraag.antwoorden_husselen || punt.vraag.geluid_pad || punt.vraag.tijdslimiet_seconden) {
+      await admin.from("questions").update({
+        antwoorden_husselen: !!punt.vraag.antwoorden_husselen, geluid_pad: punt.vraag.geluid_pad ?? null, tijdslimiet_seconden: punt.vraag.tijdslimiet_seconden ?? null,
+      }).eq("id", nieuweVraag.id);
+    }
 
     if (Array.isArray(punt.vraag.antwoord_opties) && punt.vraag.antwoord_opties.length > 0) {
       await admin.from("answer_options").insert(

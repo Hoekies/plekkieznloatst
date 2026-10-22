@@ -407,15 +407,13 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
             <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
           </div>
 
-          {!modal.helper && !klaar && (
-            <div className="segment" role="radiogroup" aria-label="Manier van inloggen">
-              <button type="button" role="radio" aria-checked={modus === "wachtwoord"} className={modus === "wachtwoord" ? "aan" : ""} onClick={() => setModus("wachtwoord")}>🔑 Met wachtwoord</button>
-              <button type="button" role="radio" aria-checked={modus === "link"} className={modus === "link" ? "aan" : ""} onClick={() => setModus("link")}>🔗 Alleen een link</button>
-            </div>
-          )}
-
+          {/* Standaard: kaartje met loginnaam, wachtwoord en een directe link. Alleen een link (zonder
+              wachtwoord) is een uitzondering: die staat als klein linkje onderaan */}
           {modus === "link" && !modal.helper ? (
-            <InlogLinkSectie spelerId={modal.id} toegangTot={modal.toegangTot} telefoon={modal.telefoon} onGewijzigd={onGewijzigd} />
+            <>
+              <InlogLinkSectie spelerId={modal.id} toegangTot={modal.toegangTot} telefoon={modal.telefoon} onGewijzigd={onGewijzigd} />
+              <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => setModus("wachtwoord")}>← Toch met wachtwoord versturen</button>
+            </>
           ) : klaar ? (
             <InlogKlaar inlog={{ ...klaar, helper: modal.helper, telefoon: modal.telefoon }} />
           ) : (
@@ -463,6 +461,9 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
               <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={laden || huidig === undefined}>
                 {laden ? "Bezig…" : (wachtwoord !== huidig || (!modal.helper && login.trim() !== (modal.login ?? ""))) ? "💾 Opslaan en versturen" : "📤 Versturen"}
               </button>
+              {!modal.helper && (
+                <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={() => setModus("link")}>🔗 Alleen een link sturen (zonder wachtwoord)</button>
+              )}
             </>
           )}
         </form>

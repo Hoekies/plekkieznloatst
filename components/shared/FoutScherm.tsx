@@ -15,7 +15,14 @@ export default function FoutScherm({ error, reset }: { error: Error & { digest?:
   const nieuweVersie = isNieuweVersie(error);
   useEffect(() => {
     console.error(error);
-    if (!nieuweVersie) return;
+    if (!nieuweVersie) {
+      // In het foutlogboek van de beheerder zetten (Systeemcheck); lukt dat niet, dan niet erg
+      fetch("/api/fout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bericht: error.message || error.name, details: error.stack ?? error.digest ?? null, pad: window.location.pathname }),
+      }).catch(() => {});
+      return;
+    }
     // Hooguit één keer per minuut vanzelf herladen, anders blijft hij hangen in een lus
     let laatst = 0;
     try { laatst = Number(sessionStorage.getItem(SLEUTEL)) || 0; } catch { /* geen opslag */ }

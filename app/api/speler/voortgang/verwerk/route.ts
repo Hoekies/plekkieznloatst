@@ -3,7 +3,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
-import { normaliserenNumeriek } from "@/lib/geo";
+import { normaliserenNumeriek, tekstKlopt } from "@/lib/geo";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 
 async function getActieveSessie() {
@@ -15,10 +15,6 @@ async function getActieveSessie() {
   const { data: sessie } = await admin
     .from("player_sessions").select("*, player_id").eq("player_id", speler.id).eq("status", "actief").maybeSingle();
   return sessie ?? null;
-}
-
-function normaliserenTekst(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 export async function POST(request: NextRequest) {
@@ -33,6 +29,8 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const { route_point_id, selected_answer_id, open_answer_text } = body;
+  // De tijdslimiet van de vraag is verstreken: de vraag telt als fout
+  const teLaat = body.te_laat === true;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
 
   const admin = createAdminClient();
@@ -82,6 +80,9 @@ export async function POST(request: NextRequest) {
       // Vraagpunt zonder vraag → doorgaan als informatiepunt; een doorlooppunt levert niets op
       isCorrect = true;
       puntWaarde = punt.type === "doorlooppunt" ? 0 : punt.points;
+    } else if (teLaat && vraag.type !== "foto_opdracht") {
+      isCorrect = false;
+      puntWaarde = 0;
     } else if (vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") {
       if (!selected_answer_id) return NextResponse.json({ fout: "Geen antwoord opgegeven" }, { status: 400 });
 
@@ -106,9 +107,7 @@ export async function POST(request: NextRequest) {
         numericTolerance = tolerantie;
       } else {
         // Tekst
-        const genorm = normaliserenTekst(open_answer_text);
-        const correcte = (vraag.correct_text_answers ?? []).map(normaliserenTekst);
-        isCorrect = correcte.includes(genorm);
+        isCorrect = (vraag.correct_text_answers ?? []).some((goed: string) => tekstKlopt(open_answer_text, goed));
         correctTextAnswers = vraag.correct_text_answers ?? [];
       }
       puntWaarde = isCorrect ? vraag.points : 0;

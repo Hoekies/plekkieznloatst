@@ -1762,7 +1762,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Telefoon: compacte strook i.p.v. vier tegels */
 /* Spelers links, tijdlijn rechts op een breed scherm */
 .dash-kolommen { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
-@media (min-width: 1100px) { .dash-kolommen { grid-template-columns: minmax(0, 1fr) 340px; } .dash-kolommen .tijdlijn { position: sticky; top: 100px; } }
+@media (min-width: 1100px) { .dash-kolommen { grid-template-columns: minmax(0, 1fr) 340px; } .dash-zijkolom { position: sticky; top: 100px; } }
+/* Mini live kaart boven de tijdlijn; tikken opent de grote kaart */
+.dash-zijkolom { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mini-livekaart { position: relative; display: block; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; }
+.mini-livekaart:focus-visible { outline: 2px solid var(--accent, #A78BFA); outline-offset: 2px; }
+.mini-livekaart-kaart { height: 180px; width: 100%; background: #1e293b; }
+.mini-livekaart-kaart .leaflet-container, .mini-livekaart-kaart.leaflet-container { cursor: pointer; }
+.mini-livekaart-label { position: absolute; left: 8px; bottom: 8px; z-index: 500; padding: 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: #fff; background: rgba(15,23,42,0.8); }
 /* Lege schermen met een volgende stap */
 .leeg-scherm { display: flex; flex-direction: column; }
 .leeg-scherm p { margin: 0; font-size: 0.9rem; }
@@ -3047,3 +3054,39 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .album-groot-onder button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1.5rem; cursor: pointer; }
 .album-groot-onder button:disabled { opacity: 0.3; }
 .album-sluit { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 1.1rem; cursor: pointer; }
+.systeem-groep { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+.systeem-groep-kop { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-display); font-weight: 800; color: #fff; }
+.systeem-telling { font-size: 0.8rem; color: #86EFAC; }
+.systeem-telling--mis { color: #FCA5A5; }
+.systeem-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
+.systeem-fout { width: 100%; border: 0; cursor: pointer; font: inherit; }
+.systeem-fout-details { margin: 6px 0 0; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.3); font-size: 0.7rem; color: #CBD5E1; white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; }
+.systeem-vakje { font-size: 0.76rem; padding: 6px 10px; border-radius: 8px; background: rgba(74,222,128,0.08); color: #D1FAE5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Vraag met tijdslimiet: aftelklok bovenaan, rood in de laatste 10 seconden */
+.vraag-klok { align-self: center; padding: 6px 16px; border-radius: 999px; background: #EDE9FE; color: #5B21B6; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.vraag-klok--bijna { background: #FEE2E2; color: #B91C1C; animation: klok-puls 1s ease-in-out infinite; }
+@keyframes klok-puls { 50% { transform: scale(1.08); } }
+
+/* 🧩 Puzzelwoord: letters als tegeltjes (leeg = nog niet verdiend) */
+.puzzel-balk { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 12px; flex-shrink: 0; background: rgba(42,21,102,0.55); border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 1rem; }
+.puzzel-tegels { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.puzzel-tegel { width: 22px; height: 26px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.3); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; }
+.puzzel-tegel--open { background: #FFD93B; border: 1px solid #fff; color: #3a1f80; }
+.puzzel-raden { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,217,59,0.4); }
+.puzzel-raden-kop { font-family: var(--font-display); font-weight: 800; color: #FFE680; }
+.puzzel-raden .puzzel-tegel { width: 30px; height: 36px; font-size: 1.15rem; }
+.puzzel-raden-veld { display: flex; gap: 8px; width: 100%; max-width: 360px; }
+.puzzel-raden-veld .form-input { flex: 1; min-width: 0; letter-spacing: 0.1em; font-weight: 700; }
+.puzzel-melding { font-weight: 700; color: #fff; }
+
+/* ⛔ Speler in een verboden gebied */
+.verboden-melding { position: absolute; top: 60px; left: 12px; right: 12px; z-index: 955; padding: 10px 14px; border-radius: 14px; text-align: center;
+  background: rgba(185,28,28,0.95); color: #fff; font-weight: 600; font-size: 0.92rem; box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+/* Nieuwe route: knoppenrijen passen ook op een smalle telefoon */
+.nieuwe-route .segment > button { font-size: 0.76rem; }
+@media (max-width: 420px) { .nieuwe-route .segment { display: grid; grid-template-columns: 1fr 1fr; } }
+.puzzel-balk { flex-wrap: wrap; }
+.puzzel-hint { flex-basis: 100%; text-align: center; font-size: 0.74rem; color: var(--muted); }
+.puzzel-raden .puzzel-hint { font-size: 0.85rem; color: #fff; }

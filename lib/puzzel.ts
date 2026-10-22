@@ -1,0 +1,26 @@
+// 🧩 Puzzelwoord: elke goede vraag geeft het team een letter, op een vaste maar per team andere plek.
+// Bij de finish raadt het team het woord voor bonuspunten. Het woord zelf gaat nooit naar de telefoon.
+
+// Alleen letters en cijfers, in hoofdletters ("Plekkie z'n" → "PLEKKIEZN")
+export function normaliseerPuzzel(woord: string | null | undefined): string {
+  return (woord ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+// Volgorde waarin de letters vrijkomen: per team anders, maar altijd dezelfde (afgeleid van het sessie-id)
+export function puzzelVolgorde(sessieId: string, lengte: number): number[] {
+  const gewicht = (i: number) => {
+    let h = 2166136261;
+    for (const c of `${sessieId}:${i}`) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  };
+  return Array.from({ length: lengte }, (_, i) => i).sort((a, b) => gewicht(a) - gewicht(b));
+}
+
+export type PuzzelStand = { lengte: number; letters: (string | null)[]; opgelost: boolean; bonus: number; omschrijving: string | null };
+
+// Wat het team mag zien: de letters op de plekken die het al verdiend heeft, de rest leeg
+export function puzzelStand(woord: string, sessieId: string, goed: number, opgelost: boolean, bonus: number, omschrijving: string | null = null): PuzzelStand {
+  const w = normaliseerPuzzel(woord);
+  const open = new Set(opgelost ? w.split("").map((_, i) => i) : puzzelVolgorde(sessieId, w.length).slice(0, goed));
+  return { lengte: w.length, letters: w.split("").map((l, i) => (open.has(i) ? l : null)), opgelost, bonus, omschrijving };
+}

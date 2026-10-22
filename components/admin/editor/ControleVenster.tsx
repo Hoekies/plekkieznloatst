@@ -43,30 +43,20 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
             </div>
           )}
 
+          {/* Eén stap: is alles in orde, dan start je de route meteen (de spelers kunnen beginnen).
+              Wie hem pas later wil starten, zet hem klaar met het linkje eronder. */}
           {!actief && (
-            <div style={{ fontSize: "0.76rem", color: "var(--muted)", textAlign: "center" }}>
-              {status === "gepubliceerd" ? "De route staat klaar. Activeer hem en de spelers kunnen beginnen." : "Is alles in orde? Zet de route dan klaar; daarna kun je hem activeren."}
-            </div>
-          )}
-
-          {status !== "gepubliceerd" && !actief && (
             fouten ? (
-              <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je de route klaarzetten.</div>
-            ) : (
-              <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onKlaarzetten}>
-                ✅ {controle.length ? "Toch klaarzetten" : "Klaarzetten"}
+              <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je de route starten.</div>
+            ) : (<>
+              <button type="button" className="rl-knop hoofdknop" style={{ height: 44, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onActiveer}>
+                ▶ {controle.length ? "Toch starten" : "Starten"}
               </button>
-            )
-          )}
-
-          {!actief && status === "gepubliceerd" && (
-            fouten ? (
-              <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je activeren.</div>
-            ) : (
-              <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onActiveer}>
-                ▶ {controle.length ? "Toch activeren" : "Activeren"}
-              </button>
-            )
+              <div style={{ fontSize: "0.74rem", color: "var(--muted)", textAlign: "center" }}>De spelers kunnen dan meteen beginnen. Een andere actieve route stopt.</div>
+              {status !== "gepubliceerd" && (
+                <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={onKlaarzetten}>Nog niet starten, alleen klaarzetten</button>
+              )}
+            </>)
           )}
         </div>
       </div>

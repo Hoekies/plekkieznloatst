@@ -60,6 +60,9 @@ interface Props {
   pasIn?: { punten: { lat: number; lng: number }[]; boven: number } | null;
   // Proeflopen: de testspeler en de weg die hij al liep
   loper?: { lat: number; lng: number } | null;
+  // Verboden gebieden (rood) en het gebied dat je nu aan het tekenen bent
+  verbodenGebieden?: { naam: string; punten: [number, number][] }[];
+  tekenGebied?: [number, number][] | null;
   loperSpoor?: [number, number][];
   // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
   itemVoorstellen?: { lat: number; lng: number; type: string }[];
@@ -74,7 +77,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
+  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -501,6 +504,27 @@ export default function LeafletKaart({
       finishMarkerRef.current = L.marker([finishPunt.lat, finishPunt.lng], { icon, interactive: false, zIndexOffset: 1100 }).addTo(kaartRef.current);
     });
   }, [finishPunt, kaartKlaar]);
+
+  // ⛔ Verboden gebieden: rood gearceerd; tijdens het tekenen de hoekpunten en de lijn ertussen
+  const gebiedLagenRef = useRef<import("leaflet").Layer[]>([]);
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      gebiedLagenRef.current.forEach((l) => l.remove());
+      gebiedLagenRef.current = [];
+      const kaart = kaartRef.current;
+      if (!kaart) return;
+      for (const g of verbodenGebieden) {
+        if (g.punten.length < 3) continue;
+        gebiedLagenRef.current.push(L.polygon(g.punten, { color: "#DC2626", weight: 2, fillColor: "#EF4444", fillOpacity: 0.22, dashArray: "6 4", interactive: false })
+          .bindTooltip(`⛔ ${escapeHtml(g.naam)}`, { permanent: false, direction: "center" }).addTo(kaart));
+      }
+      if (tekenGebied?.length) {
+        gebiedLagenRef.current.push(L.polyline(tekenGebied.length > 2 ? [...tekenGebied, tekenGebied[0]] : tekenGebied, { color: "#DC2626", weight: 3, dashArray: "4 4", interactive: false }).addTo(kaart));
+        tekenGebied.forEach((p) => gebiedLagenRef.current.push(L.circleMarker(p, { radius: 5, color: "#fff", weight: 2, fillColor: "#DC2626", fillOpacity: 1, interactive: false }).addTo(kaart)));
+      }
+    });
+  }, [verbodenGebieden, tekenGebied, kaartKlaar]);
 
   // Proeflopen: 🚶 op de plek van de testspeler, met een oranje lijn van de gelopen weg
   const loperRef = useRef<{ marker: import("leaflet").Marker; lijn: import("leaflet").Polyline } | null>(null);

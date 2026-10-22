@@ -41,7 +41,18 @@ type VraagData = {
   question_image_path: string | null;
   points: number;
   answer_options: AntwoordOptie[];
+  // Per vraag aan of uit
+  antwoorden_husselen?: boolean;
+  geluid_pad?: string | null;
+  tijdslimiet_seconden?: number | null;
 };
+
+// Antwoorden in een willekeurige volgorde (elk team anders)
+function hussel<T>(lijst: T[]): T[] {
+  const uit = [...lijst];
+  for (let i = uit.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [uit[i], uit[j]] = [uit[j], uit[i]]; }
+  return uit;
+}
 
 type Feedback = {
   is_correct: boolean;
@@ -99,7 +110,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
     // die moet dan eerst beantwoord worden. Meestal is de vraag al vooruit geladen (ook zonder bereik).
     haalVraag<VraagData>(punt.id)
       .then((data) => {
-        if (data) setVraag(data);
+        if (data) setVraag(data.antwoorden_husselen ? { ...data, answer_options: hussel(data.answer_options ?? []) } : data);
         if (start === "uitleg") setPopupFase("start");
         else setPopupFase(data ? "vraag" : "informatie");
       })
@@ -120,7 +131,24 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
     }
   }
 
-  async function beantwoordMet(answerId: string | null, openTekst?: string) {
+  // ⏱️ Tijdslimiet: aftellen zodra de vraag in beeld is; op nul telt de vraag als fout
+  const [resterend, setResterend] = useState<number | null>(null);
+  const [teLaat, setTeLaat] = useState(false);
+  useEffect(() => {
+    const limiet = vraag?.tijdslimiet_seconden;
+    if (popupFase !== "vraag" || !limiet || vraag?.type === "foto_opdracht") { setResterend(null); return; }
+    const eind = Date.now() + limiet * 1000;
+    setResterend(limiet);
+    const t = setInterval(() => {
+      const over = Math.max(0, Math.ceil((eind - Date.now()) / 1000));
+      setResterend(over);
+      if (over <= 0) { clearInterval(t); setTeLaat(true); beantwoordMet(null, undefined, true); }
+    }, 250);
+    return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popupFase, vraag?.id]);
+
+  async function beantwoordMet(answerId: string | null, openTekst?: string, teLaatNu = false) {
     if (!vraag) return;
     setFout("");
     setBezig(true);
@@ -129,6 +157,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         route_point_id: punt.id,
         selected_answer_id: answerId ?? undefined,
         open_answer_text: openTekst,
+        ...(teLaatNu ? { te_laat: true } : {}),
       });
       // Geen bereik: het antwoord is bewaard en telt zodra er weer bereik is
       if (r.status === "bewaard") {
@@ -274,9 +303,20 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         {/* Vraag beantwoorden */}
         {popupFase === "vraag" && vraag && (
           <>
+            {/* ⏱️ Aftelklok (als de vraag een tijdslimiet heeft) */}
+            {resterend !== null && (
+              <div className={`vraag-klok${resterend <= 10 ? " vraag-klok--bijna" : ""}`} role="timer" aria-live="polite">
+                ⏱️ {Math.floor(resterend / 60)}:{String(resterend % 60).padStart(2, "0")}
+              </div>
+            )}
             <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap", color: "#0A1B36" }}>
               {vraag.question_text}
             </h2>
+
+            {/* 🔊 Geluidsfragment bij de vraag */}
+            {vraag.geluid_pad && (
+              <audio controls preload="auto" src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${vraag.geluid_pad}`} style={{ width: "100%" }} />
+            )}
 
             {vraag.question_image_path && (
               <img
@@ -461,6 +501,9 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         )}
 
         {/* Feedback reguliere vraag */}
+        {popupFase === "feedback" && teLaat && (
+          <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#B91C1C", textAlign: "center" }}>⏱️ De tijd is om!</div>
+        )}
         {popupFase === "feedback" && feedback && vraag && vraag.type !== "foto_opdracht" && (
           <FeedbackWeergave
             feedback={feedback}

@@ -84,6 +84,7 @@ export default async function SpelerKaartPage() {
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
       stilleIds={stilleIds}
+      verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}
       heleRoute={route.modus !== "verspreid" && (route as { alle_punten_zichtbaar?: boolean }).alle_punten_zichtbaar === true}
       waarden={{
         ster: route.ster_waarde ?? 50,

@@ -21,6 +21,10 @@ import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
 import ContactKnop from "@/components/admin/ContactKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import StatStrook from "@/components/admin/StatStrook";
+import dynamic from "next/dynamic";
+
+// Kaart pas laden in de browser (Leaflet), en niet op de server
+const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -205,7 +209,12 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             )}
           </div>
           {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
-          {route && spelend.length > 0 && <Tijdlijn kleuren={kleuren} />}
+          {route && spelend.length > 0 && (
+            <div className="dash-zijkolom">
+              <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />
+              <Tijdlijn kleuren={kleuren} />
+            </div>
+          )}
         </div>
 
         {detail && (

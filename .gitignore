@@ -5,6 +5,7 @@ node_modules/
 
 # Build
 .next/
+.next-controle/
 out/
 build/
 

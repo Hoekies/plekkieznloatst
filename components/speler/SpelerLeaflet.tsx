@@ -21,6 +21,8 @@ interface Props {
   stilleIds?: Set<string>;
   // Op volgorde: alle punten en de lijn ertussen meteen tonen
   heleRoute?: boolean;
+  // ⛔ Verboden gebieden: rood gearceerd
+  verbodenGebieden?: { naam: string; punten: [number, number][] }[];
   andereSpelers: SpelerLocatie[];
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
@@ -37,7 +39,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
@@ -50,6 +52,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const specialeItemMarkersRef = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const polylineRef = useRef<import("leaflet").Polyline | null>(null);
   const heleLijnRef = useRef<import("leaflet").Polyline | null>(null);
+  const gebiedenRef = useRef<import("leaflet").Polygon[]>([]);
+  useEffect(() => {
+    const L = LRef.current, map = mapRef.current;
+    if (!L || !map) return;
+    gebiedenRef.current.forEach((g) => g.remove());
+    gebiedenRef.current = verbodenGebieden.filter((g) => g.punten.length >= 3).map((g) =>
+      L.polygon(g.punten, { color: "#DC2626", weight: 2, fillColor: "#EF4444", fillOpacity: 0.25, dashArray: "6 4", interactive: false }).addTo(map));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verbodenGebieden, kaartKlaar]);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
   // Licht, donker of luchtfoto met één knop; de kaart begint altijd licht

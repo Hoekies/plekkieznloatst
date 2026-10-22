@@ -9,6 +9,7 @@ import type { RouteWaarden } from "./SpeciaalItemLegende";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import StandRij from "./StandRij";
 import Oorkonde from "./Oorkonde";
+import PuzzelWoord from "./PuzzelWoord";
 
 interface Props {
   groepNaam: string;
@@ -159,6 +160,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
           <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
           <StatKaart waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="var(--green, #16A34A)" />
         </div>
+
+        {/* 🧩 Puzzelwoord raden voor bonuspunten (als de route er een heeft) */}
+        <PuzzelWoord raden />
 
         {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is) */}
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}

@@ -17,6 +17,8 @@ const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolo
   { nr: "010", bestand: "010_pauze.sql", wat: "spel pauzeren", tabel: "routes", kolom: "gepauzeerd_sinds" },
   { nr: "011", bestand: "011_wachtwoord_bewaren.sql", wat: "wachtwoord opnieuw versturen", tabel: "players", kolom: "wachtwoord_versleuteld" },
   { nr: "012", bestand: "012_hele_route_zichtbaar.sql", wat: "hele route zichtbaar", tabel: "routes", kolom: "alle_punten_zichtbaar" },
+  { nr: "014", bestand: "014_vraagopties_puzzel_verboden.sql", wat: "vraagopties, puzzelwoord, verboden gebieden", tabel: "routes", kolom: "verboden_gebieden" },
+  { nr: "015", bestand: "015_indexen_opruimen_foutlog.sql", wat: "snellere database, opruimen, foutlogboek", tabel: "client_fouten" },
 ];
 
 export async function GET() {
@@ -43,9 +45,9 @@ export async function GET() {
 
   // Opslag (afbeeldingen en foto's)
   const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();
-  for (const naam of ["route-afbeeldingen", "vraag-afbeeldingen", "foto-inzendingen"]) {
+  for (const naam of ["route-afbeeldingen", "vraag-afbeeldingen", "foto-inzendingen", "vraag-geluid"]) {
     const ok = !opslagFout && !!buckets?.some((b) => b.name === naam);
-    checks.push({ groep: "Opslag", naam: `Map "${naam}"`, ok, uitleg: ok ? undefined : "Maak deze map aan in Supabase → Storage." });
+    checks.push({ groep: "Opslag", naam: `Map "${naam}"`, ok, uitleg: ok ? undefined : naam === "vraag-geluid" ? "Draai migratie 014 (maakt deze map aan)." : "Maak deze map aan in Supabase → Storage." });
   }
 
   // Instellingen op Vercel (alleen of ze er zijn)
@@ -59,6 +61,9 @@ export async function GET() {
     const ok = !!process.env[naam];
     checks.push({ groep: "Instellingen", naam: wat, ok, uitleg: ok ? undefined : `Zet ${naam} in Vercel → Settings → Environment Variables.` });
   }
+
+  // Puzzelwoord bedenken: met Claude als de sleutel er is, anders gratis via Wiktionary (geen fout)
+  checks.push({ groep: "Instellingen", naam: process.env.ANTHROPIC_API_KEY ? "✨ Woordvoorstellen: met AI (Claude)" : "✨ Woordvoorstellen: gratis (Wiktionary); met ANTHROPIC_API_KEY ook vrije vragen", ok: true });
 
   // Stand van het spel
   const { data: actief } = await admin.from("routes").select("name").eq("is_active", true).maybeSingle();

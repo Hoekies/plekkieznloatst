@@ -28,5 +28,8 @@ export async function GET(_: NextRequest, { params }: { params: { pid: string } 
     .order("order_index", { referencedTable: "answer_options" })
     .maybeSingle();
 
-  return NextResponse.json(vraag ?? null);
+  if (!vraag) return NextResponse.json(null);
+  // Per vraag: husselen, geluid en tijdslimiet (migratie 014). Los opgehaald: zonder die migratie werkt de vraag gewoon
+  const { data: extra } = await admin.from("questions").select("antwoorden_husselen, geluid_pad, tijdslimiet_seconden").eq("id", vraag.id).maybeSingle();
+  return NextResponse.json({ ...vraag, ...(extra ?? {}) });
 }

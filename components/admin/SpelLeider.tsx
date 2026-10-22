@@ -7,6 +7,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
+import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 
@@ -147,6 +148,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                   ? <><span className="alleen-pc">Rapport openen</span><span className="alleen-mobiel">Rapport</span></>
                   : <><span className="alleen-pc">Spel afronden</span><span className="alleen-mobiel">Afronden</span></>}
               </BevestigKnop>
+              {/* Na het afronden: alles opruimen voor de volgende groep */}
+              {uitslagVrij && <NieuwSpelKnop onKlaar={() => window.location.reload()} />}
             </div>
           )}
         </div>
