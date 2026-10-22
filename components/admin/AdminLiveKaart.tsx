@@ -130,7 +130,7 @@ export default function AdminLiveKaart({ initData }: Props) {
       {replay ? (
         <div className="live-kaart-vak" style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
           <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
-            <ReplayKaart teams={replay} route_punten={route_punten} kleuren={kleuren} />
+            <ReplayKaart teams={replay} route_punten={route_punten} kleuren={kleuren} titel={initData.route?.name ?? null} />
           </div>
         </div>
       ) : (

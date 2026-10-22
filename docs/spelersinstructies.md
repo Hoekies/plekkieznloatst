@@ -53,6 +53,12 @@ Bij de finish staat **🏅 Oorkonde delen**: een mooie afbeelding met jullie tea
 **Geluid**
 In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i**-knop (**🔊 Geluid**). Trillen blijft werken.
 
+**🗳️ Stemvraag**
+Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste teams kiezen. Kozen jullie hetzelfde als de meerderheid, dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).
+
+**🏆 Uitslag**
+Bij de uitslag komen de nummers 3, 2 en 1 op het podium. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
+
 **Puzzelwoord en tijdslimiet**
 Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes 🧩. Elke goed beantwoorde vraag geeft een letter. Bij de finish raad je het woord voor bonuspunten. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
 

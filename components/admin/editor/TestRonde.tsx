@@ -12,7 +12,7 @@ type Optie = { id: string; color: string; answer_type: string; text: string | nu
 type Vraag = { type: string; question_text: string; points: number; correct_text_answers: string[] | null; numeric_answer: number | null; answer_options: Optie[] };
 
 const KLEUR: Record<string, string> = { geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A" };
-const SOORT: Record<string, string> = { meerkeuze_tekst: "Meerkeuze", meerkeuze_afbeelding: "Meerkeuze met plaatjes", open: "Open vraag", foto_opdracht: "Foto-opdracht" };
+const SOORT: Record<string, string> = { meerkeuze_tekst: "Meerkeuze", meerkeuze_afbeelding: "Meerkeuze met plaatjes", open: "Open vraag", foto_opdracht: "Foto-opdracht", stemvraag: "Stemvraag" };
 
 export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar, onSluit, onLopen }: {
   routeId: string;

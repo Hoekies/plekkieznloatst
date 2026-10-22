@@ -25,6 +25,7 @@ import { loopNaar, NIEUWE_PROEF, type ProefStand } from "./editor/proeflopen";
 import type { KiesModus } from "@/components/admin/editor/EersteStappen";
 import ControleVenster from "./editor/ControleVenster";
 import { routeControle } from "@/lib/route-controle";
+import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
@@ -2071,6 +2072,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       {puzzelwoord.replace(/[^A-Z0-9]/gi, "").length > vraagpunten.length && ` ⚠️ Het woord heeft meer letters dan er vragen zijn (${vraagpunten.length}).`}
                     </span>
                   </div>
+                )}
+
+                {/* 🎨 Huisstijl en 🔔 geluiden voor de spelers */}
+                {instellingenTab === "algemeen" && (
+                  <HuisstijlInstellingen route={route} onOpslaan={async (velden) => {
+                    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
+                    if (res.ok) setRoute((r) => ({ ...r, ...velden }));
+                    return res.ok;
+                  }} />
                 )}
 
                 {instellingenTab === "punten" && (

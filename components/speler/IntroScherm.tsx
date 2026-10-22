@@ -12,6 +12,9 @@ interface Props {
   modus: RouteModus | null;
   // Het spel viel weg door de beheerder: eigen spel gestopt/gereset, of de hele route gestopt
   melding?: "spel" | "route" | null;
+  // 🎨 Huisstijl van de route: welkomstfoto als achtergrond en het logo van de organisatie
+  welkomFoto?: string | null;
+  huisLogo?: string | null;
 }
 
 const ICONEN = [
@@ -20,7 +23,7 @@ const ICONEN = [
   "🤡", "👽", "🤖", "🍕", "🦸",
 ];
 
-export default function IntroScherm({ modus, melding = null }: Props) {
+export default function IntroScherm({ modus, melding = null, welkomFoto = null, huisLogo = null }: Props) {
   const router = useRouter();
   const [toonMelding, setToonMelding] = useState(!!melding);
 
@@ -132,12 +135,12 @@ export default function IntroScherm({ modus, melding = null }: Props) {
     }}>
       {/* Kaartafbeelding */}
       <img
-        src="/intro-map.svg"
+        src={welkomFoto ?? "/intro-map.svg"}
         alt=""
         style={{
           position: "absolute", inset: 0,
           width: "100%", height: "100%",
-          objectFit: "cover", opacity: 0.4,
+          objectFit: "cover", opacity: welkomFoto ? 0.7 : 0.4,
           pointerEvents: "none",
         }}
       />
@@ -169,7 +172,7 @@ export default function IntroScherm({ modus, melding = null }: Props) {
         {!typt && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}
         <div className="pr-logo-wrap" style={typt ? { display: "none" } : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.webp" alt="PointRush" style={{
+          <img src={huisLogo ?? "/logo.webp"} alt={huisLogo ? "Logo" : "PointRush"} style={{
             width: "clamp(110px, 36vw, 170px)", objectFit: "contain", display: "block",
             filter: "drop-shadow(0 14px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,217,59,0.2))",
           }} />

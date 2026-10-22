@@ -1,7 +1,7 @@
 export type RouteStatus = "concept" | "gepubliceerd";
 // doorlooppunt: de speler krijgt geen scherm, het punt telt vanzelf als gepasseerd (migratie 013)
 export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt" | "doorlooppunt";
-export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
+export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht" | "stemvraag";
 export type AntwoordKleur = "geel" | "blauw" | "rood" | "groen";
 export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
@@ -26,6 +26,11 @@ export interface Route {
   puzzelwoord?: string | null;
   puzzel_bonus?: number;
   puzzel_omschrijving?: string | null;
+  // 🎨 Huisstijl en 🔔 geluidset (migratie 016)
+  huisstijl_kleur?: string | null;
+  huisstijl_logo_pad?: string | null;
+  welkom_foto_pad?: string | null;
+  geluid_set?: string | null;
   verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;
@@ -90,6 +95,8 @@ export interface Vraag {
   antwoorden_husselen?: boolean;
   geluid_pad?: string | null;           // geluidsfragment in de opslag "vraag-geluid"
   tijdslimiet_seconden?: number | null;  // null = geen tijdslimiet
+  // 🗳️ Stemvraag: stemming gesloten en punten uitgedeeld (migratie 016)
+  stem_gesloten?: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -27,6 +27,8 @@ interface Props {
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
   spelerIcoon?: string | null;
+  // Vaste teamkleur (zelfde als in het beheer): ring om je eigen icoon
+  teamKleur?: string | null;
   // Teamnaam onder het eigen icoon (zoals op de live kaart)
   spelerNaam?: string | null;
   // Elke keer dat dit getal verandert: de kaart centreren op de eigen plek (knop 🎯)
@@ -39,7 +41,8 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+  const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   // GPS kan binnenkomen voordat Leaflet geladen is; effecten draaien opnieuw zodra de kaart klaar staat
@@ -157,8 +160,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       const icon = L.divIcon({
         className: "",
         html: spelerIcoon
-          ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:40px;height:40px;border-radius:50%;box-sizing:border-box;background:#fff;border:3px solid #3B82F6;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1">${spelerIcoon}</div>${naamLabel}</div>`
-          : `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:20px;height:20px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 2px 6px rgba(0,0,0,0.4)"></div>${naamLabel}</div>`,
+          ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:40px;height:40px;border-radius:50%;box-sizing:border-box;background:#fff;border:3px solid ${ring};box-shadow:0 0 0 4px ${ring}55,0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1">${spelerIcoon}</div>${naamLabel}</div>`
+          : `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:20px;height:20px;border-radius:50%;background:${ring};border:3px solid #fff;box-shadow:0 0 0 4px ${ring}55,0 2px 6px rgba(0,0,0,0.4)"></div>${naamLabel}</div>`,
         iconSize: spelerIcoon ? [40, 60] : [20, 40],
         iconAnchor: spelerIcoon ? [20, 20] : [10, 10],
       });
@@ -256,22 +259,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         label = punt.type === "eindpunt" ? "🏁" : isStil ? "•" : punt.type === "informatiepunt" ? "i" : "?";
       }
 
-      const puls = isActief
-        ? `animation:puls 1.4s ease-in-out infinite;`
-        : "";
-
+      // Zwevende pin met schaduw op de grond; het volgende punt veert op en neer met een puls-ring
       const icon = L.divIcon({
         className: "",
-        html: `<div style="
-          width:36px;height:36px;border-radius:50%;
-          background:${kleur};border:3px solid #fff;
-          box-shadow:0 2px 8px rgba(0,0,0,0.35);
-          display:flex;align-items:center;justify-content:center;
-          font-size:${punt.type === "eindpunt" ? "17px" : "13px"};
-          font-weight:700;color:#fff;${puls}
-        ">${label}</div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
+        html: `<div class="pr-pin${isActief ? " pr-pin--actief" : ""}${isLater ? " pr-pin--later" : ""}" style="--pin:${kleur}">
+          <span class="pr-pin-ring"></span><span class="pr-pin-schaduw"></span>
+          <span class="pr-pin-kop"><span class="pr-pin-label" style="font-size:${punt.type === "eindpunt" ? "16px" : "14px"}">${label}</span></span>
+        </div>`,
+        iconSize: [40, 52],
+        iconAnchor: [20, 43],
       });
 
       const marker = L.marker([punt.latitude, punt.longitude], { icon, interactive: false }).addTo(map);

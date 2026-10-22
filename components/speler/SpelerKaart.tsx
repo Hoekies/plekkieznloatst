@@ -51,6 +51,8 @@ interface Props {
   heleRoute?: boolean;
   // ⛔ Verboden gebieden: rood op de kaart, waarschuwing als het team erin loopt
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
+  // 🌈 Vaste teamkleur: rand onder de puntenbalk en ring om je eigen icoon op de kaart
+  teamKleur?: string | null;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -88,7 +90,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [] }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -905,10 +907,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, height: "100%", position: "relative" }}>
 
-      {/* Statistiekenbalk */}
+      {/* Statistiekenbalk, in de teamkleur getint */}
       <div style={{
         display: "flex", gap: 10, padding: "10px 14px", flexShrink: 0,
-        background: "rgba(42,21,102, 0.45)",
+        background: teamKleur ? `linear-gradient(90deg, ${teamKleur}55, rgba(42,21,102,0.45) 70%)` : "rgba(42,21,102, 0.45)",
+        boxShadow: teamKleur ? `inset 0 -3px 0 ${teamKleur}` : undefined,
         backdropFilter: "blur(14px) saturate(130%)",
         WebkitBackdropFilter: "blur(14px) saturate(130%)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
@@ -1107,6 +1110,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <SpelerLeaflet
           spelerIcoon={spelerIcoon}
           spelerNaam={spelerNaam}
+          teamKleur={teamKleur}
           centreerVerzoek={centreerVerzoek}
           // Op dezelfde hoogte als 🎯 linksonder; staat "Niet bereikbaar?" rechtsonder, dan erboven
           stijlOnder={activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot ? knoepBottomOffset + 46 : knoepBottomOffset}

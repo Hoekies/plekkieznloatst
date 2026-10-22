@@ -31,8 +31,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const body = await request.json();
   const admin = createAdminClient();
 
+  // 🗳️ Stemvraag: 2 tot 4 keuzes, geen goed antwoord (de meerderheid wint)
+  if (body.type === "stemvraag") {
+    const n = (body.antwoorden ?? []).length;
+    if (n < 2 || n > 4) return NextResponse.json({ fout: "Een stemvraag heeft 2 tot 4 keuzes" }, { status: 400 });
+    body.antwoorden = body.antwoorden.map((a: { is_correct: boolean }) => ({ ...a, is_correct: false, punten: null }));
+  }
   // Valideer exact 1 correct antwoord bij meerkeuze
-  if (body.type !== "open" && body.type !== "foto_opdracht") {
+  else if (body.type !== "open" && body.type !== "foto_opdracht") {
     const aantalCorrect = (body.antwoorden ?? []).filter((a: { is_correct: boolean }) => a.is_correct).length;
     if (aantalCorrect !== 1) {
       return NextResponse.json({ fout: "Selecteer precies één correct antwoord" }, { status: 400 });
@@ -53,7 +59,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
   if (bestaand) {
     // Updaten
-    await admin.from("questions").update({
+    const { error: updateFout } = await admin.from("questions").update({
       type: body.type,
       question_text: body.question_text,
       question_image_path: body.question_image_path ?? null,
@@ -62,6 +68,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       numeric_answer: body.numeric_answer ?? null,
       numeric_tolerance: body.numeric_tolerance ?? null,
     }).eq("id", bestaand.id);
+    if (updateFout) return NextResponse.json({ fout: /type_check/.test(updateFout.message) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : updateFout.message }, { status: 500 });
     vraagId = bestaand.id;
 
     // Antwoorden vervangen
@@ -79,7 +86,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       numeric_answer: body.numeric_answer ?? null,
       numeric_tolerance: body.numeric_tolerance ?? null,
     }).select().single();
-    if (error || !nieuw) return NextResponse.json({ fout: error?.message }, { status: 500 });
+    if (error || !nieuw) return NextResponse.json({ fout: error && /type_check/.test(error.message) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : error?.message }, { status: 500 });
     vraagId = nieuw.id;
   }
 

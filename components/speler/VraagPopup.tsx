@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { RoutePunt, SpelerPuntVoortgang } from "@/types/database";
 import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
+import { strooiConfetti } from "@/lib/confetti";
 import { tril, TRIL } from "@/lib/tril";
 import { stuur } from "@/lib/wachtrij";
 import { haalVraag } from "@/lib/vraag-cache";
@@ -36,7 +37,7 @@ type AntwoordOptie = {
 
 type VraagData = {
   id: string;
-  type: "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht";
+  type: "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht" | "stemvraag";
   question_text: string;
   question_image_path: string | null;
   points: number;
@@ -55,7 +56,9 @@ function hussel<T>(lijst: T[]): T[] {
 }
 
 type Feedback = {
-  is_correct: boolean;
+  is_correct: boolean | null;
+  // 🗳️ Stemvraag: is_correct blijft leeg tot de stemming sluit
+  stem?: boolean;
   points_awarded: number;
   correct_answer_id: string | null;
   correct_text_answers: string[] | null;
@@ -175,9 +178,11 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 
       const data = await res.json();
       voortgangRef.current = data.voortgang;
-      if (data.is_correct) { speelGoedAntwoord(); tril(TRIL.goed); } else { speelFoutAntwoord(); tril(TRIL.fout); }
+      if (data.stem && data.is_correct === null) tril(TRIL.goed);
+      else if (data.is_correct) { speelGoedAntwoord(); tril(TRIL.goed); strooiConfetti({ aantal: 70, duurMs: 1800, knal: true }); } else { speelFoutAntwoord(); tril(TRIL.fout); }
       setFeedback({
         is_correct: data.is_correct,
+        stem: !!data.stem,
         points_awarded: data.points_awarded,
         correct_answer_id: data.correct_answer_id ?? null,
         correct_text_answers: data.correct_text_answers ?? null,
@@ -376,7 +381,10 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
               </div>
             )}
 
-            {vraag.type === "meerkeuze_tekst" && (
+            {vraag.type === "stemvraag" && (
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#6D28D9", marginBottom: -2 }}>🗳️ Stem! Kies je voor wat de meeste teams kiezen, dan krijg je de punten.</div>
+            )}
+            {(vraag.type === "meerkeuze_tekst" || vraag.type === "stemvraag") && (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {(vraag.answer_options ?? []).length === 0 && (
                   <p style={{ color: "#DC2626", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
@@ -622,6 +630,17 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
   vraag: VraagData;
   gekozenId: string | null;
 }) {
+  // 🗳️ Stem uitgebracht: de uitslag komt pas als de stemming sluit
+  if (feedback.stem && feedback.is_correct === null) {
+    return (
+      <div style={{ background: "#EDE9FE", border: "1px solid #C4B5FD", borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
+        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#5B21B6" }}>🗳️ Je stem is uitgebracht!</div>
+        <div style={{ fontSize: "0.88rem", color: "#4C1D95", marginTop: 4, lineHeight: 1.45 }}>
+          Stemden jullie hetzelfde als de meeste teams? Dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div style={{

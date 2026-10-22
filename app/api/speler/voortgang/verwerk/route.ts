@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { normaliserenNumeriek, tekstKlopt } from "@/lib/geo";
+import { stemWinnaars } from "@/lib/stemmen";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 
 async function getActieveSessie() {
@@ -63,6 +64,8 @@ export async function POST(request: NextRequest) {
   let correctTextAnswers: string[] | null = null;
   let numericAnswer: number | null = null;
   let numericTolerance: number | null = null;
+  // 🗳️ Stemvraag: de punten komen pas als de stemming sluit
+  let isStem = false;
 
   // Hangt er een vraag aan het punt (ook aan een informatiepunt, zoals het startpunt), dan
   // moet die beantwoord worden: zonder antwoord wordt het punt niet verwerkt.
@@ -93,6 +96,19 @@ export async function POST(request: NextRequest) {
       // Eigen punten per antwoord (kan negatief zijn); anders goed = vraagpunten, fout = 0
       puntWaarde = typeof gekozen.punten === "number" ? gekozen.punten : (isCorrect ? vraag.points : 0);
       correctAnswerId = vraag.answer_options.find((a: { is_correct: boolean }) => a.is_correct)?.id ?? null;
+    } else if (vraag.type === "stemvraag") {
+      if (!selected_answer_id) return NextResponse.json({ fout: "Geen keuze opgegeven" }, { status: 400 });
+      if (!vraag.answer_options.some((a: { id: string }) => a.id === selected_answer_id)) return NextResponse.json({ fout: "Ongeldige keuze" }, { status: 400 });
+      isStem = true;
+      if (vraag.stem_gesloten) {
+        // Stemming al dicht: meteen vergelijken met de uitslag van de stemming
+        const { winnaars } = await stemWinnaars(admin, route_point_id);
+        isCorrect = winnaars.includes(selected_answer_id);
+        puntWaarde = isCorrect ? vraag.points : 0;
+      } else {
+        isCorrect = null;
+        puntWaarde = 0;
+      }
     } else if (vraag.type === "open") {
       if (typeof open_answer_text !== "string" || !open_answer_text.trim()) {
         return NextResponse.json({ fout: "Vul eerst een antwoord in" }, { status: 400 });
@@ -246,5 +262,6 @@ export async function POST(request: NextRequest) {
     correct_text_answers: correctTextAnswers,
     numeric_answer: numericAnswer,
     numeric_tolerance: numericTolerance,
+    stem: isStem,
   });
 }

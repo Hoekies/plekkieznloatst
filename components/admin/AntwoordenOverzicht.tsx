@@ -8,6 +8,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
 import FotoGalerij, { useFotoUrl } from "@/components/admin/FotoGalerij";
 import StatStrook from "@/components/admin/StatStrook";
+import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 type Data = {
@@ -153,6 +154,14 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             🏆 Uitslag vrijgeven
           </BevestigKnop>
         )}
+        {data.teams.length > 0 && (
+          <UitslagDelen routeNaam={data.route.name} knopClass="rl-knop actie-knop" stand={(() => {
+            // Plaats: hoogste score eerst; bij gelijke score de snelste (zoals de stand)
+            const duur = (t: TeamAntwoorden) => (t.finished_at ? Date.parse(t.finished_at) : Date.now()) - (t.started_at ? Date.parse(t.started_at) : 0);
+            const lijst = [...data.teams].sort((a, b) => b.score - a.score || duur(a) - duur(b));
+            return lijst.map((t, i) => ({ naam: t.naam, icon: t.icon, score: t.score, plaats: i + 1 }));
+          })()} />
+        )}
         <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
           style={{ textDecoration: "none" }}
           title="Eindstand en per speler de vragen, items en gelopen route — als PDF te versturen">
@@ -161,7 +170,11 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       </>}
       </div>
 
-      {weergave === "vraag" && <VraagStatistiek teams={data.teams} onOokGoed={ookGoed} />}
+      {weergave === "vraag" && <VraagStatistiek teams={data.teams} onOokGoed={ookGoed}
+        onSluitStemming={async (puntId) => {
+          await actie("stemming", () => fetch("/api/admin/stemming", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punt_id: puntId }) }));
+          toonMelding("Stemming gesloten: de punten zijn uitgedeeld", "ok");
+        }} />}
       {weergave === "fotos" && <FotoGalerij teams={data.teams} bezig={bezig}
         onKeur={(fotoId, voortgangId, status, punten, opmerking) => keurFoto(fotoId, voortgangId, status, punten, opmerking)} />}
 
@@ -238,7 +251,7 @@ function AntwoordRegel({ rij: r, bezig, onGoedkeuren, onFoto }: {
   const isFoto = r.vraag_type === "foto_opdracht";
   const kleur = isFoto
     ? r.foto_status === "goedgekeurd" ? "#4ADE80" : r.foto_status === "afgekeurd" ? "#F87171" : "#FBBF24"
-    : r.is_correct ? "#4ADE80" : r.bijna_goed ? "#FBBF24" : "#F87171";
+    : r.stem_open ? "#A78BFA" : r.is_correct ? "#4ADE80" : r.bijna_goed ? "#FBBF24" : "#F87171";
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", borderRadius: 10, background: r.bijna_goed ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.04)", borderLeft: `3px solid ${kleur}` }}>
       <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem" }}>
@@ -248,8 +261,9 @@ function AntwoordRegel({ rij: r, bezig, onGoedkeuren, onFoto }: {
           r.foto_pad && <FotoMini pad={r.foto_pad} />
         ) : (
           <div style={{ marginTop: 3 }}>
-            <span style={{ color: kleur, fontWeight: 700 }}>{r.is_correct ? "✓" : r.bijna_goed ? "🤏" : "✗"} {r.antwoord ?? "—"}</span>
-            {!r.is_correct && r.juiste_antwoord && (
+            <span style={{ color: kleur, fontWeight: 700 }}>{r.stem_open ? "🗳️" : r.is_correct ? "✓" : r.bijna_goed ? "🤏" : "✗"} {r.antwoord ?? "—"}</span>
+            {r.stem_open && <span style={{ color: "var(--muted)", fontSize: "0.72rem" }}> · gestemd, stemming nog open</span>}
+            {!r.is_correct && !r.stem_open && r.juiste_antwoord && (
               <span style={{ color: "var(--muted)" }}> · goed: {r.juiste_antwoord}</span>
             )}
             {r.bijna_goed && <span style={{ color: "#FBBF24", fontSize: "0.72rem" }}> · bijna goed (tikfout?)</span>}

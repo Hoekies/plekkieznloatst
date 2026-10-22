@@ -2454,6 +2454,59 @@ button.route-stap:hover { color: var(--ink); }
 .antw-balk { margin-bottom: 0; }
 .antw-tabs { width: 300px; max-width: 100%; }
 .antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
+/* 🎨 Huisstijl in de route-instellingen */
+.huisstijl { display: flex; flex-direction: column; gap: 8px; }
+.huisstijl-rij { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.huisstijl-label { width: 96px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
+.huisstijl-kleur { position: relative; width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #fff; background: rgba(255,255,255,0.08); overflow: hidden; }
+.huisstijl-kleur.aan { box-shadow: 0 0 0 3px #fff; border-color: #fff; }
+.huisstijl-kleur--standaard { background: linear-gradient(135deg, #FF8A00, #7C3AED); }
+.huisstijl-kleur--eigen input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.huisstijl-voorbeeld { height: 40px; width: 64px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+.huisstijl-voorbeeld--logo { object-fit: contain; background: rgba(255,255,255,0.08); }
+/* 🎨 Huisstijl van de route: logo van de organisatie rechts naast het PointRush-logo */
+.speler-header-huislogo { height: 70%; max-height: 40px; max-width: 30vw; object-fit: contain; margin-left: 10px; border-radius: 6px; }
+/* 📍 Punten op de spelerskaart: zwevende pin met schaduw; het volgende punt veert en pulseert */
+.pr-pin { position: relative; width: 40px; height: 52px; }
+.pr-pin-kop { position: absolute; left: 4px; top: 2px; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--pin) 70%, #fff), var(--pin) 60%);
+  border: 2.5px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; }
+.pr-pin-label { transform: rotate(45deg); color: #fff; font-weight: 800; line-height: 1; text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
+.pr-pin-schaduw { position: absolute; left: 12px; bottom: 2px; width: 16px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.35); filter: blur(1.5px); }
+.pr-pin-ring { position: absolute; left: 5px; bottom: -6px; width: 30px; height: 14px; border-radius: 50%; border: 2px solid var(--pin); opacity: 0; }
+.pr-pin--later { opacity: 0.75; }
+.pr-pin--actief .pr-pin-kop { animation: pin-veer 1.4s ease-in-out infinite; }
+.pr-pin--actief .pr-pin-schaduw { animation: pin-schaduw 1.4s ease-in-out infinite; }
+.pr-pin--actief .pr-pin-ring { animation: pin-ring 1.6s ease-out infinite; }
+@keyframes pin-veer { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-7px) rotate(-45deg); } }
+@keyframes pin-schaduw { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.7); opacity: 0.6; } }
+@keyframes pin-ring { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pr-pin--actief .pr-pin-kop, .pr-pin--actief .pr-pin-schaduw, .pr-pin--actief .pr-pin-ring { animation: none; } }
+/* 🏆 Podium bij de uitslag: 3, dan 2, dan 1 komt omhoog */
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin: 6px 0 14px; min-height: 230px; }
+.podium-plek { flex: 1; max-width: 170px; display: flex; flex-direction: column; align-items: stretch; }
+.podium-teams { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; opacity: 0; animation: podium-in 0.5s ease-out forwards; }
+.podium-team { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.podium-icoon { font-size: 2rem; line-height: 1.1; }
+.podium-plek--1 .podium-icoon { font-size: 2.6rem; }
+.podium-naam { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.85rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium-score { font-size: 0.75rem; color: #FFE680; font-weight: 700; }
+.podium-team--eigen .podium-naam { color: #00D9FF; }
+.podium-blok { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; padding-top: 8px; border-radius: 12px 12px 4px 4px;
+  font-family: var(--font-display); font-weight: 900; font-size: 1.8rem; color: #fff; transform-origin: bottom; transform: scaleY(0); animation: podium-op 0.6s cubic-bezier(.2,1.4,.4,1) forwards; }
+.podium-blok > span { font-size: 1.4rem; }
+.podium-plek--1 .podium-blok { height: 130px; background: linear-gradient(180deg, #FACC15, #B45309); }
+.podium-plek--2 .podium-blok { height: 95px; background: linear-gradient(180deg, #E5E7EB, #6B7280); }
+.podium-plek--3 .podium-blok { height: 70px; background: linear-gradient(180deg, #FDBA74, #9A3412); }
+.podium-plek--3 .podium-blok { animation-delay: 0.3s; }
+.podium-plek--2 .podium-blok { animation-delay: 0.9s; }
+.podium-plek--1 .podium-blok { animation-delay: 1.5s; }
+.podium-plek--3 .podium-teams { animation-delay: 0.7s; }
+.podium-plek--2 .podium-teams { animation-delay: 1.3s; }
+.podium-plek--1 .podium-teams { animation-delay: 1.9s; }
+@keyframes podium-op { to { transform: scaleY(1); } }
+@keyframes podium-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .podium-blok, .podium-teams { animation: none; transform: none; opacity: 1; } }
 /* Antwoorden per team: kop is de inklapknop; dicht = alleen de telling */
 .antw-kop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
 .antw-telling { display: block; font-size: 0.76rem; font-weight: 700; margin-top: 1px; }
@@ -2462,6 +2515,25 @@ button.route-stap:hover { color: var(--ink); }
 .stat-fout-knop { padding: 1px 6px; border-radius: 6px; border: 1px dashed rgba(252,165,165,0.45); background: none; color: #FCA5A5; font: inherit; cursor: pointer; }
 .stat-fout-knop:hover { border-style: solid; background: rgba(74,222,128,0.08); }
 .stat-fout-plus { color: #4ADE80; font-weight: 800; margin-left: 2px; }
+/* 📈 Puntenverloop op het dashboard */
+.verloop { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px; }
+.verloop-kop { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
+.verloop-legenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.76rem; color: var(--text); }
+.verloop-legenda span, .verloop-tip span { display: inline-flex; align-items: center; gap: 5px; }
+.verloop-legenda i, .verloop-tip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.verloop-vak { position: relative; width: 100%; overflow: hidden; touch-action: pan-y; }
+.verloop-raster { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+.verloop-as { fill: rgba(255,255,255,0.5); font-size: 10px; }
+.verloop-label { fill: #fff; font-size: 11px; font-weight: 700; }
+.verloop-punt { stroke: #1c0c45; stroke-width: 2; }
+.verloop-wijs { stroke: rgba(255,255,255,0.4); stroke-width: 1; stroke-dasharray: 3 3; }
+.verloop-tip { position: absolute; top: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 150px; padding: 6px 9px; border-radius: 8px; background: rgba(15,10,40,0.94); border: 1px solid rgba(255,255,255,0.15); font-size: 0.74rem; color: var(--text); pointer-events: none; }
+.verloop-tip b { margin-left: auto; padding-left: 10px; color: #fff; }
+/* 🗳️ Stemvraag in 📊 Per vraag: een balk per keuze, de winnaar het sterkst */
+.stem-balk { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); overflow: hidden; font-size: 0.84rem; }
+.stem-balk-vulling { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 8px; }
+.stem-balk-tekst { position: relative; flex: 1; min-width: 0; color: #fff; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stem-balk-aantal { position: relative; color: #fff; }
 /* 📸 Foto's als galerij */
 .foto-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .foto-tegel { position: relative; aspect-ratio: 1; padding: 0; border-radius: 12px; overflow: hidden; cursor: pointer; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
@@ -2990,6 +3062,30 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .oorkonde-cijfers > div { display: flex; flex-direction: column; gap: 2px; padding: 12px 6px; border-radius: 16px; background: rgba(255,255,255,0.1); }
 .oorkonde-cijfers strong { font-family: var(--font-display); font-size: 1.5rem; }
 .oorkonde-cijfers span { font-size: 0.85rem; color: #d6cdf2; }
+/* 🖼️ Uitslag om te delen (staande afbeelding, 4:5 zoals Instagram) */
+.uitslag-kaart { width: 540px; min-height: 675px; padding: 30px 30px 22px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  border-radius: 28px; border: 4px solid #FFD93B; color: #fff; font-family: var(--font);
+  background: radial-gradient(circle at 50% 0%, #7c4dd8 0%, #5b34a8 45%, #3a1f80 100%); }
+.uitslag-kaart-logo { width: 190px; height: auto; }
+.uitslag-kaart-kop { font-family: var(--font-display); font-weight: 800; font-size: 2rem; letter-spacing: 0.14em; text-transform: uppercase; color: #FFE680; }
+.uitslag-kaart-route { font-size: 1.05rem; color: #e9e3fb; margin-top: -4px; }
+.uitslag-kaart-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; width: 100%; margin-top: 10px; }
+.uitslag-kaart-plek { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.uitslag-kaart-team { display: flex; flex-direction: column; align-items: center; }
+.uitslag-kaart-icoon { font-size: 2.4rem; line-height: 1.1; }
+.uitslag-kaart-plek--1 .uitslag-kaart-icoon { font-size: 3.2rem; }
+.uitslag-kaart-naam { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; line-height: 1.2; word-break: break-word; }
+.uitslag-kaart-score { font-size: 0.9rem; color: #FFE680; font-weight: 700; }
+.uitslag-kaart-team--eigen .uitslag-kaart-naam, .uitslag-kaart-rest .uitslag-kaart-team--eigen { color: #67E8F9; }
+.uitslag-kaart-blok { display: flex; justify-content: center; padding-top: 10px; border-radius: 14px 14px 4px 4px; font-size: 2rem; }
+.uitslag-kaart-plek--1 .uitslag-kaart-blok { height: 130px; background: linear-gradient(180deg, #FACC15, #B45309); }
+.uitslag-kaart-plek--2 .uitslag-kaart-blok { height: 95px; background: linear-gradient(180deg, #E5E7EB, #6B7280); }
+.uitslag-kaart-plek--3 .uitslag-kaart-blok { height: 70px; background: linear-gradient(180deg, #FDBA74, #9A3412); }
+.uitslag-kaart-rest { width: 100%; display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.uitslag-kaart-rest > div { display: flex; gap: 10px; align-items: center; padding: 7px 14px; border-radius: 12px; background: rgba(255,255,255,0.1); font-size: 1rem; text-align: left; }
+.uitslag-kaart-rest > div > span:first-child { width: 26px; color: #d6cdf2; font-weight: 700; }
+.uitslag-kaart-rest > div > span:nth-child(2) { flex: 1; font-weight: 700; }
+.uitslag-kaart-voet { margin-top: auto; padding-top: 10px; font-size: 0.85rem; color: #d6cdf2; }
 .oorkonde-voet { margin-top: 6px; font-size: 0.85rem; color: #d6cdf2; }
 
 /* 📺 Beamerscherm: grote kaart links, stand en gebeurtenissen rechts; groot leesbaar, geen knoppen */

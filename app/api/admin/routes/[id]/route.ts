@@ -39,6 +39,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
   if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
   if (typeof body.puzzel_bonus === "number" && body.puzzel_bonus >= 0) toegestaan.puzzel_bonus = Math.min(10000, Math.round(body.puzzel_bonus));
+  // 🎨 Huisstijl en 🔔 geluidset (migratie 016); leeg = de gewone stijl
+  if ("huisstijl_kleur" in body) toegestaan.huisstijl_kleur = typeof body.huisstijl_kleur === "string" && /^#[0-9A-Fa-f]{6}$/.test(body.huisstijl_kleur) ? body.huisstijl_kleur : null;
+  for (const veld of ["huisstijl_logo_pad", "welkom_foto_pad"]) {
+    if (veld in body) toegestaan[veld] = typeof body[veld] === "string" && /^[\w-]+\.(jpg|jpeg|png|webp)$/i.test(body[veld]) ? body[veld] : null;
+  }
+  if (["klassiek", "arcade", "zacht", "feest"].includes(body.geluid_set)) toegestaan.geluid_set = body.geluid_set;
   if ("verboden_gebieden" in body) {
     // Alleen geldige vlakken: een naam en minstens 3 hoekpunten
     const lijst = Array.isArray(body.verboden_gebieden) ? body.verboden_gebieden : [];
@@ -81,6 +87,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .single();
   if (error && /alle_punten_zichtbaar/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
+  }
+  if (error && /huisstijl|welkom_foto|geluid_set/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 016 (huisstijl, geluid en stemvraag) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel|verboden_gebieden/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 014 (puzzelwoord en verboden gebieden) in Supabase" }, { status: 500 });

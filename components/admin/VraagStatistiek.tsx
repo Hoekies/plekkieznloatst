@@ -10,22 +10,36 @@ type Stat = {
   fout: Map<string, { tekst: string; n: number; ids: string[] }>;
   // Alle foute antwoorden (voor "iedereen goed")
   foutIds: string[];
+  // 🗳️ Stemvraag: aantal stemmen per keuze, en of de stemming nog open is
+  stemmen: Map<string, number>;
+  stemOpen: boolean;
 };
 
 // "📊 Per vraag": hoeveel teams elke vraag goed of fout hadden, en welke foute antwoorden vaak voorkwamen.
 // Zo zie je meteen of een vraag te moeilijk (of fout ingesteld) is.
 // onOokGoed: achteraf goed rekenen voor alle teams met dat antwoord (tekst = open vraag: telt voortaan ook goed)
-export default function VraagStatistiek({ teams, onOokGoed }: { teams: TeamAntwoorden[]; onOokGoed?: (ids: string[], tekst: string | null) => Promise<void> }) {
+export default function VraagStatistiek({ teams, onOokGoed, onSluitStemming }: {
+  teams: TeamAntwoorden[];
+  onOokGoed?: (ids: string[], tekst: string | null) => Promise<void>;
+  onSluitStemming?: (puntId: string) => Promise<void>;
+}) {
   const stats = new Map<string, Stat>();
   for (const t of teams) {
     for (const r of t.rijen) {
       let s = stats.get(r.punt_id);
       if (!s) {
         s = { punt_id: r.punt_id, volgorde: r.punt_volgorde, punt_naam: r.punt_naam, vraag_tekst: r.vraag_tekst, vraag_type: r.vraag_type,
-          aantal: 0, goed: 0, wacht: 0, juiste: r.juiste_antwoord, fout: new Map(), foutIds: [] };
+          aantal: 0, goed: 0, wacht: 0, juiste: r.juiste_antwoord, fout: new Map(), foutIds: [], stemmen: new Map(), stemOpen: false };
         stats.set(r.punt_id, s);
       }
       s.aantal++;
+      if (r.vraag_type === "stemvraag") {
+        const keuze = r.antwoord ?? "(geen keuze)";
+        s.stemmen.set(keuze, (s.stemmen.get(keuze) ?? 0) + 1);
+        if (r.stem_open) s.stemOpen = true;
+        if (r.is_correct === true) s.goed++;
+        continue;
+      }
       const isFoto = r.vraag_type === "foto_opdracht";
       if (isFoto ? r.foto_status === "wacht" : false) s.wacht++;
       else if (isFoto ? r.foto_status === "goedgekeurd" : r.is_correct === true) s.goed++;
@@ -53,6 +67,31 @@ export default function VraagStatistiek({ teams, onOokGoed }: { teams: TeamAntwo
         const pct = beoordeeld ? Math.round((s.goed / beoordeeld) * 100) : 0;
         const kleur = pct >= 70 ? "#4ADE80" : pct >= 40 ? "#FBBF24" : "#F87171";
         const fouten = [...s.fout.values()].sort((a, b) => b.n - a.n);
+        if (s.vraag_type === "stemvraag") {
+          const max = Math.max(0, ...s.stemmen.values());
+          return (
+            <div key={s.punt_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
+              <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 6 }}>
+                <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>{i + 1}. {s.punt_naam} · 🗳️ stemvraag · {s.stemOpen ? "stemming open" : `gesloten, ${s.goed} ${s.goed === 1 ? "team kreeg" : "teams kregen"} de punten`}</div>
+                <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}>{s.vraag_tekst}</div>
+                {[...s.stemmen].sort((a, b) => b[1] - a[1]).map(([keuze, n]) => (
+                  <div key={keuze} className="stem-balk">
+                    <span className="stem-balk-vulling" style={{ width: `${(n / s.aantal) * 100}%`, background: n === max ? "#A78BFA" : "rgba(167,139,250,0.35)" }} />
+                    <span className="stem-balk-tekst">{n === max ? "👑 " : ""}{keuze}</span>
+                    <strong className="stem-balk-aantal">{n}</strong>
+                  </div>
+                ))}
+                {s.stemOpen && onSluitStemming && (
+                  <BevestigKnop venster gevaarlijk={false} icoon="🗳️" titel="Stemming sluiten?" className="rl-knop" style={{ alignSelf: "flex-start" }}
+                    vraag="De teams die de meest gekozen keuze kozen, krijgen nu de punten. Teams die later nog stemmen, krijgen meteen de uitslag. (Bij Uitslag vrijgeven gebeurt dit ook vanzelf.)"
+                    ja="🗳️ Sluiten en punten geven" onBevestig={() => onSluitStemming(s.punt_id)}>
+                    🗳️ Stemming sluiten
+                  </BevestigKnop>
+                )}
+              </div>
+            </div>
+          );
+        }
         return (
           <div key={s.punt_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
             <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 6 }}>

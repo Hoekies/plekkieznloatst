@@ -68,7 +68,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 015 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 016 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```
@@ -316,6 +316,7 @@ Fouten van het foutscherm (`components/shared/FoutScherm.tsx` → `POST /api/fou
 | Reset tijdens actief spel | Sessie markeert als `vervallen`; speler ziet melding bij volgende actie |
 | Import JSON | Validatie vóór opslaan; route wordt niet automatisch actief |
 | Numerieke invoer komma/punt | Normaliseren: `"1,5"` → `1.5` vóór vergelijking |
+| Stemvraag | `questions.type = 'stemvraag'`; antwoord krijgt `is_correct = null` tot `lib/stemmen.ts` (`sluitStemmingen`) de meerderheid bepaalt (bij uitslag vrijgeven of /api/admin/stemming); daarna `stem_gesloten` en late stemmers meteen beoordeeld |
 | Open tekstantwoord met tikfout | `tekstKlopt` (lib/geo.ts): zonder hoofdletters, accenten en leestekens; bij 5+ tekens Damerau-Levenshtein ≤ 1 |
 | Geen bereik onderweg | Service worker bewaart kaarttegels (`pr-kaart-v1`, max. 4000, cache-first); bij de start haalt `lib/kaart-offline.ts` de vectortegels z10–14 rond de punten op (max. 200) |
 | Scherm uit / app op achtergrond | Status- en locatiepolls slaan over; bij terugkomen meteen bijwerken |

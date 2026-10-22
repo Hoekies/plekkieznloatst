@@ -5,6 +5,7 @@ import type { RoutePuntKort } from "@/lib/admin-live";
 import { escapeHtml } from "@/lib/html";
 import { laadMaplibre, pasStijlToe, webglMogelijk, bewaardeStijl, bewaarStijl, VECTOR_STIJL_URL, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
+import { toonMelding } from "@/components/admin/Melding";
 
 export type ReplayTeam = { player_id: string; naam: string; icon: string | null; gefinisht_op: number | null; spoor: [number, number, number][] };
 
@@ -31,7 +32,11 @@ type GlMarker = import("maplibre-gl").Marker;
 
 // ⏪ Replay: het hele spel versneld afspelen, met alle teams tegelijk en hun spoor.
 // Een echte 3D-kaart (MapLibre): schuin bekijken, draaien, en de camera beweegt mee.
-export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: ReplayTeam[]; route_punten: RoutePuntKort[]; kleuren: Map<string, string> }) {
+// 🎬 Film maken: de hele race in 30 seconden, opgenomen als video om te delen
+const FILM_MS = 30000;
+
+export default function ReplayKaart({ teams, route_punten, kleuren, titel = null }: { teams: ReplayTeam[]; route_punten: RoutePuntKort[]; kleuren: Map<string, string>; titel?: string | null }) {
+  const [film, setFilm] = useState<number | null>(null);  // voortgang 0..1 tijdens het opnemen
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<GlMap | null>(null);
   const markersRef = useRef<Map<string, { marker: GlMarker; finish: boolean }>>(new Map());
@@ -67,6 +72,8 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
         container: containerRef.current, style: VECTOR_STIJL_URL, attributionControl: false,
         ...(grenzen ? { bounds: grenzen, fitBoundsOptions: { padding: 50, maxZoom: 17 } } : { center: [5.3, 52.1] as [number, number], zoom: 7 }),
         pitch: SCHUIN, bearing: -12, maxPitch: 70,
+        // Nodig om de kaart als film op te nemen (anders is het beeld leeg)
+        canvasContextAttributes: { preserveDrawingBuffer: true },
       });
       map.addControl(new maplibre.NavigationControl({ visualizePitch: true }), "top-left");
       map.on("style.load", () => {
@@ -157,6 +164,79 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
     return () => clearInterval(t);
   }, [meebewegen, klaar, teams]);
 
+  // Neemt de kaart beeld voor beeld op in een eigen canvas, met de teams, de klok en een titel erop
+  async function maakFilm() {
+    const map = mapRef.current;
+    if (!map || typeof MediaRecorder === "undefined") { toonMelding("Film maken werkt niet in deze browser. Probeer Chrome, Edge of Safari.", "fout"); return; }
+    const gl = map.getCanvas();
+    const schaal = Math.min(1, 1280 / gl.width);
+    const doek = document.createElement("canvas");
+    doek.width = Math.round(gl.width * schaal / 2) * 2; doek.height = Math.round(gl.height * schaal / 2) * 2;
+    const ctx = doek.getContext("2d");
+    if (!ctx) return;
+    const soort = ["video/mp4;codecs=avc1", "video/mp4", "video/webm;codecs=vp9", "video/webm"].find((s) => MediaRecorder.isTypeSupported(s)) ?? "";
+    const opname = new MediaRecorder(doek.captureStream(30), soort ? { mimeType: soort, videoBitsPerSecond: 5_000_000 } : undefined);
+    const stukken: Blob[] = [];
+    opname.ondataavailable = (e) => { if (e.data.size) stukken.push(e.data); };
+    const klaar = new Promise<void>((r) => { opname.onstop = () => r(); });
+
+    setSpeelt(false); setMeebewegen(true); setFilm(0);
+    tijdRef.current = begin; setTijd(begin);
+    await new Promise((r) => setTimeout(r, 400));
+    opname.start();
+    const start = performance.now();
+    const px = doek.width / map.getContainer().clientWidth;
+    await new Promise<void>((af) => {
+      const beeld = (nu: number) => {
+        const f = Math.min(1, (nu - start) / FILM_MS);
+        const t = begin + (eind - begin) * f;
+        tijdRef.current = t; setTijd(t); setFilm(f);
+        ctx.drawImage(gl, 0, 0, doek.width, doek.height);
+        // Teams: bolletje in de teamkleur met het icoon en de naam
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        for (const tm of teams) {
+          const plek = plekOp(tm.spoor, t);
+          if (!plek) continue;
+          const p = map.project([plek.lng, plek.lat]);
+          const x = p.x * px, y = p.y * px, r = 15 * px;
+          ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fillStyle = "#3a1f80"; ctx.fill();
+          ctx.lineWidth = 3 * px; ctx.strokeStyle = kleuren.get(tm.player_id) ?? "#F97316"; ctx.stroke();
+          ctx.font = `${15 * px}px sans-serif`;
+          ctx.fillStyle = "#fff";
+          ctx.fillText(tm.gefinisht_op && t >= tm.gefinisht_op ? "🏁" : tm.icon ?? tm.naam.charAt(0).toUpperCase(), x, y + px);
+          ctx.font = `bold ${11 * px}px sans-serif`;
+          const b = ctx.measureText(tm.naam).width + 10 * px;
+          ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(x - b / 2, y + r + 3 * px, b, 15 * px);
+          ctx.fillStyle = "#fff"; ctx.fillText(tm.naam, x, y + r + 10.5 * px);
+        }
+        // Titel en klok bovenaan, voortgangsbalk onderaan
+        ctx.fillStyle = "rgba(28,12,69,0.82)"; ctx.fillRect(0, 0, doek.width, 46 * px);
+        ctx.textAlign = "left"; ctx.font = `bold ${20 * px}px sans-serif`; ctx.fillStyle = "#FFE680";
+        ctx.fillText(`🏁 ${titel ?? "PointRush"}`, 14 * px, 23 * px);
+        ctx.textAlign = "right"; ctx.fillStyle = "#fff";
+        ctx.fillText(klok(t), doek.width - 14 * px, 23 * px);
+        ctx.fillStyle = "rgba(255,255,255,0.25)"; ctx.fillRect(0, doek.height - 6 * px, doek.width, 6 * px);
+        ctx.fillStyle = "#FF8A00"; ctx.fillRect(0, doek.height - 6 * px, doek.width * f, 6 * px);
+        if (f < 1) requestAnimationFrame(beeld);
+        else setTimeout(af, 1500);  // eindbeeld even laten staan
+      };
+      requestAnimationFrame(beeld);
+    });
+    opname.stop();
+    await klaar;
+    setFilm(null);
+    const type = opname.mimeType || soort || "video/webm";
+    const bestand = new File([new Blob(stukken, { type })], `PointRush-replay${titel ? `-${titel.replace(/[^\p{L}\p{N}]+/gu, "-")}` : ""}.${type.includes("mp4") ? "mp4" : "webm"}`, { type });
+    if (navigator.canShare?.({ files: [bestand] })) {
+      await navigator.share({ files: [bestand], text: `🎬 Replay${titel ? ` van ${titel}` : ""}` }).catch(() => { /* geannuleerd */ });
+    } else {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(bestand); a.download = bestand.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+  }
+
   function kiesStijl(s: KaartStijl) {
     setStijl(s);
     bewaarStijl(s);
@@ -203,6 +283,8 @@ export default function ReplayKaart({ teams, route_punten, kleuren }: { teams: R
             <span>{klok(eind)} · {duurMin} min</span>
           </div>
         </div>
+        <button type="button" className="rl-knop" disabled={film !== null || !klaar} onClick={maakFilm}
+          title="De hele race in 30 seconden als video, om te delen">{film !== null ? `🎬 ${Math.round(film * 100)}%` : "🎬 Film"}</button>
         <div className="replay-snelheid">
           {SNELHEDEN.map((s) => (
             <button key={s} type="button" className={`rl-knop${snelheid === s ? " rl-knop--cyan" : ""}`} onClick={() => setSnelheid(s)}>{s}×</button>

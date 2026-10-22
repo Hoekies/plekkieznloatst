@@ -10,6 +10,9 @@ import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import StandRij from "./StandRij";
 import Oorkonde from "./Oorkonde";
 import PuzzelWoord from "./PuzzelWoord";
+import { strooiConfetti } from "@/lib/confetti";
+import Podium from "./Podium";
+import UitslagDelen from "@/components/shared/UitslagDelen";
 
 interface Props {
   groepNaam: string;
@@ -28,33 +31,7 @@ interface Props {
   waarden: RouteWaarden;
 }
 
-const CONFETTI_KLEUREN = ["#F59E0B", "#1E40AF", "#EF4444", "#10B981", "#8B5CF6", "#F97316", "#06B6D4"];
-const CONFETTI_AANTAL = 70;
 const POLL_INTERVAL_MS = 10000;
-
-type ConfettiStuk = {
-  id: number;
-  x: number;
-  kleur: string;
-  breedte: number;
-  hoogte: number;
-  vertraging: number;
-  duur: number;
-  rotatie: number;
-};
-
-function maakConfetti(): ConfettiStuk[] {
-  return Array.from({ length: CONFETTI_AANTAL }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    kleur: CONFETTI_KLEUREN[Math.floor(Math.random() * CONFETTI_KLEUREN.length)],
-    breedte: 6 + Math.random() * 8,
-    hoogte: 8 + Math.random() * 10,
-    vertraging: Math.random() * 2.5,
-    duur: 2.5 + Math.random() * 2,
-    rotatie: Math.random() * 360,
-  }));
-}
 
 export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
   const router = useRouter();
@@ -86,12 +63,12 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
     return () => clearInterval(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsNaFinish]);
-  const [confetti] = useState<ConfettiStuk[]>(maakConfetti);
-  const [confettiZichtbaar, setConfettiZichtbaar] = useState(true);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setConfettiZichtbaar(false), 4000);
+    // 🎉 Confetti bij binnenkomst: een knal en daarna een regen
+    strooiConfetti({ aantal: 140, duurMs: 2600, knal: true });
+    const timer = setTimeout(() => strooiConfetti({ aantal: 120, duurMs: 3500 }), 900);
 
     pollRef.current = setInterval(async () => {
       try {
@@ -114,35 +91,6 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", overflow: "hidden", alignItems: "center" }}>
-
-      {/* Confetti */}
-      {confettiZichtbaar && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 300, pointerEvents: "none", overflow: "hidden" }}>
-          <style>{`
-            @keyframes confetti-val {
-              0%   { transform: translateY(-20px) rotate(var(--rot)); opacity: 1; }
-              100% { transform: translateY(110vh) rotate(calc(var(--rot) + 540deg)); opacity: 0.3; }
-            }
-          `}</style>
-          {confetti.map((stuk) => (
-            <div
-              key={stuk.id}
-              style={{
-                position: "absolute",
-                left: `${stuk.x}%`,
-                top: 0,
-                width: stuk.breedte,
-                height: stuk.hoogte,
-                background: stuk.kleur,
-                borderRadius: 2,
-                // @ts-expect-error — CSS custom property
-                "--rot": `${stuk.rotatie}deg`,
-                animation: `confetti-val ${stuk.duur}s ease-in ${stuk.vertraging}s both`,
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Inhoud */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "32px 20px 48px", width: "100%", maxWidth: 600 }}>
@@ -259,6 +207,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
             <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen scores beschikbaar.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Podium stand={leaderboard} />
+              <UitslagDelen routeNaam={routeNaam} knopStijl={{ width: "100%", fontSize: "0.95rem", padding: "13px 6px", borderRadius: 14, fontWeight: 800 }}
+                stand={leaderboard.map((e) => ({ naam: e.display_name, icon: e.icon, score: e.score, plaats: e.rank, eigen: e.is_eigen_team }))} />
               {leaderboard.map((entry) => (
                 <StandRij key={entry.rank} entry={entry} />
               ))}

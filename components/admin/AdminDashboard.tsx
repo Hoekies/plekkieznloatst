@@ -25,6 +25,7 @@ import dynamic from "next/dynamic";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
 const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
+const PuntenVerloop = dynamic(() => import("@/components/admin/PuntenVerloop"), { ssr: false });
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -205,6 +206,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
                     beperkt={beperkt}
                   />
                 ))}
+                {/* 📈 Stand door het spel heen, per team */}
+                <PuntenVerloop kleuren={kleuren} />
               </div>
             )}
           </div>

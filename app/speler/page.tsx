@@ -2,6 +2,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import IntroScherm from "@/components/speler/IntroScherm";
+import { haalHuisstijl } from "@/lib/huisstijl";
 
 export default async function SpelerHomePage({ searchParams }: { searchParams: { gestopt?: string } }) {
   const user = await haalGebruiker();
@@ -47,8 +48,11 @@ export default async function SpelerHomePage({ searchParams }: { searchParams: {
     if (klaar) redirect("/speler/finish");
   }
 
+  const huisstijl = await haalHuisstijl(admin);
   return (
     <IntroScherm
+      welkomFoto={huisstijl.welkomFoto}
+      huisLogo={huisstijl.logo}
       modus={actieveRoute?.modus ?? null}
       // Hierheen gestuurd omdat het spel wegviel: zonder actieve route is de route gestopt, anders het eigen spel
       melding={searchParams?.gestopt ? (actieveRoute ? "spel" : "route") : null}

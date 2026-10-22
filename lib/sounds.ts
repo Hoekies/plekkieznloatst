@@ -22,8 +22,8 @@ export function zetGeluid(aan: boolean) {
   try { localStorage.setItem(GELUID_SLEUTEL, aan ? "0" : "1"); } catch { /* geen opslag */ }
 }
 
-function speel(frequenties: number[], duur: number, type: OscillatorType = "sine", volume = 0.3) {
-  if (!geluidAan()) return;
+function speel(frequenties: number[], duur: number, type: OscillatorType = "sine", volume = 0.3, altijd = false) {
+  if (!altijd && !geluidAan()) return;
   try {
     const ac = getCtx();
     if (ac.state === "suspended") ac.resume();
@@ -45,24 +45,49 @@ function speel(frequenties: number[], duur: number, type: OscillatorType = "sine
   }
 }
 
-export function speelPuntBereikt() {
-  // Vrolijke oplopende toon: punt gevonden!
-  speel([523, 659, 784], 0.5, "sine", 0.25);
+// 🔔 Geluidsets: per route te kiezen door de beheerder (⚙️ Instellingen); de speler krijgt de set van zijn route
+export type GeluidSet = "klassiek" | "arcade" | "zacht" | "feest";
+export const GELUID_SETS: { set: GeluidSet; naam: string }[] = [
+  { set: "klassiek", naam: "🎵 Klassiek" }, { set: "arcade", naam: "👾 Arcade" }, { set: "zacht", naam: "🌙 Zacht" }, { set: "feest", naam: "🎺 Feest" },
+];
+type Toon = [number[], number, OscillatorType, number];
+const SETS: Record<GeluidSet, { punt: Toon; goed: Toon; fout: Toon; finish: Toon }> = {
+  // Vrolijke oplopende tonen, een lage buzz bij fout en een triomfantelijke reeks bij de finish
+  klassiek: {
+    punt: [[523, 659, 784], 0.5, "sine", 0.25], goed: [[523, 659, 784, 1047], 0.6, "sine", 0.28],
+    fout: [[220, 196], 0.4, "sawtooth", 0.15], finish: [[523, 659, 784, 659, 784, 1047], 0.9, "sine", 0.3],
+  },
+  // Spelcomputer: korte blokgolf-piepjes
+  arcade: {
+    punt: [[988, 1319], 0.18, "square", 0.12], goed: [[784, 988, 1175, 1568], 0.36, "square", 0.12],
+    fout: [[392, 330, 262, 196], 0.5, "square", 0.12], finish: [[523, 659, 784, 1047, 784, 1047, 1319, 1568], 1.0, "square", 0.12],
+  },
+  // Rustig: zachte driehoekstonen, lager volume
+  zacht: {
+    punt: [[440, 554], 0.6, "triangle", 0.18], goed: [[523, 659, 784], 0.8, "triangle", 0.2],
+    fout: [[294, 262], 0.6, "triangle", 0.14], finish: [[392, 523, 659, 784], 1.4, "triangle", 0.22],
+  },
+  // Feest: snelle fanfare met veel noten
+  feest: {
+    punt: [[659, 784, 1047, 1319], 0.4, "sawtooth", 0.1], goed: [[523, 659, 784, 1047, 1319, 1568], 0.6, "sawtooth", 0.1],
+    fout: [[311, 294, 277, 262], 0.6, "sawtooth", 0.1], finish: [[523, 523, 784, 784, 880, 880, 784, 1047, 1319, 1568], 1.5, "sawtooth", 0.1],
+  },
+};
+let huidigeSet: GeluidSet = "klassiek";
+export function zetGeluidSet(set: string | null | undefined) {
+  huidigeSet = set && set in SETS ? (set as GeluidSet) : "klassiek";
 }
+const speelToon = ([f, d, t, v]: Toon) => speel(f, d, t, v);
 
-export function speelGoedAntwoord() {
-  // Blije fanfare: juist!
-  speel([523, 659, 784, 1047], 0.6, "sine", 0.28);
-}
+export function speelPuntBereikt() { speelToon(SETS[huidigeSet].punt); }
+export function speelGoedAntwoord() { speelToon(SETS[huidigeSet].goed); }
+export function speelFoutAntwoord() { speelToon(SETS[huidigeSet].fout); }
+export function speelFinish() { speelToon(SETS[huidigeSet].finish); }
 
-export function speelFoutAntwoord() {
-  // Lage buzz: fout
-  speel([220, 196], 0.4, "sawtooth", 0.15);
-}
-
-export function speelFinish() {
-  // Triomfantelijke reeks
-  speel([523, 659, 784, 659, 784, 1047], 0.9, "sine", 0.3);
+// Voorbeeld in het beheer: de hele set achter elkaar (punt, goed, fout, finish), ook als geluid "uit" staat
+export function speelVoorbeeld(set: GeluidSet) {
+  const s = SETS[set];
+  [s.punt, s.goed, s.fout, s.finish].forEach((toon, i) => setTimeout(() => speel(toon[0], toon[1], toon[2], toon[3], true), i * 1100));
 }
 
 export function speelDong() {

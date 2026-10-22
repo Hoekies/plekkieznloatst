@@ -41,6 +41,7 @@ const TYPE_LABEL: Record<VraagType, string> = {
   meerkeuze_afbeelding: "🖼️ Meerkeuze met plaatjes",
   open: "✍️ Open vraag",
   foto_opdracht: "📷 Foto-opdracht",
+  stemvraag: "🗳️ Stemvraag",
 };
 
 // "Wijzigingen niet opgeslagen?": zelfde opbouw als de andere bevestigingen (icoon, titel, één knop, ✕)
@@ -174,7 +175,13 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           is_correct: a.is_correct,
           punten: a.punten === null || a.punten === undefined ? "" : String(a.punten),
         }))
-      : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" }))
+      // Stemvraag met 2 of 3 keuzes: op hun kleur terugzetten, de rest leeg
+      : bestaandeVraag?.type === "stemvraag"
+        ? KLEUREN.map((c) => {
+            const a = bestaandeVraag.answer_options.find((o) => o.color === c);
+            return { color: c, text: a?.text ?? "", image_path: null, is_correct: false, punten: "" };
+          })
+        : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" }))
   );
   // Punten per antwoord: een uitzondering, dus pas zichtbaar als je hem aanzet (of als hij al gebruikt wordt)
   const [perAntwoord, setPerAntwoord] = useState(() => antwoorden.some((a) => a.punten !== ""));
@@ -237,6 +244,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       }));
       setAntwoorden(nieuw);
       if (nieuw.some((a) => a.punten !== "")) setPerAntwoord(true);
+    } else if (v.type === "stemvraag") {
+      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: v.answer_options.find((o) => o.color === c)?.text ?? "", image_path: null, is_correct: false, punten: "" })));
     } else {
       setAntwoorden(KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" })));
     }
@@ -300,6 +309,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         if (!regels.length) { setFout("Er staat nog geen goed antwoord. Vul er minstens één in (één per regel)."); setOpslaan(false); return; }
         body.correct_text_answers = regels;
       }
+    } else if (type === "stemvraag") {
+      // Lege keuzes vallen weg; minstens twee nodig
+      const gevuld = antwoorden.filter((a) => a.text.trim());
+      if (gevuld.length < 2) return antwoordFout(antwoorden.findIndex((a) => !a.text.trim()), "Een stemvraag heeft minstens twee keuzes. Vul er nog een in.");
+      body.antwoorden = gevuld.map((a) => ({ color: a.color, answer_type: "tekst", text: a.text.trim(), image_path: null, is_correct: false, punten: null }));
     } else {
       const antwoordType = type === "meerkeuze_afbeelding" ? "afbeelding" : "tekst";
       const leeg = antwoorden.findIndex((a) => antwoordType === "tekst" ? !a.text.trim() : !a.image_path);
@@ -405,6 +419,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     }
   }
 
+  // Stemvraag: keuzes zoals bij meerkeuze, maar zonder goed antwoord
+  const stem = type === "stemvraag";
   const meerkeuze = type === "meerkeuze_tekst" || type === "meerkeuze_afbeelding";
 
   return (
@@ -447,7 +463,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             <div className="form-group">
               <label className="form-label">Soort vraag</label>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht"] as VraagType[]).map((t) => (
+                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht", "stemvraag"] as VraagType[]).map((t) => (
                   <button key={t} type="button"
                     className={`rl-knop${type === t ? " rl-knop--cyan" : ""}`}
                     style={{ height: 34, fontSize: "0.8rem" }}
@@ -502,6 +518,25 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   onChange={(e) => setPunten(Number(e.target.value))} title="Zoveel punten krijgt een team voor het goede antwoord" />
               </div>
             </div>
+
+            {stem && (
+              <div className="form-group">
+                <label className="form-label">Keuzes <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· 2 tot 4; lege keuzes vallen weg</span></label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {antwoorden.map((ant, i) => (
+                    <div key={ant.color} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", borderRadius: "var(--radius-md)", border: "2px solid var(--line)" }}>
+                      <span style={{ width: 14, height: 14, borderRadius: "50%", flexShrink: 0, background: LABEL_KLEUR[ant.color] }} />
+                      <input ref={(el) => { antwoordRefs.current[i] = el; }} className="form-input" spellCheck lang="nl" style={{ flex: 1, fontSize: "0.88rem" }}
+                        value={ant.text} onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
+                        placeholder={i < 2 ? `Keuze ${i + 1}` : `Keuze ${i + 1} (mag leeg)`} />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: "0.76rem", color: "var(--muted)", marginTop: 6, lineHeight: 1.45 }}>
+                  🗳️ Elk team stemt. De teams die de meest gekozen keuze kozen, krijgen de punten zodra de stemming sluit: bij <strong>🏆 Uitslag vrijgeven</strong> of <strong>🏁 Spel afronden</strong>, of eerder met <strong>🗳️ Stemming sluiten</strong> bij Antwoorden → 📊 Per vraag.
+                </div>
+              </div>
+            )}
 
             {meerkeuze && (
               <div className="form-group">
@@ -759,9 +794,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   </div>
                 )}
 
-                {type === "meerkeuze_tekst" && (
+                {(type === "meerkeuze_tekst" || stem) && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {antwoorden.map((ant) => (
+                    {antwoorden.filter((a) => !stem || a.text.trim()).map((ant) => (
                       <div key={ant.color} style={{
                         display: "flex", alignItems: "center", gap: 8,
                         padding: "9px 10px", borderRadius: 10,

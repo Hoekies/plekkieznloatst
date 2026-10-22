@@ -15,6 +15,7 @@ const TYPE_LABEL: Record<string, string> = {
   meerkeuze_afbeelding: "Meerkeuze afb.",
   open: "Open vraag",
   foto_opdracht: "Foto-opdracht",
+  stemvraag: "Stemvraag",
 };
 
 export default function TerugkijkScherm({ items, gebeurtenissen }: { items: TerugkijkItem[]; gebeurtenissen: TerugkijkGebeurtenis[] }) {
@@ -132,7 +133,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
       )}
 
       {/* Meerkeuze antwoorden */}
-      {(item.vraag_type === "meerkeuze_tekst" || item.vraag_type === "meerkeuze_afbeelding") && (
+      {(item.vraag_type === "meerkeuze_tekst" || item.vraag_type === "meerkeuze_afbeelding" || item.vraag_type === "stemvraag") && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <AntwoordRij
             label="Jouw antwoord"
@@ -141,7 +142,7 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
             goed={item.is_correct === true}
             fout={item.is_correct === false}
           />
-          {item.is_correct === false && (
+          {item.is_correct === false && item.vraag_type !== "stemvraag" && (
             <AntwoordRij
               label="Juiste antwoord"
               tekst={item.juiste_antwoord_tekst}

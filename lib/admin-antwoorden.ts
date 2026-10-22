@@ -21,6 +21,8 @@ export type AntwoordRij = {
   foto_status: "wacht" | "goedgekeurd" | "afgekeurd" | null;
   // Fout of half goed beantwoord: de beheerder kan het alsnog goedkeuren
   kan_goedkeuren: boolean;
+  // 🗳️ Stemvraag waarvan de stemming nog open is (nog geen punten)
+  stem_open: boolean;
   // Open vraag fout, maar hooguit twee tikfouten van een goed antwoord: waarschijnlijk toch goed
   bijna_goed: boolean;
 };
@@ -64,7 +66,7 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
 
   const [{ data: vragen }, { data: voortgang }, { data: fotos }] = await Promise.all([
     puntIds.length
-      ? admin.from("questions").select("id, route_point_id, type, question_text, points, correct_text_answers, numeric_answer, answer_options(id, text, is_correct, punten)").in("route_point_id", puntIds)
+      ? admin.from("questions").select("*, answer_options(id, text, is_correct, punten)").in("route_point_id", puntIds)
       : Promise.resolve({ data: [] as never[] }),
     sessieIds.length
       ? admin.from("player_point_progress").select("*").in("session_id", sessieIds).not("answered_at", "is", null).order("answered_at")
@@ -75,7 +77,7 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
   ]);
 
   type Optie = { id: string; text: string | null; is_correct: boolean; punten: number | null };
-  type Vraag = { id: string; route_point_id: string; type: string; question_text: string; points: number; correct_text_answers: string[] | null; numeric_answer: number | null; answer_options: Optie[] };
+  type Vraag = { id: string; route_point_id: string; type: string; question_text: string; points: number; correct_text_answers: string[] | null; numeric_answer: number | null; answer_options: Optie[]; stem_gesloten?: boolean };
   const vraagMap = new Map(((vragen ?? []) as Vraag[]).map((v) => [v.route_point_id, v]));
   const fotoMap = new Map((fotos ?? []).map((f) => [`${f.session_id}:${f.route_point_id}`, f]));
 
@@ -88,7 +90,8 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
       const juiste = vraag.answer_options?.find((o) => o.is_correct);
       const gekozen = vraag.answer_options?.find((o) => o.id === v.selected_answer_id);
       const foto = fotoMap.get(`${s.id}:${v.route_point_id}`);
-      const isMeerkeuze = vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding";
+      const isStem = vraag.type === "stemvraag";
+      const isMeerkeuze = vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding" || isStem;
       rijen.push({
         voortgang_id: v.id,
         punt_id: v.route_point_id,
@@ -97,7 +100,9 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
         vraag_type: vraag.type,
         vraag_tekst: vraag.question_text,
         antwoord: isMeerkeuze ? (gekozen?.text ?? (gekozen ? "(afbeelding)" : null)) : v.open_answer_text,
-        juiste_antwoord: isMeerkeuze
+        juiste_antwoord: isStem
+          ? "de meerderheid"
+          : isMeerkeuze
           ? (juiste?.text ?? (juiste ? "(afbeelding)" : null))
           : vraag.type === "open"
             ? (vraag.numeric_answer != null ? String(vraag.numeric_answer) : (vraag.correct_text_answers ?? []).join(" / ") || null)
@@ -108,7 +113,8 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
         foto_id: foto?.id ?? null,
         foto_pad: foto?.foto_pad ?? null,
         foto_status: (foto?.status as AntwoordRij["foto_status"]) ?? null,
-        kan_goedkeuren: (isMeerkeuze || vraag.type === "open") && v.is_correct !== true,
+        kan_goedkeuren: !isStem && (isMeerkeuze || vraag.type === "open") && v.is_correct !== true,
+        stem_open: isStem && !vraag.stem_gesloten,
         bijna_goed: vraag.type === "open" && v.is_correct !== true && vraag.numeric_answer == null && !!v.open_answer_text
           && (vraag.correct_text_answers ?? []).some((g) => normaliseerAntwoord(g).length >= 4 && tekstAfstand(v.open_answer_text!, g) <= 2),
       });

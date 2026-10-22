@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { PuzzelStand } from "@/lib/puzzel";
+import { strooiConfetti } from "@/lib/confetti";
 
 type Stand = PuzzelStand & { actief: true };
 
@@ -28,6 +29,7 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
     setBezig(false);
     if (!d) { setMelding("Raden lukte niet, probeer het opnieuw"); return; }
     setStand(d);
+    if (d.goed) strooiConfetti({ aantal: 160, duurMs: 3200, knal: true });
     setMelding(d.goed ? `🎉 Goed geraden! +${d.bonus} punten` : "❌ Helaas, dat is het niet. Probeer het nog eens!");
   }
 

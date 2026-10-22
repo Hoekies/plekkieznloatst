@@ -15,10 +15,11 @@ export type BankVraag = {
   favoriet: boolean; verborgen: boolean;
 };
 
-const TYPE_ICOON: Record<string, string> = { meerkeuze_tekst: "🔤", meerkeuze_afbeelding: "🖼️", open: "✏️", foto_opdracht: "📸" };
+const TYPE_ICOON: Record<string, string> = { meerkeuze_tekst: "🔤", meerkeuze_afbeelding: "🖼️", open: "✏️", foto_opdracht: "📸", stemvraag: "🗳️" };
 // Volgorde en namen van de soorten vragen (filterknoppen en kopjes)
 const TYPES: { type: string; naam: string }[] = [
   { type: "meerkeuze_tekst", naam: "Meerkeuze" },
+  { type: "stemvraag", naam: "Stem" },
   { type: "meerkeuze_afbeelding", naam: "Met afbeeldingen" },
   { type: "open", naam: "Open" },
   { type: "foto_opdracht", naam: "Foto" },

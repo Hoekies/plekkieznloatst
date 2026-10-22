@@ -30,6 +30,7 @@ const SOORT: Record<string, { naam: string; icoon: string }> = {
   meerkeuze_afbeelding: { naam: "Meerkeuze met plaatjes", icoon: "🖼️" },
   open: { naam: "Open vraag", icoon: "✏️" },
   foto_opdracht: { naam: "Foto-opdracht", icoon: "📸" },
+  stemvraag: { naam: "Stemvraag", icoon: "🗳️" },
 };
 const KLEUR: Record<string, string> = { geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A" };
 const A4_B = 794, A4_H = 1123;  // A4 bij 96 dpi

@@ -2,6 +2,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import SpelerKaart from "@/components/speler/SpelerKaart";
+import { maakKleurMap } from "@/lib/speler-kleur";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -26,7 +27,7 @@ export default async function SpelerKaartPage() {
 
   if (!sessie) redirect("/speler");
 
-  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spo }] = await Promise.all([
+  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spo }, { data: alleSpelers }] = await Promise.all([
     admin
       .from("route_points")
       .select("*")
@@ -47,6 +48,8 @@ export default async function SpelerKaartPage() {
       .select("volgorde, route_point_id")
       .eq("session_id", sessie.id)
       .order("volgorde"),
+    // Voor de vaste teamkleur (zelfde als in het beheer)
+    admin.from("players").select("id"),
   ]);
 
   // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw (met melding)
@@ -79,6 +82,7 @@ export default async function SpelerKaartPage() {
     <SpelerKaart
       sessie={sessie}
       spelerIcoon={(speler as { icon?: string | null }).icon ?? null}
+      teamKleur={maakKleurMap((alleSpelers ?? []).map((p) => p.id)).get(speler.id) ?? null}
       spelerNaam={(speler as { nickname?: string | null; login_name?: string | null }).nickname ?? (speler as { login_name?: string | null }).login_name ?? null}
       punten={punten}
       initVoortgang={voortgang ?? []}
