@@ -7,6 +7,8 @@ const TECHNISCH = /(_id|\bid\b|ontbreekt|ongeldig|undefined|null|violates|constr
 
 export function uitlegBijStatus(status: number, actie: string, serverTekst?: string | null): string {
   const tekst = serverTekst && !TECHNISCH.test(serverTekst) ? serverTekst.replace(/\.$/, "") : null;
+  // Ontbrekende database-migratie: die uitleg altijd tonen (de beheerder kan er zelf iets aan doen)
+  if (serverTekst && /migratie|SQL-bestand/i.test(serverTekst)) return `${actie} mislukt: ${serverTekst.replace(/\.$/, "")}.`;
   if (status === 0 || status === 503) return `${actie} mislukt: geen verbinding met de server. Controleer je internet en probeer het opnieuw.`;
   if (status === 401) return `${actie} mislukt: je bent uitgelogd. Log opnieuw in en probeer het nog eens.`;
   if (status === 403) return `${actie} mislukt: je hebt hiervoor geen rechten. Log in met een beheerdersaccount.`;

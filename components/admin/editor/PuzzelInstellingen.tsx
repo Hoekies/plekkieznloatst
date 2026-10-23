@@ -70,7 +70,7 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
         <>
           {/* Stap 1: omschrijving en woord (laten bedenken of zelf typen) */}
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <input className="form-input" value={omschrijving} maxLength={120} placeholder="Hint voor de spelers, bijv. Een ander woord voor slot"
+            <input className="form-input" value={omschrijving} maxLength={120} placeholder="Hint, bijv. Plaats in Nederland, Een dier, Ander woord voor slot"
               onChange={(e) => setOmschrijving(e.target.value)} onBlur={() => onOpslaan({ puzzel_omschrijving: omschrijving })} style={{ flex: "1 1 220px" }} />
             <button type="button" className="rl-knop" disabled={!omschrijving.trim() || zoekt} onClick={bedenk}
               title={`De app bedenkt woorden van ${teVerdienen} letters die bij de hint passen`}>{zoekt ? "⏳ Bedenken…" : `✨ Bedenk een woord (${teVerdienen})`}</button>

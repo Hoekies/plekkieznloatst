@@ -3,11 +3,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
+import { woordenUitLijst } from "@/lib/woordenlijsten";
 
 // 🧩 Puzzelwoord bedenken: de admin geeft een omschrijving ("een ander woord voor slot, 7 letters") en krijgt
 // een paar Nederlandse woorden die passen, elk met een korte omschrijving voor de spelers.
 // Met ANTHROPIC_API_KEY in Vercel doet Claude het (begrijpt elke omschrijving; een fractie van een cent per keer).
-// Zonder sleutel, of als Claude niet lukt: gratis via de synoniemen van Wiktionary (alleen "ander woord voor X").
+// Zonder sleutel, of als Claude niet lukt: gratis uit de ingebouwde lijsten (plaatsen, dieren, fruit, beroepen,
+// sporten, kleuren, landen) of via de synoniemen van Wiktionary ("ander woord voor X").
 export const maxDuration = 30;
 
 type Voorstel = { woord: string; omschrijving: string };
@@ -40,12 +42,15 @@ export async function GET(request: NextRequest) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const vraag = request.nextUrl.searchParams.get("vraag")?.trim().slice(0, 200);
   if (!vraag) return NextResponse.json({ fout: "Typ eerst een omschrijving" }, { status: 400 });
-  // Zonder sleutel: gratis via Wiktionary
+  // Zonder sleutel: gratis, eerst uit de ingebouwde lijsten, anders via Wiktionary
   const gratis = async () => {
+    const lengte = Number(/(\d+)\s*letter/i.exec(vraag)?.[1]) || null;
+    const uitLijst = woordenUitLijst(vraag, lengte);
+    if (uitLijst.length) return NextResponse.json({ woorden: uitLijst, bron: "lijst" });
     const woorden = await viaWiktionary(vraag);
     return woorden.length
       ? NextResponse.json({ woorden, bron: "wiktionary" })
-      : NextResponse.json({ fout: "Geen woorden gevonden. Probeer bijv. \"ander woord voor slot, 7 letters\", of typ zelf een woord." }, { status: 404 });
+      : NextResponse.json({ fout: "Geen woorden gevonden. Probeer bijv. \"plaats in Nederland\", \"dier\", \"sport\" of \"ander woord voor slot\", of typ zelf een woord." }, { status: 404 });
   };
   if (!process.env.ANTHROPIC_API_KEY) return gratis();
 
