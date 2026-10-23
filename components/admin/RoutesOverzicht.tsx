@@ -532,7 +532,7 @@ export default function RoutesOverzicht() {
                       )}
                     </span>
                   </span>
-                  {/* Computer: het logo groot in de lege ruimte tussen de naam en de knoppen */}
+                  {/* Computer: het logo groot, rechts in de lege ruimte, vlak voor de knoppen */}
                   {r.huisstijl_logo_pad && (
                     <span className="rl-logovak">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
