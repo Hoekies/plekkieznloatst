@@ -111,10 +111,10 @@ export default function Systeemcheck() {
               {(() => {
                 const goed = inGroep.filter((c) => c.ok);
                 if (g !== "Database") return goed.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>);
-                // Database: alleen de laatste 4 migraties; de rest (en de verbinding) samen in één vakje
+                // Database: één rij van 4 vakjes: de verbinding en eerdere migraties samen, dan de laatste 3 migraties
                 const nr = (c: Check) => Number(/Migratie (\d+)/.exec(c.naam)?.[1] ?? 0);
                 const migraties = goed.filter((c) => nr(c) > 0).sort((a, b) => nr(a) - nr(b));
-                const laatste = migraties.slice(-4);
+                const laatste = migraties.slice(-3);
                 const eerder = migraties.length - laatste.length;
                 const verbinding = goed.some((c) => !nr(c));
                 return (
