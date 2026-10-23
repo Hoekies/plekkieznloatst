@@ -515,7 +515,8 @@ export default function RoutesOverzicht() {
                 {/* Kop: op de telefoon de knop om de kaart open en dicht te klappen */}
                 <div className="rl-kop" role="button" tabIndex={0} onClick={() => wisselOpen(r.id)}
                   onKeyDown={(e) => { if (e.key === "Enter") wisselOpen(r.id); }} aria-expanded={open.has(r.id)}>
-                  <ModusTegel modus={r.modus} size={56} />
+                  {/* Met een eigen logo is het spelsoort-icoon bijzaak (de spelsoort staat ook als tekst onder de naam) */}
+                  <ModusTegel modus={r.modus} size={r.huisstijl_logo_pad ? 40 : 56} />
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
                     {/* Eigen logo (huisstijl), op de telefoon klein onder de naam */}
