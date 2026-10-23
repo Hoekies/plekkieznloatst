@@ -518,7 +518,7 @@ export default function RoutesOverzicht() {
                   <ModusTegel modus={r.modus} size={56} />
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
-                    {/* Eigen logo (huisstijl): zo zie je welke route bij welke organisatie hoort */}
+                    {/* Eigen logo (huisstijl), op de telefoon klein onder de naam */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     {r.huisstijl_logo_pad && <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/route-afbeeldingen/${r.huisstijl_logo_pad}`} alt="" className="rl-huislogo" />}
                     {/* Telefoon: spelsoort en datum samen op één regel */}
@@ -532,6 +532,13 @@ export default function RoutesOverzicht() {
                       )}
                     </span>
                   </span>
+                  {/* Computer: het logo groot in de lege ruimte tussen de naam en de knoppen */}
+                  {r.huisstijl_logo_pad && (
+                    <span className="rl-logovak">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/route-afbeeldingen/${r.huisstijl_logo_pad}`} alt="" />
+                    </span>
+                  )}
                   {/* Telefoon: de volgende stap naast de naam (de status staat al in de kop van de groep) */}
                   {/* Telefoon (ingeklapt): de volgende stap en Bewerken naast elkaar, net als opengeklapt */}
                   <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>

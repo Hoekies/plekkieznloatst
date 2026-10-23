@@ -2473,7 +2473,15 @@ button.route-stap:hover { color: var(--ink); }
 .live-kaart-huislogo { position: absolute; right: 12px; bottom: 12px; z-index: 900; height: 56px; max-width: 160px; object-fit: contain; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.85); pointer-events: none; }
 .kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .kaartje-huislogo { height: 40px; max-width: 110px; object-fit: contain; }
-.rl-huislogo { height: 22px; max-width: 70px; object-fit: contain; vertical-align: middle; margin-left: 8px; }
+/* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon klein onder de naam */
+.rl-huislogo { display: none; height: 22px; max-width: 70px; object-fit: contain; }
+.rl-logovak { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; }
+.rl-logovak img { height: 64px; max-width: 220px; object-fit: contain; }
+.rl-titel:has(+ .rl-logovak) { flex: 0 1 auto; }
+@media (max-width: 768px) {
+  .rl-logovak { display: none; }
+  .rl-huislogo { display: block; margin-top: 2px; }
+}
 .album-huislogo { display: block; height: 60px; max-width: 200px; object-fit: contain; margin: 8px auto 0; }
 /* 📍 Plaats van de route in het overzicht */
 .rl-plaats { font-size: 0.75rem; color: var(--text); white-space: nowrap; margin-left: 8px; }
