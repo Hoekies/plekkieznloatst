@@ -2468,9 +2468,20 @@ button.route-stap:hover { color: var(--ink); }
 .sk-puzzel-telling { margin-left: 6px; font-size: 0.72rem; color: var(--muted); font-weight: 700; }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
 .huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
-.admin-sidebar-huislogo { display: block; width: 70%; max-height: 54px; object-fit: contain; margin: 8px auto 0; }
+.admin-sidebar-huislogo { display: block; width: 90%; max-height: 72px; object-fit: contain; margin: 10px auto 0; }
 .beamer-huislogo { width: 50%; max-height: 90px; object-fit: contain; align-self: center; }
-.live-kaart-huislogo { position: absolute; right: 12px; bottom: 12px; z-index: 900; height: 56px; max-width: 160px; object-fit: contain; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.85); pointer-events: none; }
+/* Live kaart: teamlijst met score, volgend punt en het puzzelwoord (leesbaar) */
+.live-lijst-kop { display: flex; align-items: baseline; gap: 8px; }
+.live-lijst-naam { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live-lijst-score { font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; color: #FFE680; flex-shrink: 0; }
+.live-lijst-sub { display: block; font-size: 0.72rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.sk-puzzel--lijst { margin-top: 4px; gap: 2px; flex-wrap: nowrap; }
+.sk-puzzel--lijst .sk-puzzel-letter { width: 19px; height: 21px; font-size: 0.74rem; }
+.sk-puzzel--lijst .sk-puzzel-telling { margin-left: 4px; }
+/* Live kaart: knop "alles in beeld" onder de zoomknoppen */
+.kaart-alles { position: absolute; top: 84px; left: 10px; z-index: 1000; width: 34px; height: 34px; border-radius: 4px; border: 2px solid rgba(0,0,0,0.2);
+  background: #fff; color: #333; font-size: 1.15rem; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.kaart-alles:hover { background: #f4f4f4; }
 .kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .kaartje-huislogo { height: 40px; max-width: 110px; object-fit: contain; }
 /* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon klein onder de naam */
@@ -3048,8 +3059,9 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: 800; line-height: 1;
   background: #3a1f80; color: #fff; border: 1px solid rgba(255,255,255,0.35); box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
 .kaart-bediening--in { padding: 0 !important; background: none !important; border: none !important; box-shadow: none !important; }
-.kaart-bediening-open { width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; padding: 0;
+.kaart-bediening-open { height: 38px; padding: 0 14px 0 10px; border-radius: 19px; cursor: pointer; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 6px; color: #fff;
   background: rgba(58,31,128,0.92); border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+.kaart-bediening-open span { font-size: 0.8rem; font-weight: 700; }
 
 /* Puntenlijst: doorlooppunten lager en rustiger, zodat vraag- en infopunten opvallen */
 .lijst-rij--door { padding-top: 1px !important; padding-bottom: 1px !important; }

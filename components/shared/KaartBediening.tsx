@@ -19,7 +19,7 @@ export default function KaartBediening({ children, extraKlasse = "" }: { childre
   if (ingeklapt) {
     return (
       <div className={`kaart-bediening kaart-bediening--in ${extraKlasse}`} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="kaart-bediening-open" onClick={() => wissel(false)} title="Kaartlagen en kaartstijl" aria-label="Kaartlagen en kaartstijl tonen">🗺️</button>
+        <button type="button" className="kaart-bediening-open" onClick={() => wissel(false)} title="Kaartlagen en kaartstijl" aria-label="Kaartlagen en kaartstijl tonen">🗺️ <span>Kaart</span></button>
       </div>
     );
   }

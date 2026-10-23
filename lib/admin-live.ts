@@ -34,6 +34,8 @@ export type SpelerOverzicht = {
   hulp: { id: string; punt_naam: string | null; sinds: string } | null;
   // Itemtypes die het team nog in de balk heeft, en die het al heeft ingezet
   items: { in_balk: string[]; ingezet: string[] };
+  // Plek van het punt waar het team nu heen loopt (voor de lijn op de live kaart)
+  volgend_punt?: { lat: number; lng: number } | null;
   // 🧩 Puzzelwoord (alleen voor het beheer, nooit naar de beamer): het woord en welke letters het team al heeft
   puzzel?: { woord: string; open: boolean[]; opgelost: boolean } | null;
   // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
@@ -243,6 +245,10 @@ export async function haalLiveData(): Promise<LiveData> {
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
       wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
       puzzel: sessie ? (puzzelMap.get(sessie.id) ?? null) : null,
+      volgend_punt: (() => {
+        const p = sessie?.status === "actief" && sessie.current_point_id ? routePunten.find((r) => r.id === sessie.current_point_id) : null;
+        return p ? { lat: p.latitude, lng: p.longitude } : null;
+      })(),
     };
   });
 

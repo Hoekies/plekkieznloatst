@@ -22,9 +22,12 @@ interface Props {
   // Speler die de kaart volgt; slepen stopt het volgen
   volgId?: string | null;
   onStopVolgen?: () => void;
+  // Kaartlagen van buitenaf (live kaart: knop in de bovenbalk); zonder: eigen keuze, onthouden per toestel
+  lagen?: { sporen: boolean; items: boolean };
+  onWisselLaag?: (laag: "sporen" | "items") => void;
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen, lagen: lagenVanBuiten, onWisselLaag }: Props) {
   const sporenLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
   // Laatste versie van de callback voor de sleep-handler (die wordt maar één keer gekoppeld)
   const stopVolgenRef = useRef(onStopVolgen);
@@ -44,10 +47,11 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");
   // Kaartlagen: sporen en items los aan of uit (onthouden per toestel)
-  const [lagen, setLagen] = useState<{ sporen: boolean; items: boolean }>(() => {
+  const [eigenLagen, setLagen] = useState<{ sporen: boolean; items: boolean }>(() => {
     try { return { sporen: true, items: true, ...JSON.parse(localStorage.getItem("pr_live_lagen") ?? "{}") }; } catch { return { sporen: true, items: true }; }
   });
-  const wisselLaag = (k: "sporen" | "items") => setLagen((l) => {
+  const lagen = lagenVanBuiten ?? eigenLagen;
+  const wisselLaag = (k: "sporen" | "items") => onWisselLaag ? onWisselLaag(k) : setLagen((l) => {
     const nieuw = { ...l, [k]: !l[k] };
     try { localStorage.setItem("pr_live_lagen", JSON.stringify(nieuw)); } catch { /* geen opslag */ }
     return nieuw;
@@ -246,6 +250,35 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     }
   }, [spelers, route_punten, volgen, kaartKlaar, kleuren, volgId]);
 
+  // Stippellijn van elk team naar het punt waar het nu heen loopt, in de teamkleur
+  const doelLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
+  useEffect(() => {
+    const L = LRef.current, map = mapRef.current;
+    if (!L || !map) return;
+    doelLaagRef.current ??= L.layerGroup().addTo(map);
+    const laag = doelLaagRef.current;
+    laag.clearLayers();
+    for (const s of spelers) {
+      if (s.sessie_status !== "actief" || s.laatste_lat == null || s.laatste_lng == null || !s.volgend_punt) continue;
+      L.polyline([[s.laatste_lat, s.laatste_lng], [s.volgend_punt.lat, s.volgend_punt.lng]],
+        { color: kleuren?.get(s.player_id) ?? "#F97316", weight: 3, opacity: 0.85, dashArray: "2 8", lineCap: "round", interactive: false }).addTo(laag);
+    }
+  }, [spelers, kleuren, kaartKlaar]);
+
+  // 🔍 Alles in beeld: de hele route en alle teams, en weer meebewegen met de teams
+  function allesInBeeld() {
+    const L = LRef.current, map = mapRef.current;
+    if (!L || !map) return;
+    const plekken: [number, number][] = [
+      ...route_punten.map((p): [number, number] => [p.latitude, p.longitude]),
+      ...spelers.filter((s) => s.laatste_lat != null && s.laatste_lng != null).map((s): [number, number] => [s.laatste_lat!, s.laatste_lng!]),
+    ];
+    if (plekken.length) map.fitBounds(L.latLngBounds(plekken), { padding: [40, 40], maxZoom: 17, animate: true });
+    // Niet meer één team of alleen de teams volgen, anders springt de kaart bij de volgende update weer weg
+    setVolgen(false);
+    stopVolgenRef.current?.();
+  }
+
   // Spoor van de laatste minuten: in stukjes die naar het heden toe steeds feller worden
   useEffect(() => {
     const L = LRef.current;
@@ -313,6 +346,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         </div>
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
       </KaartBediening>
+      {/* Onder de zoomknoppen: alles weer in beeld */}
+      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld">⤢</button>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

@@ -39,6 +39,18 @@ export default function AdminLiveKaart({ initData }: Props) {
   // ⏪ Replay: het hele spel versneld afspelen (null = live kaart)
   const [replay, setReplay] = useState<import("./ReplayKaart").ReplayTeam[] | null>(null);
   const [replayLaden, setReplayLaden] = useState(false);
+  // Kaartlagen (sporen, items): hier, zodat Items aan/uit ook in de bovenbalk kan; onthouden per toestel
+  const [lagen, setLagen] = useState<{ sporen: boolean; items: boolean }>({ sporen: true, items: true });
+  useEffect(() => {
+    try { setLagen((l) => ({ ...l, ...JSON.parse(localStorage.getItem("pr_live_lagen") ?? "{}") })); } catch { /* geen opslag */ }
+  }, []);
+  function wisselLaag(k: "sporen" | "items") {
+    setLagen((l) => {
+      const nieuw = { ...l, [k]: !l[k] };
+      try { localStorage.setItem("pr_live_lagen", JSON.stringify(nieuw)); } catch { /* geen opslag */ }
+      return nieuw;
+    });
+  }
 
   async function startReplay() {
     setReplayLaden(true);
@@ -107,12 +119,21 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">{replay ? "Replay" : "Live kaart"}</span>
+        <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {replay ? "Replay" : "Live kaart"}
+          {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" className="huislogo-kop" />}
+        </span>
         <span style={{ flex: 1 }} />
         {replay ? (
           <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}>📡 Terug naar live</button>
         ) : (
           <>
+            <button type="button" className={`rl-knop${lagen.items ? " rl-knop--cyan" : ""}`} aria-pressed={lagen.items} onClick={() => wisselLaag("items")}
+              title={lagen.items ? "Items op de kaart verbergen (rustiger beeld)" : "Items op de kaart tonen"}>
+              🎁<span className="alleen-pc"> Items</span>
+            </button>
             <button type="button" className="rl-knop" onClick={openBeamer} title="Live kaart, stand en gebeurtenissen groot op een tv of beamer (zonder inloggen)">
               📺<span className="alleen-pc"> Beamer</span>
             </button>
@@ -138,11 +159,8 @@ export default function AdminLiveKaart({ initData }: Props) {
         {/* Kaart */}
         <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
           <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null}
-            kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} />
+            kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} lagen={lagen} onWisselLaag={wisselLaag} />
         </div>
-        {/* Eigen logo van de organisatie (huisstijl), handig als de kaart op een scherm staat */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" className="live-kaart-huislogo" />}
 
         {/* Overlay: spelerslijst. Tik op een naam om die speler te volgen */}
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
@@ -161,15 +179,21 @@ export default function AdminLiveKaart({ initData }: Props) {
                   title={volgt ? "Niet meer volgen" : "Deze speler volgen op de kaart"}>
                   <span style={{ width: 11, height: 11, borderRadius: "50%", flexShrink: 0, background: kleuren.get(s.player_id) }} />
                   <span style={{ minWidth: 0, flex: 1 }}>
-                    <span style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}
+                    <span className="live-lijst-kop">
+                      <span className="live-lijst-naam">{s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}</span>
+                      <span className="live-lijst-score">{s.score} pt</span>
+                    </span>
+                    {/* Waar het team heen loopt (of: gefinisht) */}
+                    <span className="live-lijst-sub">
+                      {s.sessie_status === "voltooid" ? "Gefinisht" : s.huidig_punt_naam ? `➡️ ${s.huidig_punt_naam}` : "Onderweg"}
                     </span>
                     {/* 🧩 Puzzelwoord: gevonden letters in goud */}
                     {s.puzzel && (
-                      <span className="sk-puzzel sk-puzzel--klein">
+                      <span className="sk-puzzel sk-puzzel--lijst">
                         {s.puzzel.woord.split("").map((l, i) => (
                           <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
                         ))}
+                        <span className="sk-puzzel-telling">{s.puzzel.opgelost ? "✓" : `${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
                       </span>
                     )}
                     {(!s.ingelogd || s.laatste_lat === null) && (
