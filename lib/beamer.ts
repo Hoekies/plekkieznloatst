@@ -17,7 +17,9 @@ export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
     .map((s) => ({
       ...s,
       login_name: s.display_name, nickname: s.display_name, telefoon: null, ingelogd: false,
+      // Puzzelwoord: wel hoeveel letters (blokjes), nooit welke; het beamerscherm is openbaar
       hulp: null, wacht: null, items: { in_balk: [], ingezet: s.items.ingezet },
+      puzzel: s.puzzel ? { woord: "•".repeat(s.puzzel.woord.length), open: [...s.puzzel.open].sort((a, b) => Number(b) - Number(a)), opgelost: s.puzzel.opgelost } : null,
     }));
 }
 

@@ -67,7 +67,15 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
             <div key={s.player_id} className="beamer-rij" style={{ borderLeftColor: kleuren.get(s.player_id) }}>
               <span className="beamer-plek">{i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</span>
               <span className="beamer-icoon">{s.icon ?? "👫"}</span>
-              <span className="beamer-naam">{s.display_name}{s.sessie_status === "voltooid" && " 🏁"}</span>
+              <span className="beamer-naam">
+                {s.display_name}{s.sessie_status === "voltooid" && " 🏁"}
+                {/* 🧩 Hoeveel letters van het puzzelwoord (niet welke) */}
+                {s.puzzel && (
+                  <span className="beamer-puzzel" title="Letters van het puzzelwoord">
+                    {s.puzzel.open.map((o, i) => <i key={i} className={o || s.puzzel!.opgelost ? "aan" : ""} />)}
+                  </span>
+                )}
+              </span>
               <span className="beamer-score">{s.score}</span>
             </div>
           ))}

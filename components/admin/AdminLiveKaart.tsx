@@ -164,6 +164,14 @@ export default function AdminLiveKaart({ initData }: Props) {
                     <span style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}
                     </span>
+                    {/* 🧩 Puzzelwoord: gevonden letters in goud */}
+                    {s.puzzel && (
+                      <span className="sk-puzzel sk-puzzel--klein">
+                        {s.puzzel.woord.split("").map((l, i) => (
+                          <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
+                        ))}
+                      </span>
+                    )}
                     {(!s.ingelogd || s.laatste_lat === null) && (
                       <span style={{ display: "block", fontSize: "0.7rem", color: "var(--text)" }}>
                         {!s.ingelogd ? "uitgelogd" : "nog geen locatie"}

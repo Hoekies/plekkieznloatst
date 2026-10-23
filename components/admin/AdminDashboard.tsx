@@ -338,6 +338,16 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
 
         <div className="sk-lijf">
           <div className="pr-xp-bar sk-balk" title={totaalPunten ? `${s.bezochte_punten} van ${totaalPunten} punten` : undefined}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
+          {/* 🧩 Puzzelwoord: het hele woord, de letters die het team al heeft in goud */}
+          {s.puzzel && (
+            <div className="sk-puzzel" title={s.puzzel.opgelost ? "Puzzelwoord opgelost" : `${s.puzzel.open.filter(Boolean).length} van ${s.puzzel.woord.length} letters gevonden`}>
+              <span aria-hidden>🧩</span>
+              {s.puzzel.woord.split("").map((l, i) => (
+                <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
+              ))}
+              <span className="sk-puzzel-telling">{s.puzzel.opgelost ? "✓ opgelost" : `${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
+            </div>
+          )}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
 
           {toonAlles && (s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (

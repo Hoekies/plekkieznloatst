@@ -2,6 +2,8 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import type { SpeciaalItem } from "@/types/database";
 import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
 import { huisLogoUrl } from "@/lib/huisstijl";
+import { puzzelRegels } from "@/lib/puzzel-server";
+import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -32,6 +34,8 @@ export type SpelerOverzicht = {
   hulp: { id: string; punt_naam: string | null; sinds: string } | null;
   // Itemtypes die het team nog in de balk heeft, en die het al heeft ingezet
   items: { in_balk: string[]; ingezet: string[] };
+  // 🧩 Puzzelwoord (alleen voor het beheer, nooit naar de beamer): het woord en welke letters het team al heeft
+  puzzel?: { woord: string; open: boolean[]; opgelost: boolean } | null;
   // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
   wacht: { effect_id: string; soort: "spook" | "plekzooi"; tot: string } | null;
 };
@@ -130,7 +134,7 @@ export async function haalLiveData(): Promise<LiveData> {
   const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes] = await Promise.all([
     huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
     sessieIds.length
-      ? admin.from("player_point_progress").select("session_id").in("session_id", sessieIds).not("answered_at", "is", null)
+      ? admin.from("player_point_progress").select("session_id, route_point_id, is_correct").in("session_id", sessieIds).not("answered_at", "is", null)
       : leeg,
     // Laatste locatie per sessie apart opvragen: één gezamenlijke "nieuwste N" miste juist de speler
     // die al een tijdje niets stuurde (en die wil je op het dashboard zien als "niet gezien")
@@ -161,6 +165,23 @@ export async function haalLiveData(): Promise<LiveData> {
 
   const progressMap = new Map<string, number>();
   ((progRes.data ?? []) as { session_id: string }[]).forEach((p) => progressMap.set(p.session_id, (progressMap.get(p.session_id) ?? 0) + 1));
+
+  // 🧩 Puzzelwoord: per team de gevonden letters (goed beantwoorde vragen, met de letters per vraag)
+  const regels = puzzelRegels(route);
+  const puzzelMap = new Map<string, NonNullable<SpelerOverzicht["puzzel"]>>();
+  if (regels && routePunten.length) {
+    const { data: metVraag } = await admin.from("questions").select("route_point_id").in("route_point_id", routePunten.map((p) => p.id));
+    const vraagPunten = new Set((metVraag ?? []).map((v) => v.route_point_id as string));
+    const gevonden = new Map<string, number>();
+    ((progRes.data ?? []) as { session_id: string; route_point_id: string; is_correct: boolean | null }[]).forEach((p) => {
+      if (p.is_correct && vraagPunten.has(p.route_point_id)) gevonden.set(p.session_id, (gevonden.get(p.session_id) ?? 0) + lettersVoor(regels.verdeling, p.route_point_id));
+    });
+    for (const s of sessies) {
+      const opgelost = !!(s as { puzzel_opgelost?: boolean }).puzzel_opgelost;
+      const open = new Set(puzzelVolgorde(s.id, regels.woord.length).slice(0, gevonden.get(s.id) ?? 0));
+      puzzelMap.set(s.id, { woord: regels.woord, open: regels.woord.split("").map((_, i) => open.has(i)), opgelost });
+    }
+  }
 
   const locatieMap = new Map<string, { lat: number; lng: number; created_at: string }>();
   const gezien = new Set<string>();
@@ -221,6 +242,7 @@ export async function haalLiveData(): Promise<LiveData> {
       hulp: sessie ? (hulpMap.get(sessie.id) ?? null) : null,
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
       wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
+      puzzel: sessie ? (puzzelMap.get(sessie.id) ?? null) : null,
     };
   });
 
