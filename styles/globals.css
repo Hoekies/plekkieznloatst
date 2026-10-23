@@ -2506,7 +2506,8 @@ button.route-stap:hover { color: var(--ink); }
 .huisstijl-kleur--standaard { background: linear-gradient(135deg, #FF8A00, #7C3AED); }
 .huisstijl-kleur--eigen input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .huisstijl-voorbeeld { height: 40px; width: 64px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
-.huisstijl-voorbeeld--logo { object-fit: contain; background: rgba(255,255,255,0.08); }
+/* Ruitjes achter het logo: zo zie je wat doorzichtig is */
+.huisstijl-voorbeeld--logo { object-fit: contain; background: repeating-conic-gradient(rgba(255,255,255,0.18) 0 25%, rgba(255,255,255,0.05) 0 50%) 0 0 / 10px 10px; }
 /* 🎨 Huisstijl van de route: logo van de organisatie rechts naast het PointRush-logo */
 /* Met een eigen logo: PointRush-logo zo breed als nodig, het eigen logo vult de rest van de balk (even hoog) */
 .speler-shell--logo .speler-header-logo { flex: 0 1 auto; width: auto; max-width: 48%; }

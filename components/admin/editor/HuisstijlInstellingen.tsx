@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { Route } from "@/types/database";
 import { toonMelding } from "@/components/admin/Melding";
 import { GELUID_SETS, speelVoorbeeld, type GeluidSet } from "@/lib/sounds";
+import { knipLogoUit } from "@/lib/logo-uitknippen";
 
 const OPSLAG = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/route-afbeeldingen/`;
 // Voorbeeldkleuren; met 🎨 kies je elke andere kleur
@@ -12,7 +13,7 @@ const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2
 type Velden = { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string };
 
 // Foto verkleinen in de browser (de opslag neemt max 500 KB): logo's als webp (doorzichtig blijft doorzichtig), foto's als jpg
-async function verklein(bestand: File, maxZijde: number, logo: boolean): Promise<Blob | null> {
+async function verklein(bestand: Blob, maxZijde: number, logo: boolean): Promise<Blob | null> {
   const beeld = await createImageBitmap(bestand).catch(() => null);
   if (!beeld) return null;
   const schaal = Math.min(1, maxZijde / Math.max(beeld.width, beeld.height));
@@ -24,17 +25,19 @@ async function verklein(bestand: File, maxZijde: number, logo: boolean): Promise
 
 // 🎨 Huisstijl (kleur, logo, welkomstfoto) en 🔔 geluiden voor de spelers van deze route
 export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Route; onOpslaan: (velden: Velden) => Promise<boolean> }) {
-  const [bezig, setBezig] = useState<"logo" | "foto" | null>(null);
+  const [bezig, setBezig] = useState<"logo" | "foto" | "knip" | null>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const fotoRef = useRef<HTMLInputElement>(null);
   const kleur = route.huisstijl_kleur ?? null;
   const set = (route.geluid_set ?? "klassiek") as GeluidSet;
 
-  async function upload(soort: "logo" | "foto", bestand: File | undefined) {
+  // Logo: eerst uitknippen (achtergrond doorzichtig, lege randen eraf), dan verkleinen
+  async function upload(soort: "logo" | "foto", bestand: Blob | undefined, alsKnip = false) {
     if (!bestand) return;
-    setBezig(soort);
+    setBezig(alsKnip ? "knip" : soort);
     try {
-      const klein = await verklein(bestand, soort === "logo" ? 600 : 1600, soort === "logo");
+      const bron = soort === "logo" ? (await knipLogoUit(bestand)) ?? bestand : bestand;
+      const klein = await verklein(bron, soort === "logo" ? 600 : 1600, soort === "logo");
       if (!klein) { toonMelding("Dit bestand kan niet als afbeelding worden geopend", "fout"); return; }
       const form = new FormData();
       form.append("bestand", new File([klein], soort === "logo" ? "logo.webp" : "foto.jpg", { type: klein.type }));
@@ -43,9 +46,17 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
       const data = res ? await res.json().catch(() => ({})) : {};
       if (!res?.ok) { toonMelding(data.fout ?? "Uploaden lukte niet", "fout"); return; }
       await onOpslaan(soort === "logo" ? { huisstijl_logo_pad: data.pad } : { welkom_foto_pad: data.pad });
+      if (alsKnip) toonMelding("Logo uitgeknipt", "ok");
     } finally {
       setBezig(null);
     }
+  }
+  // ✂️ Het huidige logo alsnog uitknippen (voor logo's van vóór het automatisch uitknippen)
+  async function knipHuidig() {
+    if (!route.huisstijl_logo_pad) return;
+    const res = await fetch(OPSLAG + route.huisstijl_logo_pad).catch(() => null);
+    if (!res?.ok) { toonMelding("Het logo kon niet worden opgehaald", "fout"); return; }
+    await upload("logo", await res.blob(), true);
   }
 
   return (
@@ -73,11 +84,16 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
           <img src={OPSLAG + route.huisstijl_logo_pad} alt="Logo" className="huisstijl-voorbeeld huisstijl-voorbeeld--logo" />
         )}
         <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => logoRef.current?.click()}>{bezig === "logo" ? "⏳ Uploaden…" : route.huisstijl_logo_pad ? "🔁 Ander logo" : "📤 Logo kiezen"}</button>
+        {route.huisstijl_logo_pad && (
+          <button type="button" className="rl-knop" disabled={!!bezig} onClick={knipHuidig} title="Achtergrond doorzichtig maken en de lege randen eraf halen">
+            {bezig === "knip" ? "⏳ Uitknippen…" : "✂️ Uitknippen"}
+          </button>
+        )}
         {route.huisstijl_logo_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ huisstijl_logo_pad: null })} title="Logo weghalen" aria-label="Logo weghalen">✕</button>}
         <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("logo", e.target.files?.[0]); e.target.value = ""; }} />
       </div>
       <span className="inst-uitleg huisstijl-uitleg">
-        🏢 <strong>Logo</strong> (bijv. van het bedrijf): komt naast het PointRush-logo in de bovenbalk van de spelersapp, groot op het welkomstscherm, en op de oorkonde, de uitslag-afbeelding en het PDF-rapport. Een png met doorzichtige achtergrond staat het mooist.
+        🏢 <strong>Logo</strong> (bijv. van het bedrijf): komt naast het PointRush-logo in de bovenbalk van de spelersapp, groot op het welkomstscherm, en op de oorkonde, de uitslag-afbeelding en het PDF-rapport. Bij het uploaden knipt de app het logo vanzelf uit: een effen achtergrond (wit of grijs) wordt doorzichtig en lege randen gaan eraf. Met <strong>✂️ Uitknippen</strong> doe je dat alsnog bij het huidige logo.
       </span>
       <div className="huisstijl-rij">
         <span className="huisstijl-label">Welkomstfoto</span>
