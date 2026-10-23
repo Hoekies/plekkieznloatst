@@ -16,6 +16,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components/admin/ActieveRouteLabel";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -30,7 +31,34 @@ function wanneer(iso: string): string {
 
 export default function RoutesOverzicht() {
   const router = useRouter();
-  const [routes, setRoutes] = useState<Route[]>([]);
+  const [routes, setRoutes] = useState<(Route & { start?: { lat: number; lng: number } | null })[]>([]);
+  // 📍 Plaats van elke route (uit het startpunt), onthouden op dit toestel; de kaartdienst wil één vraag per seconde
+  const [plaatsen, setPlaatsen] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let weg = false;
+    const sleutel = (s: { lat: number; lng: number }) => `pr_plaats_${s.lat.toFixed(2)}_${s.lng.toFixed(2)}`;
+    (async () => {
+      const gevonden: Record<string, string> = {};
+      const nogOpzoeken: typeof routes = [];
+      for (const r of routes) {
+        if (!r.start) continue;
+        let bekend: string | null = null;
+        try { bekend = localStorage.getItem(sleutel(r.start)); } catch { /* geen opslag */ }
+        if (bekend) gevonden[r.id] = bekend; else nogOpzoeken.push(r);
+      }
+      if (!weg) setPlaatsen(gevonden);
+      for (let i = 0; i < nogOpzoeken.length && !weg; i++) {
+        const r = nogOpzoeken[i];
+        if (i > 0) await new Promise((ok) => setTimeout(ok, 1100));
+        const res = await fetch(`/api/admin/geocode?lat=${r.start!.lat}&lng=${r.start!.lng}&plaats=1`).catch(() => null);
+        const naam = res?.ok ? (await res.json()).naam as string : null;
+        if (!naam || weg) continue;
+        try { localStorage.setItem(sleutel(r.start!), naam); } catch { /* geen opslag */ }
+        setPlaatsen((p) => ({ ...p, [r.id]: naam }));
+      }
+    })();
+    return () => { weg = true; };
+  }, [routes]);
   const [laden, setLaden] = useState(true);
   const [nieuweNaam, setNieuweNaam] = useState("");
   const [nieuweModus, setNieuweModus] = useState<"sequentieel" | "verspreid">("sequentieel");
@@ -42,6 +70,11 @@ export default function RoutesOverzicht() {
   const [gpxStil, setGpxStil] = useState(true);
   // 📦 Sjabloon: kant-en-klare instellingen voor een soort uitje
   const [sjabloon, setSjabloon] = useState("standaard");
+  // Meteen bij het maken te kiezen (later aan te passen in ⚙️ Instellingen)
+  const [puzzelAan, setPuzzelAan] = useState(false);
+  // null = wat het soort uitje (of het speltype) aangeeft
+  const [startitems, setStartitems] = useState<Record<string, number> | null>(null);
+  const [naFinish, setNaFinish] = useState<string[]>([]);
   const gpxRef = useRef<HTMLInputElement>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
@@ -98,10 +131,18 @@ export default function RoutesOverzicht() {
     if (!res.ok) { setFout(await foutUitleg(res, "Route aanmaken")); setBezig(false); return; }
     const route = await res.json();
     // Sjabloon: de instellingen voor dit soort uitje meteen zetten
-    const inst = SJABLONEN.find((s) => s.sleutel === sjabloon)?.instellingen ?? {};
+    const inst: Record<string, unknown> = { ...(SJABLONEN.find((s) => s.sleutel === sjabloon)?.instellingen ?? {}) };
+    // Eigen keuzes in dit venster gaan voor het sjabloon
+    if (startitems) inst.startitems = startitems;
+    if (naFinish.length) inst.items_na_finish_types = naFinish;
     if (Object.keys(inst).length) {
       const r = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(inst) });
       if (!r.ok) toonMelding(`Route aangemaakt, maar de instellingen van het sjabloon niet: ${await foutUitleg(r, "Opslaan")}`, "fout");
+    }
+    // 🧩 Puzzelwoord aan: het woord kies je in de editor zodra er vragen zijn (migratie 017)
+    if (puzzelAan) {
+      const r = await fetch(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ puzzel_aan: true }) });
+      if (!r.ok) toonMelding(`Route aangemaakt, maar het puzzelwoord niet aangezet: ${await foutUitleg(r, "Opslaan")}`, "fout");
     }
     // Met GPX: de punten meteen toevoegen (infopunten, finish aan het eind van een spoor)
     if (gpx) {
@@ -374,6 +415,35 @@ export default function RoutesOverzicht() {
                 <span className="nieuwe-route-noot">{SJABLONEN.find((s) => s.sleutel === sjabloon)?.uitleg}</span>
               </div>
 
+              {/* 🧩 Puzzelwoord: nu alleen aan of uit; het woord kies je later, als het aantal vragen bekend is */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">🧩 Puzzelwoord <span className="nieuwe-route-bij">· elke goede vraag geeft een letter</span></span>
+                <div className="segment" role="radiogroup" aria-label="Puzzelwoord">
+                  <button type="button" role="radio" aria-checked={!puzzelAan} className={!puzzelAan ? "aan" : ""} onClick={() => setPuzzelAan(false)}>Nee</button>
+                  <button type="button" role="radio" aria-checked={puzzelAan} className={puzzelAan ? "aan" : ""} onClick={() => setPuzzelAan(true)}>Ja</button>
+                </div>
+                <span className="nieuwe-route-noot">{puzzelAan
+                  ? "Het woord kies je later in ⚙️ Instellingen, als je weet hoeveel vragen er zijn (zoveel letters krijgt het woord)."
+                  : "De teams verdienen per goede vraag een letter van een geheim woord en raden het bij de finish voor bonuspunten."}</span>
+              </div>
+
+              {/* 🎒 Startitems: elk team krijgt ze na de eerste 100 meter */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">🎒 Items bij de start <span className="nieuwe-route-bij">· tik = +1</span></span>
+                <StartitemsKiezer waarde={startitems ?? ((SJABLONEN.find((s) => s.sleutel === sjabloon)?.instellingen.startitems as Record<string, number> | undefined) ?? (nieuweModus === "sequentieel" ? { banaan: 1 } : {}))}
+                  onWijzig={setStartitems} />
+                <span className="nieuwe-route-noot">Elk team krijgt deze items gratis in de balk, na de eerste 100 meter.</span>
+              </div>
+
+              {/* 🏁 Items na de finish */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <span className="form-label">🏁 Items na de finish <span className="nieuwe-route-bij">· aan of uit</span></span>
+                <NaFinishKiezer waarde={naFinish} onWijzig={setNaFinish} />
+                <span className="nieuwe-route-noot">{naFinish.length
+                  ? "Teams die al binnen zijn, mogen deze items nog inzetten op teams die onderweg zijn (tot je de uitslag vrijgeeft)."
+                  : "Uit: wat een team nog over heeft, vervalt bij de finish. Tik items aan die daarna nog mogen."}</span>
+              </div>
+
               {/* Beginnen met een GPX (alleen Op volgorde): de punten komen er meteen in */}
               <div className="form-group" style={{ margin: 0 }}>
                 <span className="form-label">Bestand <span className="nieuwe-route-bij">· GPX of KML, mag ook later</span></span>
@@ -451,6 +521,7 @@ export default function RoutesOverzicht() {
                     {/* Telefoon: spelsoort en datum samen op één regel */}
                     <span className="rl-meta">
                       <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>
+                      {plaatsen[r.id] && <span className="rl-plaats" title="Plaats van het startpunt">📍 {plaatsen[r.id]}</span>}
                       {r.bewerkt_op && (
                         <span className="rl-datum" title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
                           ✏️ <span className="rl-datum-woord">Aangepast </span>{wanneer(r.bewerkt_op)}

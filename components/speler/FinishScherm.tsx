@@ -29,11 +29,13 @@ interface Props {
   // Route staat "items na de finish" toe en de uitslag is nog niet vrij
   itemsNaFinish: boolean;
   waarden: RouteWaarden;
+  // Eigen logo van de organisatie (huisstijl): op de oorkonde en de uitslag
+  huisLogo?: string | null;
 }
 
 const POLL_INTERVAL_MS = 10000;
 
-export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden }: Props) {
+export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden, huisLogo = null }: Props) {
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
@@ -114,7 +116,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
 
         {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is) */}
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
-          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} />
+          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} huisLogo={huisLogo} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>
@@ -208,7 +210,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <Podium stand={leaderboard} />
-              <UitslagDelen routeNaam={routeNaam} knopStijl={{ width: "100%", fontSize: "0.95rem", padding: "13px 6px", borderRadius: 14, fontWeight: 800 }}
+              <UitslagDelen routeNaam={routeNaam} huisLogo={huisLogo} knopStijl={{ width: "100%", fontSize: "0.95rem", padding: "13px 6px", borderRadius: 14, fontWeight: 800 }}
                 stand={leaderboard.map((e) => ({ naam: e.display_name, icon: e.icon, score: e.score, plaats: e.rank, eigen: e.is_eigen_team }))} />
               {leaderboard.map((entry) => (
                 <StandRij key={entry.rank} entry={entry} />

@@ -6,8 +6,9 @@ export type UitslagTeam = { naam: string; icon: string | null; score: number; pl
 
 // 🖼️ Uitslag als afbeelding om te delen (WhatsApp, Instagram): podium met de top 3 en de rest eronder.
 // Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje (zoals de oorkonde).
-export default function UitslagDelen({ stand, routeNaam, knopClass = "btn btn-ghost", knopStijl }: {
-  stand: UitslagTeam[]; routeNaam: string | null; knopClass?: string; knopStijl?: React.CSSProperties;
+// huisLogo: eigen logo van de organisatie (huisstijl van de route), komt naast het PointRush-logo
+export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopClass = "btn btn-ghost", knopStijl }: {
+  stand: UitslagTeam[]; routeNaam: string | null; huisLogo?: string | null; knopClass?: string; knopStijl?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bezig, setBezig] = useState(false);
@@ -22,7 +23,7 @@ export default function UitslagDelen({ stand, routeNaam, knopClass = "btn btn-gh
       const { default: html2canvas } = await import("html2canvas-pro");
       await document.fonts?.ready;
       await Promise.all([...ref.current.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-      const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: null, logging: false });
+      const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: null, logging: false, useCORS: true });
       const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
       if (!blob) return;
       const bestand = new File([blob], `PointRush-uitslag${routeNaam ? `-${routeNaam.replace(/[^\p{L}\p{N}]+/gu, "-")}` : ""}.png`, { type: "image/png" });
@@ -48,8 +49,12 @@ export default function UitslagDelen({ stand, routeNaam, knopClass = "btn btn-gh
       </button>
       <div aria-hidden style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none" }}>
         <div ref={ref} className="uitslag-kaart">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.webp" alt="" className="uitslag-kaart-logo" />
+          <div className="uitslag-kaart-logos">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.webp" alt="" className="uitslag-kaart-logo" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="uitslag-kaart-huislogo" />}
+          </div>
           <div className="uitslag-kaart-kop">Uitslag</div>
           {routeNaam && <div className="uitslag-kaart-route">{routeNaam}</div>}
           <div className="uitslag-kaart-podium">

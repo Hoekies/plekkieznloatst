@@ -42,20 +42,25 @@ export function waTekst(i: Inlog) {
   return `Hoi! Doe mee met PointRush 🎯\n\nGa naar ${SITE} en log in met:\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
 }
 
-// Het inlogkaartje zelf: logo, QR-code naar de app, loginnaam en wachtwoord
+// Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. Met een inloglink logt de QR-code
+// meteen in (zonder typen); zonder link opent hij de inlogpagina.
 export function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
   return (
     <div className="kaartje" ref={kaartRef}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-breed.png" alt="PointRush" className="kaartje-logo" />
       <div className="kaartje-midden">
-        <div className="kaartje-qr"><QRCodeCanvas value={SITE} size={96} /></div>
+        <div className="kaartje-qr"><QRCodeCanvas value={inlog.link?.url ?? SITE} size={96} /></div>
         <div className="kaartje-velden">
           <div className="kaartje-veld"><small>{inlog.helper ? "Naam" : "Loginnaam"}</small><b>{inlog.login}</b></div>
           <div className="kaartje-veld kaartje-veld--ww"><small>Wachtwoord</small><b>{inlog.wachtwoord}</b></div>
         </div>
       </div>
-      <div className="kaartje-voet">Scan de code of ga naar <strong>{SITE.replace("https://", "")}</strong></div>
+      <div className="kaartje-voet">
+        {inlog.link
+          ? <>📷 Scan de code: je bent meteen ingelogd (tot {totTekst(inlog.link.geldig_tot)})</>
+          : <>Scan de code of ga naar <strong>{SITE.replace("https://", "")}</strong></>}
+      </div>
     </div>
   );
 }

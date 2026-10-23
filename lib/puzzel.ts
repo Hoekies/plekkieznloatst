@@ -16,6 +16,12 @@ export function puzzelVolgorde(sessieId: string, lengte: number): number[] {
   return Array.from({ length: lengte }, (_, i) => i).sort((a, b) => gewicht(a) - gewicht(b));
 }
 
+// Hoeveel letters levert een goed antwoord op dit punt op? Standaard 1; de beheerder kan per vraag 0 of 2 kiezen
+export function lettersVoor(verdeling: Record<string, number> | null | undefined, puntId: string): number {
+  const n = verdeling?.[puntId];
+  return n === 0 || n === 2 ? n : 1;
+}
+
 export type PuzzelStand = { lengte: number; letters: (string | null)[]; opgelost: boolean; bonus: number; omschrijving: string | null };
 
 // Wat het team mag zien: de letters op de plekken die het al verdiend heeft, de rest leeg

@@ -35,6 +35,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
 
   // Eindstand: hoogste score bovenaan, bij gelijke score de snelste
   const routeNaam = data.route.name;
+  const huisLogo = data.route.huis_logo ?? null;
   const stand = [...data.teams].sort((a, b) => b.score - a.score || (speeltijd(a) || Infinity) - (speeltijd(b) || Infinity));
   const voorlopig = !data.uitslag_vrijgegeven || data.wachtende_fotos > 0 || data.teams.some((t) => t.status !== "voltooid");
 
@@ -90,6 +91,9 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
         <div style={{ textAlign: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 110, width: "auto" }} />
+          {/* Eigen logo van de organisatie (huisstijl van de route) */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ display: "block", height: 80, maxWidth: 320, objectFit: "contain", margin: "10px auto 0" }} />}
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#FFE680", letterSpacing: "0.08em", marginTop: 10 }}>SPELRAPPORT</div>
           <h1 style={{ fontSize: "1.8rem", marginTop: 2 }}>{data.route.name}</h1>
         </div>
@@ -153,6 +157,8 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 42, width: "auto" }} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ height: 38, maxWidth: 160, objectFit: "contain" }} />}
               <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#B8AED6" }}>{routeNaam}</span>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
@@ -263,6 +269,8 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
         <div className="rapport-blok" style={{ textAlign: "center", padding: "30px 10px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 90, width: "auto" }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ display: "block", height: 70, maxWidth: 300, objectFit: "contain", margin: "12px auto 0" }} />}
           <div style={{ fontSize: "3rem", marginTop: 18 }}>🍌🙏</div>
           <h2 style={{ fontSize: "1.7rem", marginTop: 8 }}>Bedankt voor het spelen!</h2>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 520, margin: "14px auto 0" }}>

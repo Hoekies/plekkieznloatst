@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import type { PuzzelStand } from "@/lib/puzzel";
 import { strooiConfetti } from "@/lib/confetti";
 
-type Stand = PuzzelStand & { actief: true };
+// Na de finish ook: hoeveel letters gevonden, en de punten per letter en voor het afmaken
+type Stand = PuzzelStand & { actief: true; gevonden?: number; gefinisht?: boolean; letter_punten?: number; raad_bonus?: number };
 
 // 🧩 Puzzelwoord: de letters die het team al verdiend heeft (de rest leeg). Tijdens het spel als smalle balk;
 // bij de finish (raden) met een invulveld voor de bonuspunten. Zonder puzzelwoord in de route: niets.
@@ -30,7 +31,7 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
     if (!d) { setMelding("Raden lukte niet, probeer het opnieuw"); return; }
     setStand(d);
     if (d.goed) strooiConfetti({ aantal: 160, duurMs: 3200, knal: true });
-    setMelding(d.goed ? `🎉 Goed geraden! +${d.bonus} punten` : "❌ Helaas, dat is het niet. Probeer het nog eens!");
+    setMelding(d.goed ? `🎉 Goed! +${d.raad_bonus ?? 0} punten voor het afmaken` : "❌ Helaas, dat is het niet. Probeer het nog eens!");
   }
 
   const tegels = (
@@ -47,14 +48,23 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
       </div>
     );
   }
+  // Bij de finish: punten per gevonden letter; alles gevonden = bonus; anders het woord zelf afmaken
+  const gevonden = stand.gevonden ?? stand.letters.filter(Boolean).length;
+  const allesGevonden = gevonden >= stand.lengte;
+  const letterPunten = stand.letter_punten ?? 0;
   return (
     <div className="puzzel-raden">
-      <div className="puzzel-raden-kop">🧩 Puzzelwoord {stand.opgelost ? "· opgelost!" : `· raad het voor ${stand.bonus} punten`}</div>
+      <div className="puzzel-raden-kop">🧩 Puzzelwoord</div>
       {stand.omschrijving && <div className="puzzel-hint">💡 {stand.omschrijving}</div>}
       {tegels}
+      <div className="puzzel-punten">
+        <span>🔤 {gevonden} van {stand.lengte} letters gevonden{letterPunten ? <> · <strong>+{gevonden * letterPunten}</strong></> : null}</span>
+        {allesGevonden && <span>🎉 Alle letters gevonden · <strong>+{stand.bonus}</strong></span>}
+        {!allesGevonden && stand.opgelost && <span>🎉 Woord afgemaakt · <strong>+{stand.raad_bonus ?? 0}</strong></span>}
+      </div>
       {!stand.opgelost && (
         <form onSubmit={raad} className="puzzel-raden-veld">
-          <input className="form-input" value={gok} onChange={(e) => setGok(e.target.value.toUpperCase())} placeholder="Het woord is…" autoCapitalize="characters" autoCorrect="off" spellCheck={false} />
+          <input className="form-input" value={gok} onChange={(e) => setGok(e.target.value.toUpperCase())} placeholder={`Maak het woord af: +${stand.raad_bonus ?? 0}`} autoCapitalize="characters" autoCorrect="off" spellCheck={false} />
           <button type="submit" className="btn btn-primary" disabled={bezig || !gok.trim()}>{bezig ? "…" : "Raden"}</button>
         </form>
       )}

@@ -22,7 +22,7 @@ export default async function SpelerLayout({ children }: { children: React.React
     : undefined;
 
   return (
-    <div className={`speler-shell${huisstijl.kleur ? " speler-shell--huisstijl" : ""}`} style={kleurVars}>
+    <div className={`speler-shell${huisstijl.kleur ? " speler-shell--huisstijl" : ""}${huisstijl.logo ? " speler-shell--logo" : ""}`} style={kleurVars}>
       <GeluidSetKiezen set={huisstijl.geluidSet} />
       <AudioUnlock />
       <IOSFixes />

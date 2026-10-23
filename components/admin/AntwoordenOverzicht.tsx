@@ -12,7 +12,7 @@ import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 type Data = {
-  route: { id: string; name: string } | null;
+  route: { id: string; name: string; huis_logo?: string | null } | null;
   uitslag_vrijgegeven: boolean;
   teams: TeamAntwoorden[];
   wachtende_fotos: number;
@@ -155,7 +155,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
           </BevestigKnop>
         )}
         {data.teams.length > 0 && (
-          <UitslagDelen routeNaam={data.route.name} knopClass="rl-knop actie-knop" stand={(() => {
+          <UitslagDelen routeNaam={data.route.name} huisLogo={data.route.huis_logo ?? null} knopClass="rl-knop actie-knop" stand={(() => {
             // Plaats: hoogste score eerst; bij gelijke score de snelste (zoals de stand)
             const duur = (t: TeamAntwoorden) => (t.finished_at ? Date.parse(t.finished_at) : Date.now()) - (t.started_at ? Date.parse(t.started_at) : 0);
             const lijst = [...data.teams].sort((a, b) => b.score - a.score || duur(a) - duur(b));
@@ -170,6 +170,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       </>}
       </div>
 
+      {/* Wat doet Uitslag vrijgeven? (alleen zolang de uitslag nog verborgen is) */}
+      {!beperkt && !data.uitslag_vrijgegeven && data.teams.length > 0 && (
+        <div className="inst-uitleg uitslag-uitleg">
+          🏆 <strong>Uitslag vrijgeven</strong>: tot dan zien teams die binnen zijn op hun telefoon <em>Even geduld…</em>, zodat niemand de stand al weet terwijl jij nog foto&apos;s keurt of teams onderweg zijn. Geef je hem vrij, dan zien alle teams de eindstand met het podium, worden open stemvragen afgerond en vervallen overgebleven items. Je kunt hem weer verbergen.
+        </div>
+      )}
       {weergave === "vraag" && <VraagStatistiek teams={data.teams} onOokGoed={ookGoed}
         onSluitStemming={async (puntId) => {
           await actie("stemming", () => fetch("/api/admin/stemming", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punt_id: puntId }) }));

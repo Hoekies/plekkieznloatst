@@ -2454,6 +2454,40 @@ button.route-stap:hover { color: var(--ink); }
 .antw-balk { margin-bottom: 0; }
 .antw-tabs { width: 300px; max-width: 100%; }
 .antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
+/* 📍 Plaats van de route in het overzicht */
+.rl-plaats { font-size: 0.75rem; color: var(--text); white-space: nowrap; margin-left: 8px; }
+/* Items kiezen (nieuwe route): plaatje met naam; groen = gekozen, met aantal en een rode − */
+.item-keuze { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 6px 4px 0; }
+.item-keuze-vak { position: relative; }
+.item-keuze-knop { width: 54px; padding: 4px 2px 3px; border-radius: 9px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--muted); font-size: 0.62rem; font-weight: 700; }
+.item-keuze-knop img { width: 26px; height: 26px; opacity: 0.35; filter: grayscale(1); }
+.item-keuze-knop.aan { border-color: rgba(34,197,94,0.7); background: rgba(34,197,94,0.15); color: #fff; }
+.item-keuze-knop.aan img { opacity: 1; filter: none; }
+.item-keuze-aantal { position: absolute; top: -6px; right: -6px; min-width: 17px; height: 17px; border-radius: 9px; padding: 0 4px; background: var(--green); color: #06240f;
+  font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.item-keuze-min { position: absolute; bottom: 14px; right: -6px; width: 17px; height: 17px; border-radius: 9px; padding: 0; border: none; background: #ef4444; color: #fff;
+  font-size: 0.8rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+/* Korte uitleg onder een instelling: wat doet dit? */
+.inst-uitleg { display: block; font-size: 0.74rem; color: var(--muted); line-height: 1.45; }
+.inst-uitleg strong { color: var(--text); }
+.huisstijl-uitleg { margin: -2px 0 2px 104px; }
+@media (max-width: 600px) { .huisstijl-uitleg { margin-left: 0; } }
+.uitslag-uitleg { padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+/* 🧩 Puzzelwoord bij de finish: wat het opleverde */
+.puzzel-punten { display: flex; flex-direction: column; gap: 2px; font-size: 0.85rem; color: var(--text); text-align: center; }
+.puzzel-punten strong { color: #FFE680; }
+/* 🧩 Puzzelwoord in de route-instellingen */
+.puzzel-inst { display: flex; flex-direction: column; gap: 8px; }
+.puzzel-bedragen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.puzzel-bedragen label { display: flex; flex-direction: column; gap: 3px; font-size: 0.72rem; color: var(--muted); }
+.puzzel-bedragen .form-input { width: 100%; }
+.puzzel-telling { font-size: 0.8rem; padding: 8px 10px; border-radius: 10px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.4); color: #FDE68A; line-height: 1.45; }
+.puzzel-telling--goed { background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.4); color: #BBF7D0; }
+.puzzel-verdeling { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
+.puzzel-verdeling-rij { display: flex; align-items: center; gap: 8px; }
+.puzzel-verdeling-naam { flex: 1; min-width: 0; font-size: 0.8rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.puzzel-verdeling-rij > .segment { width: 150px; flex-shrink: 0; }
 /* 🎨 Huisstijl in de route-instellingen */
 .huisstijl { display: flex; flex-direction: column; gap: 8px; }
 .huisstijl-rij { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -2465,7 +2499,9 @@ button.route-stap:hover { color: var(--ink); }
 .huisstijl-voorbeeld { height: 40px; width: 64px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
 .huisstijl-voorbeeld--logo { object-fit: contain; background: rgba(255,255,255,0.08); }
 /* 🎨 Huisstijl van de route: logo van de organisatie rechts naast het PointRush-logo */
-.speler-header-huislogo { height: 70%; max-height: 40px; max-width: 30vw; object-fit: contain; margin-left: 10px; border-radius: 6px; }
+/* Met een eigen logo: PointRush-logo zo breed als nodig, het eigen logo vult de rest van de balk (even hoog) */
+.speler-shell--logo .speler-header-logo { flex: 0 1 auto; width: auto; max-width: 48%; }
+.speler-header-huislogo { display: block; flex: 1; min-width: 0; height: clamp(60px, 15.5vw, 110px); object-fit: contain; object-position: center; border-radius: 8px; }
 /* 📍 Punten op de spelerskaart: zwevende pin met schaduw; het volgende punt veert en pulseert */
 .pr-pin { position: relative; width: 40px; height: 52px; }
 .pr-pin-kop { position: absolute; left: 4px; top: 2px; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
@@ -2921,7 +2957,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .import-voet .rl-knop { height: 44px; }
 
 /* Nieuwe route: venster met naam en speltype (twee tegels naast elkaar, op de telefoon onder elkaar) */
-.nieuwe-route { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 14px; }
+.nieuwe-route { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 14px; max-height: calc(92vh - 6px); overflow-y: auto; }
 .nieuwe-route .form-group { gap: 5px; }
 .nieuwe-route-bij { font-weight: 400; color: var(--muted); }
 .nieuwe-route-typen { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -3050,6 +3086,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   border-radius: 28px; border: 4px solid #FFD93B; color: #fff; font-family: var(--font);
   background: radial-gradient(circle at 50% 0%, #7c4dd8 0%, #5b34a8 45%, #3a1f80 100%); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15); }
 .oorkonde-logo { width: 230px; height: auto; }
+.oorkonde-huislogo { height: 70px; max-width: 260px; object-fit: contain; }
 .oorkonde-kop { font-family: var(--font-display); font-weight: 800; font-size: 2.1rem; letter-spacing: 0.12em; text-transform: uppercase; color: #FFE680; }
 .oorkonde-icoon { width: 112px; height: 112px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;
   background: rgba(255,255,255,0.12); border: 3px solid rgba(255,255,255,0.35); }
@@ -3066,7 +3103,9 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .uitslag-kaart { width: 540px; min-height: 675px; padding: 30px 30px 22px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
   border-radius: 28px; border: 4px solid #FFD93B; color: #fff; font-family: var(--font);
   background: radial-gradient(circle at 50% 0%, #7c4dd8 0%, #5b34a8 45%, #3a1f80 100%); }
+.uitslag-kaart-logos { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .uitslag-kaart-logo { width: 190px; height: auto; }
+.uitslag-kaart-huislogo { height: 90px; max-width: 220px; object-fit: contain; }
 .uitslag-kaart-kop { font-family: var(--font-display); font-weight: 800; font-size: 2rem; letter-spacing: 0.14em; text-transform: uppercase; color: #FFE680; }
 .uitslag-kaart-route { font-size: 1.05rem; color: #e9e3fb; margin-top: -4px; }
 .uitslag-kaart-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; width: 100%; margin-top: 10px; }

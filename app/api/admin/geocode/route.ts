@@ -5,6 +5,7 @@ const NOMINATIM = { headers: { "User-Agent": "PointRush/1.0 (hoekies.nl)", "Acce
 
 // ?q=… → plaats of adres zoeken ({ lat, lng })
 // ?lat=…&lng=… → naam voor die plek ({ naam }): een bekend gebouw of plek als die er is, anders de straat
+// ?lat=…&lng=…&plaats=1 → de plaats (stad, dorp) waar die plek ligt ({ naam })
 export async function GET(request: NextRequest) {
   const user = await haalGebruiker();
   if (!user || user.app_metadata?.rol !== "admin") {
@@ -15,10 +16,15 @@ export async function GET(request: NextRequest) {
   const lng = Number(request.nextUrl.searchParams.get("lng"));
   if (request.nextUrl.searchParams.has("lat")) {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return NextResponse.json({ fout: "Ongeldige plek" }, { status: 400 });
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${lat}&lon=${lng}`, NOMINATIM);
+    const plaats = request.nextUrl.searchParams.has("plaats");
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=${plaats ? 14 : 18}&addressdetails=1&lat=${lat}&lon=${lng}`, NOMINATIM);
     if (!res.ok) return NextResponse.json({ fout: "Naam opzoeken lukte niet" }, { status: 502 });
     const d = await res.json() as { name?: string; category?: string; address?: Record<string, string> };
     const a = d.address ?? {};
+    if (plaats) {
+      const p = a.city ?? a.town ?? a.village ?? a.hamlet ?? a.municipality ?? a.suburb ?? null;
+      return p ? NextResponse.json({ naam: p.slice(0, 40) }) : NextResponse.json({ fout: "Geen plaats gevonden" }, { status: 404 });
+    }
     // Een eigen naam (kerk, molen, café) gaat voor; een weg of pad heet al zoals de straat
     const eigen = d.name && d.category !== "highway" && d.category !== "place" ? d.name : null;
     const straat = a.road ?? a.pedestrian ?? a.footway ?? a.path ?? a.cycleway ?? a.square ?? a.neighbourhood ?? a.hamlet ?? a.village ?? null;

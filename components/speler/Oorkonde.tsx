@@ -5,10 +5,12 @@ import { formateerTijd, afstandTekst } from "@/lib/geo";
 
 // 🏅 Oorkonde bij de finish: een afbeelding met teamnaam, plaats, punten, tijd en afstand, om te delen
 // in de groepsapp. Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje.
-export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden, meters, plaats, aantalTeams }: {
+export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null }: {
   teamNaam: string; icoon: string | null; routeNaam: string | null; punten: number; seconden: number; meters: number;
   // Alleen als de uitslag vrij is
   plaats: number | null; aantalTeams: number;
+  // Eigen logo van de organisatie (huisstijl van de route)
+  huisLogo?: string | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bezig, setBezig] = useState(false);
@@ -22,7 +24,7 @@ export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden,
       const { default: html2canvas } = await import("html2canvas-pro");
       await document.fonts?.ready;
       await Promise.all([...ref.current.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-      const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: null, logging: false });
+      const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: null, logging: false, useCORS: true });
       const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
       if (!blob) return;
       const bestand = new File([blob], `PointRush-oorkonde-${teamNaam.replace(/[^\p{L}\p{N}]+/gu, "-")}.png`, { type: "image/png" });
@@ -52,6 +54,8 @@ export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden,
         <div ref={ref} className="oorkonde">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.webp" alt="" className="oorkonde-logo" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="oorkonde-huislogo" />}
           <div className="oorkonde-kop">Oorkonde</div>
           <div className="oorkonde-icoon">{icoon ?? "🏁"}</div>
           <div className="oorkonde-team">{teamNaam}</div>

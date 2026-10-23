@@ -26,6 +26,7 @@ import type { KiesModus } from "@/components/admin/editor/EersteStappen";
 import ControleVenster from "./editor/ControleVenster";
 import { routeControle } from "@/lib/route-controle";
 import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
+import PuzzelInstellingen from "./editor/PuzzelInstellingen";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
@@ -142,26 +143,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [instellingenOpen, setInstellingenOpen] = useState(false);
   // Instellingen die bijna niemand aanpast staan achter "⚙️ Meer instellingen"
   const [meerInstellingen, setMeerInstellingen] = useState(false);
-  // 🧩 Puzzelwoord (opslaan bij het verlaten van het veld)
-  const [puzzelwoord, setPuzzelwoord] = useState(initRoute.puzzelwoord ?? "");
-  const [puzzelBonus, setPuzzelBonus] = useState(initRoute.puzzel_bonus ?? 100);
-  const [puzzelOmschrijving, setPuzzelOmschrijving] = useState(initRoute.puzzel_omschrijving ?? "");
-  // ✨ Woord laten bedenken uit de omschrijving (Claude, of gratis via Wiktionary)
-  const [puzzelVoorstellen, setPuzzelVoorstellen] = useState<{ woord: string; omschrijving: string }[] | null>(null);
-  const [puzzelZoekt, setPuzzelZoekt] = useState(false);
-  async function bedenkPuzzelwoord() {
-    setPuzzelZoekt(true); setPuzzelVoorstellen(null);
-    const res = await fetch(`/api/admin/puzzel-ideeen?vraag=${encodeURIComponent(puzzelOmschrijving)}`).catch(() => null);
-    const data = res ? await res.json().catch(() => ({})) : {};
-    setPuzzelZoekt(false);
-    if (!res?.ok) { toonMelding(data.fout ?? "Bedenken lukte niet", "fout"); return; }
-    setPuzzelVoorstellen(data.woorden);
-  }
-  async function kiesPuzzelvoorstel(v: { woord: string; omschrijving: string }) {
-    setPuzzelwoord(v.woord); setPuzzelOmschrijving(v.omschrijving); setPuzzelVoorstellen(null);
-    await slaPuzzelOp({ puzzelwoord: v.woord, puzzel_omschrijving: v.omschrijving });
-  }
-  async function slaPuzzelOp(velden: { puzzelwoord?: string; puzzel_bonus?: number; puzzel_omschrijving?: string }) {
+  // 🧩 Puzzelwoord: instellingen opslaan (zie editor/PuzzelInstellingen)
+  async function slaPuzzelOp(velden: Partial<Route>) {
     const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
     if (res.ok) setRoute((r) => ({ ...r, ...velden }));
   }
@@ -2041,37 +2024,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </>
                 )}
 
-                {/* 🧩 Puzzelwoord: elke goede vraag geeft een letter; bij de finish raden voor bonuspunten */}
+                {/* 🧩 Puzzelwoord: aan of uit; elke goede vraag geeft een letter (per vraag aan te passen) */}
                 {instellingenTab === "algemeen" && (
-                  <div className="form-group">
-                    <label className="form-label">🧩 Puzzelwoord</label>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <input className="form-input" value={puzzelwoord} maxLength={30} placeholder="Leeg = uit, bijv. KASTEEL"
-                        onChange={(e) => setPuzzelwoord(e.target.value.toUpperCase())} onBlur={() => slaPuzzelOp({ puzzelwoord })} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
-                      <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>bonus</span>
-                      <input className="form-input" type="number" min={0} value={puzzelBonus} style={{ width: 80 }}
-                        onChange={(e) => setPuzzelBonus(Math.max(0, Number(e.target.value)))} onBlur={() => slaPuzzelOp({ puzzel_bonus: puzzelBonus })} />
-                    </div>
-                    {/* Omschrijving voor de spelers; ook de vraag voor ✨ Bedenk een woord */}
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <input className="form-input" value={puzzelOmschrijving} maxLength={120} placeholder="Omschrijving, bijv. Een ander woord voor slot (7 letters)"
-                        onChange={(e) => setPuzzelOmschrijving(e.target.value)} onBlur={() => slaPuzzelOp({ puzzel_omschrijving: puzzelOmschrijving })} style={{ flex: "1 1 220px" }} />
-                      <button type="button" className="rl-knop" disabled={!puzzelOmschrijving.trim() || puzzelZoekt} onClick={bedenkPuzzelwoord}
-                        title="De app bedenkt woorden die bij de omschrijving passen">{puzzelZoekt ? "⏳ Bedenken…" : "✨ Bedenk een woord"}</button>
-                    </div>
-                    {puzzelVoorstellen && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                        {puzzelVoorstellen.map((v) => (
-                          <button key={v.woord} type="button" className="rl-knop" onClick={() => kiesPuzzelvoorstel(v)} title={v.omschrijving}
-                            style={{ letterSpacing: "0.08em", fontWeight: 800 }}>{v.woord} <span style={{ fontWeight: 400, color: "var(--muted)", letterSpacing: 0 }}>({v.woord.length})</span></button>
-                        ))}
-                      </div>
-                    )}
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      De spelers zien de omschrijving boven de tegeltjes. Elke goede vraag geeft een letter op een willekeurige plek; bij de finish raden de teams het woord voor de bonus.
-                      {puzzelwoord.replace(/[^A-Z0-9]/gi, "").length > vraagpunten.length && ` ⚠️ Het woord heeft meer letters dan er vragen zijn (${vraagpunten.length}).`}
-                    </span>
-                  </div>
+                  <PuzzelInstellingen route={route} vraagpunten={vraagpunten.map((p) => ({ id: p.id, name: p.name }))} onOpslaan={slaPuzzelOp} />
                 )}
 
                 {/* 🎨 Huisstijl en 🔔 geluiden voor de spelers */}

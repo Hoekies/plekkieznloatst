@@ -39,6 +39,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
   if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
   if (typeof body.puzzel_bonus === "number" && body.puzzel_bonus >= 0) toegestaan.puzzel_bonus = Math.min(10000, Math.round(body.puzzel_bonus));
+  for (const veld of ["puzzel_letter_punten", "puzzel_raad_bonus"]) {
+    if (typeof body[veld] === "number" && body[veld] >= 0) toegestaan[veld] = Math.min(10000, Math.round(body[veld]));
+  }
+  // 🧩 Puzzelwoord aan/uit en letters per vraag (migratie 017)
+  if (typeof body.puzzel_aan === "boolean") toegestaan.puzzel_aan = body.puzzel_aan;
+  if (body.puzzel_verdeling && typeof body.puzzel_verdeling === "object") {
+    toegestaan.puzzel_verdeling = Object.fromEntries(Object.entries(body.puzzel_verdeling as Record<string, unknown>)
+      .filter(([k, v]) => /^[0-9a-f-]{36}$/i.test(k) && (v === 0 || v === 2)));
+  }
   // 🎨 Huisstijl en 🔔 geluidset (migratie 016); leeg = de gewone stijl
   if ("huisstijl_kleur" in body) toegestaan.huisstijl_kleur = typeof body.huisstijl_kleur === "string" && /^#[0-9A-Fa-f]{6}$/.test(body.huisstijl_kleur) ? body.huisstijl_kleur : null;
   for (const veld of ["huisstijl_logo_pad", "welkom_foto_pad"]) {
@@ -87,6 +96,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .single();
   if (error && /alle_punten_zichtbaar/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
+  }
+  if (error && /puzzel_aan|puzzel_verdeling|puzzel_letter_punten|puzzel_raad_bonus/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 017 (puzzelwoord per vraag) in Supabase" }, { status: 500 });
   }
   if (error && /huisstijl|welkom_foto|geluid_set/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 016 (huisstijl, geluid en stemvraag) in Supabase" }, { status: 500 });

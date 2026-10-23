@@ -26,6 +26,12 @@ export interface Route {
   puzzelwoord?: string | null;
   puzzel_bonus?: number;
   puzzel_omschrijving?: string | null;
+  // 🧩 Puzzelwoord aan/uit en letters per vraag (migratie 017): { route_point_id: 0 | 2 }, de rest 1
+  puzzel_aan?: boolean | null;
+  puzzel_verdeling?: Record<string, number> | null;
+  // Punten bij de finish: per gevonden letter en voor het zelf afmaken (puzzel_bonus = alle letters gevonden)
+  puzzel_letter_punten?: number | null;
+  puzzel_raad_bonus?: number | null;
   // 🎨 Huisstijl en 🔔 geluidset (migratie 016)
   huisstijl_kleur?: string | null;
   huisstijl_logo_pad?: string | null;

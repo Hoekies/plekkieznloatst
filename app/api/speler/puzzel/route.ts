@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { normaliseerPuzzel, puzzelStand } from "@/lib/puzzel";
+import { puzzelStand } from "@/lib/puzzel";
+import { puzzelRegels, gevondenLetters, rekenPuzzelAf, raadPuzzel } from "@/lib/puzzel-server";
 
-// 🧩 Puzzelwoord van het eigen spel: GET = de verdiende letters, POST { woord } = raden (bij de finish).
-// Zonder puzzelwoord in de route (of zonder migratie 014): { actief: false }.
+// 🧩 Puzzelwoord van het eigen spel: GET = de verdiende letters (en na de finish: de punten ervoor),
+// POST { woord } = het woord afmaken (alleen na de finish). Zonder puzzelwoord: { actief: false }.
 async function context() {
   const user = await haalGebruiker();
   if (!user) return null;
@@ -15,41 +16,39 @@ async function context() {
     .eq("player_id", speler.id).in("status", ["actief", "voltooid"]).order("started_at", { ascending: false }).limit(1).maybeSingle();
   if (!sessie) return null;
   const { data: route } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
-  const woord = normaliseerPuzzel((route as { puzzelwoord?: string | null } | null)?.puzzelwoord);
-  if (!woord) return { admin, sessie, woord: "", bonus: 0, omschrijving: null };
-  const r = route as { puzzel_bonus?: number; puzzel_omschrijving?: string | null };
-  return { admin, sessie, woord, bonus: r.puzzel_bonus ?? 100, omschrijving: r.puzzel_omschrijving ?? null };
+  return { admin, sessie, route, regels: puzzelRegels(route) };
 }
 
-// Aantal goed beantwoorde vragen (alleen punten mét een vraag; een infopunt telt niet)
-async function aantalGoed(admin: ReturnType<typeof createAdminClient>, sessieId: string) {
-  const { data: goed } = await admin.from("player_point_progress").select("route_point_id").eq("session_id", sessieId).eq("is_correct", true);
-  const ids = (goed ?? []).map((g) => g.route_point_id);
-  if (!ids.length) return 0;
-  const { count } = await admin.from("questions").select("id", { count: "exact", head: true }).in("route_point_id", ids);
-  return count ?? 0;
+type Context = NonNullable<Awaited<ReturnType<typeof context>>>;
+
+async function stand(c: Context) {
+  const regels = c.regels!;
+  // Gefinisht: eerst afrekenen (punten per letter en eventueel de bonus), dan de actuele stand
+  if (c.sessie.status === "voltooid") await rekenPuzzelAf(c.admin, c.sessie.id, c.route);
+  const { data: s } = await c.admin.from("player_sessions").select("*").eq("id", c.sessie.id).maybeSingle();
+  const gevonden = await gevondenLetters(c.admin, c.sessie.id, regels);
+  const opgelost = !!(s as { puzzel_opgelost?: boolean } | null)?.puzzel_opgelost;
+  return {
+    actief: true,
+    ...puzzelStand(regels.woord, c.sessie.id, gevonden, opgelost, regels.alleBonus, regels.omschrijving),
+    gevonden, gefinisht: c.sessie.status === "voltooid",
+    letter_punten: regels.letterPunten, raad_bonus: regels.raadBonus,
+  };
 }
 
 export async function GET() {
   const c = await context();
   if (!c) return NextResponse.json({ fout: "Geen spel" }, { status: 403 });
-  if (!c.woord) return NextResponse.json({ actief: false });
-  const opgelost = !!(c.sessie as { puzzel_opgelost?: boolean }).puzzel_opgelost;
-  return NextResponse.json({ actief: true, ...puzzelStand(c.woord, c.sessie.id, await aantalGoed(c.admin, c.sessie.id), opgelost, c.bonus, c.omschrijving) });
+  if (!c.regels) return NextResponse.json({ actief: false });
+  return NextResponse.json(await stand(c));
 }
 
 export async function POST(request: NextRequest) {
   const c = await context();
   if (!c) return NextResponse.json({ fout: "Geen spel" }, { status: 403 });
-  if (!c.woord) return NextResponse.json({ fout: "Deze route heeft geen puzzelwoord" }, { status: 400 });
+  if (!c.regels) return NextResponse.json({ fout: "Deze route heeft geen puzzelwoord" }, { status: 400 });
+  if (c.sessie.status !== "voltooid") return NextResponse.json({ fout: "Het woord afmaken kan bij de finish" }, { status: 400 });
   const body = await request.json().catch(() => null);
-  const goedGeraden = normaliseerPuzzel(body?.woord) === c.woord;
-  let opgelost = !!(c.sessie as { puzzel_opgelost?: boolean }).puzzel_opgelost;
-  if (goedGeraden && !opgelost) {
-    // Bonus één keer, zichtbaar in de tijdlijn en het rapport
-    await c.admin.from("score_correcties").insert({ session_id: c.sessie.id, delta: c.bonus, reden: "🧩 Puzzelwoord geraden" });
-    await c.admin.from("player_sessions").update({ score: (c.sessie.score ?? 0) + c.bonus, puzzel_opgelost: true }).eq("id", c.sessie.id);
-    opgelost = true;
-  }
-  return NextResponse.json({ goed: goedGeraden, actief: true, ...puzzelStand(c.woord, c.sessie.id, await aantalGoed(c.admin, c.sessie.id), opgelost, c.bonus, c.omschrijving) });
+  const goed = await raadPuzzel(c.admin, c.sessie.id, c.regels, typeof body?.woord === "string" ? body.woord : "");
+  return NextResponse.json({ goed, ...(await stand(c)) });
 }

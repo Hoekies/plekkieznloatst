@@ -16,7 +16,14 @@ export async function GET() {
     .select("*")
     .order("created_at", { ascending: false });
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  // Startpunt (eerste punt) per route: daarmee toont het overzicht in welke plaats de route ligt
+  const ids = (data ?? []).map((r) => r.id);
+  const { data: punten } = ids.length
+    ? await admin.from("route_points").select("route_id, latitude, longitude, order_index").in("route_id", ids).order("order_index")
+    : { data: [] };
+  const start = new Map<string, { lat: number; lng: number }>();
+  for (const p of punten ?? []) if (!start.has(p.route_id)) start.set(p.route_id, { lat: p.latitude, lng: p.longitude });
+  return NextResponse.json((data ?? []).map((r) => ({ ...r, start: start.get(r.id) ?? null })));
 }
 
 export async function POST(request: NextRequest) {

@@ -51,12 +51,10 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
       }
       if (!containerRef.current) return;
       map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
-      if (scherp) {
-        const begin = bewaardeStijl();
-        setStijl(begin);
-        voegBasiskaartToe(L, map, begin).then((b) => { if (!weg) { basiskaartRef.current = b; setVector(b.vector); } });
-      }
-      else L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
+      // Dezelfde kaart als bij de live weergave; in het rapport (PDF) altijd licht en met bewaard beeld
+      const begin = scherp ? bewaardeStijl() : "licht";
+      setStijl(begin);
+      voegBasiskaartToe(L, map, begin, { opname: !scherp }).then((b) => { if (!weg) { basiskaartRef.current = b; setVector(b.vector); } });
 
       const grenzen: [number, number][] = [];
       if (spoor.length > 1) {

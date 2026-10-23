@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { haversine } from "@/lib/geo";
-import { ruimKaartOp } from "@/lib/basiskaart";
+import { ruimKaartOp, voegBasiskaartToe } from "@/lib/basiskaart";
 
 type Plek = { lat: number; lng: number };
 
@@ -26,6 +26,7 @@ export default function VoorproefKaart({ punten, items }: { punten: Plek[]; item
   useEffect(() => {
     let map: import("leaflet").Map | null = null;
     let weg = false;
+    let waarnemer: ResizeObserver | null = null;
     (async () => {
       const L = (await import("leaflet")).default;
       if (weg || !ref.current || !punten.length) return;
@@ -40,8 +41,9 @@ export default function VoorproefKaart({ punten, items }: { punten: Plek[]; item
         zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false,
         doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25,
       });
-      // crossOrigin: anders kan de kaart niet in de PDF worden overgenomen
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, crossOrigin: true }).addTo(map);
+      map.setView([punten[0].lat, punten[0].lng], 15);  // alvast een beeld; hieronder passend ingezoomd
+      // Dezelfde kaart als bij de live weergave; met bewaard beeld, zodat hij ook in de PDF komt
+      voegBasiskaartToe(L, map, "licht", { opname: true }).catch(() => {});
 
       const midden = {
         lat: punten.reduce((s, p) => s + p.lat, 0) / punten.length,
@@ -63,9 +65,13 @@ export default function VoorproefKaart({ punten, items }: { punten: Plek[]; item
           }),
         }).addTo(map);
       }
-      map.fitBounds(zone.getBounds(), { padding: [10, 10] });
+      // Pas als het vak zijn echte grootte heeft (de pagina wordt eerst opgebouwd) goed inzoomen
+      const pas = () => { if (!map || !ref.current?.clientWidth) return; map.invalidateSize(); map.fitBounds(zone.getBounds(), { padding: [10, 10] }); };
+      pas();
+      waarnemer = new ResizeObserver(pas);
+      waarnemer.observe(ref.current);
     })();
-    return () => { weg = true; ruimKaartOp(map); };
+    return () => { weg = true; waarnemer?.disconnect(); ruimKaartOp(map); };
   }, [punten, items]);
 
   return <div ref={ref} style={{ width: "100%", height: "100%" }} />;

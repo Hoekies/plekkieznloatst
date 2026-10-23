@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import FinishScherm from "@/components/speler/FinishScherm";
+import { huisLogoUrl } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 
@@ -129,6 +130,7 @@ export default async function FinishPage() {
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
       routeNaam={route?.name ?? null}
+      huisLogo={huisLogoUrl(route)}
       score={sessie.score}
       tijdSeconden={tijdSeconden}
       distanceMeters={eigenAfstand}

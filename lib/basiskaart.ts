@@ -28,9 +28,10 @@ export function bewaarStijl(stijl: KaartStijl) {
   try { localStorage.setItem(STIJL_KEY, stijl); } catch { /* geen opslag */ }
 }
 
-function osmPlaatjes(L: typeof Leaflet, map: Leaflet.Map) {
+function osmPlaatjes(L: typeof Leaflet, map: Leaflet.Map, opname = false) {
   try {
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap contributors", maxZoom: 19 }).addTo(map);
+    // crossOrigin bij opname: anders kan de kaart niet in een PDF of afbeelding worden overgenomen
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap contributors", maxZoom: 19, ...(opname ? { crossOrigin: true } : {}) }).addTo(map);
   } catch { /* kaart is intussen weg (pagina verlaten) */ }
 }
 
@@ -236,7 +237,8 @@ export function pasStijlToe(kaart: unknown, stijl: KaartStijl, ookInrichten: boo
   }
 }
 
-export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, stijl: KaartStijl): Promise<Basiskaart> {
+// opname: de kaart moet ook in een PDF of afbeelding komen (voorproefje, rapport); dan blijft het beeld bewaard
+export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, stijl: KaartStijl, { opname = false }: { opname?: boolean } = {}): Promise<Basiskaart> {
   // Werkt met zowel import("leaflet") als import("leaflet").default
   const L = ((Lin as unknown as { default?: typeof Leaflet }).default ?? Lin) as typeof Leaflet;
   // Luchtfoto: een laag bovenop de basiskaart, aan of uit
@@ -276,7 +278,7 @@ export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, s
     maplibre.setWorkerUrl("/maplibre/maplibre-gl-worker-6.15.0.mjs");
     await import("@maplibre/maplibre-gl-leaflet");
     const laag = (L as unknown as { maplibreGL: (o: object) => Leaflet.Layer & { getMaplibreMap: () => unknown } })
-      .maplibreGL({ style: STIJL_URL, attributionControl: false });
+      .maplibreGL({ style: STIJL_URL, attributionControl: false, ...(opname ? { canvasContextAttributes: { preserveDrawingBuffer: true } } : {}) });
     laag.addTo(map);
     // Zodra de stijl er is: inrichten en de kleuren van de gekozen stijl. Wisselen = opnieuw inkleuren.
     let huidig = stijl;
@@ -292,7 +294,7 @@ export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, s
       },
     };
   } catch {
-    osmPlaatjes(L, map);
+    osmPlaatjes(L, map, opname);
     zetLuchtfoto(stijl === "luchtfoto");
     // Zonder vectorkaart: alleen luchtfoto aan of uit
     return { vector: false, zetStijl: (s) => zetLuchtfoto(s === "luchtfoto") };

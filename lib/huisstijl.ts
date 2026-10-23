@@ -8,6 +8,12 @@ export type Huisstijl = { kleur: string | null; logo: string | null; welkomFoto:
 
 const OPSLAG = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/route-afbeeldingen/`;
 
+// Adres van het eigen logo van een route (of null)
+export function huisLogoUrl(route: unknown): string | null {
+  const pad = (route as { huisstijl_logo_pad?: string | null } | null)?.huisstijl_logo_pad;
+  return pad ? OPSLAG + pad : null;
+}
+
 export async function haalHuisstijl(admin: AdminClient): Promise<Huisstijl> {
   const { data } = await admin.from("routes").select("*").eq("is_active", true).maybeSingle();
   const r = (data ?? {}) as { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string | null };

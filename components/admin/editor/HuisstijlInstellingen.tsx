@@ -51,6 +51,9 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
   return (
     <div className="form-group huisstijl">
       <label className="form-label">🎨 Huisstijl voor de spelers</label>
+      <span className="inst-uitleg">
+        Laat de app eruitzien als jouw organisatie, bijvoorbeeld bij een bedrijfsuitje. Alles is optioneel; zonder keuze zien de spelers de gewone PointRush-stijl.
+      </span>
       {/* Accentkleur: knoppen en accenten in de spelersapp */}
       <div className="huisstijl-rij">
         <span className="huisstijl-label">Kleur</span>
@@ -73,6 +76,9 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
         {route.huisstijl_logo_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ huisstijl_logo_pad: null })} title="Logo weghalen" aria-label="Logo weghalen">✕</button>}
         <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("logo", e.target.files?.[0]); e.target.value = ""; }} />
       </div>
+      <span className="inst-uitleg huisstijl-uitleg">
+        🏢 <strong>Logo</strong> (bijv. van het bedrijf): komt naast het PointRush-logo in de bovenbalk van de spelersapp, groot op het welkomstscherm, en op de oorkonde, de uitslag-afbeelding en het PDF-rapport. Een png met doorzichtige achtergrond staat het mooist.
+      </span>
       <div className="huisstijl-rij">
         <span className="huisstijl-label">Welkomstfoto</span>
         {route.welkom_foto_pad && (
@@ -83,6 +89,9 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
         {route.welkom_foto_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ welkom_foto_pad: null })} title="Foto weghalen" aria-label="Foto weghalen">✕</button>}
         <input ref={fotoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("foto", e.target.files?.[0]); e.target.value = ""; }} />
       </div>
+      <span className="inst-uitleg huisstijl-uitleg">
+        🖼️ <strong>Welkomstfoto</strong>: de achtergrond van het eerste scherm dat de spelers zien, waar ze hun teamnaam en icoon kiezen. Bijvoorbeeld een foto van de plek of van het bedrijf.
+      </span>
       {/* 🔔 Geluiden bij punt bereikt, goed, fout en finish; ▶ speelt de hele set af */}
       <div className="huisstijl-rij">
         <span className="huisstijl-label">🔔 Geluiden</span>
@@ -94,8 +103,8 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
         </div>
         <button type="button" className="rl-knop rl-knop--icoon" onClick={() => speelVoorbeeld(set)} title="Luister: punt, goed, fout en finish" aria-label="Voorbeeld afspelen">▶</button>
       </div>
-      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-        Bijvoorbeeld voor een bedrijfsuitje: de kleur en het logo van het bedrijf in de spelersapp, en een eigen foto op het welkomstscherm. Leeg = de gewone PointRush-stijl.
+      <span className="inst-uitleg">
+        🎨 <strong>Kleur</strong>: de kleur van de knoppen in de spelersapp. 🔔 <strong>Geluiden</strong>: wat de spelers horen bij een punt, een goed of fout antwoord en de finish.
       </span>
     </div>
   );

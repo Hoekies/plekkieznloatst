@@ -16,7 +16,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 
 **Inloggen**
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je team, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
-Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Kopieer de link dan in WhatsApp en tik in de app op **🔗 Inloggen met link**.
+Op je inlogkaartje staat een **QR-code**: scan die met de camera van je telefoon en je bent meteen ingelogd. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Kopieer de link dan in WhatsApp en tik in de app op **🔗 Inloggen met link**.
 
 **Als app op je telefoon**
 Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (Android) of legt uit hoe je hem op je beginscherm zet (iPhone). Als app opent PointRush volledig scherm, zonder adresbalk.
@@ -60,7 +60,7 @@ Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste tea
 Bij de uitslag komen de nummers 3, 2 en 1 op het podium. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
 
 **Puzzelwoord en tijdslimiet**
-Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes 🧩. Elke goed beantwoorde vraag geeft een letter. Bij de finish raad je het woord voor bonuspunten. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
+Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes 🧩. Elke goed beantwoorde vraag geeft een letter. Bij de finish krijg je punten voor elke gevonden letter, en een bonus als je alle letters hebt. Mis je letters? Maak het woord dan zelf af voor extra punten. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
 
 **Verboden gebied**
 Rode vlakken op de kaart zijn verboden gebieden (bijvoorbeeld een drukke weg). Loop je erin, dan trilt je telefoon en krijg je een melding: loop terug.

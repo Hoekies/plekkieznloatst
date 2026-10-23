@@ -20,6 +20,7 @@ const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolo
   { nr: "014", bestand: "014_vraagopties_puzzel_verboden.sql", wat: "vraagopties, puzzelwoord, verboden gebieden", tabel: "routes", kolom: "verboden_gebieden" },
   { nr: "015", bestand: "015_indexen_opruimen_foutlog.sql", wat: "snellere database, opruimen, foutlogboek", tabel: "client_fouten" },
   { nr: "016", bestand: "016_huisstijl_geluid_stemvraag.sql", wat: "huisstijl, geluidset en stemvraag", tabel: "routes", kolom: "geluid_set" },
+  { nr: "017", bestand: "017_puzzel_verdeling.sql", wat: "puzzelwoord aan/uit en letters per vraag", tabel: "routes", kolom: "puzzel_verdeling" },
 ];
 
 export async function GET() {
