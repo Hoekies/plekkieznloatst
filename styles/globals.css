@@ -2469,7 +2469,9 @@ button.route-stap:hover { color: var(--ink); }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
 .huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
 .admin-sidebar-huislogo { display: block; width: 90%; max-height: 72px; object-fit: contain; margin: 10px auto 0; }
-.beamer-huislogo { width: 50%; max-height: 90px; object-fit: contain; align-self: center; }
+.beamer-logos { display: flex; align-items: center; justify-content: center; gap: 6%; }
+.beamer-logos--twee .beamer-logo { width: 44%; }
+.beamer-huislogo { width: 44%; max-height: 180px; object-fit: contain; }
 /* Live kaart: teamlijst met score, volgend punt en het puzzelwoord (leesbaar) */
 .live-lijst-kop { display: flex; align-items: baseline; gap: 8px; }
 .live-lijst-naam { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

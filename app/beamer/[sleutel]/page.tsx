@@ -55,9 +55,13 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
       </div>
       <aside className="beamer-zij">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.webp" alt="PointRush" className="beamer-logo" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {data.route.huis_logo && <img src={data.route.huis_logo} alt="" className="beamer-huislogo" />}
+        {/* Met eigen logo: beide logo's naast elkaar, even groot */}
+        <div className={`beamer-logos${data.route.huis_logo ? " beamer-logos--twee" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.webp" alt="PointRush" className="beamer-logo" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {data.route.huis_logo && <img src={data.route.huis_logo} alt="" className="beamer-huislogo" />}
+        </div>
         <div className="beamer-route">{data.route.naam}</div>
 
         <div className="beamer-kop">🏆 Stand</div>
