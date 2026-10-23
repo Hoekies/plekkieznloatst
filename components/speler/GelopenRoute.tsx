@@ -8,9 +8,11 @@ const GelopenRouteKaart = dynamic(() => import("./GelopenRouteKaart"), { ssr: fa
 
 // terugNaar = knop "← Terug" (speler). Zonder terugNaar is het de openbare pagina die via de
 // link van de beheerder (rapport → Kaart-link) wordt geopend.
-export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "Jullie gelopen route", ondertitel, terugNaar }: {
+export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "Jullie gelopen route", ondertitel, terugNaar, huisLogo = null }: {
   spoor: RouteSpoorPunt[]; punten: BezochtPunt[]; items: KaartItem[]; afstandM: number;
   titel?: string; ondertitel?: string; terugNaar?: string;
+  // Eigen logo van de organisatie (huisstijl van de route)
+  huisLogo?: string | null;
 }) {
   const router = useRouter();
   return (
@@ -29,6 +31,8 @@ export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "
           <h1 style={{ margin: 0, fontSize: "1.2rem", color: "#fff", fontWeight: 800 }}>{titel}</h1>
           {ondertitel && <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>{ondertitel}</div>}
         </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {huisLogo && <img src={huisLogo} alt="" style={{ height: 44, maxWidth: 120, objectFit: "contain", flexShrink: 0 }} />}
       </div>
       <p style={{ margin: 0, color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
         {(afstandM / 1000).toFixed(2).replace(".", ",")} km gelopen · {punten.length} punten bezocht.

@@ -19,7 +19,8 @@ function standOp(punten: [number, number][], t: number): number | null {
 }
 // Mooie stappen voor de y-as (0, 50, 100, … of 0, 200, 400, …)
 function asStappen(max: number): number[] {
-  const ruw = Math.max(1, max) / 4;
+  // Minstens 0–50, zodat de as bij (bijna) geen punten niet in kwartjes gaat
+  const ruw = Math.max(50, max) / 4;
   const macht = 10 ** Math.floor(Math.log10(ruw));
   const stap = [1, 2, 2.5, 5, 10].map((f) => f * macht).find((s) => s >= ruw) ?? ruw;
   return Array.from({ length: Math.floor(max / stap) + 2 }, (_, i) => i * stap);

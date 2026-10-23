@@ -140,6 +140,9 @@ export default function AdminLiveKaart({ initData }: Props) {
           <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null}
             kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} />
         </div>
+        {/* Eigen logo van de organisatie (huisstijl), handig als de kaart op een scherm staat */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" className="live-kaart-huislogo" />}
 
         {/* Overlay: spelerslijst. Tik op een naam om die speler te volgen */}
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>

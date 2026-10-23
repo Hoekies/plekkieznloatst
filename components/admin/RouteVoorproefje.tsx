@@ -17,7 +17,7 @@ export type VoorproefVraag = {
   opties: { id: string; kleur: string; tekst: string | null; afbeelding: string | null }[];
 };
 export type VoorproefData = {
-  route: { id: string; name: string; modus: RouteModus; ster: number; bom: number; spookSec: number; plekzooiSec: number };
+  route: { id: string; name: string; modus: RouteModus; ster: number; bom: number; spookSec: number; plekzooiSec: number; huis_logo?: string | null };
   punten: { lat: number; lng: number; eind: boolean }[];
   vragen: VoorproefVraag[];
   items: { id: string; type: string; lat: number; lng: number }[];
@@ -217,6 +217,9 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
                   <h1 style={{ fontSize: 28, lineHeight: 1.1 }}>{route.name}</h1>
                   <div style={{ fontSize: 13, color: "#D9D0F5", marginTop: 3 }}>{uitleg.emoji} {uitleg.samenvatting}</div>
                 </div>
+                {/* Eigen logo van de organisatie (huisstijl van deze route) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {route.huis_logo && <img src={route.huis_logo} alt="" crossOrigin="anonymous" style={{ height: 70, maxWidth: 170, objectFit: "contain", flexShrink: 0 }} />}
               </div>
 
               {/* Kerngetallen */}

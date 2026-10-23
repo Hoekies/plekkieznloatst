@@ -2,6 +2,7 @@ import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import RouteVoorproefje, { type VoorproefData } from "@/components/admin/RouteVoorproefje";
+import { huisLogoUrl } from "@/lib/huisstijl";
 
 // Voorproefje van een route op één A4: speelgebied, kerngetallen, een paar voorbeeldvragen
 // (zonder antwoorden) en de items. Om te laten zien wat een route inhoudt, zonder hem te verraden.
@@ -33,6 +34,7 @@ export default async function VoorproefjePagina({ params }: { params: { id: stri
       id: route.id, name: route.name, modus: route.modus,
       ster: route.ster_waarde ?? 10, bom: route.bom_waarde ?? 10,
       spookSec: route.spook_duur_seconden ?? 60, plekzooiSec: route.plekzooi_duur_seconden ?? 30,
+      huis_logo: huisLogoUrl(route),
     },
     punten: puntRijen.map((p) => ({ lat: p.latitude, lng: p.longitude, eind: p.type === "eindpunt" })),
     vragen: puntRijen.flatMap((p) => (p.questions ?? []).map((v) => ({

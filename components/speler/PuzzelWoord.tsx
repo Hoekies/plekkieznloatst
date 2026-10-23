@@ -44,7 +44,6 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
     return (
       <div className="puzzel-balk" title="Puzzelwoord: elke goede vraag geeft een letter">
         🧩 {tegels}
-        {stand.omschrijving && <span className="puzzel-hint">{stand.omschrijving}</span>}
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase-admin";
 import type { SpeciaalItem } from "@/types/database";
 import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
+import { huisLogoUrl } from "@/lib/huisstijl";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -45,7 +46,8 @@ export type RoutePuntKort = {
 };
 
 export type LiveData = {
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null } | null;
+  // huis_logo: eigen logo van de organisatie (huisstijl van de route)
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -65,14 +67,18 @@ export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 
   const [{ data: route }, { data: allePlayers }] = await Promise.all([
-    admin.from("routes").select("id, name, modus, uitslag_vrijgegeven, verwacht_aantal_teams").eq("is_active", true).maybeSingle(),
+    // "*": ook het logo (migratie 016), zonder dat een ontbrekende kolom het dashboard leeg maakt
+    admin.from("routes").select("*").eq("is_active", true).maybeSingle(),
     // "*": een kolom uit een nog niet gedraaide migratie (zoals telefoon) mag het dashboard niet leeg maken
     admin.from("players").select("*").order("login_name"),
   ]);
 
   // Eindtijd voorbij? Dan eerst de lopende spellen afsluiten, zodat het dashboard meteen de eindstand toont
   const tijd = route ? await rondAfAlsTijdVoorbij(admin, route.id) : null;
-  const routeInfo = route ? { ...route, eindtijd: tijd?.eindtijd ?? null, gepauzeerd_sinds: tijd?.pauze ?? null } : null;
+  const routeInfo = route ? {
+    id: route.id, name: route.name, modus: route.modus, uitslag_vrijgegeven: route.uitslag_vrijgegeven, verwacht_aantal_teams: route.verwacht_aantal_teams,
+    eindtijd: tijd?.eindtijd ?? null, gepauzeerd_sinds: tijd?.pauze ?? null, huis_logo: huisLogoUrl(route),
+  } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
   const playerIds = (allePlayers ?? []).map((p) => p.id);

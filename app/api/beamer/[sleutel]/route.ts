@@ -12,7 +12,7 @@ export async function GET(_: NextRequest, { params }: { params: { sleutel: strin
   }
   const gebeurtenissen = await haalGebeurtenissen(createAdminClient(), { zonderHulp: true });
   const uit: BeamerData = {
-    route: { naam: data.route.name, modus: data.route.modus },
+    route: { naam: data.route.name, modus: data.route.modus, huis_logo: data.route.huis_logo ?? null },
     route_punten: data.route_punten,
     speciale_items: data.speciale_items,
     spelers: beamerSpelers(data.spelers),

@@ -22,7 +22,7 @@ export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
 }
 
 export type BeamerData = {
-  route: { naam: string; modus: string };
+  route: { naam: string; modus: string; huis_logo?: string | null };
   route_punten: LiveData["route_punten"];
   speciale_items: LiveData["speciale_items"];
   spelers: SpelerOverzicht[];

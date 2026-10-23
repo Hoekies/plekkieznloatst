@@ -56,6 +56,8 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
       <aside className="beamer-zij">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.webp" alt="PointRush" className="beamer-logo" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {data.route.huis_logo && <img src={data.route.huis_logo} alt="" className="beamer-huislogo" />}
         <div className="beamer-route">{data.route.naam}</div>
 
         <div className="beamer-kop">🏆 Stand</div>

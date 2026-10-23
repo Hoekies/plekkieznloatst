@@ -2454,6 +2454,15 @@ button.route-stap:hover { color: var(--ink); }
 .antw-balk { margin-bottom: 0; }
 .antw-tabs { width: 300px; max-width: 100%; }
 .antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
+/* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
+.huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
+.admin-sidebar-huislogo { display: block; width: 70%; max-height: 54px; object-fit: contain; margin: 8px auto 0; }
+.beamer-huislogo { width: 50%; max-height: 90px; object-fit: contain; align-self: center; }
+.live-kaart-huislogo { position: absolute; right: 12px; bottom: 12px; z-index: 900; height: 56px; max-width: 160px; object-fit: contain; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.85); pointer-events: none; }
+.kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.kaartje-huislogo { height: 40px; max-width: 110px; object-fit: contain; }
+.rl-huislogo { height: 22px; max-width: 70px; object-fit: contain; vertical-align: middle; margin-left: 8px; }
+.album-huislogo { display: block; height: 60px; max-width: 200px; object-fit: contain; margin: 8px auto 0; }
 /* 📍 Plaats van de route in het overzicht */
 .rl-plaats { font-size: 0.75rem; color: var(--text); white-space: nowrap; margin-left: 8px; }
 /* Items kiezen (nieuwe route): plaatje met naam; groen = gekozen, met aantal en een rode − */
@@ -2501,7 +2510,7 @@ button.route-stap:hover { color: var(--ink); }
 /* 🎨 Huisstijl van de route: logo van de organisatie rechts naast het PointRush-logo */
 /* Met een eigen logo: PointRush-logo zo breed als nodig, het eigen logo vult de rest van de balk (even hoog) */
 .speler-shell--logo .speler-header-logo { flex: 0 1 auto; width: auto; max-width: 48%; }
-.speler-header-huislogo { display: block; flex: 1; min-width: 0; height: clamp(60px, 15.5vw, 110px); object-fit: contain; object-position: center; border-radius: 8px; }
+.speler-header-huislogo { display: block; flex: 1; min-width: 0; height: clamp(73px, 18.4vw, 122px); object-fit: contain; object-position: center; border-radius: 8px; }
 /* 📍 Punten op de spelerskaart: zwevende pin met schaduw; het volgende punt veert en pulseert */
 .pr-pin { position: relative; width: 40px; height: 52px; }
 .pr-pin-kop { position: absolute; left: 4px; top: 2px; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
@@ -3240,6 +3249,9 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .puzzel-tegel { width: 22px; height: 26px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.3); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; }
 .puzzel-tegel--open { background: #FFD93B; border: 1px solid #fff; color: #3a1f80; }
+/* Tijdens het spel: de tegels zo breed als de balk (hooguit 46 px per letter), iets hoger */
+.puzzel-balk .puzzel-tegels { flex: 1; flex-wrap: nowrap; max-width: 460px; }
+.puzzel-balk .puzzel-tegel { flex: 1 1 0; min-width: 0; max-width: 46px; width: auto; height: 32px; font-size: 1.05rem; }
 .puzzel-raden { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,217,59,0.4); }
 .puzzel-raden-kop { font-family: var(--font-display); font-weight: 800; color: #FFE680; }
 .puzzel-raden .puzzel-tegel { width: 30px; height: 36px; font-size: 1.15rem; }

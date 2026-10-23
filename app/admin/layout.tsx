@@ -11,6 +11,8 @@ import ActieveRouteLabel from "@/components/admin/ActieveRouteLabel";
 import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
 import VersieRegel from "@/components/admin/VersieRegel";
 import MenuInklap from "@/components/admin/MenuInklap";
+import { createAdminClient } from "@/lib/supabase-admin";
+import { haalHuisstijl } from "@/lib/huisstijl";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -18,6 +20,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user || (rol !== "admin" && rol !== "helper")) redirect("/login");
   // Helper: alleen het dashboard, antwoorden (foto's keuren) en de live kaart
   const helper = rol === "helper";
+  // Eigen logo van de organisatie (huisstijl van de actieve route), onder het PointRush-logo
+  const huisLogo = (await haalHuisstijl(createAdminClient())).logo;
 
   return (
     <div className="admin-shell">
@@ -36,6 +40,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {huisLogo && <img src={huisLogo} alt="" className="admin-sidebar-huislogo" />}
         </div>
         {/* Bovenin het menu welke route er loopt */}
         {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🦺 Helper</div> : <ActieveRouteLabel />}

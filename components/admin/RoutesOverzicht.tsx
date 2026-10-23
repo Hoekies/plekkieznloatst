@@ -518,6 +518,9 @@ export default function RoutesOverzicht() {
                   <ModusTegel modus={r.modus} size={56} />
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
+                    {/* Eigen logo (huisstijl): zo zie je welke route bij welke organisatie hoort */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {r.huisstijl_logo_pad && <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/route-afbeeldingen/${r.huisstijl_logo_pad}`} alt="" className="rl-huislogo" />}
                     {/* Telefoon: spelsoort en datum samen op één regel */}
                     <span className="rl-meta">
                       <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>

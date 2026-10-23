@@ -136,7 +136,12 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     <>
       {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
-        <span className="admin-topbar-titel">Dashboard</span>
+        <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          Dashboard
+          {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {route?.huis_logo && <img src={route.huis_logo} alt="" className="huislogo-kop" />}
+        </span>
         <FotoBeoordelingPanel />
         <div style={{ justifySelf: "end" }} className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
           <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />

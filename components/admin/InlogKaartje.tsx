@@ -42,13 +42,31 @@ export function waTekst(i: Inlog) {
   return `Hoi! Doe mee met PointRush 🎯\n\nGa naar ${SITE} en log in met:\nLoginnaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nVeel plezier! René`;
 }
 
+// Eigen logo van de actieve route (huisstijl), één keer opgehaald voor alle kaartjes
+let huisLogoBelofte: Promise<string | null> | null = null;
+function useHuisLogo(): string | null {
+  const [logo, setLogo] = useState<string | null>(null);
+  useEffect(() => {
+    huisLogoBelofte ??= fetch("/api/admin/huisstijl").then((r) => (r.ok ? r.json() : null)).then((d) => d?.logo ?? null).catch(() => null);
+    let weg = false;
+    huisLogoBelofte.then((l) => { if (!weg) setLogo(l); });
+    return () => { weg = true; };
+  }, []);
+  return logo;
+}
+
 // Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. Met een inloglink logt de QR-code
 // meteen in (zonder typen); zonder link opent hij de inlogpagina.
 export function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
+  const huisLogo = useHuisLogo();
   return (
     <div className="kaartje" ref={kaartRef}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-breed.png" alt="PointRush" className="kaartje-logo" />
+      <div className="kaartje-logos">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-breed.png" alt="PointRush" className="kaartje-logo" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="kaartje-huislogo" />}
+      </div>
       <div className="kaartje-midden">
         <div className="kaartje-qr"><QRCodeCanvas value={inlog.link?.url ?? SITE} size={96} /></div>
         <div className="kaartje-velden">
@@ -72,7 +90,7 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
     const { default: html2canvas } = await import("html2canvas-pro");
     await document.fonts?.ready;
     await Promise.all([...el.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-    const canvas = await html2canvas(el, { scale: 3, backgroundColor: null, logging: false });
+    const canvas = await html2canvas(el, { scale: 3, backgroundColor: null, logging: false, useCORS: true });
     const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
     return blob ? new File([blob], naam, { type: "image/png" }) : null;
   }).catch(() => null);
