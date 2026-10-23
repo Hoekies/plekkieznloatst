@@ -108,7 +108,26 @@ export default function Systeemcheck() {
               </div>
             ))}
             <div className="systeem-raster">
-              {inGroep.filter((c) => c.ok).map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
+              {(() => {
+                const goed = inGroep.filter((c) => c.ok);
+                if (g !== "Database") return goed.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>);
+                // Database: alleen de laatste 4 migraties; de rest (en de verbinding) samen in één vakje
+                const nr = (c: Check) => Number(/Migratie (\d+)/.exec(c.naam)?.[1] ?? 0);
+                const migraties = goed.filter((c) => nr(c) > 0).sort((a, b) => nr(a) - nr(b));
+                const laatste = migraties.slice(-4);
+                const eerder = migraties.length - laatste.length;
+                const verbinding = goed.some((c) => !nr(c));
+                return (
+                  <>
+                    {(eerder > 0 || verbinding) && (
+                      <span className="systeem-vakje" title={goed.filter((c) => !laatste.includes(c)).map((c) => c.naam).join("\n")}>
+                        ✓ {verbinding ? "Verbinding" : ""}{verbinding && eerder ? " en " : ""}{eerder ? `${eerder} eerdere migraties` : ""}
+                      </span>
+                    )}
+                    {laatste.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
+                  </>
+                );
+              })()}
             </div>
           </div>
         );
