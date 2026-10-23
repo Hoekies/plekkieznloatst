@@ -2543,6 +2543,12 @@ button.route-stap:hover { color: var(--ink); }
 /* Korte uitleg onder een instelling: wat doet dit? */
 .inst-uitleg { display: block; font-size: 0.74rem; color: var(--muted); line-height: 1.45; }
 .inst-uitleg strong { color: var(--text); }
+.inst-tab-uitleg { margin-top: -8px; }
+/* Instellingen: speltype op één regel, en rijen met een label en knoppen */
+.inst-speltype { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+.inst-rij { display: flex; align-items: center; gap: 10px; }
+.inst-rij-label { width: 70px; flex-shrink: 0; font-size: 0.78rem; color: var(--muted); }
+.inst-rij > .segment { flex: 1; }
 .huisstijl-uitleg { margin: -2px 0 2px 104px; }
 @media (max-width: 600px) { .huisstijl-uitleg { margin-left: 0; } }
 .uitslag-uitleg { padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
@@ -3123,7 +3129,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Puntenlijst: meerdere punten tegelijk kiezen en aanpassen (past in de smalle lijst) */
 .meerdere { padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
 .meerdere--aan { display: flex; flex-direction: column; gap: 6px; background: rgba(0,217,255,0.06); padding-top: 8px; margin-top: -8px; }
-.meerdere-open { width: 100%; padding: 4px 0; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.74rem; font-weight: 700; color: var(--muted); text-align: left; }
+.meerdere-open { display: block; margin-left: auto; padding: 2px 0; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.7rem; font-weight: 600; color: var(--muted); text-align: right; opacity: 0.8; }
 .meerdere-open:hover { color: #fff; }
 .meerdere-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.78rem; color: var(--muted); }
 .meerdere-kop strong { color: #fff; }
