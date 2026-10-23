@@ -14,7 +14,8 @@ export async function GET(_: NextRequest, { params }: { params: { sleutel: strin
   const uit: BeamerData = {
     route: { naam: data.route.name, modus: data.route.modus, huis_logo: data.route.huis_logo ?? null },
     route_punten: data.route_punten,
-    speciale_items: data.speciale_items,
+    // Plek zooi is een verborgen val: nooit op het scherm dat de spelers zien
+    speciale_items: data.speciale_items.filter((i) => i.type !== "plekzooi"),
     spelers: beamerSpelers(data.spelers),
     gebeurtenissen: gebeurtenissen.slice(0, 12),
   };

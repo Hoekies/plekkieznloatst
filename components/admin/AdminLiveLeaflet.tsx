@@ -152,27 +152,29 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
     // Zelfde nummering als de route-editor: bij Verspreid 🏠 = startpunt en het rondje vanaf 1
     const hubModus = modus === "verspreid" && route_punten.length >= 3;
+    // Teams die meedoen: hoeveel hebben elk punt al gehad, en wie loopt er nu heen?
+    const teams = spelers.filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid");
     route_punten.forEach((punt, i) => {
       const isEind = punt.type === "eindpunt";
-      const label = isEind ? "🏁" : hubModus && i === 0 ? "🏠" : String(hubModus ? i : i + 1);
+      const gehad = teams.filter((s) => s.bezochte_ids?.includes(punt.id)).length;
+      const allemaal = teams.length > 0 && gehad === teams.length;
+      const opWeg = teams.filter((s) => s.volgend_punt_id === punt.id);
+      const nummer = isEind ? "🏁" : hubModus && i === 0 ? "🏠" : String(hubModus ? i : i + 1);
+      const ring = opWeg.length ? `<span class="lk-punt-ring" style="border-color:${kleuren?.get(opWeg[0].player_id) ?? "#F97316"}"></span>` : "";
+      const teller = gehad && !allemaal && teams.length > 1 ? `<span class="lk-punt-teller">${gehad}/${teams.length}</span>` : "";
       const icon = L.divIcon({
         className: "",
-        html: `<div style="
-          width:30px;height:30px;border-radius:50%;
-          background:#1E40AF;border:2px solid #fff;
-          box-shadow:0 2px 6px rgba(0,0,0,0.3);
-          display:flex;align-items:center;justify-content:center;
-          font-size:${isEind ? "14px" : "11px"};font-weight:700;color:#fff;
-        ">${label}</div>`,
+        html: `<div class="lk-punt${allemaal ? " lk-punt--gehad" : gehad ? " lk-punt--deels" : ""}${isEind ? " lk-punt--eind" : ""}">${ring}<span>${allemaal && !isEind ? "✓" : nummer}</span>${teller}</div>`,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
       });
+      const uitleg = teams.length ? ` · ${gehad} van ${teams.length} teams geweest${opWeg.length ? ` · nu onderweg: ${opWeg.map((s) => s.display_name).join(", ")}` : ""}` : "";
       const marker = L.marker([punt.latitude, punt.longitude], { icon })
-        .bindTooltip(escapeHtml(punt.name), { permanent: false })
+        .bindTooltip(escapeHtml(punt.name + uitleg), { permanent: false })
         .addTo(map);
       puntMarkersRef.current.set(punt.id, marker);
     });
-  }, [route_punten, kaartKlaar, modus]);
+  }, [route_punten, kaartKlaar, modus, spelers, kleuren]);
 
   // Speelgebied: alles buiten de route iets grijzer (donkerder bij de donkere kaart)
   useEffect(() => {
@@ -347,7 +349,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
       </KaartBediening>
       {/* Onder de zoomknoppen: alles weer in beeld */}
-      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld">⤢</button>
+      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld">🔍</button>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}

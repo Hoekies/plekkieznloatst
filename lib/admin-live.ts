@@ -36,6 +36,9 @@ export type SpelerOverzicht = {
   items: { in_balk: string[]; ingezet: string[] };
   // Plek van het punt waar het team nu heen loopt (voor de lijn op de live kaart)
   volgend_punt?: { lat: number; lng: number } | null;
+  volgend_punt_id?: string | null;
+  // Punten die het team al heeft afgerond (de kaart kleurt ze groen)
+  bezochte_ids?: string[];
   // 🧩 Puzzelwoord (alleen voor het beheer, nooit naar de beamer): het woord en welke letters het team al heeft
   puzzel?: { woord: string; open: boolean[]; opgelost: boolean } | null;
   // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
@@ -166,7 +169,11 @@ export async function haalLiveData(): Promise<LiveData> {
   ((ptsRes.data ?? []) as { id: string; name: string }[]).forEach((p) => puntNaam.set(p.id, p.name));
 
   const progressMap = new Map<string, number>();
-  ((progRes.data ?? []) as { session_id: string }[]).forEach((p) => progressMap.set(p.session_id, (progressMap.get(p.session_id) ?? 0) + 1));
+  const bezochtMap = new Map<string, string[]>();
+  ((progRes.data ?? []) as { session_id: string; route_point_id: string }[]).forEach((p) => {
+    progressMap.set(p.session_id, (progressMap.get(p.session_id) ?? 0) + 1);
+    bezochtMap.set(p.session_id, [...(bezochtMap.get(p.session_id) ?? []), p.route_point_id]);
+  });
 
   // 🧩 Puzzelwoord: per team de gevonden letters (goed beantwoorde vragen, met de letters per vraag)
   const regels = puzzelRegels(route);
@@ -245,6 +252,8 @@ export async function haalLiveData(): Promise<LiveData> {
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
       wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
       puzzel: sessie ? (puzzelMap.get(sessie.id) ?? null) : null,
+      volgend_punt_id: sessie?.status === "actief" ? (sessie.current_point_id ?? null) : null,
+      bezochte_ids: sessie ? (bezochtMap.get(sessie.id) ?? []) : [],
       volgend_punt: (() => {
         const p = sessie?.status === "actief" && sessie.current_point_id ? routePunten.find((r) => r.id === sessie.current_point_id) : null;
         return p ? { lat: p.latitude, lng: p.longitude } : null;

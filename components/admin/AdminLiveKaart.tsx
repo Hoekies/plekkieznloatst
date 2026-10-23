@@ -39,6 +39,12 @@ export default function AdminLiveKaart({ initData }: Props) {
   // ⏪ Replay: het hele spel versneld afspelen (null = live kaart)
   const [replay, setReplay] = useState<import("./ReplayKaart").ReplayTeam[] | null>(null);
   const [replayLaden, setReplayLaden] = useState(false);
+  // Teamlijst rechtsboven in- of uitgeklapt (onthouden per toestel)
+  const [lijstDicht, setLijstDicht] = useState(false);
+  useEffect(() => { try { setLijstDicht(localStorage.getItem("pr_live_lijst") === "dicht"); } catch { /* geen opslag */ } }, []);
+  function wisselLijst() {
+    setLijstDicht((d) => { try { localStorage.setItem("pr_live_lijst", d ? "open" : "dicht"); } catch { /* geen opslag */ } return !d; });
+  }
   // Kaartlagen (sporen, items): hier, zodat Items aan/uit ook in de bovenbalk kan; onthouden per toestel
   const [lagen, setLagen] = useState<{ sporen: boolean; items: boolean }>({ sporen: true, items: true });
   useEffect(() => {
@@ -119,20 +125,19 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {replay ? "Replay" : "Live kaart"}
-          {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
+        <span className="admin-topbar-titel">{replay ? "Replay" : "Live kaart"}</span>
+        {/* Eigen logo van de organisatie (huisstijl): groot in de lege ruimte midden in de balk */}
+        <span className="topbar-huislogo-vak">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" className="huislogo-kop" />}
+          {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" />}
         </span>
-        <span style={{ flex: 1 }} />
         {replay ? (
           <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}>📡 Terug naar live</button>
         ) : (
           <>
-            <button type="button" className={`rl-knop${lagen.items ? " rl-knop--cyan" : ""}`} aria-pressed={lagen.items} onClick={() => wisselLaag("items")}
+            <button type="button" className={`rl-knop${lagen.items ? " rl-knop--cyan" : " knop-uit"}`} aria-pressed={lagen.items} onClick={() => wisselLaag("items")}
               title={lagen.items ? "Items op de kaart verbergen (rustiger beeld)" : "Items op de kaart tonen"}>
-              🎁<span className="alleen-pc"> Items</span>
+              🎁<span className="alleen-pc"> Items {lagen.items ? "aan" : "uit"}</span>
             </button>
             <button type="button" className="rl-knop" onClick={openBeamer} title="Live kaart, stand en gebeurtenissen groot op een tv of beamer (zonder inloggen)">
               📺<span className="alleen-pc"> Beamer</span>
@@ -165,10 +170,10 @@ export default function AdminLiveKaart({ initData }: Props) {
         {/* Overlay: spelerslijst. Tik op een naam om die speler te volgen */}
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
-          <div className="pr-gem-label" style={{ marginBottom: 8 }}>
-            ⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar
-          </div>
-          {spelersOpKaart.length === 0 ? (
+          <button type="button" className="pr-gem-label live-lijst-inklap" onClick={wisselLijst} aria-expanded={!lijstDicht}>
+            <span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span><span aria-hidden>{lijstDicht ? "▸" : "▾"}</span>
+          </button>
+          {lijstDicht ? null : spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>
           ) : (
             spelersOpKaart.map((s) => {

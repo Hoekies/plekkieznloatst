@@ -2457,7 +2457,7 @@ button.route-stap:hover { color: var(--ink); }
 /* 🧩 Puzzelwoord op de spelerkaart (dashboard): gevonden letters goud, de rest vaag */
 .sk-puzzel { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-top: 8px; font-size: 0.8rem; }
 .sk-puzzel-letter { width: 20px; height: 22px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.18); }
+  font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.45); }
 .sk-puzzel-letter--open { color: #3a1f80; background: #FFD93B; border: 1px solid #FFD93B; }
 .sk-puzzel--klein { margin-top: 3px; gap: 2px; }
 .sk-puzzel--klein .sk-puzzel-letter { width: 15px; height: 17px; font-size: 0.62rem; }
@@ -2468,10 +2468,38 @@ button.route-stap:hover { color: var(--ink); }
 .sk-puzzel-telling { margin-left: 6px; font-size: 0.72rem; color: var(--muted); font-weight: 700; }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
 .huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
+/* Bovenbalk: het logo in de lege ruimte tussen titel en knoppen (vult ook de ruimte zonder logo) */
+.topbar-huislogo-vak { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.topbar-huislogo-vak img { height: 60px; max-width: 240px; object-fit: contain; }
+@media (max-width: 768px) { .topbar-huislogo-vak img { height: 36px; max-width: 110px; } }
 .admin-sidebar-huislogo { display: block; width: 90%; max-height: 72px; object-fit: contain; margin: 10px auto 0; }
-.beamer-logos { display: flex; align-items: center; justify-content: center; gap: 6%; }
-.beamer-logos--twee .beamer-logo { width: 44%; }
-.beamer-huislogo { width: 44%; max-height: 180px; object-fit: contain; }
+/* Niet dubbel: op het dashboard en de live kaart staat het logo al in de bovenbalk */
+.admin-shell:has(.topbar-huislogo-vak img, .dashboard-topbar .huislogo-kop) .admin-sidebar-huislogo { display: none; }
+/* Live kaart: punten groen als alle teams er geweest zijn, pulserende ring als een team er nu heen loopt */
+.lk-punt { position: relative; width: 30px; height: 30px; border-radius: 50%; box-sizing: border-box; background: #1E40AF; border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+.lk-punt--eind { font-size: 14px; }
+.lk-punt--deels { border: 3px solid #4ADE80; }
+.lk-punt--gehad { background: #16A34A; font-size: 14px; }
+.lk-punt-teller { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 0 4px; border-radius: 6px; background: #16A34A; color: #fff; font-size: 9px; line-height: 13px; white-space: nowrap; }
+.lk-punt-ring { position: absolute; inset: -4px; border-radius: 50%; border: 3px solid; animation: lk-ring 1.6s ease-out infinite; pointer-events: none; }
+@keyframes lk-ring { 0% { transform: scale(0.9); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lk-punt-ring { animation: none; } }
+/* Knop die uit staat: doorgestreept en vaag */
+.knop-uit { opacity: 0.65; text-decoration: line-through; }
+/* Teamlijst live kaart: kop is de inklapknop; op de pc twee keer zo groot */
+.live-lijst-inklap { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; margin-bottom: 8px; text-align: left; }
+@media (min-width: 1024px) {
+  .live-kaart-lijst { min-width: 300px !important; }
+  .live-kaart-lijst .pr-gem-label { font-size: 0.9rem; }
+  .live-lijst-naam, .live-lijst-score { font-size: 1.3rem; }
+  .live-lijst-sub { font-size: 1rem; max-width: 340px; }
+  .sk-puzzel--lijst .sk-puzzel-letter { width: 30px; height: 34px; font-size: 1.1rem; }
+  .sk-puzzel--lijst .sk-puzzel-telling { font-size: 1rem; }
+}
+/* Beamer: breed PointRush-logo, met een eigen logo eronder */
+.beamer-logos { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.beamer-huislogo { max-width: 60%; max-height: 110px; object-fit: contain; }
 /* Live kaart: teamlijst met score, volgend punt en het puzzelwoord (leesbaar) */
 .live-lijst-kop { display: flex; align-items: baseline; gap: 8px; }
 .live-lijst-naam { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3177,7 +3205,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .beamer-kaart { flex: 1; min-width: 0; display: flex; position: relative; }
 .beamer-zij { width: clamp(320px, 30vw, 520px); display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 14px; box-sizing: border-box;
   background: rgba(38,18,92,0.92); border-left: 1px solid rgba(255,255,255,0.12); overflow: hidden; }
-.beamer-logo { width: 62%; align-self: center; height: auto; }
+.beamer-logo { width: 80%; align-self: center; height: auto; }
 .beamer-route { text-align: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.5vw, 1.5rem); color: #FFE680; }
 .beamer-kop { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.4vw, 1.4rem); margin-top: 6px; }
 .beamer-stand { display: flex; flex-direction: column; gap: 6px; }
