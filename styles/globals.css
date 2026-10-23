@@ -2476,7 +2476,8 @@ button.route-stap:hover { color: var(--ink); }
 /* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon klein onder de naam */
 .rl-huislogo { display: none; height: 22px; max-width: 70px; object-fit: contain; }
 .rl-logovak { flex: 1; display: flex; align-items: center; justify-content: flex-end; min-width: 0; padding-right: 24px; }
-.rl-logovak img { height: 88px; max-width: 260px; object-fit: contain; }
+/* Even hoog als het spelsoort-icoon links (56 px), zodat ze bij elkaar passen */
+.rl-logovak img { height: 56px; max-width: 200px; object-fit: contain; }
 .rl-titel:has(+ .rl-logovak) { flex: 0 1 auto; }
 @media (max-width: 768px) {
   .rl-logovak { display: none; }
