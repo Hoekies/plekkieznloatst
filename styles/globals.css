@@ -2499,7 +2499,8 @@ button.route-stap:hover { color: var(--ink); }
 }
 /* Beamer: breed PointRush-logo, met een eigen logo eronder */
 .beamer-logos { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.beamer-huislogo { max-width: 60%; max-height: 110px; object-fit: contain; }
+/* Even hoog als het brede PointRush-logo erboven */
+.beamer-huislogo { height: 100px; max-width: 85%; object-fit: contain; }
 /* Live kaart: teamlijst met score, volgend punt en het puzzelwoord (leesbaar) */
 .live-lijst-kop { display: flex; align-items: baseline; gap: 8px; }
 .live-lijst-naam { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3205,7 +3206,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .beamer-kaart { flex: 1; min-width: 0; display: flex; position: relative; }
 .beamer-zij { width: clamp(320px, 30vw, 520px); display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 14px; box-sizing: border-box;
   background: rgba(38,18,92,0.92); border-left: 1px solid rgba(255,255,255,0.12); overflow: hidden; }
-.beamer-logo { width: 80%; align-self: center; height: auto; }
+.beamer-logo { width: 62%; align-self: center; height: auto; }
+.beamer-logos--twee .beamer-logo { width: auto; height: 100px; max-width: 92%; object-fit: contain; }
 .beamer-route { text-align: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.5vw, 1.5rem); color: #FFE680; }
 .beamer-kop { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.4vw, 1.4rem); margin-top: 6px; }
 .beamer-stand { display: flex; flex-direction: column; gap: 6px; }

@@ -55,10 +55,10 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
       </div>
       <aside className="beamer-zij">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {/* Met eigen logo: beide logo's naast elkaar, even groot */}
+        {/* Met eigen logo: het brede PointRush-logo met het eigen logo eronder; zonder: het gewone (vierkante) logo */}
         <div className={`beamer-logos${data.route.huis_logo ? " beamer-logos--twee" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-breed-strak.webp" alt="PointRush" className="beamer-logo" />
+          <img src={data.route.huis_logo ? "/logo-breed-strak.webp" : "/logo.webp"} alt="PointRush" className="beamer-logo" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {data.route.huis_logo && <img src={data.route.huis_logo} alt="" className="beamer-huislogo" />}
         </div>
