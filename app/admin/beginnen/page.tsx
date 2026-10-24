@@ -225,7 +225,7 @@ export default function BeginnenPagina() {
               <div><strong>Een team kan niet inloggen</strong>Bij 👫 Spelers: <em>🔓 Apparaat</em> (de vorige telefoon loslaten) of 🔑 een nieuw kaartje sturen.</div>
               <div><strong>Een punt is niet te bereiken</strong>Op het dashboard bij het team: <em>⏭️ Vrijgeven</em>. Het team krijgt de vraag waar het ook is.</div>
               <div><strong>Verkeerde punten gegeven</strong>Op het dashboard: <em>± Punten</em> met een reden (een minteken haalt punten eraf).</div>
-              <div><strong>Werkt iets niet?</strong>Kijk bij <em>🩺 Systeemcheck</em> (menu, onder Beheer): daar staat wat er mist en hoe je het oplost.</div>
+              <div><strong>Werkt iets niet?</strong>Kijk bij <em>🩺 Systeemcheck</em> (menu, onder ⚙️ Instellingen): daar staat wat er mist en hoe je het oplost.</div>
             </div>
           </div></div>
         </div>

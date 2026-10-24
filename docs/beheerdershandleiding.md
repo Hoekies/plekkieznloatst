@@ -14,13 +14,14 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
 | 📡 **Live kaart** | Waar iedereen loopt |
 | 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
-| **Spel** | 🏆 Tussenstand, WhatsApp (inloggegevens versturen), 🔔 Meldingen |
-| **Beheer** | 🩺 Systeemcheck |
+| ⚙️ **Instellingen** (in- en uitklapbaar) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
 | **Info & uitleg** | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
 Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt); vetgedrukte knopnamen met 👆 kun je aantikken, dan licht die knop op het scherm op.
 
 **Tijdens een spel** staat onderaan elke beheerpagina (behalve het dashboard en de route-editor) een strook met het aantal teams onderweg, de resterende tijd, open hulpvragen en foto's om te keuren (tik erop om erheen te gaan), en **⏸️ Pauze** / **▶️ Verder**.
+
+**Menu als iconen:** met **« Inklappen** onderaan het menu zie je alleen de iconen; op de pc als smalle balk, op de telefoon opent het ☰-menu dan als smalle balk.
 
 **Op de pc:** sneltoetsen **?** (of **H**) voor Hulp, **B** voor Bericht sturen en **P** voor Pauze / Verder (niet tijdens het typen). Staan er hulpvragen open of foto's om te keuren, dan zie je het aantal in het browsertabblad, bijvoorbeeld *(2) PointRush*. Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
 
@@ -463,7 +464,7 @@ Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht n
 
 ### Meldingen op je telefoon en horloge
 
-Met **🔔 Meldingen** in het menu (onder Dit toestel) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
+Met **🔔 Meldingen** in het menu (onder ⚙️ Instellingen) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
 
 ### Eindtijd van het spel
 
@@ -573,7 +574,7 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 
 ## 🩺 Systeemcheck
 
-In het menu onder **Beheer** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
+In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
 
 - **🐞 Foutmeldingen** — zag een speler of beheerder het scherm *Er ging iets mis*, dan staat de fout hier (wanneer, wie en op welke pagina; tik voor de details). Handig om door te geven als iets steeds misgaat. **🗑️ Wissen** maakt de lijst leeg; **🧹 Oude gegevens opruimen** haalt GPS-plekken en fouten ouder dan 30 dagen weg (dat gebeurt ook elke nacht vanzelf, voor de privacy). Daarna is de gelopen route van die oude spellen niet meer te zien.
 - **Database** — de verbinding, en per database-migratie (003 t/m 019) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
@@ -600,7 +601,7 @@ Nodig: migratie `014_vraagopties_puzzel_verboden.sql` (zie 🩺 Systeemcheck).
 
 **🎨 Huisstijl** (⚙️ Instellingen → 🎨 Uiterlijk): een eigen **kleur** (knoppen en accenten in de spelersapp), een **logo**, bijvoorbeeld van het bedrijf. Dat komt in de spelersapp (bovenbalk en welkomstscherm), op de oorkonde, de uitslag-afbeelding, het PDF-rapport, het voorproefje, de inlogkaartjes, het beamerscherm, de gedeelde kaart en het fotoalbum, en in het beheer op het dashboard, in het menu, op de live kaart en bij de route in het overzicht (zolang die route actief is) en een **welkomstfoto** (achtergrond van het welkomstscherm). Handig bij een bedrijfsuitje. **PR** = de gewone PointRush-kleuren. Nodig: migratie 016.
 
-**🗓️ Seizoenen en feestdagen: achtergrond en logo** (menu → Beheer → 🗓️ Seizoenen, geldt voor alle routes): kies met de knoppen 🖼️ Achtergrond, 🔲 Logo of ▭ Logo breed en upload per thema een afbeelding. Met **🔤 Alfabet** of **📅 Periode** zet je de thema's op naam of door het jaar heen (onthouden op dit toestel). De achtergrond is voor het welkomstscherm; het logo vervangt het gewone spellogo overal in de app (inlogscherm, bovenbalk, oorkonde, uitslag, rapport, beamer, inlogkaartje). Een logo wordt automatisch uitgeknipt (witte achtergrond doorzichtig). Zonder seizoenslogo blijft het gewone logo staan; een nieuw logo is er binnen een uur. De app kiest vanzelf op datum, feestdag voor seizoen: Halloween (24 okt – 7 nov), Sinterklaas (13 nov – 6 dec), Kerst (7–27 dec), Oud & nieuw (28 dec – 6 jan), Valentijn (7–21 feb), Carnaval en Pasen (elk jaar uitgerekend), Koningsdag (20 apr – 4 mei), en daarbuiten lente, zomer, herfst of winter. Een eigen welkomstfoto van de route gaat altijd voor. Nodig: migratie `019_seizoen_achtergronden.sql` (achtergronden) en `020_seizoen_logos.sql` (logo's).
+**🗓️ Seizoenen en feestdagen: achtergrond en logo** (menu → ⚙️ Instellingen → 🗓️ Seizoenen, geldt voor alle routes): kies met de knoppen 🖼️ Achtergrond, 🔲 Logo of ▭ Logo breed en upload per thema een afbeelding. Met **🔤 Alfabet** of **📅 Periode** zet je de thema's op naam of door het jaar heen (onthouden op dit toestel). De achtergrond is voor het welkomstscherm; het logo vervangt het gewone spellogo overal in de app (inlogscherm, bovenbalk, oorkonde, uitslag, rapport, beamer, inlogkaartje). Een logo wordt automatisch uitgeknipt (witte achtergrond doorzichtig). Zonder seizoenslogo blijft het gewone logo staan; een nieuw logo is er binnen een uur. De app kiest vanzelf op datum, feestdag voor seizoen: Halloween (24 okt – 7 nov), Sinterklaas (13 nov – 6 dec), Kerst (7–27 dec), Oud & nieuw (28 dec – 6 jan), Valentijn (7–21 feb), Carnaval en Pasen (elk jaar uitgerekend), Koningsdag (20 apr – 4 mei), en daarbuiten lente, zomer, herfst of winter. Een eigen welkomstfoto van de route gaat altijd voor. Nodig: migratie `019_seizoen_achtergronden.sql` (achtergronden) en `020_seizoen_logos.sql` (logo's).
 
 **🔔 Geluiden** (⚙️ Instellingen → 🎨 Uiterlijk): kies **🎵 Klassiek**, **👾 Arcade**, **🌙 Zacht** of **🎺 Feest** voor punt bereikt, goed, fout en de finish. Bij het kiezen hoor je de set meteen; **▶** speelt hem nog eens af. Spelers kunnen het geluid zelf uitzetten in ℹ️.
 

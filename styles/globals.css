@@ -1599,7 +1599,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Zijmenu: blokken met een kopje (Spel, Beheer) */
 .admin-menu-blok { padding: clamp(4px, 0.8vh, 8px) 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 .admin-menu-kop { font-size: 0.68rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: clamp(2px, 0.5vh, 6px); }
-.admin-menu-lijst { display: flex; flex-direction: column; gap: clamp(3px, 0.7vh, 6px); }
 /* Actieve route bovenin het telefoonmenu */
 .admin-menu-route { display: flex; flex-direction: column; gap: 3px; margin: 0 10px 6px; padding: 9px 12px 10px; border-radius: 12px; text-decoration: none;
   background: linear-gradient(160deg, rgba(34,197,94,0.28), rgba(22,163,74,0.12)); border: 2px solid rgba(74,222,128,0.7);
@@ -1622,10 +1621,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .admin-nav-link > [aria-hidden] { width: 26px; font-size: clamp(18px, calc(calc((100dvh - 290px) / 11) * 0.46), 24px); }
   .admin-menu-blok { padding: clamp(4px, 0.9dvh, 10px) 10px; }
   .admin-menu-kop { font-size: 0.68rem; margin-bottom: clamp(3px, 0.6dvh, 8px); }
-  .admin-menu-lijst { gap: clamp(4px, 0.9dvh, 8px); }
-  .admin-menu-blok--beheer > div:last-child { gap: 8px !important; }
-  /* Beheer wat apart, zodat je de rode knoppen niet per ongeluk raakt */
-  .admin-menu-blok--beheer { margin-top: clamp(2px, 1dvh, 14px); }
   /* Info & uitleg als kleine regel onderaan */
   .admin-menu-blok--info .admin-nav-link { height: clamp(30px, 4dvh, 40px); font-size: 15px; border: none; background: none; color: var(--muted); }
   .admin-menu-blok--info .admin-nav-link > [aria-hidden] { font-size: 18px; }
@@ -2129,7 +2124,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   font: inherit; font-size: 0.74rem; font-weight: 700; white-space: nowrap; }
 
 /* Menu inklappen (computer): smalle balk met alleen icoontjes, meer ruimte voor kaart en editor */
-@media (max-width: 768px) { .menu-inklap { display: none !important; } }
 @media (min-width: 769px) {
   .admin-sidebar { transition: width 0.18s ease; }
   .menu-smal .admin-menu-route, .menu-smal .admin-menu-kop, .menu-smal .versie-regel, .menu-smal .menu-status { display: none !important; }
@@ -3399,3 +3393,21 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Cijfers even breed (scores, tijden, aantallen), zodat ze netjes onder elkaar staan */
 .sk-score, .antw-score, .live-lijst-score, .beamer-score, .pr-hud-getal, .stat-strook, .sk-stats, .tijdlijn-tijd,
 .spelstrook, .detail-cijfers, .lijst-stat, .item-groep-aantal, .systeem-telling, .seizoen-telling, .uitslag-kaart, .vraag-klok { font-variant-numeric: tabular-nums; }
+
+/* ⚙️ Groep in het menu (MenuGroep): kop met pijl, de onderdelen iets ingesprongen eronder */
+.menu-groep { display: flex; flex-direction: column; gap: 6px; }
+.menu-groep-kop { width: 100%; cursor: pointer; font: inherit; text-align: left; }
+.menu-groep-kop > .uitklap-pijl { width: 18px; height: 18px; }
+.menu-groep-lijst { display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,0.12); margin-left: 12px; }
+.menu-smal .menu-groep-lijst { padding-left: 0; margin-left: 0; border-left: 0; }
+.menu-smal .menu-groep-kop > .uitklap-pijl { display: none; }
+
+/* 📱 Telefoon: met "Inklappen" opent het ☰-menu als smalle balk met alleen iconen (zoals op de pc) */
+@media (max-width: 768px) {
+  .menu-smal .admin-sidebar { width: 76px; }
+  .menu-smal .admin-menu-route, .menu-smal .admin-menu-kop, .menu-smal .versie-regel, .menu-smal .menu-status { display: none !important; }
+  .menu-smal .admin-nav, .menu-smal .admin-menu-blok { padding-left: 8px; padding-right: 8px; }
+  .menu-smal .admin-sidebar .admin-nav-link { font-size: 0 !important; justify-content: center; padding: 0 !important; gap: 0; height: 48px; }
+  .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] { width: auto; font-size: 28px; line-height: 1; }
+  .menu-smal .admin-sidebar-logo { padding: 0 6px 10px; }
+}

@@ -17,6 +17,7 @@ import HulpKolom from "@/components/admin/HulpKolom";
 import TabTeller from "@/components/admin/TabTeller";
 import Sneltoetsen from "@/components/admin/Sneltoetsen";
 import SpelStrook from "@/components/admin/SpelStrook";
+import MenuGroep from "@/components/admin/MenuGroep";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -56,21 +57,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
           {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}
         </nav>
-        {/* Meldingen op dit toestel aan of uit (een instelling, geen actie: WhatsApp en tussenstand staan
-            op de pagina's waar je ze gebruikt) */}
+        {/* ⚙️ Instellingen: seizoenen, systeemcheck en de meldingen op dit toestel (helpers: alleen meldingen) */}
         <div className="admin-menu-blok">
-          <div className="admin-menu-kop">Dit toestel</div>
-          <div className="admin-menu-lijst">
+          <MenuGroep sleutel="instellingen" icoon="⚙️" titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
+            {!helper && <AdminNavLink href="/admin/seizoenen"><span aria-hidden>🗓️</span> Seizoenen</AdminNavLink>}
+            {!helper && <AdminNavLink href="/admin/systeem"><span aria-hidden>🩺</span> Systeemcheck</AdminNavLink>}
             <PushMeldingenKnop />
-          </div>
+          </MenuGroep>
         </div>
-        {!helper && (
-          <div className="admin-menu-blok admin-menu-blok--beheer">
-            <div className="admin-menu-kop">Beheer</div>
-            <AdminNavLink href="/admin/seizoenen"><span aria-hidden>🗓️</span> Seizoenen</AdminNavLink>
-            <AdminNavLink href="/admin/systeem"><span aria-hidden>🩺</span> Systeemcheck</AdminNavLink>
-          </div>
-        )}
         <div className="admin-menu-blok admin-menu-blok--info">
           <InfoKnop />
           {/* Computer: menu inklappen tot een smalle balk met icoontjes */}
