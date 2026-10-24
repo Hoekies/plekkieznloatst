@@ -3309,3 +3309,13 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; vertical-align: middle;
   transition: transform 0.18s ease, background 0.18s, border-color 0.18s, color 0.18s; }
 .uitklap-pijl--open { transform: rotate(90deg); background: rgba(255,217,59,0.18); border-color: rgba(255,217,59,0.55); color: #FFE680; }
+
+/* ± Punten van de spelleider in de spelersapp: het aantal groot en goud (rood bij aftrek), het bericht eronder */
+.punten-bericht { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.punten-bericht-getal { font-family: var(--font-display); font-weight: 900; font-size: 3.4rem; line-height: 1; color: var(--pr-gold);
+  text-shadow: 0 4px 0 rgba(0,0,0,0.25), 0 0 24px rgba(255,217,59,0.35); }
+.punten-bericht-label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.punten-bericht--min .punten-bericht-getal { color: #F87171; text-shadow: 0 4px 0 rgba(0,0,0,0.25), 0 0 24px rgba(248,113,113,0.35); }
+.punten-bericht-reden { margin: 0; width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+  font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; line-height: 1.35; color: #fff; overflow-wrap: anywhere; }

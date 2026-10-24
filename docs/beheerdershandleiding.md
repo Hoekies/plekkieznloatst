@@ -476,7 +476,7 @@ Met **⏸️ Pauze** in het Spelleider-blok (na bevestiging) staat het spel voor
 
 ### Punten aanpassen (bonus of aftrek)
 
-Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. Een aftrek kan een team in de min brengen. Speelt het team nog, dan ziet het meteen een melding in beeld (*"⭐ De spelleider geeft jullie +20 punten (mooiste foto)!"*). De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
+Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. Een aftrek kan een team in de min brengen. Speelt het team nog, dan ziet het meteen een melding in beeld: het aantal punten groot (goud, rood bij aftrek) met jouw reden eronder. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
 
 ### Punt vrijgeven voor een team
 

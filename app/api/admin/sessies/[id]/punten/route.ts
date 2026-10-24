@@ -29,10 +29,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ fout: migratie ? "Draai eerst SQL-bestand 006 in Supabase" : vastleggen.message }, { status: 500 });
   }
   const nieuw = await zetScore(admin, sessie.id, (sessie.score ?? 0) + delta);
-  // Het team ziet meteen een melding in beeld (zelfde weg als 📢 Bericht sturen, alleen aan dit team)
-  const tekst = delta > 0
-    ? `⭐ De spelleider geeft jullie +${delta} punten${reden ? ` (${reden})` : ""}!`
-    : `➖ De spelleider trekt ${-delta} punten af${reden ? ` (${reden})` : ""}.`;
+  // Het team ziet meteen een melding in beeld (zelfde weg als 📢 Bericht sturen, alleen aan dit team).
+  // Vaste vorm "+10 punten · reden": de spelersapp herkent hem en toont de punten groot (zie PUNTEN_BERICHT)
+  const tekst = `${delta > 0 ? "+" : ""}${delta} punten${reden ? ` · ${reden}` : ""}`;
   await admin.from("broadcasts").insert({ bericht: tekst.slice(0, 150), player_id: sessie.player_id });
   return NextResponse.json({ ok: true, score: nieuw, delta });
 }

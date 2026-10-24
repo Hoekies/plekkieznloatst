@@ -63,6 +63,8 @@ const GPS_TIMEOUT_MS = 12000;
 const MELDING_ITEM_TYPE: Record<string, string> = {
   "👻": "spook", "💣": "bom", "🔄": "wissel", "🦹": "dief", "🍌": "banaan", "❓": "vraagteken",
 };
+// Bericht van ± Punten (app/api/admin/sessies/[id]/punten): "+10 punten · reden" → aantal en reden apart
+const PUNTEN_BERICHT = /^([+-]\d+) punten(?: · ([\s\S]+))?$/;
 const SLECHTE_NAUWKEURIGHEID_M = 30;
 const LOCATIE_PUBLICEER_INTERVAL_MS = 15000;
 // Voor de "gelopen route" na de finish: ook tussendoor opslaan zodra de speler een stukje verder is
@@ -1047,6 +1049,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         const itemType = MELDING_ITEM_TYPE[eerste];
         const isIcoon = !!itemType || /\p{Extended_Pictographic}/u.test(eerste);
         const tekst = isIcoon ? rest.join(" ") : effectNotificatie;
+        // ± Punten van de spelleider: het aantal groot, het getypte bericht eronder
+        const punten = itemType ? null : PUNTEN_BERICHT.exec(tekst);
         return (
           <div style={{
             position: "fixed", inset: 0, zIndex: 1600,
@@ -1070,14 +1074,22 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                       {effectVan.naam}
                     </span>
                   </div>
+                ) : itemType ? (
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>Let op!</div>
+                ) : null}
+                {punten ? (
+                  <>
+                    <div className={`punten-bericht${Number(punten[1]) < 0 ? " punten-bericht--min" : ""}`}>
+                      <span className="punten-bericht-getal">{punten[1]}</span>
+                      <span className="punten-bericht-label">{Number(punten[1]) < 0 ? "punten eraf" : "punten erbij"}</span>
+                    </div>
+                    {punten[2] && <p className="punten-bericht-reden">{punten[2]}</p>}
+                  </>
                 ) : (
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.35rem", color: "var(--pr-gold)" }}>
-                    {itemType ? "Let op!" : "Bericht"}
-                  </div>
+                  <p style={{ margin: 0, fontSize: itemType ? "1.02rem" : "1.15rem", lineHeight: 1.45, color: "#fff", fontWeight: itemType ? 600 : 700 }}>
+                    {tekst}
+                  </p>
                 )}
-                <p style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.45, color: "#fff", fontWeight: 600 }}>
-                  {tekst}
-                </p>
                 <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => { setEffectNotificatie(null); setEffectVan(null); }}>
                   OK, BEGREPEN
                 </button>
