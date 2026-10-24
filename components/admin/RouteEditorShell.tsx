@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useState, useEffect, useMemo, useRef } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
@@ -2037,10 +2036,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     if (res.ok) setRoute((r) => ({ ...r, ...velden }));
                     return res.ok;
                   }} />
-                )}
-                {/* 🗓️ Seizoensachtergrond en -logo gelden voor alle routes: eigen pagina in het menu */}
-                {instellingenTab === "uiterlijk" && (
-                  <span className="inst-uitleg">🗓️ Achtergrond en logo per seizoen of feestdag gelden voor alle routes: <Link href="/admin/seizoenen">Seizoenen</Link> in het menu.</span>
                 )}
 
                 {instellingenTab === "punten" && (

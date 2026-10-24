@@ -2387,7 +2387,9 @@ button.route-stap:hover { color: var(--ink); }
 .proef-finish-noot { font-size: 0.75rem; color: var(--muted); }
 @media (max-width: 900px) { .proef-telefoon { display: none; } }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
-.huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
+/* Zelfde maat als op de live kaart (.topbar-huislogo-vak) */
+.huislogo-kop { height: 60px; max-width: 240px; object-fit: contain; }
+@media (max-width: 768px) { .huislogo-kop { height: 36px; max-width: 110px; } }
 /* Bovenbalk: het logo in de lege ruimte tussen titel en knoppen (vult ook de ruimte zonder logo) */
 .topbar-huislogo-vak { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
 .topbar-huislogo-vak img { height: 60px; max-width: 240px; object-fit: contain; }
