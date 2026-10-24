@@ -55,24 +55,27 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
     if (!L || !map || !puntLaag.current || !teamLaag.current) return;
     puntLaag.current.clearLayers();
     teamLaag.current.clearLayers();
-    const plekken: [number, number][] = [];
+    const puntPlekken: [number, number][] = [];
     for (const p of punten) {
-      plekken.push([p.latitude, p.longitude]);
+      puntPlekken.push([p.latitude, p.longitude]);
       L.circleMarker([p.latitude, p.longitude], { radius: 5, color: "#fff", weight: 2, fillColor: "#7C3AED", fillOpacity: 1, interactive: false }).addTo(puntLaag.current);
     }
+    const teamPlekken: [number, number][] = [];
     for (const s of spelers) {
       if (s.sessie_status !== "actief" || s.laatste_lat == null || s.laatste_lng == null) continue;
-      plekken.push([s.laatste_lat, s.laatste_lng]);
+      teamPlekken.push([s.laatste_lat, s.laatste_lng]);
       L.circleMarker([s.laatste_lat, s.laatste_lng], { radius: 8, color: "#1E1B4B", weight: 3, fillColor: kleuren.get(s.player_id) ?? "#A78BFA", fillOpacity: 1, interactive: false }).addTo(teamLaag.current);
     }
-    // Alle punten en teams in beeld
+    // Ingezoomd op de teams die spelen; nog niemand onderweg: de hele route
+    const plekken = teamPlekken.length ? teamPlekken : puntPlekken;
     if (!plekken.length) return;
     const grenzen = L.latLngBounds(plekken);
+    // Afgerond (±100 m): niet bij elke paar meter lopen opnieuw inzoomen
     const sleutel = grenzen.toBBoxString().split(",").map((g) => Number(g).toFixed(3)).join(",");
     if (sleutel === gebiedRef.current) return;
     gebiedRef.current = sleutel;
-    if (plekken.length === 1) map.setView(plekken[0], 15);
-    else map.fitBounds(grenzen, { padding: [18, 18], maxZoom: 16 });
+    if (plekken.length === 1) map.setView(plekken[0], 17);
+    else map.fitBounds(grenzen, { padding: [24, 24], maxZoom: 17 });
   }
 
   const onderweg = spelers.filter((s) => s.sessie_status === "actief" && s.laatste_lat != null).length;
