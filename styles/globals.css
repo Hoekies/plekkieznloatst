@@ -103,9 +103,10 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   padding: 10px 18px;
   border-radius: var(--radius-md);
   border: none;
-  font-family: var(--font);
-  font-size: 0.875rem;
-  font-weight: 600;
+  /* Zelfde ronde game-letter als de andere knoppen */
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
   text-decoration: none;
@@ -1349,7 +1350,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   height: 34px; padding: 0 14px; border-radius: 9px;
   border: 1px solid rgba(255,255,255,0.16);
   background: rgba(255,255,255,0.06); color: #fff;
-  font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
+  /* Tekst in verhouding tot de knop (net als .actie-knop en .btn) */
+  font-family: var(--font-display); font-weight: 700; font-size: 0.86rem;
   cursor: pointer; white-space: nowrap;
 }
 .rl-knop:hover { background: rgba(255,255,255,0.12); }
@@ -1569,14 +1571,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Knoppen boven een lijst (Antwoorden, Groepen, Dashboard, Routes): overal even hoog en gelijk van stijl */
 .actie-rij { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+/* Tekst en knop in verhouding: iets lager, grotere letter, overal dezelfde ronde game-letter */
 .actie-knop {
-  height: 42px !important; padding: 0 16px !important; border-radius: 10px !important;
-  font-size: 0.86rem !important; font-weight: 700 !important; line-height: 1 !important;
+  height: 40px !important; padding: 0 14px !important; border-radius: 10px !important;
+  font-family: var(--font-display) !important; font-size: 0.95rem !important; font-weight: 800 !important; line-height: 1 !important;
   display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;
 }
-.actie-knop.rl-knop--icoon { width: 42px; padding: 0 !important; font-size: 1.2rem !important; }
+.actie-knop.rl-knop--icoon { width: 40px; padding: 0 !important; font-size: 1.2rem !important; }
 /* Nieuwe speler: velden even hoog als de knoppen, icoon zo hoog als label + veld */
-.nieuwe-speler .form-input { height: 42px; box-sizing: border-box; }
+.nieuwe-speler .form-input { height: 40px; box-sizing: border-box; }
 .nieuwe-speler .form-label { margin-bottom: 4px; }
 .pr-gem-avatar.nieuwe-speler-icoon { width: 60px; height: 60px; font-size: 2rem; }
 @media (max-width: 768px) {
