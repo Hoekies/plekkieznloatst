@@ -253,8 +253,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kmAfgelegd, startVraagVanaf, positie]);
 
-  const heeftInventaris = inventaris.length > 0;
-  const knoepBottomOffset = heeftInventaris ? 92 : 28;
+  // Itemknoppen zweven onderin het midden; pas bij meer dan 3 soorten raken ze de hoekknoppen, die gaan dan omhoog
+  const knoepBottomOffset = new Set(inventaris.map((i) => i.type)).size > 3 ? 92 : 28;
 
   useEffect(() => {
     if (bereiktIds.size > 0 && activePunt && bereiktIds.has(activePunt.id) && !popupPunt) {
@@ -1104,6 +1104,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           andereSpelers={andereSpelers}
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
           ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
+          richtingNaar={wachtOpStartVraag && richtingTelt ? richtPunt : null}
         />
 
         {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
@@ -1115,7 +1116,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                 <span style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90}deg)` }}>➤</span>
               </span>
             )}
-            <span>🚶 Loop nog <strong>{nogTeLopen} meter</strong>{richtingTelt ? " de kant van de pijl op" : ""}, dan krijg je je eerste vraag!</span>
+            <span>🚶 Loop nog <strong>{nogTeLopen} meter</strong>{richtingTelt ? " langs de oranje stippellijn" : ""}, dan krijg je je eerste vraag!</span>
           </div>
         )}
 

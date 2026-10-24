@@ -5,6 +5,7 @@ import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
+import { haversine } from "@/lib/geo";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -36,12 +37,14 @@ interface Props {
   // Hoogte (px) waarboven de knoppen voor licht/donker/luchtfoto staan (boven de itembalk)
   stijlOnder?: number;
   ghostedPuntId: string | null;
+  // Eerste meters na de start: welke kant op (het volgende punt); er komt een korte stippellijn die kant op
+  richtingNaar?: { latitude: number; longitude: number } | null;
 }
 
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -262,7 +265,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     });
   }, [punten, verwerktIds, bereiktIds, activePuntId, ghostedPuntId, kaartKlaar, heleRoute, stilleIds]);
 
-  // Stippellijn naar het actieve punt, zodra dat punt zichtbaar is
+  // Stippellijn naar het actieve punt, zodra dat punt zichtbaar is. Bij de eerste meters na de start:
+  // een korte lijn (60 m) de goede kant op, zonder het volgende punt zelf te verklappen
   useEffect(() => {
     const L = LRef.current;
     const map = mapRef.current;
@@ -271,14 +275,21 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
     guideLijnRef.current?.remove();
     guideLijnRef.current = null;
 
+    if (!positie) return;
     const actiefPunt = punten.find((p) => p.id === activePuntId);
-    if (!positie || !actiefPunt || activePuntId === ghostedPuntId) return;
-
-    guideLijnRef.current = L.polyline(
-      [[positie.latitude, positie.longitude], [actiefPunt.latitude, actiefPunt.longitude]],
-      { color: "#8b5cf6", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
-    ).addTo(map);
-  }, [positie, punten, activePuntId, ghostedPuntId, kaartKlaar]);
+    if (actiefPunt && activePuntId !== ghostedPuntId) {
+      guideLijnRef.current = L.polyline(
+        [[positie.latitude, positie.longitude], [actiefPunt.latitude, actiefPunt.longitude]],
+        { color: "#8b5cf6", weight: 2.5, opacity: 0.75, dashArray: "6 8", interactive: false }
+      ).addTo(map);
+    } else if (richtingNaar) {
+      const deel = Math.min(1, 60 / Math.max(1, haversine(positie.latitude, positie.longitude, richtingNaar.latitude, richtingNaar.longitude)));
+      guideLijnRef.current = L.polyline(
+        [[positie.latitude, positie.longitude], [positie.latitude + (richtingNaar.latitude - positie.latitude) * deel, positie.longitude + (richtingNaar.longitude - positie.longitude) * deel]],
+        { color: "#F59E0B", weight: 4, opacity: 0.9, dashArray: "2 9", lineCap: "round", interactive: false }
+      ).addTo(map);
+    }
+  }, [positie, punten, activePuntId, ghostedPuntId, richtingNaar, kaartKlaar]);
 
   // Speciale item markers bijwerken
   useEffect(() => {

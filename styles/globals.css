@@ -3039,7 +3039,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Spelersapp: infopunt als kaartje onderin (de kaart blijft zichtbaar); vragen blijven volledig scherm */
 .info-kaartje { position: fixed; left: 12px; right: 12px; bottom: max(14px, calc(env(safe-area-inset-bottom) + 10px)); z-index: 1000;
   max-width: 520px; margin: 0 auto; max-height: 62vh; display: flex; flex-direction: column; gap: 12px; padding: 16px;
-  border-radius: 20px; background: #ffffff; color: #0A1B36; box-shadow: 0 -4px 28px rgba(0,0,0,0.35); animation: info-kaartje-in 0.22s ease-out; }
+  border-radius: 20px; background: linear-gradient(180deg, #3a1f80, #26125c); border: 1px solid rgba(255,255,255,0.12); color: #fff; box-shadow: 0 -4px 28px rgba(0,0,0,0.45); animation: info-kaartje-in 0.22s ease-out; }
 .info-kaartje-inhoud { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
 @keyframes info-kaartje-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
@@ -3235,8 +3235,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .systeem-vakje { font-size: 0.76rem; padding: 6px 10px; border-radius: 8px; background: rgba(74,222,128,0.08); color: #D1FAE5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Vraag met tijdslimiet: aftelklok bovenaan, rood in de laatste 10 seconden */
-.vraag-klok { align-self: center; padding: 6px 16px; border-radius: 999px; background: #EDE9FE; color: #5B21B6; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
-.vraag-klok--bijna { background: #FEE2E2; color: #B91C1C; animation: klok-puls 1s ease-in-out infinite; }
+.vraag-klok { align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(139,92,246,0.25); color: #DDD6FE; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.vraag-klok--bijna { background: rgba(239,68,68,0.25); color: #FCA5A5; animation: klok-puls 1s ease-in-out infinite; }
 @keyframes klok-puls { 50% { transform: scale(1.08); } }
 
 /* 🧩 Puzzelwoord: letters als tegeltjes (leeg = nog niet verdiend) */

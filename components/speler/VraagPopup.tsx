@@ -19,13 +19,6 @@ const KLEUR_RAND: Record<string, string> = {
 // Vaste knop onderaan de popup — compact gehouden, was op mobiel onnodig log
 const KNOP_ONDERAAN_STIJL: CSSProperties = { width: "100%", padding: "13px 0", fontSize: "0.92rem", borderRadius: 13 };
 
-const KLEUR_ZACHT: Record<string, string> = {
-  geel: "#FEF9C3",
-  blauw: "#DBEAFE",
-  rood: "#FEE2E2",
-  groen: "#DCFCE7",
-};
-
 type AntwoordOptie = {
   id: string;
   color: string;
@@ -280,12 +273,12 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "#ffffff",
-      color: "#0A1B36",
+      background: "var(--game-gradient)",
+      color: "#fff",
       display: "flex", flexDirection: "column",
     }}>
       {/* Logo header */}
-      <div style={{ padding: "max(10px, calc(env(safe-area-inset-top) + 8px)) 16px 8px", borderBottom: "1px solid #e5e7eb", background: "#ffffff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ padding: "max(10px, calc(env(safe-area-inset-top) + 8px)) 16px 8px", borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(42,21,102,0.5)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/spellogo/breed.png" alt="PointRush" style={{ height: 96, width: "auto" }} />
       </div>
@@ -299,19 +292,19 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         {popupFase === "laden" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "48px 0" }}>
             <div className="spinner" />
-            <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>Vraag ophalen…</span>
+            <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Vraag ophalen…</span>
           </div>
         )}
 
         {/* Startpunt: welkom + korte speluitleg */}
         {popupFase === "start" && startUitleg && (
           <>
-            <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#0A1B36" }}>Welkom bij de start! 🚩</h2>
-            <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 10, fontSize: "1rem", lineHeight: 1.55, color: "#0A1B36" }}>
+            <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#fff" }}>Welkom bij de start! 🚩</h2>
+            <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 10, fontSize: "1rem", lineHeight: 1.55, color: "#fff" }}>
               {startUitleg.regels.map((r) => <li key={r}>{r}</li>)}
-              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen, in de richting van de pijl.</strong></li>}
+              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen, langs de oranje stippellijn op de kaart.</strong></li>}
             </ul>
-            <div style={{ background: "#FEF9C3", border: "1px solid #FDE68A", borderRadius: 14, padding: "14px 16px", color: "#713F12" }}>
+            <div style={{ background: "rgba(255,217,59,0.12)", border: "1px solid rgba(255,217,59,0.45)", borderRadius: 14, padding: "14px 16px", color: "#FFE58A" }}>
               <div style={{ fontWeight: 700, fontSize: "1rem", lineHeight: 1.5 }}>{startUitleg.afsluiting}</div>
               <div style={{ marginTop: 6, fontStyle: "italic" }}>{startUitleg.ondertekening}</div>
             </div>
@@ -332,7 +325,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                 ⏱️ {Math.floor(resterend / 60)}:{String(resterend % 60).padStart(2, "0")}
               </div>
             )}
-            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap", color: "#0A1B36" }}>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap", color: "#fff" }}>
               {vraag.question_text}
             </h2>
 
@@ -380,10 +373,10 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         <img
                           src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
                           alt=""
-                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "contain", background: "#f3f4f6" }}
+                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "contain", background: "rgba(255,255,255,0.08)" }}
                         />
                       ) : (
-                        <div style={{ aspectRatio: "4/3", background: KLEUR_ZACHT[optie.color] ?? "#f3f4f6" }} />
+                        <div style={{ aspectRatio: "4/3", background: "rgba(0,0,0,0.18)" }} />
                       )}
                       {optie.text && (
                         <div style={{
@@ -400,12 +393,12 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             )}
 
             {vraag.type === "stemvraag" && (
-              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#6D28D9", marginBottom: -2 }}>🗳️ Stem! Kies je voor wat de meeste teams kiezen, dan krijg je de punten.</div>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#C4B5FD", marginBottom: -2 }}>🗳️ Stem! Kies je voor wat de meeste teams kiezen, dan krijg je de punten.</div>
             )}
             {(vraag.type === "meerkeuze_tekst" || vraag.type === "stemvraag") && (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {(vraag.answer_options ?? []).length === 0 && (
-                  <p style={{ color: "#DC2626", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
+                  <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
                 )}
                 {(vraag.answer_options ?? []).map((optie) => {
                   const isGekozen = gekozenId === optie.id;
@@ -446,8 +439,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                 placeholder="Typ hier je antwoord…"
                 style={{
                   fontSize: "1rem", padding: "14px 16px",
-                  background: "#f9fafb", color: "#0A1B36",
-                  border: "2px solid #d1d5db", borderRadius: 12,
+                  background: "rgba(255,255,255,0.08)", color: "#fff",
+                  border: "2px solid rgba(255,255,255,0.25)", borderRadius: 12,
                   outline: "none", width: "100%", boxSizing: "border-box",
                   fontFamily: "inherit",
                 }}
@@ -463,10 +456,10 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                   onClick={() => fotoInputRef.current?.click()}
                   onKeyDown={(e) => e.key === "Enter" && fotoInputRef.current?.click()}
                   style={{
-                    border: `2.5px dashed ${fotoBestand ? "#3B82F6" : "#d1d5db"}`,
+                    border: `2.5px dashed ${fotoBestand ? "#60A5FA" : "rgba(255,255,255,0.3)"}`,
                     borderRadius: 16, padding: fotoBestand ? "10px" : "28px 16px",
                     textAlign: "center", cursor: "pointer",
-                    background: fotoBestand ? "#EFF6FF" : "#f9fafb",
+                    background: fotoBestand ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.06)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
                   }}>
                   {fotoBestand ? (
@@ -474,14 +467,14 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                       {fotoVoorbeeld && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={fotoVoorbeeld} alt="Gekozen foto"
-                          style={{ width: "100%", maxHeight: "45vh", objectFit: "contain", borderRadius: 12, background: "#f3f4f6" }} />
+                          style={{ width: "100%", maxHeight: "45vh", objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,0.08)" }} />
                       )}
-                      <span style={{ fontSize: "0.82rem", color: "#1E40AF", fontWeight: 600 }}>✅ Deze foto stuur je in · tik om een andere te kiezen</span>
+                      <span style={{ fontSize: "0.82rem", color: "#93C5FD", fontWeight: 600 }}>✅ Deze foto stuur je in · tik om een andere te kiezen</span>
                     </>
                   ) : (
                     <>
                       <span style={{ fontSize: "2.5rem" }}>📷</span>
-                      <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "#374151" }}>Tik om een foto te maken of te kiezen</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "#E5E7EB" }}>Tik om een foto te maken of te kiezen</span>
                     </>
                   )}
                 </div>
@@ -496,31 +489,31 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
               </div>
             )}
 
-            {fout && <p style={{ color: "#DC2626", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
+            {fout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>{fout}</p>}
           </>
         )}
 
         {/* Foto ingestuurd: meteen door, keuring volgt na afloop */}
         {/* Geen bereik en de vraag was nog niet geladen */}
         {popupFase === "geen_bereik" && (
-          <div style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#92400E" }}>📡 Even geen bereik</div>
-            <div style={{ fontSize: "0.92rem", color: "#78350F", lineHeight: 1.5 }}>De vraag kon niet geladen worden. Loop een paar stappen en probeer het opnieuw.</div>
+          <div style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(252,211,77,0.5)", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#FCD34D" }}>📡 Even geen bereik</div>
+            <div style={{ fontSize: "0.92rem", color: "#FDE68A", lineHeight: 1.5 }}>De vraag kon niet geladen worden. Loop een paar stappen en probeer het opnieuw.</div>
           </div>
         )}
 
         {/* Antwoord gegeven zonder bereik */}
         {popupFase === "bewaard" && (
-          <div style={{ background: "#E0F2FE", border: "1px solid #7DD3FC", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#075985" }}>📡 Antwoord bewaard</div>
-            <div style={{ fontSize: "0.92rem", color: "#0C4A6E", lineHeight: 1.5 }}>Er is even geen bereik. Je antwoord gaat vanzelf mee zodra er weer bereik is; daarna zie je je punten. Je kunt gewoon door.</div>
+          <div style={{ background: "rgba(14,165,233,0.15)", border: "1px solid rgba(125,211,252,0.5)", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#7DD3FC" }}>📡 Antwoord bewaard</div>
+            <div style={{ fontSize: "0.92rem", color: "#BAE6FD", lineHeight: 1.5 }}>Er is even geen bereik. Je antwoord gaat vanzelf mee zodra er weer bereik is; daarna zie je je punten. Je kunt gewoon door.</div>
           </div>
         )}
 
         {popupFase === "foto_ingestuurd" && (
-          <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#15803D" }}>📸 Foto ingestuurd!</div>
-            <div style={{ fontSize: "0.92rem", color: "#166534", lineHeight: 1.5 }}>
+          <div style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(134,239,172,0.5)", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>📸 Foto ingestuurd!</div>
+            <div style={{ fontSize: "0.92rem", color: "#BBF7D0", lineHeight: 1.5 }}>
               Je kunt meteen door. De organisatie keurt de foto&apos;s na afloop; de punten komen er dan bij, vóór de uitslag bekend wordt.
             </div>
           </div>
@@ -528,7 +521,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 
         {/* Feedback reguliere vraag */}
         {popupFase === "feedback" && teLaat && (
-          <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#B91C1C", textAlign: "center" }}>⏱️ De tijd is om!</div>
+          <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#FCA5A5", textAlign: "center" }}>⏱️ De tijd is om!</div>
         )}
         {popupFase === "feedback" && feedback && vraag && vraag.type !== "foto_opdracht" && (
           <FeedbackWeergave
@@ -541,7 +534,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       </div>
 
       {/* Vaste knop onderaan */}
-      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid #e5e7eb", background: "#ffffff" }}>
+      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid rgba(255,255,255,0.1)", background: "rgba(42,21,102,0.5)" }}>
         {popupFase === "start" && (
           <button
             className="btn btn-primary"
@@ -599,11 +592,11 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 // ── TypeBadge ─────────────────────────────────────────────────────────────────
 function TypeBadge({ type }: { type: RoutePunt["type"] }) {
   const cfg = {
-    vraagpunt:      { label: "❓ VRAAG",      bg: "#DBEAFE", kleur: "#1E40AF" },
-    informatiepunt: { label: "ℹ️ INFORMATIE", bg: "#CFFAFE", kleur: "#0E7490" },
-    doorlooppunt:   { label: "🚶 DOORLOPEN",  bg: "#E2E8F0", kleur: "#334155" },
-    eindpunt:       { label: "🏁 EINDPUNT",   bg: "#FEF9C3", kleur: "#A16207" },
-  }[type] ?? { label: "📍 PUNT", bg: "#E2E8F0", kleur: "#334155" };
+    vraagpunt:      { label: "❓ VRAAG",      bg: "rgba(59,130,246,0.22)",  kleur: "#93C5FD" },
+    informatiepunt: { label: "ℹ️ INFORMATIE", bg: "rgba(6,182,212,0.22)",   kleur: "#67E8F9" },
+    doorlooppunt:   { label: "🚶 DOORLOPEN",  bg: "rgba(148,163,184,0.22)", kleur: "#CBD5E1" },
+    eindpunt:       { label: "🏁 EINDPUNT",   bg: "rgba(250,204,21,0.2)",   kleur: "#FDE047" },
+  }[type] ?? { label: "📍 PUNT", bg: "rgba(148,163,184,0.22)", kleur: "#CBD5E1" };
   return (
     <span style={{
       fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em",
@@ -617,7 +610,7 @@ function StartBadge() {
   return (
     <span style={{
       fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em",
-      background: "#DCFCE7", color: "#15803D",
+      background: "rgba(34,197,94,0.22)", color: "#86EFAC",
       padding: "4px 12px", borderRadius: 99, alignSelf: "flex-start",
     }}>🚩 STARTPUNT</span>
   );
@@ -627,7 +620,7 @@ function StartBadge() {
 function InfoInhoud({ punt }: { punt: RoutePunt }) {
   return (
     <>
-      <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700, color: "#0A1B36" }}>{punt.name}</h2>
+      <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700, color: "#fff" }}>{punt.name}</h2>
       {punt.image_path && (
         <img
           src={`${SUPABASE_URL}/storage/v1/object/public/punt-afbeeldingen/${punt.image_path}`}
@@ -636,7 +629,7 @@ function InfoInhoud({ punt }: { punt: RoutePunt }) {
         />
       )}
       {punt.description && (
-        <p style={{ margin: 0, lineHeight: 1.7, fontSize: "1rem", color: "#0A1B36" }}>{punt.description}</p>
+        <p style={{ margin: 0, lineHeight: 1.7, fontSize: "1rem", color: "#fff" }}>{punt.description}</p>
       )}
     </>
   );
@@ -651,9 +644,9 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
   // 🗳️ Stem uitgebracht: de uitslag komt pas als de stemming sluit
   if (feedback.stem && feedback.is_correct === null) {
     return (
-      <div style={{ background: "#EDE9FE", border: "1px solid #C4B5FD", borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
-        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#5B21B6" }}>🗳️ Je stem is uitgebracht!</div>
-        <div style={{ fontSize: "0.88rem", color: "#4C1D95", marginTop: 4, lineHeight: 1.45 }}>
+      <div style={{ background: "rgba(139,92,246,0.18)", border: "1px solid rgba(196,181,253,0.5)", borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
+        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#C4B5FD" }}>🗳️ Je stem is uitgebracht!</div>
+        <div style={{ fontSize: "0.88rem", color: "#DDD6FE", marginTop: 4, lineHeight: 1.45 }}>
           Stemden jullie hetzelfde als de meeste teams? Dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).
         </div>
       </div>
@@ -662,21 +655,21 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
   return (
     <>
       <div style={{
-        background: feedback.is_correct ? "#DCFCE7" : "#FEE2E2",
-        border: `1px solid ${feedback.is_correct ? "#86EFAC" : "#FECACA"}`,
+        background: feedback.is_correct ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
+        border: `1px solid ${feedback.is_correct ? "rgba(134,239,172,0.6)" : "rgba(252,165,165,0.6)"}`,
         borderRadius: 14, padding: "16px 18px",
         display: "flex", flexDirection: "column", gap: 4,
       }}>
-        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: feedback.is_correct ? "#15803D" : "#B91C1C" }}>
+        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: feedback.is_correct ? "#86EFAC" : "#FCA5A5" }}>
           {feedback.is_correct ? "✓ Goed gedaan!" : "✗ Helaas, dat klopt niet."}
         </div>
         {feedback.points_awarded > 0 && (
-          <div style={{ fontSize: "0.9rem", color: "#15803D" }}>
+          <div style={{ fontSize: "0.9rem", color: "#86EFAC" }}>
             +{feedback.points_awarded} punt{feedback.points_awarded !== 1 ? "en" : ""} verdiend
           </div>
         )}
         {feedback.points_awarded < 0 && (
-          <div style={{ fontSize: "0.9rem", color: "#B91C1C", fontWeight: 700 }}>
+          <div style={{ fontSize: "0.9rem", color: "#FCA5A5", fontWeight: 700 }}>
             {feedback.points_awarded} punt{feedback.points_awarded !== -1 ? "en" : ""} — die gaan van je score af
           </div>
         )}
@@ -684,7 +677,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
 
       {!feedback.is_correct && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <p style={{ margin: 0, fontSize: "0.85rem", color: "#6B7280", fontWeight: 600 }}>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--muted)", fontWeight: 600 }}>
             Het juiste antwoord:
           </p>
 
@@ -698,7 +691,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
                   <div key={optie.id} style={{
                     border: `3px solid ${isJuist ? "#86EFAC" : "#FECACA"}`,
                     borderRadius: 14, overflow: "hidden",
-                    background: isJuist ? "#F0FDF4" : "#FFF5F5",
+                    background: isJuist ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
                   }}>
                     {optie.image_path && (
                       <img
@@ -727,8 +720,8 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
                   <div key={optie.id} style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 16px", borderRadius: 12,
-                    border: `2px solid ${isJuist ? "#86EFAC" : wasGekozen ? "#FECACA" : "#e5e7eb"}`,
-                    background: isJuist ? "#F0FDF4" : wasGekozen ? "#FFF5F5" : "transparent",
+                    border: `2px solid ${isJuist ? "#86EFAC" : wasGekozen ? "#FECACA" : "rgba(255,255,255,0.15)"}`,
+                    background: isJuist ? "rgba(34,197,94,0.15)" : wasGekozen ? "rgba(239,68,68,0.15)" : "transparent",
                     opacity: isJuist || wasGekozen ? 1 : 0.4,
                   }}>
                     <div style={{
@@ -748,7 +741,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
 
           {vraag.type === "open" && feedback.numeric_answer !== null && (
             <div style={{
-              background: "#F0FDF4", border: "1px solid #86EFAC",
+              background: "rgba(34,197,94,0.15)", border: "1px solid #86EFAC",
               borderRadius: 12, padding: "12px 16px", fontSize: "1rem", fontWeight: 600,
             }}>
               {feedback.numeric_tolerance && feedback.numeric_tolerance > 0
@@ -759,7 +752,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
 
           {vraag.type === "open" && feedback.correct_text_answers?.length && (
             <div style={{
-              background: "#F0FDF4", border: "1px solid #86EFAC",
+              background: "rgba(34,197,94,0.15)", border: "1px solid #86EFAC",
               borderRadius: 12, padding: "12px 16px", fontSize: "1rem", fontWeight: 600,
             }}>
               {feedback.correct_text_answers[0]}
