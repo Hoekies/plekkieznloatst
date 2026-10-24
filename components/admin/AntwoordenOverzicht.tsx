@@ -116,6 +116,8 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
   const heeftFotos = data.teams.some((t) => t.rijen.some((r) => r.foto_pad));
   const isOpen = (t: TeamAntwoorden) => openTeams[t.sessie_id] ?? (alleenAandacht || t.rijen.some(aandacht));
   const zetAlles = (open: boolean) => setOpenTeams(Object.fromEntries(data.teams.map((t) => [t.sessie_id, open])));
+  const metAntwoorden = data.teams.filter((t) => t.rijen.length > 0);
+  const allesOpen = metAntwoorden.length > 0 && metAntwoorden.every(isOpen);
   const teams = alleenAandacht ? data.teams.filter((t) => t.rijen.some(aandacht)) : data.teams;
 
   return (
@@ -198,8 +200,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             </button>
           ) : <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>✅ Niets te bekijken</span>}
           <span style={{ flex: 1 }} />
-          <button type="button" className="es-link" onClick={() => zetAlles(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><UitklapPijl open /> Alles open</button>
-          <button type="button" className="es-link" onClick={() => zetAlles(false)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><UitklapPijl open={false} /> Alles dicht</button>
+          {/* Alle teams tegelijk open of dicht; alleen als er antwoorden zijn om te tonen */}
+          {metAntwoorden.length > 0 && (
+            <button type="button" className="es-link" onClick={() => zetAlles(!allesOpen)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <UitklapPijl open={allesOpen} /> {allesOpen ? "Alles dicht" : "Alles open"}
+            </button>
+          )}
         </div>
       )}
 
@@ -226,11 +232,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
                     {fotoWacht > 0 && <span style={{ color: "#FBBF24" }}> 📸 {fotoWacht} te keuren</span>}
                   </span>}
             </span>
-            <span className={`pr-gem-chip ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--cyan"}`}>
+            {/* Vaste breedtes, zodat status, punten en pijl bij alle teams onder elkaar staan */}
+            <span className={`pr-gem-chip antw-status ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--cyan"}`}>
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
             </span>
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#FFE680" }}>{team.score} pt</span>
-            {team.rijen.length > 0 && <UitklapPijl open={open} />}
+            <span className={`antw-score${team.score < 0 ? " score-min" : ""}`}>{team.score} pt</span>
+            <span className="antw-pijl">{team.rijen.length > 0 && <UitklapPijl open={open} />}</span>
           </button>
           {open && rijen.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

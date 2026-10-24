@@ -13,6 +13,7 @@ import VersieRegel from "@/components/admin/VersieRegel";
 import MenuInklap from "@/components/admin/MenuInklap";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haalHuisstijl } from "@/lib/huisstijl";
+import HulpKolom from "@/components/admin/HulpKolom";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -80,6 +81,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
       <div className="admin-uitlog-hoek">
+        {/* ❓ Hulp bij deze pagina: kolom rechts (alleen pc; de hoek zelf staat alleen op de pc) */}
+        <HulpKolom />
         {!helper && <BroadcastKnop alsIcoon />}
         <UitlogKnop compact />
       </div>

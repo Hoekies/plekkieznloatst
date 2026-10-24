@@ -18,7 +18,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | **Beheer** | 🩺 Systeemcheck |
 | **Info & uitleg** | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
-Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
+Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt). Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
 
 ---
 
@@ -305,7 +305,7 @@ Elke "speler" in het beheer is één team met één inlog.
 3. Verstuur de inloggegevens met de groene knop **WhatsApp** rechtsboven op de Spelers-pagina (of met **Versturen** bij de stap *Inloggegevens verstuurd* op het dashboard). Er opent eerst **Wat verstuur je?**:
    - **✉️ Berichttekst** — standaard *"Hoi! Log in op PointRush via deze link 🎯 … 🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht. … Veel plezier! René"*, aan te passen in het venster. De inlog stuur je daarna per team met de **🔑** bij Spelers;
    - **📲 Uitleg** hoe je de app op het beginscherm zet;
-   - **Afbeeldingen:** de spelershandleiding en/of de speluitleg van route op volgorde of verspreid.
+   - **🃏 Spelerskaart:** de uitleg van het spel als afbeelding (aan of uit).
    Onderaan zie je een voorbeeld. **Versturen** opent het deelmenu (kies WhatsApp). Je laatste keuze wordt onthouden.
 
 Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook op het dashboard, de tijdlijn en de live kaart.

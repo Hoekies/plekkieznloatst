@@ -16,7 +16,7 @@ const config = {
     // Bij het wisselen tussen pagina's altijd de actuele versie ophalen (standaard 30 s bewaard)
     staleTimes: { dynamic: 0 },
     // De handleidingpagina leest het Markdown-bestand op de server; zorg dat het meegaat
-    outputFileTracingIncludes: { "/admin/uitleg": ["./docs/beheerdershandleiding.md"] },
+    outputFileTracingIncludes: { "/admin/uitleg": ["./docs/beheerdershandleiding.md"], "/api/admin/hulp": ["./docs/beheerdershandleiding.md"] },
   },
   async headers() {
     const csp = [

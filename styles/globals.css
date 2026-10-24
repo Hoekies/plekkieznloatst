@@ -114,8 +114,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ── Game-knop (vibrant teal, 3D lift) ── */
-
 /* ── Glass card ── */
 .glass-card {
   background: var(--glass-bg);
@@ -125,8 +123,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   border-radius: 20px;
   box-shadow: var(--glass-shadow);
 }
-
-/* ── Glass input (voor speler/login schermen) ── */
 
 /* ── Formulieren ── */
 .form-group {
@@ -396,14 +392,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   60%  { transform: scale(1.08); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
-
-/* ── Stat-kaart ── */
-
-/* ── Tabs ── */
-
-/* ── Groepen-lijst rijen ── */
-
-/* ── Status-pill ── */
 
 /* ── Speler layout ── */
 .speler-shell {
@@ -817,10 +805,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .pr-badge--orange { background: linear-gradient(145deg, var(--pr-orange) 0%, var(--pr-orange-dark) 100%); }
 
-/* ── Game-knop v2: oranje/goud 3D pers-knop ── */
-
-/* ── Comic reset-knop (rood, gevaar) ── */
-
 /* ── Veld (login/intro op licht sticker-paneel) ── */
 .pr-field-label {
   font-family: var(--font-display);
@@ -1136,8 +1120,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .btn-premium--cyan:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── Premium knop v2: neutrale glanzende knop (Bewerken/Concept e.d.) ── */
-
 /* ── Locatie-check knop (speler kaart, floating) ── */
 .pr-loc-btn {
   position: absolute;
@@ -1246,8 +1228,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 /* Uitgeschakelde speler: icoon zo hoog als naam + loginregel */
 .pr-gem-avatar.gb-avatar-uit { width: 40px; height: 40px; font-size: 1.45rem; }
-
-/* ── Premium reset-knop (rood gevaar-gem) ── */
 
 /* ── HUD gem-pil (speler topbalk km/punten) ── */
 .pr-hud-gem {
@@ -1406,7 +1386,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-uitlog-hoek { position: fixed; top: 0; right: 28px; height: 84px; display: flex; align-items: center; z-index: 900; }
 @media (min-width: 769px) {
   /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
-  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 300px; }
+  .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 360px; }
   /* De bovenbalk blijft staan bij het scrollen: de inhoud schuift eronderdoor, niet onder de knoppen rechtsboven */
   .admin-topbar { position: sticky; top: 0; z-index: 800; flex-shrink: 0; background: rgba(46,21,96,0.94); }
 }
@@ -1521,6 +1501,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Korte of lange knoptekst, afhankelijk van de schermbreedte */
 .alleen-mobiel { display: none; }
+/* Blok (div/span met inhoud) alleen op de pc */
+.alleen-pc-blok { display: inline-flex; }
+@media (max-width: 768px) { .alleen-pc-blok { display: none; } }
 @media (max-width: 768px) {
   .alleen-pc { display: none; }
   .alleen-mobiel { display: inline; }
@@ -1587,12 +1570,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .nieuwe-speler-knoppen { width: 100%; justify-content: flex-end; }
 }
 
-/* Reset-kaart op het dashboard: brede knop rechts; op de telefoon over de volle breedte */
-.reset-knop { min-width: 220px; }
-@media (max-width: 768px) {
-  .reset-kaart-knop { width: 100%; }
-  .reset-knop { width: 100%; min-width: 0; }
-}
 
 /* Spelers: kop om de uitgeschakelde spelers in of uit te klappen */
 .gb-inklap {
@@ -2118,9 +2095,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .kaart-stijl--onder { top: auto; bottom: max(22px, calc(env(safe-area-inset-bottom) + 12px)); }
 
 /* Spelerkaart dashboard: in- en uitklappen */
-/* Alleen de uitklap-pijl (het rondje is de knop) */
-.sk-inklap { display: inline-flex; background: none; border: 0; padding: 2px; cursor: pointer; }
-.sk-inklap:hover .uitklap-pijl { background: rgba(255,255,255,0.2); }
 
 /* Routekaart: icoonknoppen lichter, zodat elk icoontje goed te zien is; deactiveren als gevulde rode knop */
 .rl-icoonknoppen .rl-knop--icoon:not(.rl-leeg) { background: rgba(255,255,255,0.16) !important; border-color: rgba(255,255,255,0.32) !important; }
@@ -2300,7 +2274,6 @@ button.route-stap:hover { color: var(--ink); }
 .sk-stil { color: #FCA5A5; font-weight: 700; }
 .speler-kaart-klik .sk-rechts { flex-direction: row; align-items: center; gap: 10px; }
 .sk-score { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: #FFE680; white-space: nowrap; min-width: 56px; text-align: right; }
-.speler-kaart-klik .sk-inklap { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; }
 .speler-kaart-klik .sk-lijf { padding-left: 96px; }
 .speler-kaart-klik .sk-balk { height: 5px; margin: 0; }
 @media (max-width: 768px) {
@@ -2313,7 +2286,6 @@ button.route-stap:hover { color: var(--ink); }
   .speler-kaart-klik .sk-rechts { gap: 6px; }
   .speler-kaart-klik .sk-rechts .pr-gem-chip { display: none; }
   .sk-score { font-size: 1.05rem; min-width: 0; }
-  .speler-kaart-klik .sk-inklap { width: 28px; height: 28px; }
   .speler-kaart-klik .sk-lijf { padding-left: 0; }
 }
 
@@ -2729,8 +2701,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .spelleider-knoppen > * { flex: 1 1 0 !important; font-size: 0.78rem !important; padding: 0 6px !important; }
   /* Spelerskaart: cijfers op één regel */
   .sk-stats { gap: 2px 8px; font-size: 0.72rem; }
-  /* Spel resetten staat ook in het menu: op de telefoon niet nog eens onderaan het dashboard */
-  .reset-blok { display: none; }
   /* Antwoorden: knoppen netjes onder de tabbladen, "nog niets" op een eigen regel */
   .antw-ruimte { display: none; }
   .antw-balk > .rl-knop, .antw-balk > a.rl-knop { flex: 1 1 0; justify-content: center; }
@@ -3232,8 +3202,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .album-groot-onder button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1.5rem; cursor: pointer; }
 .album-groot-onder button:disabled { opacity: 0.3; }
 .album-sluit { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 1.1rem; cursor: pointer; }
-.systeem-groep { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-.systeem-groep-kop { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-display); font-weight: 800; color: #fff; }
 .systeem-telling { font-size: 0.8rem; color: #86EFAC; }
 .systeem-telling--mis { color: #FCA5A5; }
 .systeem-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
@@ -3332,3 +3300,57 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .puzzel-uitleg { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; flex-shrink: 0; background: rgba(42,21,102,0.85);
   border-bottom: 1px solid rgba(255,217,59,0.35); color: #fff; font-size: 0.86rem; font-weight: 600; line-height: 1.45; cursor: pointer; }
 .puzzel-uitleg-hint { color: #FFE58A; font-weight: 700; }
+
+/* Antwoorden per team: status, punten en pijl in vaste kolommen, bij elk team op dezelfde plek */
+.antw-status { min-width: 104px; justify-content: center; text-align: center; }
+.antw-score { min-width: 76px; text-align: right; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: #FFE680; white-space: nowrap; }
+.antw-pijl { width: 22px; display: inline-flex; justify-content: center; flex-shrink: 0; }
+
+/* 🩺 Systeemcheck: één blok, één regel per onderdeel; ontbrekende dingen eronder, details uitklapbaar */
+.systeem-lijst { display: flex; flex-direction: column; gap: 0; padding-top: 6px !important; padding-bottom: 6px !important; }
+.systeem-onderdeel { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.systeem-onderdeel:last-child { border-bottom: 0; }
+.systeem-onderdeel-kop { display: flex; align-items: center; gap: 10px; min-height: 30px; }
+.systeem-onderdeel-kop--knop { width: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; text-align: left; font: inherit; }
+.systeem-onderdeel-naam { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; color: #fff; }
+.systeem-acties { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.systeem-onderdeel .systeem-telling { min-width: 64px; text-align: right; }
+
+/* ❓ Hulpkolom (components/admin/HulpKolom.tsx): smalle kolom rechts met de uitleg bij deze pagina (alleen pc) */
+.hulp-kolom { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; z-index: 950; display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #2a1566 0%, #1c0c45 100%); border-left: 1px solid rgba(255,217,59,0.35); box-shadow: -10px 0 30px rgba(0,0,0,0.35); }
+.hulp-kolom-kop { display: flex; align-items: center; gap: 10px; min-height: 84px; box-sizing: border-box; padding: 0 16px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.hulp-kolom-titel { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; }
+.hulp-kolom-inhoud { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 20px 20px; }
+.hulp-kolom-voet { display: flex; gap: 14px; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.82rem; }
+.hulp-kolom-voet a { color: #FFE680; font-weight: 700; text-decoration: none; }
+.hulp-laden { color: var(--muted); }
+/* Leesbaar: rustige regelafstand, kopjes als uitklapbare onderwerpen */
+.hulp-tekst { font-size: 0.9rem; line-height: 1.6; color: var(--text); overflow-wrap: anywhere; }
+.hulp-tekst p { margin: 0 0 10px; }
+.hulp-tekst ul, .hulp-tekst ol { margin: 0 0 10px; padding-left: 20px; }
+.hulp-tekst li { margin-bottom: 4px; }
+.hulp-tekst strong { color: #fff; }
+.hulp-tekst blockquote { margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid rgba(255,217,59,0.6); background: rgba(255,217,59,0.06); border-radius: 0 8px 8px 0; }
+.hulp-tekst code { font-size: 0.82em; padding: 1px 5px; border-radius: 5px; background: rgba(255,255,255,0.1); }
+.hulp-tekst table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 10px; }
+.hulp-tekst th, .hulp-tekst td { padding: 5px 8px; border: 1px solid rgba(255,255,255,0.12); vertical-align: top; text-align: left; }
+.hulp-tekst hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0; }
+.hulp-blok { margin-bottom: 8px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); padding: 0 12px; }
+.hulp-blok > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding: 10px 0; font-family: var(--font-display); font-weight: 800; color: #fff; }
+.hulp-blok > summary::-webkit-details-marker { display: none; }
+/* Zelfde pijl als de uitklap-pijl elders: rechts gedraaid dicht, naar beneden open */
+.hulp-blok > summary::before { content: "›"; flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); font-size: 0.9rem; line-height: 1; transition: transform 0.18s; }
+.hulp-blok[open] > summary::before { transform: rotate(90deg); color: #FFE680; border-color: rgba(255,217,59,0.55); background: rgba(255,217,59,0.18); }
+.hulp-blok .hulp-blok { background: rgba(255,255,255,0.03); }
+.hulp-niveau-2 > summary { font-size: 1rem; }
+.hulp-niveau-3 > summary, .hulp-niveau-4 > summary { font-size: 0.92rem; }
+.hulp-knop--aan { border-color: rgba(255,217,59,0.7) !important; background: rgba(255,217,59,0.15) !important; }
+@media (min-width: 769px) {
+  .hulp-open .admin-main { margin-right: 360px; }
+  .hulp-open .admin-uitlog-hoek { right: 388px; }
+}
+@media (max-width: 768px) {
+  .hulp-kolom, .hulp-knop { display: none !important; }
+}

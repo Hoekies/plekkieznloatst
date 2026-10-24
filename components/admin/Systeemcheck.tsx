@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Check } from "@/app/api/admin/systeem/route";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 type Fout = { id: string; created_at: string; rol: string | null; wie: string | null; pad: string | null; bericht: string; details: string | null; browser: string | null };
 
@@ -32,10 +33,15 @@ function FoutLogboek() {
   if (!fouten) return null;
   const tijd = (t: string) => new Date(t).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   return (
-    <div className="systeem-groep">
-      <div className="systeem-groep-kop">
-        <span>🐞 Foutmeldingen uit de app</span>
-        <span className={fouten.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{fouten.length ? `${fouten.length}` : "geen ✅"}</span>
+    <div className="systeem-onderdeel">
+      <div className="systeem-onderdeel-kop">
+        <span className="systeem-onderdeel-naam">🐞 Foutmeldingen</span>
+        <span className="systeem-acties">
+          {melding && <span style={{ fontSize: "0.76rem", color: "var(--muted)" }}>{melding}</span>}
+          {fouten.length > 0 && <button type="button" className="es-link" onClick={wis}>🗑️ Wissen</button>}
+          <button type="button" className="es-link" onClick={ruimOp} title="GPS-plekken en fouten ouder dan 30 dagen verwijderen (gebeurt ook elke nacht vanzelf)">🧹 Oude gegevens opruimen</button>
+        </span>
+        <span className={fouten.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{fouten.length ? `${fouten.length} ⚠️` : "geen ✅"}</span>
       </div>
       {fouten.map((f) => (
         <button key={f.id} type="button" className="systeem-regel systeem-fout" onClick={() => setOpen(open === f.id ? null : f.id)}>
@@ -48,11 +54,6 @@ function FoutLogboek() {
           </span>
         </button>
       ))}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        {fouten.length > 0 && <button type="button" className="rl-knop" onClick={wis}>🗑️ Logboek wissen</button>}
-        <button type="button" className="rl-knop" onClick={ruimOp} title="GPS-plekken en fouten ouder dan 30 dagen verwijderen (gebeurt ook elke nacht vanzelf)">🧹 Oude gegevens opruimen</button>
-        {melding && <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{melding}</span>}
-      </div>
     </div>
   );
 }
@@ -61,6 +62,9 @@ function FoutLogboek() {
 export default function Systeemcheck() {
   const [checks, setChecks] = useState<Check[] | null>(null);
   const [fout, setFout] = useState<string | null>(null);
+  // Welke onderdelen zijn opengeklapt (de groene details)
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const wissel = (g: string) => setOpen((o) => { const n = new Set(o); if (n.has(g)) n.delete(g); else n.add(g); return n; });
 
   async function controleer() {
     setChecks(null); setFout(null);
@@ -87,51 +91,39 @@ export default function Systeemcheck() {
           <button type="button" className="rl-knop" onClick={controleer}>🔄 Opnieuw controleren</button>
         </div>
       </div>
-      {/* Per onderdeel één blok: wat ontbreekt groot en rood met de oplossing, de rest als kleine groene vakjes */}
-      <FoutLogboek />
-      {groepen.map((g) => {
-        const inGroep = checks.filter((c) => c.groep === g);
-        const fout = inGroep.filter((c) => !c.ok);
-        return (
-          <div key={g} className="systeem-groep">
-            <div className="systeem-groep-kop">
-              <span>{g}</span>
-              <span className={fout.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{inGroep.length - fout.length}/{inGroep.length} {fout.length ? "⚠️" : "✅"}</span>
+      {/* Eén blok, één regel per onderdeel: wat ontbreekt staat er altijd rood onder (met de oplossing),
+          de rest (groen) klap je open met de pijl */}
+      <div className="pr-gem-panel"><div className="pr-gem-panel-inner systeem-lijst">
+        <FoutLogboek />
+        {groepen.map((g) => {
+          const inGroep = checks.filter((c) => c.groep === g);
+          const fout = inGroep.filter((c) => !c.ok);
+          const isOpen = open.has(g);
+          return (
+            <div key={g} className="systeem-onderdeel">
+              <button type="button" className="systeem-onderdeel-kop systeem-onderdeel-kop--knop" onClick={() => wissel(g)} aria-expanded={isOpen}>
+                <span className="systeem-onderdeel-naam">{g}</span>
+                <span className={fout.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{inGroep.length - fout.length}/{inGroep.length} {fout.length ? "⚠️" : "✅"}</span>
+                <UitklapPijl open={isOpen} />
+              </button>
+              {fout.map((c) => (
+                <div key={c.naam} className="systeem-regel systeem-regel--mis">
+                  <span aria-hidden>❌</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 700 }}>{c.naam}</span>
+                    {c.uitleg && <span style={{ display: "block", fontSize: "0.78rem", color: "#FDE68A" }}>{c.uitleg}</span>}
+                  </span>
+                </div>
+              ))}
+              {isOpen && (
+                <div className="systeem-raster">
+                  {inGroep.filter((c) => c.ok).map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
+                </div>
+              )}
             </div>
-            {fout.map((c) => (
-              <div key={c.naam} className="systeem-regel systeem-regel--mis">
-                <span aria-hidden>❌</span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontWeight: 700 }}>{c.naam}</span>
-                  {c.uitleg && <span style={{ display: "block", fontSize: "0.78rem", color: "#FDE68A" }}>{c.uitleg}</span>}
-                </span>
-              </div>
-            ))}
-            <div className="systeem-raster">
-              {(() => {
-                const goed = inGroep.filter((c) => c.ok);
-                if (g !== "Database") return goed.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>);
-                // Database: één rij van 4 vakjes: de verbinding en eerdere migraties samen, dan de laatste 3 migraties
-                const nr = (c: Check) => Number(/Migratie (\d+)/.exec(c.naam)?.[1] ?? 0);
-                const migraties = goed.filter((c) => nr(c) > 0).sort((a, b) => nr(a) - nr(b));
-                const laatste = migraties.slice(-3);
-                const eerder = migraties.length - laatste.length;
-                const verbinding = goed.some((c) => !nr(c));
-                return (
-                  <>
-                    {(eerder > 0 || verbinding) && (
-                      <span className="systeem-vakje" title={goed.filter((c) => !laatste.includes(c)).map((c) => c.naam).join("\n")}>
-                        ✓ {verbinding ? "Verbinding" : ""}{verbinding && eerder ? " en " : ""}{eerder ? `${eerder} eerdere migraties` : ""}
-                      </span>
-                    )}
-                    {laatste.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div></div>
     </div>
   );
 }

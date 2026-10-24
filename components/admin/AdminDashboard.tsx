@@ -7,16 +7,15 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
-import UitklapPijl from "@/components/shared/UitklapPijl";
+import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
-import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import FotoBeoordelingPanel from "./FotoBeoordelingPanel";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import SpelLeider, { minutenNietGezien } from "@/components/admin/SpelLeider";
 import { duurKort } from "@/lib/tijd";
-import Klaarzetten, { wisKlaarzetten } from "@/components/admin/Klaarzetten";
+import Klaarzetten from "@/components/admin/Klaarzetten";
 import Tijdlijn from "@/components/admin/Tijdlijn";
 import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
@@ -41,9 +40,14 @@ interface Props {
 
 export default function AdminDashboard({ initData, beperkt = false }: Props) {
   const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
-  const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
   // Speler waarvan het detailvenster open staat
   const [detailId, setDetailId] = useState<string | null>(null);
+  // 🏆 Spelende spelers in te klappen (onthouden op dit toestel)
+  const [spelersDicht, setSpelersDicht] = useState(false);
+  useEffect(() => { try { setSpelersDicht(localStorage.getItem("pr_dash_spelers_dicht") === "1"); } catch { /* geen opslag */ } }, []);
+  function wisselSpelers() {
+    setSpelersDicht((d) => { try { localStorage.setItem("pr_dash_spelers_dicht", d ? "0" : "1"); } catch { /* geen opslag */ } return !d; });
+  }
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
     const naam = s.nickname ?? s.login_name;
@@ -78,20 +82,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     ververs();
   }
 
-  async function bevestigReset() {
-    setResetFase("bezig");
-    try {
-      const res = await fetch("/api/admin/reset", { method: "POST" });
-      if (!res.ok) { setResetFase("idle"); return; }
-      wisKlaarzetten();
-      await ververs();
-      setResetFase("klaar");
-      setTimeout(() => setResetFase("idle"), 3000);
-    } catch {
-      setResetFase("idle");
-    }
-  }
-
   const { spelers, route, route_punten } = data;
   // Alleen spelers die meedoen (bezig of gefinisht), op volgorde van de stand: hoogste score eerst,
   // bij gelijke score de snelste. Wie nog niet gestart is, staat bij Spelers.
@@ -117,9 +107,13 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           {route?.huis_logo && <img src={route.huis_logo} alt="" className="huislogo-kop" />}
         </span>
         <FotoBeoordelingPanel />
-        <div style={{ justifySelf: "end" }} className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
-          <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
-          {realtimeOk ? "Live" : "Verbinding weg"}
+        <div style={{ justifySelf: "end", display: "flex", alignItems: "center", gap: 10 }}>
+          {/* 💣 Spel resetten: op de pc hier; op de telefoon staat hij in het menu */}
+          {!beperkt && <span className="alleen-pc-blok"><NieuwSpelKnop kort className="rl-knop rl-knop--rood" onKlaar={ververs} /></span>}
+          <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
+            <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
+            {realtimeOk ? "Live" : "Verbinding weg"}
+          </div>
         </div>
       </div>
 
@@ -157,8 +151,9 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
           <div style={{ minWidth: 0 }}>
             {/* Spelende spelers, op volgorde van de stand */}
-            <SectieKop titel="🏆 Spelende spelers" />
-            {spelend.length === 0 ? (
+            <SectieKop titel={`🏆 Spelende spelers${spelend.length ? ` (${spelend.length})` : ""}`}
+              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined} />
+            {spelersDicht && spelend.length > 0 ? null : spelend.length === 0 ? (
               !route ? (
                 <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Kies eerst een route en activeer hem.</LeegScherm>
               ) : spelers.length === 0 ? (
@@ -207,35 +202,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               onNegeer={negeerHulp} onGewijzigd={ververs} />} />
         )}
 
-        {/* Reset sectie */}
-        {/* Zelfde kaartstijl als de spelers: één regel uitleg en een brede rode knop */}
-        {!beperkt && <div className="pr-gem-card reset-blok" style={{ marginTop: 32 }}>
-         <div className="pr-gem-card-inner reset-kaart" style={{ flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ flex: "1 1 220px", minWidth: 0, fontSize: "0.9rem", color: "var(--text)" }}>
-            <strong style={{ fontFamily: "var(--font-display)", color: "#fff" }}>Spel resetten</strong>
-            <span style={{ color: "var(--muted)" }}> · wist alle spellen en scores, spelers en routes blijven</span>
-          </div>
-          <div className="reset-kaart-knop">
-            {/* Bevestigen in een venster, met uitleg wat er verdwijnt */}
-            {(resetFase === "idle" || resetFase === "bevestig") && (
-              <BevestigKnop venster icoon="💣" titel="Spel resetten?" className="rl-knop rl-knop--rood actie-knop reset-knop"
-                vraag="Alle spellen van alle spelers worden gewist, ook van gefinishte spelers: scores, antwoorden, gelopen routes, ingestuurde foto's en opgepakte items. Gedeelde kaart-links werken daarna niet meer. Spelers en routes blijven bewaard. Dit kan niet ongedaan worden gemaakt."
-                ja="Ja, reset het spel" onBevestig={bevestigReset}>
-                <span aria-hidden style={{ fontSize: "1.5rem", lineHeight: 1 }}>💣</span> Reset spel
-              </BevestigKnop>
-            )}
-            {resetFase === "bezig" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "var(--muted)" }}>
-                <div className="spinner" />
-                Bezig…
-              </div>
-            )}
-            {resetFase === "klaar" && (
-              <span style={{ fontSize: "0.82rem", color: "var(--green, #16A34A)", fontWeight: 600 }}>✓ Reset voltooid</span>
-            )}
-          </div>
-         </div>
-        </div>}
       </div>
     </>
   );
@@ -265,10 +231,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
   beperkt: boolean;
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
-  // Inklapbaar: dicht = alleen kop, voortgang en wat aandacht vraagt; open = ook items en knoppen.
-  // Een hulpvraag klapt de kaart vanzelf open.
-  const [open, setOpen] = useState(false);
-  const toonAlles = open || !!s.hulp;
+  // Compact: kop, voortgang en wat aandacht vraagt. Items en knoppen staan in het venster (tik op de kaart);
+  // alleen bij een hulpvraag staan de knoppen ook hier, om meteen te kunnen helpen.
   const stil = minutenNietGezien(s);
   return (
     // Tik op de kaart: alles van deze speler in één venster (de knoppen erin doen hun eigen ding)
@@ -278,7 +242,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
       : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
       {/* Bovenaan: plek, icoon, naam en score op één regel; daaronder over de volle breedte de rest */}
       {/* Compact (ook op de pc, zodat meerdere teams tegelijk in beeld passen): regel 1 naam, status en
-          score; regel 2 de cijfers; daaronder de voortgang. Items en knoppen achter ▸ */}
+          score; regel 2 de cijfers; daaronder de voortgang. Items en knoppen in het venster */}
       <div className="pr-gem-card-inner sk-inner">
         <div className="sk-kop">
           <span className="sk-rang" title={`${rang}e plaats`} style={{ fontSize: rang <= 3 ? "1.5rem" : "1rem" }}>
@@ -301,11 +265,6 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           <div className="sk-rechts">
             <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
             <span className={`sk-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
-            <button type="button" className="sk-inklap" aria-expanded={toonAlles}
-              onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-              title={toonAlles ? "Inklappen" : "Items en knoppen tonen"} aria-label={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>
-              <UitklapPijl open={toonAlles} />
-            </button>
           </div>
         </div>
 
@@ -314,21 +273,6 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           {/* 🧩 Puzzelwoord: het hele woord, de letters die het team al heeft in goud */}
           {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
-
-          {toonAlles && (s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 8, fontSize: "0.72rem", color: "var(--muted)" }}>
-              {s.items.in_balk.length > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
-                  In de balk: <ItemIcoontjes types={s.items.in_balk} />
-                </span>
-              )}
-              {s.items.ingezet.length > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
-                  Ingezet: <ItemIcoontjes types={s.items.ingezet} vaag />
-                </span>
-              )}
-            </div>
-          )}
 
           {s.hulp && (
             <div style={{
@@ -340,8 +284,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <span style={{ fontWeight: 400, color: "var(--muted)" }}> · {duurKort(Math.max(0, Math.floor((Date.now() - new Date(s.hulp.sinds).getTime()) / 60000)))} geleden</span>
             </div>
           )}
-          {/* Knoppen (dezelfde als in het venster met alle details) */}
-          {toonAlles && <SpelerActies s={s} kanVrijgeven={kanVrijgeven} beperkt={beperkt}
+          {/* Hulpvraag: de knoppen (dezelfde als in het venster) meteen hier */}
+          {s.hulp && <SpelerActies s={s} kanVrijgeven={kanVrijgeven} beperkt={beperkt}
             onVrijgeven={onVrijgeven} onStop={onStop} onNegeer={onNegeer} onGewijzigd={onGewijzigd} />}
         </div>
       </div>
@@ -405,25 +349,6 @@ function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["w
       <span className="wacht-tijd">{tijd}</span>
       {onVerkort && <button type="button" className="rl-knop" onClick={onVerkort} title="Wachttijd 30 seconden korter maken">−30 s</button>}
     </div>
-  );
-}
-
-// Item-icoontjes, gegroepeerd per type met een aantal (bv. 2× bom)
-function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolean }) {
-  const aantallen = new Map<string, number>();
-  types.forEach((t) => aantallen.set(t, (aantallen.get(t) ?? 0) + 1));
-  return (
-    // Mag over meerdere regels: met veel items werd de kaart anders breder dan het scherm
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, flexWrap: "wrap", minWidth: 0 }}>
-      {[...aantallen].map(([type, n]) => (
-        <span key={type} title={`${ITEM_INFO[type]?.naam ?? type}${n > 1 ? ` (${n}×)` : ""}`}
-          style={{ display: "inline-flex", alignItems: "center", opacity: vaag ? 0.45 : 1 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/items/${type}.webp`} alt={ITEM_INFO[type]?.naam ?? type} style={{ width: 22, height: 22 }} />
-          {n > 1 && <span style={{ fontWeight: 700, color: "var(--ink)", marginLeft: 1 }}>{n}</span>}
-        </span>
-      ))}
-    </span>
   );
 }
 

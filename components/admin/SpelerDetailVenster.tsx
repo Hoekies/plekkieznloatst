@@ -62,6 +62,14 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             <div><span>✅</span><strong>{verslag ? `${goed}/${vragen.length}` : "…"}</strong><small>vragen goed</small></div>
           </div>
 
+          {/* 🎒 Items: wat het team nog in de balk heeft en wat het al inzette */}
+          {(s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", fontSize: "0.8rem", color: "var(--muted)" }}>
+              {s.items.in_balk.length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>🎒 In de balk: <ItemIcoontjes types={s.items.in_balk} /></span>}
+              {s.items.ingezet.length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>Ingezet: <ItemIcoontjes types={s.items.ingezet} vaag /></span>}
+            </div>
+          )}
+
           {/* Gelopen route */}
           <div style={{ height: 330, borderRadius: 14, overflow: "hidden", flexShrink: 0 }}>
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
@@ -111,5 +119,24 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
           )}
         </div>
     </Venster>
+  );
+}
+
+// Item-icoontjes, gegroepeerd per type met een aantal (bv. 2× bom)
+function ItemIcoontjes({ types, vaag = false }: { types: string[]; vaag?: boolean }) {
+  const aantallen = new Map<string, number>();
+  types.forEach((t) => aantallen.set(t, (aantallen.get(t) ?? 0) + 1));
+  return (
+    // Mag over meerdere regels: met veel items werd de kaart anders breder dan het scherm
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, flexWrap: "wrap", minWidth: 0 }}>
+      {[...aantallen].map(([type, n]) => (
+        <span key={type} title={`${itemNaam(type)}${n > 1 ? ` (${n}×)` : ""}`}
+          style={{ display: "inline-flex", alignItems: "center", opacity: vaag ? 0.45 : 1 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/items/${type}.webp`} alt={itemNaam(type)} style={{ width: 22, height: 22 }} />
+          {n > 1 && <span style={{ fontWeight: 700, color: "var(--ink)", marginLeft: 1 }}>{n}</span>}
+        </span>
+      ))}
+    </span>
   );
 }
