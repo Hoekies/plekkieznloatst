@@ -26,7 +26,7 @@ export default function HulpKolom() {
   useEffect(() => {
     if (!open || hulp?.pad === pad) return;
     let weg = false;
-    fetch(`/api/admin/hulp?pad=${encodeURIComponent(pad)}`).then((r) => r.json()).catch(() => null).then((d) => {
+    fetch(`/api/admin/uitleg?pad=${encodeURIComponent(pad)}`).then((r) => r.json()).catch(() => null).then((d) => {
       if (!weg) setHulp({ pad, titel: d?.titel ?? "Hulp", html: d?.html ?? `<p>${d?.fout ?? "De uitleg kon niet geladen worden."}</p>` });
     });
     return () => { weg = true; };
