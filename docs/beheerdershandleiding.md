@@ -214,7 +214,7 @@ Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "A
 
 Bij Verspreid toont het tabblad **Items** een geel adviesblok. Het rekent met de lengte van het rondje, het aantal teams en of respawn aan staat, en zet naast elk soort item hoeveel er nu liggen (groen = goed, oranje = te weinig, rood = te veel).
 
-De lijst op het tabblad **🎁 Items** is per soort gegroepeerd (ster, bom, spook, …) met het aantal erachter. Tik op een soort om de items open of dicht te klappen; kies je een item op de kaart, dan klapt de soort vanzelf open. Items kun je overal neerzetten waar je op de kaart tikt, ook op een weg, stoep of parkeerterrein.
+De lijst op het tabblad **🎁 Items** is per soort gegroepeerd (ster, bom, spook, …) met het aantal erachter. Tik op een soort om de items open of dicht te klappen; kies je een item op de kaart, dan klapt de soort vanzelf open. Een item komt vanzelf op het dichtstbijzijnde stuk waar je kunt lopen (weg, stoep, voetpad of parkeerterrein), binnen 60 m van waar je tikt of sleept; zo ligt het nooit in een tuin of tussen huizen. Items die eerder naast de weg zijn gezet: tik onder de lijst op **🛣️ Alle items op de weg**.
 
 - **Afstand** — ongeveer elke 300 m iets om op te pakken, zodat elk team onderweg regelmatig iets tegenkomt.
 - **Speeltijd** — ongeveer één item per 6 minuten speeltijd (de geschatte tijd uit het paneel op de kaart), zodat een lang spel spannend blijft.

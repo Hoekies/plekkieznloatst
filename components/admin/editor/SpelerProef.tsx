@@ -111,7 +111,7 @@ export default function SpelerProef({ route, punten, items, proef, vraagIds, onB
         {/* Puntenbalk zoals bij de speler */}
         <div className="proef-hud">
           <span className="pr-hud-gem pr-hud-gem--purple"><span className="pr-hud-icoon">🗺️</span><span className="pr-hud-getal">{(proef.gelopenM / 1000).toFixed(2)}</span></span>
-          <span className="pr-hud-gem pr-hud-gem--orange"><span className="pr-hud-icoon">⭐</span><span className="pr-hud-getal">{score}</span></span>
+          <span className={`pr-hud-gem ${score < 0 ? "pr-hud-gem--min" : "pr-hud-gem--orange"}`}><span className="pr-hud-icoon">⭐</span><span className="pr-hud-getal">{score}</span></span>
         </div>
         {puzzel && (
           <div className="puzzel-balk">🧩 <div className="puzzel-tegels">{puzzel.map((l, i) => <span key={i} className={`puzzel-tegel${l ? " puzzel-tegel--open" : ""}`}>{l ?? ""}</span>)}</div></div>
@@ -131,7 +131,8 @@ export default function SpelerProef({ route, punten, items, proef, vraagIds, onB
             proef={{ haalVraag: () => haalVraag(popup), beoordeel }}
             onVerwerkt={(v) => {
               setVoortgang((l) => [...l, v]);
-              setScore((s) => Math.max(0, s + (v.points_awarded || (v.is_correct === null && !vraagIds.has(popup.id) ? popup.points : 0))));
+              // Minpunten tellen ook hier: de score mag onder 0 (net als in het echte spel)
+              setScore((s) => s + (v.points_awarded || (v.is_correct === null && !vraagIds.has(popup.id) ? popup.points : 0)));
               if (popup.type === "eindpunt") setKlaar(true);
               setPopup(null);
             }} />

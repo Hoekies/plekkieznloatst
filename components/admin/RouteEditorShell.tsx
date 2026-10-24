@@ -865,6 +865,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     toonMelding(`${lijst.length} items geplaatst langs de route. Terugzetten kan met ↶ Ongedaan.`, "ok");
   }
 
+  // 🛣️ Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad leggen
+  const [opWegBezig, setOpWegBezig] = useState(false);
+  async function itemsOpDeWeg() {
+    setOpWegBezig(true);
+    const res = await api(`/api/admin/routes/${route.id}/speciaal`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ opDeWeg: true }) });
+    const d = await res.json().catch(() => null);
+    setOpWegBezig(false);
+    if (!res.ok || !d) { toonMelding(d?.fout ?? "Items op de weg zetten lukte niet", "fout"); return; }
+    setSpecialeItems(d.items);
+    setGeselecteerdSpeciaal(null);
+    toonMelding(d.verplaatst ? `${d.verplaatst} item${d.verplaatst === 1 ? "" : "s"} op de weg gezet` : "Alle items lagen al op de weg", "ok");
+  }
+
   // Op volgorde: de finish achteraan (staat er al een, dan die verplaatsen)
   async function voegFinishToe(lat: number, lng: number) {
     const laatste = punten[punten.length - 1];
@@ -1890,7 +1903,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   👆 <strong>Klik op de kaart</strong> en kies 🎁 Item om een item te plaatsen.
                 </p>
               ) : (
-                <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
+                <>
+                  <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
+                  <button type="button" className="rl-knop" style={{ margin: "8px 10px" }} disabled={opWegBezig} onClick={itemsOpDeWeg}
+                    title="Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad, de stoep of de weg leggen">
+                    {opWegBezig ? "⏳ Bezig…" : "🛣️ Alle items op de weg"}
+                  </button>
+                </>
               )
             )}
 
