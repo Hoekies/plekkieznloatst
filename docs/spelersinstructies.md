@@ -60,7 +60,7 @@ Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste tea
 Bij de uitslag komen de nummers 3, 2 en 1 op het podium. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
 
 **Puzzelwoord en tijdslimiet**
-Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes 🧩. Elke goed beantwoorde vraag geeft een letter. Bij de finish krijg je punten voor elke gevonden letter, en een bonus als je alle letters hebt. Mis je letters? Maak het woord dan zelf af voor extra punten: direct na de finish, binnen 1 minuut, en je hebt één poging. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
+Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes. Tik op 🧩 voor de uitleg en de punten (en een hint, als die er is); de uitleg staat ook in het welkomstscherm bij de start. Elke goed beantwoorde vraag geeft een letter. Bij de finish krijg je punten voor elke gevonden letter, en een bonus als je alle letters hebt. Mis je letters? Maak het woord dan zelf af voor extra punten: direct na de finish, binnen 1 minuut, en je hebt één poging. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
 
 **Verboden gebied**
 Rode vlakken op de kaart zijn verboden gebieden (bijvoorbeeld een drukke weg). Loop je erin, dan trilt je telefoon en krijg je een melding: loop terug.
@@ -75,7 +75,10 @@ Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftel
 Zet de organisatie het spel even stil (bijvoorbeeld bij onweer of voor de lunch), dan zie je een groot scherm **⏸️ Even pauze**. Blijf waar je bent; zodra het verder gaat, verdwijnt het vanzelf. De eindtijd loopt tijdens de pauze niet door.
 
 **Berichten**
-De organisatie kan een bericht sturen aan alle teams, of alleen aan jullie team. Het verschijnt vanzelf groot in beeld.
+De organisatie kan een bericht sturen aan alle teams, of alleen aan jullie team. Het verschijnt vanzelf groot in beeld. Geeft de organisatie jullie punten erbij of eraf, dan zie je het aantal groot (goud erbij, rood eraf) met de reden eronder.
+
+**Minpunten**
+Een bom, een vraagteken met pech of een fout antwoord met minpunten kost altijd punten, ook als jullie daardoor onder 0 komen. Staan jullie in de min, dan kleurt het puntenvlak bovenin rood.
 
 **Batterij**
 De app gebruikt continu GPS. Zorg dat je telefoon voldoende geladen is, of neem een powerbank mee.

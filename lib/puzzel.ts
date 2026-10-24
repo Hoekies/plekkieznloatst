@@ -35,3 +35,9 @@ export function puzzelStand(woord: string, sessieId: string, goed: number, opgel
   const open = new Set(opgelost ? w.split("").map((_, i) => i) : puzzelVolgorde(sessieId, w.length, opVolgorde).slice(0, goed));
   return { lengte: w.length, letters: w.split("").map((l, i) => (open.has(i) ? l : null)), opgelost, bonus, omschrijving };
 }
+
+// 🧩 Uitleg voor de speler (bij de start en achter het 🧩 boven de kaart), met de punten van deze route
+export function puzzelUitleg(p: { letterPunten: number; alleBonus: number; raadBonus: number }): string {
+  return `🧩 Puzzelwoord: elke goede vraag geeft een letter (+${p.letterPunten} per letter). Alle letters gevonden: +${p.alleBonus}. ` +
+    `Niet alles? Bij de finish heb je ${RAAD_SECONDEN / 60} minuut om het woord af te maken: +${p.raadBonus}.`;
+}

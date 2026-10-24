@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PuzzelStand } from "@/lib/puzzel";
+import { puzzelUitleg, type PuzzelStand } from "@/lib/puzzel";
 import { strooiConfetti } from "@/lib/confetti";
 
 // Na de finish ook: hoeveel letters gevonden, en de punten per letter en voor het afmaken
@@ -17,6 +17,8 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
   const [bezig, setBezig] = useState(false);
   const [melding, setMelding] = useState<string | null>(null);
   const [nu, setNu] = useState(() => Date.now());
+  // Uitleg onder de balk: open na een tik op 🧩
+  const [uitleg, setUitleg] = useState(false);
 
   useEffect(() => {
     fetch("/api/speler/puzzel").then((r) => (r.ok ? r.json() : null)).then((d) => setStand(d?.actief ? d : null)).catch(() => {});
@@ -59,9 +61,18 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
 
   if (!raden) {
     return (
-      <div className="puzzel-balk" title="Puzzelwoord: elke goede vraag geeft een letter">
-        🧩 {tegels}
-      </div>
+      <>
+        <div className="puzzel-balk">
+          <button type="button" className="puzzel-info" onClick={() => setUitleg((u) => !u)} aria-expanded={uitleg} aria-label="Wat is het puzzelwoord?">🧩</button>
+          {tegels}
+        </div>
+        {uitleg && (
+          <div className="puzzel-uitleg" onClick={() => setUitleg(false)}>
+            <span>{puzzelUitleg({ letterPunten: stand.letter_punten ?? 0, alleBonus: stand.bonus, raadBonus: stand.raad_bonus ?? 0 })}</span>
+            {stand.omschrijving && <span className="puzzel-uitleg-hint">💡 {stand.omschrijving}</span>}
+          </div>
+        )}
+      </>
     );
   }
   // Bij de finish: punten per gevonden letter; alles gevonden = bonus; anders het woord zelf afmaken

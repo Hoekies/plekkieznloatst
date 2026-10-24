@@ -1445,6 +1445,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .info-kaart { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--text); font-size: 0.74rem; font-weight: 600; text-align: center; }
 .info-kaart img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18); }
 .info-kaart:hover img { border-color: #FFE680; }
+.info-kaart-vak { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.info-kaart-print { height: 30px; padding: 0 6px; font-size: 0.74rem; justify-content: center; }
 /* Ko-fi-knop in het ℹ️-venster: gecentreerd */
 .info-kofi { display: block; text-align: center; }
 /* ☕ Ko-fi-knop: compact, paars met goudrand zoals de rest van de app */
@@ -3321,3 +3323,9 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
   font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; line-height: 1.35; color: #fff; overflow-wrap: anywhere; }
 .seizoen-volgorde { display: inline-flex; gap: 6px; margin-left: auto; }
+/* 🧩 boven de kaart: tikbaar, met uitleg eronder */
+.puzzel-info { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,217,59,0.5); background: rgba(255,217,59,0.15);
+  font-size: 1.05rem; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.puzzel-uitleg { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; flex-shrink: 0; background: rgba(42,21,102,0.85);
+  border-bottom: 1px solid rgba(255,217,59,0.35); color: #fff; font-size: 0.86rem; font-weight: 600; line-height: 1.45; cursor: pointer; }
+.puzzel-uitleg-hint { color: #FFE58A; font-weight: 700; }

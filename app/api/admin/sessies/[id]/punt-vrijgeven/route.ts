@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
+import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 
 // Geeft het volgende punt van een team vrij alsof ze het bereikt hebben: bij het team
 // springt de vraag van dat punt open, waar ze ook zijn.
@@ -12,7 +13,7 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
   const admin = createAdminClient();
   const { data: sessie } = await admin
     .from("player_sessions")
-    .select("id, route_id")
+    .select("id, route_id, player_id")
     .eq("id", params.id)
     .eq("status", "actief")
     .maybeSingle();
@@ -38,6 +39,9 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
     if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
     await admin.from("player_sessions").update({ current_point_id: punt.id }).eq("id", sessie.id);
   }
+
+  // Signaal aan de app van het team: open de vraag nu (ook als het punt al bereikt was, zoals de start)
+  await admin.from("broadcasts").insert({ bericht: VRIJGAVE_BERICHT, player_id: sessie.player_id });
 
   await admin
     .from("hulpverzoeken")

@@ -28,7 +28,7 @@ Alle teams **starten en finishen op dezelfde plek** 🏠 — de verzamelplek van
 
 Jullie route bestaat uit drie stukken:
 
-1. **🚩 Startpunt** — de verzamelplek waar iedereen begint. Daar krijg je een korte uitleg van het spel. Tik op **🚀 Op pad!** en loop 25 meter de kant op die de pijl ➤ aanwijst: dan krijg je je eerste vraag.
+1. **🚩 Startpunt** — de verzamelplek waar iedereen begint. Daar krijg je een korte uitleg van het spel. Tik op **🚀 Op pad!** en loop 25 meter langs de **oranje stippellijn** op de kaart: dan krijg je je eerste vraag.
 2. **Jullie eigen rondje** — daarna loop je naar jullie eigen instappunt in het rondje, zo ver mogelijk van de andere teams, en loop je het rondje rond.
 3. **🏁 Finish** — heb je alle punten van het rondje gehad, dan verschijnt als laatste de finish, op dezelfde plek als de start. Daar is het spel voor jullie afgerond.
 

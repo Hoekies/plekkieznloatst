@@ -14,6 +14,8 @@ import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
+import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
+import { puzzelUitleg } from "@/lib/puzzel";
 
 // Na het welkomstscherm op het startpunt: zoveel meter lopen voordat de startvraag komt
 const STARTVRAAG_NA_METER = 25;
@@ -53,6 +55,8 @@ interface Props {
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
   // 🌈 Vaste teamkleur: rand onder de puntenbalk en ring om je eigen icoon op de kaart
   teamKleur?: string | null;
+  // 🧩 Puzzelwoord van de route (punten), of null: dan geen uitleg erover bij de start
+  puzzel?: { letterPunten: number; alleBonus: number; raadBonus: number } | null;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -92,7 +96,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -193,18 +197,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const spelAfgelopen = verwerktIds.size >= punten.length;
   // Voor de check of de organisatie het punt heeft vrijgegeven (die draait in een timer en zou
   // anders de waarden van het begin blijven zien)
-  const vrijgaveRef = useRef({ puntId: null as string | null, bereikt: false, popup: false });
+  const vrijgaveRef = useRef({ puntId: null as string | null, bereikt: false, popup: false, start: false });
   // Laatst gezien "vernieuwen"-tijdstip van de beheerder (undefined = nog niet opgehaald)
   const vernieuwRef = useRef<string | null | undefined>(undefined);
   vrijgaveRef.current = {
     puntId: activePunt?.id ?? null,
     bereikt: !!activePunt && (bereiktIds.has(activePunt.id) || verwerktIds.has(activePunt.id)),
     popup: !!popupPunt,
+    start: false,  // hieronder ingevuld, zodra het startpunt bekend is
   };
 
   // Verspreid: het eerste punt is het startpunt (start en finish op dezelfde plek)
   const startPunt = modus === "verspreid" && punten.length >= 3 ? punten[0] : null;
   const wachtOpStartVraag = startVraagVanaf !== null;
+  // Vrijgeven op de start: de vraag van het startpunt komt dan meteen (zonder de 25 meter)
+  vrijgaveRef.current.start = !!startPunt && activePunt?.id === startPunt.id && !startVraagKlaar;
   // Richting voor de eerste meters: het punt na de start. Alleen meters díe kant op tellen;
   // zonder GPS-plek of volgend punt telt gewoon elke gelopen meter.
   const richtPunt = startPunt ? punten[1] ?? null : null;
@@ -530,14 +537,35 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     const sleutel = `pr_berichten_gezien_${sessie.id}`;
     let gezien: string[] = [];
     try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
-    const nieuw = berichten.filter((b) => !gezien.includes(b.id));
+    const alleNieuw = berichten.filter((b) => !gezien.includes(b.id));
+    if (alleNieuw.length === 0) return;
+    try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...alleNieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
+    // ⏭️ Punt vrijgegeven door de organisatie: geen bericht tonen, maar de vraag openen
+    if (alleNieuw.some((b) => b.bericht === VRIJGAVE_BERICHT)) verwerkVrijgave();
+    const nieuw = alleNieuw.filter((b) => b.bericht !== VRIJGAVE_BERICHT);
     if (nieuw.length === 0) return;
-    try { localStorage.setItem(sleutel, JSON.stringify([...gezien, ...nieuw.map((b) => b.id)])); } catch { /* geen opslag */ }
     const laatste = nieuw[nieuw.length - 1];
     if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
     setEffectNotificatie(`📢 ${laatste.bericht}`);
     speelDong();
     navigator.vibrate?.([200, 100, 200]);
+  }
+
+  // De organisatie gaf ons volgende punt vrij: de vraag meteen openen. Op de start vervalt het wachten
+  // op de eerste 25 meter. Was het punt nog niet bereikt, dan zet de server het als bereikt en opent
+  // herladen de vraag (zie hierboven, current_point_id).
+  function verwerkVrijgave() {
+    const v = vrijgaveRef.current;
+    if (!v.puntId || bezigRef.current) return;
+    // Op de start: niet meer wachten op 25 meter. Staat het welkomstscherm nog open, dan toont dat nu de vraag.
+    if (v.start) { setStartVraagVanaf(null); setStartVraagAfstand(null); setStartVraagKlaar(true); }
+    else if (!v.bereikt) return;
+    if (v.popup) return;
+    const punt = punten.find((p) => p.id === v.puntId);
+    if (!punt) return;
+    setVrijgegevenMelding("organisatie");
+    speelPuntBereikt(); tril(TRIL.puntBereikt);
+    setPopupPunt(punt);
   }
 
   async function haalHulpOp() {
@@ -1207,7 +1235,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           punt={popupPunt}
           onVerwerkt={puntVerwerkt}
           start={startPunt && popupPunt.id === startPunt.id ? (startVraagKlaar ? "vraag" : "uitleg") : undefined}
-          startUitleg={{ regels: SPELUITLEG[modus], ...START_AFSLUITING }}
+          startUitleg={{ regels: puzzel ? [...SPELUITLEG[modus], puzzelUitleg(puzzel)] : SPELUITLEG[modus], ...START_AFSLUITING }}
           onStartVraagLater={() => { setPopupPunt(null); setStartVraagVanaf(kmAfgelegdRef.current); }}
         />
       )}
@@ -1230,6 +1258,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {/* Speciale items legende */}
       {legendeOpen && (
         <SpeciaalItemLegende
+          extraUitleg={puzzel ? [puzzelUitleg(puzzel)] : []}
           onSluit={() => setLegendeOpen(false)}
           speciaalItems={legendeItems}
           modus={modus}

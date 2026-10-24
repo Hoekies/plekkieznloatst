@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import SpelerKaart from "@/components/speler/SpelerKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
+import { puzzelRegels } from "@/lib/puzzel-server";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -87,6 +88,7 @@ export default async function SpelerKaartPage() {
       punten={punten}
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
+      puzzel={puzzelRegels(route)}
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}
       heleRoute={route.modus !== "verspreid" && (route as { alle_punten_zichtbaar?: boolean }).alle_punten_zichtbaar === true}

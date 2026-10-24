@@ -21,19 +21,19 @@ interface ItemInfo {
   beschrijving: (w: RouteWaarden) => string;
 }
 
-// Eén plek voor alle itemteksten, geschreven vanuit de speler.
+// Eén plek voor alle itemteksten, geschreven vanuit de speler: kort en in gewone woorden.
 // Volgorde = volgorde in de uitleg; plek zooi staat bewust onderaan.
 export const ITEM_INFO: Record<string, ItemInfo> = {
-  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (w) => `Je krijgt meteen ${w.ster} punten extra cadeau!` },
-  verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Je volgende vraag waarmee je punten verdient, telt dubbel." },
-  radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "Je ziet 2 minuten lang precies waar alle tegenstanders lopen." },
-  bom:          { emoji: "💣", naam: "Bom",          beschrijving: (w) => `Gooi hem naar een tegenstander: die verliest ${w.bom} punten.` },
-  spook:        { emoji: "👻", naam: "Spook",        beschrijving: (w) => `Stuur een spook naar een tegenstander: hun volgende punt verdwijnt ${duur(w.spookSec)} van de kaart en is zolang niet te halen.` },
-  dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Stuur een dief naar een tegenstander: hij steelt meteen de punten van een goede vraag van hen en geeft ze aan jullie." },
-  banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Gooi hem naar een tegenstander: hun volgende punt ruilt van plek met het punt daarna. Ze moeten eerst naar dat punt, dan terug, en dan verder." },
-  wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Ruil jullie score met die van een tegenstander naar keuze. Weet jij hoeveel punten zij hebben? 😳" },
-  vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Wordt meteen gespeeld als je hem oppakt. Een gok! Je krijgt ${w.ster * 2} punten (40%) of zelfs ${w.ster * 5} punten als jackpot (10%). Je kunt ook ${w.ster} punten verliezen (20%) of 200 punten (10%). Of elke tegenstander krijgt er willekeurig ${w.ster} punten bij of af (20%).` },
-  plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val op de kaart. Loop je erover, dan sta je ${duur(w.plekzooiSec)} stil: je kaart verdwijnt en er loopt een afteltimer. Elke val raakt jullie maar één keer.` },
+  ster:         { emoji: "⭐", naam: "Ster",         beschrijving: (w) => `Meteen ${w.ster} punten erbij!` },
+  verdubbeling: { emoji: "🔴", naam: "Verdubbeling", beschrijving: () => "Je volgende goede antwoord telt dubbel." },
+  radar:        { emoji: "📡", naam: "Radar",        beschrijving: () => "2 minuten lang zie je waar de andere teams lopen." },
+  bom:          { emoji: "💣", naam: "Bom",          beschrijving: (w) => `Gooi hem naar een ander team: zij verliezen ${w.bom} punten.` },
+  spook:        { emoji: "👻", naam: "Spook",        beschrijving: (w) => `Stuur hem naar een ander team: hun volgende punt is ${duur(w.spookSec)} weg van de kaart.` },
+  dief:         { emoji: "🦹", naam: "Dief",         beschrijving: () => "Stuur hem naar een ander team: je pikt de punten van een goed antwoord van hen in." },
+  banaan:       { emoji: "🍌", naam: "Banaan",       beschrijving: () => "Gooi hem naar een ander team: hun volgende twee punten wisselen van plek. Zij lopen dus om." },
+  wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Jullie ruilen je score met een ander team. Weet jij wie meer punten heeft? 😳" },
+  vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Werkt meteen als je hem pakt. Een gok: je kunt ${w.ster * 2} of zelfs ${w.ster * 5} punten winnen, maar ook punten kwijtraken.` },
+  plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val. Loop je erin, dan sta je ${duur(w.plekzooiSec)} stil.` },
 };
 
 // Naam en emoji van een itemtype (onbekend: het type zelf)
@@ -42,16 +42,18 @@ export const itemEmoji = (type: string) => ITEM_INFO[type]?.emoji ?? "❓";
 
 // Korte speluitleg bovenaan het info-venster, per speltype
 export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
-  // Kort en in één oogopslag: lopen → vraag → volgend punt, en wat je met items doet
+  // Kort en in gewone woorden: lopen → vraag → volgend punt, en wat je met items doet
   sequentieel: [
-    "Loop naar het punt op de kaart. Ben je er, dan krijg je een vraag: goed = punten.",
-    "Daarna verschijnt het volgende punt. Het team met de meeste punten wint.",
-    "Items komen in je balk onderin. Zet ze in om andere teams te saboteren of jezelf te helpen. Pas op voor onzichtbare plek zooi!",
+    "Loop naar het blauwe punt op de kaart.",
+    "Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
+    "Daarna zie je het volgende punt. Het team met de meeste punten wint.",
+    "Items staan onderin: tik erop om ze te gebruiken. Pas op voor onzichtbare vallen!",
   ],
   verspreid: [
-    "Loop naar het punt op de kaart. Ben je er, dan krijg je een vraag: goed = punten.",
-    "Daarna verschijnt het volgende punt. Het team met de meeste punten wint.",
-    "Loop over items op de kaart om ze op te pakken. Ze komen in je balk onderin: zet ze in om andere teams te saboteren of jezelf te helpen.",
+    "Loop naar het blauwe punt op de kaart.",
+    "Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
+    "Daarna zie je het volgende punt. Het team met de meeste punten wint.",
+    "Loop over een item op de kaart om het te pakken. Het komt onderin: tik erop om het te gebruiken.",
   ],
 };
 
@@ -68,9 +70,11 @@ interface Props {
   waarden: RouteWaarden;
   // Scherm aan laten (alleen als de browser het kan)
   schermAan?: { aan: boolean; kan: boolean; wissel: () => void };
+  // Extra uitleg bij "Het spel" voor deze route (bijv. het puzzelwoord)
+  extraUitleg?: string[];
 }
 
-export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden, schermAan }: Props) {
+export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden, schermAan, extraUitleg = [] }: Props) {
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
@@ -155,7 +159,7 @@ export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waa
             onTik={() => wissel("spel")}
           >
             <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
-              {SPELUITLEG[modus].map((zin) => <li key={zin}>{zin}</li>)}
+              {[...SPELUITLEG[modus], ...extraUitleg].map((zin) => <li key={zin}>{zin}</li>)}
             </ul>
           </Regel>
 
@@ -213,15 +217,15 @@ const rondje = (kleur: string, teken: string, puls = false) => (
     display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: puls ? "0 0 0 3px rgba(30,64,175,0.45)" : "none" }}>{teken}</span>
 );
 const LEGENDA: [React.ReactNode, string][] = [
-  [rondje("#1E40AF", "?", true), "Jullie volgende punt: hier krijg je een vraag"],
-  [rondje("#1E40AF", "i", true), "Volgende punt met informatie"],
-  [rondje("#1E40AF", "•", true), "Volgende punt om gewoon langs te lopen"],
-  [rondje("#F59E0B", "!"), "Punt bereikt: rond het af"],
-  [rondje("#16A34A", "✓"), "Punt gehaald"],
-  [rondje("#7C3AED", "?"), "Later punt (als de hele route zichtbaar is)"],
-  [<span key="b" style={{ width: 12, height: 12, borderRadius: "50%", background: "#7C3AED", border: "2px solid #fff", display: "inline-block" }} />, "Punt om langs te lopen, zonder scherm"],
+  [rondje("#1E40AF", "?", true), "Hier moet je heen: je krijgt een vraag"],
+  [rondje("#1E40AF", "i", true), "Hier moet je heen: je leest iets"],
+  [rondje("#1E40AF", "•", true), "Hier moet je heen: alleen even langslopen"],
+  [rondje("#F59E0B", "!"), "Je bent er: beantwoord de vraag"],
+  [rondje("#16A34A", "✓"), "Klaar: dit punt heb je gehad"],
+  [rondje("#7C3AED", "?"), "Een punt dat later komt"],
+  [<span key="b" style={{ width: 12, height: 12, borderRadius: "50%", background: "#7C3AED", border: "2px solid #fff", display: "inline-block" }} />, "Hier loop je langs, je hoeft niets te doen"],
   [<span key="f" style={{ fontSize: 18 }}>🏁</span>, "De finish"],
-  [<span key="t" style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "3px solid #F97316", display: "inline-block" }} />, "Een ander team (dichtbij, of met een radar)"],
+  [<span key="t" style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "3px solid #F97316", display: "inline-block" }} />, "Een ander team"],
 ];
 
 // Eén inklapbare regel: icoon + titel, uitleg verschijnt na aantikken

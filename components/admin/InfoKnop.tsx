@@ -8,11 +8,27 @@ import { useSluitMetEsc } from "@/components/shared/Venster";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
+// papier = formaat bij 🖨️ Printen
 const KAARTEN = [
-  { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp" },
-  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp" },
-  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp" },
+  { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp", papier: "A5" },
+  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp", papier: "A4" },
+  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A4" },
 ];
+
+// 🖨️ Kaart printen: een eigen venster met alleen de kaart, staand op het juiste papier, zonder marges;
+// de kaart past zo groot mogelijk op het vel. Printen start zodra het plaatje geladen is.
+function printKaart(src: string, titel: string, papier: string) {
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(`<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${titel}</title>
+<style>@page { size: ${papier} portrait; margin: 0; } html, body { margin: 0; height: 100%; background: #fff; }
+body { display: flex; align-items: center; justify-content: center; } img { max-width: 100%; max-height: 100vh; object-fit: contain; }</style>
+</head><body><img src="${new URL(src, window.location.origin).href}" alt=""></body></html>`);
+  w.document.close();
+  const img = w.document.querySelector("img");
+  const print = () => { w.focus(); w.print(); };
+  if (img?.complete) print(); else img?.addEventListener("load", print);
+}
 
 export default function InfoKnop() {
   const [open, setOpen] = useState(false);
@@ -43,13 +59,25 @@ export default function InfoKnop() {
             <div className="info-kop">🃏 Instructiekaarten</div>
             <div className="info-kaarten">
               {KAARTEN.map((k) => (
-                <a key={k.src} href={k.src} target="_blank" rel="noopener noreferrer" className="info-kaart" title={`${k.titel} — openen om te bekijken of op te slaan`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={k.klein} alt={k.titel} loading="lazy" />
-                  <span>{k.titel}</span>
-                </a>
+                <div key={k.src} className="info-kaart-vak">
+                  <a href={k.src} target="_blank" rel="noopener noreferrer" className="info-kaart" title={`${k.titel} — openen om te bekijken of op te slaan`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={k.klein} alt={k.titel} loading="lazy" />
+                    <span>{k.titel}</span>
+                  </a>
+                  <button type="button" className="rl-knop info-kaart-print" onClick={() => printKaart(k.src, k.titel, k.papier)} title={`Printen op ${k.papier}`}>🖨️ Printen</button>
+                </div>
               ))}
             </div>
+
+            {/* Reserve: dezelfde spelerskaart als pagina, altijd gelijk aan de uitleg in de app (A5, dubbel te vouwen) */}
+            <a href="/admin/instructiekaart" className="info-regel" onClick={() => setOpen(false)}>
+              <span style={{ fontSize: "1.6rem" }}>🃏</span>
+              <span>
+                <strong>Spelerskaart om te printen</strong>
+                <span className="info-sub">A5, dubbel te vouwen; altijd gelijk aan de uitleg in de app</span>
+              </span>
+            </a>
 
             <div className="info-kofi"><KoFiKnop /></div>
             <VersieRegel />
