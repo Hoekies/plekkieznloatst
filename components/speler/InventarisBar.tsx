@@ -31,8 +31,9 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
 
   const slots = [...groepen.entries()];
 
-  // Zonder eigen balk: de knoppen zweven onderin over de kaart, zodat de kaart de hele hoogte houdt.
-  // Tussen de knoppen door blijft de kaart te verschuiven (pointerEvents).
+  // Smalle balk onderaan in de achtergrondkleur van de app (--bg): in Safari loopt hij naadloos over in de
+  // onderbalk van de browser, die iOS in dezelfde kleur kleurt. De knoppen staan half op de balk, half
+  // op de kaart, zodat de kaart zo veel mogelijk ruimte houdt.
   return (
     <div style={{
       position: "absolute",
@@ -40,13 +41,20 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
       left: 0,
       right: 0,
       zIndex: 800,
-      pointerEvents: "none",
-      padding: "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 10,
+      height: "calc(27px + env(safe-area-inset-bottom, 0px))",
+      background: "var(--bg)",
     }}>
+      <div style={{
+        position: "absolute",
+        top: 0,
+        left: 12,
+        right: 12,
+        transform: "translateY(-50%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+      }}>
       {slots.map(([type, items]) => {
         const stijl = ITEM_STIJL[type] ?? { kleur: "#555", emoji: "?", label: type };
         const count = items.length;
@@ -57,7 +65,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
             onClick={() => onGebruik(items[0])}
             title={`${stijl.label} gebruiken`}
             className="pr-hud-slot2"
-            style={{ pointerEvents: "auto", background: `linear-gradient(180deg, ${stijl.kleur}ee, ${stijl.kleur}88 48%, ${stijl.kleur}cc 50%, ${stijl.kleur} 100%)` }}
+            style={{ background: `linear-gradient(180deg, ${stijl.kleur}ee, ${stijl.kleur}88 48%, ${stijl.kleur}cc 50%, ${stijl.kleur} 100%)` }}
           >
             {stijl.emoji}
             {count > 1 && (
@@ -66,6 +74,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

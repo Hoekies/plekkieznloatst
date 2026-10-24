@@ -253,8 +253,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kmAfgelegd, startVraagVanaf, positie]);
 
-  // Itemknoppen zweven onderin het midden; pas bij meer dan 3 soorten raken ze de hoekknoppen, die gaan dan omhoog
-  const knoepBottomOffset = new Set(inventaris.map((i) => i.type)).size > 3 ? 92 : 28;
+  // Itemknoppen staan onderin het midden, half op de smalle balk: de hoekknoppen staan net boven die balk,
+  // en pas bij meer dan 3 soorten (dan raken ze de hoekknoppen) helemaal boven de itemknoppen
+  const soortenItems = new Set(inventaris.map((i) => i.type)).size;
+  const knoepBottomOffset = soortenItems > 3 ? 70 : soortenItems > 0 ? 38 : 28;
 
   useEffect(() => {
     if (bereiktIds.size > 0 && activePunt && bereiktIds.has(activePunt.id) && !popupPunt) {
