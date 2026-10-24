@@ -68,7 +68,8 @@ export default function BevestigKnop({
               <button type="button" className="editor-paneel-sluit venster-sluit" disabled={bezig} onClick={() => setVragen(false)} title="Annuleren" aria-label="Annuleren">✕</button>
               {/* Compact: icoon, titel (de vraag) en één knop; annuleren met het kruisje */}
               <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "18px 44px 14px" }}>
-                {icoon && <div style={{ fontSize: "2rem", lineHeight: 1 }}>{icoon}</div>}
+                {/* Icoon in een rondje: rood bij iets dat niet terug kan, anders cyaan */}
+                {icoon && <div className={`bevestig-icoon${gevaarlijk ? " bevestig-icoon--rood" : ""}`} aria-hidden>{icoon}</div>}
                 {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.3 }}>{titel}</div>}
                 {uitleg && <div style={{ fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.4 }}>{uitleg}</div>}
                 <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>

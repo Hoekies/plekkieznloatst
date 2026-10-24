@@ -11,6 +11,7 @@ import StatStrook from "@/components/admin/StatStrook";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 
 type Data = {
   route: { id: string; name: string; huis_logo?: string | null } | null;
@@ -133,12 +134,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       {/* Eén rij: weergave links, uitslag, Excel en rapport rechts */}
       <div className="actie-rij antw-balk">
         {data.teams.length > 0 && (
-          <div className="punten-snel antw-tabs">
-            <button type="button" className={`rl-knop${weergave === "team" ? " rl-knop--cyan" : ""}`} onClick={() => setWeergave("team")}>👫 Per team</button>
-            <button type="button" className={`rl-knop${weergave === "vraag" ? " rl-knop--cyan" : ""}`} onClick={() => setWeergave("vraag")}>📊 Per vraag</button>
+          <div className="segment antw-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected={weergave === "team"} className={weergave === "team" ? "aan" : ""} onClick={() => setWeergave("team")}>👫 Per team</button>
+            <button type="button" role="tab" aria-selected={weergave === "vraag"} className={weergave === "vraag" ? "aan" : ""} onClick={() => setWeergave("vraag")}>📊 Per vraag</button>
             {heeftFotos && (
-              <button type="button" className={`rl-knop${weergave === "fotos" ? " rl-knop--cyan" : ""}`} onClick={() => setWeergave("fotos")}>
-                📸 Foto&apos;s{data.wachtende_fotos ? ` (${data.wachtende_fotos})` : ""}
+              <button type="button" role="tab" aria-selected={weergave === "fotos"} className={weergave === "fotos" ? "aan" : ""} onClick={() => setWeergave("fotos")}>
+                📸 Foto&apos;s{data.wachtende_fotos ? <span className="antw-tab-teller">{data.wachtende_fotos}</span> : null}
               </button>
             )}
           </div>
@@ -234,9 +235,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
                   </span>}
             </span>
             {/* Vaste breedtes, zodat status, punten en pijl bij alle teams onder elkaar staan */}
-            <span className={`pr-gem-chip antw-status ${team.status === "voltooid" ? "pr-gem-chip--green" : "pr-gem-chip--cyan"}`}>
-              {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
-            </span>
+            <span className="antw-status"><StatusLabel status={teamStatus(team.status)} /></span>
             <span className={`antw-score${team.score < 0 ? " score-min" : ""}`}>{team.score} pt</span>
           </button>
           {open && rijen.length > 0 && (
@@ -313,7 +312,7 @@ function AntwoordRegel({ rij: r, bezig, onGoedkeuren, onFoto }: {
 // Klein voorbeeld van de foto; tik voor groot
 function FotoMini({ pad }: { pad: string }) {
   const src = useFotoUrl(pad);
-  if (!src) return <div style={{ color: "var(--muted)", fontSize: "0.75rem", marginTop: 4 }}>Foto laden…</div>;
+  if (!src) return <div style={{ marginTop: 4, width: 120 }}><LaadBlokjes aantal={1} hoogte={90} /></div>;
   return (
     <a href={src} target="_blank" rel="noopener noreferrer">
       {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -351,7 +351,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 
             {vraag.type === "meerkeuze_afbeelding" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                {(vraag.answer_options ?? []).map((optie) => {
+                {/* Elk antwoord met een letter (A, B, C, D); het gekozen antwoord springt eruit, de rest wordt zachter */}
+                {(vraag.answer_options ?? []).map((optie, i) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -365,10 +366,17 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         cursor: "pointer",
                         background: KLEUR_RAND[optie.color],
                         padding: 0,
-                        display: "flex", flexDirection: "column",
-                        opacity: bezig && !isGekozen ? 0.5 : 1,
-                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.3)" : "none",
+                        display: "flex", flexDirection: "column", position: "relative",
+                        opacity: gekozenId && !isGekozen ? 0.4 : 1,
+                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.35), 0 0 22px rgba(255,255,255,0.45)" : "none",
                       }}>
+                      <span style={{
+                        position: "absolute", top: 6, left: 6, width: 28, height: 28, borderRadius: 9,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "0.9rem",
+                        background: isGekozen ? "#ffffff" : "rgba(0,0,0,0.55)", color: isGekozen ? "#1a0b3d" : "#ffffff",
+                        border: "2px solid rgba(255,255,255,0.7)",
+                      }}>{isGekozen ? "✓" : String.fromCharCode(65 + i)}</span>
                       {optie.image_path ? (
                         <img
                           src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${optie.image_path}`}
@@ -400,7 +408,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                 {(vraag.answer_options ?? []).length === 0 && (
                   <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
                 )}
-                {(vraag.answer_options ?? []).map((optie) => {
+                {/* Elk antwoord met een letter (A, B, C, D); het gekozen antwoord springt eruit, de rest wordt zachter */}
+                {(vraag.answer_options ?? []).map((optie, i) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -414,15 +423,19 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         border: `2.5px solid ${isGekozen ? "#ffffff" : "transparent"}`,
                         background: KLEUR_RAND[optie.color],
                         textAlign: "left",
-                        transition: "opacity 0.12s",
-                        opacity: bezig && !isGekozen ? 0.5 : 1,
-                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.3)" : "none",
+                        transition: "opacity 0.12s, transform 0.12s",
+                        opacity: gekozenId && !isGekozen ? 0.4 : 1,
+                        transform: isGekozen ? "scale(1.02)" : "none",
+                        boxShadow: isGekozen ? "0 0 0 3px rgba(0,0,0,0.35), 0 0 22px rgba(255,255,255,0.45)" : "0 3px 0 rgba(0,0,0,0.25)",
                       }}>
-                      <div style={{
-                        width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
-                        background: isGekozen ? "#ffffff" : "transparent",
-                        border: `2.5px solid rgba(255,255,255,0.7)`,
-                      }} />
+                      <span style={{
+                        width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1rem",
+                        background: isGekozen ? "#ffffff" : "rgba(0,0,0,0.22)",
+                        color: isGekozen ? "#1a0b3d" : "#ffffff",
+                        border: "2px solid rgba(255,255,255,0.7)",
+                      }}>{isGekozen ? "✓" : String.fromCharCode(65 + i)}</span>
                       <span style={{ fontSize: "1rem", fontWeight: 600, color: "#ffffff" }}>{optie.text}</span>
                     </button>
                   );

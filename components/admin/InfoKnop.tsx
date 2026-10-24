@@ -6,6 +6,7 @@ import VersieRegel from "@/components/admin/VersieRegel";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import { useSluitMetEsc } from "@/components/shared/Venster";
 import { metVersie } from "@/lib/versie";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
@@ -39,7 +40,7 @@ export default function InfoKnop() {
   return (
     <>
       <button type="button" className="admin-nav-link" onClick={() => setOpen(true)} title="Handleiding, instructiekaarten en Ko-fi">
-        <span aria-hidden>ℹ️</span> Info &amp; uitleg
+        <MenuIcoon naam="info" /> Info &amp; uitleg
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>

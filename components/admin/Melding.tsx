@@ -15,28 +15,30 @@ export function toonMelding(tekst: string, soort: Soort = "info") {
   luisteraars.forEach((l) => l(m));
 }
 
-const KLEUR: Record<Soort, string> = { info: "rgba(0,217,255,0.5)", ok: "rgba(34,197,94,0.6)", fout: "rgba(239,68,68,0.7)" };
+const ICOON: Record<Soort, string> = { info: "ℹ️", ok: "✅", fout: "⚠️" };
+const DUUR: Record<Soort, number> = { info: 4000, ok: 4000, fout: 7000 };
 
 export default function MeldingHouder() {
   const [meldingen, setMeldingen] = useState<Item[]>([]);
   useEffect(() => {
     const l = (m: Item) => {
       setMeldingen((lijst) => [...lijst.slice(-2), m]);
-      setTimeout(() => setMeldingen((lijst) => lijst.filter((x) => x.id !== m.id)), m.soort === "fout" ? 7000 : 4000);
+      setTimeout(() => setMeldingen((lijst) => lijst.filter((x) => x.id !== m.id)), DUUR[m.soort]);
     };
     luisteraars.add(l);
     return () => { luisteraars.delete(l); };
   }, []);
   if (!meldingen.length) return null;
+  // In de stijl van de app: icoon in een rondje, de tekst, en onderaan een balkje dat de resterende tijd laat zien.
+  // Tik om weg te halen.
   return (
-    <div style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", zIndex: 3000, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", pointerEvents: "none", maxWidth: "calc(100vw - 32px)" }}>
+    <div className="toast-houder" role="status" aria-live="polite">
       {meldingen.map((m) => (
-        <div key={m.id} onClick={() => setMeldingen((lijst) => lijst.filter((x) => x.id !== m.id))}
-          style={{
-            pointerEvents: "auto", cursor: "pointer", padding: "9px 16px", borderRadius: 12, fontSize: "0.85rem", fontWeight: 600, color: "#fff",
-            background: "rgba(42,21,102,0.96)", border: `1px solid ${KLEUR[m.soort]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-          }}>
-          {m.soort === "fout" ? "⚠️ " : m.soort === "ok" ? "✅ " : ""}{m.tekst}
+        <div key={m.id} className={`toast toast--${m.soort}`} title="Tik om te sluiten"
+          onClick={() => setMeldingen((lijst) => lijst.filter((x) => x.id !== m.id))}>
+          <span className="toast-icoon" aria-hidden>{ICOON[m.soort]}</span>
+          <span className="toast-tekst">{m.tekst}</span>
+          <i className="toast-tijd" style={{ animationDuration: `${DUUR[m.soort]}ms` }} aria-hidden />
         </div>
       ))}
     </div>

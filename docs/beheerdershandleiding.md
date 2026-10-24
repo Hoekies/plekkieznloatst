@@ -14,7 +14,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
 | 📡 **Live kaart** | Waar iedereen loopt |
 | 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
-| ⚙️ **Instellingen** (in- en uitklapbaar) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
+| ⚙️ **Instellingen** (klapt als paneel naar rechts uit) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
 | **Info & uitleg** | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
 Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt); vetgedrukte knopnamen met 👆 kun je aantikken, dan licht die knop op het scherm op.

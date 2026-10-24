@@ -5,6 +5,7 @@ import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { haversine } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import { VensterKop } from "@/components/shared/Venster";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 // "🧪 Testronde": de route punt voor punt doorlopen zonder naar buiten te gaan. De kaart vliegt
 // naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd),
@@ -64,7 +65,7 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
 
         {/* De vraag zoals de speler hem ziet, met het goede antwoord gemarkeerd */}
         <div className="testronde-vraag">
-          {vraag === undefined ? <span style={{ color: "var(--muted)" }}>Vraag laden…</span>
+          {vraag === undefined ? <LaadBlokjes aantal={2} hoogte={22} gap={8} />
             : !vraag ? <span style={{ color: punt.type === "vraagpunt" ? "#FCA5A5" : "var(--muted)" }}>{punt.type === "vraagpunt" ? "⚠️ Nog geen vraag bij dit punt" : "Geen vraag: het punt telt als bereikt."}</span>
             : (
               <>

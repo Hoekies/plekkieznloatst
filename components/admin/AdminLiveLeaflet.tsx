@@ -205,12 +205,13 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
             font-size:${gevolgd ? 22 : 17}px;font-weight:700;color:#fff;
           ">${label}</div>
           <div style="
-            background:rgba(0,0,0,0.7);color:#fff;
-            font-size:10px;white-space:nowrap;
-            padding:1px 5px;border-radius:4px;line-height:1.4;
+            background:${kleur};color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.65);
+            font-size:${gevolgd ? 12 : 10.5}px;font-weight:800;white-space:nowrap;
+            padding:${gevolgd ? "2px 8px" : "1px 6px"};border-radius:999px;line-height:1.4;
+            box-shadow:0 0 0 1.5px rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,0.4);
           ">${escapeHtml(speler.display_name)}</div>
         </div>`,
-        iconSize: [maat, maat + 18],
+        iconSize: [maat, maat + (gevolgd ? 22 : 20)],
         iconAnchor: [maat / 2, maat / 2],
       });
 

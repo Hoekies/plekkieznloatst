@@ -309,6 +309,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .form-textarea:focus {
   border-color: rgba(6,182,212,0.7);
   background: rgba(255,255,255,0.13);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,217,255,0.18), 0 0 14px rgba(0,217,255,0.15);
 }
 
 .btn-primary {
@@ -1092,6 +1094,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .pr-gem-chip--gray   { background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.25)); color: #B8AED6; }
 .pr-gem-chip--green  { background: linear-gradient(180deg, rgba(74,222,128,0.3), rgba(22,163,74,0.18)); border-color: rgba(34,197,94,0.4); color: #BBF7D0; }
 .pr-gem-chip--cyan   { background: linear-gradient(180deg, rgba(56,189,248,0.35), rgba(8,145,178,0.18)); border-color: rgba(0,217,255,0.4); color: #A5F3FC; }
+.pr-gem-chip--geel   { background: linear-gradient(180deg, rgba(251,191,36,0.3), rgba(217,119,6,0.18)); border-color: rgba(251,191,36,0.45); color: #FDE68A; }
+/* Statuslabel: altijd op één regel, even hoog */
+.status-label { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
 
 /* ── Premium knop v2: cyaan (Activeer e.d.) ── */
 .btn-premium--cyan {
@@ -1648,7 +1653,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Spelerkleur: ring om het icoon */
 .speler-ring { border-radius: 50%; box-shadow: 0 0 0 3px var(--speler-kleur, #A78BFA), 0 0 14px color-mix(in srgb, var(--speler-kleur, #A78BFA) 45%, transparent); background: rgba(255,255,255,0.05); }
 .speler-kaart-klik { cursor: pointer; }
-.speler-kaart-klik:hover { filter: brightness(1.08); }
+
 /* Spelleider: regels die aandacht vragen */
 .spelleider-regel { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border-radius: 10px; text-align: left;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid rgba(255,255,255,0.3);
@@ -2270,6 +2275,12 @@ button.route-stap:hover { color: var(--ink); }
 .sk-score { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: #FFE680; white-space: nowrap; min-width: 56px; text-align: right; }
 .speler-kaart-klik .sk-lijf { padding-left: 96px; }
 .speler-kaart-klik .sk-balk { height: 5px; margin: 0; }
+.sk-stippen { display: flex; gap: 3px; align-items: center; }
+.sk-stip { flex: 1; max-width: 22px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); }
+.sk-stip--vol { background: var(--speler-kleur, var(--cyan)); box-shadow: 0 0 6px color-mix(in srgb, var(--speler-kleur, var(--cyan)) 55%, transparent); }
+.sk-stip--nu { background: rgba(255,255,255,0.12); outline: 1px solid var(--speler-kleur, var(--cyan)); animation: sk-stip-nu 1.4s ease-in-out infinite; }
+@keyframes sk-stip-nu { 50% { background: color-mix(in srgb, var(--speler-kleur, var(--cyan)) 45%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .sk-stip--nu { animation: none; } }
 @media (max-width: 768px) {
   .speler-kaart-klik .sk-inner { padding: 8px 10px !important; }
   .speler-kaart-klik .sk-kop { gap: 8px; align-items: flex-start; }
@@ -2330,7 +2341,9 @@ button.route-stap:hover { color: var(--ink); }
 
 /* Antwoorden: strook ook op de pc (in plaats van tegels), knoppen en tabbladen op één rij */
 .antw-balk { margin-bottom: 0; }
-.antw-tabs { width: 300px; max-width: 100%; }
+.antw-tabs { width: 360px; max-width: 100%; }
+.segment.antw-tabs > button { padding: 8px 10px; font-size: 0.82rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.antw-tab-teller { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ff8a00; color: #1a0b3d; font-size: 0.7rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
 .antw-kaart { padding: 10px 14px !important; gap: 8px !important; }
 /* 🧩 Puzzelwoord op de spelerkaart (dashboard): gevonden letters goud, de rest vaag */
 .sk-puzzel { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-top: 8px; font-size: 0.8rem; }
@@ -2520,7 +2533,13 @@ button.route-stap:hover { color: var(--ink); }
 .podium-plek--1 .podium-teams { animation-delay: 1.9s; }
 @keyframes podium-op { to { transform: scaleY(1); } }
 @keyframes podium-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .podium-blok, .podium-teams { animation: none; transform: none; opacity: 1; } }
+/* Winnaar: na het omhoogkomen een gouden gloed en een huppel van het icoon */
+.podium-plek--1 .podium-blok { animation: podium-op 0.6s cubic-bezier(.2,1.4,.4,1) 1.5s forwards, podium-gloed 2.4s ease-in-out 2.2s infinite; }
+.podium-plek--1 .podium-icoon { display: inline-block; animation: podium-huppel 0.7s ease-out 2.1s 2; }
+.podium-plek--1 .podium-score { font-size: 0.85rem; }
+@keyframes podium-gloed { 0%,100% { box-shadow: 0 0 14px rgba(250,204,21,0.35); } 50% { box-shadow: 0 0 34px rgba(250,204,21,0.75); } }
+@keyframes podium-huppel { 0%,100% { transform: none; } 40% { transform: translateY(-10px) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .podium-blok, .podium-teams, .podium-plek--1 .podium-blok, .podium-plek--1 .podium-icoon { animation: none; transform: none; opacity: 1; } }
 /* Antwoorden per team: kop is de inklapknop; dicht = alleen de telling */
 .antw-kop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
 .antw-telling { display: block; font-size: 0.76rem; font-weight: 700; margin-top: 1px; }
@@ -2532,11 +2551,16 @@ button.route-stap:hover { color: var(--ink); }
 /* 📈 Puntenverloop op het dashboard */
 .verloop { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px; }
 .verloop-kop { display: flex; justify-content: flex-start; gap: 8px; align-items: center; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
-.verloop-legenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.76rem; color: var(--text); }
+.verloop-legenda { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.76rem; color: var(--text); }
+.verloop-legenda > span { padding: 3px 9px 3px 6px; border-radius: 999px; cursor: default; transition: opacity 0.15s;
+  background: color-mix(in srgb, var(--team-kleur) 14%, transparent); border: 1px solid color-mix(in srgb, var(--team-kleur) 45%, transparent); }
+.verloop-legenda > span > i { background: var(--team-kleur); }
+.verloop-lijn { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--team-kleur) 50%, transparent)); transition: opacity 0.15s, stroke-width 0.15s; }
+.verloop-zacht { opacity: 0.25; }
 .verloop-legenda span, .verloop-tip span { display: inline-flex; align-items: center; gap: 5px; }
 .verloop-legenda i, .verloop-tip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .verloop-vak { position: relative; width: 100%; overflow: hidden; touch-action: pan-y; }
-.verloop-raster { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+.verloop-raster { stroke: rgba(255,255,255,0.06); stroke-width: 1; stroke-dasharray: 2 4; }
 .verloop-as { fill: rgba(255,255,255,0.5); font-size: 10px; }
 .verloop-label { fill: #fff; font-size: 11px; font-weight: 700; }
 .verloop-punt { stroke: #1c0c45; stroke-width: 2; }
@@ -3023,6 +3047,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   background-size: 200% 100%; animation: laad-glans 1.3s ease-in-out infinite; }
 @keyframes laad-glans { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .laad-blokje { animation: none; } }
+.kaart-laden { flex: 1; min-height: 200px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; opacity: 0.7; }
 
 /* Puntenlijst: meerdere punten tegelijk kiezen en aanpassen (past in de smalle lijst) */
 .meerdere { padding: 0 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
@@ -3113,16 +3138,17 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .beamer-logo { width: 62%; align-self: center; height: auto; }
 .beamer-logos--twee .beamer-logo { width: auto; height: 100px; max-width: 92%; object-fit: contain; }
 .beamer-route { text-align: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.5vw, 1.5rem); color: #FFE680; }
-.beamer-kop { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 1.4vw, 1.4rem); margin-top: 6px; }
+.beamer-kop { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.15rem, 1.7vw, 1.7rem); margin-top: 6px; }
 .beamer-stand { display: flex; flex-direction: column; gap: 6px; }
-.beamer-rij { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.07); border-left: 5px solid; font-size: clamp(0.95rem, 1.3vw, 1.35rem); }
+.beamer-rij { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.07); border-left: 6px solid; font-size: clamp(1.1rem, 1.6vw, 1.7rem); position: relative; }
+.beamer-rij--eerste { background: linear-gradient(90deg, rgba(255,217,59,0.2), rgba(255,255,255,0.06)); box-shadow: 0 0 0 1px rgba(255,217,59,0.4), 0 0 22px rgba(255,217,59,0.18); font-size: clamp(1.25rem, 1.85vw, 1.95rem); }
 .beamer-plek { width: 2em; text-align: center; font-weight: 800; }
 .beamer-icoon { font-size: 1.3em; }
 .beamer-naam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .beamer-score { font-family: var(--font-display); font-weight: 800; color: #FFE680; }
 .beamer-gebeurd { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 5px; }
 .beamer-gebeurtenis { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border-left: 4px solid;
-  font-size: clamp(0.8rem, 1vw, 1.05rem); animation: info-kaartje-in 0.3s ease-out; }
+  font-size: clamp(0.9rem, 1.15vw, 1.2rem); animation: info-kaartje-in 0.3s ease-out; }
 .beamer-gebeurtenis img { width: 26px; height: 26px; }
 .beamer-gebeurtenis small { color: var(--muted); white-space: nowrap; }
 .beamer-leeg { color: var(--muted); font-size: 0.95rem; }
@@ -3321,7 +3347,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .hulp-kolom-inhoud { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 20px 20px; }
 .hulp-kolom-voet { display: flex; gap: 14px; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.82rem; }
 .hulp-kolom-voet a { color: #FFE680; font-weight: 700; text-decoration: none; }
-.hulp-laden { color: var(--muted); }
 /* Leesbaar: rustige regelafstand, kopjes als uitklapbare onderwerpen */
 .hulp-tekst { font-size: 0.9rem; line-height: 1.6; color: var(--text); overflow-wrap: anywhere; }
 .hulp-tekst p { margin: 0 0 10px; }
@@ -3364,14 +3389,24 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .tijdlijn-filter .rl-knop { height: 30px; padding: 0 10px; font-size: 0.78rem; }
 
 /* 🎯 Spelstrook (components/admin/SpelStrook.tsx): tijdens een spel onderaan elke beheerpagina, blijft in beeld */
-.spelstrook { position: sticky; bottom: 0; z-index: 850; margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
-  padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); background: rgba(28,12,69,0.96); border-top: 1px solid rgba(255,217,59,0.4);
-  box-shadow: 0 -6px 20px rgba(0,0,0,0.35); font-size: 0.86rem; color: var(--text); }
+.spelstrook { position: sticky; bottom: 0; z-index: 850; margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(58,31,128,0.97), rgba(28,12,69,0.98)); border-top: 1px solid rgba(255,217,59,0.45);
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.4); font-size: 0.86rem; color: var(--text); backdrop-filter: blur(8px); }
 .spelstrook strong { color: #fff; }
-.spelstrook-pauze { color: #FCD34D; font-weight: 700; }
-.spelstrook-let { padding: 4px 10px; border-radius: 999px; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.5); color: #FDE68A; font-weight: 700; text-decoration: none; white-space: nowrap; }
-.spelstrook-let--hulp { background: rgba(255,138,0,0.2); border-color: rgba(255,138,0,0.7); color: #FFD9A0; }
-.spelstrook .rl-knop { height: 32px; }
+/* Live-label met pulserend bolletje (groen; geel bij pauze) */
+.spelstrook-label { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 0.78rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #BBF7D0; margin-right: 4px; }
+.spelstrook-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 0 rgba(34,197,94,0.6); animation: spelstrook-puls 1.8s ease-out infinite; }
+.spelstrook-dot--pauze { background: #FBBF24; animation: none; box-shadow: 0 0 10px rgba(251,191,36,0.7); }
+.spelstrook-label:has(.spelstrook-dot--pauze) { color: #FDE68A; }
+@keyframes spelstrook-puls { 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+.spelstrook-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); white-space: nowrap; }
+.spelstrook-let { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(251,191,36,0.15);
+  border: 1px solid rgba(251,191,36,0.55); color: #FDE68A; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.spelstrook-let--hulp { background: rgba(255,138,0,0.22); border-color: rgba(255,138,0,0.75); color: #FFD9A0; animation: pr-hulp-puls 1.6s ease-in-out infinite; }
+.spelstrook .rl-knop { height: 34px; }
 
 /* 📁 Routes: zoeken en mappen */
 .rl-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -8px 0 18px; }
@@ -3395,12 +3430,19 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .spelstrook, .detail-cijfers, .lijst-stat, .item-groep-aantal, .systeem-telling, .seizoen-telling, .uitslag-kaart, .vraag-klok { font-variant-numeric: tabular-nums; }
 
 /* ⚙️ Groep in het menu (MenuGroep): kop met pijl, de onderdelen iets ingesprongen eronder */
-.menu-groep { display: flex; flex-direction: column; gap: 6px; }
-.menu-groep-kop { width: 100%; cursor: pointer; font: inherit; text-align: left; }
-.menu-groep-kop > .uitklap-pijl { width: 18px; height: 18px; }
-.menu-groep-lijst { display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,0.12); margin-left: 12px; }
-.menu-smal .menu-groep-lijst { padding-left: 0; margin-left: 0; border-left: 0; }
-.menu-smal .menu-groep-kop > .uitklap-pijl { display: none; }
+.menu-groep-kop { width: 100%; cursor: pointer; text-align: left; }
+.menu-groep-pijl { margin-left: auto; width: 7px; height: 7px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); opacity: 0.7; flex: none; }
+.menu-groep-kop--open { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); }
+.menu-smal .menu-groep-pijl { display: none; }
+/* Paneel dat naar rechts uitklapt, naast het menu */
+.menu-groep-uitklap { position: fixed; z-index: 2500; display: flex; flex-direction: column; gap: 6px; width: 220px; max-width: calc(100vw - 24px);
+  padding: 10px; border-radius: 14px; background: rgba(30,14,74,0.98); border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.55); animation: menu-uitklap-in 0.15s ease-out; }
+.menu-groep-uitklap[hidden] { display: none; }
+.menu-groep-titel { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 2px 4px 4px; }
+.menu-groep-uitklap .admin-nav-link { height: 40px; font-size: 15px; }
+@keyframes menu-uitklap-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 768px) { .menu-groep-uitklap { width: 190px; } }
 
 /* 📱 Telefoon: met "Inklappen" opent het ☰-menu als smalle balk met alleen iconen (zoals op de pc) */
 @media (max-width: 768px) {
@@ -3411,3 +3453,72 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] { width: auto; font-size: 28px; line-height: 1; }
   .menu-smal .admin-sidebar-logo { padding: 0 6px 10px; }
 }
+
+/* Een link met knopstijl (bijv. 🏠 Dashboard) staat net zo recht als een knop, zonder onderstreping */
+a.rl-knop { display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; box-sizing: border-box; }
+/* Zacht pulseren bij een hulpvraag (hulpmelding en spelstrook) */
+@keyframes pr-hulp-puls { 0%,100% { transform: scale(1) } 50% { transform: scale(1.02) } }
+
+/* ── Grafische afwerking ───────────────────────────────────────────────────── */
+/* 1 · Bovenbalk: zachte schaduw onder de balk, zodat titel en inhoud loskomen bij het scrollen */
+@media (min-width: 769px) { .admin-topbar { box-shadow: 0 6px 18px -8px rgba(0,0,0,0.55); } }
+/* 5 · Klikbare kaarten komen iets omhoog bij aanwijzen */
+.speler-kaart-klik, .rl-kaart { transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease; }
+@media (hover: hover) {
+  .speler-kaart-klik:hover, .rl-kaart:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 10px 22px rgba(0,0,0,0.35); }
+}
+/* 6 · Toetsenbord: gouden focusrand (alleen bij Tab, niet bij klikken) */
+:where(button, a, [role=button], summary, input, select, textarea):focus-visible { outline: 2px solid #ffd93b; outline-offset: 2px; }
+/* 9 · Invulvelden overal even hoog */
+.admin-shell .form-input:not(textarea) { min-height: 40px; box-sizing: border-box; }
+/* 10 · Puntenlijst in de editor: dunne scheidingslijnen, gekozen punt duidelijker */
+.lijst-rij + .lijst-rij { border-top: 1px solid rgba(255,255,255,0.06); }
+.lijst-rij--gekozen { background: linear-gradient(90deg, rgba(96,165,250,0.22), rgba(96,165,250,0.06)) !important; }
+/* 14 · Scrollbalken dun en paars */
+* { scrollbar-width: thin; scrollbar-color: rgba(167,139,250,0.45) transparent; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.4); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(167,139,250,0.65); background-clip: padding-box; }
+/* 15 · Paginawissel: zacht infaden */
+.admin-content { animation: pagina-in 0.22s ease-out; }
+@keyframes pagina-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .admin-content { animation: none; } .speler-kaart-klik:hover, .rl-kaart:hover { transform: none; } }
+
+/* Meldingen (toasts) onderin het beheerscherm: icoon in een rondje, tekst en een aftelbalkje */
+.toast-houder { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); z-index: 3000; display: flex; flex-direction: column;
+  gap: 8px; align-items: center; pointer-events: none; width: max-content; max-width: calc(100vw - 32px); }
+.toast { --toast-kleur: var(--cyan); position: relative; overflow: hidden; pointer-events: auto; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px 12px 10px; border-radius: 14px; font-size: 0.86rem; font-weight: 600; color: #fff;
+  background: rgba(30,14,74,0.97); border: 1px solid color-mix(in srgb, var(--toast-kleur) 55%, transparent);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.03) inset; animation: toast-in 0.22s ease-out; }
+.toast--ok { --toast-kleur: #22c55e; }
+.toast--fout { --toast-kleur: #ef4444; }
+.toast-icoon { flex: none; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem;
+  background: color-mix(in srgb, var(--toast-kleur) 20%, transparent); }
+.toast-tekst { line-height: 1.35; }
+.toast-tijd { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--toast-kleur); transform-origin: left;
+  animation: toast-tijd linear forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes toast-tijd { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* Bevestigvenster: icoon in een rondje (rood = gevaarlijk, cyaan = gewoon) */
+.bevestig-icoon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; line-height: 1;
+  background: rgba(0,217,255,0.14); box-shadow: 0 0 0 1px rgba(0,217,255,0.4), 0 0 18px rgba(0,217,255,0.22); }
+.bevestig-icoon--rood { background: rgba(239,68,68,0.16); box-shadow: 0 0 0 1px rgba(239,68,68,0.5), 0 0 18px rgba(239,68,68,0.25); }
+
+/* Speler: "+N" zweeft op uit het puntenvlak als de score verandert */
+.pr-hud-gem { position: relative; }
+.pr-hud-gem--groot.pr-hud-gem--score { overflow: visible; }
+.score-sprong { position: absolute; left: 50%; top: 100%; z-index: 5; pointer-events: none; font-family: var(--font-display); font-weight: 900; font-size: 1.3rem;
+  color: #ffd93b; text-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 12px rgba(255,217,59,0.6); animation: score-sprong 1.6s ease-out forwards; white-space: nowrap; }
+.score-sprong--min { color: #ff6b6b; text-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 12px rgba(255,107,107,0.5); }
+@keyframes score-sprong { 0% { opacity: 0; transform: translate(-50%, 6px) scale(0.7); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+  70% { opacity: 1; transform: translate(-50%, 18px) scale(1); } 100% { opacity: 0; transform: translate(-50%, 30px) scale(0.95); } }
+@media (prefers-reduced-motion: reduce) { .score-sprong { animation-duration: 0.01s; animation-iteration-count: 1; } }
+
+/* Lijn-iconen in het menu (zelfde maat als de emoji ervoor; kleur = tekstkleur) */
+.admin-nav-link > .menu-icoon { display: inline-flex; align-items: center; justify-content: center; }
+.menu-icoon svg { width: 21px; height: 21px; display: block; }
+.menu-smal .admin-sidebar .admin-nav-link > .menu-icoon svg { width: 26px; height: 26px; }

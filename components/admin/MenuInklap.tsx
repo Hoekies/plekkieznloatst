@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 const KEY = "pr_menu_smal";
 
@@ -26,7 +27,7 @@ export default function MenuInklap() {
 
   return (
     <button type="button" className="admin-nav-link menu-inklap" onClick={wissel} title={smal ? "Menu uitklappen" : "Menu inklappen"} aria-label={smal ? "Menu uitklappen" : "Menu inklappen"}>
-      <span aria-hidden>{smal ? "»" : "«"}</span> Inklappen
+      <MenuIcoon naam={smal ? "uitklappen" : "inklappen"} /> Inklappen
     </button>
   );
 }

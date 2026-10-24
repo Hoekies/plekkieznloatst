@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 // 👆 Aanwijzen: een vetgedrukte knopnaam in de uitleg (bijv. "📢 Bericht sturen") zoeken op het scherm,
 // op de tekst, de tooltip (data-tip/title) of de naam voor schermlezers (aria-label). Emoji en tekens tellen niet mee.
@@ -98,7 +99,7 @@ export default function HulpKolom() {
             {hulp?.pad === pad
               // Eigen bestand uit de repository (de handleiding), geen invoer van gebruikers
               ? <div ref={tekstRef} className="hulp-tekst" onClick={wijsAan} dangerouslySetInnerHTML={{ __html: hulp.html }} />
-              : <p className="hulp-laden">Uitleg laden…</p>}
+              : <LaadBlokjes aantal={4} hoogte={44} gap={8} />}
           </div>
           <div className="hulp-kolom-voet">
             <Link href="/admin/beginnen">🧭 Snel aan de slag</Link>

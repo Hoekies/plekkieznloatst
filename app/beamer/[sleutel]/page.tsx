@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import type { BeamerData } from "@/lib/beamer";
@@ -42,6 +42,25 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
   const stand = [...spelers].sort((a, b) => b.score - a.score);
 
+  // Stand verandert: rijen schuiven zichtbaar naar hun nieuwe plek, en een veranderde score licht even op
+  const rijen = useRef(new Map<string, HTMLDivElement>());
+  const vorige = useRef(new Map<string, { top: number; score: number }>());
+  useLayoutEffect(() => {
+    const nieuw = new Map<string, { top: number; score: number }>();
+    for (const s of stand) {
+      const el = rijen.current.get(s.player_id);
+      if (!el) continue;
+      const top = el.getBoundingClientRect().top;
+      const oud = vorige.current.get(s.player_id);
+      if (oud && Math.abs(oud.top - top) > 1) {
+        el.animate([{ transform: `translateY(${oud.top - top}px)` }, { transform: "none" }], { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" });
+      }
+      if (oud && oud.score !== s.score) el.animate([{ background: "rgba(255,217,59,0.35)" }, { background: "rgba(255,255,255,0.07)" }], { duration: 1600, easing: "ease-out" });
+      nieuw.set(s.player_id, { top, score: s.score });
+    }
+    vorige.current = nieuw;
+  });
+
   if (fout && !data) {
     return <div className="beamer-melding">📺 {fout}</div>;
   }
@@ -68,7 +87,8 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
         <div className="beamer-stand">
           {stand.length === 0 && <div className="beamer-leeg">Nog niemand onderweg</div>}
           {stand.map((s, i) => (
-            <div key={s.player_id} className="beamer-rij" style={{ borderLeftColor: kleuren.get(s.player_id) }}>
+            <div key={s.player_id} className={`beamer-rij${i === 0 && s.score > 0 ? " beamer-rij--eerste" : ""}`} style={{ borderLeftColor: kleuren.get(s.player_id) }}
+              ref={(el) => { if (el) rijen.current.set(s.player_id, el); else rijen.current.delete(s.player_id); }}>
               <span className="beamer-plek">{i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</span>
               <span className="beamer-icoon">{s.icon ?? "👫"}</span>
               <span className="beamer-naam">

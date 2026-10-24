@@ -79,7 +79,6 @@ export default function HulpMeldingen() {
           </div>
         </div>
       ))}
-      <style>{`@keyframes pr-hulp-puls { 0%,100% { transform: scale(1) } 50% { transform: scale(1.02) } }`}</style>
     </div>
   );
 }

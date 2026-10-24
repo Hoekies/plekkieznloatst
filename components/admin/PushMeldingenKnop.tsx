@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 // Menu-item "🔔 Meldingen": pushmeldingen op dit toestel aan- of uitzetten (nieuwe foto, hulpvraag).
 // Werkt ook als de app dicht is, en komt via de telefoon ook op een horloge.
@@ -97,7 +98,7 @@ export default function PushMeldingenKnop() {
   return (
     <>
       <button type="button" className="admin-nav-link" onClick={() => setOpen(true)} title="Pushmeldingen bij een nieuwe foto of hulpvraag">
-        <span aria-hidden>{stand === "aan" ? "🔔" : "🔕"}</span> Meldingen
+        <MenuIcoon naam={stand === "aan" ? "meldingen" : "meldingen-uit"} /> Meldingen
         {/* Klein bolletje i.p.v. tekst: past altijd in de smalle menuknop (groen = aan) */}
         {label && <span className={`menu-status menu-status--${stand === "aan" ? "aan" : "uit"}`} title={`Meldingen ${label}`} aria-label={`Meldingen ${label}`} />}
       </button>

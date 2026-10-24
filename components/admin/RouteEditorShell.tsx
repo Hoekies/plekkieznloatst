@@ -38,7 +38,7 @@ const TestRonde = dynamic(() => import("./editor/TestRonde"), { ssr: false });
 const SpelerProef = dynamic(() => import("./editor/SpelerProef"), { ssr: false });
 const AlleVragenVenster = dynamic(() => import("./editor/AlleVragenVenster"), { ssr: false });
 const EersteStappen = dynamic(() => import("@/components/admin/editor/EersteStappen"), { ssr: false });
-const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
+const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div className="laad-blokje kaart-laden" role="status" aria-label="Kaart laden">🗺️</div> });
 
 type RouteMetPunten = Route & {
   route_points: (RoutePunt & { questions?: {

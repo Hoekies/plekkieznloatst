@@ -34,6 +34,8 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
   const [open, setOpen] = useState(() => { try { return localStorage.getItem("pr_puntenverloop") !== "dicht"; } catch { return true; } });
   const [breedte, setBreedte] = useState(600);
   const [wijs, setWijs] = useState<number | null>(null);
+  // Een team in de legenda aangewezen: die lijn licht op, de rest wordt zachter
+  const [licht, setLicht] = useState<string | null>(null);
   const vakRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -93,10 +95,13 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
   return (
     <div className="verloop">
       {kop}
-      {/* Legenda: altijd (kleur alleen is nooit genoeg) */}
+      {/* Legenda: altijd (kleur alleen is nooit genoeg). Wijs een team aan om zijn lijn te laten oplichten */}
       <div className="verloop-legenda">
         {teams.map((t) => (
-          <span key={t.player_id}><i style={{ background: kleur(t.player_id) }} />{t.icon ?? ""} {t.naam}</span>
+          <span key={t.player_id} className={licht && licht !== t.player_id ? "verloop-zacht" : undefined} style={{ ["--team-kleur" as string]: kleur(t.player_id) }}
+            onPointerEnter={() => setLicht(t.player_id)} onPointerLeave={() => setLicht(null)}>
+            <i />{t.icon ?? ""} {t.naam}
+          </span>
         ))}
       </div>
       <div ref={vakRef} className="verloop-vak"
@@ -114,14 +119,15 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
             <text key={i} x={schaal.x(t)} y={HOOGTE - 6} textAnchor={i === 0 ? "start" : i === 4 ? "end" : "middle"} className="verloop-as">{klok(t)}</text>
           ))}
           {teams.map((t) => (
-            <path key={t.player_id} d={lijn(t.punten)} fill="none" stroke={kleur(t.player_id)} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <path key={t.player_id} d={lijn(t.punten)} fill="none" stroke={kleur(t.player_id)} strokeWidth={licht === t.player_id ? 4.5 : 3} strokeLinejoin="round" strokeLinecap="round"
+              className={`verloop-lijn${licht && licht !== t.player_id ? " verloop-zacht" : ""}`} style={{ ["--team-kleur" as string]: kleur(t.player_id) }} />
           ))}
           {/* Eindpunt van elke lijn, met (bij weinig teams) icoon en stand erachter */}
           {teams.map((t) => {
             const [lt, lv] = t.punten[t.punten.length - 1];
             return (
               <g key={t.player_id}>
-                <circle cx={schaal.x(lt)} cy={schaal.y(lv)} r={4} fill={kleur(t.player_id)} className="verloop-punt" />
+                <circle cx={schaal.x(lt)} cy={schaal.y(lv)} r={5} fill={kleur(t.player_id)} className={`verloop-punt${licht && licht !== t.player_id ? " verloop-zacht" : ""}`} />
                 {labels && <text x={schaal.x(lt) + 8} y={schaal.y(lv) + 4} className="verloop-label">{t.icon ?? ""} {lv}</text>}
               </g>
             );

@@ -14,17 +14,21 @@ export default function SidebarToggle() {
     if (!open) return;
     const sidebar = document.querySelector(".admin-sidebar");
     function sluit(e: MouseEvent) {
-      if (sidebar && !sidebar.contains(e.target as Node)) setOpen(false);
+      // Het uitklappaneel van ⚙️ Instellingen staat naast het menu: daar tikken laat het menu open
+      if (sidebar && !sidebar.contains(e.target as Node) && !(e.target as HTMLElement).closest?.(".menu-groep-uitklap")) setOpen(false);
     }
-    // Een menu-item gekozen (ook de pagina waar je al bent, of een knop die een venster opent): menu dicht
+    // Een menu-item gekozen (ook de pagina waar je al bent, of een knop die een venster opent): menu dicht.
+    // Niet bij Inklappen (dan wordt het menu een iconenbalk) en niet bij het openen van ⚙️ Instellingen.
     function kies(e: Event) {
-      if ((e.target as HTMLElement).closest(".admin-nav-link")) setOpen(false);
+      const t = e.target as HTMLElement;
+      if (t.closest(".menu-inklap, .menu-groep-kop")) return;
+      if (t.closest(".admin-nav-link") && (sidebar?.contains(t) || t.closest(".menu-groep-uitklap"))) setOpen(false);
     }
     document.addEventListener("mousedown", sluit);
-    sidebar?.addEventListener("click", kies);
+    document.addEventListener("click", kies);
     return () => {
       document.removeEventListener("mousedown", sluit);
-      sidebar?.removeEventListener("click", kies);
+      document.removeEventListener("click", kies);
     };
   }, [open]);
 

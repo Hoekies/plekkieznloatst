@@ -149,7 +149,7 @@ function FotoViewer({ pad }: { pad: string }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: "55vh", objectFit: "contain", display: "block" }} />
       ) : (
-        <span style={{ color: "#6B7280", fontSize: "0.85rem" }}>📷 Foto laden…</span>
+        <div style={{ width: "100%" }}><LaadBlokjes aantal={1} hoogte={260} /></div>
       )}
     </div>
   );

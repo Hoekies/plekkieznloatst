@@ -8,6 +8,7 @@ import type { RouteVerslag } from "@/lib/team-verslag";
 import { formateerTijd } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import Venster from "@/components/shared/Venster";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 const GelopenRouteKaart = dynamic(() => import("@/components/speler/GelopenRouteKaart"), { ssr: false });
 
@@ -73,7 +74,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
           {/* Gelopen route */}
           <div style={{ height: 330, borderRadius: 14, overflow: "hidden", flexShrink: 0 }}>
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
-              : !verslag ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kaart laden…</p>
+              : !verslag ? <LaadBlokjes aantal={1} hoogte={330} />
               : verslag.spoor.length < 2 && verslag.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>
               : <GelopenRouteKaart scherp spoor={verslag.spoor} punten={verslag.punten} items={kaartItems} />}
           </div>

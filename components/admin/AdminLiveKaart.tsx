@@ -9,19 +9,18 @@ import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import PuzzelVoortgang from "@/components/admin/PuzzelVoortgang";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
   loading: () => (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>
-      Kaart laden…
-    </div>
+    <div className="laad-blokje kaart-laden" role="status" aria-label="Kaart laden">🗺️</div>
   ),
 });
 
 const ReplayKaart = dynamic(() => import("./ReplayKaart"), {
   ssr: false,
-  loading: () => <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Replay laden…</div>,
+  loading: () => <div style={{ flex: 1, padding: 16 }}><LaadBlokjes aantal={1} hoogte={320} /></div>,
 });
 
 const POLL_INTERVAL_MS = 15000;

@@ -8,6 +8,7 @@ import SectieKop from "@/components/admin/SectieKop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
+import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -263,13 +264,21 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             </div>
           </div>
           <div className="sk-rechts">
-            <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
+            <StatusLabel status={teamStatus(s.sessie_status, s.ingelogd)} />
             <span className={`sk-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
           </div>
         </div>
 
         <div className="sk-lijf">
-          <div className="pr-xp-bar sk-balk" title={totaalPunten ? `${s.bezochte_punten} van ${totaalPunten} punten` : undefined}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
+          {/* Voortgang: bij een gewone route één stip per punt (gehaald vol, het volgende knippert); bij heel veel
+              punten een balk */}
+          {totaalPunten > 0 && totaalPunten <= 30
+            ? <div className="sk-stippen" title={`${s.bezochte_punten} van ${totaalPunten} punten`} style={{ ["--speler-kleur" as string]: kleur }}>
+                {Array.from({ length: totaalPunten }, (_, i) => (
+                  <i key={i} className={i < s.bezochte_punten ? "sk-stip sk-stip--vol" : i === s.bezochte_punten && s.sessie_status === "actief" ? "sk-stip sk-stip--nu" : "sk-stip"} />
+                ))}
+              </div>
+            : <div className="pr-xp-bar sk-balk" title={totaalPunten ? `${s.bezochte_punten} van ${totaalPunten} punten` : undefined}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>}
           {/* 🧩 Puzzelwoord: het hele woord, de letters die het team al heeft in goud */}
           {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
@@ -353,17 +362,3 @@ function WachtBlok({ wacht, onVerkort }: { wacht: NonNullable<SpelerOverzicht["w
 }
 
 
-function StatusPil({ status, ingelogd }: { status: SpelerOverzicht["sessie_status"]; ingelogd: boolean }) {
-  const cfg = {
-    geen_sessie: { label: "Niet gestart", cls: "pr-gem-chip--gray" },
-    // Spel loopt nog, maar de speler is uitgelogd: kan verder na opnieuw inloggen
-    actief:      ingelogd ? { label: "Onderweg", cls: "pr-gem-chip--cyan" } : { label: "Uitgelogd", cls: "pr-gem-chip--gray" },
-    voltooid:    { label: "Gefinisht",    cls: "pr-gem-chip--green" },
-    vervallen:   { label: "Vervallen",    cls: "pr-gem-chip--gray" },
-  }[status];
-  return (
-    <span className={`pr-gem-chip ${cfg.cls}`} style={{ flexShrink: 0 }}>
-      {cfg.label}
-    </span>
-  );
-}

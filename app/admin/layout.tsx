@@ -18,6 +18,7 @@ import TabTeller from "@/components/admin/TabTeller";
 import Sneltoetsen from "@/components/admin/Sneltoetsen";
 import SpelStrook from "@/components/admin/SpelStrook";
 import MenuGroep from "@/components/admin/MenuGroep";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -51,17 +52,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Bovenin het menu welke route er loopt */}
         {helper ? <div className="admin-menu-kop" style={{ textAlign: "center", marginBottom: 6 }}>🦺 Helper</div> : <ActieveRouteLabel />}
         <nav className="admin-nav">
-          <AdminNavLink href="/admin" exact><span aria-hidden>🏠</span> Dashboard</AdminNavLink>
-          {!helper && <AdminNavLink href="/admin/groepen"><span aria-hidden>👫</span> Spelers</AdminNavLink>}
-          <AdminNavLink href="/admin/antwoorden"><span aria-hidden>📝</span> Antwoorden</AdminNavLink>
-          <AdminNavLink href="/admin/live"><span aria-hidden>📡</span> Live kaart</AdminNavLink>
-          {!helper && <AdminNavLink href="/admin/routes"><span aria-hidden>🗺️</span> Routes</AdminNavLink>}
+          <AdminNavLink href="/admin" exact><MenuIcoon naam="dashboard" /> Dashboard</AdminNavLink>
+          {!helper && <AdminNavLink href="/admin/groepen"><MenuIcoon naam="spelers" /> Spelers</AdminNavLink>}
+          <AdminNavLink href="/admin/antwoorden"><MenuIcoon naam="antwoorden" /> Antwoorden</AdminNavLink>
+          <AdminNavLink href="/admin/live"><MenuIcoon naam="live" /> Live kaart</AdminNavLink>
+          {!helper && <AdminNavLink href="/admin/routes"><MenuIcoon naam="routes" /> Routes</AdminNavLink>}
         </nav>
         {/* ⚙️ Instellingen: seizoenen, systeemcheck en de meldingen op dit toestel (helpers: alleen meldingen) */}
         <div className="admin-menu-blok">
-          <MenuGroep sleutel="instellingen" icoon="⚙️" titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
-            {!helper && <AdminNavLink href="/admin/seizoenen"><span aria-hidden>🗓️</span> Seizoenen</AdminNavLink>}
-            {!helper && <AdminNavLink href="/admin/systeem"><span aria-hidden>🩺</span> Systeemcheck</AdminNavLink>}
+          <MenuGroep icoon={<MenuIcoon naam="instellingen" />} titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
+            {!helper && <AdminNavLink href="/admin/seizoenen"><MenuIcoon naam="seizoenen" /> Seizoenen</AdminNavLink>}
+            {!helper && <AdminNavLink href="/admin/systeem"><MenuIcoon naam="systeem" /> Systeemcheck</AdminNavLink>}
             <PushMeldingenKnop />
           </MenuGroep>
         </div>

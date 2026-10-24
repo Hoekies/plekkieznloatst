@@ -283,6 +283,13 @@ Fouten van het foutscherm (`components/shared/FoutScherm.tsx` → `POST /api/fou
 
 <LiveKaart> (admin)
   └── Exacte locaties alle spelers via Supabase Realtime
+
+Gedeelde beheeronderdelen (vaste vorm overal)
+  ├── <StatusLabel> teamstatus als chip (⚡ onderweg, 💤 uitgelogd, 🏁 gefinisht, …)
+  ├── <LaadBlokjes> glanzende grijze blokjes tijdens het laden (i.p.v. "Laden…")
+  ├── <MeldingHouder> toasts via toonMelding(): icoon, tekst, aftelbalkje
+  ├── <MenuIcoon> lijn-iconen (SVG) in het menu
+  └── <MenuGroep> ⚙️ Instellingen: paneel dat naar rechts uitklapt (portal, blijft gemount)
 ```
 
 ---

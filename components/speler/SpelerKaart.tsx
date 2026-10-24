@@ -31,9 +31,7 @@ import { bewaarKaartGebied } from "@/lib/kaart-offline";
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {
   ssr: false,
   loading: () => (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>
-      Kaart laden…
-    </div>
+    <div className="laad-blokje kaart-laden" role="status" aria-label="Kaart laden">🗺️</div>
   ),
 });
 
@@ -153,6 +151,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
+  // Score omhoog of omlaag: "+N" of "−N" zweeft even op uit het puntenvlak
+  const vorigeScore = useRef(sessie.score);
+  const [sprong, setSprong] = useState<{ id: number; verschil: number } | null>(null);
+  useEffect(() => {
+    const verschil = score - vorigeScore.current;
+    vorigeScore.current = score;
+    if (!verschil) return;
+    const id = Date.now();
+    setSprong({ id, verschil });
+    const t = setTimeout(() => setSprong((x) => (x?.id === id ? null : x)), 1600);
+    return () => clearTimeout(t);
+  }, [score]);
   // Eindtijd van het spel (door de beheerder ingesteld), telt af in de statistiekenbalk
   const [eindtijd, setEindtijd] = useState<string | null>(null);
   // Gepauzeerd door de organisatie (sinds): pauzescherm, niets bereiken of inzetten
@@ -933,9 +943,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte((kmAfgelegd / 1000).toFixed(2)) }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
         </div>
         {/* In de min: het puntenvlak kleurt iets rood */}
-        <div className={`pr-hud-gem ${score < 0 ? "pr-hud-gem--min" : "pr-hud-gem--orange"} pr-hud-gem--groot`}>
+        <div className={`pr-hud-gem ${score < 0 ? "pr-hud-gem--min" : "pr-hud-gem--orange"} pr-hud-gem--groot pr-hud-gem--score`}>
           <span className="pr-hud-icoon">⭐</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
+          {sprong && <span key={sprong.id} className={`score-sprong${sprong.verschil < 0 ? " score-sprong--min" : ""}`} aria-hidden>{sprong.verschil > 0 ? "+" : "−"}{Math.abs(sprong.verschil)}</span>}
         </div>
         {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} pauze={pauze} />}
         <button

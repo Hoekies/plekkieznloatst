@@ -26,11 +26,9 @@ export default function SpelStrook({ beperkt = false }: { beperkt?: boolean }) {
 
   return (
     <div className="spelstrook" role="status">
-      <span className="spelstrook-stand">
-        🎯 <strong>{onderweg}</strong> onderweg
-        {eindtijd && <> · ⏰ nog <strong>{resterend(eindtijd, nu)}</strong></>}
-        {pauze && <span className="spelstrook-pauze"> · ⏸️ gepauzeerd</span>}
-      </span>
+      <span className="spelstrook-label"><i className={`spelstrook-dot${pauze ? " spelstrook-dot--pauze" : ""}`} aria-hidden />{pauze ? "Gepauzeerd" : "Spel bezig"}</span>
+      <span className="spelstrook-chip">🎯 <strong>{onderweg}</strong> onderweg</span>
+      {eindtijd && <span className="spelstrook-chip">⏰ nog <strong>{resterend(eindtijd, nu)}</strong></span>}
       {hulp.length > 0 && <Link href="/admin" className="spelstrook-let spelstrook-let--hulp">⚠️ {hulp.length} {hulp.length === 1 ? "hulpvraag" : "hulpvragen"}</Link>}
       {fotos > 0 && <Link href="/admin/antwoorden" className="spelstrook-let">📸 {fotos} foto{fotos === 1 ? "" : "'s"} te keuren</Link>}
       <span style={{ flex: 1 }} />
