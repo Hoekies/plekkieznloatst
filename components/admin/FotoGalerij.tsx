@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { TeamAntwoorden, AntwoordRij } from "@/lib/admin-antwoorden";
 import LeegScherm from "@/components/admin/LeegScherm";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // Foto's staan in een afgeschermde opslag: een tijdelijke link via de admin-API (onthouden per pad)
 const linkCache = new Map<string, string>();
@@ -37,7 +38,7 @@ export default function FotoGalerij({ teams, onKeur, bezig }: { teams: TeamAntwo
           <button key={f.voortgang_id} type="button" className={`foto-tegel foto-tegel--${f.foto_status}`} onClick={() => setOpen(i)} title={`${f.team} · ${f.punt_naam}`}>
             <FotoBeeld pad={f.foto_pad!} />
             <span className="foto-tegel-label">{f.icon ?? "👫"} {f.team}</span>
-            <span className="foto-tegel-status">{f.foto_status === "wacht" ? "⏳" : f.foto_status === "goedgekeurd" ? "✓" : "✗"}</span>
+            <span className="foto-tegel-status">{f.foto_status === "wacht" ? <Icoon naam="laden" /> : f.foto_status === "goedgekeurd" ? "✓" : "✗"}</span>
           </button>
         ))}
       </div>

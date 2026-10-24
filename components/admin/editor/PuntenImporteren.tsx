@@ -7,6 +7,7 @@ import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, IMPORT_START_NAAM, type I
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { afstandTekst } from "@/lib/geo";
 import { useSluitMetEsc } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // "📥 Importeren" (alleen bij een route op volgorde): punten uit een GPX/KML-bestand, of een lijst
 // met coördinaten en Google Maps-links. Twee stappen: kiezen, dan controleren en toevoegen.
@@ -94,7 +95,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
     <>
       <button type="button" className="rl-knop" onClick={() => setOpen(true)}
         title="Punten importeren (GPX, KML, lijst of Google Maps-links)" aria-label="Punten importeren">
-        📥<span className="alleen-pc"> Importeren</span>
+        <Icoon naam="downloaden" /><span className="alleen-pc"> Importeren</span>
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
@@ -114,13 +115,13 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
                 </label>
                 <div className="import-noot">GPX uit een wandel-app of van een Garmin, KML uit Google My Maps.</div>
                 {!plakken ? (
-                  <button type="button" className="rl-knop" onClick={() => setPlakken(true)}>📋 Of plak een lijst met coördinaten of Google Maps-links</button>
+                  <button type="button" className="rl-knop" onClick={() => setPlakken(true)}><Icoon naam="klembord" /> Of plak een lijst met coördinaten of Google Maps-links</button>
                 ) : (<>
                   <textarea className="form-input" rows={5} value={tekst} onChange={(e) => setTekst(e.target.value)} autoFocus
                     placeholder={"Eén punt per regel, bijvoorbeeld:\n52.2215, 6.8937 Kerk\nhttps://maps.app.goo.gl/…"}
                     style={{ fontFamily: "monospace", fontSize: "0.8rem", resize: "vertical" }} />
                   <button type="button" className="rl-knop rl-knop--cyan" disabled={!tekst.trim() || bezig !== null} onClick={() => { setBestandsnaam(null); lees(tekst); }}>
-                    {bezig === "lezen" ? "⏳ Lezen…" : "🔍 Lezen"}
+                    {bezig === "lezen" ? <><Icoon naam="laden" />{" Lezen…"}</> : <><Icoon naam="inbeeld" />{" Lezen"}</>}
                   </button>
                 </>)}
               </>)}
@@ -141,8 +142,8 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
                   <div className="import-blok">
                     <span className="import-label">Wat krijgt de speler bij een punt?</span>
                     <div className="segment" role="radiogroup" aria-label="Wat krijgt de speler bij een punt">
-                      <button type="button" role="radio" aria-checked={stil} className={stil ? "aan" : ""} onClick={() => setStil(true)}>🚶 Niets, gewoon doorlopen</button>
-                      <button type="button" role="radio" aria-checked={!stil} className={!stil ? "aan" : ""} onClick={() => setStil(false)}>ℹ️ Een tekst</button>
+                      <button type="button" role="radio" aria-checked={stil} className={stil ? "aan" : ""} onClick={() => setStil(true)}><Icoon naam="lopen" /> Niets, gewoon doorlopen</button>
+                      <button type="button" role="radio" aria-checked={!stil} className={!stil ? "aan" : ""} onClick={() => setStil(false)}><Icoon naam="info" /> Een tekst</button>
                     </div>
                     {!stil && <input className="form-input" value={infoTekst} onChange={(e) => setInfoTekst(e.target.value)} maxLength={500} aria-label="Tekst voor de spelers" />}
                     <div className="import-noot">{stil ? "De speler volgt de route; elk punt telt vanzelf als gepasseerd." : "Bij elk punt opent een venster met deze tekst."} Straal {straal} m. Per punt kun je later een tekst of een vraag toevoegen.</div>
@@ -169,7 +170,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
                 <div className="import-voet">
                   <button type="button" className="rl-knop" onClick={opnieuw} disabled={bezig !== null}>← Ander bestand</button>
                   <button type="button" className="rl-knop hoofdknop" style={{ flex: 1 }} disabled={!gevonden.length || bezig !== null} onClick={toevoegen}>
-                    {bezig === "opslaan" ? "⏳ Toevoegen…" : `+ ${gevonden.length} punt${gevonden.length === 1 ? "" : "en"} toevoegen`}
+                    {bezig === "opslaan" ? <><Icoon naam="laden" />{" Toevoegen…"}</> : `+ ${gevonden.length} punt${gevonden.length === 1 ? "" : "en"} toevoegen`}
                   </button>
                 </div>
               </>)}

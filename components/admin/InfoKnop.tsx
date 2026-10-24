@@ -7,6 +7,7 @@ import KoFiKnop from "@/components/shared/KoFiKnop";
 import { useSluitMetEsc } from "@/components/shared/Venster";
 import { metVersie } from "@/lib/versie";
 import MenuIcoon from "@/components/admin/MenuIcoon";
+import Icoon from "@/components/admin/Icoon";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
@@ -52,7 +53,7 @@ export default function InfoKnop() {
 
             {/* Voor een nieuwe beheerder: in 6 stappen van route tot uitslag, met plaatjes */}
             <a href="/admin/beginnen" className="info-regel" onClick={() => setOpen(false)}>
-              <span style={{ fontSize: "1.6rem" }}>🧭</span>
+              <Icoon naam="kompas" />
               <span>
                 <strong>Snel aan de slag</strong>
                 <span className="info-sub">Voor beginners: in 6 stappen van route tot uitslag</span>
@@ -60,7 +61,7 @@ export default function InfoKnop() {
             </a>
 
             <a href="/admin/uitleg" className="info-regel" onClick={() => setOpen(false)}>
-              <span style={{ fontSize: "1.6rem" }}>📖</span>
+              <Icoon naam="handleiding" />
               <span>
                 <strong>Handleiding voor de beheerder</strong>
                 <span className="info-sub">Alles over routes, spelers, items en het spel</span>
@@ -76,7 +77,7 @@ export default function InfoKnop() {
                     <img src={k.klein} alt={k.titel} loading="lazy" />
                     <span>{k.titel}</span>
                   </a>
-                  <button type="button" className="rl-knop info-kaart-print" onClick={() => printKaart(k.src, k.titel, k.papier)} title={`Printen op ${k.papier}`}>🖨️ Printen</button>
+                  <button type="button" className="rl-knop info-kaart-print" onClick={() => printKaart(k.src, k.titel, k.papier)} title={`Printen op ${k.papier}`}><Icoon naam="printen" /> Printen</button>
                 </div>
               ))}
             </div>

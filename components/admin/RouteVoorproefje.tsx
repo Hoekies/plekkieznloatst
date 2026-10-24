@@ -11,6 +11,8 @@ import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import { toonMelding } from "@/components/admin/Melding";
 import type { RouteModus } from "@/types/database";
 import { deelOfDownload, downloadBestand } from "@/lib/delen";
+import MenuIcoon from "@/components/admin/MenuIcoon";
+import Icoon from "@/components/admin/Icoon";
 
 const VoorproefKaart = dynamic(() => import("./VoorproefKaart"), { ssr: false });
 
@@ -135,7 +137,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">📄 Voorproefje</span>
+        <span className="admin-topbar-titel"><MenuIcoon naam="voorproefje" />Voorproefje</span>
       </div>
       <div className="admin-content" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* Bediening */}
@@ -145,11 +147,11 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               <Link href="/admin/routes" className="rl-knop actie-knop">← Routes</Link>
               <span style={{ flex: 1 }} />
               {!pdf ? (
-                <button type="button" className="rl-knop rl-knop--cyan actie-knop" disabled={bezig} onClick={maakPdf}>{bezig ? "⏳ PDF maken…" : "📄 PDF maken"}</button>
+                <button type="button" className="rl-knop rl-knop--cyan actie-knop" disabled={bezig} onClick={maakPdf}>{bezig ? <><Icoon naam="laden" />{" PDF maken…"}</> : <><Icoon naam="rapport" />{" PDF maken"}</>}</button>
               ) : (
                 <>
-                  <button type="button" className="rl-knop rl-knop--goud actie-knop" onClick={() => versturen(pdf)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen</button>
-                  <button type="button" className="rl-knop actie-knop" onClick={() => downloadBestand(pdf)}>⬇️ Opslaan</button>
+                  <button type="button" className="rl-knop rl-knop--goud actie-knop" onClick={() => versturen(pdf)} title="Opent het deelmenu: kies WhatsApp"><Icoon naam="delen" /> Versturen</button>
+                  <button type="button" className="rl-knop actie-knop" onClick={() => downloadBestand(pdf)}><Icoon naam="downloaden" /> Opslaan</button>
                 </>
               )}
             </div>
@@ -168,7 +170,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               })}
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="button" className="rl-knop" onClick={() => setGekozen(kiesVragen(vragen, true))} disabled={vragen.length <= 3}>🔀 Andere vragen</button>
+              <button type="button" className="rl-knop" onClick={() => setGekozen(kiesVragen(vragen, true))} disabled={vragen.length <= 3}><Icoon naam="husselen" /> Andere vragen</button>
               <button type="button" className={`rl-knop${opties ? " rl-knop--cyan" : ""}`} onClick={() => setOpties((o) => !o)}>
                 {opties ? "✓ " : ""}Antwoordopties tonen
               </button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Check } from "@/app/api/admin/systeem/route";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 type Fout = { id: string; created_at: string; rol: string | null; wie: string | null; pad: string | null; bericht: string; details: string | null; browser: string | null };
 
@@ -38,8 +39,8 @@ function FoutLogboek() {
         <span className="systeem-onderdeel-naam">🐞 Foutmeldingen</span>
         <span className="systeem-acties">
           {melding && <span style={{ fontSize: "0.76rem", color: "var(--muted)" }}>{melding}</span>}
-          {fouten.length > 0 && <button type="button" className="es-link" onClick={wis}>🗑️ Wissen</button>}
-          <button type="button" className="es-link" onClick={ruimOp} title="GPS-plekken en fouten ouder dan 30 dagen verwijderen (gebeurt ook elke nacht vanzelf)">🧹 Oude gegevens opruimen</button>
+          {fouten.length > 0 && <button type="button" className="es-link" onClick={wis}><Icoon naam="wissen" /> Wissen</button>}
+          <button type="button" className="es-link" onClick={ruimOp} title="GPS-plekken en fouten ouder dan 30 dagen verwijderen (gebeurt ook elke nacht vanzelf)"><Icoon naam="opruimen" /> Oude gegevens opruimen</button>
         </span>
         <span className={fouten.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{fouten.length ? `${fouten.length} ⚠️` : "geen ✅"}</span>
       </div>
@@ -88,7 +89,7 @@ export default function Systeemcheck() {
           <span style={{ flex: 1, minWidth: 200, fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff" }}>
             {mis.length ? `${mis.length} ${mis.length === 1 ? "ding" : "dingen"} om te regelen` : "Alles in orde"}
           </span>
-          <button type="button" className="rl-knop" onClick={controleer}>🔄 Opnieuw controleren</button>
+          <button type="button" className="rl-knop" onClick={controleer}><Icoon naam="vernieuwen" /> Opnieuw controleren</button>
         </div>
       </div>
       {/* Eén blok, één regel per onderdeel: wat ontbreekt staat er altijd rood onder (met de oplossing),
@@ -104,7 +105,7 @@ export default function Systeemcheck() {
               <button type="button" className="systeem-onderdeel-kop systeem-onderdeel-kop--knop" onClick={() => wissel(g)} aria-expanded={isOpen}>
                 <UitklapPijl open={isOpen} />
                 <span className="systeem-onderdeel-naam">{g}</span>
-                <span className={fout.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{inGroep.length - fout.length}/{inGroep.length} {fout.length ? "⚠️" : "✅"}</span>
+                <span className={fout.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{inGroep.length - fout.length}/{inGroep.length} {fout.length ? <Icoon naam="waarschuwing" /> : <Icoon naam="goed" />}</span>
               </button>
               {fout.map((c) => (
                 <div key={c.naam} className="systeem-regel systeem-regel--mis">

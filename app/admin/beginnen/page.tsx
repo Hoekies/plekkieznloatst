@@ -1,4 +1,5 @@
 import Link from "next/link";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 // 🧭 Snel aan de slag: de handleiding voor een nieuwe beheerder, stap voor stap van route tot uitslag.
 // De plaatjes zijn nagebouwde schermpjes met de echte knoppen en kleuren van de app; 👆 wijst aan
@@ -107,7 +108,7 @@ export default function BeginnenPagina() {
         .sg-faq strong { display: block; color: #fff; margin-bottom: 4px; }
       `}</style>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">🧭 Snel aan de slag</span>
+        <span className="admin-topbar-titel"><MenuIcoon naam="beginnen" />Snel aan de slag</span>
       </div>
       <div className="admin-content">
         <div className="sg">

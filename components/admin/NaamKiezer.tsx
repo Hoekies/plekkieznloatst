@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icoon from "@/components/admin/Icoon";
 
 // Naamveld met knop 💡: toont de woorden uit de vraagzin; klik er één aan en dat wordt de naam.
 export default function NaamKiezer({ naam, onNaam, woorden, hoogte = 40, startOpen = false, autoFocus = false }: {
@@ -20,7 +21,7 @@ export default function NaamKiezer({ naam, onNaam, woorden, hoogte = 40, startOp
         {woorden.length > 0 && (
           <button type="button" className={`rl-knop rl-knop--icoon${open ? " rl-knop--cyan" : ""}`} onClick={() => setOpen((v) => !v)}
             title="Kies een woord uit de vraag als naam" aria-label="Naam kiezen uit de vraag" aria-expanded={open}
-            style={{ height: hoogte, width: hoogte }}>💡</button>
+            style={{ height: hoogte, width: hoogte }}><Icoon naam="tip" /></button>
         )}
       </div>
       {open && (

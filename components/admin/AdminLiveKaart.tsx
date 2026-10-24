@@ -10,6 +10,8 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import PuzzelVoortgang from "@/components/admin/PuzzelVoortgang";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import MenuIcoon from "@/components/admin/MenuIcoon";
+import Icoon from "@/components/admin/Icoon";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -101,25 +103,25 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">{replay ? "⏪ Replay" : "📡 Live kaart"}</span>
+        <span className="admin-topbar-titel"><MenuIcoon naam={replay ? "replay" : "live"} />{replay ? "Replay" : "Live kaart"}</span>
         {/* Eigen logo van de organisatie (huisstijl): groot in de lege ruimte midden in de balk */}
         <span className="topbar-huislogo-vak">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {data.route?.huis_logo && <img src={data.route.huis_logo} alt="" />}
         </span>
         {replay ? (
-          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}>📡 Terug naar live</button>
+          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}><Icoon naam="live" /> Terug naar live</button>
         ) : (
           <>
             <button type="button" className={`rl-knop${lagen.items ? " rl-knop--cyan" : " knop-uit"}`} aria-pressed={lagen.items} onClick={() => wisselLaag("items")}
               title={lagen.items ? "Items op de kaart verbergen (rustiger beeld)" : "Items op de kaart tonen"}>
-              🎁<span className="alleen-pc"> Items {lagen.items ? "aan" : "uit"}</span>
+              <Icoon naam="items" /><span className="alleen-pc"> Items {lagen.items ? "aan" : "uit"}</span>
             </button>
             <button type="button" className="rl-knop" onClick={openBeamer} title="Live kaart, stand en gebeurtenissen groot op een tv of beamer (zonder inloggen)">
-              📺<span className="alleen-pc"> Beamer</span>
+              <Icoon naam="beamer" /><span className="alleen-pc"> Beamer</span>
             </button>
             <button type="button" className="rl-knop" onClick={startReplay} disabled={replayLaden} title="Het hele spel versneld afspelen">
-              {replayLaden ? "⏳" : "⏪"} Replay
+              {replayLaden ? <Icoon naam="laden" /> : <Icoon naam="replay" />} Replay
             </button>
             <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
               <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
@@ -147,7 +149,7 @@ export default function AdminLiveKaart({ initData }: Props) {
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
           <button type="button" className="pr-gem-label live-lijst-inklap" onClick={wisselLijst} aria-expanded={!lijstDicht}>
-            <UitklapPijl open={!lijstDicht} /><span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span>
+            <UitklapPijl open={!lijstDicht} /><span><Icoon naam="bezig" /> {aantalActief} bezig · ✓ {aantalKlaar} klaar</span>
           </button>
           {lijstDicht ? null : spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>
@@ -161,12 +163,12 @@ export default function AdminLiveKaart({ initData }: Props) {
                   <span style={{ width: 11, height: 11, borderRadius: "50%", flexShrink: 0, background: kleuren.get(s.player_id) }} />
                   <span style={{ minWidth: 0, flex: 1 }}>
                     <span className="live-lijst-kop">
-                      <span className="live-lijst-naam">{s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}</span>
+                      <span className="live-lijst-naam">{s.sessie_status === "voltooid" ? <><Icoon naam="vlag" />{" "}</> : ""}{s.display_name}</span>
                       <span className={`live-lijst-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
                     </span>
                     {/* Waar het team heen loopt (of: gefinisht) */}
                     <span className="live-lijst-sub">
-                      {s.sessie_status === "voltooid" ? "Gefinisht" : s.huidig_punt_naam ? `➡️ ${s.huidig_punt_naam}` : "Onderweg"}
+                      {s.sessie_status === "voltooid" ? "Gefinisht" : s.huidig_punt_naam ? <><Icoon naam="volgende" />{` ${s.huidig_punt_naam}`}</> : "Onderweg"}
                     </span>
                     {/* 🧩 Puzzelwoord: gevonden letters in goud */}
                     {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} lijst />}
@@ -176,7 +178,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                       </span>
                     )}
                   </span>
-                  {volgt && <span aria-hidden style={{ fontSize: "0.9rem" }}>🎯</span>}
+                  {volgt && <span aria-hidden style={{ fontSize: "0.9rem" }}><Icoon naam="doel" /></span>}
                 </button>
               );
             })

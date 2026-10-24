@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { marked } from "marked";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 // De beheerdershandleiding (docs/beheerdershandleiding.md) als leesbare pagina in het beheer
 export default function UitlegPagina() {
@@ -13,7 +14,7 @@ export default function UitlegPagina() {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">📖 Handleiding</span>
+        <span className="admin-topbar-titel"><MenuIcoon naam="handleiding" />Handleiding</span>
       </div>
       <div className="admin-content">
         {/* Eigen bestand uit de repository, geen invoer van gebruikers */}

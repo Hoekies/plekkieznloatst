@@ -6,6 +6,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { THEMAS, huidigThema, periodeTekst, type SeizoenSoort } from "@/lib/seizoenen";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
+import Icoon from "@/components/admin/Icoon";
 
 const SOORTEN: { soort: SeizoenSoort; label: string; uitleg: string }[] = [
   { soort: "achtergrond", label: "🖼️ Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
@@ -94,8 +95,8 @@ export default function SeizoenAfbeeldingen() {
               </button>
             ))}
             <span className="seizoen-volgorde" role="radiogroup" aria-label="Volgorde">
-              <button type="button" role="radio" className={`rl-knop${volgorde === "alfabet" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "alfabet"} onClick={() => kiesVolgorde("alfabet")}>🔤 Alfabet</button>
-              <button type="button" role="radio" className={`rl-knop${volgorde === "periode" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}>📅 Periode</button>
+              <button type="button" role="radio" className={`rl-knop${volgorde === "alfabet" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "alfabet"} onClick={() => kiesVolgorde("alfabet")}><Icoon naam="tekst" /> Alfabet</button>
+              <button type="button" role="radio" className={`rl-knop${volgorde === "periode" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}><Icoon naam="kalender" /> Periode</button>
             </span>
           </div>
           <span className="inst-uitleg">
@@ -114,7 +115,7 @@ export default function SeizoenAfbeeldingen() {
                       onClick={() => { voorThema.current = t.sleutel; kiesRef.current?.click(); }}
                       title={pad ? "Andere afbeelding kiezen" : "Afbeelding kiezen"}
                       style={pad ? { backgroundImage: `url(${OPSLAG + pad})` } : undefined}>
-                      {bezig === t.sleutel ? "⏳" : pad ? "" : "+"}
+                      {bezig === t.sleutel ? <Icoon naam="laden" /> : pad ? "" : "+"}
                     </button>
                     <span className="seizoen-naam">{t.emoji} {t.naam}{isNu && <span className="seizoen-nu">nu</span>}</span>
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}</span>

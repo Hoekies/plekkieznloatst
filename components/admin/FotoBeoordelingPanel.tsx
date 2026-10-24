@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 type Inzending = {
   id: string;
@@ -76,7 +77,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
         className="btn btn-outline header-knop"
         style={{ position: "relative" }}
         onClick={() => { setOpen(true); haalOp(); }}>
-        <span className="header-knop-icoon" aria-hidden>📷</span> Foto&apos;s<span className="alleen-pc"> beoordelen</span>
+        <Icoon naam="camera" /> Foto&apos;s<span className="alleen-pc"> beoordelen</span>
         {aantal > 0 && (
           <span style={{
             position: "absolute", top: -6, right: -6,

@@ -8,6 +8,7 @@ import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type Ka
 import { speelgebiedLaag } from "@/lib/speelgebied";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
+import Icoon from "@/components/admin/Icoon";
 
 interface Props {
   spelers: SpelerOverzicht[];
@@ -331,19 +332,19 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       {/* Linksonder: kaartlagen en licht/donker/luchtfoto in één paneel, zoals in de route-editor */}
       <KaartBediening>
         <div className="kaart-lagen">
-          <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen">〰️<span className="laag-tekst"> Sporen</span></button>
-          <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen">🎁<span className="laag-tekst"> Items</span></button>
+          <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen"><Icoon naam="sporen" /><span className="laag-tekst"> Sporen</span></button>
+          <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen"><Icoon naam="items" /><span className="laag-tekst"> Items</span></button>
         </div>
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
       </KaartBediening>
       {/* Onder de zoomknoppen: alles weer in beeld */}
-      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld">🔍</button>
+      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld"><Icoon naam="inbeeld" /></button>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}
           className="btn-premium--cyan"
           style={{ position: "absolute", top: 12, left: 60, zIndex: 1000, fontSize: "0.8rem", padding: "8px 14px" }}>
-          📍 Volg spelers
+          <Icoon naam="punt" /> Volg spelers
         </button>
       )}
     </div>

@@ -19,6 +19,7 @@ import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
 import Venster, { VensterMetKop } from "@/components/shared/Venster";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -345,7 +346,7 @@ export default function RoutesOverzicht() {
       return (
         <BevestigKnop venster icoon="⏹️" titel={`"${r.name}" deactiveren?`} vraag="" knopTekst="Ja, deactiveren"
           uitleg="Lopende spellen stoppen. De route blijft Klaar, dus je kunt hem later opnieuw activeren."
-          onBevestig={deactiveer} className="rl-knop rl-knop--rood rl-stap">⏹ Deactiveren</BevestigKnop>
+          onBevestig={deactiveer} className="rl-knop rl-knop--rood rl-stap"><Icoon naam="stoppen" /> Deactiveren</BevestigKnop>
       );
     }
     if (r.status === "gepubliceerd") {
@@ -370,11 +371,11 @@ export default function RoutesOverzicht() {
         <span style={{ flex: 1 }} />
         <button className="rl-knop actie-knop" title="Alle routes met vragen en afbeeldingen in één bestand bewaren (terugzetten met Bestand openen)"
           onClick={maakBackup} disabled={!!backupStand || !routes.length}>
-          {backupStand ? `⏳ ${backupStand}` : <>💾 <span className="alleen-pc">Back-up</span></>}
+          {backupStand ? <><Icoon naam="laden" />{` ${backupStand}`}</> : <><Icoon naam="opslaan" /> <span className="alleen-pc">Back-up</span></>}
         </button>
         <button className="rl-knop actie-knop" title="Open een bestand: een wandeling (GPX of KML) wordt een nieuwe route; een geëxporteerde route of back-up wordt teruggezet"
           onClick={() => importRef.current?.click()} disabled={importBezig}>
-          {importBezig ? "…" : <>📥 <span className="alleen-pc">Bestand openen</span><span className="alleen-mobiel">Openen</span></>}
+          {importBezig ? "…" : <><Icoon naam="downloaden" /> <span className="alleen-pc">Bestand openen</span><span className="alleen-mobiel">Openen</span></>}
         </button>
         <input ref={importRef} type="file" accept=".json,.gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" style={{ display: "none" }} onChange={importeer} />
       </div>
@@ -473,18 +474,18 @@ export default function RoutesOverzicht() {
                 ) : (
                   <button type="button" className="rl-knop" style={{ justifyContent: "center", height: 38 }} onClick={() => gpxRef.current?.click()}
                     title="Alleen bij Op volgorde: een wandeling uit een app of van een Garmin wordt meteen je route">
-                    📂 Bestand inlezen
+                    <Icoon naam="openen" /> Bestand inlezen
                   </button>
                 )}
                 <input ref={gpxRef} type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml" onChange={kiesGpx} style={{ display: "none" }} />
                 {gpx ? (<>
                   <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
-                    <button type="button" role="radio" aria-checked={gpxHeleRoute} className={gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(true)}>🗺️ Hele route zichtbaar</button>
-                    <button type="button" role="radio" aria-checked={!gpxHeleRoute} className={!gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(false)}>📍 Alleen volgend punt</button>
+                    <button type="button" role="radio" aria-checked={gpxHeleRoute} className={gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(true)}><Icoon naam="kaart" /> Hele route zichtbaar</button>
+                    <button type="button" role="radio" aria-checked={!gpxHeleRoute} className={!gpxHeleRoute ? "aan" : ""} onClick={() => setGpxHeleRoute(false)}><Icoon naam="punt" /> Alleen volgend punt</button>
                   </div>
                   <div className="segment" role="radiogroup" aria-label="Wat krijgt de speler bij een punt">
-                    <button type="button" role="radio" aria-checked={gpxStil} className={gpxStil ? "aan" : ""} onClick={() => setGpxStil(true)}>🚶 Gewoon doorlopen</button>
-                    <button type="button" role="radio" aria-checked={!gpxStil} className={!gpxStil ? "aan" : ""} onClick={() => setGpxStil(false)}>ℹ️ Tekst bij elk punt</button>
+                    <button type="button" role="radio" aria-checked={gpxStil} className={gpxStil ? "aan" : ""} onClick={() => setGpxStil(true)}><Icoon naam="lopen" /> Gewoon doorlopen</button>
+                    <button type="button" role="radio" aria-checked={!gpxStil} className={!gpxStil ? "aan" : ""} onClick={() => setGpxStil(false)}><Icoon naam="info" /> Tekst bij elk punt</button>
                   </div>
                   <span className="nieuwe-route-noot">{gpxStil ? "Elk punt telt vanzelf als gepasseerd." : `Bij elk punt: "${IMPORT_INFO_TEKST}"`}</span>
                 </>) : null}
@@ -493,7 +494,7 @@ export default function RoutesOverzicht() {
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}>⚠️ {fout}</div>}
 
               <button className="rl-knop hoofdknop nieuwe-route-knop" type="submit" disabled={bezig || !nieuweNaam.trim()}>
-                {bezig ? "⏳ Aanmaken…" : gpx ? "Aanmaken met deze punten →" : "Aanmaken en beginnen →"}
+                {bezig ? <><Icoon naam="laden" />{" Aanmaken…"}</> : gpx ? "Aanmaken met deze punten →" : "Aanmaken en beginnen →"}
               </button>
               {!gpx && <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>Daarna helpt de app je stap voor stap.</div>}
               <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: 0 }}>💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop.</div>
@@ -509,7 +510,7 @@ export default function RoutesOverzicht() {
             <button type="button" className={`rl-knop${mapFilter === null ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === null} onClick={() => setMapFilter(null)}>Alle</button>
             {mappen.map((m) => (
               <button key={m} type="button" className={`rl-knop${mapFilter === m ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === m} onClick={() => setMapFilter(mapFilter === m ? null : m)}>
-                📁 {m} <span className="seizoen-telling">{routes.filter((r) => r.map === m).length}</span>
+                <Icoon naam="map" /> {m} <span className="seizoen-telling">{routes.filter((r) => r.map === m).length}</span>
               </button>
             ))}
             {routes.some((r) => !r.map) && (
@@ -525,7 +526,7 @@ export default function RoutesOverzicht() {
           {mappen.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {mappen.map((m) => (
-                <button key={m} type="button" className={`rl-knop${mapVoor.map === m ? " rl-knop--cyan" : ""}`} onClick={() => zetMap(mapVoor, m)}>📁 {m}</button>
+                <button key={m} type="button" className={`rl-knop${mapVoor.map === m ? " rl-knop--cyan" : ""}`} onClick={() => zetMap(mapVoor, m)}><Icoon naam="map" /> {m}</button>
               ))}
             </div>
           )}
@@ -592,7 +593,7 @@ export default function RoutesOverzicht() {
                   {/* Telefoon (ingeklapt): de volgende stap en Bewerken naast elkaar, net als opengeklapt */}
                   <span className="rl-kop-stap" onClick={(e) => e.stopPropagation()}>
                     {stapKnop(r)}
-                    <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
+                    <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}><Icoon naam="bewerken" /> Bewerken</button>
                   </span>
                   <span className="rl-pijl"><UitklapPijl open={open.has(r.id)} /></span>
                 </div>
@@ -601,31 +602,31 @@ export default function RoutesOverzicht() {
                   <div className="rl-tekstknoppen">
                   {/* Plek 1: de volgende stap: klaarzetten → activeren → deactiveren (computer) */}
                   <span className="rl-stap-plek">{stapKnop(r)}</span>
-                  <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
+                  <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}><Icoon naam="bewerken" /> Bewerken</button>
                   </div>
                   {/* Icoonknoppen, altijd in dezelfde volgorde */}
                   <div className="rl-icoonknoppen">
                   <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
-                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}>📄<span className="rl-knop-label">Voorproefje</span></button>
+                    onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}><Icoon naam="rapport" /><span className="rl-knop-label">Voorproefje</span></button>
                   <BevestigKnop venster gevaarlijk={false} icoon="📋" titel="Route kopiëren?"
                     vraag="" uitleg="Met alle instellingen, punten, vragen en items. De kopie staat op Concept."
                     ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
-                    {kopieBezig === r.id ? "…" : "📋"}<span className="rl-knop-label">Kopiëren</span>
+                    {kopieBezig === r.id ? "…" : <Icoon naam="klembord" />}<span className="rl-knop-label">Kopiëren</span>
                   </BevestigKnop>
                   <button className="rl-knop rl-knop--icoon" data-tip="In een map zetten (om je routes te ordenen)" aria-label="Map"
-                    onClick={() => setMapVoor(r)}>📁<span className="rl-knop-label">Map</span></button>
+                    onClick={() => setMapVoor(r)}><Icoon naam="map" /><span className="rl-knop-label">Map</span></button>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
-                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}<span className="rl-knop-label">Exporteren</span></button>
+                    disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : <Icoon naam="versturen" />}<span className="rl-knop-label">Exporteren</span></button>
                   {!r.is_active && r.status === "gepubliceerd" ? (
                     <button className="rl-knop rl-knop--icoon" data-tip="Terug naar concept (weer bewerken voordat je activeert)" aria-label="Terug naar concept"
-                      onClick={() => togglePubliceer(r)}>↩️<span className="rl-knop-label">Concept</span></button>
+                      onClick={() => togglePubliceer(r)}><Icoon naam="terug" /><span className="rl-knop-label">Concept</span></button>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                   {!r.is_active ? (
                     <BevestigKnop venster icoon="🗑️" titel={`„${r.name}” verwijderen?`}
                       vraag="" uitleg="Met alle punten, vragen en items. Dit kan niet ongedaan worden gemaakt; exporteer hem eerst (📤) als je hem wilt bewaren."
                       ja="Ja, verwijderen" onBevestig={() => verwijder(r.id, r.name)}
-                      className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen">🗑️<span className="rl-knop-label">Verwijderen</span></BevestigKnop>
+                      className="rl-knop rl-knop--icoon rl-knop--rood" tip="Route verwijderen"><Icoon naam="wissen" /><span className="rl-knop-label">Verwijderen</span></BevestigKnop>
                   ) : <span className="rl-knop rl-knop--icoon rl-leeg" aria-hidden />}
                   </div>
                 </div>

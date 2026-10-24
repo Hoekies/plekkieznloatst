@@ -5,6 +5,7 @@ import { speelDong } from "@/lib/sounds";
 import { useBeheerStatus, verversBeheerStatus, type HulpMelding } from "@/components/admin/useBeheerStatus";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import Icoon from "@/components/admin/Icoon";
 
 
 function minutenGeleden(iso: string): string {
@@ -70,7 +71,7 @@ export default function HulpMeldingen() {
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn-premium--cyan" style={{ fontSize: "0.78rem", padding: "7px 12px", flex: 1 }}
               disabled={bezig === m.id} onClick={() => vrijgeven(m)}>
-              ⏭️ Punt vrijgeven
+              <Icoon naam="vrijgeven" /> Punt vrijgeven
             </button>
             <button className="btn btn-ghost" style={{ fontSize: "0.78rem", padding: "7px 12px", color: "#fff", borderColor: "rgba(255,255,255,0.4)" }}
               disabled={bezig === m.id} onClick={() => negeren(m)}>

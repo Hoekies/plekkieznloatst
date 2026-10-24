@@ -7,6 +7,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { WijzigVenster, NieuwAccountForm, type BeheerModal } from "@/components/admin/GroepenBeheer";
 import { foutUitleg } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import Icoon from "@/components/admin/Icoon";
 
 type Helper = { id: string; naam: string; laatst_ingelogd: string | null; uitgeschakeld?: boolean };
 
@@ -87,11 +88,11 @@ export default function HelpersBeheer() {
                   {!h.uitgeschakeld && (
                     <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
                       title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
-                      onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🦺", login: h.naam, helper: true })}>🔑<span className="gb-label">Inlog</span></button>
+                      onClick={() => setModal({ id: h.id, groepNaam: h.naam, icoon: "🦺", login: h.naam, helper: true })}><Icoon naam="sleutel" /><span className="gb-label">Inlog</span></button>
                   )}
                   <BevestigKnop venster icoon="🗑️" titel={`${h.naam} verwijderen?`} vraag="" ja="Ja, verwijderen"
                     onBevestig={() => verwijder(h)} className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
-                    tip="Helper verwijderen: kan daarna niet meer inloggen">🗑️<span className="gb-label">Verwijder</span></BevestigKnop>
+                    tip="Helper verwijderen: kan daarna niet meer inloggen"><Icoon naam="wissen" /><span className="gb-label">Verwijder</span></BevestigKnop>
                   </div>
                   {/* Aan/uit, zelfde schakelaar als bij de spelers */}
                   <div className="gb-schakelaar" role="switch" aria-checked={!h.uitgeschakeld} tabIndex={0}

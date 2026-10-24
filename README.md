@@ -93,6 +93,7 @@ Bij **Sequentieel** liggen alleen Plek zooi-vallen op de kaart en krijgt elk tea
 | Kaart | Leaflet.js |
 | Hosting | Vercel |
 | Stijl | CSS custom properties, Space Grotesk |
+| Iconen beheer | lucide-react (lijn-iconen); speler-app: emoji |
 
 ---
 

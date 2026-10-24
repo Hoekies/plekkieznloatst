@@ -12,6 +12,7 @@ import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
+import Icoon from "@/components/admin/Icoon";
 
 type Data = {
   route: { id: string; name: string; huis_logo?: string | null } | null;
@@ -135,27 +136,27 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
       <div className="actie-rij antw-balk">
         {data.teams.length > 0 && (
           <div className="segment antw-tabs" role="tablist">
-            <button type="button" role="tab" aria-selected={weergave === "team"} className={weergave === "team" ? "aan" : ""} onClick={() => setWeergave("team")}>👫 Per team</button>
-            <button type="button" role="tab" aria-selected={weergave === "vraag"} className={weergave === "vraag" ? "aan" : ""} onClick={() => setWeergave("vraag")}>📊 Per vraag</button>
+            <button type="button" role="tab" aria-selected={weergave === "team"} className={weergave === "team" ? "aan" : ""} onClick={() => setWeergave("team")}><Icoon naam="spelers" /> Per team</button>
+            <button type="button" role="tab" aria-selected={weergave === "vraag"} className={weergave === "vraag" ? "aan" : ""} onClick={() => setWeergave("vraag")}><Icoon naam="statistiek" /> Per vraag</button>
             {heeftFotos && (
               <button type="button" role="tab" aria-selected={weergave === "fotos"} className={weergave === "fotos" ? "aan" : ""} onClick={() => setWeergave("fotos")}>
-                📸 Foto&apos;s{data.wachtende_fotos ? <span className="antw-tab-teller">{data.wachtende_fotos}</span> : null}
+                <Icoon naam="camera" /> Foto&apos;s{data.wachtende_fotos ? <span className="antw-tab-teller">{data.wachtende_fotos}</span> : null}
               </button>
             )}
           </div>
         )}
         <span className="antw-ruimte" style={{ flex: 1 }} />
         {data.teams.length > 0 && (
-          <button type="button" className="rl-knop actie-knop" onClick={() => downloadExcel(data)} title="Alle antwoorden als bestand voor Excel">📥 Excel</button>
+          <button type="button" className="rl-knop actie-knop" onClick={() => downloadExcel(data)} title="Alle antwoorden als bestand voor Excel"><Icoon naam="downloaden" /> Excel</button>
         )}
       {!beperkt && <>
         {data.uitslag_vrijgegeven ? (
-          <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}>🔒 Uitslag weer verbergen</button>
+          <button className="rl-knop actie-knop" disabled={bezig === "uitslag"} onClick={wisselUitslag}><Icoon naam="slot" /> Uitslag weer verbergen</button>
         ) : (
           <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Uitslag vrijgeven?"
             className="rl-knop rl-knop--cyan actie-knop" disabled={bezig === "uitslag"} onBevestig={wisselUitslag}
             vraag={`Alle spelers zien dan de eindstand op hun finishscherm.${uitslagWaarschuwing ? " ⚠️ " + uitslagWaarschuwing : ""}`} ja="Ja, vrijgeven">
-            🏆 Uitslag vrijgeven
+            <Icoon naam="uitslag" /> Uitslag vrijgeven
           </BevestigKnop>
         )}
         {data.teams.length > 0 && (
@@ -169,7 +170,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
         <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"
           style={{ textDecoration: "none" }}
           title="Eindstand en per speler de vragen, items en gelopen route — als PDF te versturen">
-          📄 Rapport (PDF)
+          <Icoon naam="rapport" /> Rapport (PDF)
         </a>
       </>}
       </div>
@@ -197,7 +198,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
           {aantalBijna > 0 || data.wachtende_fotos ? (
             <button type="button" className={`rl-knop${alleenAandacht ? " rl-knop--cyan" : ""}`} onClick={() => setAlleenAandacht((v) => !v)}
               title="Alleen de antwoorden die je nog moet bekijken">
-              {alleenAandacht ? "✕ Alles tonen" : `🤏 Te bekijken: ${[aantalBijna ? `${aantalBijna} bijna goed` : "", data.wachtende_fotos ? `${data.wachtende_fotos} foto${data.wachtende_fotos === 1 ? "" : "'s"}` : ""].filter(Boolean).join(" · ")}`}
+              {alleenAandacht ? "✕ Alles tonen" : <><Icoon naam="bekijken" />{` Te bekijken: ${[aantalBijna ? `${aantalBijna} bijna goed` : "", data.wachtende_fotos ? `${data.wachtende_fotos} foto${data.wachtende_fotos === 1 ? "" : "'s"}` : ""].filter(Boolean).join(" · ")}`}</>}
             </button>
           ) : <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>✅ Niets te bekijken</span>}
           <span style={{ flex: 1 }} />
@@ -230,8 +231,8 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
                 ? <span className="antw-nog-niets" style={{ marginLeft: 0 }}>nog geen vragen beantwoord</span>
                 : <span className="antw-telling">
                     <span style={{ color: "#4ADE80" }}>✓ {goed}</span> <span style={{ color: "#F87171" }}>✗ {fout}</span>
-                    {bijna > 0 && <span style={{ color: "#FBBF24" }}> 🤏 {bijna} bijna goed</span>}
-                    {fotoWacht > 0 && <span style={{ color: "#FBBF24" }}> 📸 {fotoWacht} te keuren</span>}
+                    {bijna > 0 && <span style={{ color: "#FBBF24" }}> <Icoon naam="bekijken" /> {bijna} bijna goed</span>}
+                    {fotoWacht > 0 && <span style={{ color: "#FBBF24" }}> <Icoon naam="camera" /> {fotoWacht} te keuren</span>}
                   </span>}
             </span>
             {/* Vaste breedtes, zodat status, punten en pijl bij alle teams onder elkaar staan */}

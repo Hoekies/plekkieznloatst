@@ -2,6 +2,7 @@ import { haalLiveData } from "@/lib/admin-live";
 import { haalGebruiker } from "@/lib/auth-server";
 import AdminLiveKaart from "@/components/admin/AdminLiveKaart";
 import LeegScherm from "@/components/admin/LeegScherm";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 export default async function LiveKaartPagina() {
   const [initData, user] = await Promise.all([haalLiveData(), haalGebruiker()]);
@@ -12,7 +13,7 @@ export default async function LiveKaartPagina() {
     return (
       <>
         <div className="admin-topbar">
-          <span className="admin-topbar-titel">📡 Live kaart</span>
+          <span className="admin-topbar-titel"><MenuIcoon naam="live" />Live kaart</span>
         </div>
         <div className="admin-content">
           <LeegScherm icoon="📡" knop={helper ? undefined : { label: "🗺️ Naar routes", href: "/admin/routes" }}>

@@ -6,6 +6,7 @@ import { escapeHtml } from "@/lib/html";
 import { laadMaplibre, pasStijlToe, webglMogelijk, bewaardeStijl, bewaarStijl, VECTOR_STIJL_URL, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import { toonMelding } from "@/components/admin/Melding";
+import Icoon from "@/components/admin/Icoon";
 
 export type ReplayTeam = { player_id: string; naam: string; icon: string | null; gefinisht_op: number | null; spoor: [number, number, number][] };
 
@@ -263,8 +264,8 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
             {/* Rechtsboven: camera en licht/donker/luchtfoto in één paneel, zoals op de andere kaarten */}
             <div className="kaart-bediening replay-bediening" onClick={(e) => e.stopPropagation()}>
               <div className="kaart-lagen kaart-lagen--camera">
-                <button type="button" className={meebewegen ? "aan" : ""} aria-pressed={meebewegen} onClick={() => setMeebewegen((m) => !m)} title="Camera beweegt mee met de teams">🎥 Meebewegen</button>
-                <button type="button" className={schuin ? "aan" : ""} aria-pressed={schuin} onClick={wisselSchuin} title={schuin ? "Plat bekijken" : "Schuin bekijken"}>⛰️ Schuin</button>
+                <button type="button" className={meebewegen ? "aan" : ""} aria-pressed={meebewegen} onClick={() => setMeebewegen((m) => !m)} title="Camera beweegt mee met de teams"><Icoon naam="meebewegen" /> Meebewegen</button>
+                <button type="button" className={schuin ? "aan" : ""} aria-pressed={schuin} onClick={wisselSchuin} title={schuin ? "Plat bekijken" : "Schuin bekijken"}><Icoon naam="schuin" /> Schuin</button>
               </div>
               <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} inBlok />
             </div>
@@ -274,7 +275,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
       {/* Bediening: afspelen, tijd en snelheid */}
       <div className="replay-balk">
         <button type="button" className="rl-knop rl-knop--cyan replay-speel" aria-label={speelt ? "Pauze" : "Afspelen"}
-          onClick={() => { if (!speelt && tijd >= eind) setTijd(begin); setSpeelt((s) => !s); }}>{speelt ? "⏸" : "▶"}</button>
+          onClick={() => { if (!speelt && tijd >= eind) setTijd(begin); setSpeelt((s) => !s); }}>{speelt ? <Icoon naam="pauze" /> : "▶"}</button>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
           <input type="range" min={begin} max={eind} step={1000} value={tijd} onChange={(e) => setTijd(Number(e.target.value))} className="replay-schuif" aria-label="Tijd" />
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--muted)" }}>
@@ -284,7 +285,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
           </div>
         </div>
         <button type="button" className="rl-knop" disabled={film !== null || !klaar} onClick={maakFilm}
-          title="De hele race in 30 seconden als video, om te delen">{film !== null ? `🎬 ${Math.round(film * 100)}%` : "🎬 Film"}</button>
+          title="De hele race in 30 seconden als video, om te delen">{film !== null ? <><Icoon naam="film" />{` ${Math.round(film * 100)}%`}</> : <><Icoon naam="film" />{" Film"}</>}</button>
         <div className="replay-snelheid">
           {SNELHEDEN.map((s) => (
             <button key={s} type="button" className={`rl-knop${snelheid === s ? " rl-knop--cyan" : ""}`} onClick={() => setSnelheid(s)}>{s}×</button>

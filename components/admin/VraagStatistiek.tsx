@@ -3,6 +3,7 @@
 import type { TeamAntwoorden } from "@/lib/admin-antwoorden";
 import LeegScherm from "@/components/admin/LeegScherm";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import Icoon from "@/components/admin/Icoon";
 
 type Stat = {
   punt_id: string; volgorde: number; punt_naam: string; vraag_tekst: string; vraag_type: string;
@@ -85,7 +86,7 @@ export default function VraagStatistiek({ teams, onOokGoed, onSluitStemming }: {
                   <BevestigKnop venster gevaarlijk={false} icoon="🗳️" titel="Stemming sluiten?" className="rl-knop" style={{ alignSelf: "flex-start" }}
                     vraag="De teams die de meest gekozen keuze kozen, krijgen nu de punten. Teams die later nog stemmen, krijgen meteen de uitslag. (Bij Uitslag vrijgeven gebeurt dit ook vanzelf.)"
                     ja="🗳️ Sluiten en punten geven" onBevestig={() => onSluitStemming(s.punt_id)}>
-                    🗳️ Stemming sluiten
+                    <Icoon naam="stemmen" /> Stemming sluiten
                   </BevestigKnop>
                 )}
               </div>
@@ -128,7 +129,7 @@ export default function VraagStatistiek({ teams, onOokGoed, onSluitStemming }: {
                 <BevestigKnop venster gevaarlijk={false} icoon="🏳️" titel="Iedereen goed rekenen?" className="es-link" tip="Bijv. als de vraag of het goede antwoord niet klopte"
                   vraag={`Alle ${s.foutIds.length} teams met een fout antwoord krijgen alsnog de punten van deze vraag.`}
                   ja="✓ Iedereen goed" onBevestig={() => onOokGoed(s.foutIds, null)}>
-                  🏳️ Klopte de vraag niet? Iedereen goed rekenen
+                  <Icoon naam="vlag" /> Klopte de vraag niet? Iedereen goed rekenen
                 </BevestigKnop>
               )}
             </div>

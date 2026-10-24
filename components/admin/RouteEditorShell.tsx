@@ -31,6 +31,7 @@ import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -1323,12 +1324,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button type="button" className="rl-knop"
               disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
               title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-              ↶<span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
+              <Icoon naam="terug" /><span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
             </button>
             {/* Instellingen: goud, als laatste in dezelfde rij */}
             <button className="rl-knop rl-knop--goud alleen-pc-knop"
               onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
-              ⚙️<span className="alleen-pc"> Instellingen</span>
+              <Icoon naam="instellingen" /><span className="alleen-pc"> Instellingen</span>
             </button>
     </>
   );
@@ -1369,7 +1370,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
                   title="Laatste controle, daarna kunnen de spelers beginnen">▶ Starten</button>
                 <button className="rl-knop" onClick={() => zetStatus("concept")}
-                  title="Terug naar concept (weer bewerken voordat je activeert)">↩<span className="alleen-pc"> Concept</span></button>
+                  title="Terug naar concept (weer bewerken voordat je activeert)"><Icoon naam="terug" /><span className="alleen-pc"> Concept</span></button>
               </>
             )}
             {route.is_active && (
@@ -1379,12 +1380,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   const res = await api(`/api/admin/routes/${route.id}/vernieuw`, { method: "POST" });
                   const data = await res.json().catch(() => ({}));
                   toonMelding(res.ok ? "Verstuurd: de spelers zien de wijzigingen binnen een paar seconden" : uitlegBijStatus(res.status, "Versturen", data.fout), res.ok ? "ok" : "fout");
-                }}>📲<span className="alleen-pc"> Naar spelers sturen</span></BevestigKnop>
+                }}><Icoon naam="delen" /><span className="alleen-pc"> Naar spelers sturen</span></BevestigKnop>
             )}
             {route.is_active && (
               <BevestigKnop venster icoon="⏹️" titel="Route deactiveren?" vraag="" knopTekst="Ja, deactiveren"
                 uitleg="Lopende spellen stoppen. De route blijft Klaar, dus je kunt hem later opnieuw activeren."
-                className="rl-knop rl-knop--rood" onBevestig={deactiveerRoute}>⏹<span className="alleen-pc"> Deactiveren</span></BevestigKnop>
+                className="rl-knop rl-knop--rood" onBevestig={deactiveerRoute}><Icoon naam="stoppen" /><span className="alleen-pc"> Deactiveren</span></BevestigKnop>
             )}
     </>
   );
@@ -1412,7 +1413,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-rechts-kop">{rechtsGroep}</span>
           {/* Telefoon: instellingen rechts naast de naam (op de computer staat hij in de knoppenrij) */}
           <button className="rl-knop rl-knop--goud alleen-mobiel-knop"
-            onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen">⚙️</button>
+            onClick={() => setInstellingenOpen(true)} title="Route-instellingen" aria-label="Instellingen"><Icoon naam="instellingen" /></button>
         </div>
 
         {/* Rij 2: status en route-stappen links, hulpmiddelen in het midden, ongedaan maken en opslagstatus rechts */}
@@ -1426,14 +1427,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
           {/* Computer: puntenlijst links in- en uitklappen */}
           <button type="button" className={`rl-knop alleen-pc-knop${lijstDicht ? "" : " rl-knop--cyan"}`} onClick={wisselLijst}
-            title={lijstDicht ? "Puntenlijst tonen" : "Puntenlijst verbergen (meer ruimte voor de kaart)"}>◧ Lijst</button>
+            title={lijstDicht ? "Puntenlijst tonen" : "Puntenlijst verbergen (meer ruimte voor de kaart)"}><Icoon naam="lijst" /> Lijst</button>
 
           {/* Wegen: aan/uit-schakelaar; als hij aan staat een aparte knop om opnieuw te berekenen */}
           <span className="editor-groep">
             <button className={`rl-knop schakel${wegenAan ? " schakel--aan" : ""}`} role="switch" aria-checked={wegenAan}
               onClick={wisselWegen} disabled={wegen.bezig}
               title={wegenAan ? "Aan: lijnen en afstanden volgen wegen en voetpaden. Klik om uit te zetten (hemelsbreed)." : "Uit: lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
-              {wegen.bezig ? "⏳" : "🚶"}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
+              {wegen.bezig ? <Icoon naam="laden" /> : <Icoon naam="lopen" />}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
             {wegenAan && (
               <button className="rl-knop editor-opnieuw" onClick={wegen.herbereken} disabled={wegen.bezig} title="Alle lijnen en afstanden opnieuw berekenen">
@@ -1443,12 +1444,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </span>
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
-            📝<span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
+            <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
           </button>
           <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
             onClick={() => { const aan = !(proef || testOpen); setProef(aan ? NIEUWE_PROEF : null); setTestOpen(false); setGeselecteerd(null); }}
             title="Testen: klik over de kaart en loop als testspeler mee (punten, items en vallen gaan af zoals op straat), of bekijk de vragen punt voor punt">
-            🧪<span className="alleen-pc"> Testen</span>
+            <Icoon naam="testen" /><span className="alleen-pc"> Testen</span>
           </button>
 
           <span className="editor-balk-scheiding" aria-hidden />
@@ -1458,13 +1459,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {route.modus === "sequentieel" && <PuntenImporteren routeId={route.id} straal={puntRadius} heeftFinish={punten[punten.length - 1]?.type === "eindpunt"} leeg={punten.length === 0} onKlaar={herlaadPunten} />}
             <button type="button" className={`rl-knop${tekenGebied ? " rl-knop--cyan" : ""}`} onClick={() => { setTekenGebied((t) => (t ? null : [])); setProef(null); setGeselecteerd(null); }}
               title="Verboden gebied tekenen: tik de hoeken aan op de kaart (bijv. een drukke weg of privéterrein)">
-              ⛔<span className="alleen-pc"> Verboden gebied</span>
+              <Icoon naam="verboden" /><span className="alleen-pc"> Verboden gebied</span>
             </button>
             <BevestigKnop venster gevaarlijk={false} icoon="🧲" titel="Alle punten op de weg zetten?"
               vraag="" uitleg={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Terugzetten kan met ↶ Ongedaan.`}
               ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
               className="rl-knop" tip="Alle punten op de weg of het voetpad zetten" tipOnder>
-              {opDeWegBezig ? "⏳" : "🧲"}<span className="alleen-pc"> Op de weg</span>
+              {opDeWegBezig ? <Icoon naam="laden" /> : <Icoon naam="magneet" />}<span className="alleen-pc"> Op de weg</span>
             </BevestigKnop>
             {!route.is_active && (
               <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
@@ -1473,7 +1474,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
                 ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
                 className="rl-knop" tip="Route leegmaken: alle punten en items weg" tipOnder>
-                🗑️<span className="alleen-pc"> Leegmaken</span>
+                <Icoon naam="wissen" /><span className="alleen-pc"> Leegmaken</span>
               </BevestigKnop>
             )}
           </span>
@@ -1529,7 +1530,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <button type="button" onClick={() => setRondjeOpen((v) => !v)}
                       style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "2px 0", background: "none", border: "none", cursor: "pointer", color: "var(--ink)", fontSize: "0.74rem", fontWeight: 700, textAlign: "left" }}>
                       <UitklapPijl open={rondjeOpen} />
-                      ⭕ Rondje
+                      <Icoon naam="rondje" /> Rondje
                       <span style={{ color: "var(--muted)", fontWeight: 400 }}>
                         {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
                       </span>
@@ -1583,7 +1584,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     className={`btn ${centrumModus ? "btn-cyan" : centrumPunt ? "btn-ghost" : "btn-primary"}`}
                     style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
                     onClick={() => { setCentrumModus((v) => !v); }}>
-                    {centrumModus ? "👆 Klik op de kaart voor het middelpunt…" : centrumPunt ? "🎯 Middelpunt verplaatsen" : "🎯 Kies het middelpunt op de kaart"}
+                    {centrumModus ? <><Icoon naam="aanwijzen" />{" Klik op de kaart voor het middelpunt…"}</> : centrumPunt ? <><Icoon naam="doel" />{" Middelpunt verplaatsen"}</> : <><Icoon naam="doel" />{" Kies het middelpunt op de kaart"}</>}
                   </button>
                   {doelAfstandKm <= 0 && (
                     <div style={{ fontSize: "0.68rem", color: "var(--gold)" }}>
@@ -1597,11 +1598,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       {punten.length > 0 ? (
                         <BevestigKnop venster icoon="🎲" titel={`De ${punten.length} punten vervangen door nieuwe?`} className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
                           vraag="" ja="Ja, vervang" onBevestig={genereerPuntenInCirkel}>
-                          🎲 Punten maken in de cirkel
+                          <Icoon naam="dobbelsteen" /> Punten maken in de cirkel
                         </BevestigKnop>
                       ) : (
                         <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }} onClick={genereerPuntenInCirkel}>
-                          🎲 Punten maken in de cirkel
+                          <Icoon naam="dobbelsteen" /> Punten maken in de cirkel
                         </button>
                       )}
                     </>
@@ -1668,7 +1669,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 borderBottom: actieveTab === "punten" ? "2px solid var(--cyan)" : "2px solid transparent",
                 color: actieveTab === "punten" ? "var(--cyan)" : "var(--muted)",
               }}>
-              📍 Punten ({punten.length})
+              <Icoon naam="punt" /> Punten ({punten.length})
             </button>
             <button
               onClick={() => { setActieveTab("items"); setAddModus(false); }}
@@ -1678,7 +1679,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 borderBottom: actieveTab === "items" ? "2px solid var(--cyan)" : "2px solid transparent",
                 color: actieveTab === "items" ? "var(--cyan)" : "var(--muted)",
               }}>
-              🎁 Items ({specialeItems.length})
+              <Icoon naam="items" /> Items ({specialeItems.length})
             </button>
             {/* Toevoegen gaat via de kaart: uitleg achter de ⓘ */}
             <button type="button" onClick={() => setTikUitlegOpen((v) => !v)} title="Tik op de kaart om toe te voegen · sleep om te verplaatsen" aria-expanded={tikUitlegOpen}
@@ -1702,7 +1703,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <div className={`meerdere${kiesModus ? " meerdere--aan" : ""}`}>
                 {!kiesModus ? (
                   <button type="button" className="meerdere-open" onClick={() => { setKiesModus(true); setGekozenIds(new Set()); setGeselecteerd(null); }}>
-                    ☑️ Meerdere tegelijk
+                    <Icoon naam="meerdere" /> Meerdere tegelijk
                   </button>
                 ) : (<>
                   {/* Kop: hoeveel gekozen, en klaar */}
@@ -1719,11 +1720,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                   {/* Wat er met de gekozen punten gebeurt */}
                   <div className="meerdere-acties">
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("vraagpunt")} title="Vraagpunt maken">❓<span>Vraag</span></button>
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("informatiepunt")} title="Infopunt maken">ℹ️<span>Info</span></button>
-                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("doorlooppunt")} title="Doorlooppunt maken (geen scherm)">🚶<span>Door</span></button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("vraagpunt")} title="Vraagpunt maken"><Icoon naam="vraag" /><span>Vraag</span></button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("informatiepunt")} title="Infopunt maken"><Icoon naam="info" /><span>Info</span></button>
+                    <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={() => zetSoortVoorGekozen("doorlooppunt")} title="Doorlooppunt maken (geen scherm)"><Icoon naam="lopen" /><span>Door</span></button>
                     <button type="button" className="rl-knop" disabled={!gekozenIds.size || !!namenBezig} onClick={geefStraatnamen} title="Elk gekozen punt de naam van de straat of plek geven">
-                      {namenBezig ? <>⏳<span>{namenBezig}</span></> : <>🏷️<span>Naam</span></>}
+                      {namenBezig ? <><Icoon naam="laden" /><span>{namenBezig}</span></> : <><Icoon naam="label" /><span>Naam</span></>}
                     </button>
                   </div>
                 </>)}
@@ -1788,10 +1789,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     {/* Klikbaar: opent meteen de vraag van dit punt */}
                     {vraagPuntIds.has(pt.id) ? (
                       <button type="button" className="lijst-vraagknop" title="Vraag ingevuld: klik om te bewerken" aria-label="Vraag bewerken"
-                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>✅</button>
+                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}><Icoon naam="goed" /></button>
                     ) : pt.type === "vraagpunt" ? (
                       <button type="button" className="lijst-vraagknop lijst-vraagknop--leeg" title="Nog geen vraag: klik om hem in te vullen" aria-label="Vraag invullen"
-                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}>⚠️</button>
+                        onClick={(e) => { e.stopPropagation(); openVraag(pt); }}><Icoon naam="waarschuwing" /></button>
                     ) : pt.type === "doorlooppunt" ? (
                       <span className="lijst-doorloop" title="Doorlopen: de spelers krijgen hier geen scherm">🚶</span>
                     ) : pt.type === "informatiepunt" && !isHub ? (
@@ -1804,7 +1805,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem", color: (i === punten.length - 1 || isHub || (isVerspreid && i === punten.length - 2)) ? "var(--line)" : "var(--muted)", padding: "1px 3px" }}>▼</button>
                     </div>
                     <button className="lijst-rij-acties" title="Punt verwijderen (terugzetten kan met ↶)" aria-label="Punt verwijderen" onClick={(e) => { e.stopPropagation(); verwijderPunt(pt.id); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}><Icoon naam="wissen" /></button>
                     {/* Greep: laat zien dat je de regel kunt verslepen (start en finish liggen vast) */}
                     <span className={`lijst-greep${vast ? " lijst-greep--vast" : ""}`} aria-hidden>≡</span>
                   </div>
@@ -1820,7 +1821,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   uitleg="Langs de route die de teams lopen, verdeeld over de soorten. Terugzetten kan met ↶ Ongedaan." knopTekst="Ja, plaatsen"
                   onBevestig={plaatsAlleVoorstellen} disabled={autoItemsBezig}
                   className="rl-knop rl-knop--cyan" style={{ width: "100%", height: 36, justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  {autoItemsBezig ? "⏳ Plaatsen…" : `✨ Items automatisch plaatsen (${itemCheck.voorstellen.length})`}
+                  {autoItemsBezig ? <><Icoon naam="laden" />{" Plaatsen…"}</> : <><Icoon naam="nieuw" />{` Items automatisch plaatsen (${itemCheck.voorstellen.length})`}</>}
                 </BevestigKnop>
               </div>
             )}
@@ -1925,7 +1926,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
                   <button type="button" className="rl-knop" style={{ margin: "8px 10px" }} disabled={opWegBezig} onClick={itemsOpDeWeg}
                     title="Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad, de stoep of de weg leggen">
-                    {opWegBezig ? "⏳ Bezig…" : "🛣️ Alle items op de weg"}
+                    {opWegBezig ? <><Icoon naam="laden" />{" Bezig…"}</> : <><Icoon naam="weg" />{" Alle items op de weg"}</>}
                   </button>
                 </>
               )
@@ -1952,16 +1953,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {route.modus === "verspreid" && (
                 <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
                   onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
-                  🏠 Middelpunt (start en finish)
+                  <Icoon naam="thuis" /> Middelpunt (start en finish)
                 </button>
               )}
               <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                📍 Punt
+                <Icoon naam="punt" /> Punt
               </button>
               <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                {route.modus === "sequentieel" ? "⛔ Plek zooi" : "🎁 Item"}
+                {route.modus === "sequentieel" ? <><Icoon naam="verboden" />{" Plek zooi"}</> : <><Icoon naam="items" />{" Item"}</>}
               </button>
             </div>
           </>
@@ -2063,7 +2064,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       {gebieden.map((g, i) => (
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem" }}>
                           <span style={{ flex: 1 }}>{g.naam} <span style={{ color: "var(--muted)" }}>· {g.punten.length} hoeken</span></span>
-                          <button type="button" className="rl-knop" title="Verwijderen" onClick={() => slaGebiedenOp(gebieden.filter((_, j) => j !== i))}>🗑️</button>
+                          <button type="button" className="rl-knop" title="Verwijderen" onClick={() => slaGebiedenOp(gebieden.filter((_, j) => j !== i))}><Icoon naam="wissen" /></button>
                         </div>
                       ))}
                       <button type="button" className="rl-knop" style={{ alignSelf: "flex-start" }}
@@ -2102,7 +2103,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
                     </div>
                     <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : "⚙️ Meer instellingen"}
+                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
                     </button>
                     {meerInstellingen && <div className="form-group">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
@@ -2294,7 +2295,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
                 <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                  <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : "⚙️ Meer instellingen"}
+                  <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
                 </button>
                   </>
                 )}
@@ -2338,7 +2339,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div className="proefloop-nu">{tekenGebied.length < 3 ? `👆 Tik de hoeken aan op de kaart (nog ${3 - tekenGebied.length} of meer).` : `${tekenGebied.length} hoeken. Tik er meer aan, of sla op.`}</div>
             <input className="form-input" value={gebiedNaam} onChange={(e) => setGebiedNaam(e.target.value)} placeholder="Naam, bijv. Drukke weg" maxLength={40} />
             <div style={{ display: "flex", gap: 8 }}>
-              <button type="button" className="rl-knop" disabled={!tekenGebied.length} onClick={() => setTekenGebied((t) => t && t.slice(0, -1))}>↶ Laatste hoek</button>
+              <button type="button" className="rl-knop" disabled={!tekenGebied.length} onClick={() => setTekenGebied((t) => t && t.slice(0, -1))}><Icoon naam="terug" /> Laatste hoek</button>
               <button type="button" className="rl-knop hoofdknop" style={{ flex: 1, justifyContent: "center" }} disabled={tekenGebied.length < 3} onClick={gebiedKlaar}>✓ Opslaan</button>
             </div>
           </div>
@@ -2368,7 +2369,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               )}
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 {proef.pos && <button type="button" className="es-link" onClick={() => { setProef(NIEUWE_PROEF); setProefBezig(false); }}>↺ Opnieuw beginnen</button>}
-                <button type="button" className="es-link" onClick={() => { setProef(null); setTestOpen(true); }}>📋 Vragen punt voor punt</button>
+                <button type="button" className="es-link" onClick={() => { setProef(null); setTestOpen(true); }}><Icoon naam="klembord" /> Vragen punt voor punt</button>
               </div>
             </div>
           );
@@ -2443,7 +2444,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             🗑️ {herstelToast.charAt(0).toUpperCase() + herstelToast.slice(1)}
             <button type="button" className="rl-knop rl-knop--cyan" onClick={maakOngedaan} disabled={bezigMetHerstel}
               style={{ height: 30, fontSize: "0.78rem" }}>
-              {bezigMetHerstel ? "Bezig…" : "↶ Ongedaan maken"}
+              {bezigMetHerstel ? "Bezig…" : <><Icoon naam="terug" />{" Ongedaan maken"}</>}
             </button>
             <button type="button" className="editor-paneel-sluit" style={{ marginLeft: 0 }} onClick={() => setHerstelToast(null)} title="Sluiten">✕</button>
           </div>
@@ -2483,7 +2484,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   className={`rl-knop${kiesInstapVoor === t.teamIndex ? " rl-knop--cyan" : ""}`}
                   style={{ flex: 1, height: 28, fontSize: "0.72rem" }}
                   title="Klik daarna op de kaart op het punt waar dit team het rondje begint">
-                  📍 Startpunt kiezen
+                  <Icoon naam="punt" /> Startpunt kiezen
                 </button>
                 {t.handmatig && (
                   <button type="button" onClick={() => zetInstappunt(t.teamIndex, null)} className="rl-knop"
@@ -2501,13 +2502,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           lagenKnoppen={
             <div className="kaart-lagen" onClick={(e) => e.stopPropagation()}>
               {route.modus === "verspreid" && teamRoutes.length > 0 && (
-                <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen">🧭<span className="laag-tekst"> Routes</span></button>
+                <button type="button" className={lagen.routes ? "aan" : ""} onClick={() => wisselLaag("routes")} aria-pressed={lagen.routes} title="Routes van de teams tonen of verbergen"><Icoon naam="kompas" /><span className="laag-tekst"> Routes</span></button>
               )}
-              <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen">🎁<span className="laag-tekst"> Items</span></button>
+              <button type="button" className={lagen.items ? "aan" : ""} onClick={() => wisselLaag("items")} aria-pressed={lagen.items} title="Items tonen of verbergen"><Icoon naam="items" /><span className="laag-tekst"> Items</span></button>
               {route.modus === "verspreid" && (
                 <>
-                  <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen">✨<span className="laag-tekst"> Voorstellen</span></button>
-                  <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen">⭕<span className="laag-tekst"> Cirkel</span></button>
+                  <button type="button" className={lagen.voorstellen ? "aan" : ""} onClick={() => wisselLaag("voorstellen")} aria-pressed={lagen.voorstellen} title="Voorgestelde itemplekken tonen of verbergen"><Icoon naam="nieuw" /><span className="laag-tekst"> Voorstellen</span></button>
+                  <button type="button" className={lagen.cirkel ? "aan" : ""} onClick={() => wisselLaag("cirkel")} aria-pressed={lagen.cirkel} title="Afstandscirkel tonen of verbergen"><Icoon naam="rondje" /><span className="laag-tekst"> Cirkel</span></button>
                 </>
               )}
             </div>
@@ -2578,7 +2579,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onControleren={() => { setStappenOpen(false); setControleOpen(true); }}
           />
         ) : !route.is_active && route.status !== "gepubliceerd" && punten.length === 0 && specialeItems.length === 0 && (
-          <button type="button" className="eerste-stappen-knop" onClick={() => { setStappenStap(0); setStappenOpen(true); }} title="Stap voor stap de route opzetten">🚀 Eerste stappen</button>
+          <button type="button" className="eerste-stappen-knop" onClick={() => { setStappenStap(0); setStappenOpen(true); }} title="Stap voor stap de route opzetten"><Icoon naam="starten" /> Eerste stappen</button>
         )}
 
 
@@ -2586,7 +2587,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
           <div className="route-editor-tijden">
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
-              <UitklapPijl open={tijdenOpen} /> ⏱️ Afstand, tijd &amp; punten per team
+              <UitklapPijl open={tijdenOpen} /> <Icoon naam="tijd" /> Afstand, tijd &amp; punten per team
             </button>
             {tijdenOpen && (
               <>
@@ -2612,13 +2613,13 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 {itemCheck && itemCheck.voorstellen.length > 0 && (
                   <button onClick={plaatsAlleVoorstellen} disabled={autoItemsBezig}
                     style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "#A5F3FC", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
-                    {autoItemsBezig ? "⏳ Items plaatsen…" : `✨ Alle ${itemCheck.voorstellen.length} voorstellen als item plaatsen`}
+                    {autoItemsBezig ? <><Icoon naam="laden" />{" Items plaatsen…"}</> : <><Icoon naam="nieuw" />{` Alle ${itemCheck.voorstellen.length} voorstellen als item plaatsen`}</>}
                   </button>
                 )}
                 {itemCheck && itemCheck.voorstellen.length > 0 && (
                   <button onClick={() => setToonVoorstellen((v) => !v)}
                     style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
-                    {toonVoorstellen ? "➕ Voorstellen verbergen" : "➕ Voorstellen tonen"}
+                    {toonVoorstellen ? <><Icoon naam="plus" />{" Voorstellen verbergen"}</> : <><Icoon naam="plus" />{" Voorstellen tonen"}</>}
                   </button>
                 )}
                 {/* Geplaatste items per soort (bewust klein en ingetogen) */}

@@ -6,6 +6,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { useSluitMetEsc } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
@@ -86,7 +87,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
   return (
     <>
       <button type="button" className="btn btn-outline" style={{ fontSize: "0.82rem", flexShrink: 0 }} onClick={() => setOpen(true)}
-        title="Een vraag uit een andere route overnemen">📚 <span className="alleen-pc">Vragenbank</span></button>
+        title="Een vraag uit een andere route overnemen"><Icoon naam="vragenbank" /> <span className="alleen-pc">Vragenbank</span></button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 580, maxHeight: "85vh", display: "flex" }}>
@@ -131,13 +132,13 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
                             </span>
                           </button>
                           {v.verborgen ? (
-                            <button type="button" className="rl-knop" onClick={() => markeer(v, { verborgen: false })} title="Terug in de vragenbank">↩ Terug</button>
+                            <button type="button" className="rl-knop" onClick={() => markeer(v, { verborgen: false })} title="Terug in de vragenbank"><Icoon naam="terug" /> Terug</button>
                           ) : (
                             <>
                               <button type="button" className={`bank-icoon${v.favoriet ? " bank-icoon--aan" : ""}`} onClick={() => markeer(v, { favoriet: !v.favoriet })}
                                 title={v.favoriet ? "Geen favoriet meer" : "Favoriet maken"} aria-label={v.favoriet ? "Geen favoriet meer" : "Favoriet maken"}>{v.favoriet ? "⭐" : "☆"}</button>
                               <button type="button" className="bank-icoon bank-icoon--weg" onClick={() => markeer(v, { verborgen: true })}
-                                title="Uit de vragenbank halen (de vraag blijft in zijn route)" aria-label="Uit de vragenbank halen">🗑️</button>
+                                title="Uit de vragenbank halen (de vraag blijft in zijn route)" aria-label="Uit de vragenbank halen"><Icoon naam="wissen" /></button>
                             </>
                           )}
                         </div>

@@ -5,6 +5,7 @@ import BroadcastKnop from "@/components/admin/BroadcastKnop";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { waLink, toonTelefoon } from "@/lib/telefoon";
 import Venster from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // 💬 Contact met één team: bericht in de app, bellen of WhatsApp, samen achter één knop.
 // Bellen en WhatsApp alleen als bij Spelers een telefoonnummer is ingevuld.
@@ -14,7 +15,7 @@ export default function ContactKnop({ team }: { team: { id: string; naam: string
   return (
     <>
       <button type="button" className="rl-knop" onClick={() => setOpen(true)} title={`Contact met ${team.naam}`}>
-        <span className="knop-icoon" aria-hidden>💬</span> Contact
+        <Icoon naam="chat" /> Contact
       </button>
       {open && (
         <Venster onSluit={() => setOpen(false)} breedte={340} rand={20} relatief>
@@ -25,7 +26,7 @@ export default function ContactKnop({ team }: { team: { id: string; naam: string
               <BroadcastKnop team={{ id: team.id, naam: team.naam }} groot />
               {team.telefoon ? (
                 <>
-                  <a className="rl-knop" href={`tel:${team.telefoon}`}>📞 Bellen <span style={{ color: "var(--muted)", fontWeight: 600 }}>{toonTelefoon(team.telefoon)}</span></a>
+                  <a className="rl-knop" href={`tel:${team.telefoon}`}><Icoon naam="bellen" /> Bellen <span style={{ color: "var(--muted)", fontWeight: 600 }}>{toonTelefoon(team.telefoon)}</span></a>
                   <a className="wa-knop" href={waLink("", team.telefoon)} target="_blank" rel="noopener noreferrer"><WhatsAppLogo /> WhatsApp</a>
                 </>
               ) : (

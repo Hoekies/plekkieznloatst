@@ -5,6 +5,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { openKaartjes } from "@/components/admin/InlogUitdelen";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { VensterMetKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 
 // ✏️ Teamnaam aanpassen (bijv. een ongepaste naam); leeg = het team kiest bij de start opnieuw
@@ -31,7 +32,7 @@ export function TeamnaamVenster({ spelerId, naam, icoon, onSluit, onOpgeslagen }
       <form onSubmit={opslaan} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <input className="form-input" value={waarde} maxLength={30} autoFocus onChange={(e) => setWaarde(e.target.value)}
           placeholder="Leeg = het team kiest zelf opnieuw" style={{ fontSize: "1.05rem", fontWeight: 700 }} />
-        <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig}>{bezig ? "Bezig…" : "💾 Opslaan"}</button>
+        <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig}>{bezig ? "Bezig…" : <><Icoon naam="opslaan" />{" Opslaan"}</>}</button>
       </form>
     </VensterMetKop>
   );
@@ -67,7 +68,7 @@ export function AlleKaartjesKnop() {
     <>
       <button type="button" className="rl-knop actie-knop" disabled={bezig} onClick={() => haal(false)}
         title="Inlogkaartjes van alle spelers: printen of per WhatsApp versturen">
-        🖨️ <span className="alleen-pc">Alle kaartjes</span><span className="alleen-mobiel">Kaartjes</span>
+        <Icoon naam="printen" /> <span className="alleen-pc">Alle kaartjes</span><span className="alleen-mobiel">Kaartjes</span>
       </button>
       {onbekend && (
         <VensterMetKop breedte={400} icoon="🔑" label="Wachtwoord niet bewaard" titel={`${onbekend.length} ${onbekend.length === 1 ? "speler" : "spelers"}`} onSluit={() => setOnbekend(null)}>
@@ -75,7 +76,7 @@ export function AlleKaartjesKnop() {
             Van <strong>{onbekend.join(", ")}</strong> is het wachtwoord niet bewaard. Die krijgen een nieuw wachtwoord; het oude werkt daarna niet meer.
           </div>
           <button type="button" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig} onClick={() => haal(true)}>
-            {bezig ? "Bezig…" : "🔑 Nieuw wachtwoord en kaartjes maken"}
+            {bezig ? "Bezig…" : <><Icoon naam="sleutel" />{" Nieuw wachtwoord en kaartjes maken"}</>}
           </button>
           <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={() => haalZonder()}>Alleen de kaartjes van de anderen</button>
         </VensterMetKop>

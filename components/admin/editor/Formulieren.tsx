@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import type { RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { ITEM_UITLEG } from "./item-uitleg";
 import NaamKiezer from "../NaamKiezer";
+import Icoon from "@/components/admin/Icoon";
 
 export function StatusPil({ status, isActief }: { status: string; isActief: boolean }) {
   if (isActief) return <span className="editor-chip" style={{ background: "var(--green-soft)", color: "var(--green)" }}>▶ Actief</span>;
@@ -56,7 +57,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
       )}
       {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
 
-      <button className="rl-knop rl-knop--rood paneel-verwijder" style={{ width: "100%" }} onClick={onVerwijder}>🗑️ Item verwijderen</button>
+      <button className="rl-knop rl-knop--rood paneel-verwijder" style={{ width: "100%" }} onClick={onVerwijder}><Icoon naam="wissen" /> Item verwijderen</button>
     </div>
   );
 }
@@ -116,7 +117,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
             <div className="punt-vraagtekst" title={info?.vraagTekst ?? undefined}>{info?.vraagTekst ? `“${info.vraagTekst}”` : "✓ Vraag ingevuld"}</div>
           )}
           <button type="button" onClick={onVraag} className={`rl-knop${heeftVraag ? "" : " rl-knop--cyan"}`} style={{ width: "100%", justifyContent: "center" }}>
-            {heeftVraag ? "❓ Vraag bewerken →" : "➕ Vraag invullen →"}
+            {heeftVraag ? <><Icoon naam="vraag" />{" Vraag bewerken →"}</> : <><Icoon naam="plus" />{" Vraag invullen →"}</>}
           </button>
         </>
       )}
@@ -132,7 +133,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           {heeftVraag && (
             <>
               <div className="editor-paneel-noot" style={{ color: "#FBBF24" }}>❓ Hier hangt ook een vraag (bijv. een startvraag). Die krijgen de spelers in plaats van de tekst.</div>
-              <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}>❓ Vraag bewerken →</button>
+              <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}><Icoon naam="vraag" /> Vraag bewerken →</button>
             </>
           )}
         </>
@@ -146,7 +147,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
         <>
           <div className="editor-paneel-noot">🏁 Hier finisht het team. Je kunt er een opdracht aan hangen, zoals een selfie (niet verplicht).</div>
           <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}>
-            {heeftVraag ? "❓ Opdracht bewerken →" : "➕ Opdracht bij de finish →"}
+            {heeftVraag ? <><Icoon naam="vraag" />{" Opdracht bewerken →"}</> : <><Icoon naam="plus" />{" Opdracht bij de finish →"}</>}
           </button>
         </>
       )}
@@ -172,7 +173,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
       {/* Positie: verslepen op de kaart, of op de dichtstbijzijnde weg zetten */}
       <div className="punt-positie">
         <span title="Verplaatsen: sleep het punt op de kaart. Straal en punten staan bij ⚙️ Instellingen.">📌 {punt.latitude.toFixed(5)}, {punt.longitude.toFixed(5)}</span>
-        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten">🧲 Op de weg</button>}
+        {onOpDeWeg && <button type="button" className="rl-knop" onClick={onOpDeWeg} title="Op de dichtstbijzijnde weg of het voetpad zetten"><Icoon naam="magneet" /> Op de weg</button>}
       </div>
 
       {fout && <div className="melding melding-fout" style={{ fontSize: "0.78rem" }}>⚠️ {fout}</div>}
@@ -181,7 +182,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           onClick={() => onOpslaan({ name: naam, description: beschrijving, type })}>
           {opslaan ? "Opslaan…" : "Opslaan"}
         </button>
-        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={onVerwijder}>🗑️</button>
+        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={onVerwijder}><Icoon naam="wissen" /></button>
       </div>
     </div>
   );

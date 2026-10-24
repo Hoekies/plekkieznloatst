@@ -6,6 +6,7 @@ import type { Route } from "@/types/database";
 import { toonMelding } from "@/components/admin/Melding";
 import { GELUID_SETS, speelVoorbeeld, type GeluidSet } from "@/lib/sounds";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
+import Icoon from "@/components/admin/Icoon";
 
 // Voorbeeldkleuren; met 🎨 kies je elke andere kleur
 const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2"];
@@ -86,10 +87,10 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
           // eslint-disable-next-line @next/next/no-img-element
           <img src={OPSLAG + route.huisstijl_logo_pad} alt="Logo" className="huisstijl-voorbeeld huisstijl-voorbeeld--logo" />
         )}
-        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => logoRef.current?.click()}>{bezig === "logo" ? "⏳ Uploaden…" : route.huisstijl_logo_pad ? "🔁 Ander logo" : "📤 Logo kiezen"}</button>
+        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => logoRef.current?.click()}>{bezig === "logo" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.huisstijl_logo_pad ? <><Icoon naam="herhalen" />{" Ander logo"}</> : <><Icoon naam="versturen" />{" Logo kiezen"}</>}</button>
         {route.huisstijl_logo_pad && (
           <button type="button" className="rl-knop" disabled={!!bezig} onClick={knipHuidig} title="Achtergrond doorzichtig maken en de lege randen eraf halen">
-            {bezig === "knip" ? "⏳ Uitknippen…" : "✂️ Uitknippen"}
+            {bezig === "knip" ? <><Icoon naam="laden" />{" Uitknippen…"}</> : <><Icoon naam="knippen" />{" Uitknippen"}</>}
           </button>
         )}
         {route.huisstijl_logo_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ huisstijl_logo_pad: null })} title="Logo weghalen" aria-label="Logo weghalen">✕</button>}
@@ -104,7 +105,7 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
           // eslint-disable-next-line @next/next/no-img-element
           <img src={OPSLAG + route.welkom_foto_pad} alt="Welkomstfoto" className="huisstijl-voorbeeld" />
         )}
-        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => fotoRef.current?.click()}>{bezig === "foto" ? "⏳ Uploaden…" : route.welkom_foto_pad ? "🔁 Andere foto" : "📤 Foto kiezen"}</button>
+        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => fotoRef.current?.click()}>{bezig === "foto" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.welkom_foto_pad ? <><Icoon naam="herhalen" />{" Andere foto"}</> : <><Icoon naam="versturen" />{" Foto kiezen"}</>}</button>
         {route.welkom_foto_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ welkom_foto_pad: null })} title="Foto weghalen" aria-label="Foto weghalen">✕</button>}
         <input ref={fotoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("foto", e.target.files?.[0]); e.target.value = ""; }} />
       </div>

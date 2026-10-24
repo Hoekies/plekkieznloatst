@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { uploadAfbeelding, valideerAfbeelding } from "@/lib/upload";
+import Icoon from "@/components/admin/Icoon";
 
 interface Props {
   huidigPad: string | null;
@@ -240,8 +241,8 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
         </div>
         {vul > 1.01 && (
           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            <button type="button" className={`rl-knop${zoom <= 1.001 ? " rl-knop--cyan" : ""}`} onClick={() => onZoomWijzig(1)}>🖼️ Hele foto</button>
-            <button type="button" className={`rl-knop${Math.abs(zoom - vul) < 0.01 ? " rl-knop--cyan" : ""}`} onClick={() => onZoomWijzig(vul)}>⬛ Vierkant vullen</button>
+            <button type="button" className={`rl-knop${zoom <= 1.001 ? " rl-knop--cyan" : ""}`} onClick={() => onZoomWijzig(1)}><Icoon naam="foto" /> Hele foto</button>
+            <button type="button" className={`rl-knop${Math.abs(zoom - vul) < 0.01 ? " rl-knop--cyan" : ""}`} onClick={() => onZoomWijzig(vul)}><Icoon naam="vierkant" /> Vierkant vullen</button>
           </div>
         )}
 
@@ -255,7 +256,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
 
         <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}
           onClick={toepassen} disabled={laden}>
-          {laden ? "⏳ Uploaden…" : "✓ Gebruiken"}
+          {laden ? <><Icoon naam="laden" />{" Uploaden…"}</> : "✓ Gebruiken"}
         </button>
       </div>
       </div>
@@ -280,14 +281,14 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
               />
               <button type="button" className="rl-knop rl-knop--rood" style={{ height: 32, display: "inline-flex", alignItems: "center", gap: 6 }}
                 onClick={onVerwijder} title="Afbeelding weghalen">
-                🗑️ Weghalen
+                <Icoon naam="wissen" /> Weghalen
               </button>
             </>
           ) : (
             <>
               <button type="button" className="rl-knop" style={{ height: 32, display: "inline-flex", alignItems: "center", gap: 6 }}
                 disabled={laden} onClick={() => inputRef.current?.click()}>
-                {laden ? "⏳ Uploaden…" : "🖼️ Afbeelding kiezen"}
+                {laden ? <><Icoon naam="laden" />{" Uploaden…"}</> : <><Icoon naam="foto" />{" Afbeelding kiezen"}</>}
               </button>
               {fout && <span style={{ fontSize: "0.72rem", color: "var(--red)" }}>{fout}</span>}
             </>

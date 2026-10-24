@@ -9,6 +9,7 @@ import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
 import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
+import MenuIcoon from "@/components/admin/MenuIcoon";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -24,6 +25,7 @@ import ContactKnop from "@/components/admin/ContactKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import StatStrook from "@/components/admin/StatStrook";
 import dynamic from "next/dynamic";
+import Icoon from "@/components/admin/Icoon";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
 const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
@@ -102,7 +104,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
       {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          🏠 Dashboard
+          <MenuIcoon naam="dashboard" />Dashboard
           {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {route?.huis_logo && <img src={route.huis_logo} alt="" className="huislogo-kop" />}
@@ -323,7 +325,7 @@ function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer,
         <BevestigKnop venster gevaarlijk={false} icoon="⏭️" titel={`Volgend punt vrijgeven voor ${s.display_name}?`}
           vraag="" ja="Ja, vrijgeven" onBevestig={onVrijgeven}
           className={`rl-knop${s.hulp ? " rl-knop--cyan" : ""}`}>
-          <span className="knop-icoon" aria-hidden>⏭️</span> <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
+          <Icoon naam="vrijgeven" /> <span className="alleen-pc">{s.hulp ? "Punt vrijgeven" : "Volgend punt vrijgeven"}</span><span className="alleen-mobiel">Vrijgeven</span>
         </BevestigKnop>
       )}
       {s.hulp && (
@@ -334,7 +336,7 @@ function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer,
       {!beperkt && (
         <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
           vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">
-          <span className="knop-icoon" aria-hidden>⏹️</span> <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
+          <Icoon naam="stoppen" /> <span className="alleen-pc">Spel stoppen</span><span className="alleen-mobiel">Stoppen</span>
         </BevestigKnop>
       )}
     </div>

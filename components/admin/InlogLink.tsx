@@ -7,6 +7,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { waLink, toonTelefoon } from "@/lib/telefoon";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
+import Icoon from "@/components/admin/Icoon";
 
 const DUUR: { uren: number; label: string }[] = [
   { uren: 4, label: "4 uur" },
@@ -66,7 +67,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
           </a>
           <button type="button" className="rl-knop" style={{ height: 44 }}
             onClick={() => navigator.clipboard?.writeText(link.url).then(() => toonMelding("Link gekopieerd", "ok")).catch(() => toonMelding("Kopiëren lukte niet", "fout"))}>
-            📋 Kopiëren
+            <Icoon naam="klembord" /> Kopiëren
           </button>
         </div>
         <div style={{ fontSize: "0.72rem", color: "var(--muted)", textAlign: "center" }}>Verstuur hem nu: de link is later niet meer te zien.</div>
@@ -95,7 +96,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
         </div>
       </div>
       <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800 }} disabled={bezig} onClick={maak}>
-        {bezig ? "Bezig…" : "🔗 Link maken"}
+        {bezig ? "Bezig…" : <><Icoon naam="link" />{" Link maken"}</>}
       </button>
     </div>
   );

@@ -288,7 +288,8 @@ Gedeelde beheeronderdelen (vaste vorm overal)
   ├── <StatusLabel> teamstatus als chip (⚡ onderweg, 💤 uitgelogd, 🏁 gefinisht, …)
   ├── <LaadBlokjes> glanzende grijze blokjes tijdens het laden (i.p.v. "Laden…")
   ├── <MeldingHouder> toasts via toonMelding(): icoon, tekst, aftelbalkje
-  ├── <MenuIcoon> lijn-iconen (SVG) in het menu
+  ├── <MenuIcoon> lijn-iconen (SVG) in het menu en de kopbalken
+  ├── <Icoon> lijn-iconen op alle knoppen in het beheer (lucide-react); de speler-app houdt emoji
   └── <MenuGroep> ⚙️ Instellingen: paneel dat naar rechts uitklapt (portal, blijft gemount)
 ```
 

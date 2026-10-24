@@ -1,5 +1,7 @@
 "use client";
 
+import Icoon from "@/components/admin/Icoon";
+
 // 🚀 Eerste stappen: bij een nieuwe route stap voor stap van lege kaart naar een speelbare route.
 // Een venster bovenop de kaart (de kaart blijft aan te tikken), één stap tegelijk.
 // Rondje (verspreid): start → finish → teams, afstand en punten → voorbeeld → items → vragen → controleren.
@@ -71,7 +73,7 @@ export default function EersteStappen(p: Props) {
   );
   const kiesKnop = (k: Exclude<KiesModus, null>, tekst: string, gedaan: boolean) => (
     <button type="button" className={`rl-knop es-groot${p.kies === k ? " rl-knop--cyan" : gedaan ? " es-gedaan" : ""}`} onClick={() => p.onKies(p.kies === k ? null : k)}>
-      {p.kies === k ? "👆 Tik nu op de kaart…" : gedaan ? `✓ ${tekst} · opnieuw` : tekst}
+      {p.kies === k ? <><Icoon naam="aanwijzen" />{" Tik nu op de kaart…"}</> : gedaan ? `✓ ${tekst} · opnieuw` : tekst}
     </button>
   );
   const getal = (label: string, waarde: number, onWaarde: (n: number) => void, min: number, max: number, stapGrootte = 1, eenheid = "", hint?: string) => (
@@ -102,7 +104,7 @@ export default function EersteStappen(p: Props) {
     inhoud = (<>
       {kiesKnop("finish", "🏁 Finish aantikken", p.finishGekozen)}
       <button type="button" className={`rl-knop es-groot${p.finishZelfde ? " es-gedaan" : ""}`} onClick={p.onFinishZelfde}>
-        {p.finishZelfde ? "✓ Finish = startpunt" : "↩ Zelfde plek als de start"}
+        {p.finishZelfde ? "✓ Finish = startpunt" : <><Icoon naam="terug" />{" Zelfde plek als de start"}</>}
       </button>
     </>);
     if (!p.finishGekozen && !p.finishZelfde) nogNiet = "Kies eerst de finish.";

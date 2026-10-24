@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import EindtijdKnop from "@/components/admin/EindtijdKnop";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
+import Icoon from "@/components/admin/Icoon";
 
 const VOORVOEGSEL = "pointrush_klaarzetten_";
 const LEEG_EVENT = "pointrush-klaarzetten-leeg";
@@ -71,13 +72,13 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
         ? <span style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-end" }}>
             {klaarRoutes.map((r) => <Link key={r.id} href={`/admin/routes/${r.id}?controle=1`} className="rl-knop hoofdknop" title="Laatste controle, daarna activeren">▶ {r.name}</Link>)}
           </span>
-        : <Link href="/admin/routes" className="rl-knop hoofdknop">🗺️ Naar routes</Link>),
+        : <Link href="/admin/routes" className="rl-knop hoofdknop"><Icoon naam="kaart" /> Naar routes</Link>),
     },
     {
       id: "spelers", auto: true, klaar: spelers.length > 0,
       titel: spelers.length ? `${spelers.length} speler${spelers.length !== 1 ? "s" : ""} aangemaakt` : "Maak de spelers aan",
       uitleg: "Per team een loginnaam en wachtwoord.",
-      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop hoofdknop">👫 Naar spelers</Link>,
+      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop hoofdknop"><Icoon naam="spelers" /> Naar spelers</Link>,
     },
     {
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,

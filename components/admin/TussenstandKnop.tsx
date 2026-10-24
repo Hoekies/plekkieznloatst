@@ -3,6 +3,7 @@
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import Icoon from "@/components/admin/Icoon";
 
 // 🏆 de tussenstand nu bij alle spelers in beeld laten verschijnen (na bevestiging).
 // Staat bij de spelleider op het dashboard, naast Pauze en Eindtijd.
@@ -15,7 +16,7 @@ export default function TussenstandKnop() {
     <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Tussenstand tonen?"
       vraag="Alle spelers krijgen de tussenstand een paar seconden in beeld, midden in hun spel."
       ja="Ja, toon de stand" onBevestig={toon} className="rl-knop actie-knop">
-      🏆<span className="alleen-pc"> Tussenstand</span><span className="alleen-mobiel"> Stand</span>
+      <Icoon naam="uitslag" /><span className="alleen-pc"> Tussenstand</span><span className="alleen-mobiel"> Stand</span>
     </BevestigKnop>
   );
 }

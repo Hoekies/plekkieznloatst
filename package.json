@@ -1,6 +1,6 @@
 {
   "name": "plekkie-zn-loatst",
-  "version": "0.13.8",
+  "version": "0.13.9",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
@@ -19,6 +19,7 @@
     "jspdf": "^4.2.1",
     "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.460.0",
     "maplibre-gl": "6.15.0",
     "marked": "^14.1.4",
     "next": "14.2.35",

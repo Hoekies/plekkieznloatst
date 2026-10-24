@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import Icoon from "@/components/admin/Icoon";
 
 // 👆 Aanwijzen: een vetgedrukte knopnaam in de uitleg (bijv. "📢 Bericht sturen") zoeken op het scherm,
 // op de tekst, de tooltip (data-tip/title) of de naam voor schermlezers (aria-label). Emoji en tekens tellen niet mee.
@@ -87,7 +88,7 @@ export default function HulpKolom() {
     <>
       <button type="button" className={`btn btn-outline header-knop info-knop hulp-knop${open ? " hulp-knop--aan" : ""}`} onClick={wissel}
         data-tip={open ? "Hulp sluiten (?)" : "Hulp bij deze pagina (?)"} data-tip-pos="onder" aria-label="Hulp bij deze pagina" aria-expanded={open} data-sneltoets="?">
-        <span className="header-knop-icoon" aria-hidden>❓</span>
+        <Icoon naam="vraag" />
       </button>
       {open && (
         <aside className="hulp-kolom" aria-label="Hulp bij deze pagina">
@@ -102,8 +103,8 @@ export default function HulpKolom() {
               : <LaadBlokjes aantal={4} hoogte={44} gap={8} />}
           </div>
           <div className="hulp-kolom-voet">
-            <Link href="/admin/beginnen">🧭 Snel aan de slag</Link>
-            <Link href="/admin/uitleg">📖 Volledige handleiding</Link>
+            <Link href="/admin/beginnen"><Icoon naam="kompas" /> Snel aan de slag</Link>
+            <Link href="/admin/uitleg"><Icoon naam="handleiding" /> Volledige handleiding</Link>
           </div>
         </aside>
       )}

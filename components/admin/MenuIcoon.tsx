@@ -1,4 +1,4 @@
-// Lijn-iconen voor het menu: rustiger en strakker dan emoji, en ze nemen de kleur van de tekst over
+// Lijn-iconen voor het menu en de kopbalken: rustiger en strakker dan emoji, en ze nemen de kleur van de tekst over
 // (ook op de oranje knop van de pagina waar je bent). Getekend op een raster van 24×24.
 const PADEN = {
   dashboard: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9v11h5v-6h4v6h5V9" /></>,
@@ -12,6 +12,11 @@ const PADEN = {
   meldingen: <><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></>,
   "meldingen-uit": <><path d="M6 16V11a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2H8" /><path d="M10 20.5a2 2 0 0 0 4 0" /><path d="m3.5 3.5 17 17" /></>,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><path d="M12 7.5v.01" /></>,
+  beginnen: <><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5z" /></>,
+  kaartjes: <><rect x="3" y="7" width="13" height="14" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M6.5 12h6M6.5 15.5h4" /></>,
+  handleiding: <><path d="M3 5.5C5 4 8 4 12 6c4-2 7-2 9-.5V19c-2-1.5-5-1.5-9 .5-4-2-7-2-9-.5z" /><path d="M12 6v13.5" /></>,
+  replay: <><path d="M3 12a9 9 0 1 0 2.6-6.4" /><path d="M3 4v5h5" /><path d="m10.5 9 4 3-4 3z" /></>,
+  voorproefje: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /><path d="M8.5 13h7M8.5 16.5h5" /></>,
   inklappen: <><path d="m11 17-5-5 5-5" /><path d="m18 17-5-5 5-5" /></>,
   uitklappen: <><path d="m6 17 5-5-5-5" /><path d="m13 17 5-5-5-5" /></>,
 };

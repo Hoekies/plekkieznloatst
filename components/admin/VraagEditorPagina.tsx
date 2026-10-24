@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 import Venster from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
@@ -76,7 +77,7 @@ function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
           <NaamKiezer naam={naam} onNaam={onNaam} woorden={woorden} hoogte={42} startOpen autoFocus />
           <button type="submit" className="rl-knop hoofdknop" disabled={bezig || !naam.trim()}
             style={{ height: 42, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}>
-            {bezig ? "Opslaan…" : "💾 Opslaan"}
+            {bezig ? "Opslaan…" : <><Icoon naam="opslaan" />{" Opslaan"}</>}
           </button>
         </form>
     </Venster>
@@ -433,7 +434,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           <BevestigKnop venster icoon="🗑️" titel="Vraag verwijderen?" vraag="" knopTekst="Ja, verwijderen"
             uitleg="De vraag en de antwoorden gaan weg; het punt zelf blijft op de kaart staan."
             className="rl-knop rl-knop--rood" style={{ height: 32, flexShrink: 0 }} onBevestig={verwijderVraag}>
-            🗑️<span className="alleen-pc"> Vraag verwijderen</span>
+            <Icoon naam="wissen" /><span className="alleen-pc"> Vraag verwijderen</span>
           </BevestigKnop>
         )}
       </div>
@@ -465,7 +466,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <label className="form-label" style={{ flex: 1, margin: 0 }}>Vraag</label>
                 <button type="button" className={`rl-knop${ideeenStatus === "open" ? " rl-knop--cyan" : ""}`} style={{ height: 28, fontSize: "0.76rem" }}
                   onClick={haalIdeeen} disabled={ideeenStatus === "laden"} title="Vraagideeën uit wat er rond dit punt op de kaart staat (kerk, molen, café…)">
-                  {ideeenStatus === "laden" ? "⏳ Zoeken…" : "💡 Ideeën"}
+                  {ideeenStatus === "laden" ? <><Icoon naam="laden" />{" Zoeken…"}</> : <><Icoon naam="tip" />{" Ideeën"}</>}
                 </button>
               </div>
               {ideeenStatus === "open" && ideeen && (
@@ -475,7 +476,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     : ideeen.map((idee) => (
                       <button key={idee.tekst} type="button" className="vraag-idee"
                         onClick={() => { setTekst(idee.tekst); if (idee.type === "foto_opdracht") setType("foto_opdracht"); else if (type === "foto_opdracht") setType("open"); setIdeeenStatus("dicht"); }}>
-                        {idee.type === "foto_opdracht" ? "📸 " : ""}{idee.tekst}
+                        {idee.type === "foto_opdracht" ? <><Icoon naam="camera" />{" "}</> : ""}{idee.tekst}
                       </button>
                     ))}
                   {ideeen.length > 0 && <span className="vraag-ideeen-leeg">Het antwoord zoek je zelf op, het liefst ter plekke.</span>}
@@ -594,9 +595,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <label className="form-label">Goed antwoord</label>
                 <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
                   <button type="button" className={`rl-knop${!isNumeriek ? " rl-knop--cyan" : ""}`} style={{ height: 32, fontSize: "0.8rem" }}
-                    aria-pressed={!isNumeriek} onClick={() => setIsNumeriek(false)}>🔤 Tekst</button>
+                    aria-pressed={!isNumeriek} onClick={() => setIsNumeriek(false)}><Icoon naam="tekst" /> Tekst</button>
                   <button type="button" className={`rl-knop${isNumeriek ? " rl-knop--cyan" : ""}`} style={{ height: 32, fontSize: "0.8rem" }}
-                    aria-pressed={isNumeriek} onClick={() => setIsNumeriek(true)}>🔢 Getal</button>
+                    aria-pressed={isNumeriek} onClick={() => setIsNumeriek(true)}><Icoon naam="getal" /> Getal</button>
                 </div>
                 {!isNumeriek ? (
                   <>
@@ -627,7 +628,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             <div className="vraag-meer">
               <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
                 <UitklapPijl open={meerOpen} />
-                <span>⚙️ Meer instellingen</span>
+                <span><Icoon naam="instellingen" /> Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
                   {[husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
                 </span>
@@ -640,7 +641,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                       <label className="form-label">Volgorde van de antwoorden</label>
                       <button type="button" className={`rl-knop schakel${husselen ? " schakel--aan" : ""}`} role="switch" aria-checked={husselen}
                         style={{ height: 32, alignSelf: "flex-start", fontSize: "0.8rem" }} onClick={() => setHusselen((v) => !v)}>
-                        🔀 Antwoorden husselen<span className="schakel-bol" aria-hidden />
+                        <Icoon naam="husselen" /> Antwoorden husselen<span className="schakel-bol" aria-hidden />
                       </button>
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt.</span>
                     </div>
@@ -652,7 +653,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     {geluidPad ? (
                       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                         <audio controls src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${geluidPad}`} style={{ height: 34, maxWidth: "100%" }} />
-                        <button type="button" className="rl-knop" onClick={() => setGeluidPad(null)} title="Geluid weghalen">🗑️</button>
+                        <button type="button" className="rl-knop" onClick={() => setGeluidPad(null)} title="Geluid weghalen"><Icoon naam="wissen" /></button>
                       </div>
                     ) : (
                       <label className="rl-knop" style={{ alignSelf: "flex-start", cursor: "pointer", height: 32, fontSize: "0.8rem" }}>
@@ -681,9 +682,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <button type="button" className={`rl-knop schakel${qrEnabled ? " schakel--aan" : ""}`} role="switch" aria-checked={qrEnabled}
                         style={{ height: 32, fontSize: "0.8rem" }} disabled={qrOpslaan} onClick={() => toggleQr(!qrEnabled)}>
-                        🧪 Openen met QR-code<span className="schakel-bol" aria-hidden />
+                        <Icoon naam="testen" /> Openen met QR-code<span className="schakel-bol" aria-hidden />
                       </button>
-                      {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}>🖨️ QR-code printen</button>}
+                      {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}><Icoon naam="printen" /> QR-code printen</button>}
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Alleen om te testen: open dit punt door de QR-code te scannen, zonder ernaartoe te lopen. Wordt meteen opgeslagen.</span>
                     {qrEnabled && qrUrl && (
@@ -706,7 +707,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               <span style={{ flex: 1 }} />
               <button type="submit" form={`vraag-${punt.id}`} className="rl-knop hoofdknop" disabled={opslaan}
                 style={{ height: 42, padding: "0 22px", fontWeight: 800, fontSize: "0.9rem" }}>
-                {opslaan ? "Opslaan…" : `💾 ${opslaanLabel ?? (bestaandeVraag ? "Vraag opslaan" : "Vraag toevoegen")}`}
+                {opslaan ? "Opslaan…" : <><Icoon naam="opslaan" />{` ${opslaanLabel ?? (bestaandeVraag ? "Vraag opslaan" : "Vraag toevoegen")}`}</>}
               </button>
             </div>
           </div>

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { KAARTJES_KEY, type Inlog } from "@/components/admin/InlogUitdelen";
 import KaartjeVersturen from "@/components/admin/InlogKaartje";
+import MenuIcoon from "@/components/admin/MenuIcoon";
+import Icoon from "@/components/admin/Icoon";
 
 // Inlogkaartjes: afdrukken en uitknippen (8 per A4), of per kaartje via WhatsApp (met de link erbij).
 // De gegevens staan daarna alleen in dit tabblad (sessionStorage), zodat ze bij sluiten weer weg zijn.
@@ -39,9 +41,9 @@ export default function KaartjesPagina() {
       `}</style>
       <div className="admin-topbar" style={{ gap: 12 }}>
         <Link href="/admin/groepen" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Terug</Link>
-        <span className="admin-topbar-titel">🃏 Inlogkaartjes</span>
+        <span className="admin-topbar-titel"><MenuIcoon naam="kaartjes" />Inlogkaartjes</span>
         <span style={{ flex: 1 }} />
-        <button type="button" className="rl-knop rl-knop--cyan" onClick={() => window.print()} disabled={!inlogs.length}>🖨️ Afdrukken</button>
+        <button type="button" className="rl-knop rl-knop--cyan" onClick={() => window.print()} disabled={!inlogs.length}><Icoon naam="printen" /> Afdrukken</button>
       </div>
       <div className="admin-content">
         {!inlogs.length ? (

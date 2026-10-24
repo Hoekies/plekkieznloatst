@@ -5,6 +5,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import KaartjeVersturen, { type Inlog } from "@/components/admin/InlogKaartje";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { VensterMetKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team het kaartje
 // via WhatsApp versturen (met de link erbij). Eén speler: 📲 Versturen op de spelerskaart.
@@ -39,8 +40,8 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
   return (
     <>
       <div className="melding-knoppen">
-        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kaartjes}>🖨️ Afdrukken</button>
-        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kopieer}>📋 Kopiëren</button>
+        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kaartjes}><Icoon naam="printen" /> Afdrukken</button>
+        <button type="button" className="rl-knop" style={{ height: 40 }} onClick={kopieer}><Icoon naam="klembord" /> Kopiëren</button>
       </div>
       <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>Verstuur ze nu: de wachtwoorden zijn later niet meer te zien.</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -75,7 +76,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
   return (
     <>
       <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} title="Meerdere spelers in één keer aanmaken">
-        👫 Meerdere
+        <Icoon naam="spelers" /> Meerdere
       </button>
       {open && (
         <VensterMetKop breedte={520} maxHoogte={92} label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>

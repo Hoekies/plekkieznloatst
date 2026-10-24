@@ -5,6 +5,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import Venster, { VensterKop } from "@/components/shared/Venster";
 import MenuIcoon from "@/components/admin/MenuIcoon";
+import Icoon from "@/components/admin/Icoon";
 
 // Menu-item "🔔 Meldingen": pushmeldingen op dit toestel aan- of uitzetten (nieuwe foto, hulpvraag).
 // Werkt ook als de app dicht is, en komt via de telefoon ook op een horloge.
@@ -122,9 +123,9 @@ export default function PushMeldingenKnop() {
                 <div className="melding melding-fout" style={{ margin: 0 }}>Deze browser ondersteunt geen pushmeldingen.</div>
               )}
               <div className="melding-knoppen">
-                {stand === "uit" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetAan}>🔔 Aanzetten</button>}
-                {stand === "aan" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={test}>📨 Test sturen</button>}
-                {stand === "aan" && <button type="button" className="rl-knop rl-knop--rood" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetUit}>🔕 Uitzetten</button>}
+                {stand === "uit" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetAan}><Icoon naam="bel" /> Aanzetten</button>}
+                {stand === "aan" && <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={test}><Icoon naam="versturen" /> Test sturen</button>}
+                {stand === "aan" && <button type="button" className="rl-knop rl-knop--rood" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetUit}><Icoon naam="bel-uit" /> Uitzetten</button>}
               </div>
             </div>
         </Venster>

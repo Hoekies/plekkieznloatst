@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // alsIcoon = 📢-knop in de bovenbalk; anders als regel in het menu.
 // Met team: bericht aan alleen dat team (knop op de spelerskaart van het dashboard).
@@ -32,20 +33,20 @@ export default function BroadcastKnop({ alsIcoon = false, team, groot = false }:
     <>
       {team ? (
         groot ? (
-          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setOpen(true)}>📢 Bericht in de app</button>
+          <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setOpen(true)}><Icoon naam="bericht" /> Bericht in de app</button>
         ) : (
           <button type="button" className="rl-knop sk-icoonknop" onClick={() => setOpen(true)} title={`Bericht aan ${team.naam}`} aria-label={`Bericht aan ${team.naam}`}>
-            <span className="knop-icoon" aria-hidden>📢</span><span className="alleen-pc"> Bericht</span>
+            <Icoon naam="bericht" /><span className="alleen-pc"> Bericht</span>
           </button>
         )
       ) : alsIcoon ? (
         <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}
           data-tip="Bericht sturen aan alle spelers (B)" data-tip-pos="onder" aria-label="Bericht sturen" data-sneltoets="b">
-          <span className="header-knop-icoon" aria-hidden>📢</span>
+          <Icoon naam="bericht" />
         </button>
       ) : (
         <button className="admin-nav-link" onClick={() => setOpen(true)}>
-          <span aria-hidden>📢</span> Bericht sturen
+          <Icoon naam="bericht" /> Bericht sturen
         </button>
       )}
 

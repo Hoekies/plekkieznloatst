@@ -6,6 +6,7 @@ import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonTelefoon, waLink } from "@/lib/telefoon";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // 📞 Telefoonnummer van een team: opslaan, bellen of meteen een WhatsApp-chat openen.
 // Met een nummer opent WhatsApp bij het versturen van inloggegevens direct de juiste chat.
@@ -47,7 +48,7 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
           </button>
           {telefoon && (
             <div className="melding-knoppen">
-              <a className="rl-knop" href={`tel:${telefoon}`} style={{ height: 40, textDecoration: "none" }}>📞 Bellen</a>
+              <a className="rl-knop" href={`tel:${telefoon}`} style={{ height: 40, textDecoration: "none" }}><Icoon naam="bellen" /> Bellen</a>
               <a className="wa-knop" href={waLink("", telefoon)} target="_blank" rel="noopener noreferrer"><WhatsAppLogo /> WhatsApp</a>
             </div>
           )}

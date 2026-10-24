@@ -6,6 +6,7 @@ import { haversine } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import { VensterKop } from "@/components/shared/Venster";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import Icoon from "@/components/admin/Icoon";
 
 // "🧪 Testronde": de route punt voor punt doorlopen zonder naar buiten te gaan. De kaart vliegt
 // naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd),
@@ -55,7 +56,7 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
     <div className="testronde pr-gem-panel">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "14px 14px 12px" }}>
         <VensterKop label={<>🧪 Testen · 📋 punt voor punt · {stap + 1} van {punten.length}</>} titel={<>{label} · {punt.name || "naamloos"}</>} onSluit={onSluit} sluitLabel="Testen sluiten">
-          {onLopen && <button type="button" className="es-link" onClick={onLopen} title="Over de kaart lopen als testspeler">🚶 Lopen</button>}
+          {onLopen && <button type="button" className="es-link" onClick={onLopen} title="Over de kaart lopen als testspeler"><Icoon naam="lopen" /> Lopen</button>}
         </VensterKop>
 
         <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>

@@ -18,6 +18,7 @@ import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
 import Venster, { VensterKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -134,7 +135,7 @@ export default function GroepenBeheer() {
         <div className="gb-tekst" style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: g.nickname ? "#fff" : "var(--muted)", fontStyle: g.nickname ? "normal" : "italic" }}>
             {g.nickname ?? "nog geen teamnaam gekozen"}
-            {!isUit && <button type="button" className="gb-naam-wijzig" onClick={() => setNaamVoor(g)} title="Teamnaam aanpassen" aria-label="Teamnaam aanpassen">✏️</button>}
+            {!isUit && <button type="button" className="gb-naam-wijzig" onClick={() => setNaamVoor(g)} title="Teamnaam aanpassen" aria-label="Teamnaam aanpassen"><Icoon naam="bewerken" /></button>}
           </div>
           <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 1 }}>
 
@@ -153,36 +154,36 @@ export default function GroepenBeheer() {
         {!isUit && g.active_device_id && (
           <button className="rl-knop gb-tekstknop" onClick={() => resetApparaat(g.id)}
             title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
-            <span aria-hidden>🔓</span><span className="gb-label gb-label--altijd">Apparaat</span>
+            <Icoon naam="slot-open" /><span className="gb-label gb-label--altijd">Apparaat</span>
           </button>
         )}
         {!isUit && g.active_device_id && (
           <button className="rl-knop rl-knop--rood gb-tekstknop" onClick={() => logGroepUit(g.id)}
             title="Uitloggen; het spel blijft staan">
-            <span aria-hidden>🚪</span><span className="gb-label gb-label--altijd">Uitloggen</span>
+            <Icoon naam="uitloggen" /><span className="gb-label gb-label--altijd">Uitloggen</span>
           </button>
         )}
         {!isUit && g.heeft_spel && (
           <BevestigKnop venster icoon="⏹️" titel={`Spel van ${displayNaam} stoppen?`} className="rl-knop rl-knop--rood gb-tekstknop" onBevestig={() => stopSpel(g.id, displayNaam)}
             title="Spel stoppen: beëindigt het lopende spel van deze speler" vraag="" ja="Ja, stoppen">
-            <span aria-hidden>⏹️</span><span className="gb-label gb-label--altijd">Stop spel</span>
+            <Icoon naam="stoppen" /><span className="gb-label gb-label--altijd">Stop spel</span>
           </BevestigKnop>
         )}
         {/* 📞 Telefoonnummer en 🔑 inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
         {!isUit && (
           <button type="button" className={`rl-knop rl-knop--icoon gb-icoon${g.telefoon ? " rl-knop--groen" : ""}`} aria-label="Telefoonnummer"
             title={g.telefoon ? `Telefoon: ${toonTelefoon(g.telefoon)}` : "Telefoonnummer toevoegen"}
-            onClick={() => setTelVoor(g)}>📞<span className="gb-label">Telefoon</span></button>
+            onClick={() => setTelVoor(g)}><Icoon naam="bellen" /><span className="gb-label">Telefoon</span></button>
         )}
         {!isUit && (
           <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
             title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
-            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}>🔑<span className="gb-label">Inlog</span></button>
+            onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}><Icoon naam="sleutel" /><span className="gb-label">Inlog</span></button>
         )}
         <BevestigKnop venster icoon="🗑️" titel={`${displayNaam} verwijderen?`} vraag="" ja="Ja, verwijderen"
           onBevestig={() => verwijderSpeler(g.id)} disabled={!!g.heeft_spel}
           className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
-          tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}>🗑️<span className="gb-label">Verwijder</span></BevestigKnop>
+          tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}><Icoon naam="wissen" /><span className="gb-label">Verwijder</span></BevestigKnop>
         </div>
         <div className="gb-schakelaar"
           title={isUit ? "Aanzetten" : "Uitzetten"}
@@ -266,7 +267,7 @@ export default function GroepenBeheer() {
             <>
               <button type="button" className="gb-inklap" onClick={() => setUitOpen((v) => !v)} aria-expanded={uitOpen}>
                 <UitklapPijl open={uitOpen} />
-                ⏸ Uitgeschakelde spelers ({uitgeschakeld.length})
+                <Icoon naam="pauze" /> Uitgeschakelde spelers ({uitgeschakeld.length})
               </button>
               {uitOpen && uitgeschakeld.map(spelerKaart)}
             </>
@@ -347,7 +348,7 @@ export function NieuwAccountForm({ helper = false, onSuccess, onSluit }: { helpe
           <div className="ww-veld">
             <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
               placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
-            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
+            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel"><Icoon naam="dobbelsteen" /></button>
           </div>
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
@@ -454,7 +455,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                 <div className="ww-veld">
                   <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
                     placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
-                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Nieuw wachtwoord bedenken">🎲</button>
+                  <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Nieuw wachtwoord bedenken"><Icoon naam="dobbelsteen" /></button>
                 </div>
                 {/* Eén korte regel: het belangrijkste eerst */}
                 <span className="inlog-noot">
@@ -467,7 +468,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
               {!modal.helper && (
                 <div className="form-group" style={{ margin: 0 }}>
                   <button type="button" className={`rl-knop schakel inlog-schakel${metLink ? " schakel--aan" : ""}`} role="switch" aria-checked={metLink} onClick={() => setMetLink((v) => !v)}>
-                    🔗 Ook een directe inloglink meesturen<span className="schakel-bol" aria-hidden />
+                    <Icoon naam="link" /> Ook een directe inloglink meesturen<span className="schakel-bol" aria-hidden />
                   </button>
                   {metLink && (
                     <>
@@ -483,10 +484,10 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
               )}
               {fout && <div className="melding melding-fout" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
               <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={laden || huidig === undefined}>
-                {laden ? "Bezig…" : (wachtwoord !== huidig || (!modal.helper && login.trim() !== (modal.login ?? ""))) ? "💾 Opslaan en versturen" : "📤 Versturen"}
+                {laden ? "Bezig…" : (wachtwoord !== huidig || (!modal.helper && login.trim() !== (modal.login ?? ""))) ? <><Icoon naam="opslaan" />{" Opslaan en versturen"}</> : <><Icoon naam="versturen" />{" Versturen"}</>}
               </button>
               {!modal.helper && (
-                <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={() => setModus("link")}>🔗 Alleen een link sturen (zonder wachtwoord)</button>
+                <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={() => setModus("link")}><Icoon naam="link" /> Alleen een link sturen (zonder wachtwoord)</button>
               )}
             </>
           )}

@@ -5,6 +5,7 @@ import type { RoutePunt } from "@/types/database";
 import VraagEditorPagina, { NietOpgeslagenVenster, type VraagMetAntwoorden } from "../VraagEditorPagina";
 import type { KaartPunt } from "../PuntMiniKaart";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import Icoon from "@/components/admin/Icoon";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
@@ -65,7 +66,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
                 {nummer(p)}
               </span>
               <span style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
-              <span title={heeftVraag(p.id) ? "Heeft een vraag" : "Nog geen vraag"}>{heeftVraag(p.id) ? "✅" : "⚠️"}</span>
+              <span title={heeftVraag(p.id) ? "Heeft een vraag" : "Nog geen vraag"}>{heeftVraag(p.id) ? <Icoon naam="goed" /> : <Icoon naam="waarschuwing" />}</span>
             </button>
           ))}
         </div>

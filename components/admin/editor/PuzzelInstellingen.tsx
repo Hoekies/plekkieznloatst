@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Route } from "@/types/database";
 import { toonMelding } from "@/components/admin/Melding";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
+import Icoon from "@/components/admin/Icoon";
 
 type Velden = { puzzel_aan?: boolean; puzzelwoord?: string; puzzel_bonus?: number; puzzel_omschrijving?: string; puzzel_verdeling?: Record<string, number>;
   puzzel_volgorde?: "willekeurig" | "op_volgorde";
@@ -76,7 +77,7 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
             <input className="form-input" value={omschrijving} maxLength={120} placeholder="Hint, bijv. Plaats in Nederland, Een dier, Ander woord voor slot"
               onChange={(e) => setOmschrijving(e.target.value)} onBlur={() => onOpslaan({ puzzel_omschrijving: omschrijving })} style={{ flex: "1 1 220px" }} />
             <button type="button" className="rl-knop" disabled={!omschrijving.trim() || zoekt} onClick={bedenk}
-              title={`De app bedenkt woorden van ${teVerdienen} letters die bij de hint passen`}>{zoekt ? "⏳ Bedenken…" : `✨ Bedenk een woord (${teVerdienen})`}</button>
+              title={`De app bedenkt woorden van ${teVerdienen} letters die bij de hint passen`}>{zoekt ? <><Icoon naam="laden" />{" Bedenken…"}</> : <><Icoon naam="nieuw" />{` Bedenk een woord (${teVerdienen})`}</>}</button>
           </div>
           {voorstellen && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

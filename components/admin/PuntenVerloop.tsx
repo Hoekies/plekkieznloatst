@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 type Team = { player_id: string; naam: string; icon: string | null; punten: [number, number][] };
 
@@ -74,7 +75,7 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
 
   const kop = (
     <button type="button" className="verloop-kop" onClick={wissel} aria-expanded={open}>
-      <UitklapPijl open={open} /><span>📈 Puntenverloop</span>
+      <UitklapPijl open={open} /><span><Icoon naam="grafiek" /> Puntenverloop</span>
     </button>
   );
   if (!open) return <div className="verloop">{kop}</div>;

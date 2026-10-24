@@ -5,6 +5,7 @@ import type { SpeciaalItem } from "@/types/database";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import { ITEM_UITLEG } from "./item-uitleg";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 // Volgorde van de soorten: zoals bij het plaatsen (voordeel, aanval, vraagteken, plek zooi)
 const VOLGORDE = Object.keys(ITEM_UITLEG);
@@ -49,7 +50,7 @@ export default function ItemLijst({ items, gekozen, onKies, onVerwijder }: {
                   </span>
                   {item.claimed && <span className="item-rij-gepakt">gepakt</span>}
                   <button className="lijst-rij-acties item-rij-weg" title="Item verwijderen (terugzetten kan met ↶)" aria-label="Item verwijderen"
-                    onClick={(e) => { e.stopPropagation(); onVerwijder(item.id); }}>🗑️</button>
+                    onClick={(e) => { e.stopPropagation(); onVerwijder(item.id); }}><Icoon naam="wissen" /></button>
                 </div>
               );
             })}

@@ -11,6 +11,7 @@ import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 const NIET_GEZIEN_MIN = 5;
@@ -78,7 +79,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         <BevestigKnop venster icoon="🧹" titel={vergeten.length === 1 ? "Vergeten spel afsluiten?" : `${vergeten.length} vergeten spellen afsluiten?`}
           vraag={`Van ${vergeten.map((s) => s.display_name).join(", ")} is al uren niets gezien. Het spel stopt; de spelers blijven bestaan en kunnen later opnieuw beginnen.`}
           ja="Ja, afsluiten" onBevestig={() => sluitVergeten(vergeten)} className="rl-knop">
-          🧹 Afsluiten
+          <Icoon naam="opruimen" /> Afsluiten
         </BevestigKnop>
       ),
     });
@@ -138,11 +139,11 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       title="Spelleider openen: pauze, eindtijd en afronden">
       <span className="pr-gem-panel-inner spelleider-dicht-inner">
         <UitklapPijl open={false} />
-        <span aria-hidden>🎯</span>
+        <span aria-hidden><Icoon naam="doel" /></span>
         <span className="spelleider-dicht-tekst">{status}</span>
         {rustig
-          ? <span className="spelleider-dicht-ok">✅ Alles loopt</span>
-          : <span className="spelleider-dicht-let">{gepauzeerd ? "⏸️ Gepauzeerd" : `⚠️ ${aandacht.length} ${aandacht.length === 1 ? "melding" : "meldingen"}`}</span>}
+          ? <span className="spelleider-dicht-ok"><Icoon naam="goed" /> Alles loopt</span>
+          : <span className="spelleider-dicht-let">{gepauzeerd ? <><Icoon naam="pauze" />{" Gepauzeerd"}</> : <><Icoon naam="waarschuwing" />{` ${aandacht.length} ${aandacht.length === 1 ? "melding" : "meldingen"}`}</>}</span>}
       </span>
     </button>
   );
@@ -168,11 +169,11 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
           {!beperkt && (
             <div className="spelleider-knoppen">
               {gepauzeerd ? (
-                <button type="button" className="rl-knop rl-knop--groen actie-knop" onClick={() => wisselPauze(false)} data-sneltoets="p" title="Verder (sneltoets P)">▶️ Verder</button>
+                <button type="button" className="rl-knop rl-knop--groen actie-knop" onClick={() => wisselPauze(false)} data-sneltoets="p" title="Verder (sneltoets P)"><Icoon naam="verder" /> Verder</button>
               ) : (
                 <BevestigKnop venster gevaarlijk={false} icoon="⏸️" titel="Spel pauzeren?"
                   vraag="Alle teams zien een pauzescherm en kunnen even niets doen. De eindtijd loopt niet door." ja="Ja, pauzeren"
-                  onBevestig={() => wisselPauze(true)} className="rl-knop actie-knop" sneltoets="p" title="Pauze (sneltoets P)">⏸️ Pauze</BevestigKnop>
+                  onBevestig={() => wisselPauze(true)} className="rl-knop actie-knop" sneltoets="p" title="Pauze (sneltoets P)"><Icoon naam="pauze" /> Pauze</BevestigKnop>
               )}
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
@@ -181,7 +182,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                 titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
                 vraag="" ja="Ja, uitslag vrijgeven en rapport openen" knopTekst="Ja, uitslag vrijgeven" onBevestig={afronden}
                 className="rl-knop rl-knop--cyan actie-knop">
-                🏁 {uitslagVrij
+                <Icoon naam="vlag" /> {uitslagVrij
                   ? <><span className="alleen-pc">Rapport openen</span><span className="alleen-mobiel">Rapport</span></>
                   : <><span className="alleen-pc">Spel afronden</span><span className="alleen-mobiel">Afronden</span></>}
               </BevestigKnop>

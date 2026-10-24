@@ -5,6 +5,7 @@ import { SITE } from "@/lib/qr-inlog";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import Venster, { VensterKop } from "@/components/shared/Venster";
 import { metVersie } from "@/lib/versie";
+import Icoon from "@/components/admin/Icoon";
 
 // Venster "Wat verstuur je?": vóór het versturen via WhatsApp kies je zelf wat er meegaat
 // (tekst, uitleg beginscherm, afbeeldingen). Bestanden worden bij het openen alvast geladen:
@@ -104,7 +105,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
 
           {/* Tekst */}
           <button type="button" style={schakel(keuze.tekst)} onClick={() => setKeuze((k) => ({ ...k, tekst: !k.tekst }))}>
-            {keuze.tekst ? "✅" : "⬜"} ✉️ Berichttekst
+            {keuze.tekst ? <Icoon naam="goed" /> : <Icoon naam="vierkant" />} <Icoon naam="mail" /> Berichttekst
           </button>
           {keuze.tekst && (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -118,12 +119,12 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
           )}
 
           <button type="button" style={schakel(keuze.beginscherm)} onClick={() => setKeuze((k) => ({ ...k, beginscherm: !k.beginscherm }))}>
-            {keuze.beginscherm ? "✅" : "⬜"} 📲 Uitleg: app op het beginscherm zetten
+            {keuze.beginscherm ? <Icoon naam="goed" /> : <Icoon naam="vierkant" />} <Icoon naam="delen" /> Uitleg: app op het beginscherm zetten
           </button>
 
           {/* De spelerskaart als afbeelding erbij */}
           <button type="button" style={schakel(keuze.kaart)} onClick={() => setKeuze((k) => ({ ...k, kaart: !k.kaart }))}>
-            {keuze.kaart ? "✅" : "⬜"} 🃏 Spelerskaart (uitleg van het spel)
+            {keuze.kaart ? <Icoon naam="goed" /> : <Icoon naam="vierkant" />} <Icoon naam="spelerskaart" /> Spelerskaart (uitleg van het spel)
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={KAART.klein} alt="" style={{ marginLeft: "auto", height: 44, aspectRatio: "2 / 3", objectFit: "cover", borderRadius: 4, opacity: keuze.kaart ? 1 : 0.45 }} />
           </button>

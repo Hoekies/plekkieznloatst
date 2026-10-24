@@ -5,6 +5,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { deeltekstAlles, deeltekstTeam } from "@/lib/deeltekst";
 import { deelOfDownload, downloadBestand } from "@/lib/delen";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import Icoon from "@/components/admin/Icoon";
 
 // Rapport als PDF-bestand maken en delen (WhatsApp via het deelmenu van telefoon of computer).
 // Eerst "PDF maken", daarna "Versturen": het deelmenu mag alleen direct na een klik openen,
@@ -124,12 +125,12 @@ ${albumLink}`).catch(() => {});
   // Knoppen voor één PDF: eerst maken, daarna versturen of opslaan
   const knoppen = (d: Doel, label: string) => !klaar[d.sleutel] ? (
     <button className="rl-knop rl-knop--cyan" disabled={bezig !== null} onClick={() => maak(d)}>
-      {bezig === d.sleutel ? "⏳ PDF maken…" : `📄 ${label}`}
+      {bezig === d.sleutel ? <><Icoon naam="laden" />{" PDF maken…"}</> : <><Icoon naam="rapport" />{` ${label}`}</>}
     </button>
   ) : (
     <>
-      <button className="rl-knop rl-knop--goud" onClick={() => verstuur(d)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen</button>
-      <button className="rl-knop" onClick={() => downloadBestand(klaar[d.sleutel])} title="PDF opslaan">⬇️ Opslaan</button>
+      <button className="rl-knop rl-knop--goud" onClick={() => verstuur(d)} title="Opent het deelmenu: kies WhatsApp"><Icoon naam="delen" /> Versturen</button>
+      <button className="rl-knop" onClick={() => downloadBestand(klaar[d.sleutel])} title="PDF opslaan"><Icoon naam="downloaden" /> Opslaan</button>
     </>
   );
 
@@ -142,7 +143,7 @@ ${albumLink}`).catch(() => {});
             <div className="pr-gem-label">📄 Rapport delen</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Als PDF via WhatsApp</div>
           </div>
-          <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser">🖨️ Afdrukken</button>
+          <button className="rl-knop" onClick={() => window.print()} title="Afdrukken via de browser"><Icoon naam="printen" /> Afdrukken</button>
         </div>
 
         {/* Hele rapport */}
@@ -153,14 +154,14 @@ ${albumLink}`).catch(() => {});
         {/* Fotoalbum: alle foto's van de foto-opdrachten op één pagina */}
         {albumLink && (
           <Rij icoon="📸" titel="Fotoalbum" uitleg={<>Alle foto&apos;s van de teams op één pagina, te openen zonder inloggen</>}>
-            <button className="rl-knop rl-knop--goud" onClick={deelAlbum} title="Link naar het fotoalbum delen">📲 Delen</button>
-            <a className="rl-knop" href={albumLink} target="_blank" rel="noopener noreferrer">👀 Bekijken</a>
+            <button className="rl-knop rl-knop--goud" onClick={deelAlbum} title="Link naar het fotoalbum delen"><Icoon naam="delen" /> Delen</button>
+            <a className="rl-knop" href={albumLink} target="_blank" rel="noopener noreferrer"><Icoon naam="bekijken" /> Bekijken</a>
           </Rij>
         )}
 
         {/* Per team */}
         <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} style={{ alignSelf: "flex-start" }} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>
-          <UitklapPijl open={perTeam} /> 👫 PDF per team
+          <UitklapPijl open={perTeam} /> <Icoon naam="spelers" /> PDF per team
         </button>
         {perTeam && doelen.slice(1).map((d) => {
           const team = teams.find((t) => t.sessie_id === d.sleutel);
@@ -169,7 +170,7 @@ ${albumLink}`).catch(() => {});
               {knoppen(d, "PDF maken")}
               {team?.kaartLink && (
                 <button className="rl-knop" onClick={() => deelKaart(team)} title="Link naar de kaart met de gelopen route (openen zonder inloggen)">
-                  🗺️ Kaart-link
+                  <Icoon naam="kaart" /> Kaart-link
                 </button>
               )}
             </Rij>

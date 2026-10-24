@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import Venster from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 function hhmm(d: Date) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -57,7 +58,7 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
   return (
     <>
       <button type="button" className={`rl-knop actie-knop${huidig ? " rl-knop--goud" : ""}`} onClick={() => setOpen(true)} title="Om deze tijd stopt het spel voor iedereen">
-        ⏰ {huidig ? `Stopt om ${hhmm(new Date(huidig))}` : "Eindtijd"}
+        <Icoon naam="alarm" /> {huidig ? `Stopt om ${hhmm(new Date(huidig))}` : "Eindtijd"}
       </button>
       {open && (
         <Venster onSluit={() => setOpen(false)} breedte={380}>
