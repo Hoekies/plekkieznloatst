@@ -87,10 +87,16 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   }
 
   // Niets aan de hand (geen aandachtspunten, geen pauze): standaard ingeklapt tot één regel.
-  // Vraagt iets je aandacht, dan klapt het blok vanzelf open.
+  // Vraagt iets je aandacht, dan staat het blok open; ook dan kun je het inklappen. Komt er een
+  // nieuwe melding bij, dan klapt het vanzelf weer open.
   const rustig = aandacht.length === 0 && !gepauzeerd;
-  const [handOpen, setHandOpen] = useState(false);
-  const open = !rustig || handOpen;
+  const [keuze, setKeuze] = useState<boolean | null>(null);  // null = vanzelf (open als er iets is)
+  const open = keuze ?? !rustig;
+  const [vorigAantal, setVorigAantal] = useState(aandacht.length);
+  useEffect(() => {
+    if (aandacht.length > vorigAantal) setKeuze(null);
+    setVorigAantal(aandacht.length);
+  }, [aandacht.length, vorigAantal]);
   const status = (
     <>
       {start ? `Speelt sinds ${duurKort(Math.floor((nu - new Date(start).getTime()) / 60000))}` : "Spel loopt"} · {onderweg} onderweg
@@ -99,12 +105,14 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   );
 
   if (!open) return (
-    <button type="button" className="pr-gem-panel spelleider spelleider--dicht" onClick={() => setHandOpen(true)} aria-expanded={false}
+    <button type="button" className="pr-gem-panel spelleider spelleider--dicht" onClick={() => setKeuze(true)} aria-expanded={false}
       title="Spelleider openen: pauze, eindtijd en afronden">
       <span className="pr-gem-panel-inner spelleider-dicht-inner">
         <span aria-hidden>🎯</span>
         <span className="spelleider-dicht-tekst">{status}</span>
-        <span className="spelleider-dicht-ok">✅ Alles loopt</span>
+        {rustig
+          ? <span className="spelleider-dicht-ok">✅ Alles loopt</span>
+          : <span className="spelleider-dicht-let">{gepauzeerd ? "⏸️ Gepauzeerd" : `⚠️ ${aandacht.length} ${aandacht.length === 1 ? "melding" : "meldingen"}`}</span>}
         <UitklapPijl open={false} />
       </span>
     </button>
@@ -115,15 +123,14 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Status links, knoppen rechts; op de telefoon de knoppen op een eigen regel eronder */}
         <div className="spelleider-kop">
-          {/* Als alles loopt: tik op de status (of ▾) om weer in te klappen */}
-          <div className={`spelleider-status${rustig ? " spelleider-status--klik" : ""}`}
-            onClick={rustig ? () => setHandOpen(false) : undefined}
-            role={rustig ? "button" : undefined} tabIndex={rustig ? 0 : undefined}
-            onKeyDown={rustig ? (e) => { if (e.key === "Enter") setHandOpen(false); } : undefined}
-            title={rustig ? "Inklappen" : undefined}>
+          {/* Tik op de status (of de pijl) om in te klappen */}
+          <div className="spelleider-status spelleider-status--klik"
+            onClick={() => setKeuze(false)} role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") setKeuze(false); }}
+            title="Inklappen">
             <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
               🎯 Spelleider
-              {rustig && <UitklapPijl open />}
+              <UitklapPijl open />
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {status}

@@ -2903,6 +2903,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .spelleider-dicht-inner { display: flex !important; align-items: center; gap: 10px; padding: 10px 14px !important; }
 .spelleider-dicht-tekst { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .spelleider-dicht-ok { color: #86EFAC; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
+.spelleider-dicht-let { color: #FCD34D; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
 @media (max-width: 768px) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }
 
 /* Stat-vakjes: schuivende tekst in plaats van "…" (SchuifTekst regelt overflow zelf) */
