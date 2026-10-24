@@ -10,6 +10,7 @@ import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 const NIET_GEZIEN_MIN = 5;
@@ -104,7 +105,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         <span aria-hidden>🎯</span>
         <span className="spelleider-dicht-tekst">{status}</span>
         <span className="spelleider-dicht-ok">✅ Alles loopt</span>
-        <span aria-hidden style={{ color: "var(--muted)" }}>▸</span>
+        <UitklapPijl open={false} />
       </span>
     </button>
   );
@@ -122,7 +123,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
             title={rustig ? "Inklappen" : undefined}>
             <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
               🎯 Spelleider
-              {rustig && <span className="spelleider-inklap" aria-hidden>▾</span>}
+              {rustig && <UitklapPijl open />}
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {status}

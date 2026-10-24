@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 type Team = { player_id: string; naam: string; icon: string | null; punten: [number, number][] };
 
@@ -71,7 +72,7 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
 
   const kop = (
     <button type="button" className="verloop-kop" onClick={wissel} aria-expanded={open}>
-      <span>📈 Puntenverloop</span><span aria-hidden style={{ color: "var(--muted)" }}>{open ? "▾" : "▸"}</span>
+      <span>📈 Puntenverloop</span><UitklapPijl open={open} />
     </button>
   );
   if (!open) return <div className="verloop">{kop}</div>;

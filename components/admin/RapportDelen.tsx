@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { deeltekstAlles, deeltekstTeam } from "@/lib/deeltekst";
 import { deelOfDownload, downloadBestand } from "@/lib/delen";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Rapport als PDF-bestand maken en delen (WhatsApp via het deelmenu van telefoon of computer).
 // Eerst "PDF maken", daarna "Versturen": het deelmenu mag alleen direct na een klik openen,
@@ -159,7 +160,7 @@ ${albumLink}`).catch(() => {});
 
         {/* Per team */}
         <button className={`rl-knop${perTeam ? " rl-knop--cyan" : ""}`} style={{ alignSelf: "flex-start" }} onClick={() => setPerTeam((v) => !v)} aria-expanded={perTeam}>
-          👫 PDF per team {perTeam ? "▾" : "▸"}
+          <UitklapPijl open={perTeam} /> 👫 PDF per team
         </button>
         {perTeam && doelen.slice(1).map((d) => {
           const team = teams.find((t) => t.sessie_id === d.sleutel);

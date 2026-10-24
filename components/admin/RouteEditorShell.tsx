@@ -30,6 +30,7 @@ import PuzzelInstellingen from "./editor/PuzzelInstellingen";
 import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc } from "@/components/shared/Venster";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -1520,7 +1521,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       <span style={{ color: "var(--muted)", fontWeight: 400 }}>
                         {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
                       </span>
-                      <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{rondjeOpen ? "▾" : "▸"}</span>
+                      <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={rondjeOpen} /></span>
                     </button>
                   )}
                   {(rondjeOpen || punten.length === 0) && (
@@ -1622,7 +1623,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                             <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
                             <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
                             <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{t.handmatig ? " 📌" : ""}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
-                            <span style={{ marginLeft: "auto", color: "var(--muted)" }}>▸</span>
+                            <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={open} /></span>
                           </button>
                         );
                       })}
@@ -2083,8 +2084,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
                     </div>
-                    <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                      {meerInstellingen ? "▾ Minder instellingen" : "⚙️ Meer instellingen ▸"}
+                    <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : "⚙️ Meer instellingen"}
                     </button>
                     {meerInstellingen && <div className="form-group">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
@@ -2275,8 +2276,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                   </div>
                 )}
-                <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                  {meerInstellingen ? "▾ Minder instellingen" : "⚙️ Meer instellingen ▸"}
+                <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                  <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : "⚙️ Meer instellingen"}
                 </button>
                   </>
                 )}
@@ -2557,7 +2558,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
           <div className="route-editor-tijden">
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
-              ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", color: "var(--muted)" }}>{tijdenOpen ? "▾" : "▸"}</span>
+              ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={tijdenOpen} /></span>
             </button>
             {tijdenOpen && (
               <>

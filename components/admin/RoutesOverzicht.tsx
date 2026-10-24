@@ -18,6 +18,7 @@ import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
 import Venster from "@/components/shared/Venster";
 import { huisLogoUrl } from "@/lib/huisstijl";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -540,7 +541,7 @@ export default function RoutesOverzicht() {
                     {stapKnop(r)}
                     <button className="rl-knop rl-bewerk" onClick={() => router.push(`/admin/routes/${r.id}`)}>✏️ Bewerken</button>
                   </span>
-                  <span className="rl-pijl" aria-hidden>{open.has(r.id) ? "▾" : "▸"}</span>
+                  <span className="rl-pijl"><UitklapPijl open={open.has(r.id)} /></span>
                 </div>
                 <div className="rl-acties rl-acties--vast">
                   {/* Telefoon: eerst de knoppen met tekst over de hele breedte, daaronder de iconen */}

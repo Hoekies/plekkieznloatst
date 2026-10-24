@@ -47,6 +47,13 @@ export async function GET() {
   });
   const doorloopOk = !!soortFout && soortFout.code !== "23514";
   checks.push({ groep: "Database", naam: "Migratie 013: 🚶 doorlooppunten", ok: doorloopOk, uitleg: doorloopOk ? undefined : "Draai 013_doorlooppunt.sql in Supabase → SQL Editor." });
+  // 021: mag een score onder 0? Zelfde truc: een spel met score −1 voor een speler die niet bestaat. Zonder
+  // migratie weigert de scorecontrole (23514), met migratie pas de verwijzing (23503). Er komt nooit iets bij.
+  const { error: scoreFout } = await admin.from("player_sessions").insert({
+    player_id: "00000000-0000-0000-0000-000000000000", route_id: "00000000-0000-0000-0000-000000000000", score: -1, status: "vervallen",
+  });
+  const minOk = !!scoreFout && scoreFout.code !== "23514";
+  checks.push({ groep: "Database", naam: "Migratie 021: minpunten (score onder 0)", ok: minOk, uitleg: minOk ? undefined : "Draai 021_score_negatief.sql in Supabase → SQL Editor." });
 
   // Opslag (afbeeldingen en foto's)
   const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();

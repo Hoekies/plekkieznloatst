@@ -10,6 +10,7 @@ import FotoGalerij, { useFotoUrl } from "@/components/admin/FotoGalerij";
 import StatStrook from "@/components/admin/StatStrook";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 type Data = {
   route: { id: string; name: string; huis_logo?: string | null } | null;
@@ -197,8 +198,8 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             </button>
           ) : <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>✅ Niets te bekijken</span>}
           <span style={{ flex: 1 }} />
-          <button type="button" className="es-link" onClick={() => zetAlles(true)}>▾ Alles open</button>
-          <button type="button" className="es-link" onClick={() => zetAlles(false)}>▸ Alles dicht</button>
+          <button type="button" className="es-link" onClick={() => zetAlles(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><UitklapPijl open /> Alles open</button>
+          <button type="button" className="es-link" onClick={() => zetAlles(false)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><UitklapPijl open={false} /> Alles dicht</button>
         </div>
       )}
 
@@ -229,7 +230,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
             </span>
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "#FFE680" }}>{team.score} pt</span>
-            {team.rijen.length > 0 && <span aria-hidden style={{ color: "var(--muted)" }}>{open ? "▾" : "▸"}</span>}
+            {team.rijen.length > 0 && <UitklapPijl open={open} />}
           </button>
           {open && rijen.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

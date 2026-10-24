@@ -17,6 +17,7 @@ import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -264,7 +265,7 @@ export default function GroepenBeheer() {
           {uitgeschakeld.length > 0 && (
             <>
               <button type="button" className="gb-inklap" onClick={() => setUitOpen((v) => !v)} aria-expanded={uitOpen}>
-                <span aria-hidden>{uitOpen ? "▾" : "▸"}</span>
+                <UitklapPijl open={uitOpen} />
                 ⏸ Uitgeschakelde spelers ({uitgeschakeld.length})
               </button>
               {uitOpen && uitgeschakeld.map(spelerKaart)}

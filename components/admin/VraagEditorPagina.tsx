@@ -14,6 +14,7 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 import Venster from "@/components/shared/Venster";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
@@ -620,7 +621,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <span className="vraag-meer-samenvatting">
                   {[perAntwoord ? "punten per antwoord" : "", husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
                 </span>
-                <span style={{ marginLeft: "auto" }}>{meerOpen ? "▾" : "▸"}</span>
+                <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={meerOpen} /></span>
               </button>
               {meerOpen && (
                 <div className="vraag-meer-inhoud">

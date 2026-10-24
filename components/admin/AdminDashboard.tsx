@@ -7,6 +7,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -303,7 +304,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             <button type="button" className="sk-inklap" aria-expanded={toonAlles}
               onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
               title={toonAlles ? "Inklappen" : "Items en knoppen tonen"} aria-label={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>
-              {toonAlles ? "▾" : "▸"}
+              <UitklapPijl open={toonAlles} />
             </button>
           </div>
         </div>

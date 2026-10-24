@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SpeciaalItem } from "@/types/database";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import { ITEM_UITLEG } from "./item-uitleg";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Volgorde van de soorten: zoals bij het plaatsen (voordeel, aanval, vraagteken, plek zooi)
 const VOLGORDE = Object.keys(ITEM_UITLEG);
@@ -35,7 +36,7 @@ export default function ItemLijst({ items, gekozen, onKies, onVerwijder }: {
               <span className="item-groep-naam">{itemNaam(type)}</span>
               {gepakt > 0 && <span className="item-groep-gepakt">{gepakt} gepakt</span>}
               <span className="item-groep-aantal">{lijst.length}</span>
-              <span className="item-groep-pijl" aria-hidden>{isOpen ? "▾" : "▸"}</span>
+              <UitklapPijl open={isOpen} />
             </button>
             {isOpen && lijst.map((item, i) => {
               const isGekozen = gekozen?.id === item.id;

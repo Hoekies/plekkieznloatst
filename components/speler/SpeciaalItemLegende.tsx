@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { geluidAan, zetGeluid } from "@/lib/sounds";
 import type { SpeciaalItem } from "@/types/database";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
 export type RouteWaarden = { ster: number; bom: number; spookSec: number; plekzooiSec: number };
@@ -243,10 +244,7 @@ function Regel({ icoon, titel, open, onTik, children }: {
         }}>
         <span style={{ width: 36, display: "flex", justifyContent: "center", flexShrink: 0 }}>{icoon}</span>
         <span style={{ flex: 1, fontWeight: 700, fontSize: "0.95rem" }}>{titel}</span>
-        <span aria-hidden style={{
-          color: "var(--muted)", fontSize: "0.8rem",
-          transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s",
-        }}>▼</span>
+        <UitklapPijl open={open} />
       </button>
       {open && (
         // Tik op de uitleg zelf klapt de regel ook weer in

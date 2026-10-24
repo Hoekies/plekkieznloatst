@@ -8,6 +8,7 @@ import { maakKleurMap } from "@/lib/speler-kleur";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import PuzzelVoortgang from "@/components/admin/PuzzelVoortgang";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -147,7 +148,7 @@ export default function AdminLiveKaart({ initData }: Props) {
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
           <button type="button" className="pr-gem-label live-lijst-inklap" onClick={wisselLijst} aria-expanded={!lijstDicht}>
-            <span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span><span aria-hidden>{lijstDicht ? "▸" : "▾"}</span>
+            <span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span><UitklapPijl open={!lijstDicht} />
           </button>
           {lijstDicht ? null : spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>

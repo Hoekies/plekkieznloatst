@@ -4,7 +4,8 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { zetScore } from "@/lib/score";
 
 // Punten handmatig aanpassen voor één team: bonus (+) of aftrek (−), met een reden.
-// De score mag onder 0 (migratie 021). Komt in de tijdlijn en het rapport (migratie 006).
+// De score mag onder 0 (migratie 021). Komt in de tijdlijn en het rapport (migratie 006); het team krijgt
+// er een melding van.
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
   if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   const admin = createAdminClient();
-  const { data: sessie } = await admin.from("player_sessions").select("id, score").eq("id", params.id).maybeSingle();
+  const { data: sessie } = await admin.from("player_sessions").select("id, score, player_id").eq("id", params.id).maybeSingle();
   if (!sessie) return NextResponse.json({ fout: "Dit spel bestaat niet (meer)" }, { status: 404 });
 
   // Aftrek mag het team in de min brengen (migratie 021)
@@ -28,5 +29,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ fout: migratie ? "Draai eerst SQL-bestand 006 in Supabase" : vastleggen.message }, { status: 500 });
   }
   const nieuw = await zetScore(admin, sessie.id, (sessie.score ?? 0) + delta);
+  // Het team ziet meteen een melding in beeld (zelfde weg als 📢 Bericht sturen, alleen aan dit team)
+  const tekst = delta > 0
+    ? `⭐ De spelleider geeft jullie +${delta} punten${reden ? ` (${reden})` : ""}!`
+    : `➖ De spelleider trekt ${-delta} punten af${reden ? ` (${reden})` : ""}.`;
+  await admin.from("broadcasts").insert({ bericht: tekst.slice(0, 150), player_id: sessie.player_id });
   return NextResponse.json({ ok: true, score: nieuw, delta });
 }

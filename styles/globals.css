@@ -1732,7 +1732,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 @media (max-width: 768px) {
   .rl-kop { display: flex; gap: 12px; width: 100%; padding: 0; background: none; border: none; text-align: left; cursor: pointer; color: inherit; }
   .rl-kop > :first-child { flex-shrink: 0; }
-  .rl-pijl { display: inline; flex-shrink: 0; color: var(--muted); font-size: 1rem; width: 14px; text-align: center; }
+  .rl-pijl { display: inline-flex; flex-shrink: 0; }
   .rl-titel { min-width: 0 !important; }
   .rl-tekstknoppen { display: flex; gap: 8px; width: 100%; }
   .rl-tekstknoppen > .rl-knop { flex: 1; width: auto !important; }
@@ -2113,9 +2113,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .kaart-stijl--onder { top: auto; bottom: max(22px, calc(env(safe-area-inset-bottom) + 12px)); }
 
 /* Spelerkaart dashboard: in- en uitklappen */
-.sk-inklap { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); color: var(--muted); border-radius: 8px;
-  padding: 3px 9px; font: inherit; font-size: 0.74rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.sk-inklap:hover { background: rgba(255,255,255,0.12); color: #fff; }
+/* Alleen de uitklap-pijl (het rondje is de knop) */
+.sk-inklap { display: inline-flex; background: none; border: 0; padding: 2px; cursor: pointer; }
+.sk-inklap:hover .uitklap-pijl { background: rgba(255,255,255,0.2); }
 
 /* Routekaart: icoonknoppen lichter, zodat elk icoontje goed te zien is; deactiveren als gevulde rode knop */
 .rl-icoonknoppen .rl-knop--icoon:not(.rl-leeg) { background: rgba(255,255,255,0.16) !important; border-color: rgba(255,255,255,0.32) !important; }
@@ -2903,7 +2903,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .spelleider-dicht-inner { display: flex !important; align-items: center; gap: 10px; padding: 10px 14px !important; }
 .spelleider-dicht-tekst { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .spelleider-dicht-ok { color: #86EFAC; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
-.spelleider-inklap { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 4px; }
 @media (max-width: 768px) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }
 
 /* Stat-vakjes: schuivende tekst in plaats van "…" (SchuifTekst regelt overflow zelf) */
@@ -3298,10 +3297,15 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .item-groep-naam { flex: 1; min-width: 0; font-size: 0.84rem; font-weight: 700; }
 .item-groep-gepakt { font-size: 0.66rem; color: var(--muted); white-space: nowrap; }
 .item-groep-aantal { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,0.12); font-size: 0.74rem; font-weight: 800; text-align: center; }
-.item-groep-pijl { width: 12px; color: var(--muted); font-size: 0.75rem; }
 .item-rij { padding: 3px 10px 3px 39px; cursor: pointer; display: flex; align-items: center; gap: 7px; border-left: 3px solid transparent; }
 .item-rij--gekozen { background: rgba(255,255,255,0.12); border-left-color: #60A5FA; }
 .item-rij--gepakt { opacity: 0.55; }
 .item-rij-naam { flex: 1; min-width: 0; font-size: 0.8rem; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .item-rij-gepakt { font-size: 0.66rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
 .item-rij-weg { background: none; border: none; cursor: pointer; color: var(--red); font-size: 0.8rem; padding: 2px 3px; }
+
+/* ▸ Uitklap-pijl (components/shared/UitklapPijl.tsx): overal hetzelfde rondje; open = naar beneden en goud */
+.uitklap-pijl { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; vertical-align: middle;
+  transition: transform 0.18s ease, background 0.18s, border-color 0.18s, color 0.18s; }
+.uitklap-pijl--open { transform: rotate(90deg); background: rgba(255,217,59,0.18); border-color: rgba(255,217,59,0.55); color: #FFE680; }
