@@ -256,7 +256,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
 
         <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, fontWeight: 800, justifyContent: "center", display: "inline-flex", alignItems: "center" }}
           onClick={toepassen} disabled={laden}>
-          {laden ? <><Icoon naam="laden" />{" Uploaden…"}</> : "✓ Gebruiken"}
+          {laden ? <><Icoon naam="laden" />{" Uploaden…"}</> : <><Icoon naam="klaar" />{" Gebruiken"}</>}
         </button>
       </div>
       </div>

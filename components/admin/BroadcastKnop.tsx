@@ -73,7 +73,7 @@ export default function BroadcastKnop({ alsIcoon = false, team, groot = false }:
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
                 <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 44, padding: "0 20px", fontWeight: 800 }}
                   disabled={!tekst.trim() || fase !== "idle"} onClick={verstuur}>
-                  {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? "✓ Verzonden!" : "Versturen"}
+                  {fase === "bezig" ? "Versturen…" : fase === "verzonden" ? <><Icoon naam="klaar" />{" Verzonden!"}</> : "Versturen"}
                 </button>
               </div>
             </div>

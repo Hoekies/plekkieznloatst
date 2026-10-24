@@ -230,7 +230,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
               {team.rijen.length === 0
                 ? <span className="antw-nog-niets" style={{ marginLeft: 0 }}>nog geen vragen beantwoord</span>
                 : <span className="antw-telling">
-                    <span style={{ color: "#4ADE80" }}>✓ {goed}</span> <span style={{ color: "#F87171" }}>✗ {fout}</span>
+                    <span style={{ color: "#4ADE80" }}><Icoon naam="klaar" /> {goed}</span> <span style={{ color: "#F87171" }}><Icoon naam="fout" /> {fout}</span>
                     {bijna > 0 && <span style={{ color: "#FBBF24" }}> <Icoon naam="bekijken" /> {bijna} bijna goed</span>}
                     {fotoWacht > 0 && <span style={{ color: "#FBBF24" }}> <Icoon naam="camera" /> {fotoWacht} te keuren</span>}
                   </span>}
@@ -291,7 +291,7 @@ function AntwoordRegel({ rij: r, bezig, onGoedkeuren, onFoto }: {
         {!isFoto && r.kan_goedkeuren && (
           <button className={`rl-knop${r.bijna_goed ? " rl-knop--groen" : ""}`} disabled={bezig === r.voortgang_id} onClick={onGoedkeuren}
             title="Het antwoord lijkt genoeg op het goede antwoord: geef alsnog de punten">
-            ✓ Toch goed
+            <Icoon naam="klaar" /> Toch goed
           </button>
         )}
         {isFoto && r.foto_status === "wacht" && (

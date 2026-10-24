@@ -52,7 +52,7 @@ export default function HelpersBeheer() {
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
         <button className="btn btn-primary actie-knop" onClick={() => setFormulier(true)}>
-          + <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
+          <Icoon naam="plus" /> <span className="alleen-pc">Nieuwe helper</span><span className="alleen-mobiel">Helper</span>
         </button>
       </div>
 

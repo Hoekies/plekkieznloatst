@@ -164,7 +164,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
                 return (
                   <button key={v.id} type="button" onClick={() => wissel(v.id)} title={v.tekst}
                     className={`rl-knop${aan ? " rl-knop--cyan" : ""}`} style={{ fontSize: "0.76rem" }}>
-                    {aan ? "✓ " : ""}{SOORT[v.type]?.icoon ?? "❓"} Vraag {i + 1}
+                    {aan ? <><Icoon naam="klaar" />{" "}</> : ""}{SOORT[v.type]?.icoon ?? "❓"} Vraag {i + 1}
                   </button>
                 );
               })}
@@ -172,7 +172,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button type="button" className="rl-knop" onClick={() => setGekozen(kiesVragen(vragen, true))} disabled={vragen.length <= 3}><Icoon naam="husselen" /> Andere vragen</button>
               <button type="button" className={`rl-knop${opties ? " rl-knop--cyan" : ""}`} onClick={() => setOpties((o) => !o)}>
-                {opties ? "✓ " : ""}Antwoordopties tonen
+                {opties ? <><Icoon naam="klaar" />{" "}</> : ""}Antwoordopties tonen
               </button>
             </div>
           </div>

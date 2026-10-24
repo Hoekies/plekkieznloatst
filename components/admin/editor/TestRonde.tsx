@@ -106,7 +106,7 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
         )}
 
         <div className="melding-knoppen">
-          <button type="button" className="rl-knop" style={{ height: 40 }} disabled={stap === 0} onClick={() => setStap((s) => s - 1)}>◀ Vorige</button>
+          <button type="button" className="rl-knop" style={{ height: 40 }} disabled={stap === 0} onClick={() => setStap((s) => s - 1)}><Icoon naam="vorige" /> Vorige</button>
           <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 40, fontWeight: 800 }} disabled={stap >= punten.length - 1} onClick={() => setStap((s) => s + 1)}>Volgende ▶</button>
         </div>
       </div>

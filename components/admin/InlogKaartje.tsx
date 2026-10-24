@@ -8,6 +8,7 @@ import { toonMelding } from "@/components/admin/Melding";
 
 import { waLink } from "@/lib/telefoon";
 import { elementNaarPng, deelOfDownload } from "@/lib/delen";
+import Icoon from "@/components/admin/Icoon";
 
 // telefoon: bekend nummer van het team; dan opent WhatsApp meteen die chat (waar dat kan)
 // link: link om direct in te loggen (zonder wachtwoord), met tot wanneer hij werkt
@@ -163,7 +164,7 @@ export default function KaartjeVersturen({ inlog }: { inlog: Inlog }) {
         <button type="button" className="wa-knop" disabled={!beeld}
           onClick={async () => { const r = await versturen(inlog, beeld); if (r !== "geannuleerd") setStap(r); }}
           title="Het kaartje versturen, met het bericht (links en inlog) als bijschrift eronder">
-          <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "kaartje" ? "WhatsApp" : "✓ Verstuurd · nog een keer"}
+          <WhatsAppLogo /> {!beeld ? "Even geduld…" : stap === "kaartje" ? "WhatsApp" : <><Icoon naam="klaar" />{" Verstuurd · nog een keer"}</>}
         </button>
       </div>
       {/* Reserve: op de computer laat WhatsApp de tekst onder het kaartje weg */}

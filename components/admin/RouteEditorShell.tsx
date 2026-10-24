@@ -1348,7 +1348,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     {i > 0 && <span className="route-stap-pijl" aria-hidden>›</span>}
                     {i === 1 ? (
                       <button type="button" className={cls} onClick={() => setControleOpen(true)} title="Controleer of de route klaar is om te spelen">
-                        {i < fase ? "✓ " : ""}{naam}{controle.length ? <span className="editor-teller">{controle.length}</span> : null}
+                        {i < fase ? <><Icoon naam="klaar" />{" "}</> : ""}{naam}{controle.length ? <span className="editor-teller">{controle.length}</span> : null}
                       </button>
                     ) : <span className={cls}>{i < fase ? "✓ " : ""}{naam}</span>}
                   </Fragment>
@@ -1363,12 +1363,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* De volgende stap */}
             {!route.is_active && route.status !== "gepubliceerd" && (
               <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen">▶ Starten</button>
+                title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen"><Icoon naam="start" /> Starten</button>
             )}
             {!route.is_active && route.status === "gepubliceerd" && (
               <>
                 <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                  title="Laatste controle, daarna kunnen de spelers beginnen">▶ Starten</button>
+                  title="Laatste controle, daarna kunnen de spelers beginnen"><Icoon naam="start" /> Starten</button>
                 <button className="rl-knop" onClick={() => zetStatus("concept")}
                   title="Terug naar concept (weer bewerken voordat je activeert)"><Icoon naam="terug" /><span className="alleen-pc"> Concept</span></button>
               </>
@@ -1709,7 +1709,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {/* Kop: hoeveel gekozen, en klaar */}
                   <div className="meerdere-kop">
                     <span>☑️ <strong>{gekozenIds.size}</strong> gekozen</span>
-                    <button type="button" className="rl-knop" onClick={() => { setKiesModus(false); setGekozenIds(new Set()); }}>✓ Klaar</button>
+                    <button type="button" className="rl-knop" onClick={() => { setKiesModus(false); setGekozenIds(new Set()); }}><Icoon naam="klaar" /> Klaar</button>
                   </div>
                   {/* Snel kiezen */}
                   <div className="segment meerdere-kies" aria-label="Snel kiezen">
@@ -2068,7 +2068,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         </div>
                       ))}
                       <button type="button" className="rl-knop" style={{ alignSelf: "flex-start" }}
-                        onClick={() => { setInstellingenOpen(false); setTekenGebied([]); setProef(null); setGeselecteerd(null); }}>+ Gebied tekenen</button>
+                        onClick={() => { setInstellingenOpen(false); setTekenGebied([]); setProef(null); setGeselecteerd(null); }}><Icoon naam="plus" /> Gebied tekenen</button>
                       <span className="inst-uitleg">Bijv. een drukke weg of privéterrein. Teams zien het rood op hun kaart en krijgen een waarschuwing als ze erin lopen.</span>
                     </div>
                 {/* Op volgorde: wat zien de spelers op de kaart */}
@@ -2325,7 +2325,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               Op <strong>{lopendElders.route}</strong> {lopendElders.aantal === 1 ? "is nog 1 team" : `zijn nog ${lopendElders.aantal} teams`} aan het spelen.
               Activeer je deze route, dan stopt hun spel.
             </p>
-            <button type="button" className="rl-knop rl-knop--rood actie-knop" onClick={() => activeerRoute(true)}>▶ Toch starten</button>
+            <button type="button" className="rl-knop rl-knop--rood actie-knop" onClick={() => activeerRoute(true)}><Icoon naam="start" /> Toch starten</button>
           </VensterMetKop>
         )}
 
@@ -2340,7 +2340,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <input className="form-input" value={gebiedNaam} onChange={(e) => setGebiedNaam(e.target.value)} placeholder="Naam, bijv. Drukke weg" maxLength={40} />
             <div style={{ display: "flex", gap: 8 }}>
               <button type="button" className="rl-knop" disabled={!tekenGebied.length} onClick={() => setTekenGebied((t) => t && t.slice(0, -1))}><Icoon naam="terug" /> Laatste hoek</button>
-              <button type="button" className="rl-knop hoofdknop" style={{ flex: 1, justifyContent: "center" }} disabled={tekenGebied.length < 3} onClick={gebiedKlaar}>✓ Opslaan</button>
+              <button type="button" className="rl-knop hoofdknop" style={{ flex: 1, justifyContent: "center" }} disabled={tekenGebied.length < 3} onClick={gebiedKlaar}><Icoon naam="klaar" /> Opslaan</button>
             </div>
           </div>
         )}

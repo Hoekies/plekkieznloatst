@@ -120,7 +120,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
                     <div className="keur-knoppen">
                       <button type="button" className="rl-knop rl-knop--rood" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "afgekeurd")}>✗ Afkeuren</button>
                       <button type="button" className="rl-knop rl-knop--groen" disabled={bezig === inz.id} onClick={() => beoordeel(inz.id, "goedgekeurd")}>
-                        {bezig === inz.id ? "Opslaan…" : `✓ Goed (+${punten})`}
+                        {bezig === inz.id ? "Opslaan…" : <><Icoon naam="klaar" />{` Goed (+${punten})`}</>}
                       </button>
                     </div>
                   </>

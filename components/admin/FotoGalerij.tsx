@@ -101,7 +101,7 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
                   onClick={async () => { await onKeur(f.foto_id!, f.voortgang_id, "afgekeurd", 0, opmerking); }}>✗ Afkeuren</button>
                 <button type="button" className="rl-knop rl-knop--groen" disabled={bezig}
                   onClick={async () => { await onKeur(f.foto_id!, f.voortgang_id, "goedgekeurd", punten, opmerking); }}>
-                  {bezig ? "Opslaan…" : `✓ Goed (+${punten})`}
+                  {bezig ? "Opslaan…" : <><Icoon naam="klaar" />{` Goed (+${punten})`}</>}
                 </button>
               </div>
             </>

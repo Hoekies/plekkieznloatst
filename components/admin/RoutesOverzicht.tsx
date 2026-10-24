@@ -352,12 +352,12 @@ export default function RoutesOverzicht() {
     if (r.status === "gepubliceerd") {
       return (
         <button type="button" className="rl-knop rl-knop--cyan rl-stap" title="Laatste controle, daarna kunnen de spelers beginnen"
-          onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Starten</button>
+          onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}><Icoon naam="start" /> Starten</button>
       );
     }
     return (
       <button type="button" className="rl-knop rl-knop--cyan rl-stap" title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen"
-        onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}>▶ Starten</button>
+        onClick={() => router.push(`/admin/routes/${r.id}?controle=1`)}><Icoon naam="start" /> Starten</button>
     );
   }
 
@@ -366,7 +366,7 @@ export default function RoutesOverzicht() {
       {/* Nieuwe route links, importeren rechts (zoals bij Groepen) */}
       <div className="actie-rij" style={{ marginBottom: 24 }}>
         <button className="btn btn-primary actie-knop" onClick={() => setAanmaken(true)}>
-          + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
+          <Icoon naam="plus" /> <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>
         <span style={{ flex: 1 }} />
         <button className="rl-knop actie-knop" title="Alle routes met vragen en afbeeldingen in één bestand bewaren (terugzetten met Bestand openen)"

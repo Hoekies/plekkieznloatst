@@ -226,7 +226,7 @@ export default function GroepenBeheer() {
       {/* Nieuwe speler en meerdere links, WhatsApp rechts */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
-            + <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
+            <Icoon naam="plus" /> <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <MeerdereSpelersKnop onKlaar={laadGroepen} />
           {groepen.some((g) => !g.is_uitgeschakeld) && <AlleKaartjesKnop />}

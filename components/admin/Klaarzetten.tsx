@@ -70,7 +70,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       // Staat er een route klaar? Dan meteen naar de laatste controle en activeren
       actie: !route && (klaarRoutes.length
         ? <span style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-end" }}>
-            {klaarRoutes.map((r) => <Link key={r.id} href={`/admin/routes/${r.id}?controle=1`} className="rl-knop hoofdknop" title="Laatste controle, daarna activeren">▶ {r.name}</Link>)}
+            {klaarRoutes.map((r) => <Link key={r.id} href={`/admin/routes/${r.id}?controle=1`} className="rl-knop hoofdknop" title="Laatste controle, daarna activeren"><Icoon naam="start" /> {r.name}</Link>)}
           </span>
         : <Link href="/admin/routes" className="rl-knop hoofdknop"><Icoon naam="kaart" /> Naar routes</Link>),
     },

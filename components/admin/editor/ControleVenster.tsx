@@ -2,6 +2,7 @@
 
 import type { ControleRegel } from "@/lib/route-controle";
 import { VensterKop } from "@/components/shared/Venster";
+import Icoon from "@/components/admin/Icoon";
 
 // "Klaar om te spelen?": de controle vóór het activeren van een route.
 // Zelfde stijl als de andere vensters: paars paneel met gouden rand, ✕ rechtsboven,
@@ -45,7 +46,7 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
               <div style={{ fontSize: "0.82rem", color: "#FCA5A5", textAlign: "center", fontWeight: 600 }}>Los eerst de rode punten op, dan kun je de route starten.</div>
             ) : (<>
               <button type="button" className="rl-knop hoofdknop" style={{ height: 44, width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onActiveer}>
-                ▶ {controle.length ? "Toch starten" : "Starten"}
+                <Icoon naam="start" /> {controle.length ? "Toch starten" : "Starten"}
               </button>
               <div style={{ fontSize: "0.74rem", color: "var(--muted)", textAlign: "center" }}>De spelers kunnen dan meteen beginnen. Een andere actieve route stopt.</div>
               {status !== "gepubliceerd" && (

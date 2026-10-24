@@ -3531,7 +3531,13 @@ a.rl-knop { display: inline-flex; align-items: center; justify-content: center; 
 
 /* Lijn-iconen op knoppen in het beheer (Icoon): even groot als de tekst, in de tekstkleur */
 .knop-svg { display: inline-flex; align-items: center; justify-content: center; flex: none; line-height: 1; vertical-align: -0.18em; }
-.knop-svg svg { width: 1.15em; height: 1.15em; display: block; }
+.knop-svg svg { width: 1.45em; height: 1.45em; display: block; }
+/* Kopknoppen (bericht, foto's, hulp): groot icoon, net als eerst de emoji */
+.rl-knop--icoon > .knop-svg svg { width: 1.25em; height: 1.25em; }
+.header-knop > .knop-svg { width: 34px; }
+.header-knop > .knop-svg svg { width: 26px; height: 26px; }
+@media (max-width: 768px) { .header-knop > .knop-svg { width: 26px; } .header-knop > .knop-svg svg { width: 21px; height: 21px; } }
+body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop > .knop-svg svg { width: 20px; height: 20px; }
 /* Iconen met een betekenis houden hun kleur (zoals de emoji eerst), met een zachte gloed:
    groen = in orde / verder, oranje = let op / bezig, rood = stoppen / weg, goud = uitslag / iets nieuws.
    In een gekleurde of gekozen knop volgt het icoon gewoon de kleur van de knop. */
