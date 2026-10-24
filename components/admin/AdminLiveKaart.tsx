@@ -162,7 +162,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                   <span style={{ minWidth: 0, flex: 1 }}>
                     <span className="live-lijst-kop">
                       <span className="live-lijst-naam">{s.sessie_status === "voltooid" ? "🏁 " : ""}{s.display_name}</span>
-                      <span className="live-lijst-score">{s.score} pt</span>
+                      <span className={`live-lijst-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
                     </span>
                     {/* Waar het team heen loopt (of: gefinisht) */}
                     <span className="live-lijst-sub">

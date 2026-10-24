@@ -80,7 +80,7 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
                   </span>
                 )}
               </span>
-              <span className="beamer-score">{s.score}</span>
+              <span className={`beamer-score${s.score < 0 ? " score-min" : ""}`}>{s.score}</span>
             </div>
           ))}
         </div>

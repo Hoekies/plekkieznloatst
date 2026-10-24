@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SITE } from "@/lib/qr-inlog";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
@@ -24,7 +25,6 @@ export type VoorproefData = {
   items: { id: string; type: string; lat: number; lng: number }[];
 };
 
-const SITE = "https://plekkieznloatst.vercel.app";
 const OPSLAG = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/vraag-afbeeldingen/`;
 const SOORT: Record<string, { naam: string; icoon: string }> = {
   meerkeuze_tekst: { naam: "Meerkeuze", icoon: "🔤" },

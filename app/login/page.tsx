@@ -1,7 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { inlogUitHash } from "@/lib/qr-inlog";
 import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import AppInstallatie from "@/components/shared/AppInstallatie";
@@ -28,7 +29,24 @@ function LoginForm() {
       : null;
 
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
+  // 📷 QR-code van het inlogkaartje: loginnaam en wachtwoord staan achter het #-teken → invullen en
+  // meteen inloggen. Het #-deel gaat eerst uit de adresbalk, zodat het wachtwoord niet in de geschiedenis blijft.
+  useEffect(() => {
+    const probeer = () => {
+      const inlog = inlogUitHash(window.location.hash);
+      const form = formRef.current;
+      if (!inlog || !form) return;
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+      (form.elements.namedItem("naam") as HTMLInputElement).value = inlog.login;
+      (form.elements.namedItem("wachtwoord") as HTMLInputElement).value = inlog.wachtwoord;
+      form.requestSubmit();
+    };
+    probeer();
+    window.addEventListener("hashchange", probeer);
+    return () => window.removeEventListener("hashchange", probeer);
+  }, []);
 
   return (
     // Vanaf boven (niet gecentreerd): als het toetsenbord opent, schuift het logo niet onder de statusbalk
@@ -71,7 +89,7 @@ function LoginForm() {
 
       <div className="pr-panel">
         <div className="pr-panel-inner">
-          <form action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column" }}>
+          <form ref={formRef} action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column" }}>
 
             <label htmlFor="naam" className="pr-field-label2">
               Naam

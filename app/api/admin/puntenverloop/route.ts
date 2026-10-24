@@ -33,7 +33,7 @@ export async function GET() {
     const eind = s.finished_at ? Date.parse(s.finished_at) : nu;
     const punten: [number, number][] = [[start, 0]];
     let stand = 0;
-    for (const g of gebeurtenissen) { stand = Math.max(0, stand + g.d); punten.push([g.t, stand]); }
+    for (const g of gebeurtenissen) { stand += g.d; punten.push([g.t, stand]); }
     punten.push([Math.max(eind, punten[punten.length - 1][0]), s.score]);
     return { player_id: s.player_id, naam: s.players.nickname ?? s.players.login_name, icon: s.players.icon, punten };
   });

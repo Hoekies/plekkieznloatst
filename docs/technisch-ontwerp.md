@@ -73,7 +73,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 020 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 021 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```
@@ -178,7 +178,7 @@ plekkie-zn-loatst/
 |---|---|---|
 | id | uuid PK | |
 | session_id | uuid FK → player_sessions | Cascade bij verwijderen |
-| delta | integer | Werkelijke bonus (+) of aftrek (−); de score zakt nooit onder 0 |
+| delta | integer | Bonus (+) of aftrek (−); de score mag onder 0 (migratie 021) |
 | reden | text | Komt in de tijdlijn en het rapport |
 | created_at | timestamptz | |
 

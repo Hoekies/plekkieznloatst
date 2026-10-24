@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { codeUitLink } from "@/components/shared/QrScanner";
+import { inlogUitTekst, gaInloggen } from "@/lib/qr-inlog";
 
 // Camera pas laden als je op Scannen tikt
 const QrScanner = dynamic(() => import("@/components/shared/QrScanner"), { ssr: false });
@@ -10,7 +10,6 @@ const QrScanner = dynamic(() => import("@/components/shared/QrScanner"), { ssr: 
 // Inloglinks openen vanuit WhatsApp in de browser, niet in de geïnstalleerde app (die heeft een
 // eigen, aparte inlog). Daarom kan de app de link ook zelf gebruiken: kopieer de link in WhatsApp,
 // en tik hier op "Inloggen met link". De app leest het klembord, of je plakt hem zelf.
-const codeUit = codeUitLink;
 
 export default function LinkInloggen() {
   const [open, setOpen] = useState(false);
@@ -19,17 +18,13 @@ export default function LinkInloggen() {
   // 📷 De QR-code op het inlogkaartje scannen
   const [scan, setScan] = useState(false);
 
-  function ga(code: string) {
-    window.location.assign(`/l/${code}`);
-  }
-
   async function start() {
     setFout("");
     // Eerst het klembord proberen (de telefoon vraagt misschien om toestemming)
     try {
       const klembord = await navigator.clipboard?.readText();
-      const code = klembord ? codeUit(klembord) : null;
-      if (code) { ga(code); return; }
+      const inlog = klembord ? inlogUitTekst(klembord) : null;
+      if (inlog) { gaInloggen(inlog); return; }
     } catch { /* geen toegang tot het klembord: dan plakken */ }
     setOpen(true);
   }
@@ -55,8 +50,8 @@ export default function LinkInloggen() {
         placeholder="https://…/l/…" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoFocus style={{ marginBottom: 0 }} />
       {fout && <div style={{ fontSize: "0.8rem", color: "#FCA5A5", textAlign: "center" }}>⚠️ {fout}</div>}
       <button type="button" className="btn-premium--compact" onClick={() => {
-        const code = codeUit(tekst);
-        if (code) ga(code); else setFout("Dit is geen inloglink. Kopieer de hele link uit WhatsApp.");
+        const inlog = inlogUitTekst(tekst);
+        if (inlog) gaInloggen(inlog); else setFout("Dit is geen inloglink. Kopieer de hele link uit WhatsApp.");
       }}>INLOGGEN MET LINK →</button>
     </div>
   );

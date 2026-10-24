@@ -27,6 +27,7 @@ import ControleVenster from "./editor/ControleVenster";
 import { routeControle } from "@/lib/route-controle";
 import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import PuzzelInstellingen from "./editor/PuzzelInstellingen";
+import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc } from "@/components/shared/Venster";
 
@@ -1888,30 +1889,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
                   👆 <strong>Klik op de kaart</strong> en kies 🎁 Item om een item te plaatsen.
                 </p>
-              ) : specialeItems.map((item) => {
-                return (
-                  <div key={item.id}
-                    onClick={() => setGeselecteerdSpeciaal(geselecteerdSpeciaal?.id === item.id ? null : item)}
-                    className={`lijst-rij${geselecteerdSpeciaal?.id === item.id ? " lijst-rij--gekozen" : ""}`}
-                    style={{
-                      padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7,
-                      background: geselecteerdSpeciaal?.id === item.id ? "rgba(255,255,255,0.12)" : "transparent",
-                      borderLeft: geselecteerdSpeciaal?.id === item.id ? "3px solid #60A5FA" : "3px solid transparent",
-                      opacity: item.claimed ? 0.55 : 1,
-                    }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/items/${item.type}.webp`} alt="" style={{ width: 22, height: 22, flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
-                      {item.name}
-                    </div>
-                    {item.claimed && (
-                      <span style={{ fontSize: "0.66rem", color: "var(--muted)", whiteSpace: "nowrap", flexShrink: 0 }}>gepakt</span>
-                    )}
-                    <button className="lijst-rij-acties" title="Item verwijderen (terugzetten kan met ↶)" aria-label="Item verwijderen" onClick={(e) => { e.stopPropagation(); verwijderSpeciaalItem(item.id); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", fontSize: "0.8rem", padding: "2px 3px" }}>🗑️</button>
-                  </div>
-                );
-              })
+              ) : (
+                <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
+              )
             )}
 
           </div>

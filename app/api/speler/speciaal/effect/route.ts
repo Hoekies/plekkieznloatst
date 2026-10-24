@@ -3,6 +3,7 @@ import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { logItem } from "@/lib/item-log";
 import { haalItemSessie, doelwitNaFinishVan } from "@/lib/item-sessie";
 import { haalSpeler } from "@/lib/speler-sessie";
+import { telBijScore, zetScore } from "@/lib/score";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -135,9 +136,8 @@ export async function POST(request: NextRequest) {
 
   } else if (item.type === "bom") {
     const aftrek = routeBomWaarde;
-    const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", doelSessie!.id).maybeSingle();
-    const nieuweScore = Math.max(0, (huidig?.score ?? doelSessie!.score) - aftrek);
-    await admin.from("player_sessions").update({ score: nieuweScore }).eq("id", doelSessie!.id);
+    // Ook als het team daardoor in de min komt
+    await telBijScore(admin, doelSessie!.id, -aftrek);
     const { error } = await admin.from("special_item_effects").insert({
       special_item_id: item.id,
       target_session_id: doelSessie!.id,
@@ -297,8 +297,7 @@ export async function POST(request: NextRequest) {
             notification: `❓ Vraagteken van ${aanvallerNaam}: jij krijgt ${sterWaarde} bonuspunten! ⭐`,
           });
         } else {
-          const nieuwScore = Math.max(0, s.score - Math.abs(sterWaarde));
-          await admin.from("player_sessions").update({ score: nieuwScore }).eq("id", s.id);
+          await telBijScore(admin, s.id, -Math.abs(sterWaarde));
           await admin.from("special_item_effects").insert({
             special_item_id: item.id,
             target_session_id: s.id,
@@ -319,16 +318,12 @@ export async function POST(request: NextRequest) {
 
     } else if (roll < 0.80) {
       // 10%: verlies 200 punten
-      await admin.from("player_sessions")
-        .update({ score: Math.max(0, huidigScore - 200) })
-        .eq("id", eigenSessie.id);
+      await zetScore(admin, eigenSessie.id, huidigScore - 200);
       eigenNotificatie = `❓ Pech! Je verliest 200 punten. 💸`;
 
     } else {
       // 20%: bom op jezelf (verlies sterwaarde punten)
-      await admin.from("player_sessions")
-        .update({ score: Math.max(0, huidigScore - Math.abs(sterWaarde)) })
-        .eq("id", eigenSessie.id);
+      await zetScore(admin, eigenSessie.id, huidigScore - Math.abs(sterWaarde));
       eigenNotificatie = `❓ Bom op jezelf! Je verliest ${Math.abs(sterWaarde)} punten. 💥`;
     }
 

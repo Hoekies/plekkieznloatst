@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SITE } from "@/lib/qr-inlog";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import Venster, { VensterKop } from "@/components/shared/Venster";
 
@@ -16,7 +17,6 @@ const OUDE_DEFAULTS = [
   "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app",
   "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\nVeel plezier! René",
 ];
-const SITE = "https://plekkieznloatst.vercel.app";
 
 // Stap voor stap, vriendelijk uitgelegd. *tekst* wordt in WhatsApp vetgedrukt
 const BEGINSCHERM_UITLEG = [

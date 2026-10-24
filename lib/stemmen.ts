@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
+import { telBijScore } from "@/lib/score";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -35,10 +36,7 @@ export async function sluitStemmingen(admin: AdminClient, routeId: string, puntI
       const punten = goed ? v.points : 0;
       const verschil = punten - (r.points_awarded ?? 0);
       await admin.from("player_point_progress").update({ is_correct: goed, points_awarded: punten }).eq("id", r.id);
-      if (verschil) {
-        const { data: sessie } = await admin.from("player_sessions").select("score").eq("id", r.session_id).maybeSingle();
-        await admin.from("player_sessions").update({ score: Math.max(0, (sessie?.score ?? 0) + verschil) }).eq("id", r.session_id);
-      }
+      if (verschil) await telBijScore(admin, r.session_id, verschil);
     }
     await admin.from("questions").update({ stem_gesloten: true }).eq("id", v.id);
     gesloten++;

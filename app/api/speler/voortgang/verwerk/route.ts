@@ -5,6 +5,7 @@ import { normaliserenNumeriek, tekstKlopt } from "@/lib/geo";
 import { stemWinnaars } from "@/lib/stemmen";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
+import { telBijScore } from "@/lib/score";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -225,11 +226,8 @@ export async function POST(request: NextRequest) {
   if (error || !bijgewerkt) return NextResponse.json({ fout: error?.message }, { status: 500 });
 
   // Score bijwerken — lees huidige score opnieuw om stale read te vermijden.
-  // Negatieve antwoordpunten trekken af, maar nooit onder 0 (net als de bom).
-  if (puntWaarde !== 0) {
-    const { data: huidig } = await admin.from("player_sessions").select("score").eq("id", sessie.id).maybeSingle();
-    await admin.from("player_sessions").update({ score: Math.max(0, (huidig?.score ?? sessie.score) + puntWaarde) }).eq("id", sessie.id);
-  }
+  // Negatieve antwoordpunten trekken af, ook onder 0 (net als de bom)
+  if (puntWaarde !== 0) await telBijScore(admin, sessie.id, puntWaarde);
 
   // Eindpunt → sessie sluiten
   if (punt.type === "eindpunt") {

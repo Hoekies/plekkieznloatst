@@ -1260,6 +1260,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .pr-hud-gem--purple { background: linear-gradient(180deg, rgba(124,58,237,0.4) 0%, rgba(124,58,237,0.12) 100%); border-color: rgba(124,58,237,0.5); }
 .pr-hud-gem--orange { background: linear-gradient(180deg, rgba(255,138,0,0.4) 0%, rgba(255,138,0,0.12) 100%); border-color: rgba(255,138,0,0.5); }
+/* Score onder 0: iets rood (rustig, niet knipperend) */
+.pr-hud-gem--min { background: linear-gradient(180deg, rgba(239,68,68,0.38) 0%, rgba(239,68,68,0.12) 100%); border-color: rgba(248,113,113,0.6); }
 .pr-hud-gem--rood { background: linear-gradient(180deg, rgba(255,59,92,0.55) 0%, rgba(255,59,92,0.2) 100%); border-color: rgba(255,59,92,0.8); animation: pr-pulse-rood 1.6s ease-in-out infinite; }
 @keyframes pr-pulse-rood { 50% { box-shadow: 0 0 14px rgba(255,59,92,0.7); } }
 /* Statistiekhokjes speler: zelfde buitenmaat als voorheen (48px), maar het getal vult het hokje */
@@ -3285,3 +3287,21 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-weg { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #F87171; font-size: 0.75rem; cursor: pointer; }
 /* Achtergrond van een venster (components/shared/Venster.tsx): over alles heen, paneel in het midden */
 .venster-achter { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: center; justify-content: center; }
+
+/* Score onder 0 (minpunten): rood in het beheer en op de beamer */
+.score-min { color: #FCA5A5 !important; }
+
+/* Route-editor: items per soort (components/admin/editor/ItemLijst.tsx) */
+.item-groep-kop { display: flex; align-items: center; gap: 7px; width: 100%; padding: 5px 10px; border: 0; border-left: 3px solid transparent; background: none; color: var(--ink); cursor: pointer; text-align: left; font-family: inherit; }
+.item-groep-kop:hover { background: rgba(255,255,255,0.06); }
+.item-groep-kop img { width: 22px; height: 22px; flex-shrink: 0; }
+.item-groep-naam { flex: 1; min-width: 0; font-size: 0.84rem; font-weight: 700; }
+.item-groep-gepakt { font-size: 0.66rem; color: var(--muted); white-space: nowrap; }
+.item-groep-aantal { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,0.12); font-size: 0.74rem; font-weight: 800; text-align: center; }
+.item-groep-pijl { width: 12px; color: var(--muted); font-size: 0.75rem; }
+.item-rij { padding: 3px 10px 3px 39px; cursor: pointer; display: flex; align-items: center; gap: 7px; border-left: 3px solid transparent; }
+.item-rij--gekozen { background: rgba(255,255,255,0.12); border-left-color: #60A5FA; }
+.item-rij--gepakt { opacity: 0.55; }
+.item-rij-naam { flex: 1; min-width: 0; font-size: 0.8rem; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-rij-gepakt { font-size: 0.66rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.item-rij-weg { background: none; border: none; cursor: pointer; color: var(--red); font-size: 0.8rem; padding: 2px 3px; }

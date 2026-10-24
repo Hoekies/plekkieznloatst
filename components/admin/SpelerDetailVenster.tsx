@@ -48,7 +48,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Login: {s.login_name} · {s.sessie_status === "voltooid" ? "🏁 gefinisht" : "onderweg"}</div>
             </div>
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.3rem", color: s.score < 0 ? "#FCA5A5" : "#FFE680", whiteSpace: "nowrap" }}>{s.score} pt</span>
             <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
           </div>
 

@@ -52,7 +52,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **🏷️ Naam van het punt**: bij **Opslaan** vraagt de editor eerst *Hoe heet dit punt?*, met de huidige naam ingevuld en de woorden uit de vraag als voorstel (💡). Pas aan of druk meteen op **💾 Opslaan** (of Enter). Spelers zien de naam pas na afloop.
    - **🖼️ Afbeelding kiezen**: een foto wordt vierkant opgeslagen. Je ziet eerst de **hele foto** in het vierkant (niet-vierkant? dan vult een vervaagde versie de randen). Zoom in met de schuif of **⬛ Vierkant vullen** en sleep om te kiezen wat er in beeld komt; **🖼️ Hele foto** zet hem terug.
    - **⚙️ Meer instellingen** (uitklapbaar, onder de antwoorden): **eigen punten per antwoord** en **🧪 Openen met QR-code**. Die QR-code is alleen om te testen: je opent het punt door de code te scannen, zonder ernaartoe te lopen (met 🖨️ printen).
-   - Bij een meerkeuzevraag kun je met **Eigen punten per antwoord** per antwoord punten invullen, ook negatief (bijv. −25 voor een fout antwoord). Uit = het goede antwoord krijgt de punten van de vraag, de andere 0. De score van een team zakt nooit onder 0.
+   - Bij een meerkeuzevraag kun je met **Eigen punten per antwoord** per antwoord punten invullen, ook negatief (bijv. −25 voor een fout antwoord). Uit = het goede antwoord krijgt de punten van de vraag, de andere 0. Minpunten tellen altijd: een team kan in de min komen (het puntenvlak wordt dan rood). Nodig: migratie `021_score_negatief.sql`; zonder die migratie blijft de score op 0 staan.
    - Bij een open vraag kies je **🔤 Tekst** (één goed antwoord per regel) of **🔢 Getal**, met een **marge** (±). Bij tekst tellen hoofdletters, accenten, spaties en leestekens niet mee, en bij antwoorden van 5 letters of meer mag er **één tikfout** in zitten (*Amsterdm* is goed voor *Amsterdam*). Korte antwoorden moeten precies kloppen.
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.
 7. Sleep een punt op de kaart om de positie fijn te stellen.
@@ -214,6 +214,8 @@ Stel het aantal minuten in via het invoerveld dat verschijnt zodra Respawn op "A
 
 Bij Verspreid toont het tabblad **Items** een geel adviesblok. Het rekent met de lengte van het rondje, het aantal teams en of respawn aan staat, en zet naast elk soort item hoeveel er nu liggen (groen = goed, oranje = te weinig, rood = te veel).
 
+De lijst op het tabblad **🎁 Items** is per soort gegroepeerd (ster, bom, spook, …) met het aantal erachter. Tik op een soort om de items open of dicht te klappen; kies je een item op de kaart, dan klapt de soort vanzelf open. Items kun je overal neerzetten waar je op de kaart tikt, ook op een weg, stoep of parkeerterrein.
+
 - **Afstand** — ongeveer elke 300 m iets om op te pakken, zodat elk team onderweg regelmatig iets tegenkomt.
 - **Speeltijd** — ongeveer één item per 6 minuten speeltijd (de geschatte tijd uit het paneel op de kaart), zodat een lang spel spannend blijft.
 - **Teams** — minimaal 2 en hoogstens 3 items per team: het eerste team pakt een item weg, dus latere teams moeten ook kans maken, maar items mogen de uitslag niet meer bepalen dan de vragen.
@@ -263,7 +265,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 | ⭐ | Ster | Het team krijgt meteen de sterwaarde aan punten (⚙️ Item-waarden, standaard 50) |
 | 🔴 | Verdubbeling | De volgende vraag waarmee het team punten verdient, telt dubbel (minpunten nooit) |
 | 📡 | Radar | Het team ziet 2 minuten lang precies waar alle tegenstanders lopen |
-| 💣 | Bom | Een tegenstander verliest de bomwaarde aan punten (standaard 30) |
+| 💣 | Bom | Een tegenstander verliest de bomwaarde aan punten (standaard 30), ook als hij daardoor in de min komt |
 | 👻 | Spook | Het volgende punt van een tegenstander verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
 | 🦹 | Dief | Steelt meteen de punten van een goede vraag van een tegenstander en geeft ze aan het team |
 | 🍌 | Banaan | Het volgende punt van een tegenstander ruilt van plek met het punt daarna (1-2-3 wordt 2-1-3); startpunt en eindpunt blijven op hun plek |
@@ -311,7 +313,7 @@ Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook
 - **Status in één oogopslag**: het stipje rechtsonder op het icoon is groen (speelt), blauw (ingelogd), goud (gefinisht), grijs (niet ingelogd) of rood (uitgeschakeld). Op de pc staat het woord er ook bij.
 - **🔍 Zoeken en sorteren** (vanaf 5 spelers): zoek op naam, login of telefoonnummer en sorteer op **🔤 Naam**, **⚡ Status** of **🆕 Nieuwst** (wordt onthouden).
 - **✏️ Teamnaam aanpassen**: het potloodje achter de naam. Handig bij een ongepaste naam; leeg maken = het team kiest bij de start opnieuw.
-- **🖨️ Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. De **QR-code** op het kaartje logt meteen in (48 uur geldig; daarna loggen ze in met loginnaam en wachtwoord). Ook bij **🔑** (inloggegevens versturen) logt de QR-code direct in als *met link* aan staat. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
+- **🖨️ Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. De **QR-code** op elk kaartje logt meteen in, zonder typen en zonder einddatum: scannen met de camera van de telefoon, of in de app met **📷 Scan je kaartje** op het inlogscherm. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
 
 #### Meerdere spelers tegelijk
 
@@ -323,7 +325,7 @@ Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er open
 - Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
 - Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 
-Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code naar de app, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met het hele bericht eronder:
+Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code waarmee de speler meteen inlogt, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met het hele bericht eronder:
 - naar de site gaan en inloggen met **loginnaam** en **wachtwoord**;
 - wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**);
 - en onderaan 👉 **Direct inloggen** met de link (en tot wanneer die werkt).
@@ -474,7 +476,7 @@ Met **⏸️ Pauze** in het Spelleider-blok (na bevestiging) staat het spel voor
 
 ### Punten aanpassen (bonus of aftrek)
 
-Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. De score zakt nooit onder 0. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
+Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. Een aftrek kan een team in de min brengen. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
 
 ### Punt vrijgeven voor een team
 

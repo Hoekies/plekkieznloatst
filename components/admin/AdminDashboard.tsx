@@ -299,7 +299,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           </div>
           <div className="sk-rechts">
             <StatusPil status={s.sessie_status} ingelogd={s.ingelogd} />
-            <span className="sk-score">{s.score} pt</span>
+            <span className={`sk-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
             <button type="button" className="sk-inklap" aria-expanded={toonAlles}
               onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
               title={toonAlles ? "Inklappen" : "Items en knoppen tonen"} aria-label={toonAlles ? "Inklappen" : "Items en knoppen tonen"}>

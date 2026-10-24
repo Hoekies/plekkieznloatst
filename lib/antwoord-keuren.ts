@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
+import { telBijScore } from "@/lib/score";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -25,9 +26,6 @@ export async function keurAntwoordGoed(admin: AdminClient, voortgangId: string):
   const verschil = nieuwePunten - (rij.points_awarded ?? 0);
 
   await admin.from("player_point_progress").update({ is_correct: true, points_awarded: nieuwePunten }).eq("id", rij.id);
-  if (verschil !== 0) {
-    const { data: sessie } = await admin.from("player_sessions").select("score").eq("id", rij.session_id).maybeSingle();
-    await admin.from("player_sessions").update({ score: Math.max(0, (sessie?.score ?? 0) + verschil) }).eq("id", rij.session_id);
-  }
+  if (verschil !== 0) await telBijScore(admin, rij.session_id, verschil);
   return { ok: true, punten: nieuwePunten, verschil };
 }

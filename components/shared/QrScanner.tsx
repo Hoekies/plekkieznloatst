@@ -2,15 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
-// Inlogcode uit een gescande QR-code (de link /l/<code> op het inlogkaartje)
-export function codeUitLink(tekst: string): string | null {
-  const m = /\/l\/([A-Za-z0-9_-]{20,80})/.exec(tekst) ?? /^\s*([A-Za-z0-9_-]{20,80})\s*$/.exec(tekst);
-  return m ? m[1] : null;
-}
+import { inlogUitTekst, gaInloggen } from "@/lib/qr-inlog";
 
 // 📷 Klein venster met de camera: de QR-code van het inlogkaartje scannen. Werkt in de browser én in de
-// geïnstalleerde app (iPhone en Android). Gevonden: meteen inloggen via de link op het kaartje.
+// geïnstalleerde app (iPhone en Android). Gevonden: meteen inloggen met wat er op het kaartje staat.
 export default function QrScanner({ onSluit }: { onSluit: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [fout, setFout] = useState<string | null>(null);
@@ -56,11 +51,12 @@ export default function QrScanner({ onSluit }: { onSluit: () => void }) {
             tekst = jsQR(beeld.data, maat, maat, { inversionAttempts: "dontInvert" })?.data ?? null;
           }
           if (tekst) {
-            const code = codeUitLink(tekst);
-            if (code) {
+            const inlog = inlogUitTekst(tekst);
+            if (inlog) {
               setGevonden(true);
               navigator.vibrate?.(80);
-              window.location.assign(`/l/${code}`);
+              onSluit();
+              gaInloggen(inlog);
               return;
             }
             setFout("Dit is geen inlogcode van PointRush. Scan de QR-code op je inlogkaartje.");

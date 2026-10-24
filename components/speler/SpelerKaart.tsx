@@ -902,7 +902,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           <span className="pr-hud-icoon">🗺️</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte((kmAfgelegd / 1000).toFixed(2)) }}>{(kmAfgelegd / 1000).toFixed(2)}</span>
         </div>
-        <div className="pr-hud-gem pr-hud-gem--orange pr-hud-gem--groot">
+        {/* In de min: het puntenvlak kleurt iets rood */}
+        <div className={`pr-hud-gem ${score < 0 ? "pr-hud-gem--min" : "pr-hud-gem--orange"} pr-hud-gem--groot`}>
           <span className="pr-hud-icoon">⭐</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
         </div>

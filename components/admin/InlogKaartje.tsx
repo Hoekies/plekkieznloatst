@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SITE, qrInlogAdres } from "@/lib/qr-inlog";
 import { QRCodeCanvas } from "qrcode.react";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonMelding } from "@/components/admin/Melding";
@@ -19,7 +20,6 @@ function totTekst(iso: string) {
   return new Date(iso).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-const SITE = "https://plekkieznloatst.vercel.app";
 
 // Het hele bericht: wat het team moet doen, met de directe link (als die er is), de site en de inlog
 function waTekst(i: Inlog) {
@@ -56,8 +56,8 @@ function useHuisLogo(): string | null {
   return logo;
 }
 
-// Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. Met een inloglink logt de QR-code
-// meteen in (zonder typen); zonder link opent hij de inlogpagina.
+// Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. De QR-code logt meteen in (zonder typen):
+// met de gegevens van het kaartje, of met de inloglink als er geen wachtwoord bij is.
 function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
   const huisLogo = useHuisLogo();
   return (
@@ -69,16 +69,18 @@ function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<
         {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="kaartje-huislogo" />}
       </div>
       <div className="kaartje-midden">
-        <div className="kaartje-qr"><QRCodeCanvas value={inlog.link?.url ?? SITE} size={96} /></div>
+        <div className="kaartje-qr"><QRCodeCanvas value={inlog.wachtwoord ? qrInlogAdres(inlog.login, inlog.wachtwoord) : inlog.link?.url ?? SITE} size={96} /></div>
         <div className="kaartje-velden">
           <div className="kaartje-veld"><small>{inlog.helper ? "Naam" : "Loginnaam"}</small><b>{inlog.login}</b></div>
           <div className="kaartje-veld kaartje-veld--ww"><small>Wachtwoord</small><b>{inlog.wachtwoord}</b></div>
         </div>
       </div>
       <div className="kaartje-voet">
-        {inlog.link
+        {inlog.wachtwoord
+          ? <>📷 Scan de code: je bent meteen ingelogd · of ga naar <strong>{SITE.replace("https://", "")}</strong></>
+          : inlog.link
           ? <>📷 Scan de code: je bent meteen ingelogd (tot {totTekst(inlog.link.geldig_tot)})</>
-          : <>Scan de code of ga naar <strong>{SITE.replace("https://", "")}</strong></>}
+          : <>Ga naar <strong>{SITE.replace("https://", "")}</strong></>}
       </div>
     </div>
   );
