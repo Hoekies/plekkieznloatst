@@ -20,6 +20,7 @@ export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
       // Puzzelwoord: wel hoeveel letters (blokjes), nooit welke; het beamerscherm is openbaar
       // Ook niet waar een team heen loopt (geen lijn naar het volgende punt op de beamer)
       hulp: null, wacht: null, volgend_punt: null, volgend_punt_id: null, items: { in_balk: [], ingezet: s.items.ingezet },
+      // (en nooit de gok: een goede gok is het woord zelf)
       puzzel: s.puzzel ? { woord: "•".repeat(s.puzzel.woord.length), open: [...s.puzzel.open].sort((a, b) => Number(b) - Number(a)), opgelost: s.puzzel.opgelost } : null,
     }));
 }

@@ -1072,6 +1072,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   50%      { transform: scale(1.06); opacity: 1; }
 }
 
+/* Welkomstscherm met een eigen logo: het logo los boven het venster (niet half eroverheen), in een licht vlak */
+.intro--huislogo .pr-panel { margin-top: 14px; }
+.intro--huislogo .pr-logo-wrap img { width: auto !important; max-width: min(240px, 62vw); max-height: 104px; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.55)) !important; }
+/* Met een eigen foto: een zwaardere schaduw, zodat het venster loskomt van de foto */
+.intro--foto .pr-panel { box-shadow: 0 18px 50px rgba(0,0,0,0.55); }
 .pr-logo-wrap {
   position: relative; z-index: 3;
   animation: pr-logo-idle 3.6s ease-in-out infinite;
@@ -2129,6 +2134,19 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .link-inloggen-knop { display: block; width: 100%; margin-top: 14px; padding: 10px; cursor: pointer; border-radius: 12px;
   background: rgba(255,255,255,0.06); border: 1.5px dashed rgba(255,255,255,0.3); color: #fff; font: inherit; font-weight: 700; font-size: 0.9rem; }
 .link-inloggen-knop:hover { background: rgba(255,255,255,0.12); }
+.link-inloggen-rij { display: flex; gap: 8px; }
+.link-inloggen-rij > .link-inloggen-knop { flex: 1; }
+/* 📷 QR-scanner: klein venster, vierkant camerabeeld met richtkader */
+.qr-scan-achter { position: fixed; inset: 0; z-index: 3000; background: rgba(12,3,34,0.8); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.qr-scan { width: 100%; max-width: 320px; border-radius: 20px; padding: 12px; background: #2a1566; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px; }
+.qr-scan-kop { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
+.qr-scan-sluit { width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(239,68,68,0.15); color: #F87171; font-size: 0.95rem; cursor: pointer; }
+.qr-scan-beeld { position: relative; width: 100%; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: #000; }
+.qr-scan-beeld video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.qr-scan-kader { position: absolute; inset: 16%; border: 3px solid #FFD93B; border-radius: 14px; box-shadow: 0 0 0 999px rgba(0,0,0,0.35); }
+.qr-scan-gevonden { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(22,163,74,0.75); color: #fff; font-weight: 800; font-size: 1.1rem; }
+.qr-scan-tip { font-size: 0.8rem; color: rgba(255,255,255,0.75); text-align: center; }
+.qr-scan-fout { font-size: 0.8rem; color: #FCA5A5; text-align: center; line-height: 1.4; }
 
 /* Inlogscherm compact: kleiner logo, lagere velden, minder ruimte in het blok */
 .login-scherm .pr-logo-glow { width: 210px; height: 210px; }
@@ -2466,6 +2484,23 @@ button.route-stap:hover { color: var(--ink); }
 .beamer-puzzel i { width: 14px; height: 14px; border-radius: 3px; background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.3); }
 .beamer-puzzel i.aan { background: #FFD93B; border: 1px solid #FFD93B; }
 .sk-puzzel-telling { margin-left: 6px; font-size: 0.72rem; color: var(--muted); font-weight: 700; }
+/* 🧪 Testen als speler: telefoon rechts over de kaart in de editor. transform maakt de telefoon het
+   kader voor vaste (fixed) vensters, zodat het vraagvenster ín de telefoon opent */
+.proef-telefoon { position: absolute; top: 12px; right: 12px; bottom: 12px; z-index: 1200; width: 360px; max-height: 760px;
+  border-radius: 34px; padding: 10px; background: #0b0420; box-shadow: 0 10px 40px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(255,255,255,0.12); }
+.proef-telefoon-scherm { position: relative; height: 100%; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column;
+  background: var(--game-gradient, #2a1566); transform: translateZ(0); }
+.proef-hud { display: flex; gap: 8px; padding: 10px 12px; background: rgba(42,21,102,0.6); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.proef-hud .pr-hud-gem { flex: 1; }
+.proef-kaart { position: relative; flex: 1; min-height: 0; display: flex; }
+.proef-tip, .proef-melding { position: absolute; left: 10px; right: 10px; top: 10px; z-index: 1000; padding: 8px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: #fff; text-align: center;
+  background: rgba(124,58,237,0.92); box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+.proef-melding { top: auto; bottom: 14px; background: rgba(22,163,74,0.95); }
+.proef-finish { position: absolute; inset: 0; z-index: 1500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  background: rgba(28,12,69,0.94); color: #fff; text-align: center; padding: 20px; }
+.proef-finish strong { font-family: var(--font-display); font-size: 1.6rem; color: #FFE680; }
+.proef-finish-noot { font-size: 0.75rem; color: var(--muted); }
+@media (max-width: 900px) { .proef-telefoon { display: none; } }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
 .huislogo-kop { height: 34px; max-width: 160px; object-fit: contain; }
 /* Bovenbalk: het logo in de lege ruimte tussen titel en knoppen (vult ook de ruimte zonder logo) */
@@ -2513,8 +2548,10 @@ button.route-stap:hover { color: var(--ink); }
 .kaart-alles { position: absolute; top: 84px; left: 10px; z-index: 1000; width: 34px; height: 34px; border-radius: 4px; border: 2px solid rgba(0,0,0,0.2);
   background: #fff; color: #333; font-size: 1.15rem; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .kaart-alles:hover { background: #f4f4f4; }
-.kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.kaartje-huislogo { height: 40px; max-width: 110px; object-fit: contain; }
+/* Inlogkaartje: met een eigen logo staan beide logo's even hoog naast elkaar, met een dun streepje ertussen */
+.kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.kaartje-logos:has(.kaartje-huislogo) .kaartje-logo { height: 52px; }
+.kaartje-huislogo { height: 52px; max-width: 150px; object-fit: contain; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.25); }
 /* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon klein onder de naam */
 .rl-huislogo { display: none; height: 22px; max-width: 70px; object-fit: contain; }
 .rl-logovak { flex: 1; display: flex; align-items: center; justify-content: flex-end; min-width: 0; padding-right: 24px; }
@@ -2552,6 +2589,8 @@ button.route-stap:hover { color: var(--ink); }
 .huisstijl-uitleg { margin: -2px 0 2px 104px; }
 @media (max-width: 600px) { .huisstijl-uitleg { margin-left: 0; } }
 .uitslag-uitleg { padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+.puzzel-klok { font-size: 0.9rem; color: #FDE68A; }
+.puzzel-klok strong { font-size: 1.1rem; color: #fff; }
 /* 🧩 Puzzelwoord bij de finish: wat het opleverde */
 .puzzel-punten { display: flex; flex-direction: column; gap: 2px; font-size: 0.85rem; color: var(--text); text-align: center; }
 .puzzel-punten strong { color: #FFE680; }
@@ -3340,3 +3379,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .puzzel-balk { flex-wrap: wrap; }
 .puzzel-hint { flex-basis: 100%; text-align: center; font-size: 0.74rem; color: var(--muted); }
 .puzzel-raden .puzzel-hint { font-size: 0.85rem; color: #fff; }
+/* 🧩 Wat het team na de finish met het puzzelwoord deed (dashboard en live kaart) */
+.sk-puzzel-gok { margin-left: 8px; padding: 1px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; color: var(--text); background: rgba(255,255,255,0.08); white-space: nowrap; }
+.sk-puzzel-gok--goed { color: #BBF7D0; background: rgba(74,222,128,0.15); }
+.sk-puzzel-gok--fout { color: #FCA5A5; background: rgba(248,113,113,0.15); }

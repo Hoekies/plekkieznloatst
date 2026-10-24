@@ -32,6 +32,8 @@ export interface Route {
   // Punten bij de finish: per gevonden letter en voor het zelf afmaken (puzzel_bonus = alle letters gevonden)
   puzzel_letter_punten?: number | null;
   puzzel_raad_bonus?: number | null;
+  // Letters willekeurig (per team anders) of op volgorde (migratie 018)
+  puzzel_volgorde?: "willekeurig" | "op_volgorde" | null;
   // 🎨 Huisstijl en 🔔 geluidset (migratie 016)
   huisstijl_kleur?: string | null;
   huisstijl_logo_pad?: string | null;

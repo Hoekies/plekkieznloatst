@@ -127,7 +127,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
   }
 
   return (
-    <div className="pr-stage" style={{
+    <div className={`pr-stage${welkomFoto ? " intro--foto" : ""}${huisLogo ? " intro--huislogo" : ""}`} style={{
       position: "fixed", inset: 0, zIndex: 200,
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: typt ? "flex-start" : "center",
@@ -140,7 +140,8 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         style={{
           position: "absolute", inset: 0,
           width: "100%", height: "100%",
-          objectFit: "cover", opacity: welkomFoto ? 0.7 : 0.4,
+          // Eigen foto: bijna volle kracht, het belangrijkste deel (gezichten, onderwerp) bovenin
+          objectFit: "cover", objectPosition: welkomFoto ? "center top" : undefined, opacity: welkomFoto ? 0.95 : 0.4,
           pointerEvents: "none",
         }}
       />
@@ -148,16 +149,21 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
       {/* Gradient overlay */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.82) 100%)",
+        // Met een eigen foto: bovenin helder, naar onderen in de paarse speltint, zodat het venster leesbaar blijft
+        background: welkomFoto
+          ? "linear-gradient(to bottom, rgba(28,12,69,0) 0%, rgba(28,12,69,0.25) 30%, rgba(28,12,69,0.75) 58%, rgba(28,12,69,0.95) 100%)"
+          : "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.82) 100%)",
         pointerEvents: "none",
       }} />
 
-      {/* Zwevende sparkles + orbs */}
-      <div className="pr-sparkle" style={{ width: 6, height: 6, top: "10%", left: "14%" }} />
-      <div className="pr-sparkle" style={{ width: 4, height: 4, top: "20%", left: "80%", animationDelay: "1.2s" }} />
-      <div className="pr-sparkle" style={{ width: 8, height: 8, top: "65%", left: "8%", animationDelay: "2s" }} />
-      <span className="pr-orb" style={{ top: "8%", right: "10%", animationDelay: "0.5s" }}>⭐</span>
-      <span className="pr-orb" style={{ top: "72%", left: "6%", animationDelay: "1.4s" }}>👻</span>
+      {/* Zwevende sparkles + orbs (niet over een eigen foto heen) */}
+      {!welkomFoto && <>
+        <div className="pr-sparkle" style={{ width: 6, height: 6, top: "10%", left: "14%" }} />
+        <div className="pr-sparkle" style={{ width: 4, height: 4, top: "20%", left: "80%", animationDelay: "1.2s" }} />
+        <div className="pr-sparkle" style={{ width: 8, height: 8, top: "65%", left: "8%", animationDelay: "2s" }} />
+        <span className="pr-orb" style={{ top: "8%", right: "10%", animationDelay: "0.5s" }}>⭐</span>
+        <span className="pr-orb" style={{ top: "72%", left: "6%", animationDelay: "1.4s" }}>👻</span>
+      </>}
 
       {/* Content */}
       <div style={{
@@ -169,7 +175,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         maxWidth: 380, width: "100%",
       }}>
         {/* Logo */}
-        {!typt && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}
+        {!typt && !huisLogo && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}
         <div className="pr-logo-wrap" style={typt ? { display: "none" } : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={huisLogo ?? "/logo.webp"} alt={huisLogo ? "Logo" : "PointRush"} style={{

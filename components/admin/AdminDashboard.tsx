@@ -267,6 +267,24 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   );
 }
 
+// 🧩 Wat het team na de finish met het puzzelwoord deed: alles gevonden, de gok (goed of fout), nog bezig, of niet geraden
+export function PuzzelRaadStatus({ p, gefinisht }: { p: NonNullable<SpelerOverzicht["puzzel"]>; gefinisht: boolean }) {
+  const [nu, setNu] = useState(() => Date.now());
+  const raadTot = p.raad_tot ? Date.parse(p.raad_tot) : null;
+  const telt = gefinisht && !p.gok && !p.opgelost && !!raadTot && nu < raadTot;
+  useEffect(() => {
+    if (!telt) return;
+    const t = setInterval(() => setNu(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [telt]);
+  if (!gefinisht) return null;
+  const alles = p.open.every(Boolean);
+  if (p.gok) return <span className={`sk-puzzel-gok ${p.goed ? "sk-puzzel-gok--goed" : "sk-puzzel-gok--fout"}`}>{p.goed ? "✓" : "✗"} {p.gok}</span>;
+  if (p.opgelost && alles) return <span className="sk-puzzel-gok sk-puzzel-gok--goed">✓ alle letters gevonden</span>;
+  if (telt) return <span className="sk-puzzel-gok">⏳ raadt nog ({Math.ceil((raadTot! - nu) / 1000)} s)</span>;
+  return <span className="sk-puzzel-gok">— niet geraden</span>;
+}
+
 // ── SpelerKaart ───────────────────────────────────────────────────────────────
 const TEAM_ICONEN = ["🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩"];
 
@@ -345,7 +363,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               {s.puzzel.woord.split("").map((l, i) => (
                 <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
               ))}
-              <span className="sk-puzzel-telling">{s.puzzel.opgelost ? "✓ opgelost" : `${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
+              <span className="sk-puzzel-telling">{`${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
+              <PuzzelRaadStatus p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />
             </div>
           )}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}

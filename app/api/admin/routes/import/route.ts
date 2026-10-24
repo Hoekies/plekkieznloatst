@@ -37,7 +37,7 @@ const INSTELLINGEN = [
 ];
 // Nieuwere instellingen (migratie 012 en 014): los bijgewerkt, zodat importeren ook zonder die migraties lukt
 // (puzzel_verdeling niet: die verwijst naar de punten van de oude route)
-const EXTRA_INSTELLINGEN = ["alle_punten_zichtbaar", "puzzelwoord", "puzzel_bonus", "puzzel_omschrijving", "verboden_gebieden", "puzzel_aan", "puzzel_letter_punten", "puzzel_raad_bonus",
+const EXTRA_INSTELLINGEN = ["alle_punten_zichtbaar", "puzzelwoord", "puzzel_bonus", "puzzel_omschrijving", "verboden_gebieden", "puzzel_aan", "puzzel_letter_punten", "puzzel_raad_bonus", "puzzel_volgorde",
   "huisstijl_kleur", "huisstijl_logo_pad", "welkom_foto_pad", "geluid_set"];
 const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken"];
 

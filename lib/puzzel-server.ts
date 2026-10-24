@@ -1,15 +1,17 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
-import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
+import { normaliseerPuzzel, lettersVoor, RAAD_SECONDEN } from "@/lib/puzzel";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 // 🧩 Puzzelwoord op de server: de instellingen van een route en de afrekening bij de finish.
-export type PuzzelRegels = { woord: string; omschrijving: string | null; verdeling: Record<string, number>; letterPunten: number; alleBonus: number; raadBonus: number };
+export type PuzzelRegels = { woord: string; omschrijving: string | null; verdeling: Record<string, number>; letterPunten: number; alleBonus: number; raadBonus: number;
+  // Letters van links naar rechts in plaats van willekeurig (migratie 018)
+  opVolgorde: boolean };
 
 export function puzzelRegels(route: unknown): PuzzelRegels | null {
   const r = (route ?? {}) as {
     puzzelwoord?: string | null; puzzel_aan?: boolean | null; puzzel_omschrijving?: string | null; puzzel_verdeling?: Record<string, number> | null;
-    puzzel_bonus?: number | null; puzzel_letter_punten?: number | null; puzzel_raad_bonus?: number | null;
+    puzzel_bonus?: number | null; puzzel_letter_punten?: number | null; puzzel_raad_bonus?: number | null; puzzel_volgorde?: string | null;
   };
   // Uitgezet door de beheerder (migratie 017): geen puzzel, ook al staat er nog een woord
   const woord = r.puzzel_aan === false ? "" : normaliseerPuzzel(r.puzzelwoord);
@@ -17,6 +19,7 @@ export function puzzelRegels(route: unknown): PuzzelRegels | null {
   return {
     woord, omschrijving: r.puzzel_omschrijving ?? null, verdeling: r.puzzel_verdeling ?? {},
     letterPunten: r.puzzel_letter_punten ?? 10, alleBonus: r.puzzel_bonus ?? 100, raadBonus: r.puzzel_raad_bonus ?? 50,
+    opVolgorde: r.puzzel_volgorde === "op_volgorde",
   };
 }
 
@@ -62,12 +65,19 @@ export async function rekenPuzzelsAf(admin: AdminClient, routeId: string) {
   for (const s of klaar ?? []) await rekenPuzzelAf(admin, s.id, route);
 }
 
-// Het team maakt het woord zelf af (bij de finish): goed = de bonus voor afmaken, één keer
-export async function raadPuzzel(admin: AdminClient, sessieId: string, regels: PuzzelRegels, gok: string): Promise<boolean> {
-  if (normaliseerPuzzel(gok) !== regels.woord) return false;
+// Het team maakt het woord zelf af: één poging, binnen RAAD_SECONDEN na de finish. De gok wordt bewaard
+// (migratie 018), zodat de spelleider ziet wat het team invulde. Goed = de bonus voor afmaken.
+export async function raadPuzzel(admin: AdminClient, sessieId: string, regels: PuzzelRegels, gok: string): Promise<{ goed: boolean } | { fout: string; status: number }> {
   const { data: sessie } = await admin.from("player_sessions").select("*").eq("id", sessieId).maybeSingle();
-  if (!(sessie as { puzzel_opgelost?: boolean } | null)?.puzzel_opgelost) {
-    await geefPunten(admin, sessieId, regels.raadBonus, "🧩 Woord afgemaakt", { puzzel_opgelost: true });
-  }
-  return true;
+  const s = sessie as { finished_at: string | null; puzzel_opgelost?: boolean; puzzel_gok_op?: string | null } | null;
+  if (!s?.finished_at) return { fout: "Het woord afmaken kan na de finish", status: 400 };
+  if (s.puzzel_gok_op === undefined) return { fout: "Draai eerst migratie 018 (puzzelwoord raden) in Supabase", status: 500 };
+  if (s.puzzel_opgelost) return { fout: "Het woord is al opgelost", status: 409 };
+  if (s.puzzel_gok_op) return { fout: "Je hebt al geraden", status: 409 };
+  // Een paar seconden speling voor een trage verbinding
+  if (Date.now() > Date.parse(s.finished_at) + (RAAD_SECONDEN + 5) * 1000) return { fout: "De tijd om te raden is voorbij", status: 409 };
+  const goed = normaliseerPuzzel(gok) === regels.woord;
+  await admin.from("player_sessions").update({ puzzel_gok: gok.trim().toUpperCase().slice(0, 40), puzzel_gok_goed: goed, puzzel_gok_op: new Date().toISOString() }).eq("id", sessieId);
+  if (goed) await geefPunten(admin, sessieId, regels.raadBonus, "🧩 Woord afgemaakt", { puzzel_opgelost: true });
+  return { goed };
 }

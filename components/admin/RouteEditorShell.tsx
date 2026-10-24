@@ -32,6 +32,7 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
 const TestRonde = dynamic(() => import("./editor/TestRonde"), { ssr: false });
+const SpelerProef = dynamic(() => import("./editor/SpelerProef"), { ssr: false });
 const AlleVragenVenster = dynamic(() => import("./editor/AlleVragenVenster"), { ssr: false });
 const EersteStappen = dynamic(() => import("@/components/admin/editor/EersteStappen"), { ssr: false });
 const LeafletKaart = dynamic(() => import("./LeafletKaart"), { ssr: false, loading: () => <div style={{ flex: 1, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>Kaart laden…</div> });
@@ -120,6 +121,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   // 🚶 Proeflopen: klik over de kaart en loop als testspeler mee (er wordt niets opgeslagen)
   const [proef, setProef] = useState<ProefStand | null>(null);
+  // Er staat een venster open in de testtelefoon: dan loopt de testspeler niet verder
+  const [proefBezig, setProefBezig] = useState(false);
   // ⛔ Verboden gebieden: tekenen door hoekpunten aan te tikken
   const [gebieden, setGebieden] = useState<{ naam: string; punten: [number, number][] }[]>(initRoute.verboden_gebieden ?? []);
   const [tekenGebied, setTekenGebied] = useState<[number, number][] | null>(null);
@@ -889,7 +892,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     // Verboden gebied tekenen: elke klik is een hoekpunt
     if (tekenGebied) { setTekenGebied((t) => t && [...t, [lat, lng]]); return; }
     // Proeflopen: de klik is de plek waar je naartoe loopt
-    if (proef) { setProef((s) => s && loopNaar(s, { lat, lng }, punten, specialeItems, vraagPuntIds)); return; }
+    if (proef) { if (!proefBezig) setProef((s) => s && loopNaar(s, { lat, lng }, punten, specialeItems, vraagPuntIds, true)); return; }
     // Eerste stappen: start, finish of punten aantikken
     if (wizardKies === "start") { setCentrumPunt({ lat, lng }); setWizardKies(null); return; }
     if (wizardKies === "finish") {
@@ -2334,7 +2337,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setProef(null)} title="Stoppen" aria-label="Stoppen">✕</button>
               </div>
               <div className="proefloop-nu">
-                {!proef.pos ? "👆 Klik op de kaart waar je begint, en dan steeds waar je heen loopt."
+                {proefBezig ? "📱 Beantwoord eerst de vraag in de telefoon."
+                  : !proef.pos ? "👆 Klik op de kaart waar je begint, en dan steeds waar je heen loopt."
                   : proef.klaar ? "🏁 Klaar: de hele route is gelopen."
                   : volgende ? <>Volgende: <strong>{volgende.name}</strong>{afstand !== null && <> · {afstand < 1000 ? `${Math.round(afstand)} m` : `${(afstand / 1000).toFixed(1).replace(".", ",")} km`}</>}</> : null}
               </div>
@@ -2344,12 +2348,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </div>
               )}
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                {proef.pos && <button type="button" className="es-link" onClick={() => setProef(NIEUWE_PROEF)}>↺ Opnieuw beginnen</button>}
+                {proef.pos && <button type="button" className="es-link" onClick={() => { setProef(NIEUWE_PROEF); setProefBezig(false); }}>↺ Opnieuw beginnen</button>}
                 <button type="button" className="es-link" onClick={() => { setProef(null); setTestOpen(true); }}>📋 Vragen punt voor punt</button>
               </div>
             </div>
           );
         })()}
+
+        {/* 🧪 Testen als speler: de telefoon met het echte spelersscherm */}
+        {proef && (
+          <SpelerProef route={route} punten={punten} items={specialeItems} proef={proef} vraagIds={vraagPuntIds} onBezig={setProefBezig} />
+        )}
 
         {/* Testronde */}
         {testOpen && (

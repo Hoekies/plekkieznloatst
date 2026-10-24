@@ -3,7 +3,7 @@ import type { SpeciaalItem } from "@/types/database";
 import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import { puzzelRegels } from "@/lib/puzzel-server";
-import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
+import { puzzelVolgorde, lettersVoor, RAAD_SECONDEN } from "@/lib/puzzel";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -40,7 +40,8 @@ export type SpelerOverzicht = {
   // Punten die het team al heeft afgerond (de kaart kleurt ze groen)
   bezochte_ids?: string[];
   // 🧩 Puzzelwoord (alleen voor het beheer, nooit naar de beamer): het woord en welke letters het team al heeft
-  puzzel?: { woord: string; open: boolean[]; opgelost: boolean } | null;
+  // gok: wat het team na de finish invulde (één poging, binnen een minuut), goed: of dat klopte, raad_tot: einde raadtijd
+  puzzel?: { woord: string; open: boolean[]; opgelost: boolean; gok?: string | null; goed?: boolean | null; raad_tot?: string | null } | null;
   // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
   wacht: { effect_id: string; soort: "spook" | "plekzooi"; tot: string } | null;
 };
@@ -186,9 +187,13 @@ export async function haalLiveData(): Promise<LiveData> {
       if (p.is_correct && vraagPunten.has(p.route_point_id)) gevonden.set(p.session_id, (gevonden.get(p.session_id) ?? 0) + lettersVoor(regels.verdeling, p.route_point_id));
     });
     for (const s of sessies) {
-      const opgelost = !!(s as { puzzel_opgelost?: boolean }).puzzel_opgelost;
-      const open = new Set(puzzelVolgorde(s.id, regels.woord.length).slice(0, gevonden.get(s.id) ?? 0));
-      puzzelMap.set(s.id, { woord: regels.woord, open: regels.woord.split("").map((_, i) => open.has(i)), opgelost });
+      const r = s as { puzzel_opgelost?: boolean; puzzel_gok?: string | null; puzzel_gok_goed?: boolean | null; finished_at?: string | null };
+      const open = new Set(puzzelVolgorde(s.id, regels.woord.length, regels.opVolgorde).slice(0, gevonden.get(s.id) ?? 0));
+      puzzelMap.set(s.id, {
+        woord: regels.woord, open: regels.woord.split("").map((_, i) => open.has(i)), opgelost: !!r.puzzel_opgelost,
+        gok: r.puzzel_gok ?? null, goed: r.puzzel_gok_goed ?? null,
+        raad_tot: s.status === "voltooid" && r.finished_at ? new Date(Date.parse(r.finished_at) + RAAD_SECONDEN * 1000).toISOString() : null,
+      });
     }
   }
 

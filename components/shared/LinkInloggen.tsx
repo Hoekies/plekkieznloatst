@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import { codeUitLink } from "@/components/shared/QrScanner";
+
+// Camera pas laden als je op Scannen tikt
+const QrScanner = dynamic(() => import("@/components/shared/QrScanner"), { ssr: false });
 
 // Inloglinks openen vanuit WhatsApp in de browser, niet in de geïnstalleerde app (die heeft een
 // eigen, aparte inlog). Daarom kan de app de link ook zelf gebruiken: kopieer de link in WhatsApp,
 // en tik hier op "Inloggen met link". De app leest het klembord, of je plakt hem zelf.
-function codeUit(tekst: string): string | null {
-  const m = /\/l\/([A-Za-z0-9_-]{20,80})/.exec(tekst) ?? /^\s*([A-Za-z0-9_-]{20,80})\s*$/.exec(tekst);
-  return m ? m[1] : null;
-}
+const codeUit = codeUitLink;
 
 export default function LinkInloggen() {
   const [open, setOpen] = useState(false);
   const [tekst, setTekst] = useState("");
   const [fout, setFout] = useState("");
+  // 📷 De QR-code op het inlogkaartje scannen
+  const [scan, setScan] = useState(false);
 
   function ga(code: string) {
     window.location.assign(`/l/${code}`);
@@ -31,10 +35,15 @@ export default function LinkInloggen() {
   }
 
   if (!open) {
+    // Twee kleine knoppen naast elkaar: scannen (kaartje) of een link uit WhatsApp plakken
     return (
-      <button type="button" className="link-inloggen-knop" onClick={start}>
-        🔗 Inloggen met link
-      </button>
+      <>
+        <div className="link-inloggen-rij">
+          <button type="button" className="link-inloggen-knop" onClick={() => setScan(true)}>📷 Scan je kaartje</button>
+          <button type="button" className="link-inloggen-knop" onClick={start}>🔗 Link plakken</button>
+        </div>
+        {scan && <QrScanner onSluit={() => setScan(false)} />}
+      </>
     );
   }
   return (

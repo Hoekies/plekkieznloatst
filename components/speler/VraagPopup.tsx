@@ -35,7 +35,7 @@ type AntwoordOptie = {
   order_index: number;
 };
 
-type VraagData = {
+export type VraagData = {
   id: string;
   type: "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht" | "stemvraag";
   question_text: string;
@@ -55,7 +55,7 @@ function hussel<T>(lijst: T[]): T[] {
   return uit;
 }
 
-type Feedback = {
+export type Feedback = {
   is_correct: boolean | null;
   // 🗳️ Stemvraag: is_correct blijft leeg tot de stemming sluit
   stem?: boolean;
@@ -84,9 +84,14 @@ interface Props {
   start?: "uitleg" | "vraag";
   startUitleg?: { regels: string[]; afsluiting: string; ondertekening: string };
   onStartVraagLater?: () => void;
+  // 🧪 Testen in de editor: de vraag komt uit de editor en het antwoord wordt ter plekke beoordeeld; er gaat niets naar de server
+  proef?: {
+    haalVraag: () => Promise<VraagData | null>;
+    beoordeel: (vraag: VraagData, antwoordId: string | null, openTekst?: string, teLaat?: boolean) => Feedback;
+  };
 }
 
-export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onStartVraagLater }: Props) {
+export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onStartVraagLater, proef }: Props) {
   const [popupFase, setPopupFase] = useState<PopupFase>("laden");
   const [vraag, setVraag] = useState<VraagData | null>(null);
   const [gekozenId, setGekozenId] = useState<string | null>(null);
@@ -111,7 +116,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   useEffect(() => {
     // Ook een informatiepunt of de finish kan een vraag hebben (bijv. een selfie);
     // die moet dan eerst beantwoord worden. Meestal is de vraag al vooruit geladen (ook zonder bereik).
-    haalVraag<VraagData>(punt.id)
+    (proef ? proef.haalVraag() : haalVraag<VraagData>(punt.id))
       .then((data) => {
         if (data) setVraag(data.antwoorden_husselen ? { ...data, answer_options: hussel(data.answer_options ?? []) } : data);
         if (start === "uitleg") setPopupFase("start");
@@ -121,6 +126,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   }, [punt, start, laadPoging]);
 
   async function verwerkDirect() {
+    if (proef) { onVerwerkt(lokaalAfgerond(punt.id)); return; }
     setBezig(true);
     try {
       const r = await stuur("/api/speler/voortgang/verwerk", { route_point_id: punt.id });
@@ -154,6 +160,16 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   async function beantwoordMet(answerId: string | null, openTekst?: string, teLaatNu = false) {
     if (!vraag) return;
     setFout("");
+    // Testen: zelf beoordelen, zonder server
+    if (proef) {
+      const fb = proef.beoordeel(vraag, answerId, openTekst, teLaatNu);
+      voortgangRef.current = { ...lokaalAfgerond(punt.id), selected_answer_id: answerId, open_answer_text: openTekst ?? null, is_correct: fb.is_correct, points_awarded: fb.points_awarded };
+      if (fb.stem && fb.is_correct === null) tril(TRIL.goed);
+      else if (fb.is_correct) { speelGoedAntwoord(); tril(TRIL.goed); strooiConfetti({ aantal: 70, duurMs: 1800, knal: true }); } else { speelFoutAntwoord(); tril(TRIL.fout); }
+      setFeedback(fb);
+      setPopupFase("feedback");
+      return;
+    }
     setBezig(true);
     try {
       const r = await stuur("/api/speler/voortgang/verwerk", {
@@ -206,6 +222,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
 
   async function uploadFoto() {
     if (!fotoBestand) { setFout("Kies eerst een foto"); return; }
+    // Testen: niet echt insturen
+    if (proef) { voortgangRef.current = lokaalAfgerond(punt.id); setPopupFase("foto_ingestuurd"); return; }
     setBezig(true); setFout("");
     try {
       // Comprimeer via canvas (max 1200px)

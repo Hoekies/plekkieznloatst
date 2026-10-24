@@ -1,6 +1,6 @@
 {
   "name": "plekkie-zn-loatst",
-  "version": "0.12.16",
+  "version": "0.13.0",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.43.0",
     "html2canvas-pro": "^2.5.2",
     "jspdf": "^4.2.1",
+    "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
     "maplibre-gl": "6.15.0",
     "marked": "^14.1.4",

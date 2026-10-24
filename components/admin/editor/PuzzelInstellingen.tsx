@@ -6,6 +6,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 
 type Velden = { puzzel_aan?: boolean; puzzelwoord?: string; puzzel_bonus?: number; puzzel_omschrijving?: string; puzzel_verdeling?: Record<string, number>;
+  puzzel_volgorde?: "willekeurig" | "op_volgorde";
   puzzel_letter_punten?: number; puzzel_raad_bonus?: number };
 
 // 🧩 Puzzelwoord: aan of uit. Elke goed beantwoorde vraag geeft een letter, dus het woord heeft evenveel
@@ -19,6 +20,8 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
   const [bonus, setBonus] = useState(route.puzzel_bonus ?? 100);
   const [letterPunten, setLetterPunten] = useState(route.puzzel_letter_punten ?? 10);
   const [raadBonus, setRaadBonus] = useState(route.puzzel_raad_bonus ?? 50);
+  // Letters willekeurig (per team anders, moeilijker) of van links naar rechts (makkelijker)
+  const [volgorde, setVolgorde] = useState<"willekeurig" | "op_volgorde">(route.puzzel_volgorde ?? "willekeurig");
   const [omschrijving, setOmschrijving] = useState(route.puzzel_omschrijving ?? "");
   const [verdeling, setVerdeling] = useState<Record<string, number>>(route.puzzel_verdeling ?? {});
   const [voorstellen, setVoorstellen] = useState<{ woord: string; omschrijving: string }[] | null>(null);
@@ -87,6 +90,19 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
             <input className="form-input" value={woord} maxLength={30} placeholder="Of typ zelf een woord, bijv. KASTEEL"
               onChange={(e) => setWoord(e.target.value.toUpperCase())} onBlur={() => onOpslaan({ puzzelwoord: woord })} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
           </div>
+          {/* Volgorde van de letters */}
+          <div className="inst-rij">
+            <span className="inst-rij-label">Letters</span>
+            <div className="segment" role="radiogroup" aria-label="Volgorde van de letters">
+              {([["willekeurig", "🔀 Willekeurige plek"], ["op_volgorde", "➡️ Van links naar rechts"]] as const).map(([w, label]) => (
+                <button key={w} type="button" role="radio" aria-checked={volgorde === w} className={volgorde === w ? "aan" : ""}
+                  onClick={() => { setVolgorde(w); onOpslaan({ puzzel_volgorde: w }); }}>{label}</button>
+              ))}
+            </div>
+          </div>
+          <span className="inst-uitleg">{volgorde === "willekeurig"
+            ? "Elke goede vraag geeft een letter op een willekeurige plek, per team anders: moeilijker te raden, en afkijken helpt niet."
+            : "De letters komen van links naar rechts: het woord is makkelijker te raden."}</span>
           {/* Punten, uitbetaald bij de finish */}
           <div className="puzzel-bedragen">
             <label>

@@ -13,6 +13,8 @@ export type ProefStand = {
   gepakt: string[];         // id's van opgepakte items (en geraakte vallen)
   log: ProefRegel[];        // nieuwste eerst
   klaar: boolean;
+  // Punten (index) die bij de laatste stap bereikt zijn; alleen voor de telefoon in de testronde
+  bereikt?: number[];
 };
 
 export const NIEUWE_PROEF: ProefStand = { pos: null, spoor: [], gelopenM: 0, volgende: 0, gepakt: [], log: [], klaar: false };
@@ -32,8 +34,10 @@ function puntRegel(p: RoutePunt, heeftVraag: boolean): ProefRegel {
 }
 
 // Loop in een rechte lijn naar `doel` en kijk onderweg om de paar meter wat er gebeurt
-export function loopNaar(stand: ProefStand, doel: { lat: number; lng: number }, punten: RoutePunt[], items: SpeciaalItem[], vraagIds: Set<string>): ProefStand {
-  const s: ProefStand = { ...stand, spoor: [...stand.spoor], gepakt: [...stand.gepakt], log: [...stand.log] };
+// stopBijScherm: stoppen zodra een punt met een scherm (vraag, info, finish) bereikt is, zoals een speler daar stilstaat
+export function loopNaar(stand: ProefStand, doel: { lat: number; lng: number }, punten: RoutePunt[], items: SpeciaalItem[], vraagIds: Set<string>, stopBijScherm = false): ProefStand {
+  const s: ProefStand = { ...stand, spoor: [...stand.spoor], gepakt: [...stand.gepakt], log: [...stand.log], bereikt: [] };
+  let eindPlek = doel;
   const van = s.pos ?? doel;
   const afstand = haversine(van.lat, van.lng, doel.lat, doel.lng);
   const stappen = Math.max(1, Math.ceil(afstand / STAP_M));
@@ -53,10 +57,13 @@ export function loopNaar(stand: ProefStand, doel: { lat: number; lng: number }, 
       }
       for (let j = s.volgende; doelIndex >= 0 && j <= doelIndex; j++) {
         nieuw.push(j < doelIndex ? { tekst: `🚶 ${punten[j].name} gemist, telt toch (bocht afgesneden)`, soort: "punt" } : puntRegel(punten[j], vraagIds.has(punten[j].id)));
+        s.bereikt!.push(j);
         if (punten[j].type === "eindpunt") s.klaar = true;
       }
       if (doelIndex >= 0) s.volgende = doelIndex + 1;
       if (s.volgende >= punten.length) s.klaar = true;
+      // Punt met een scherm: hier blijft de speler staan
+      if (stopBijScherm && doelIndex >= 0 && punten[doelIndex].type !== "doorlooppunt") { eindPlek = { lat, lng }; break; }
     }
     // Items oppakken en in vallen lopen (startitems liggen niet op de kaart)
     for (const it of items) {
@@ -67,9 +74,9 @@ export function loopNaar(stand: ProefStand, doel: { lat: number; lng: number }, 
         : { tekst: `🎁 ${itemNaam(it.type)} opgepakt`, soort: "item" });
     }
   }
-  s.gelopenM += s.pos ? afstand : 0;
-  s.pos = doel;
-  s.spoor.push([doel.lat, doel.lng]);
+  s.gelopenM += s.pos ? haversine(van.lat, van.lng, eindPlek.lat, eindPlek.lng) : 0;
+  s.pos = eindPlek;
+  s.spoor.push([eindPlek.lat, eindPlek.lng]);
   s.log = [...nieuw.reverse(), ...s.log].slice(0, 30);
   return s;
 }

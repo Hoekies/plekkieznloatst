@@ -44,6 +44,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
   // 🧩 Puzzelwoord aan/uit en letters per vraag (migratie 017)
   if (typeof body.puzzel_aan === "boolean") toegestaan.puzzel_aan = body.puzzel_aan;
+  if (body.puzzel_volgorde === "willekeurig" || body.puzzel_volgorde === "op_volgorde") toegestaan.puzzel_volgorde = body.puzzel_volgorde;
   if (body.puzzel_verdeling && typeof body.puzzel_verdeling === "object") {
     toegestaan.puzzel_verdeling = Object.fromEntries(Object.entries(body.puzzel_verdeling as Record<string, unknown>)
       .filter(([k, v]) => /^[0-9a-f-]{36}$/i.test(k) && (v === 0 || v === 2)));
@@ -96,6 +97,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .single();
   if (error && /alle_punten_zichtbaar/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
+  }
+  if (error && /puzzel_volgorde/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 018 (puzzelwoord raden en volgorde) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel_aan|puzzel_verdeling|puzzel_letter_punten|puzzel_raad_bonus/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 017 (puzzelwoord per vraag) in Supabase" }, { status: 500 });

@@ -7,6 +7,7 @@ import type { LiveData } from "@/lib/admin-live";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import { PuzzelRaadStatus } from "@/components/admin/AdminDashboard";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -198,7 +199,8 @@ export default function AdminLiveKaart({ initData }: Props) {
                         {s.puzzel.woord.split("").map((l, i) => (
                           <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
                         ))}
-                        <span className="sk-puzzel-telling">{s.puzzel.opgelost ? "✓" : `${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
+                        <span className="sk-puzzel-telling">{`${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
+                        <PuzzelRaadStatus p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />
                       </span>
                     )}
                     {(!s.ingelogd || s.laatste_lat === null) && (
