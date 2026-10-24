@@ -180,10 +180,10 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
                     beperkt={beperkt}
                   />
                 ))}
-                {/* 📈 Stand door het spel heen, per team */}
-                <PuntenVerloop kleuren={kleuren} />
               </div>
             )}
+            {/* 📈 Stand door het spel heen, per team: los van het in- en uitklappen van de spelers */}
+            {spelend.length > 0 && <PuntenVerloop kleuren={kleuren} />}
           </div>
           {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
           {route && spelend.length > 0 && (
