@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
@@ -27,7 +28,6 @@ import ControleVenster from "./editor/ControleVenster";
 import { routeControle } from "@/lib/route-controle";
 import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import PuzzelInstellingen from "./editor/PuzzelInstellingen";
-import SeizoenAchtergronden from "./editor/SeizoenAchtergronden";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc } from "@/components/shared/Venster";
 
@@ -2038,8 +2038,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     return res.ok;
                   }} />
                 )}
-                {/* 🗓️ Achtergronden per seizoen en feestdag (voor alle routes) */}
-                {instellingenTab === "uiterlijk" && <SeizoenAchtergronden eigenFoto={!!route.welkom_foto_pad} />}
+                {/* 🗓️ Seizoensachtergrond en -logo gelden voor alle routes: eigen pagina in het menu */}
+                {instellingenTab === "uiterlijk" && (
+                  <span className="inst-uitleg">🗓️ Achtergrond en logo per seizoen of feestdag gelden voor alle routes: <Link href="/admin/seizoenen">Seizoenen</Link> in het menu.</span>
+                )}
 
                 {instellingenTab === "punten" && (
                   <>

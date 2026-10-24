@@ -43,7 +43,7 @@ plekkie-zn-loatst/
 │   ├── login/, l/[code]/, auth/      → inloggen, inloglink, Supabase-callback
 │   ├── gedeeld/[id]/                 → gedeeld teamverslag (zonder inloggen)
 │   ├── admin/                        → dashboard, routes (+ editor, punt/vraag, voorproefje), groepen,
-│   │                                   antwoorden, live, rapport, kaartjes, leaderboard, uitleg
+│   │                                   antwoorden, live, rapport, kaartjes, leaderboard, uitleg, seizoenen, systeem
 │   ├── speler/                       → intro, kaart, finish, terugkijk, qr
 │   ├── spellogo/[bestand]/           → spellogo van vandaag (seizoenslogo of het gewone), overal i.p.v. /logo.webp
 │   └── api/

@@ -3268,7 +3268,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .sk-puzzel-gok--fout { color: #FCA5A5; background: rgba(248,113,113,0.15); }
 /* 🗓️ Seizoensachtergronden in Instellingen → Uiterlijk: een raster met per thema een staand plaatje */
 .seizoen { display: flex; flex-direction: column; gap: 8px; }
-.seizoen-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; text-align: left; }
 .seizoen-telling { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
 .seizoen-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
 .seizoen-vak { position: relative; display: flex; flex-direction: column; gap: 2px; }

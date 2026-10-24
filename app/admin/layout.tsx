@@ -63,6 +63,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {!helper && (
           <div className="admin-menu-blok admin-menu-blok--beheer">
             <div className="admin-menu-kop">Beheer</div>
+            <AdminNavLink href="/admin/seizoenen"><span aria-hidden>🗓️</span> Seizoenen</AdminNavLink>
             <AdminNavLink href="/admin/systeem"><span aria-hidden>🩺</span> Systeemcheck</AdminNavLink>
           </div>
         )}

@@ -5,7 +5,7 @@ import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
 import { THEMAS, huidigThema, periodeTekst, type SeizoenSoort } from "@/lib/seizoenen";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
-import { verklein } from "./HuisstijlInstellingen";
+import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 
 const SOORTEN: { soort: SeizoenSoort; label: string; uitleg: string }[] = [
   { soort: "achtergrond", label: "🖼️ Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
@@ -15,14 +15,13 @@ const SOORTEN: { soort: SeizoenSoort; label: string; uitleg: string }[] = [
 
 // 🗓️ Afbeeldingen per seizoen en feestdag, voor alle routes: achtergrond van het welkomstscherm en het
 // spellogo (vierkant en breed). Upload ze nu al; de app kiest op datum (feestdag gaat voor seizoen).
-// Een eigen welkomstfoto van de route gaat altijd voor de seizoensachtergrond.
-export default function SeizoenAchtergronden({ eigenFoto }: { eigenFoto: boolean }) {
+// Een eigen welkomstfoto van een route gaat altijd voor de seizoensachtergrond. Eigen pagina: /admin/seizoenen.
+export default function SeizoenAfbeeldingen() {
   const [paden, setPaden] = useState<Record<SeizoenSoort, Record<string, string>> | null>(null);
   const [logosKlaar, setLogosKlaar] = useState(true);
   const [soort, setSoort] = useState<SeizoenSoort>("achtergrond");
   const [fout, setFout] = useState<string | null>(null);
   const [bezig, setBezig] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
   const kiesRef = useRef<HTMLInputElement>(null);
   const voorThema = useRef<string | null>(null);
 
@@ -66,22 +65,17 @@ export default function SeizoenAchtergronden({ eigenFoto }: { eigenFoto: boolean
   const nu = new Date();
   const huidig = paden?.[soort] ?? {};
   const actief = paden ? huidigThema(nu, new Set(Object.keys(huidig))) : null;
-  const aantal = paden ? Object.values(paden).reduce((n, p) => n + Object.keys(p).length, 0) : 0;
   const info = SOORTEN.find((s) => s.soort === soort)!;
   const logo = soort !== "achtergrond";
 
   return (
     <div className="form-group seizoen">
-      <button type="button" className="seizoen-kop" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span className="form-label" style={{ margin: 0 }}>🗓️ Seizoenen en feestdagen: achtergrond en logo</span>
-        <span className="seizoen-telling">{aantal}/{THEMAS.length * SOORTEN.length} {open ? "▾" : "▸"}</span>
-      </button>
       <span className="inst-uitleg">
         Voor <strong>alle routes</strong>. Upload ze nu al; de app wisselt vanzelf naar de feestdag of het seizoen van dat moment.
-        {eigenFoto && soort === "achtergrond" && " Deze route heeft een eigen welkomstfoto; die gaat voor."}
+        {soort === "achtergrond" && " Een route met een eigen welkomstfoto houdt die foto."}
       </span>
       {fout && <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>}
-      {open && paden && (
+      {paden && (
         <>
           <div className="seizoen-soorten">
             {SOORTEN.map((s) => (
