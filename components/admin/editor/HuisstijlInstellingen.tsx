@@ -19,7 +19,10 @@ export async function verklein(bestand: Blob, maxZijde: number, logo: boolean): 
   const schaal = Math.min(1, maxZijde / Math.max(beeld.width, beeld.height));
   const doek = document.createElement("canvas");
   doek.width = Math.round(beeld.width * schaal); doek.height = Math.round(beeld.height * schaal);
-  doek.getContext("2d")?.drawImage(beeld, 0, 0, doek.width, doek.height);
+  const ctx = doek.getContext("2d");
+  // Foto wordt jpg (zonder doorzichtigheid): eerst app-paars eronder, anders wordt een doorzichtige rand zwart
+  if (ctx && !logo) { ctx.fillStyle = "#1C0C45"; ctx.fillRect(0, 0, doek.width, doek.height); }
+  ctx?.drawImage(beeld, 0, 0, doek.width, doek.height);
   return new Promise((r) => doek.toBlob(r, logo ? "image/webp" : "image/jpeg", logo ? 0.9 : 0.8));
 }
 
