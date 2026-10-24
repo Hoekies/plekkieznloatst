@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SITE } from "@/lib/qr-inlog";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import Venster, { VensterKop } from "@/components/shared/Venster";
+import { metVersie } from "@/lib/versie";
 
 // Venster "Wat verstuur je?": vóór het versturen via WhatsApp kies je zelf wat er meegaat
 // (tekst, uitleg beginscherm, afbeeldingen). Bestanden worden bij het openen alvast geladen:
@@ -40,7 +41,7 @@ const AFBEELDINGEN = [
   { sleutel: "spelers", titel: "Spelershandleiding", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp", bestand: "PointRush-handleiding.jpg" },
   { sleutel: "volgorde", titel: "Speluitleg route op volgorde", src: "/kaarten/route-op-volgorde.jpg", klein: "/kaarten/klein-route-op-volgorde.webp", bestand: "PointRush-route-op-volgorde.jpg" },
   { sleutel: "verspreid", titel: "Speluitleg verspreide route", src: "/kaarten/verspreid.jpg", klein: "/kaarten/klein-verspreid.webp", bestand: "PointRush-verspreide-route.jpg" },
-] as const;
+].map((a) => ({ ...a, src: metVersie(a.src), klein: metVersie(a.klein) }));
 
 type Keuze = { tekst: boolean; beginscherm: boolean; afbeeldingen: string[] };
 const STANDAARD: Keuze = { tekst: true, beginscherm: true, afbeeldingen: ["spelers"] };

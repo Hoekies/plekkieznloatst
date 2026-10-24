@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import VersieRegel from "@/components/admin/VersieRegel";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import { useSluitMetEsc } from "@/components/shared/Venster";
+import { metVersie } from "@/lib/versie";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
@@ -13,7 +14,7 @@ const KAARTEN = [
   { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp", papier: "A5" },
   { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp", papier: "A5" },
   { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A5" },
-];
+].map((k) => ({ ...k, src: metVersie(k.src), klein: metVersie(k.klein) }));
 
 // 🖨️ Kaart printen: een eigen venster met alleen de kaart, staand op het juiste papier, zonder marges;
 // de kaart past zo groot mogelijk op het vel. Printen start zodra het plaatje geladen is.
