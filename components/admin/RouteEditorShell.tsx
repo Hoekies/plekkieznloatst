@@ -1517,11 +1517,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {punten.length > 0 && (
                     <button type="button" onClick={() => setRondjeOpen((v) => !v)}
                       style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "2px 0", background: "none", border: "none", cursor: "pointer", color: "var(--ink)", fontSize: "0.74rem", fontWeight: 700, textAlign: "left" }}>
+                      <UitklapPijl open={rondjeOpen} />
                       ⭕ Rondje
                       <span style={{ color: "var(--muted)", fontWeight: 400 }}>
                         {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
                       </span>
-                      <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={rondjeOpen} /></span>
                     </button>
                   )}
                   {(rondjeOpen || punten.length === 0) && (
@@ -1620,10 +1620,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                             onClick={() => setUitgelichtTeam(open ? null : t.teamIndex)}
                             style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 4px", borderRadius: 6, border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left",
                               background: open ? "rgba(255,255,255,0.08)" : "none" }}>
+                            <UitklapPijl open={open} />
                             <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
                             <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
                             <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{t.handmatig ? " 📌" : ""}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
-                            <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={open} /></span>
                           </button>
                         );
                       })}
@@ -2558,7 +2558,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
           <div className="route-editor-tijden">
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
-              ⏱️ Afstand, tijd &amp; punten per team <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={tijdenOpen} /></span>
+              <UitklapPijl open={tijdenOpen} /> ⏱️ Afstand, tijd &amp; punten per team
             </button>
             {tijdenOpen && (
               <>

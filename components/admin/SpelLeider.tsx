@@ -108,12 +108,12 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     <button type="button" className="pr-gem-panel spelleider spelleider--dicht" onClick={() => setKeuze(true)} aria-expanded={false}
       title="Spelleider openen: pauze, eindtijd en afronden">
       <span className="pr-gem-panel-inner spelleider-dicht-inner">
+        <UitklapPijl open={false} />
         <span aria-hidden>🎯</span>
         <span className="spelleider-dicht-tekst">{status}</span>
         {rustig
           ? <span className="spelleider-dicht-ok">✅ Alles loopt</span>
           : <span className="spelleider-dicht-let">{gepauzeerd ? "⏸️ Gepauzeerd" : `⚠️ ${aandacht.length} ${aandacht.length === 1 ? "melding" : "meldingen"}`}</span>}
-        <UitklapPijl open={false} />
       </span>
     </button>
   );
@@ -129,8 +129,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
             onKeyDown={(e) => { if (e.key === "Enter") setKeuze(false); }}
             title="Inklappen">
             <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              🎯 Spelleider
               <UitklapPijl open />
+              🎯 Spelleider
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
               {status}

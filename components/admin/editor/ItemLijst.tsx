@@ -31,12 +31,12 @@ export default function ItemLijst({ items, gekozen, onKies, onVerwijder }: {
         return (
           <div key={type} className="item-groep">
             <button type="button" className="item-groep-kop" onClick={() => wissel(type)} aria-expanded={isOpen} title={ITEM_UITLEG[type]}>
+              <UitklapPijl open={isOpen} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/items/${type}.webp`} alt="" />
               <span className="item-groep-naam">{itemNaam(type)}</span>
               {gepakt > 0 && <span className="item-groep-gepakt">{gepakt} gepakt</span>}
               <span className="item-groep-aantal">{lijst.length}</span>
-              <UitklapPijl open={isOpen} />
             </button>
             {isOpen && lijst.map((item, i) => {
               const isGekozen = gekozen?.id === item.id;

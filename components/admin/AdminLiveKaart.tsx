@@ -148,7 +148,7 @@ export default function AdminLiveKaart({ initData }: Props) {
         <div className="pr-gem-panel live-kaart-lijst" style={{ position: "absolute", zIndex: 1000, flex: "none", minWidth: 210 }}>
          <div className="pr-gem-panel-inner" style={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", color: "#fff" }}>
           <button type="button" className="pr-gem-label live-lijst-inklap" onClick={wisselLijst} aria-expanded={!lijstDicht}>
-            <span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span><UitklapPijl open={!lijstDicht} />
+            <UitklapPijl open={!lijstDicht} /><span>⚡ {aantalActief} bezig · ✓ {aantalKlaar} klaar</span>
           </button>
           {lijstDicht ? null : spelersOpKaart.length === 0 ? (
             <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Geen actieve spelers</div>

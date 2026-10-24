@@ -221,6 +221,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
          <div className="pr-gem-card-inner antw-kaart" style={{ flexDirection: "column", alignItems: "stretch" }}>
           {/* Kop: tik om in of uit te klappen; dicht = alleen de telling */}
           <button type="button" className="antw-kop" onClick={() => setOpenTeams((o) => ({ ...o, [team.sessie_id]: !open }))} aria-expanded={open}>
+            <span className="antw-pijl">{team.rijen.length > 0 && <UitklapPijl open={open} />}</span>
             <span className="pr-gem-avatar" style={{ width: 40, height: 40, fontSize: "1.5rem" }}>{team.icon ?? "👫"}</span>
             <span style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
               <span style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{team.naam}</span>
@@ -237,7 +238,6 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
               {team.status === "voltooid" ? "🏁 Gefinisht" : "Onderweg"}
             </span>
             <span className={`antw-score${team.score < 0 ? " score-min" : ""}`}>{team.score} pt</span>
-            <span className="antw-pijl">{team.rijen.length > 0 && <UitklapPijl open={open} />}</span>
           </button>
           {open && rijen.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

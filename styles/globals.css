@@ -1834,11 +1834,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-titel { overflow: hidden; }
 }
 
-/* Telefoon: routekaart-kop in twee regels — icoon, naam en pijltje; daaronder de stap-knop */
+/* Telefoon: routekaart-kop in twee regels — pijltje (links, zoals overal), icoon en naam; daaronder de stap-knop */
 @media (max-width: 768px) {
   .rl-kop { flex-wrap: wrap; }
   .rl-kop .rl-titel { flex: 1 1 0; min-width: 0; }
-  .rl-kop .rl-pijl { order: 2; }
+  .rl-kop .rl-pijl { order: -1; }
   .rl-kop .rl-kop-stap { order: 3; flex-basis: 100%; box-sizing: border-box; }
 }
 
@@ -2389,7 +2389,7 @@ button.route-stap:hover { color: var(--ink); }
 /* Knop die uit staat: doorgestreept en vaag */
 .knop-uit { opacity: 0.65; text-decoration: line-through; }
 /* Teamlijst live kaart: kop is de inklapknop; op de pc twee keer zo groot */
-.live-lijst-inklap { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; margin-bottom: 8px; text-align: left; }
+.live-lijst-inklap { display: flex; justify-content: flex-start; align-items: center; gap: 8px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; margin-bottom: 8px; text-align: left; }
 @media (min-width: 1024px) {
   .live-kaart-lijst { min-width: 300px !important; }
   .live-kaart-lijst .pr-gem-label { font-size: 0.9rem; }
@@ -2537,7 +2537,7 @@ button.route-stap:hover { color: var(--ink); }
 .stat-fout-plus { color: #4ADE80; font-weight: 800; margin-left: 2px; }
 /* 📈 Puntenverloop op het dashboard */
 .verloop { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px; }
-.verloop-kop { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
+.verloop-kop { display: flex; justify-content: flex-start; gap: 8px; align-items: center; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.95rem; }
 .verloop-legenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.76rem; color: var(--text); }
 .verloop-legenda span, .verloop-tip span { display: inline-flex; align-items: center; gap: 5px; }
 .verloop-legenda i, .verloop-tip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }

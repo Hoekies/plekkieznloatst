@@ -246,9 +246,9 @@ function Regel({ icoon, titel, open, onTik, children }: {
           padding: "8px 12px", background: "none", border: "none", cursor: "pointer",
           color: "#e8f0ff", textAlign: "left",
         }}>
+        <UitklapPijl open={open} />
         <span style={{ width: 36, display: "flex", justifyContent: "center", flexShrink: 0 }}>{icoon}</span>
         <span style={{ flex: 1, fontWeight: 700, fontSize: "0.95rem" }}>{titel}</span>
-        <UitklapPijl open={open} />
       </button>
       {open && (
         // Tik op de uitleg zelf klapt de regel ook weer in

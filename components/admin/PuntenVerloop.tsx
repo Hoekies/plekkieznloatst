@@ -72,7 +72,7 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
 
   const kop = (
     <button type="button" className="verloop-kop" onClick={wissel} aria-expanded={open}>
-      <span>📈 Puntenverloop</span><UitklapPijl open={open} />
+      <UitklapPijl open={open} /><span>📈 Puntenverloop</span>
     </button>
   );
   if (!open) return <div className="verloop">{kop}</div>;

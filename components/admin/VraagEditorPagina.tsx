@@ -626,11 +626,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             {/* Meer instellingen: dicht tot je ze nodig hebt */}
             <div className="vraag-meer">
               <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
+                <UitklapPijl open={meerOpen} />
                 <span>⚙️ Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
                   {[husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
                 </span>
-                <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={meerOpen} /></span>
               </button>
               {meerOpen && (
                 <div className="vraag-meer-inhoud">

@@ -102,9 +102,9 @@ export default function Systeemcheck() {
           return (
             <div key={g} className="systeem-onderdeel">
               <button type="button" className="systeem-onderdeel-kop systeem-onderdeel-kop--knop" onClick={() => wissel(g)} aria-expanded={isOpen}>
+                <UitklapPijl open={isOpen} />
                 <span className="systeem-onderdeel-naam">{g}</span>
                 <span className={fout.length ? "systeem-telling systeem-telling--mis" : "systeem-telling"}>{inGroep.length - fout.length}/{inGroep.length} {fout.length ? "⚠️" : "✅"}</span>
-                <UitklapPijl open={isOpen} />
               </button>
               {fout.map((c) => (
                 <div key={c.naam} className="systeem-regel systeem-regel--mis">
