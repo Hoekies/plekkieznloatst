@@ -3354,3 +3354,10 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 @media (max-width: 768px) {
   .hulp-kolom, .hulp-knop { display: none !important; }
 }
+/* 👆 Aanwijzen vanuit de hulp: knopnamen die op het scherm staan zijn aanklikbaar; de knop licht dan goud op */
+.hulp-tekst strong.hulp-wijsbaar { cursor: pointer; color: #FFE680; border-bottom: 1px dashed rgba(255,230,128,0.7); }
+.hulp-tekst strong.hulp-wijsbaar::after { content: " 👆"; font-size: 0.8em; }
+.hulp-tekst strong.hulp-wijsbaar:hover { color: #fff; border-bottom-color: #fff; }
+.hulp-aanwijs { outline: 3px solid #ffd93b !important; outline-offset: 3px; border-radius: 10px;
+  box-shadow: 0 0 0 7px rgba(255,217,59,0.3), 0 0 28px rgba(255,217,59,0.75) !important; animation: hulp-puls 0.8s ease-in-out 4; position: relative; z-index: 960; }
+@keyframes hulp-puls { 50% { outline-offset: 7px; box-shadow: 0 0 0 12px rgba(255,217,59,0.15), 0 0 36px rgba(255,217,59,0.9); } }
