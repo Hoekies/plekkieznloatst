@@ -14,7 +14,7 @@ const SOORTEN: { soort: SeizoenSoort; label: string; uitleg: string }[] = [
 ];
 
 // 🗓️ Afbeeldingen per seizoen en feestdag, voor alle routes: achtergrond van het welkomstscherm en het
-// spellogo (vierkant en breed). Upload ze nu al; de app kiest op datum (feestdag gaat voor seizoen).
+// spellogo (vierkant en breed), op alfabet of door het jaar heen. Upload ze nu al; de app kiest op datum (feestdag gaat voor seizoen).
 // Een eigen welkomstfoto van een route gaat altijd voor de seizoensachtergrond. Eigen pagina: /admin/seizoenen.
 export default function SeizoenAfbeeldingen() {
   const [paden, setPaden] = useState<Record<SeizoenSoort, Record<string, string>> | null>(null);
@@ -24,6 +24,13 @@ export default function SeizoenAfbeeldingen() {
   const [bezig, setBezig] = useState<string | null>(null);
   const kiesRef = useRef<HTMLInputElement>(null);
   const voorThema = useRef<string | null>(null);
+  // Volgorde van de thema's: op alfabet of door het jaar heen (onthouden op dit toestel)
+  const [volgorde, setVolgorde] = useState<"alfabet" | "periode">("alfabet");
+  useEffect(() => { try { if (localStorage.getItem("pr_seizoen_volgorde") === "periode") setVolgorde("periode"); } catch { /* geen opslag */ } }, []);
+  function kiesVolgorde(v: "alfabet" | "periode") {
+    setVolgorde(v);
+    try { localStorage.setItem("pr_seizoen_volgorde", v); } catch { /* geen opslag */ }
+  }
 
   async function laad() {
     const res = await fetch("/api/admin/achtergronden").catch(() => null);
@@ -67,6 +74,9 @@ export default function SeizoenAfbeeldingen() {
   const actief = paden ? huidigThema(nu, new Set(Object.keys(huidig))) : null;
   const info = SOORTEN.find((s) => s.soort === soort)!;
   const logo = soort !== "achtergrond";
+  // Door het jaar heen: op begindatum dit jaar (januari → december)
+  const begin = (t: (typeof THEMAS)[number]) => { const [van] = t.periode(nu.getFullYear()); return van.getMonth() * 100 + van.getDate(); };
+  const themas = [...THEMAS].sort((a, b) => volgorde === "periode" ? begin(a) - begin(b) : a.naam.localeCompare(b.naam, "nl"));
 
   return (
     <div className="form-group seizoen">
@@ -83,6 +93,10 @@ export default function SeizoenAfbeeldingen() {
                 {s.label} <span className="seizoen-telling">{Object.keys(paden[s.soort] ?? {}).length}</span>
               </button>
             ))}
+            <span className="seizoen-volgorde" role="radiogroup" aria-label="Volgorde">
+              <button type="button" role="radio" className={`rl-knop${volgorde === "alfabet" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "alfabet"} onClick={() => kiesVolgorde("alfabet")}>🔤 Alfabet</button>
+              <button type="button" role="radio" className={`rl-knop${volgorde === "periode" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}>📅 Periode</button>
+            </span>
           </div>
           <span className="inst-uitleg">
             {info.uitleg}{actief ? <> Nu: <strong>{actief.emoji} {actief.naam}</strong>.</> : logo ? " Nu: het gewone logo." : null}
@@ -91,7 +105,7 @@ export default function SeizoenAfbeeldingen() {
             <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ Draai eerst migratie 020 (seizoenslogo&apos;s) in Supabase.</span>
           ) : (
             <div className={`seizoen-raster${logo ? " seizoen-raster--logo" : ""}`}>
-              {THEMAS.map((t) => {
+              {themas.map((t) => {
                 const pad = huidig[t.sleutel];
                 const isNu = actief?.sleutel === t.sleutel;
                 return (

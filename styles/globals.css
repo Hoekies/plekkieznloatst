@@ -3319,3 +3319,4 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .punten-bericht-reden { margin: 0; width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px;
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
   font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; line-height: 1.35; color: #fff; overflow-wrap: anywhere; }
+.seizoen-volgorde { display: inline-flex; gap: 6px; margin-left: auto; }

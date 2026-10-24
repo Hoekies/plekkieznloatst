@@ -207,7 +207,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [verlaatNa, setVerlaatNa] = useState<(() => void) | null>(null);
   const verlaat = (doe: () => void) => { if (gewijzigd) setVerlaatNa(() => doe); else doe(); };
 
-  // Meer instellingen (naam van het punt, punten per antwoord, QR-code): dicht tot je ze nodig hebt
+  // Meer instellingen (naam van het punt, QR-code): dicht tot je ze nodig hebt
   const [meerOpen, setMeerOpen] = useState(false);
 
   // QR-unlock
@@ -525,7 +525,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
             {meerkeuze && (
               <div className="form-group">
-                <label className="form-label">Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· klik op het rondje bij het goede antwoord</span></label>
+                {/* Kop: uitleg links, rechts de schakelaar voor eigen punten per antwoord */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+                  <label className="form-label" style={{ margin: 0, flex: 1, minWidth: 0 }}>Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· klik op het rondje bij het goede antwoord</span></label>
+                  <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
+                    style={{ height: 30, fontSize: "0.78rem" }} onClick={wisselPerAntwoord}
+                    title={`Uit: goed krijgt ${punten} punten, fout 0. Aan: elk antwoord eigen punten (ook negatief).`}>
+                    ± Punten per antwoord<span className="schakel-bol" aria-hidden />
+                  </button>
+                </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {antwoorden.map((ant, i) => (
                     <div key={ant.color} style={{
@@ -577,6 +585,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     </div>
                   ))}
                 </div>
+                {perAntwoord && <span style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 6 }}>Vul per antwoord de punten in; leeg = standaard ({punten} voor goed, 0 voor fout). Negatief mag: dat gaat eraf.</span>}
               </div>
             )}
 
@@ -619,7 +628,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
                 <span>⚙️ Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
-                  {[perAntwoord ? "punten per antwoord" : "", husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
+                  {[husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
                 </span>
                 <span style={{ marginLeft: "auto", display: "inline-flex" }}><UitklapPijl open={meerOpen} /></span>
               </button>
@@ -664,17 +673,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                         ))}
                       </div>
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: de spelers zien een aftelklok; is de tijd om, dan telt de vraag als fout.</span>
-                    </div>
-                  )}
-
-                  {meerkeuze && (
-                    <div className="form-group">
-                      <label className="form-label">Punten per antwoord</label>
-                      <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
-                        style={{ height: 32, alignSelf: "flex-start", fontSize: "0.8rem" }} onClick={wisselPerAntwoord}>
-                        Eigen punten per antwoord<span className="schakel-bol" aria-hidden />
-                      </button>
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Uit: goed krijgt {punten} punten, fout 0. Aan: elk antwoord eigen punten (ook negatief).</span>
                     </div>
                   )}
 
