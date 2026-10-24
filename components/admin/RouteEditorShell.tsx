@@ -29,7 +29,7 @@ import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import PuzzelInstellingen from "./editor/PuzzelInstellingen";
 import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
-import { useSluitMetEsc } from "@/components/shared/Venster";
+import { useSluitMetEsc, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
@@ -115,6 +115,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [plaatsType, setPlaatsType] = useState<SpeciaalItemType | null>(null);
   useSluitMetEsc(() => setPlaatsType(null), !!plaatsType);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
+  // 📊 Per punt hoe vaak de vraag goed ging, over alle gespeelde spellen (migratie 022)
+  const [statistiek, setStatistiek] = useState<Record<string, { n: number; goed: number }>>({});
+  useEffect(() => {
+    fetch(`/api/admin/routes/${initRoute.id}/statistiek`).then((r) => (r.ok ? r.json() : {})).then(setStatistiek).catch(() => {});
+  }, [initRoute.id]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
   // 🚶 Proeflopen: klik over de kaart en loop als testspeler mee (er wordt niets opgeslagen)
@@ -537,9 +542,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await api("/api/admin/routes/stoppen", { method: "POST" });
     if (res.ok) { setRoute((r) => ({ ...r, is_active: false })); meldActieveRouteGewijzigd(); toonMelding("Route gedeactiveerd: hij blijft klaar voor een volgende keer", "ok"); }
   }
-  async function activeerRoute() {
-    const res = await api(`/api/admin/routes/${route.id}/activeren`, { method: "POST" });
-    if (res.ok) { setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); meldActieveRouteGewijzigd(); toonMelding("Route is actief: teams kunnen starten", "ok"); }
+  // Activeren. Spelen er nog teams op een andere route, dan eerst een waarschuwing (zie het venster onderaan)
+  const [lopendElders, setLopendElders] = useState<{ aantal: number; route: string } | null>(null);
+  async function activeerRoute(toch = false) {
+    const res = await fetch(`/api/admin/routes/${route.id}/activeren`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ toch }) }).catch(() => null);
+    const d = res ? await res.json().catch(() => ({})) : {};
+    if (res?.status === 409 && d.lopend) { setLopendElders({ aantal: d.lopend, route: d.route ?? "een andere route" }); return; }
+    if (!res?.ok) { toonMelding(d.fout ?? uitlegBijStatus(res?.status ?? 0, "Activeren"), "fout"); return; }
+    setLopendElders(null);
+    setRoute((r) => ({ ...r, is_active: true })); setControleOpen(false); meldActieveRouteGewijzigd(); toonMelding("Route is actief: teams kunnen starten", "ok");
   }
 
   // Startitems: wat elk team bij de start gratis in de balk krijgt
@@ -1383,7 +1394,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       {/* Topbar */}
       <div className="admin-topbar route-editor-topbar" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
         {/* Rij 1: routekop (terug, naam, status en de volgende stap) */}
-        <div className="editor-kop" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="editor-kop" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a href="/admin/routes" className="rl-knop editor-terug" title="Terug naar de routes">←<span className="alleen-pc"> Routes</span></a>
           {naamWijzig ? (
             <div className="editor-naam-wijzig" style={{ display: "flex", gap: 6, flex: 1, minWidth: 0 }}>
@@ -1768,6 +1779,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
                       {pt.name}
                     </div>
+                    {/* 📊 Hoe vaak ging deze vraag goed (alle gespeelde spellen); rood als het vaak fout gaat */}
+                    {statistiek[pt.id]?.n ? (() => {
+                      const t = statistiek[pt.id]; const pct = Math.round((t.goed / t.n) * 100);
+                      return <span className={`lijst-stat${pct < 40 ? " lijst-stat--laag" : pct >= 75 ? " lijst-stat--hoog" : ""}`}
+                        title={`${t.goed} van de ${t.n} keer goed beantwoord (alle gespeelde spellen)`}>✓ {pct}% · {t.n}×</span>;
+                    })() : null}
                     {/* Klikbaar: opent meteen de vraag van dit punt */}
                     {vraagPuntIds.has(pt.id) ? (
                       <button type="button" className="lijst-vraagknop" title="Vraag ingevuld: klik om te bewerken" aria-label="Vraag bewerken"
@@ -1964,12 +1981,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: "90vh", overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
             }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 800, color: "#fff" }}>⚙️ Instellingen</h2>
                 <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setInstellingenOpen(false)} title="Sluiten" aria-label="Sluiten">✕</button>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
                 {/* Onderwerpen als knoppen */}
                 <div className="segment" role="tablist" aria-label="Onderwerp">
@@ -2110,7 +2127,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {meerInstellingen && route.modus === "verspreid" && (
                   <div className="form-group">
                     <label className="form-label">⭐ Item-waarden</label>
-                    <div style={{ display: "flex", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
                         <input
@@ -2167,7 +2184,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {(
                   <div className="form-group">
                     <label className="form-label">🎒 Startitems — gratis bij de start</label>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: "6px 6px 6px 0" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: "6px 6px 6px 0" }}>
                       {STARTITEM_TYPES.map((type) => {
                         const n = startitems[type] ?? 0;
                         return (
@@ -2244,7 +2261,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   <div className="form-group">
                     <label className="form-label">🔄 Respawn (verspreid-modus)</label>
                     <span className="inst-uitleg">Een opgepakt item komt na een tijdje terug op dezelfde plek.</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div className="segment" role="radiogroup" aria-label="Respawn" style={{ width: 150 }}>
                         {([false, true] as const).map((aan) => (
                           <button key={String(aan)} type="button" role="radio" aria-checked={!!route.item_respawn === aan} className={!!route.item_respawn === aan ? "aan" : ""}
@@ -2297,7 +2314,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Klaar om te spelen? */}
         {controleOpen && (
           <ControleVenster controle={controle} status={route.status} actief={route.is_active}
-            onSluit={() => setControleOpen(false)} onActiveer={activeerRoute} onKlaarzetten={() => zetStatus("gepubliceerd")} />
+            onSluit={() => setControleOpen(false)} onActiveer={() => activeerRoute()} onKlaarzetten={() => zetStatus("gepubliceerd")} />
+        )}
+
+        {/* ⚠️ Activeren terwijl er op een andere route nog gespeeld wordt */}
+        {lopendElders && (
+          <VensterMetKop icoon="⚠️" label="Route activeren" titel="Er wordt nog gespeeld" breedte={420} onSluit={() => setLopendElders(null)}>
+            <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.5, color: "var(--text)" }}>
+              Op <strong>{lopendElders.route}</strong> {lopendElders.aantal === 1 ? "is nog 1 team" : `zijn nog ${lopendElders.aantal} teams`} aan het spelen.
+              Activeer je deze route, dan stopt hun spel.
+            </p>
+            <button type="button" className="rl-knop rl-knop--rood actie-knop" onClick={() => activeerRoute(true)}>▶ Toch starten</button>
+          </VensterMetKop>
         )}
 
         {/* ⛔ Verboden gebied tekenen */}
@@ -2408,7 +2436,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {herstelToast && stappen.length > 0 && (
           <div style={{
             position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 600,
-            display: "flex", alignItems: "center", gap: 10, padding: "8px 8px 8px 14px", borderRadius: 12,
+            display: "flex", alignItems: "center", gap: 12, padding: "8px 8px 8px 14px", borderRadius: 12,
             background: "rgba(42,21,102,0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>

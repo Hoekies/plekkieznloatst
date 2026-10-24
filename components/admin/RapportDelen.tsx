@@ -137,7 +137,7 @@ ${albumLink}`).catch(() => {});
     <div className="pr-gem-panel" style={{ width: "100%" }}>
       <span className="pr-corner-chip pr-badge pr-badge--orange">📤</span>
       <div className="pr-gem-panel-inner rapport-delen">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 160 }}>
             <div className="pr-gem-label">📄 Rapport delen</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>Als PDF via WhatsApp</div>

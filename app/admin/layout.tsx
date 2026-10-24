@@ -14,6 +14,9 @@ import MenuInklap from "@/components/admin/MenuInklap";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { haalHuisstijl } from "@/lib/huisstijl";
 import HulpKolom from "@/components/admin/HulpKolom";
+import TabTeller from "@/components/admin/TabTeller";
+import Sneltoetsen from "@/components/admin/Sneltoetsen";
+import SpelStrook from "@/components/admin/SpelStrook";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -78,6 +81,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
       <div className="admin-main">
         {children}
+        {/* 🎯 Tijdens een spel: onderaan elke pagina de stand, hulpvragen, foto's en pauze */}
+        <SpelStrook beperkt={helper} />
       </div>
       {/* Uitloggen altijd rechtsboven (op een groot scherm) */}
       <div className="admin-uitlog-hoek">
@@ -87,6 +92,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <UitlogKnop compact />
       </div>
       <HulpMeldingen />
+      {/* (n) in het tabblad bij open hulpvragen en foto's om te keuren */}
+      <TabTeller />
+      {/* ⌨️ ? = hulp, B = bericht, P = pauze */}
+      <Sneltoetsen />
       <MeldingHouder />
     </div>
   );

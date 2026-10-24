@@ -39,7 +39,7 @@ export default function KaartjesPagina() {
       `}</style>
       <div className="admin-topbar" style={{ gap: 12 }}>
         <Link href="/admin/groepen" className="btn btn-outline" style={{ fontSize: "0.82rem", padding: "6px 12px", flexShrink: 0 }}>← Terug</Link>
-        <span className="admin-topbar-titel">Inlogkaartjes</span>
+        <span className="admin-topbar-titel">🃏 Inlogkaartjes</span>
         <span style={{ flex: 1 }} />
         <button type="button" className="rl-knop rl-knop--cyan" onClick={() => window.print()} disabled={!inlogs.length}>🖨️ Afdrukken</button>
       </div>

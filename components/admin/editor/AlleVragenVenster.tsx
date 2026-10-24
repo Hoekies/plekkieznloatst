@@ -75,7 +75,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <div style={{ flex: 1, minHeight: 0 }}>
           {!punt ? null : vraag === undefined ? (
-            <div style={{ padding: 20 }}><LaadBlokjes aantal={3} hoogte={56} /></div>
+            <div style={{ padding: 24 }}><LaadBlokjes aantal={3} hoogte={56} /></div>
           ) : (
             <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd}
               navigatie={{

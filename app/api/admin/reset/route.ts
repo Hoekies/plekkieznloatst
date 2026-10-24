@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { bewaarVraagStatistiek } from "@/lib/vraag-statistiek";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -42,6 +43,9 @@ export async function POST() {
     claimed_at: null,
     used_at: null,
   }).not("id", "is", null);
+
+  // 📊 Eerst per vraag optellen hoe vaak die goed ging (blijft bewaard bij de route, migratie 022)
+  await bewaarVraagStatistiek(admin);
 
   // Verwijder in de juiste volgorde (FK constraints)
   await admin.from("player_point_progress").delete().not("id", "is", null);

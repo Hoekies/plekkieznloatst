@@ -50,7 +50,7 @@ export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; o
   return (
     <Venster onSluit={onSluit} breedte={340} rand={20} relatief>
         <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} title="Terug naar de vraag" aria-label="Terug naar de vraag">✕</button>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", padding: "18px 44px 14px" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "18px 44px 14px" }}>
           <div style={{ fontSize: "2rem", lineHeight: 1 }}>✋</div>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.3 }}>Wijzigingen niet opgeslagen</div>
           <div style={{ fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.4 }}>Ga je verder, dan zijn je wijzigingen aan deze vraag weg.</div>
@@ -69,7 +69,7 @@ function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
     <Venster onSluit={onSluit} breedte={420} rand={20} relatief>
         <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} title="Terug naar de vraag" aria-label="Terug naar de vraag">✕</button>
         <form className="pr-gem-panel-inner" onSubmit={(e) => { e.preventDefault(); if (naam.trim()) onOpslaan(); }}
-          style={{ display: "flex", flexDirection: "column", gap: 10, padding: "18px 22px 16px" }}>
+          style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 22px 16px" }}>
           <div style={{ textAlign: "center", fontSize: "2rem", lineHeight: 1 }}>🏷️</div>
           <div style={{ textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff" }}>Hoe heet dit punt?</div>
           <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--muted)" }}>Spelers zien de naam pas na afloop. Tik op 💡 voor een woord uit de vraag.</div>
@@ -411,7 +411,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   return (
     <div style={{ display: "flex", flexDirection: "column", height: onSluit ? "100%" : "100vh" }}>
       {/* Topbar: terug en bladeren links, vragenbank en verwijderen rechts */}
-      <div className="admin-topbar" style={{ gap: 10 }}>
+      <div className="admin-topbar" style={{ gap: 12 }}>
         <button type="button" onClick={() => verlaat(() => terug())} className="rl-knop" style={{ height: 32, flexShrink: 0 }}>
           ← Terug
         </button>
@@ -509,7 +509,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <label className="form-label">Keuzes <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· 2 tot 4; lege keuzes vallen weg</span></label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {antwoorden.map((ant, i) => (
-                    <div key={ant.color} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", borderRadius: "var(--radius-md)", border: "2px solid var(--line)" }}>
+                    <div key={ant.color} style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 10px", borderRadius: "var(--radius-md)", border: "2px solid var(--line)" }}>
                       <span style={{ width: 14, height: 14, borderRadius: "50%", flexShrink: 0, background: LABEL_KLEUR[ant.color] }} />
                       <input ref={(el) => { antwoordRefs.current[i] = el; }} className="form-input" spellCheck lang="nl" style={{ flex: 1, fontSize: "0.88rem" }}
                         value={ant.text} onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))}
@@ -526,7 +526,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             {meerkeuze && (
               <div className="form-group">
                 {/* Kop: uitleg links, rechts de schakelaar voor eigen punten per antwoord */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
                   <label className="form-label" style={{ margin: 0, flex: 1, minWidth: 0 }}>Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· klik op het rondje bij het goede antwoord</span></label>
                   <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
                     style={{ height: 30, fontSize: "0.78rem" }} onClick={wisselPerAntwoord}
@@ -537,7 +537,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {antwoorden.map((ant, i) => (
                     <div key={ant.color} style={{
-                      display: "flex", alignItems: "center", gap: 10,
+                      display: "flex", alignItems: "center", gap: 12,
                       padding: "6px 10px", borderRadius: "var(--radius-md)",
                       border: `2px solid ${ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)"}`,
                       background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : "transparent",
@@ -687,7 +687,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Alleen om te testen: open dit punt door de QR-code te scannen, zonder ernaartoe te lopen. Wordt meteen opgeslagen.</span>
                     {qrEnabled && qrUrl && (
-                      <div id="qr-print-zone" style={{ marginTop: 8, padding: 10, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
+                      <div id="qr-print-zone" style={{ marginTop: 8, padding: 12, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
                         <QRCodeSVG value={qrUrl} size={140} />
                       </div>
                     )}
@@ -701,7 +701,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           <div className="vraag-opslaanbalk">
             {fout && <div className="melding melding-fout" role="alert" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
             {opgeslagen && <div className="melding melding-ok" style={{ margin: 0 }}>✅ Vraag opgeslagen</div>}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               {gewijzigd && !opslaan && <span style={{ fontSize: "0.74rem", color: "var(--gold)" }}>● Niet opgeslagen wijzigingen</span>}
               <span style={{ flex: 1 }} />
               <button type="submit" form={`vraag-${punt.id}`} className="rl-knop hoofdknop" disabled={opslaan}
@@ -728,7 +728,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
               background: "#fff", display: "flex", flexDirection: "column",
             }}>
-              <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 8px", display: "flex", flexDirection: "column", gap: 12 }}>
                 <span style={{
                   fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
                   background: "#DBEAFE", color: "#1E40AF",
@@ -842,7 +842,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         {/* ── Waar ligt dit punt? (breed scherm) ── */}
         <div className="vraag-kaart-rechts">
           <div className="vraag-kolom-kop">📍 Op de kaart</div>
-          <div style={{ flex: 1, minHeight: 0, padding: 10 }}>
+          <div style={{ flex: 1, minHeight: 0, padding: 12 }}>
             <PuntMiniKaart
               punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
               radius={punt.radius_meters ?? 10}

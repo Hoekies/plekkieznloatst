@@ -18,11 +18,12 @@ function inNederland(lat: number, lng: number) {
   return lat > 50.7 && lat < 53.7 && lng > 3.2 && lng < 7.3;
 }
 
-export function bewaardeStijl(): KaartStijl {
+// standaard: als er nog niets gekozen is (het beheer kijkt standaard donker, passend bij de rest van het scherm)
+export function bewaardeStijl(standaard: KaartStijl = "licht"): KaartStijl {
   try {
     const s = localStorage.getItem(STIJL_KEY);
-    return s === "donker" || s === "luchtfoto" ? s : "licht";
-  } catch { return "licht"; }
+    return s === "licht" || s === "donker" || s === "luchtfoto" ? s : standaard;
+  } catch { return standaard; }
 }
 export function bewaarStijl(stijl: KaartStijl) {
   try { localStorage.setItem(STIJL_KEY, stijl); } catch { /* geen opslag */ }

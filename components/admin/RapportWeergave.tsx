@@ -94,7 +94,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
           {/* Eigen logo van de organisatie (huisstijl van de route) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ display: "block", height: 80, maxWidth: 320, objectFit: "contain", margin: "10px auto 0" }} />}
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#FFE680", letterSpacing: "0.08em", marginTop: 10 }}>SPELRAPPORT</div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#FFE680", letterSpacing: "0.08em", marginTop: 12 }}>SPELRAPPORT</div>
           <h1 style={{ fontSize: "1.8rem", marginTop: 2 }}>{data.route.name}</h1>
         </div>
         <div style={{ fontSize: "0.8rem", color: "#B8AED6", marginTop: 2, textAlign: "center" }}>
@@ -111,7 +111,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
 
         {stand[0] && (
           <div className="rapport-blok" style={{
-            marginTop: 20, padding: "22px 16px", borderRadius: 18, textAlign: "center",
+            marginTop: 24, padding: "22px 16px", borderRadius: 18, textAlign: "center",
             background: "radial-gradient(circle at 50% 0%, rgba(255,217,59,0.35), rgba(255,138,0,0.12) 60%, rgba(0,0,0,0.15))",
             border: "2px solid rgba(255,217,59,0.7)", boxShadow: "0 0 30px rgba(255,217,59,0.25)",
           }}>
@@ -128,7 +128,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
           </div>
         )}
 
-        <h2 style={{ fontSize: "1.2rem", marginTop: 22, marginBottom: 8 }}>🏆 Eindstand</h2>
+        <h2 style={{ fontSize: "1.2rem", marginTop: 24, marginBottom: 8 }}>🏆 Eindstand</h2>
         <table>
           <thead>
             <tr><th>#</th><th>Team</th><th style={{ textAlign: "right" }}>Punten</th><th>Speeltijd</th><th>Afstand</th><th>Status</th></tr>
@@ -154,14 +154,14 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
         const items = [...(v?.items ?? [])].sort((a, b) => a.tijd.localeCompare(b.tijd));
         return (
           <div key={t.sessie_id} className="rapport-papier rapport-team" data-rapport="team" data-rapport-team={t.sessie_id}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/spellogo/breed.webp" alt="PointRush" style={{ height: 42, width: "auto" }} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ height: 38, maxWidth: 160, objectFit: "contain" }} />}
               <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#B8AED6" }}>{routeNaam}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
               <h2 style={{ fontSize: "1.4rem" }}>{MEDAILLE[i] ?? `${i + 1}.`} {t.icon ?? "👫"} {t.naam}</h2>
               <span style={{ marginLeft: "auto", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, color: "#00d9ff" }}>{t.score} punten</span>
             </div>
@@ -169,7 +169,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
               {i + 1}e plaats · speeltijd {speeltijd(t) ? formateerTijd(speeltijd(t)) : "—"} · {km(v?.afstandM ?? 0)} gelopen · {t.rijen.length} vragen beantwoord · {items.length} items
             </div>
 
-            <h3 style={{ fontSize: "1.05rem", marginTop: 18, marginBottom: 6 }}>❓ Vragen</h3>
+            <h3 style={{ fontSize: "1.05rem", marginTop: 16, marginBottom: 6 }}>❓ Vragen</h3>
             {t.rijen.length === 0 ? <p style={{ fontSize: "0.85rem", color: "#B8AED6" }}>Geen vragen beantwoord.</p> : (
               <table>
                 <thead><tr><th>#</th><th>Punt &amp; vraag</th><th>Antwoord</th><th style={{ textAlign: "right" }}>Punten</th></tr></thead>
@@ -209,7 +209,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
 
             {(v?.correcties.length ?? 0) > 0 && (
               <>
-                <h3 style={{ fontSize: "1.05rem", marginTop: 18, marginBottom: 6 }}>± Bonus en aftrek</h3>
+                <h3 style={{ fontSize: "1.05rem", marginTop: 16, marginBottom: 6 }}>± Bonus en aftrek</h3>
                 <table>
                   <thead><tr><th>Tijd</th><th>Reden</th><th style={{ textAlign: "right" }}>Punten</th></tr></thead>
                   <tbody>
@@ -225,7 +225,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
               </>
             )}
 
-            <h3 style={{ fontSize: "1.05rem", marginTop: 18, marginBottom: 6 }}>🎁 Items</h3>
+            <h3 style={{ fontSize: "1.05rem", marginTop: 16, marginBottom: 6 }}>🎁 Items</h3>
             {items.length === 0 ? <p style={{ fontSize: "0.85rem", color: "#B8AED6" }}>Geen items ingezet of ontvangen.</p> : (
               <table>
                 <thead><tr><th>Tijd</th><th>Item</th><th>Wat</th></tr></thead>
@@ -249,7 +249,7 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
             )}
 
             <div className="rapport-blok">
-            <h3 style={{ fontSize: "1.05rem", marginTop: 18 }}>🗺️ Gelopen route</h3>
+            <h3 style={{ fontSize: "1.05rem", marginTop: 16 }}>🗺️ Gelopen route</h3>
             <div style={{ fontSize: "0.75rem", color: "#B8AED6" }}>
               Paars = GPS-spoor · groen = punten in volgorde · blauwe rand = item ingezet · oranje rand = item ontvangen
             </div>
@@ -271,13 +271,13 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
           <img src="/spellogo/breed.webp" alt="PointRush" style={{ height: 90, width: "auto" }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" style={{ display: "block", height: 70, maxWidth: 300, objectFit: "contain", margin: "12px auto 0" }} />}
-          <div style={{ fontSize: "3rem", marginTop: 18 }}>🍌🙏</div>
+          <div style={{ fontSize: "3rem", marginTop: 16 }}>🍌🙏</div>
           <h2 style={{ fontSize: "1.7rem", marginTop: 8 }}>Bedankt voor het spelen!</h2>
           <p style={{ fontSize: "1.1rem", lineHeight: 1.6, color: "#E9E3FF", maxWidth: 520, margin: "14px auto 0" }}>
             En voor al het dwarszitten. We weten heus wie die bommen gooide. 👀<br />
             Nog een banaan over? Eet hem lekker zelf op. Of leg hem stiekem bij de buren op de stoep, gewoon voor de gezelligheid. 🍌
           </p>
-          <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#FFE680", marginTop: 22 }}>
+          <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#FFE680", marginTop: 24 }}>
             Bedankt en tot de volgende keer!
           </p>
           <p style={{ fontSize: "1rem", color: "#fff", margin: "4px 0 0", fontStyle: "italic" }}>

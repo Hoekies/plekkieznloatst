@@ -54,7 +54,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
 
   if (link) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
         <div style={{ fontSize: "0.82rem", color: "var(--muted)", textAlign: "center" }}>
           Werkt tot <strong style={{ color: "#FFE680" }}>{tijdTekst(link.geldig_tot)}</strong>. Scannen kan ook:
         </div>
@@ -75,7 +75,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
         Het team opent de app met alleen deze link, zonder loginnaam en wachtwoord. Na de gekozen tijd wordt het team uitgelogd.
       </div>

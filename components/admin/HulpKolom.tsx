@@ -85,7 +85,7 @@ export default function HulpKolom() {
   return (
     <>
       <button type="button" className={`btn btn-outline header-knop info-knop hulp-knop${open ? " hulp-knop--aan" : ""}`} onClick={wissel}
-        data-tip={open ? "Hulp sluiten" : "Hulp bij deze pagina"} data-tip-pos="onder" aria-label="Hulp bij deze pagina" aria-expanded={open}>
+        data-tip={open ? "Hulp sluiten (?)" : "Hulp bij deze pagina (?)"} data-tip-pos="onder" aria-label="Hulp bij deze pagina" aria-expanded={open} data-sneltoets="?">
         <span className="header-knop-icoon" aria-hidden>❓</span>
       </button>
       {open && (

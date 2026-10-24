@@ -20,8 +20,11 @@ function geleden(iso: string): string {
   return `${d.toLocaleDateString("nl-NL", { day: "numeric", month: "short" })} ${tijd}`;
 }
 
-export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) {
+// teams: om de tijdlijn op één team te filteren (knoppen boven de lijst)
+export default function Tijdlijn({ kleuren, teams = [] }: { kleuren: Map<string, string>; teams?: { id: string; naam: string; icon: string | null }[] }) {
   const [items, setItems] = useState<Gebeurtenis[] | null>(null);
+  const [team, setTeam] = useState<string | null>(null);
+  const zichtbaar = items && team ? items.filter((g) => g.speler_id === team) : items;
 
   useEffect(() => {
     let actief = true;
@@ -41,14 +44,26 @@ export default function Tijdlijn({ kleuren }: { kleuren: Map<string, string> }) 
     <div className="tijdlijn">
     <SectieKop titel="📜 Wat gebeurt er" />
     <div className="pr-gem-panel">
-      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {items === null ? (
+      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* Filter: alle teams of één team (knoppen, in de kleur van het team) */}
+        {teams.length > 1 && (
+          <div className="tijdlijn-filter">
+            <button type="button" className={`rl-knop${team === null ? " rl-knop--cyan" : ""}`} aria-pressed={team === null} onClick={() => setTeam(null)}>Alle</button>
+            {teams.map((t) => (
+              <button key={t.id} type="button" className={`rl-knop${team === t.id ? " rl-knop--cyan" : ""}`} aria-pressed={team === t.id}
+                onClick={() => setTeam(team === t.id ? null : t.id)} style={{ borderColor: kleuren.get(t.id) }} title={`Alleen ${t.naam}`}>
+                {t.icon ?? "👫"} {t.naam}
+              </button>
+            ))}
+          </div>
+        )}
+        {zichtbaar === null ? (
           <LaadBlokjes aantal={4} hoogte={22} gap={8} />
-        ) : items.length === 0 ? (
-          <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Nog niets gebeurd. Zodra spelers op pad gaan, zie je hier wat ze doen.</div>
+        ) : zichtbaar.length === 0 ? (
+          <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{team ? "Van dit team is nog niets gebeurd." : "Nog niets gebeurd. Zodra spelers op pad gaan, zie je hier wat ze doen."}</div>
         ) : (
           <div className="tijdlijn-lijst">
-            {items.map((g) => (
+            {zichtbaar.map((g) => (
               <div key={g.id} className="tijdlijn-regel" style={{ borderLeftColor: (g.speler_id && kleuren.get(g.speler_id)) || "rgba(255,255,255,0.2)" }}>
                 <span className="tijdlijn-icoon" aria-hidden>
                   {g.item

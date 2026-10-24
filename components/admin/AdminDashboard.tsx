@@ -101,13 +101,13 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
       {/* Titel links, foto's beoordelen in het midden, live-status rechts (uitloggen staat rechtsboven) */}
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          Dashboard
+          🏠 Dashboard
           {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {route?.huis_logo && <img src={route.huis_logo} alt="" className="huislogo-kop" />}
         </span>
         <FotoBeoordelingPanel />
-        <div style={{ justifySelf: "end", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ justifySelf: "end", display: "flex", alignItems: "center", gap: 12 }}>
           {/* 💣 Spel resetten: op de pc hier; op de telefoon staat hij in het menu */}
           {!beperkt && <span className="alleen-pc-blok"><NieuwSpelKnop kort className="rl-knop rl-knop--rood" onKlaar={ververs} /></span>}
           <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
@@ -121,7 +121,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 
         {data.fout && (
           <div style={{
-            marginBottom: 20, padding: "12px 16px", borderRadius: 12,
+            marginBottom: 24, padding: "12px 16px", borderRadius: 12,
             background: "rgba(255,59,92,0.15)", border: "2px solid var(--red)", color: "#fecaca",
             fontSize: "0.85rem", fontWeight: 600,
           }}>
@@ -189,7 +189,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           {route && spelend.length > 0 && (
             <div className="dash-zijkolom">
               <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />
-              <Tijdlijn kleuren={kleuren} />
+              <Tijdlijn kleuren={kleuren} teams={spelend.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />
             </div>
           )}
         </div>

@@ -103,7 +103,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
   if (klaar === stappen.length && !toonStappen) {
     return (
       <div className="pr-gem-panel">
-        <div className="pr-gem-panel-inner" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <span style={{ flex: 1, minWidth: 200, fontFamily: "var(--font-display)", fontWeight: 700, color: "#BBF7D0" }}>
             ✅ Alles klaar — wacht tot de spelers op ‘Ga op pad’ drukken
           </span>
@@ -117,8 +117,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
 
   return (
     <div className="pr-gem-panel">
-      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ flex: 1 }}>
             <div className="pr-gem-label">📋 Spel klaarzetten · {klaar} van {stappen.length} klaar</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff" }}>{nu ? <>👉 Wat nu: {nu.titel}</> : "Alles klaar"}</div>

@@ -81,7 +81,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
         <VensterMetKop breedte={520} maxHoogte={92} label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>
           {gemaakt ? <InlogLijst inlogs={gemaakt} /> : (
             <form onSubmit={maak} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", gap: 12 }}>
                 <div className="form-group" style={{ margin: 0, width: 110 }}>
                   <label className="form-label">Aantal</label>
                   <input className="form-input" type="number" min={1} max={30} value={aantal} onChange={(e) => setAantal(Math.max(1, Math.min(30, Number(e.target.value))))} />

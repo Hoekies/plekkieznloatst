@@ -38,7 +38,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
 
   return (
     <Venster onSluit={onSluit} breedte={640} maxHoogte={94} rand={12}>
-        <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "14px 16px 16px" }}>
+        <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "14px 16px 16px" }}>
           {/* Kop: wie, plek en score */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span className="pr-gem-avatar speler-ring" style={{ width: 46, height: 46, fontSize: "1.6rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "👫"}</span>
@@ -85,7 +85,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
               {verslag.punten.map((p) => {
                 const kl = p.goed === true ? "#4ADE80" : p.goed === false ? "#F87171" : p.heeftVraag ? "#FBBF24" : "rgba(255,255,255,0.25)";
                 return (
-                  <div key={p.nr} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.04)", borderLeft: `3px solid ${kl}`, fontSize: "0.82rem" }}>
+                  <div key={p.nr} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.04)", borderLeft: `3px solid ${kl}`, fontSize: "0.82rem" }}>
                     <span style={{ fontWeight: 800, color: "var(--muted)", width: 18 }}>{p.nr}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ color: "#fff", fontWeight: 700 }}>{p.naam}</div>
@@ -104,7 +104,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div className="pr-gem-label">🎒 Items</div>
               {verslag.items.map((i, n) => (
-                <div key={n} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: "0.82rem", color: "var(--text)" }}>
+                <div key={n} style={{ display: "flex", alignItems: "center", gap: 12, fontSize: "0.82rem", color: "var(--text)" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/items/${i.type}.webp`} alt="" style={{ width: 24, height: 24 }} />
                   <span style={{ flex: 1 }}>

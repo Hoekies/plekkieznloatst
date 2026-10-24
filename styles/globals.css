@@ -232,7 +232,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   letter-spacing: -0.01em;
 }
 .admin-content {
-  padding: 28px;
+  padding: 24px;
   flex: 1;
 }
 
@@ -1719,7 +1719,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   .rl-tekstknoppen { display: flex; gap: 8px; width: 100%; }
   .rl-tekstknoppen > .rl-knop { flex: 1; width: auto !important; }
   .rl-tekstknoppen > .rl-leeg { display: none; }
-  .rl-icoonknoppen { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; }
+  .rl-icoonknoppen { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; }
   .pr-gem-card .rl-icoonknoppen .rl-knop--icoon { width: 100%; }
 }
 
@@ -2600,9 +2600,12 @@ button.route-stap:hover { color: var(--ink); }
 .rl-knop.schakel { display: inline-flex; align-items: center; }
 
 /* Lege schermen: icoon, uitleg en één knop, gecentreerd */
-.leeg-scherm { align-items: center !important; text-align: center; padding: 22px 18px !important; gap: 10px !important; }
-.leeg-scherm-icoon { font-size: 2rem; line-height: 1; }
-.leeg-scherm p { max-width: 460px; color: var(--text); }
+/* Leeg scherm: icoon in een gloeiend rondje, korte uitleg, één duidelijke knop */
+.leeg-scherm { align-items: center !important; text-align: center; padding: 28px 20px !important; gap: 12px !important;
+  border: 1.5px dashed rgba(255,255,255,0.18) !important; background: rgba(255,255,255,0.03) !important; }
+.leeg-scherm-icoon { width: 72px; height: 72px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; line-height: 1;
+  background: radial-gradient(circle at 50% 35%, rgba(255,217,59,0.25), rgba(124,58,237,0.25)); border: 1.5px solid rgba(255,217,59,0.45); box-shadow: 0 0 24px rgba(255,217,59,0.2); }
+.leeg-scherm p { max-width: 460px; color: var(--text); font-size: 0.95rem !important; line-height: 1.55; }
 
 /* Punten- en itemlijst (pc): omhoog/omlaag/verwijderen pas bij aanwijzen of als de regel gekozen is */
 @media (hover: hover) and (min-width: 769px) {
@@ -3361,3 +3364,38 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .hulp-aanwijs { outline: 3px solid #ffd93b !important; outline-offset: 3px; border-radius: 10px;
   box-shadow: 0 0 0 7px rgba(255,217,59,0.3), 0 0 28px rgba(255,217,59,0.75) !important; animation: hulp-puls 0.8s ease-in-out 4; position: relative; z-index: 960; }
 @keyframes hulp-puls { 50% { outline-offset: 7px; box-shadow: 0 0 0 12px rgba(255,217,59,0.15), 0 0 36px rgba(255,217,59,0.9); } }
+
+/* Tijdlijn: filter per team */
+.tijdlijn-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.tijdlijn-filter .rl-knop { height: 30px; padding: 0 10px; font-size: 0.78rem; }
+
+/* 🎯 Spelstrook (components/admin/SpelStrook.tsx): tijdens een spel onderaan elke beheerpagina, blijft in beeld */
+.spelstrook { position: sticky; bottom: 0; z-index: 850; margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); background: rgba(28,12,69,0.96); border-top: 1px solid rgba(255,217,59,0.4);
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.35); font-size: 0.86rem; color: var(--text); }
+.spelstrook strong { color: #fff; }
+.spelstrook-pauze { color: #FCD34D; font-weight: 700; }
+.spelstrook-let { padding: 4px 10px; border-radius: 999px; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.5); color: #FDE68A; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.spelstrook-let--hulp { background: rgba(255,138,0,0.2); border-color: rgba(255,138,0,0.7); color: #FFD9A0; }
+.spelstrook .rl-knop { height: 32px; }
+
+/* 📁 Routes: zoeken en mappen */
+.rl-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -8px 0 18px; }
+.rl-zoek { flex: 1 1 220px; max-width: 320px; height: 34px; box-sizing: border-box; }
+.rl-map { color: #FFE680; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+/* 📊 Vraag-statistiek in de puntenlijst van de route-editor */
+.lijst-stat { flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: var(--muted); padding: 1px 6px; border-radius: 999px; background: rgba(255,255,255,0.06); white-space: nowrap; }
+.lijst-stat--laag { color: #FCA5A5; background: rgba(239,68,68,0.15); }
+.lijst-stat--hoog { color: #86EFAC; background: rgba(34,197,94,0.12); }
+
+/* ── Rust in het beheer ──────────────────────────────────────────────────────
+   Afstanden uit één reeks (4 · 8 · 12 · 16 · 24 px). Kaarten en blokken een neutrale rand; kleur alleen waar
+   het iets betekent (koploper goud, actieve route groen, hulpvraag oranje: die staan bij de kaart zelf).
+   Vensters (buiten .admin-shell) houden hun gouden rand. */
+:root { --r1: 4px; --r2: 8px; --r3: 12px; --r4: 16px; --r5: 24px; }
+.admin-shell .pr-gem-panel { background: rgba(255,255,255,0.16); box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
+.admin-shell .pr-gem-card { background: rgba(255,255,255,0.12); }
+.admin-shell .pr-gem-card { margin-bottom: var(--r3); }
+/* Cijfers even breed (scores, tijden, aantallen), zodat ze netjes onder elkaar staan */
+.sk-score, .antw-score, .live-lijst-score, .beamer-score, .pr-hud-getal, .stat-strook, .sk-stats, .tijdlijn-tijd,
+.spelstrook, .detail-cijfers, .lijst-stat, .item-groep-aantal, .systeem-telling, .seizoen-telling, .uitslag-kaart, .vraag-klok { font-variant-numeric: tabular-nums; }

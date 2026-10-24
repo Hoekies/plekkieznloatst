@@ -8,8 +8,10 @@ import { createPortal } from "react-dom";
 // er een venster midden in beeld met alleen een icoon, de titel en twee knoppen (vraag geldt dan niet).
 export default function BevestigKnop({
   children, vraag, ja = "Ja", onBevestig, className = "btn btn-ghost", style, disabled, title,
-  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst, uitleg,
+  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst, uitleg, sneltoets,
 }: {
+  // ⌨️ Toets die deze knop indrukt (zie components/admin/Sneltoetsen.tsx)
+  sneltoets?: string;
   children: ReactNode;
   vraag: string;
   ja?: string;
@@ -51,7 +53,7 @@ export default function BevestigKnop({
     try { await onBevestig(); } finally { setBezig(false); setVragen(false); }
   }
 
-  const knop = <button type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip} onClick={() => setVragen(true)}>{children}</button>;
+  const knop = <button type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip} data-sneltoets={sneltoets} onClick={() => setVragen(true)}>{children}</button>;
 
   if (venster) {
     return (
@@ -60,16 +62,16 @@ export default function BevestigKnop({
         {vragen && createPortal(
           <div onClick={() => !bezig && setVragen(false)} style={{
             position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)",
-            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
           }}>
             <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 340, position: "relative" }}>
               <button type="button" className="editor-paneel-sluit venster-sluit" disabled={bezig} onClick={() => setVragen(false)} title="Annuleren" aria-label="Annuleren">✕</button>
               {/* Compact: icoon, titel (de vraag) en één knop; annuleren met het kruisje */}
-              <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", padding: "18px 44px 14px" }}>
+              <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "18px 44px 14px" }}>
                 {icoon && <div style={{ fontSize: "2rem", lineHeight: 1 }}>{icoon}</div>}
                 {titel && <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.3 }}>{titel}</div>}
                 {uitleg && <div style={{ fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.4 }}>{uitleg}</div>}
-                <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
+                <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
                   <button type="button" className={`rl-knop ${gevaarlijk ? "rl-knop--rood" : "rl-knop--cyan"}`} style={{ height: 40, minWidth: 120, padding: "0 22px", justifyContent: "center", fontWeight: 800 }}
                     disabled={bezig} onClick={bevestig} autoFocus>
                     {bezig ? "Bezig…" : knopTekst ?? "Ja"}

@@ -16,7 +16,7 @@ import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
-import Venster from "@/components/shared/Venster";
+import Venster, { VensterMetKop } from "@/components/shared/Venster";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 
@@ -87,7 +87,21 @@ export default function RoutesOverzicht() {
   const rang = (r: Route) => (r.is_active ? 0 : r.status === "gepubliceerd" ? 1 : 2);
   const gesorteerd = [...routes].sort((a, b) => rang(a) - rang(b) || a.name.localeCompare(b.name, "nl"));
   const GROEP_KOP = ["▶ Actief", "✅ Klaar", "✏️ Concept"];
-  const aantalIn = (n: number) => gesorteerd.filter((r) => rang(r) === n).length;
+  // 📁 Mappen en 🔍 zoeken (migratie 022): filter op naam en op map ("" = zonder map)
+  const [zoek, setZoek] = useState("");
+  const [mapFilter, setMapFilter] = useState<string | null>(null);
+  const [mapVoor, setMapVoor] = useState<Route | null>(null);
+  const [nieuweMap, setNieuweMap] = useState("");
+  const mappen = [...new Set(routes.map((r) => r.map).filter((m): m is string => !!m))].sort((a, b) => a.localeCompare(b, "nl"));
+  const gefilterd = gesorteerd.filter((r) => (!zoek.trim() || r.name.toLowerCase().includes(zoek.trim().toLowerCase()))
+    && (mapFilter === null || (mapFilter === "" ? !r.map : r.map === mapFilter)));
+  const aantalIn = (n: number) => gefilterd.filter((r) => rang(r) === n).length;
+  async function zetMap(r: Route, map: string | null) {
+    const res = await fetch(`/api/admin/routes/${r.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ map }) }).catch(() => null);
+    if (!res?.ok) { toonMelding(res ? await foutUitleg(res, "Map opslaan") : uitlegBijStatus(0, "Map opslaan"), "fout"); return; }
+    setRoutes((rs) => rs.map((x) => (x.id === r.id ? { ...x, map } : x)));
+    setMapVoor(null); setNieuweMap("");
+  }
 
   async function laad() {
     const res = await fetch("/api/admin/routes");
@@ -349,7 +363,7 @@ export default function RoutesOverzicht() {
   return (
     <div>
       {/* Nieuwe route links, importeren rechts (zoals bij Groepen) */}
-      <div className="actie-rij" style={{ marginBottom: 22 }}>
+      <div className="actie-rij" style={{ marginBottom: 24 }}>
         <button className="btn btn-primary actie-knop" onClick={() => setAanmaken(true)}>
           + <span className="alleen-pc">Nieuwe route</span><span className="alleen-mobiel">Route</span>
         </button>
@@ -487,16 +501,54 @@ export default function RoutesOverzicht() {
         </Venster>
       )}
 
+      {/* 🔍 Zoeken en 📁 mappen (alleen als er iets te zoeken of te kiezen valt) */}
+      {!laden && (routes.length > 4 || mappen.length > 0) && (
+        <div className="rl-filter">
+          <input className="form-input rl-zoek" value={zoek} onChange={(e) => setZoek(e.target.value)} placeholder="🔍 Zoek een route…" aria-label="Zoek een route" />
+          {mappen.length > 0 && <>
+            <button type="button" className={`rl-knop${mapFilter === null ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === null} onClick={() => setMapFilter(null)}>Alle</button>
+            {mappen.map((m) => (
+              <button key={m} type="button" className={`rl-knop${mapFilter === m ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === m} onClick={() => setMapFilter(mapFilter === m ? null : m)}>
+                📁 {m} <span className="seizoen-telling">{routes.filter((r) => r.map === m).length}</span>
+              </button>
+            ))}
+            {routes.some((r) => !r.map) && (
+              <button type="button" className={`rl-knop${mapFilter === "" ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === ""} onClick={() => setMapFilter(mapFilter === "" ? null : "")}>Zonder map</button>
+            )}
+          </>}
+        </div>
+      )}
+
+      {/* 📁 Map kiezen voor een route */}
+      {mapVoor && (
+        <VensterMetKop icoon="📁" label="Map" titel={mapVoor.name} breedte={400} onSluit={() => { setMapVoor(null); setNieuweMap(""); }}>
+          {mappen.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {mappen.map((m) => (
+                <button key={m} type="button" className={`rl-knop${mapVoor.map === m ? " rl-knop--cyan" : ""}`} onClick={() => zetMap(mapVoor, m)}>📁 {m}</button>
+              ))}
+            </div>
+          )}
+          <form style={{ display: "flex", gap: 6 }} onSubmit={(e) => { e.preventDefault(); if (nieuweMap.trim()) zetMap(mapVoor, nieuweMap.trim()); }}>
+            <input className="form-input" style={{ flex: 1 }} value={nieuweMap} onChange={(e) => setNieuweMap(e.target.value)} placeholder="Nieuwe map, bijv. Bedrijfsuitjes" maxLength={40} />
+            <button type="submit" className="rl-knop rl-knop--cyan" disabled={!nieuweMap.trim()}>＋ Maken</button>
+          </form>
+          {mapVoor.map && <button type="button" className="es-link" style={{ alignSelf: "flex-start" }} onClick={() => zetMap(mapVoor, null)}>Uit de map halen</button>}
+        </VensterMetKop>
+      )}
+
       {laden ? (
         <LaadBlokjes aantal={3} hoogte={86} />
       ) : routes.length === 0 ? (
         <LeegScherm icoon="🗺️" knop={{ label: "+ Nieuwe route", onClick: () => setAanmaken(true) }}>
           Nog geen routes. Maak er een, of importeer een route die je eerder hebt geëxporteerd (📥 rechtsboven).
         </LeegScherm>
+      ) : gefilterd.length === 0 ? (
+        <p style={{ color: "var(--muted)", fontSize: "0.88rem" }}>Geen route gevonden{zoek.trim() ? ` voor “${zoek.trim()}”` : ""}.</p>
       ) : (
         <div>
-          {gesorteerd.map((r, i) => {
-            const nieuweGroep = i === 0 || rang(gesorteerd[i - 1]) !== rang(r);
+          {gefilterd.map((r, i) => {
+            const nieuweGroep = i === 0 || rang(gefilterd[i - 1]) !== rang(r);
             const info = MODUS_INFO[r.modus];
 
             return (
@@ -520,6 +572,7 @@ export default function RoutesOverzicht() {
                     {/* Telefoon: spelsoort en datum samen op één regel */}
                     <span className="rl-meta">
                       <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>
+                      {r.map && <span className="rl-map" title="Map">📁 {r.map}</span>}
                       {plaatsen[r.id] && <span className="rl-plaats" title="Plaats van het startpunt">📍 {plaatsen[r.id]}</span>}
                       {r.bewerkt_op && (
                         <span className="rl-datum" title={new Date(r.bewerkt_op).toLocaleString("nl-NL")}>
@@ -560,6 +613,8 @@ export default function RoutesOverzicht() {
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
                     {kopieBezig === r.id ? "…" : "📋"}<span className="rl-knop-label">Kopiëren</span>
                   </BevestigKnop>
+                  <button className="rl-knop rl-knop--icoon" data-tip="In een map zetten (om je routes te ordenen)" aria-label="Map"
+                    onClick={() => setMapVoor(r)}>📁<span className="rl-knop-label">Map</span></button>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
                     disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : "📤"}<span className="rl-knop-label">Exporteren</span></button>
                   {!r.is_active && r.status === "gepubliceerd" ? (

@@ -94,7 +94,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
       // Basiskaart daarna: vectortegels van OpenFreeMap (scherp op elk zoomniveau),
       // anders de gewone OSM-plaatjes. Markers en sporen staan er al.
-      const beginStijl = bewaardeStijl();
+      const beginStijl = bewaardeStijl("donker");
       setStijl(beginStijl);
       voegBasiskaartToe(L, map, beginStijl).then((b) => {
         if (!mounted) return;

@@ -135,12 +135,12 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Voorproefje</span>
+        <span className="admin-topbar-titel">📄 Voorproefje</span>
       </div>
       <div className="admin-content" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* Bediening */}
         <div className="pr-gem-panel">
-          <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
               <Link href="/admin/routes" className="rl-knop actie-knop">← Routes</Link>
               <span style={{ flex: 1 }} />
@@ -200,7 +200,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               `}</style>
 
               {/* Kop */}
-              <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/spellogo/breed.webp" alt="PointRush" style={{ height: 76, width: "auto" }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -289,7 +289,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               )}
 
               {/* Onderaan */}
-              <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 14, padding: "10px 14px", borderRadius: 14, background: "rgba(255,217,59,0.12)", border: "1.5px solid rgba(255,217,59,0.5)" }}>
+              <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 14, background: "rgba(255,217,59,0.12)", border: "1.5px solid rgba(255,217,59,0.5)" }}>
                 <div style={{ background: "#fff", padding: 5, borderRadius: 8, lineHeight: 0 }}>
                   <QRCodeSVG value={SITE} size={62} />
                 </div>

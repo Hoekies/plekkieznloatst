@@ -2,55 +2,32 @@
 
 import { useEffect, useRef, useState } from "react";
 import { speelDong } from "@/lib/sounds";
+import { useBeheerStatus, verversBeheerStatus, type HulpMelding } from "@/components/admin/useBeheerStatus";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
-type Melding = { id: string; sessie_id: string; team: string; punt: string | null; sinds: string };
-
-const POLL_MS = 5000;
 
 function minutenGeleden(iso: string): string {
   const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   return min < 1 ? "net" : `${min} min geleden`;
 }
 
-// Op elk admin-scherm: een team meldt dat zijn volgende punt niet bereikbaar is
+// Op elk admin-scherm: een team meldt dat zijn volgende punt niet bereikbaar is. De meldingen komen uit de
+// gedeelde bron (useBeheerStatus); de knipperende tabtitel regelt TabTeller.
 export default function HulpMeldingen() {
-  const [meldingen, setMeldingen] = useState<Melding[]>([]);
+  const { hulp: meldingen } = useBeheerStatus();
   const [bezig, setBezig] = useState<string | null>(null);
   const gezienRef = useRef<Set<string>>(new Set());
 
-  async function haalOp() {
-    try {
-      const res = await fetch("/api/admin/hulp");
-      if (!res.ok) return;
-      const lijst: Melding[] = await res.json();
-      const nieuw = lijst.some((m) => !gezienRef.current.has(m.id));
-      lijst.forEach((m) => gezienRef.current.add(m.id));
-      if (nieuw) speelDong();
-      setMeldingen(lijst);
-    } catch { /* verbindingsfout */ }
-  }
-
+  // Nieuwe hulpvraag: een dong
   useEffect(() => {
-    haalOp();
-    const timer = setInterval(haalOp, POLL_MS);
-    return () => clearInterval(timer);
-  }, []);
+    const nieuw = meldingen.some((m) => !gezienRef.current.has(m.id));
+    meldingen.forEach((m) => gezienRef.current.add(m.id));
+    if (nieuw) speelDong();
+  }, [meldingen]);
+  const haalOp = () => verversBeheerStatus(false);
 
-  // Knipperende tabtitel zolang er iets openstaat, ook als het tabblad op de achtergrond staat
-  useEffect(() => {
-    if (meldingen.length === 0) return;
-    const origineel = document.title;
-    let aan = false;
-    const timer = setInterval(() => {
-      aan = !aan;
-      document.title = aan ? `⚠️ (${meldingen.length}) Hulp nodig!` : origineel;
-    }, 1000);
-    return () => { clearInterval(timer); document.title = origineel; };
-  }, [meldingen.length]);
-
-  async function vrijgeven(m: Melding) {
+  async function vrijgeven(m: HulpMelding) {
     setBezig(m.id);
     const res = await fetch(`/api/admin/sessies/${m.sessie_id}/punt-vrijgeven`, { method: "POST" });
     if (!res.ok) {
@@ -61,7 +38,7 @@ export default function HulpMeldingen() {
     haalOp();
   }
 
-  async function negeren(m: Melding) {
+  async function negeren(m: HulpMelding) {
     setBezig(m.id);
     await fetch(`/api/admin/hulp/${m.id}`, { method: "PATCH" });
     setBezig(null);
@@ -73,7 +50,7 @@ export default function HulpMeldingen() {
   return (
     <div style={{
       position: "fixed", top: 16, right: 16, zIndex: 3000,
-      display: "flex", flexDirection: "column", gap: 10,
+      display: "flex", flexDirection: "column", gap: 12,
       width: "min(360px, calc(100vw - 32px))",
     }}>
       {meldingen.map((m) => (
@@ -87,7 +64,7 @@ export default function HulpMeldingen() {
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.95rem", marginBottom: 2 }}>
             ⚠️ {m.team} kan een punt niet bereiken
           </div>
-          <div style={{ fontSize: "0.82rem", opacity: 0.9, marginBottom: 10 }}>
+          <div style={{ fontSize: "0.82rem", opacity: 0.9, marginBottom: 12 }}>
             {m.punt ? <>Punt: <strong>{m.punt}</strong> · </> : null}{minutenGeleden(m.sinds)}
           </div>
           <div style={{ display: "flex", gap: 8 }}>

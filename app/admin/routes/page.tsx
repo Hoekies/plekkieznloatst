@@ -4,7 +4,7 @@ export default function RoutesPage() {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Routes</span>
+        <span className="admin-topbar-titel">🗺️ Routes</span>
       </div>
       <div className="admin-content">
         <RoutesOverzicht />

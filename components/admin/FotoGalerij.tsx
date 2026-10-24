@@ -77,7 +77,7 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
   const wacht = f.foto_status === "wacht";
   return (
     <Venster onSluit={onSluit} breedte={640} maxHoogte={96} donker={0.88} rand={12}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "14px 14px 12px" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "14px 14px 12px" }}>
           <VensterKop label={<>📸 {nr} van {totaal} · {f.punt_naam}</>} titel={<>{f.icon ?? "👫"} {f.team}</>} onSluit={onSluit} />
           {f.vraag_tekst && <div style={{ fontSize: "0.84rem", color: "var(--text)" }}>{f.vraag_tekst}</div>}
           <div className="foto-groot">
@@ -87,7 +87,7 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
           </div>
           {wacht ? (
             <>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
                 <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>Punten</span>
                 <input type="number" min={0} max={f.max_punten} className="form-input" style={{ width: 90, textAlign: "center", fontWeight: 800 }}
                   value={punten} onChange={(e) => setPunten(Number(e.target.value))} />

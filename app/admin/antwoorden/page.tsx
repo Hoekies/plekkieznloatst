@@ -6,7 +6,7 @@ export default async function AntwoordenPagina() {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Antwoorden &amp; uitslag</span>
+        <span className="admin-topbar-titel">📝 Antwoorden &amp; uitslag</span>
       </div>
       <div className="admin-content">
         <AntwoordenOverzicht beperkt={user?.app_metadata?.rol === "helper"} />

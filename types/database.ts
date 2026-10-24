@@ -12,6 +12,8 @@ export type RouteModus = "sequentieel" | "verspreid";
 export interface Route {
   id: string;
   name: string;
+  // 📁 Map in het routeoverzicht (migratie 022); null = geen map
+  map?: string | null;
   status: RouteStatus;
   is_active: boolean;
   modus: RouteModus;

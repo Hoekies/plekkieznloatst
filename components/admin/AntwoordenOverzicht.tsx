@@ -267,7 +267,7 @@ function AntwoordRegel({ rij: r, bezig, onGoedkeuren, onFoto }: {
     ? r.foto_status === "goedgekeurd" ? "#4ADE80" : r.foto_status === "afgekeurd" ? "#F87171" : "#FBBF24"
     : r.stem_open ? "#A78BFA" : r.is_correct ? "#4ADE80" : r.bijna_goed ? "#FBBF24" : "#F87171";
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", borderRadius: 10, background: r.bijna_goed ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.04)", borderLeft: `3px solid ${kleur}` }}>
+    <div style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "8px 10px", borderRadius: 10, background: r.bijna_goed ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.04)", borderLeft: `3px solid ${kleur}` }}>
       <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem" }}>
         <div style={{ color: "var(--muted)", fontSize: "0.72rem" }}>{r.punt_naam}</div>
         <div style={{ color: "var(--ink)", fontWeight: 600 }}>{r.vraag_tekst}</div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
+import { meldLiveData } from "@/components/admin/useBeheerStatus";
 
 // Live gegevens voor dashboard en live kaart: meteen ophalen, daarna elke `pollMs` én bij elke wijziging
 // in de database (realtime). realtimeOk = de live-verbinding staat.
@@ -13,7 +14,8 @@ export function useLiveData(initData: LiveData, pollMs: number, kanaal: string) 
   async function ververs() {
     try {
       const res = await fetch("/api/admin/live/spelers");
-      if (res.ok) setData(await res.json());
+      // Ook doorgeven aan de gedeelde bron (tabteller, strook), zodat die niet nog eens ophaalt
+      if (res.ok) { const d = await res.json(); setData(d); meldLiveData(d); }
     } catch { /* verbindingsfout */ }
   }
 

@@ -61,7 +61,7 @@ export default function VraagStatistiek({ teams, onOokGoed, onSluitStemming }: {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {lijst.map((s, i) => {
         const beoordeeld = s.aantal - s.wacht;
         const pct = beoordeeld ? Math.round((s.goed / beoordeeld) * 100) : 0;
@@ -95,7 +95,7 @@ export default function VraagStatistiek({ teams, onOokGoed, onSluitStemming }: {
         return (
           <div key={s.punt_id} className="pr-gem-card" style={{ marginBottom: 0 }}>
             <div className="pr-gem-card-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 6 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>{i + 1}. {s.punt_naam}{s.vraag_type === "foto_opdracht" ? " · 📸 foto" : ""}</div>
                   <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}>{s.vraag_tekst}</div>

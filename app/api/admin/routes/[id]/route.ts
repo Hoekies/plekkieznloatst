@@ -22,6 +22,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const body = await request.json();
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
+  // 📁 Map voor het routeoverzicht (migratie 022); leeg = geen map
+  if ("map" in body) toegestaan.map = typeof body.map === "string" && body.map.trim() ? body.map.trim().slice(0, 40) : null;
   if (body.status === "concept" || body.status === "gepubliceerd") toegestaan.status = body.status;
   // modus wordt alleen bij aanmaken gezet (zie /api/admin/routes) en kan hierna niet meer wijzigen.
   if (body.is_active === false) toegestaan.is_active = false;
@@ -101,6 +103,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
   if (error && /huisstijl|welkom_foto|geluid_set/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 016 (huisstijl, geluid en stemvraag) in Supabase" }, { status: 500 });
+  }
+  if (error && /routes.map|column "?map"?|vraag_statistiek/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 022 (routes in mappen) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel|verboden_gebieden/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 014 (puzzelwoord en verboden gebieden) in Supabase" }, { status: 500 });

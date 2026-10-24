@@ -12,7 +12,7 @@ export default async function LiveKaartPagina() {
     return (
       <>
         <div className="admin-topbar">
-          <span className="admin-topbar-titel">Live kaart</span>
+          <span className="admin-topbar-titel">📡 Live kaart</span>
         </div>
         <div className="admin-content">
           <LeegScherm icoon="📡" knop={helper ? undefined : { label: "🗺️ Naar routes", href: "/admin/routes" }}>

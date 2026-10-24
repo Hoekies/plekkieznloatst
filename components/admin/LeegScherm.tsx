@@ -11,8 +11,8 @@ export default function LeegScherm({ icoon, children, knop }: {
       <span className="leeg-scherm-icoon" aria-hidden>{icoon}</span>
       <p>{children}</p>
       {knop && (knop.href
-        ? <Link href={knop.href} className="rl-knop rl-knop--cyan actie-knop">{knop.label}</Link>
-        : <button type="button" className="rl-knop rl-knop--cyan actie-knop" onClick={knop.onClick}>{knop.label}</button>)}
+        ? <Link href={knop.href} className="rl-knop hoofdknop actie-knop">{knop.label}</Link>
+        : <button type="button" className="rl-knop hoofdknop actie-knop" onClick={knop.onClick}>{knop.label}</button>)}
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function UitlegPagina() {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Handleiding</span>
+        <span className="admin-topbar-titel">📖 Handleiding</span>
       </div>
       <div className="admin-content">
         {/* Eigen bestand uit de repository, geen invoer van gebruikers */}

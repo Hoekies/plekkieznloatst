@@ -59,7 +59,7 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
 
   return (
     <div className="form-group puzzel-inst">
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <label className="form-label" style={{ margin: 0, flex: 1 }}>🧩 Puzzelwoord</label>
         <div className="segment" role="radiogroup" aria-label="Puzzelwoord gebruiken" style={{ width: 150 }}>
           <button type="button" role="radio" aria-checked={!aan} className={!aan ? "aan" : ""} onClick={() => zetAan(false)}>Uit</button>

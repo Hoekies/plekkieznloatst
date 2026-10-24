@@ -52,7 +52,7 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
 
   return (
     <div className="testronde pr-gem-panel">
-      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 14px 12px" }}>
+      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "14px 14px 12px" }}>
         <VensterKop label={<>🧪 Testen · 📋 punt voor punt · {stap + 1} van {punten.length}</>} titel={<>{label} · {punt.name || "naamloos"}</>} onSluit={onSluit} sluitLabel="Testen sluiten">
           {onLopen && <button type="button" className="es-link" onClick={onLopen} title="Over de kaart lopen als testspeler">🚶 Lopen</button>}
         </VensterKop>

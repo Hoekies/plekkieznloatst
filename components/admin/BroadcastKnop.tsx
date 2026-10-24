@@ -40,7 +40,7 @@ export default function BroadcastKnop({ alsIcoon = false, team, groot = false }:
         )
       ) : alsIcoon ? (
         <button className="btn btn-outline header-knop info-knop" onClick={() => setOpen(true)}
-          data-tip="Bericht sturen aan alle spelers" data-tip-pos="onder" aria-label="Bericht sturen">
+          data-tip="Bericht sturen aan alle spelers (B)" data-tip-pos="onder" aria-label="Bericht sturen" data-sneltoets="b">
           <span className="header-knop-icoon" aria-hidden>📢</span>
         </button>
       ) : (

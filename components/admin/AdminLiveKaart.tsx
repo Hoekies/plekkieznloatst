@@ -102,7 +102,7 @@ export default function AdminLiveKaart({ initData }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">{replay ? "Replay" : "Live kaart"}</span>
+        <span className="admin-topbar-titel">{replay ? "⏪ Replay" : "📡 Live kaart"}</span>
         {/* Eigen logo van de organisatie (huisstijl): groot in de lege ruimte midden in de balk */}
         <span className="topbar-huislogo-vak">
           {/* eslint-disable-next-line @next/next/no-img-element */}

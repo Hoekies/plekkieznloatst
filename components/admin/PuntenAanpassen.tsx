@@ -42,7 +42,7 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
                   </button>
                 ))}
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", gap: 12 }}>
                 <div className="form-group" style={{ margin: 0, width: 100 }}>
                   <label className="form-label">Punten</label>
                   <input className="form-input" type="number" value={delta} onChange={(e) => setDelta(Math.round(Number(e.target.value)))} style={{ textAlign: "center", fontWeight: 800 }} />

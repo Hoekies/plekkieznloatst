@@ -107,7 +107,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
                       📍 {inz.punt_naam} · {new Date(inz.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
                     </div>
                     <FotoViewer key={inz.id} pad={inz.foto_pad} />
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
                       <span style={{ fontSize: "0.86rem", color: "var(--text)" }}>Punten</span>
                       <input type="number" min={0} max={inz.max_punten} className="form-input" style={{ width: 90, textAlign: "center", fontWeight: 800 }}
                         value={punten} onChange={(e) => setPuntenMap((m) => ({ ...m, [inz.id]: Number(e.target.value) }))} />

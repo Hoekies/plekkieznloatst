@@ -64,7 +64,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
       const maplibre = await laadMaplibre();
       if (!actief || !containerRef.current || mapRef.current) return;
       maplibreRef.current = maplibre;
-      const beginStijl = bewaardeStijl();
+      const beginStijl = bewaardeStijl("donker");
       setStijl(beginStijl);
       const alle = teams.flatMap((t) => t.spoor.map((p): [number, number] => [p[2], p[1]]));
       const grenzen = alle.length ? alle.reduce((b, c) => b.extend(c), new maplibre.LngLatBounds(alle[0], alle[0])) : null;
@@ -254,7 +254,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
       <div style={{ flex: 1, minHeight: 0, position: "relative", zIndex: 0 }}>
         <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
         {geenWebgl && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)", padding: 20, textAlign: "center" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)", padding: 24, textAlign: "center" }}>
             De replay heeft een browser met WebGL nodig. Probeer het op een andere computer of telefoon.
           </div>
         )}

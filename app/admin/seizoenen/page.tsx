@@ -5,7 +5,7 @@ export default function SeizoenenPagina() {
   return (
     <>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Seizoenen en feestdagen</span>
+        <span className="admin-topbar-titel">🗓️ Seizoenen en feestdagen</span>
       </div>
       <div className="admin-content">
         <div className="pr-gem-panel" style={{ maxWidth: 900 }}>

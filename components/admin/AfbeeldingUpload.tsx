@@ -175,7 +175,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
       <div className="pr-gem-panel" style={{ flex: "none", maxWidth: 420, width: "100%", position: "relative" }}>
       <button type="button" className="editor-paneel-sluit venster-sluit" onClick={annuleren} disabled={laden} title="Annuleren" aria-label="Annuleren">✕</button>
       <div className="pr-gem-panel-inner" style={{
-        display: "flex", flexDirection: "column", gap: 14, padding: "18px 18px 16px",
+        display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px",
         maxHeight: "90vh", overflow: "auto",
       }}>
         <div>
@@ -228,7 +228,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
         </div>
 
         {/* Zoomschuif: links de hele foto, rechts ingezoomd */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: "0.74rem", color: "var(--text)", whiteSpace: "nowrap" }}>Hele foto</span>
           <input
             type="range" min={1} max={maxZoom} step={0.01}

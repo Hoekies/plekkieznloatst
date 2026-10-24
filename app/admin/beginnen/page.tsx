@@ -107,7 +107,7 @@ export default function BeginnenPagina() {
         .sg-faq strong { display: block; color: #fff; margin-bottom: 4px; }
       `}</style>
       <div className="admin-topbar">
-        <span className="admin-topbar-titel">Snel aan de slag</span>
+        <span className="admin-topbar-titel">🧭 Snel aan de slag</span>
       </div>
       <div className="admin-content">
         <div className="sg">

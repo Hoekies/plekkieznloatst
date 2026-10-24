@@ -34,7 +34,7 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
       mapRef.current = map;
       puntLaag.current = L.layerGroup().addTo(map);
       teamLaag.current = L.layerGroup().addTo(map);
-      voegBasiskaartToe(L, map, bewaardeStijl()).catch(() => {});
+      voegBasiskaartToe(L, map, bewaardeStijl("donker")).catch(() => {});
       tekenen();
       // Pas na de opbouw van de pagina weet de kaart hoe groot hij is: dan opnieuw passend inzoomen
       waarnemer = new ResizeObserver(() => { map.invalidateSize(); gebiedRef.current = ""; tekenen(); });

@@ -1,5 +1,7 @@
 // Snelle zelftest van de rekenregels die het spel eerlijk houden (draait in npm run controle)
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
@@ -54,6 +56,24 @@ test("seizoensachtergrond op datum", () => {
   assert.equal(huidigThema(new Date(2026, 10, 8), alle)?.sleutel, "herfst");
   assert.equal(huidigThema(new Date(2027, 0, 3), alle)?.sleutel, "oudnieuw");
   assert.equal(huidigThema(new Date(2026, 9, 24), new Set(["herfst"]))?.sleutel, "herfst");
+});
+
+// 👆 De hulpkolom wijst knoppen aan op hun naam: elke vetgedrukte knopnaam in de handleiding (met een emoji
+// ervoor) moet ook echt in de app staan. "A / B", "A → B" en "A en B" tellen als losse namen; tekst tussen
+// haakjes telt niet mee. Uitzonderingen: kopjes in de handleiding die geen knop zijn.
+test("handleiding noemt alleen knoppen die bestaan", () => {
+  const GEEN_KNOP = ["mini-kaart"];
+  const norm = (t: string) => t.toLowerCase().replace(/&amp;/g, "&").replace(/\(.*?\)/g, " ")
+    .replace(/[\p{Extended_Pictographic}️‍]/gu, "").replace(/[+·…:"“”'‘’]/g, " ").replace(/\s+/g, " ").trim();
+  const bestanden = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true })
+    .flatMap((e) => e.isDirectory() ? bestanden(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []);
+  const bron = norm(["app", "components", "lib"].flatMap(bestanden).map((b) => fs.readFileSync(b, "utf8")).join("\n").replace(/[{}<>`$/=]/g, " "));
+  const md = fs.readFileSync("docs/beheerdershandleiding.md", "utf8");
+  const namen = [...md.matchAll(/\*\*(\p{Extended_Pictographic}[^*]{2,60})\*\*/gu)]
+    .map((m) => m[1].trim()).filter((k) => !/[.:?]$/.test(k))
+    .flatMap((k) => k.split(/\s(?:\/|→|en)\s/)).map(norm).filter((k) => k.length >= 3 && !GEEN_KNOP.includes(k));
+  const mis = [...new Set(namen.filter((k) => !bron.includes(k)))];
+  assert.deepEqual(mis, [], `Niet in de app gevonden (pas de handleiding of de knop aan): ${mis.join(", ")}`);
 });
 
 console.log(`✅ Zelftest: ${goed} onderdelen goed`);

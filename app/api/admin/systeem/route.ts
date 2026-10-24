@@ -24,6 +24,7 @@ const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolo
   { nr: "018", bestand: "018_puzzel_gok.sql", wat: "puzzelwoord raden na de finish", tabel: "player_sessions", kolom: "puzzel_gok" },
   { nr: "019", bestand: "019_seizoen_achtergronden.sql", wat: "achtergronden per seizoen en feestdag", tabel: "seizoen_achtergronden" },
   { nr: "020", bestand: "020_seizoen_logos.sql", wat: "spellogo per seizoen en feestdag", tabel: "seizoen_achtergronden", kolom: "logo_pad" },
+  { nr: "022", bestand: "022_routes_map_statistiek.sql", wat: "routes in mappen en vraag-statistiek", tabel: "routes", kolom: "map" },
 ];
 
 export async function GET() {
