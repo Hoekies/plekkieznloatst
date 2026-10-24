@@ -1,54 +1,55 @@
 # Afbeelding-prompt — Route op volgorde (Sequentieel)
 
-Plak de tekst hieronder (in de codeblok) in ChatGPT om een geïllustreerde, posterachtige
-spelhandleiding te laten genereren voor het speltype **Route op volgorde**. Gebaseerd op
-[spel-sequentieel.md](spel-sequentieel.md) en het kleurenpalet van de app.
+Prompt voor **Codex**: maakt de instructiekaart voor het speltype **Route op volgorde**, in dezelfde stijl
+als de spelerskaart (`public/handleiding.jpg`), en vervangt de kaart in `public/kaarten/`. Maak eerst de
+spelerskaart, dan deze: Codex neemt de stijl daarvan over. Gebaseerd op [spel-sequentieel.md](spel-sequentieel.md).
 
 ```
-Create a single vertical poster-style infographic (portrait, 1024x1536) that works as a
-quick-reference game manual for a GPS scavenger hunt mobile game called "PointRush".
-All text, labels and headers inside the image must be in DUTCH, written exactly as given
-below — do not translate or invent extra text.
+Maak een nieuwe printbare instructiekaart voor het speltype "Route op volgorde" van de GPS-game PointRush en vervang daarmee de bestaande kaart in deze repo. Pas geen code aan.
 
-VISUAL STYLE: dark, glowing "game night" aesthetic. Background is a radial gradient from
-deep purple (#3a1a73) through indigo (#1c0c45) to near-black (#0c0322), like a night sky.
-Rounded glassy dark-navy panels (like frosted glass cards, subtle cyan border glow) hold
-each section. Bold, chunky, rounded display typography (similar to "Space Grotesk" bold),
-white/light-blue body text (#e8f0ff). Accent colors used for icons, borders and highlights:
-electric cyan (#00d9ff), gold/yellow (#ffd93b), orange (#ff8a00), green (#22c55e), red
-(#ff3b5c), purple (#8b5cf6). Small glowing sparkle/star particles floating in the background.
-Flat vector illustration style, game-UI look, NOT photorealistic.
+STIJL: precies dezelfde stijl als de spelerskaart public/handleiding.jpg (achtergrond, panelen met gouden rand, letters, kleuren, oranje pillen en balk, sparkles). Gebruik public/logo-breed.png als logo (exact overnemen: niet hertekenen, niet herletteren, niet verkleuren) en de iconen uit public/items/<naam>.webp als voorbeeld voor items.
 
-TITLE (top banner, large): "🎯 Route op volgorde — speluitleg"
-Subtitle beneath it: "Loop de route. Pak de punten. Saboteer je vrienden."
+FORMAAT EN VOUWEN (belangrijk):
+- Staand, verhouding 2:3 (1024x1536), voor A5.
+- De kaart wordt dubbel gevouwen: precies op de helft van de hoogte een horizontale vouwlijn als dunne witte STIPPELLIJN over de hele breedte, rechts klein het woord "vouwlijn".
+- GEEN paneel, tekst of icoon over de vouwlijn: alles volledig in de bovenste óf onderste helft, met minstens 3% ruimte boven en onder de lijn. Alles minstens 5% van de buitenrand af.
 
-SECTION 1 — "Hoe begin je?" (4 numbered steps in a row or stack, each with a small icon):
-1. 📱 Open de link en log in met je groep
-2. 🦊 Kies een teamnaam en icoon
-3. 📍 Geef locatietoegang
-4. 🚀 Druk op "Ga op pad"
+TAAL: alle tekst in het NEDERLANDS, exact zoals hieronder. Geen andere tekst toevoegen of vertalen.
 
-SECTION 2 — "De kaart" (a small stylized map illustration with a legend of 5 map symbols):
-- 🦊 jullie teamicoon in een blauw rondje = jouw locatie
-- 🔢 genummerd cirkeltje = het volgende doel
-- ✅ groen vinkje = al bezocht
-- 👥 lichte stip = ander team (globale positie)
-- ⛔ onzichtbaar = Plek zooi-val
-Caption under the map: "Toekomstige punten zijn onzichtbaar — pas als je het huidige punt
-hebt afgerond, verschijnt het volgende."
+BOVENSTE HELFT:
+1. Het logo, bovenaan in het midden.
+2. Glanzende oranje pil: "ROUTE OP VOLGORDE"
+3. Eén korte regel eronder: "Loop de punten één voor één af. Wie de meeste punten haalt, wint."
+4. Twee panelen naast elkaar:
+   Paneel "Zo gaat het" (genummerd 1–4 in gouden rondjes):
+   1 📷 Scan de QR-code op je kaartje
+   2 🦊 Kies een teamnaam en een icoon
+   3 🚀 Druk op "Op pad!"
+   4 📍 Loop naar het blauwe punt: daar krijg je een vraag
+   Paneel "Op de kaart":
+   🔵 Blauw punt = hier moet je heen
+   ❗ Oranje ! = je bent er: beantwoord de vraag
+   ✅ Groen = punt gehaald
+   👀 Pas na dit punt zie je het volgende
+   🏁 Vlag = de finish
 
-SECTION 3 — "Je startitems" with two icon cards side by side:
-🍌 Banaan — "Na de eerste 100 meter krijg je startitems van de organisatie, meestal een banaan.
-Gooi hem naar een tegenstander: hun volgende punt wordt omgewisseld (het eindpunt nooit)."
-⛔ Plek zooi — "Onzichtbare val op de kaart. Loop je erover, dan sta je een paar minuten stil."
+ONDERSTE HELFT:
+5. Paneel "Items" met twee grote kaartjes naast elkaar:
+   🍌 Banaan — "Je start met een banaan. Gooi hem naar een ander team: hun volgende twee punten ruilen. Zij lopen dus om."
+   ⛔ Plek zooi — "Een onzichtbare val op de route. Loop je erin, dan sta je even stil."
+   Eronder klein: "De organisatie kan andere startitems kiezen. Tik onderin op een item om het te gebruiken."
+6. Paneel "Tips":
+   💡 Bewaar je banaan voor het juiste moment
+   🎯 Gooi hem naar een team dat bijna bij een punt is
+   🔔 Klokslag? Een ander team valt je aan!
+   🧩 Puzzelwoord? Elke goede vraag = een letter
+7. Onderaan een brede glanzende oranje balk met witte tekst: "PAK DE PUNTEN EN MAAK HET WOORD!"
 
-SECTION 4 — "Tips" (short bullet list with a lightbulb icon 💡):
-- Bewaar je banaan voor het juiste moment
-- Gooi hem naar een team dat bijna bij een punt is
-- Je items blijven bewaard, ook als de app herlaadt
+Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime marges, consequente ronde vormen, geen extra tekst.
 
-FOOTER banner: "🏁 Bij het eindpunt staat je score vast — bekijk de eindstand!"
-
-Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
-photorealistic humans, no readable brand logos other than the "PointRush" title itself.
+NA HET MAKEN:
+1. Sla het origineel op als "extra info/instructiekaart/route-op-volgorde.png".
+2. Vervang public/kaarten/route-op-volgorde.webp en public/kaarten/route-op-volgorde.jpg (1024x1536; webp en jpg kwaliteit ±85, elk kleiner dan 600 KB).
+3. Vervang public/kaarten/klein-route-op-volgorde.webp door een verkleinde versie met dezelfde afmetingen als het huidige bestand.
+4. Meld welke bestanden zijn vervangen, met afmetingen en grootte.
 ```

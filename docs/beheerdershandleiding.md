@@ -16,7 +16,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
 | **Spel** | 🏆 Tussenstand, WhatsApp (inloggegevens versturen), 🔔 Meldingen |
 | **Beheer** | 🩺 Systeemcheck |
-| **Info & uitleg** | Deze handleiding, de instructiekaarten (met **🖨️ Printen**: de spelerskaart op A5, de routekaarten op A4), Ko-fi, en het versienummer met de datum van de laatste update |
+| **Info & uitleg** | Deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
 Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Alles wat je niet per ongeluk wilt doen, vraagt eerst om bevestiging in een venster; annuleren doe je met het ✕ rechtsboven, door naast het venster te tikken of met Esc.
 

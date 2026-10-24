@@ -11,8 +11,8 @@ import { useSluitMetEsc } from "@/components/shared/Venster";
 // papier = formaat bij 🖨️ Printen
 const KAARTEN = [
   { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp", papier: "A5" },
-  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp", papier: "A4" },
-  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A4" },
+  { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp", papier: "A5" },
+  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A5" },
 ];
 
 // 🖨️ Kaart printen: een eigen venster met alleen de kaart, staand op het juiste papier, zonder marges;
@@ -69,15 +69,6 @@ export default function InfoKnop() {
                 </div>
               ))}
             </div>
-
-            {/* Reserve: dezelfde spelerskaart als pagina, altijd gelijk aan de uitleg in de app (A5, dubbel te vouwen) */}
-            <a href="/admin/instructiekaart" className="info-regel" onClick={() => setOpen(false)}>
-              <span style={{ fontSize: "1.6rem" }}>🃏</span>
-              <span>
-                <strong>Spelerskaart om te printen</strong>
-                <span className="info-sub">A5, dubbel te vouwen; altijd gelijk aan de uitleg in de app</span>
-              </span>
-            </a>
 
             <div className="info-kofi"><KoFiKnop /></div>
             <VersieRegel />

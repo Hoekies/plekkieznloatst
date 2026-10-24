@@ -1,71 +1,57 @@
 # Afbeelding-prompt — Verspreide route (lus)
 
-Plak de tekst hieronder (in de codeblok) in ChatGPT om een geïllustreerde, posterachtige
-spelhandleiding te laten genereren voor het speltype **Verspreide route**. Gebaseerd op
-[spel-verspreid.md](spel-verspreid.md) en het kleurenpalet van de app.
+Prompt voor **Codex**: maakt de instructiekaart voor het speltype **Verspreide route**, in dezelfde stijl
+als de spelerskaart (`public/handleiding.jpg`), en vervangt de kaart in `public/kaarten/`. Maak eerst de
+spelerskaart, dan deze: Codex neemt de stijl daarvan over. Gebaseerd op [spel-verspreid.md](spel-verspreid.md).
 
 ```
-Create a single vertical poster-style infographic (portrait, 1024x1536) that works as a
-quick-reference game manual for a GPS scavenger hunt mobile game called "PointRush".
-All text, labels and headers inside the image must be in DUTCH, written exactly as given
-below — do not translate or invent extra text.
+Maak een nieuwe printbare instructiekaart voor het speltype "Verspreide route" van de GPS-game PointRush en vervang daarmee de bestaande kaart in deze repo. Pas geen code aan.
 
-VISUAL STYLE: dark, glowing "game night" aesthetic. Background is a radial gradient from
-deep purple (#3a1a73) through indigo (#1c0c45) to near-black (#0c0322), like a night sky.
-Rounded glassy dark-navy panels (frosted glass cards, subtle cyan border glow) hold each
-section. Bold, chunky, rounded display typography (similar to "Space Grotesk" bold),
-white/light-blue body text (#e8f0ff). Accent colors for icons, borders and highlights:
-electric cyan (#00d9ff), gold/yellow (#ffd93b), orange (#ff8a00), green (#22c55e), red
-(#ff3b5c), purple (#8b5cf6). Small glowing sparkle/star particles floating in the
-background. Flat vector illustration style, game-UI look, NOT photorealistic.
+STIJL: precies dezelfde stijl als de spelerskaart public/handleiding.jpg (achtergrond, panelen met gouden rand, letters, kleuren, oranje pillen en balk, sparkles). Gebruik public/logo-breed.png als logo (exact overnemen: niet hertekenen, niet herletteren, niet verkleuren) en de iconen uit public/items/<naam>.webp als voorbeeld voor items.
 
-TITLE (top banner, large): "🎲 Verspreide route — speluitleg"
-Subtitle beneath it: "Zelfde lus, ieder team een eigen startpunt."
+FORMAAT EN VOUWEN (belangrijk):
+- Staand, verhouding 2:3 (1024x1536), voor A5.
+- De kaart wordt dubbel gevouwen: precies op de helft van de hoogte een horizontale vouwlijn als dunne witte STIPPELLIJN over de hele breedte, rechts klein het woord "vouwlijn".
+- GEEN paneel, tekst of icoon over de vouwlijn: alles volledig in de bovenste óf onderste helft, met minstens 3% ruimte boven en onder de lijn. Alles minstens 5% van de buitenrand af.
 
-SECTION 1 — "Het idee" — a small diagram showing a circular loop of 6 numbered dots with a
-house-and-flag start/finish icon (🏠🏁) in the center. Three differently colored team arrows
-leave the center, each join the loop at a different dot, go around the loop, and return to the
-same center. The three team arrows from the center to the loop are about equally long. Caption:
-"Iedereen start en finisht op dezelfde plek. Elk team stapt op een eigen punt in de lus,
-ongeveer even ver van de start — je hoeft nooit te racen naar hetzelfde punt."
+TAAL: alle tekst in het NEDERLANDS, exact zoals hieronder. Geen andere tekst toevoegen of vertalen. Gebruik nooit het woord "hub".
 
-SECTION 2 — "Hoe begin je?" (4 numbered steps, each with a small icon):
-1. 📱 Open de link en log in met je groep
-2. 🦊 Kies een teamnaam en icoon
-3. 📍 Geef locatietoegang
-4. 🚀 Druk op "Ga op pad" — je krijgt je eigen startpunt
-Small note under the steps: "Soms krijg je bij de start al items gratis in je balk."
+BOVENSTE HELFT:
+1. Het logo, bovenaan in het midden.
+2. Glanzende oranje pil: "VERSPREIDE ROUTE"
+3. Paneel "Het idee" met een klein schema: een rondje van 6 genummerde punten, in het midden een vlag 🏁 (start en finish). Drie gekleurde team-pijlen gaan van het midden naar elk een ander punt op het rondje, ongeveer even lang. Onderschrift:
+   "Iedereen start en finisht op dezelfde plek. Elk team begint op een ander punt van het rondje."
+4. Paneel "Zo gaat het" (genummerd 1–4 in gouden rondjes):
+   1 📷 Scan de QR-code op je kaartje
+   2 🦊 Kies een teamnaam en een icoon
+   3 🚀 Druk op "Op pad!"
+   4 🟠 Loop 25 m langs de oranje stippellijn: dan krijg je je eerste vraag
 
-SECTION 3 — "De kaart" (small stylized map illustration with legend of map symbols):
-- 🦊 jullie teamicoon in een blauw rondje = jouw locatie
-- 🔢 genummerd cirkeltje = het volgende doel
-- ✅ groen vinkje = al bezocht
-- 👥 lichte stip = ander team, elders in de lus
-- ⛔ onzichtbaar = Plek zooi-val
-Caption: "Kom je een ander team tegen? Die is ergens anders in de lus bezig, jullie
-volgorde is niet gelijk."
+ONDERSTE HELFT:
+5. Paneel "Items". Eerst één regel: "Loop over een item om het te pakken. Tik onderin op het item om het te gebruiken."
+   Daarna een raster van 2 kolommen × 5 rijen, in precies deze volgorde (rond icoon + vette naam + korte uitleg):
+   Ster — meteen punten erbij
+   Verdubbeling — volgende goede antwoord telt dubbel
+   Radar — 2 minuten de andere teams zien
+   Bom — ander team verliest punten
+   Spook — hun volgende punt verdwijnt even
+   Dief — pik punten van een ander team
+   Banaan — hun volgende twee punten ruilen
+   Wissel — ruil je score met een ander team
+   Vraagteken — een gok: punten erbij of eraf
+   Plek zooi — onzichtbare val: even stilstaan
+6. Paneel "Tips" (2 kolommen):
+   👣 Loop niet achter een ander team aan: hun volgorde is anders
+   🔄 Komen items terug? Dan loont nog een rondje
+   🔔 Klokslag? Een ander team valt je aan!
+   🧩 Puzzelwoord? Elke goede vraag = een letter
+7. Onderaan een brede glanzende oranje balk met witte tekst: "PAK DE PUNTEN EN MAAK HET WOORD!"
 
-SECTION 4 — "Speciale items" as an icon grid of 2 columns × 5 rows, in exactly this order,
-each cell = emoji + short Dutch label:
-⭐ Ster — meteen extra punten · 🔴 Verdubbeling — volgende vraag telt dubbel
-📡 Radar — zie alle tegenstanders · 💣 Bom — tegenstander verliest punten
-👻 Spook — hun volgende punt verdwijnt · 🦹 Dief — steel hun volgende punten
-🍌 Banaan — gooi hun volgende punt om · 🔄 Wissel — ruil je score
-❓ Vraagteken — meteen een gok: winst of pech · ⛔ Plek zooi — onzichtbare val
-Small note: "Ster en vraagteken werken meteen. De rest komt in je balk: tik erop en kies
-een tegenstander. Uitleg staat onder de i-knop."
-Small note with a "🔄 respawn" badge icon: "Staat respawn aan? Dan komen opgeraapte items
-later weer terug op de kaart."
+Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime marges, consequente ronde vormen, geen extra tekst.
 
-SECTION 5 — "Tips" (short bullet list with a lightbulb icon 💡):
-- Ga niet achter een ander team aan, hun volgorde is anders dan die van jou
-- Staat respawn aan? Dan loont een tweede rondje langs een goede plek
-- Je items blijven in je balk, ook als de app herlaadt
-- Gefinisht? Soms mag je nog items inzetten op teams die onderweg zijn, tot de uitslag bekend is
-
-FOOTER banner: "🏁 Terug bij de start staat je score vast — bekijk de eindstand!"
-
-Never use the word "hub" anywhere in the image; call the shared start/finish spot "start"
-or "de start". Layout: clear visual hierarchy, generous padding, rounded corners everywhere, no
-photorealistic humans, no readable brand logos other than the "PointRush" title itself.
+NA HET MAKEN:
+1. Sla het origineel op als "extra info/instructiekaart/verspreid.png".
+2. Vervang public/kaarten/verspreid.webp en public/kaarten/verspreid.jpg (1024x1536; webp en jpg kwaliteit ±85, elk kleiner dan 600 KB).
+3. Vervang public/kaarten/klein-verspreid.webp door een verkleinde versie met dezelfde afmetingen als het huidige bestand.
+4. Meld welke bestanden zijn vervangen, met afmetingen en grootte.
 ```
