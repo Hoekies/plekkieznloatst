@@ -1,31 +1,17 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
-
-async function getSpeler() {
-  const user = await haalGebruiker();
-  if (!user) return null;
-  const admin = createAdminClient();
-  const { data: speler } = await admin
-    .from("players")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-  return speler ?? null;
-}
+import { haalSpeler } from "@/lib/speler-sessie";
 
 export async function GET() {
-  const speler = await getSpeler();
-  if (!speler) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-
-  const admin = createAdminClient();
+  const ik = await haalSpeler();
+  if (!ik) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { admin, spelerId } = ik;
   const { data: sessie } = await admin
     .from("player_sessions")
     .select("*, route:routes(id, name)")
-    .eq("player_id", speler.id)
+    .eq("player_id", spelerId)
     .eq("status", "actief")
     .maybeSingle();
   if (!sessie) return NextResponse.json(null);
@@ -42,10 +28,9 @@ export async function GET() {
 }
 
 export async function POST() {
-  const speler = await getSpeler();
-  if (!speler) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-
-  const admin = createAdminClient();
+  const ik = await haalSpeler();
+  if (!ik) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { admin, spelerId } = ik;
 
   // Actieve route ophalen
   const { data: route } = await admin
@@ -68,7 +53,7 @@ export async function POST() {
   const { data: bestaand } = await admin
     .from("player_sessions")
     .select("id")
-    .eq("player_id", speler.id)
+    .eq("player_id", spelerId)
     .eq("status", "actief")
     .maybeSingle();
 
@@ -80,7 +65,7 @@ export async function POST() {
   const { data: sessie, error } = await admin
     .from("player_sessions")
     .insert({
-      player_id: speler.id,
+      player_id: spelerId,
       route_id: route.id,
       started_at: new Date().toISOString(),
       status: "actief",

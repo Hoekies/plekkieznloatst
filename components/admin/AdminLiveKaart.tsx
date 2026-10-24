@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { createClient } from "@/lib/supabase-browser";
+import { useLiveData } from "@/components/admin/useLiveData";
 import type { LiveData } from "@/lib/admin-live";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
-import { PuzzelRaadStatus } from "@/components/admin/AdminDashboard";
+import PuzzelVoortgang from "@/components/admin/PuzzelVoortgang";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -30,9 +30,7 @@ interface Props {
 }
 
 export default function AdminLiveKaart({ initData }: Props) {
-  const [data, setData] = useState<LiveData>(initData);
-  const [realtimeOk, setRealtimeOk] = useState(true);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { data, realtimeOk } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live-kaart");
   // Speler die de kaart volgt (null = iedereen in beeld houden)
   const [volgId, setVolgId] = useState<string | null>(null);
   // Spoor van de laatste 10 minuten per speler
@@ -70,13 +68,6 @@ export default function AdminLiveKaart({ initData }: Props) {
     } finally { setReplayLaden(false); }
   }
 
-  async function ververs() {
-    try {
-      const res = await fetch("/api/admin/live/spelers");
-      if (res.ok) setData(await res.json());
-    } catch { /* verbindingsfout */ }
-  }
-
   useEffect(() => {
     let actief = true;
     async function laadSporen() {
@@ -88,22 +79,6 @@ export default function AdminLiveKaart({ initData }: Props) {
     laadSporen();
     const t = setInterval(laadSporen, 15000);
     return () => { actief = false; clearInterval(t); };
-  }, []);
-
-  useEffect(() => {
-    ververs();  // meteen de actuele stand, niet pas na de eerste ronde
-    pollRef.current = setInterval(ververs, POLL_INTERVAL_MS);
-    const supabase = createClient();
-    const kanaal = supabase
-      .channel("admin-live-kaart")
-      .on("postgres_changes", { event: "*", schema: "public", table: "player_sessions" }, ververs)
-      .on("postgres_changes", { event: "*", schema: "public", table: "player_point_progress" }, ververs)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "location_updates" }, ververs)
-      .subscribe((status) => setRealtimeOk(status === "SUBSCRIBED"));
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      supabase.removeChannel(kanaal);
-    };
   }, []);
 
   // 📺 Beamerscherm: link ophalen, openen in een nieuw tabblad en kopiëren (om op een ander toestel te openen)
@@ -194,15 +169,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                       {s.sessie_status === "voltooid" ? "Gefinisht" : s.huidig_punt_naam ? `➡️ ${s.huidig_punt_naam}` : "Onderweg"}
                     </span>
                     {/* 🧩 Puzzelwoord: gevonden letters in goud */}
-                    {s.puzzel && (
-                      <span className="sk-puzzel sk-puzzel--lijst">
-                        {s.puzzel.woord.split("").map((l, i) => (
-                          <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
-                        ))}
-                        <span className="sk-puzzel-telling">{`${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
-                        <PuzzelRaadStatus p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />
-                      </span>
-                    )}
+                    {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} lijst />}
                     {(!s.ingelogd || s.laatste_lat === null) && (
                       <span style={{ display: "block", fontSize: "0.7rem", color: "var(--text)" }}>
                         {!s.ingelogd ? "uitgelogd" : "nog geen locatie"}

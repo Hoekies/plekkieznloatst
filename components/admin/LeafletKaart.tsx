@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
 import { itemNaam, itemEmoji } from "@/components/speler/SpeciaalItemLegende";
@@ -122,13 +122,7 @@ export default function LeafletKaart({
 
     let mounted = true;
 
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link");
-      link.id = "leaflet-css";
-      link.rel = "stylesheet";
-      link.href = "/leaflet/1.9.4/leaflet.css";
-      document.head.appendChild(link);
-    }
+    laadLeafletCss();
 
     import("leaflet").then((L) => {
       if (!mounted || !containerRef.current || kaartRef.current) return;

@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { hernummerLopendeSpellen } from "@/lib/route-sessies";
-
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  return user?.app_metadata?.rol === "admin" ? user : null;
-}
 
 const TOEGESTANE_VELDEN = [
   "name", "description", "type", "latitude", "longitude",
@@ -18,7 +13,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string; pid: string } }
 ) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
 
   // Whitelist: alleen bekende velden doorgeven aan de database
@@ -43,7 +38,7 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string; pid: string } }
 ) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
 
   // Verwijder punt

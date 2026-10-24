@@ -33,7 +33,7 @@ function geldig(lat: number, lng: number) {
 }
 
 // Korte deellinks van de Google Maps-app: de server zoekt uit waar ze naartoe wijzen
-export const KORTE_LINK = /https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs)\/\S+/i;
+const KORTE_LINK = /https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs)\/\S+/i;
 
 // Coördinaten uit een (lange) Google Maps-link
 export function coordsUitLink(url: string): { lat: number; lng: number; naam: string | null } | null {

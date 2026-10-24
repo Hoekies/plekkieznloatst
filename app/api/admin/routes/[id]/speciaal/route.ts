@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  return user?.app_metadata?.rol === "admin" ? user : null;
-}
-
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("special_items")
@@ -21,7 +16,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
   const admin = createAdminClient();
 

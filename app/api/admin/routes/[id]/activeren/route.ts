@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   // Deactiveer alle routes

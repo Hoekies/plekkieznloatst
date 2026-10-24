@@ -22,6 +22,7 @@ const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolo
   { nr: "016", bestand: "016_huisstijl_geluid_stemvraag.sql", wat: "huisstijl, geluidset en stemvraag", tabel: "routes", kolom: "geluid_set" },
   { nr: "017", bestand: "017_puzzel_verdeling.sql", wat: "puzzelwoord aan/uit en letters per vraag", tabel: "routes", kolom: "puzzel_verdeling" },
   { nr: "018", bestand: "018_puzzel_gok.sql", wat: "puzzelwoord raden na de finish", tabel: "player_sessions", kolom: "puzzel_gok" },
+  { nr: "019", bestand: "019_seizoen_achtergronden.sql", wat: "achtergronden per seizoen en feestdag", tabel: "seizoen_achtergronden" },
 ];
 
 export async function GET() {

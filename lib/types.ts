@@ -1,9 +1,3 @@
-import type { SpeciaalItem } from "@/types/database";
-
-export type SpeciaalItemClaimResult =
-  | { status: "geclaimd"; item: SpeciaalItem; requiresTarget: boolean }
-  | { status: "al_geclaimd" }
-  | { status: "fout"; melding: string };
 
 export type LeaderboardEntry = {
   rank: number;

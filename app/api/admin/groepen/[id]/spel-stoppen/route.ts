@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Beëindigt het lopende spel van een groep. De groep blijft ingelogd; hun app ziet binnen
 // ~30s dat er geen actief spel meer is en gaat terug naar het startscherm.
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data, error } = await admin

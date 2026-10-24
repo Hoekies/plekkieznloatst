@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Route importeren uit een exportbestand. Versie 2 bevat ook het speltype, alle instellingen en de
@@ -43,7 +43,7 @@ const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "r
 
 export async function POST(request: Request) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   let body: RouteExport;
   try { body = await request.json(); } catch { return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 }); }

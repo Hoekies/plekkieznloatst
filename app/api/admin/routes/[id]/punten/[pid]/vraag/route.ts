@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 type Params = { params: { id: string; pid: string } };
 
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  const rol = user?.app_metadata?.rol;
-  return rol === "admin" ? user : null;
-}
-
 export async function GET(_: NextRequest, { params }: Params) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data: vraag } = await admin
@@ -26,7 +20,7 @@ export async function GET(_: NextRequest, { params }: Params) {
 
 // PUT = aanmaken of volledig vervangen
 export async function PUT(request: NextRequest, { params }: Params) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const body = await request.json();
   const admin = createAdminClient();
@@ -132,7 +126,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_: NextRequest, { params }: Params) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   await admin.from("questions").delete().eq("route_point_id", params.pid);
   return NextResponse.json({ ok: true });

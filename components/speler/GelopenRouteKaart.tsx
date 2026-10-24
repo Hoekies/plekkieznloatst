@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, ruimKaartOp, type Basiskaart, type KaartStijl } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, ruimKaartOp, type Basiskaart, type KaartStijl, laadLeafletCss } from "@/lib/basiskaart";
 import KaartBediening from "@/components/shared/KaartBediening";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import { itemNaam } from "./SpeciaalItemLegende";
@@ -42,13 +42,7 @@ export default function GelopenRouteKaart({ spoor, punten, items = [], scherp = 
     (async () => {
       const L = (await import("leaflet")).default;
       if (weg) return;
-      if (!document.querySelector("#leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css";
-        link.rel = "stylesheet";
-        link.href = "/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(link);
-      }
+      laadLeafletCss();
       if (!containerRef.current) return;
       map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
       // Dezelfde kaart als bij de live weergave; in het rapport (PDF) altijd licht en met bewaard beeld

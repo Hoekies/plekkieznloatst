@@ -1,37 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
-
-async function getSessieEnSpeler() {
-  const user = await haalGebruiker();
-  if (!user) return null;
-
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return null;
-
-  const { data: sessie } = await admin
-    .from("player_sessions")
-    .select("*")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
-
-  return sessie ? { sessie, speler } : null;
-}
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 export async function POST(request: NextRequest) {
-  const context = await getSessieEnSpeler();
-  if (!context) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
-
-  const { sessie } = context;
-  if (await spelGepauzeerd(createAdminClient(), sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
+  const ctx = await haalSpelerSessie();
+  if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  const admin = ctx.admin, sessie = ctx.sessie;
+  if (await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
   const body = await request.json();
   const { route_point_id, qr_secret } = body;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
-
-  const admin = createAdminClient();
 
   // Controleer of punt bij de route hoort
   const { data: punt } = await admin

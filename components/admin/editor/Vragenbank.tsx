@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
+import { useSluitMetEsc } from "@/components/shared/Venster";
 
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
@@ -43,10 +44,8 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
     if (vragen === null) {
       fetch(`/api/admin/vragenbank?zonder=${puntId}`).then((r) => r.ok ? r.json() : { vragen: [] }).then((d) => setVragen(d.vragen ?? []));
     }
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
   }, [open, vragen, puntId]);
+  useSluitMetEsc(() => setOpen(false), open);
 
   async function markeer(v: BankVraag, wijziging: { favoriet?: boolean; verborgen?: boolean }) {
     // Meteen tonen; lukt het opslaan niet, dan terugzetten

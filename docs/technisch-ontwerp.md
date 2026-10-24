@@ -54,11 +54,15 @@ plekkie-zn-loatst/
 │   ├── admin/                        → dashboard, RouteEditorShell, LeafletKaart, GroepenBeheer, …
 │   │   └── editor/                   → EersteStappen, ControleVenster, TestRonde, Vragenbank, …
 │   ├── speler/                       → SpelerKaart, SpelerLeaflet, VraagPopup, FinishScherm, …
-│   └── shared/                       → KaartStijlKnoppen, GeenInternet, AppInstallatie, …
+│   └── shared/                       → Venster (venster, kop, Esc), KaartStijlKnoppen, GeenInternet, …
 ├── lib/
 │   ├── supabase-*.ts                 → Supabase clients (browser, server, service role)
-│   ├── auth-server.ts, middleware-merk.ts → ingelogde gebruiker (vertrouwt de middleware-headers)
-│   ├── basiskaart.ts                 → vectorkaart (OpenFreeMap), luchtfoto (PDOK / Esri)
+│   ├── auth-server.ts, middleware-merk.ts → ingelogde gebruiker (vertrouwt de middleware-headers);
+│   │                                   isAdmin / isBeheer voor elke rolcheck
+│   ├── speler-sessie.ts              → haalSpeler / haalSpelerSessie: de speler (en zijn spel) voor pagina's en API's
+│   ├── stand.ts                      → stand en tussenstand (leaderboard, finish, tussenstand)
+│   ├── delen.ts                      → afbeelding maken, downloaden of delen (oorkonde, kaartje, uitslag)
+│   ├── basiskaart.ts                 → vectorkaart (OpenFreeMap), luchtfoto (PDOK / Esri), Leaflet-css en -iconen
 │   ├── geo.ts, tijd.ts               → afstand, richting, tijd- en duurteksten
 │   ├── fout-uitleg.ts                → foutmelding met oorzaak + oplossing (op statuscode)
 │   └── …                             → items, eindtijd, push, wegen, tijd-schatting, tril, …
@@ -68,7 +72,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 018 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 019 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```

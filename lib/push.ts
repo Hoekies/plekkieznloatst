@@ -18,7 +18,7 @@ function zetSleutels(): boolean {
   return true;
 }
 
-export type PushBericht = {
+type PushBericht = {
   titel: string;
   tekst: string;
   url: string;      // pagina die opent bij een tik op de melding

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { deeltekstAlles, deeltekstTeam } from "@/lib/deeltekst";
+import { deelOfDownload, downloadBestand } from "@/lib/delen";
 
 // Rapport als PDF-bestand maken en delen (WhatsApp via het deelmenu van telefoon of computer).
 // Eerst "PDF maken", daarna "Versturen": het deelmenu mag alleen direct na een klik openen,
@@ -106,13 +107,6 @@ ${albumLink}`).catch(() => {});
     }
   }
 
-  function download(f: File) {
-    const url = URL.createObjectURL(f);
-    const a = document.createElement("a");
-    a.href = url; a.download = f.name; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-  }
-
   async function verstuur(d: Doel) {
     const f = klaar[d.sleutel];
     if (!f) return;
@@ -121,12 +115,8 @@ ${albumLink}`).catch(() => {});
     const tekst = d.sleutel === "alles"
       ? deeltekstAlles(routeNaam)
       : deeltekstTeam(routeNaam, teams[plek - 1]?.naam ?? "jullie", plek, teams.length);
-    if (navigator.canShare?.({ files: [f] })) {
-      try { await navigator.share({ files: [f], text: tekst }); } catch { /* geannuleerd */ }
-      return;
-    }
-    // Geen deelmenu met bestanden (bijv. Firefox): downloaden en WhatsApp openen om het bij te voegen
-    download(f);
+    // Geen deelmenu met bestanden (bijv. Firefox): gedownload; WhatsApp openen om het bij te voegen
+    if (await deelOfDownload(f, tekst) !== "gedownload") return;
     window.open(`https://wa.me/?text=${encodeURIComponent(tekst + " (PDF is gedownload, voeg hem toe als bijlage)")}`, "_blank");
   }
 
@@ -138,7 +128,7 @@ ${albumLink}`).catch(() => {});
   ) : (
     <>
       <button className="rl-knop rl-knop--goud" onClick={() => verstuur(d)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen</button>
-      <button className="rl-knop" onClick={() => download(klaar[d.sleutel])} title="PDF opslaan">⬇️ Opslaan</button>
+      <button className="rl-knop" onClick={() => downloadBestand(klaar[d.sleutel])} title="PDF opslaan">⬇️ Opslaan</button>
     </>
   );
 
@@ -155,26 +145,16 @@ ${albumLink}`).catch(() => {});
         </div>
 
         {/* Hele rapport */}
-        <div className="rapport-delen-rij">
-          <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>🏆</span>
-          <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>Hele rapport</div>
-            <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, alle teams en het dankwoord</div>
-          </div>
+        <Rij icoon="🏆" titel="Hele rapport" uitleg="Eindstand, alle teams en het dankwoord">
           {knoppen(doelen[0], "PDF maken")}
-        </div>
+        </Rij>
 
         {/* Fotoalbum: alle foto's van de foto-opdrachten op één pagina */}
         {albumLink && (
-          <div className="rapport-delen-rij">
-            <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>📸</span>
-            <div style={{ flex: 1, minWidth: 140 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>Fotoalbum</div>
-              <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Alle foto&apos;s van de teams op één pagina, te openen zonder inloggen</div>
-            </div>
+          <Rij icoon="📸" titel="Fotoalbum" uitleg={<>Alle foto&apos;s van de teams op één pagina, te openen zonder inloggen</>}>
             <button className="rl-knop rl-knop--goud" onClick={deelAlbum} title="Link naar het fotoalbum delen">📲 Delen</button>
             <a className="rl-knop" href={albumLink} target="_blank" rel="noopener noreferrer">👀 Bekijken</a>
-          </div>
+          </Rij>
         )}
 
         {/* Per team */}
@@ -184,19 +164,14 @@ ${albumLink}`).catch(() => {});
         {perTeam && doelen.slice(1).map((d) => {
           const team = teams.find((t) => t.sessie_id === d.sleutel);
           return (
-            <div key={d.sleutel} className="rapport-delen-rij">
-              <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>{team?.icon ?? "👫"}</span>
-              <div style={{ flex: 1, minWidth: 140 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{team?.naam}</div>
-                <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>Eindstand, eigen verslag met kaart en dankwoord</div>
-              </div>
+            <Rij key={d.sleutel} icoon={team?.icon ?? "👫"} titel={team?.naam} uitleg="Eindstand, eigen verslag met kaart en dankwoord">
               {knoppen(d, "PDF maken")}
               {team?.kaartLink && (
                 <button className="rl-knop" onClick={() => deelKaart(team)} title="Link naar de kaart met de gelopen route (openen zonder inloggen)">
                   🗺️ Kaart-link
                 </button>
               )}
-            </div>
+            </Rij>
           );
         })}
 
@@ -204,6 +179,20 @@ ${albumLink}`).catch(() => {});
           Wacht tot de kaarten geladen zijn. Bij 📲 Versturen kies je WhatsApp in het deelmenu.
         </div>
       </div>
+    </div>
+  );
+}
+
+// Eén regel in het deelvenster: icoon, titel met uitleg, en de knoppen rechts
+function Rij({ icoon, titel, uitleg, children }: { icoon: string; titel: React.ReactNode; uitleg: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="rapport-delen-rij">
+      <span className="pr-gem-avatar" style={{ width: 46, height: 46, fontSize: "1.8rem" }}>{icoon}</span>
+      <div style={{ flex: 1, minWidth: 140 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff" }}>{titel}</div>
+        <div style={{ fontSize: "0.74rem", color: "var(--muted)" }}>{uitleg}</div>
+      </div>
+      {children}
     </div>
   );
 }

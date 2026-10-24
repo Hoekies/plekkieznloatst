@@ -1,4 +1,4 @@
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import RouteVoorproefje, { type VoorproefData } from "@/components/admin/RouteVoorproefje";
@@ -8,7 +8,7 @@ import { huisLogoUrl } from "@/lib/huisstijl";
 // (zonder antwoorden) en de items. Om te laten zien wat een route inhoudt, zonder hem te verraden.
 export default async function VoorproefjePagina({ params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
+  if (!isAdmin(user)) redirect("/login");
 
   const admin = createAdminClient();
   const { data: route } = await admin.from("routes").select("*").eq("id", params.id).maybeSingle();

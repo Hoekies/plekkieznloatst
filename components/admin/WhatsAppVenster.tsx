@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // Venster "Wat verstuur je?": vóór het versturen via WhatsApp kies je zelf wat er meegaat
 // (tekst, uitleg beginscherm, afbeeldingen). Bestanden worden bij het openen alvast geladen:
@@ -10,7 +10,7 @@ import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 
 const TEMPLATE_KEY = "pointrush_deel_template";
 const KEUZE_KEY = "pointrush_deel_keuze";
-export const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\n\n🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht.\n\nVeel plezier! René";
+const TEMPLATE_DEFAULT = "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app\n\n🔑 Je loginnaam en wachtwoord krijg je zo in een apart bericht.\n\nVeel plezier! René";
 // Vorige standaardteksten: wie die nog onthouden had, krijgt vanzelf de nieuwe
 const OUDE_DEFAULTS = [
   "Hoi! Log in op PointRush via deze link 🎯\nhttps://plekkieznloatst.vercel.app",
@@ -68,9 +68,6 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
         if (blob) setBestanden((b) => ({ ...b, [a.sleutel]: new File([blob], a.bestand, { type: "image/jpeg" }) }));
       }).catch(() => { /* dan gaat de link mee */ });
     }
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
   }, [onSluit]);
 
   const gekozen = AFBEELDINGEN.filter((a) => keuze.afbeeldingen.includes(a.sleutel));
@@ -109,17 +106,10 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
     display: "flex", alignItems: "center", gap: 8,
   });
 
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 560, maxHeight: "92vh" }}>
+  return (
+    <Venster onSluit={onSluit} breedte={560} maxHoogte={92}>
         <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(92vh - 6px)", overflowY: "auto", padding: "18px 18px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ flex: 1 }}>
-              <div className="pr-gem-label">💬 Versturen via WhatsApp</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>Wat verstuur je?</div>
-            </div>
-            <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
-          </div>
+          <VensterKop label="💬 Versturen via WhatsApp" titel="Wat verstuur je?" onSluit={onSluit} />
 
           {/* Tekst */}
           <button type="button" style={schakel(keuze.tekst)} onClick={() => setKeuze((k) => ({ ...k, tekst: !k.tekst }))}>
@@ -172,9 +162,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
             Met afbeeldingen opent het deelmenu: kies daar WhatsApp. Kan je browser geen afbeeldingen delen, dan gaan er links naar de afbeeldingen mee.
           </div>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }
 

@@ -1,7 +1,7 @@
 // Vraagideeën uit wat er op de kaart rond een punt staat (OpenStreetMap): kerk, molen, monument,
 // café, kunstwerk, speeltuin… Per soort een paar vragen; het antwoord zoekt de organisator ter plekke op.
 
-export type VraagIdee = { tekst: string; type: "open" | "foto_opdracht"; bij: string };
+type VraagIdee = { tekst: string; type: "open" | "foto_opdracht"; bij: string };
 export type KaartDing = { naam: string; tags: Record<string, string> };
 
 function soort(t: Record<string, string>): string | null {

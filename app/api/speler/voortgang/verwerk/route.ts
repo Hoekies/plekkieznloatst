@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { normaliserenNumeriek, tekstKlopt } from "@/lib/geo";
 import { stemWinnaars } from "@/lib/stemmen";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
-
-async function getActieveSessie() {
-  const user = await haalGebruiker();
-  if (!user) return null;
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return null;
-  const { data: sessie } = await admin
-    .from("player_sessions").select("*, player_id").eq("player_id", speler.id).eq("status", "actief").maybeSingle();
-  return sessie ?? null;
-}
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 export async function POST(request: NextRequest) {
-  const sessie = await getActieveSessie();
-  if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  const ctx = await haalSpelerSessie();
+  if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  const admin = ctx.admin, sessie = ctx.sessie;
   // Na de eindtijd telt niets meer mee
-  const tijd = await rondAfAlsTijdVoorbij(createAdminClient(), sessie.route_id);
+  const tijd = await rondAfAlsTijdVoorbij(admin, sessie.route_id);
   if (eindtijdVoorbij(tijd)) {
     return NextResponse.json({ fout: "Het spel is afgelopen: de eindtijd is voorbij" }, { status: 403 });
   }
@@ -33,8 +22,6 @@ export async function POST(request: NextRequest) {
   // De tijdslimiet van de vraag is verstreken: de vraag telt als fout
   const teLaat = body.te_laat === true;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
-
-  const admin = createAdminClient();
 
   const { data: punt } = await admin
     .from("route_points")

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -87,20 +87,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       if (weg || !containerRef.current) return;
       LRef.current = L;
 
-      if (!document.querySelector("#leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css";
-        link.rel = "stylesheet";
-        link.href = "/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(link);
-      }
-
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl: "/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl: "/leaflet/1.9.4/images/marker-shadow.png",
-      });
+      laadLeafletCss();
 
       const map = L.map(containerRef.current, {
         zoom: ZOOM_INIT,

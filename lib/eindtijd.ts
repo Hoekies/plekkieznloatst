@@ -4,7 +4,7 @@ import { itemsNaFinishVan } from "@/lib/item-sessie";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-export type SpelTijd = {
+type SpelTijd = {
   eindtijd: string | null;   // migratie 006
   pauze: string | null;      // gepauzeerd sinds (migratie 010); null = het spel loopt
 };

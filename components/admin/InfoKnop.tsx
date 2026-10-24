@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import VersieRegel from "@/components/admin/VersieRegel";
+import KoFiKnop from "@/components/shared/KoFiKnop";
+import { useSluitMetEsc } from "@/components/shared/Venster";
 
 // Menu-item "Info & uitleg": handleiding voor de beheerder, instructiekaarten en Ko-fi in een venster
 // klein = voorbeeldje in het venster (snel), src = de kaart zelf om te openen of te printen
@@ -15,13 +17,7 @@ const KAARTEN = [
 export default function InfoKnop() {
   const [open, setOpen] = useState(false);
 
-  // Sluiten met Esc
-  useEffect(() => {
-    if (!open) return;
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [open]);
+  useSluitMetEsc(() => setOpen(false), open);
 
   return (
     <>
@@ -55,10 +51,7 @@ export default function InfoKnop() {
               ))}
             </div>
 
-            <a href="https://ko-fi.com/hoekies" target="_blank" rel="noopener noreferrer" className="info-kofi" title="Steun het project op Ko-fi">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/ko-fi.png" alt="Ko-fi — Steun het project" />
-            </a>
+            <div className="info-kofi"><KoFiKnop /></div>
             <VersieRegel />
           </div>
         </div>,

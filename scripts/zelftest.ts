@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
+import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 
 let goed = 0;
 function test(naam: string, f: () => void) {
@@ -44,6 +45,15 @@ test("puzzelwoord", () => {
   const s = puzzelStand("SLEUTEL", "sessie-1", 3, false, 100);
   assert.equal(s.letters.filter(Boolean).length, 3);
   assert.equal(puzzelStand("SLEUTEL", "x", 0, true, 100).letters.join(""), "SLEUTEL");
+});
+
+test("seizoensachtergrond op datum", () => {
+  const alle = new Set(THEMAS.map((t) => t.sleutel));
+  assert.equal(paaszondag(2027).getDate(), 28);
+  assert.equal(huidigThema(new Date(2026, 9, 24), alle)?.sleutel, "halloween");
+  assert.equal(huidigThema(new Date(2026, 10, 8), alle)?.sleutel, "herfst");
+  assert.equal(huidigThema(new Date(2027, 0, 3), alle)?.sleutel, "oudnieuw");
+  assert.equal(huidigThema(new Date(2026, 9, 24), new Set(["herfst"]))?.sleutel, "herfst");
 });
 
 console.log(`✅ Zelftest: ${goed} onderdelen goed`);

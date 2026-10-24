@@ -5,7 +5,7 @@
 // buitengebied gewoon doorspelen.
 const SLEUTEL = "pr_wachtrij";
 type Opdracht = { url: string; body: unknown; tijd: number };
-export type Verstuurd = { status: "ok"; res: Response } | { status: "fout"; res: Response } | { status: "bewaard" };
+type Verstuurd = { status: "ok"; res: Response } | { status: "fout"; res: Response } | { status: "bewaard" };
 
 const luisteraars = new Set<(aantal: number) => void>();
 function lees(): Opdracht[] {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import Venster from "@/components/shared/Venster";
 
 function hhmm(d: Date) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -36,9 +36,6 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
   useEffect(() => {
     if (!open) return;
     setTijd(huidig ? hhmm(new Date(huidig)) : hhmm(new Date(Date.now() + 60 * 60000)));
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
   }, [open, huidig]);
 
   const moment = volgendMoment(tijd);
@@ -62,9 +59,8 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
       <button type="button" className={`rl-knop actie-knop${huidig ? " rl-knop--goud" : ""}`} onClick={() => setOpen(true)} title="Om deze tijd stopt het spel voor iedereen">
         ⏰ {huidig ? `Stopt om ${hhmm(new Date(huidig))}` : "Eindtijd"}
       </button>
-      {open && createPortal(
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 380 }}>
+      {open && (
+        <Venster onSluit={() => setOpen(false)} breedte={380}>
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>⏰ Eindtijd van het spel</div>
@@ -90,9 +86,7 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
                 <button type="button" className="rl-knop rl-knop--rood" disabled={bezig} onClick={() => opslaan(null)}>Geen eindtijd</button>
               )}
             </div>
-          </div>
-        </div>,
-        document.body,
+        </Venster>
       )}
     </>
   );

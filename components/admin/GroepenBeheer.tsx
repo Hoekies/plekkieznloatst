@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import type { Speler } from "@/types/database";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
@@ -17,6 +16,7 @@ import StatStrook from "@/components/admin/StatStrook";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -247,10 +247,7 @@ export default function GroepenBeheer() {
       )}
 
       {toonFormulier && (
-        <NieuweGroepForm
-          onSuccess={laadGroepen}
-          onAnnuleer={() => setToonFormulier(false)}
-        />
+        <NieuwAccountForm onSuccess={laadGroepen} onSluit={() => setToonFormulier(false)} />
       )}
 
       {laden ? (
@@ -296,9 +293,10 @@ export default function GroepenBeheer() {
   );
 }
 
-// ── Nieuwe groep formulier ────────────────────────────────────────────────────
-function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onAnnuleer: () => void }) {
-  const [loginNaam, setLoginNaam] = useState("");
+// ── Nieuwe speler of helper: naam en een voorgesteld wachtwoord ──────────────
+// Compact, in de stijl van de spelerkaarten: icoon, twee velden naast elkaar en de knoppen rechts
+export function NieuwAccountForm({ helper = false, onSuccess, onSluit }: { helper?: boolean; onSuccess: () => void; onSluit: () => void }) {
+  const [naam, setNaam] = useState("");
   // Alvast een makkelijk wachtwoord voorstellen (mag je aanpassen)
   const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
   const [fout, setFout] = useState("");
@@ -308,23 +306,15 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
 
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
-    setFout("");
-    setLaden(true);
-
-    const res = await fetch("/api/admin/groepen", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ loginNaam, wachtwoord }),
+    setFout(""); setLaden(true);
+    const res = await fetch(helper ? "/api/admin/helpers" : "/api/admin/groepen", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(helper ? { naam: naam.trim(), wachtwoord } : { loginNaam: naam, wachtwoord }),
     });
-
-    if (!res.ok) {
-      const { fout: f } = await res.json();
-      setFout(f ?? "Er is een fout opgetreden");
-      setLaden(false);
-      return;
-    }
+    const data = await res.json().catch(() => ({}));
     setLaden(false);
-    setKlaar({ login: loginNaam.trim(), wachtwoord });
+    if (!res.ok) { setFout(data.fout ?? "Er is een fout opgetreden"); return; }
+    setKlaar(helper ? { login: data.naam, wachtwoord: data.wachtwoord } : { login: naam.trim(), wachtwoord });
     onSuccess();
   }
 
@@ -332,24 +322,24 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
     return (
       <div className="pr-gem-panel" style={{ maxWidth: 560 }}>
         <div className="pr-gem-panel-inner helper-inlog">
-          <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onAnnuleer} aria-label="Sluiten">✕</button>
-          <div className="pr-gem-label">✅ Speler aangemaakt</div>
-          <InlogKlaar inlog={klaar} />
+          <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} aria-label="Sluiten">✕</button>
+          <div className="pr-gem-label">✅ {helper ? "Helper" : "Speler"} aangemaakt</div>
+          <InlogKlaar inlog={{ ...klaar, helper }} />
         </div>
       </div>
     );
   }
 
   return (
-    // Compact, in de stijl van de spelerkaarten: icoon, twee velden naast elkaar en de knoppen rechts
     <div className="pr-gem-card">
       <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end", position: "relative" }}>
-        <button type="button" className="editor-paneel-sluit venster-sluit venster-sluit-klein" onClick={onAnnuleer} title="Sluiten" aria-label="Sluiten">✕</button>
-        <div className="pr-gem-avatar nieuwe-speler-icoon">👤</div>
+        <button type="button" className="editor-paneel-sluit venster-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
+        <div className="pr-gem-avatar nieuwe-speler-icoon">{helper ? "🦺" : "👤"}</div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
-          <label className="form-label">Loginnaam</label>
-          <input className="form-input" value={loginNaam} onChange={(e) => setLoginNaam(e.target.value)}
-            placeholder="bijv. speler1" required autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} title="Dit typt de speler in bij het inloggen; de teamnaam kiest de speler zelf bij de start" />
+          <label className="form-label">{helper ? "Naam" : "Loginnaam"}</label>
+          <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} maxLength={helper ? 30 : undefined}
+            placeholder={helper ? "bijv. Anouk" : "bijv. speler1"} required autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false}
+            title={helper ? "Hiermee logt de helper in; letters en cijfers, anders dan de loginnamen van de spelers" : "Dit typt de speler in bij het inloggen; de teamnaam kiest de speler zelf bij de start"} />
         </div>
         <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
           <label className="form-label">Wachtwoord</label>
@@ -360,9 +350,7 @@ function NieuweGroepForm({ onSuccess, onAnnuleer }: { onSuccess: () => void; onA
           </div>
         </div>
         <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-          <button type="submit" className="rl-knop hoofdknop actie-knop" disabled={laden}>
-            {laden ? "Aanmaken…" : "Aanmaken"}
-          </button>
+          <button type="submit" className="rl-knop hoofdknop actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
         </div>
         {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
       </form>
@@ -398,12 +386,6 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
   // Spelers: met wachtwoord, of met een link zonder wachtwoord (helpers alleen wachtwoord)
   const [modus, setModus] = useState<"wachtwoord" | "link">("wachtwoord");
 
-  // Sluiten met Esc
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
 
   async function patch(url: string, body: object) {
     const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -442,19 +424,11 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
     setKlaar({ login: modal.helper ? modal.login ?? modal.groepNaam : nieuweLogin, wachtwoord, link });
   }
 
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 440 }}>
+  return (
+    <Venster onSluit={onSluit} breedte={440}>
         <form onSubmit={opslaan} className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {/* De speler of helper waar het om gaat */}
-            <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.6rem" }}>{modal.icoon ?? "👤"}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="pr-gem-label">📲 Inloggegevens versturen</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{modal.groepNaam}</div>
-            </div>
-            <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
-          </div>
+          {/* De speler of helper waar het om gaat */}
+          <VensterKop icoon={modal.icoon ?? "👤"} label="📲 Inloggegevens versturen" titel={modal.groepNaam} onSluit={onSluit} />
 
           {/* Standaard: kaartje met loginnaam, wachtwoord en een directe link. Alleen een link (zonder
               wachtwoord) is een uitzondering: die staat als klein linkje onderaan */}
@@ -516,8 +490,6 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
             </>
           )}
         </form>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }

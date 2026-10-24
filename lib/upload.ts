@@ -8,7 +8,7 @@ export function valideerAfbeelding(bestand: File): string | null {
   return null;
 }
 
-export async function comprimeerAfbeelding(bestand: File): Promise<File> {
+async function comprimeerAfbeelding(bestand: File): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(bestand);

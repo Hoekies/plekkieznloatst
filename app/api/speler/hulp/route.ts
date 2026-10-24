@@ -1,30 +1,13 @@
 import { NextResponse } from "next/server";
 import { stuurPushNaarBeheer } from "@/lib/push";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
-
-async function getSessie() {
-  const user = await haalGebruiker();
-  if (!user) return null;
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return null;
-  const { data: sessie } = await admin
-    .from("player_sessions")
-    .select("id, route_id, player_id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
-  return sessie ?? null;
-}
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 // Status van de laatste melding van dit team
 export async function GET() {
-  const sessie = await getSessie();
-  if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
-
-  const admin = createAdminClient();
+  const ctx = await haalSpelerSessie();
+  if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  const admin = ctx.admin, sessie = ctx.sessie;
   const { data: laatste } = await admin
     .from("hulpverzoeken")
     .select("id, status, afgehandeld_at")
@@ -42,10 +25,9 @@ export async function GET() {
 
 // Meld dat het volgende punt niet te bereiken is
 export async function POST() {
-  const sessie = await getSessie();
-  if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
-
-  const admin = createAdminClient();
+  const ctx = await haalSpelerSessie();
+  if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
+  const admin = ctx.admin, sessie = ctx.sessie;
 
   const { data: open } = await admin
     .from("hulpverzoeken")

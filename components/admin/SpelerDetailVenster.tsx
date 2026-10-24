@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import { sessietijd } from "@/lib/admin-live";
 import type { RouteVerslag } from "@/lib/team-verslag";
 import { formateerTijd } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
+import Venster from "@/components/shared/Venster";
 
 const GelopenRouteKaart = dynamic(() => import("@/components/speler/GelopenRouteKaart"), { ssr: false });
 
@@ -29,11 +29,6 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
       .catch(() => setFout(true));
   }, [s.sessie_id]);
 
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
 
   // Eén keer per verslag: anders bouwt het kaartje bij elke verversing van het dashboard opnieuw op
   const kaartItems = useMemo(() => (verslag?.items ?? []).filter((i) => i.lat != null && i.lng != null)
@@ -41,9 +36,8 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
   const vragen = verslag?.punten.filter((p) => p.heeftVraag) ?? [];
   const goed = vragen.filter((p) => p.goed).length;
 
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 640, maxHeight: "94vh" }}>
+  return (
+    <Venster onSluit={onSluit} breedte={640} maxHoogte={94} rand={12}>
         <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "14px 16px 16px" }}>
           {/* Kop: wie, plek en score */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -116,8 +110,6 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
             </div>
           )}
         </div>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }

@@ -12,7 +12,7 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
-export const NIET_GEZIEN_MIN = 5;
+const NIET_GEZIEN_MIN = 5;
 
 export function minutenNietGezien(s: SpelerOverzicht, nu = Date.now()): number | null {
   if (s.sessie_status !== "actief") return null;

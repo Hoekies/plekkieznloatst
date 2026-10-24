@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPortal } from "react-dom";
 import type { Route } from "@/types/database";
 import { MODUS_INFO, ModusTegel } from "./RouteModus";
 import { leesPunten, naamUitBestand, IMPORT_INFO_TEKST, IMPORT_STRAAL_M, type ImportResultaat } from "@/lib/punten-import";
@@ -17,6 +16,7 @@ import { meldActieveRouteGewijzigd, opActieveRouteGewijzigd } from "@/components
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
+import Venster from "@/components/shared/Venster";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -99,9 +99,6 @@ export default function RoutesOverzicht() {
   // Venster "Nieuwe route": Escape sluit het; dicht = gekozen bestand vergeten
   useEffect(() => {
     if (!aanmaken) { setGpx(null); return; }
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setAanmaken(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
   }, [aanmaken]);
 
   async function kiesGpx(e: React.ChangeEvent<HTMLInputElement>) {
@@ -367,9 +364,8 @@ export default function RoutesOverzicht() {
       </div>
       {importFout && <div className="melding melding-fout" style={{ marginBottom: 12 }}>⚠️ {importFout}</div>}
 
-      {aanmaken && createPortal(
-        <div onClick={() => setAanmaken(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 480 }}>
+      {aanmaken && (
+        <Venster onSluit={() => setAanmaken(false)} breedte={480}>
             <form onSubmit={nieuwRoute} className="pr-gem-panel-inner nieuwe-route">
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span className="pr-gem-avatar" style={{ width: 34, height: 34, fontSize: "1.15rem" }}>🗺️</span>
@@ -486,9 +482,7 @@ export default function RoutesOverzicht() {
               {!gpx && <div className="nieuwe-route-noot" style={{ textAlign: "center" }}>Daarna helpt de app je stap voor stap.</div>}
               <div className="pc-tip pc-tip--alleen-mobiel" style={{ margin: 0 }}>💻 <strong>Tip:</strong> een route maak je het makkelijkst op een pc of laptop.</div>
             </form>
-          </div>
-        </div>,
-        document.body,
+        </Venster>
       )}
 
       {laden ? (

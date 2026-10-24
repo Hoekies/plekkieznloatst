@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
@@ -257,26 +257,18 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
                     </ul>
                   </div>
                 </div>
-                <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
-                  <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>📍</span>
-                  <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>GPS locatie</div>
-                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
-                      {uitleg.gpsUitleg}
+                {([["📍", "GPS locatie", uitleg.gpsUitleg], ["🔔", "Geluid", uitleg.geluidUitleg]] as const).map(([icoon, titel, tekst]) => (
+                  <Fragment key={titel}>
+                    <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
+                      <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>{icoon}</span>
+                      <div>
+                        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>{titel}</div>
+                        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>{tekst}</div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>
-                  <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>🔔</span>
-                  <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: "0.95rem", marginBottom: 3 }}>Geluid</div>
-                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.5 }}>
-                      {uitleg.geluidUitleg}
-                    </div>
-                  </div>
-                </div>
+                  </Fragment>
+                ))}
               </div>
             </div>
             {/* Meteen een geluidje en een tril: zo merkt de speler of het geluid aan staat (en het geluid

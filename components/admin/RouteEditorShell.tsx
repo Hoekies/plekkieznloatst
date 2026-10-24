@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { Fragment, useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
@@ -27,7 +27,9 @@ import ControleVenster from "./editor/ControleVenster";
 import { routeControle } from "@/lib/route-controle";
 import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import PuzzelInstellingen from "./editor/PuzzelInstellingen";
+import SeizoenAchtergronden from "./editor/SeizoenAchtergronden";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
+import { useSluitMetEsc } from "@/components/shared/Venster";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -110,12 +112,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
   // Snel plaatsen: gekozen itemsoort; elke klik op de kaart zet er één neer (Esc of nogmaals klikken = stoppen)
   const [plaatsType, setPlaatsType] = useState<SpeciaalItemType | null>(null);
-  useEffect(() => {
-    if (!plaatsType) return;
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setPlaatsType(null); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [plaatsType]);
+  useSluitMetEsc(() => setPlaatsType(null), !!plaatsType);
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
   const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
@@ -173,12 +170,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ instappunten: nieuw }),
     });
   }
-  useEffect(() => {
-    if (kiesInstapVoor === null) return;
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setKiesInstapVoor(null); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [kiesInstapVoor]);
+  useSluitMetEsc(() => setKiesInstapVoor(null), kiesInstapVoor !== null);
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
@@ -2046,6 +2038,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     return res.ok;
                   }} />
                 )}
+                {/* 🗓️ Achtergronden per seizoen en feestdag (voor alle routes) */}
+                {instellingenTab === "uiterlijk" && <SeizoenAchtergronden eigenFoto={!!route.welkom_foto_pad} />}
 
                 {instellingenTab === "punten" && (
                   <>

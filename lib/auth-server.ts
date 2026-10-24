@@ -6,14 +6,14 @@ import { middlewareMerk, MERK_HEADER } from "@/lib/middleware-merk";
 // gecontroleerd en geeft id en rol door in de request-headers, samen met een geheim kenmerk.
 // Alleen met dat kenmerk worden ze vertrouwd: zelf meegestuurde headers tellen nooit.
 // Dat scheelt per pagina of API-aanroep één of twee extra rondjes naar de database.
-export type Gebruiker = { id: string; app_metadata: { rol?: string } };
+type Gebruiker = { id: string; app_metadata: { rol?: string } };
 
 // Rollen: "admin" (alles), "helper" (hulp van de spelleider: foto's keuren, punten vrijgeven,
 // meekijken), en spelers (geen rol)
-export function isAdmin(user: Gebruiker | null): boolean {
+export function isAdmin(user: Gebruiker | null): user is Gebruiker {
   return user?.app_metadata?.rol === "admin";
 }
-export function isBeheer(user: Gebruiker | null): boolean {
+export function isBeheer(user: Gebruiker | null): user is Gebruiker {
   const rol = user?.app_metadata?.rol;
   return rol === "admin" || rol === "helper";
 }

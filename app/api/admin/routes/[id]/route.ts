@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { schoonStartitems } from "@/lib/startitems";
 import { ITEMS_NA_FINISH } from "@/lib/item-sessie";
 
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  return user?.app_metadata?.rol === "admin" ? user : null;
-}
-
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("routes")
@@ -23,7 +18,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
@@ -115,7 +110,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   const { error } = await admin.from("routes").delete().eq("id", params.id);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });

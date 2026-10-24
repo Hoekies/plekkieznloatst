@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 
 const NOMINATIM = { headers: { "User-Agent": "PointRush/1.0 (hoekies.nl)", "Accept-Language": "nl" } };
 
@@ -8,7 +8,7 @@ const NOMINATIM = { headers: { "User-Agent": "PointRush/1.0 (hoekies.nl)", "Acce
 // ?lat=…&lng=…&plaats=1 → de plaats (stad, dorp) waar die plek ligt ({ naam })
 export async function GET(request: NextRequest) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isAdmin(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 

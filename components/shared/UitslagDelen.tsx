@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 
-export type UitslagTeam = { naam: string; icon: string | null; score: number; plaats: number; eigen?: boolean };
+type UitslagTeam = { naam: string; icon: string | null; score: number; plaats: number; eigen?: boolean };
 
 // 🖼️ Uitslag als afbeelding om te delen (WhatsApp, Instagram): podium met de top 3 en de rest eronder.
 // Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje (zoals de oorkonde).
@@ -20,22 +21,8 @@ export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopCl
     if (!ref.current) return;
     setBezig(true);
     try {
-      const { default: html2canvas } = await import("html2canvas-pro");
-      await document.fonts?.ready;
-      await Promise.all([...ref.current.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-      const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: null, logging: false, useCORS: true });
-      const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-      if (!blob) return;
-      const bestand = new File([blob], `PointRush-uitslag${routeNaam ? `-${routeNaam.replace(/[^\p{L}\p{N}]+/gu, "-")}` : ""}.png`, { type: "image/png" });
-      if (navigator.canShare?.({ files: [bestand] })) {
-        await navigator.share({ files: [bestand], text: `🏆 Uitslag${routeNaam ? ` van ${routeNaam}` : ""}` }).catch(() => { /* geannuleerd */ });
-      } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(bestand);
-        a.download = bestand.name;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      }
+      const bestand = await elementNaarPng(ref.current, `PointRush-uitslag${routeNaam ? `-${bestandsnaamDeel(routeNaam)}` : ""}.png`);
+      if (bestand) await deelOfDownload(bestand, `🏆 Uitslag${routeNaam ? ` van ${routeNaam}` : ""}`);
     } finally {
       setBezig(false);
     }

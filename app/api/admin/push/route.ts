@@ -5,14 +5,9 @@ import { stuurPushNaarBeheer } from "@/lib/push";
 
 // Pushmeldingen voor de beheerder: een toestel aanmelden (POST), afmelden (DELETE)
 // of een testmelding sturen (PUT).
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  return isBeheer(user) ? user : null;
-}
-
 export async function POST(request: NextRequest) {
-  const user = await checkAdmin();
-  if (!user) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const user = await haalGebruiker();
+  if (!isBeheer(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const body = await request.json().catch(() => null);
   const endpoint = body?.endpoint, p256dh = body?.keys?.p256dh, auth = body?.keys?.auth;
@@ -29,7 +24,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   if (typeof body?.endpoint !== "string") return NextResponse.json({ fout: "endpoint ontbreekt" }, { status: 400 });
   const admin = createAdminClient();
@@ -38,7 +33,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT() {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isBeheer(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const r = await stuurPushNaarBeheer({
     titel: "🔔 Testmelding",
     tekst: "Pushmeldingen werken. Je krijgt een melding bij een nieuwe foto of een hulpvraag.",

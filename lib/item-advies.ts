@@ -17,7 +17,7 @@ export const ITEM_GROEPEN = {
   plekzooi: ["plekzooi"],
 } as const;
 
-export type ItemAdvies = {
+type ItemAdvies = {
   oppakbaar: number;   // alle items behalve plek zooi
   voordeel: number;    // ster, verdubbeling, radar
   aanval: number;      // bom, spook, dief, banaan, wissel

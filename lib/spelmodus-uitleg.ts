@@ -2,7 +2,7 @@ import type { RouteModus } from "@/types/database";
 
 // Spelersuitleg per spelsoort. Los van MODUS_INFO in components/admin/RouteModus.tsx:
 // dat is de korte omschrijving voor de admin, dit is de uitleg voor wie gaat spelen.
-export interface SpelUitleg {
+interface SpelUitleg {
   emoji: string;
   samenvatting: string;
   regels: string[];

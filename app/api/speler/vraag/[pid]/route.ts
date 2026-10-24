@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 // Geeft vraag terug ZONDER is_correct op antwoordopties — nooit onthullen aan client vóór beantwoording
 export async function GET(_: NextRequest, { params }: { params: { pid: string } }) {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-
-  const admin = createAdminClient();
-
-  // Alleen punten van de route waarop deze speler nu speelt (niet die van andere routes)
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const { data: sessie } = await admin.from("player_sessions").select("route_id")
-    .eq("player_id", speler.id).in("status", ["actief", "voltooid"]).order("started_at", { ascending: false }).limit(1).maybeSingle();
+  const ctx = await haalSpelerSessie({ ookVoltooid: true });
+  if (!ctx) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { admin, sessie } = ctx;
   if (!sessie) return NextResponse.json({ fout: "Geen spel" }, { status: 403 });
   const { data: punt } = await admin.from("route_points").select("id").eq("id", params.pid).eq("route_id", sessie.route_id).maybeSingle();
   if (!punt) return NextResponse.json({ fout: "Onbekend punt" }, { status: 404 });

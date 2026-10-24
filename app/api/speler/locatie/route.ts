@@ -1,24 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { afrondenOpRaster } from "@/lib/geo";
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 export async function POST(request: NextRequest) {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-
-  const admin = createAdminClient();
-
-  const { data: speler } = await admin
-    .from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return NextResponse.json({ fout: "Geen speler" }, { status: 403 });
-
-  const { data: sessie } = await admin
-    .from("player_sessions")
-    .select("id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
+  const ctx = await haalSpelerSessie();
+  if (!ctx) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { admin, sessie } = ctx;
   if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
 
   const { latitude, longitude, accuracy, afstandM } = await request.json();

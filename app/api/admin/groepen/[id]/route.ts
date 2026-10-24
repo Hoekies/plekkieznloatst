@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // ✏️ Teamnaam aanpassen door de beheerder (bijv. een ongepaste naam): PATCH { nickname }
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
   const body = await request.json().catch(() => null);
   // Zelfde regel als bij de speler zelf: hooguit 30 tekens; leeg = de speler kiest opnieuw
@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 // Niet zolang er een spel loopt: dan eerst "Stop spel" (voorkomt een vergissing midden in het spel).
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
 
   const admin = createAdminClient();

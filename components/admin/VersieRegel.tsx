@@ -1,6 +1,6 @@
 // Versienummer en laatste update (moment van bouwen), klein onderin het beheermenu en in Info & uitleg.
 // "0.8.0" wordt getoond als "v0.8"; "0.8.3" als "v0.8.3".
-export function versieTekst(): { versie: string; datum: string } {
+function versieTekst(): { versie: string; datum: string } {
   const ruw = process.env.NEXT_PUBLIC_VERSIE ?? "0.0.0";
   const versie = `v${ruw.replace(/\.0$/, "")}`;
   const bouw = process.env.NEXT_PUBLIC_BOUWDATUM;

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonTelefoon, waLink } from "@/lib/telefoon";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // 📞 Telefoonnummer van een team: opslaan, bellen of meteen een WhatsApp-chat openen.
 // Met een nummer opent WhatsApp bij het versturen van inloggegevens direct de juiste chat.
@@ -17,11 +17,6 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
 
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
 
   async function opslaan(e: React.FormEvent) {
     e.preventDefault();
@@ -37,18 +32,10 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
     onSluit();
   }
 
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 400 }}>
+  return (
+    <Venster onSluit={onSluit} breedte={400}>
         <form onSubmit={opslaan} className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span className="pr-gem-avatar" style={{ width: 44, height: 44, fontSize: "1.6rem" }}>{icoon ?? "👤"}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="pr-gem-label">📞 Telefoonnummer</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{naam}</div>
-            </div>
-            <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten">✕</button>
-          </div>
+          <VensterKop icoon={icoon ?? "👤"} label="📞 Telefoonnummer" titel={naam} onSluit={onSluit} />
           <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
             Met een nummer opent WhatsApp meteen de juiste chat, en kun je het team bellen vanaf het dashboard.
           </div>
@@ -65,8 +52,6 @@ export default function TelefoonVenster({ spelerId, naam, icoon, telefoon, onSlu
             </div>
           )}
         </form>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }

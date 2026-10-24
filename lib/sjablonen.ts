@@ -1,6 +1,6 @@
 // 📦 Sjablonen voor een nieuwe route: kant-en-klare instellingen voor een soort uitje.
 // Ze vullen alleen de instellingen; punten en vragen maak je zelf. Alles is daarna nog aan te passen.
-export type Sjabloon = {
+type Sjabloon = {
   sleutel: string;
   naam: string;
   uitleg: string;

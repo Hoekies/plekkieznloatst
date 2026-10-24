@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { puzzelStand, RAAD_SECONDEN } from "@/lib/puzzel";
 import { puzzelRegels, gevondenLetters, rekenPuzzelAf, raadPuzzel } from "@/lib/puzzel-server";
+import { haalSpelerSessie } from "@/lib/speler-sessie";
 
 // 🧩 Puzzelwoord van het eigen spel: GET = de verdiende letters (en na de finish: de punten ervoor),
 // POST { woord } = het woord afmaken (alleen na de finish). Zonder puzzelwoord: { actief: false }.
 async function context() {
-  const user = await haalGebruiker();
-  if (!user) return null;
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return null;
-  const { data: sessie } = await admin.from("player_sessions").select("*")
-    .eq("player_id", speler.id).in("status", ["actief", "voltooid"]).order("started_at", { ascending: false }).limit(1).maybeSingle();
+  const ctx = await haalSpelerSessie({ ookVoltooid: true });
+  if (!ctx) return null;
+  const { admin, sessie } = ctx;
   if (!sessie) return null;
   const { data: route } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
   return { admin, sessie, route, regels: puzzelRegels(route) };

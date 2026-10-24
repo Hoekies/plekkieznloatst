@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 type Inzending = {
   id: string;
@@ -15,11 +13,6 @@ type Inzending = {
   session_id: string;
   created_at: string;
 };
-
-function fotoUrl(pad: string) {
-  // Storage bucket is niet publiek; gebruik signed URL via admin API
-  return `${SUPABASE_URL}/storage/v1/object/sign/foto-inzendingen/${pad}`;
-}
 
 interface Props {
   initAantal?: number;
@@ -96,19 +89,10 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
       </button>
 
       {/* Keurvenster: één foto tegelijk, groot in beeld; na een keuze komt vanzelf de volgende */}
-      {open && createPortal(
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 560, maxHeight: "96vh" }}>
+      {open && (
+        <Venster onSluit={() => setOpen(false)} breedte={560} maxHoogte={96} donker={0.85} rand={12}>
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "16px 16px 14px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">📸 Foto&apos;s keuren{inzendingen.length > 0 ? ` · nog ${inzendingen.length}` : ""}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
-                    {inzendingen[0] ? inzendingen[0].teamnaam : "Alles gekeurd"}
-                  </div>
-                </div>
-                <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} aria-label="Sluiten">✕</button>
-              </div>
+              <VensterKop label={<>📸 Foto&apos;s keuren{inzendingen.length > 0 ? ` · nog ${inzendingen.length}` : ""}</>} titel={inzendingen[0] ? inzendingen[0].teamnaam : "Alles gekeurd"} onSluit={() => setOpen(false)} />
 
               {laden && inzendingen.length === 0 ? (
                 <LaadBlokjes aantal={2} hoogte={120} />
@@ -142,9 +126,7 @@ export default function FotoBeoordelingPanel({ initAantal = 0 }: Props) {
                 );
               })()}
             </div>
-          </div>
-        </div>,
-        document.body
+        </Venster>
       )}
     </>
   );

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Punten handmatig aanpassen voor één team: bonus (+) of aftrek (−), met een reden.
 // De score gaat nooit onder 0. Komt in de tijdlijn en het rapport (migratie 006).
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   if (!/^[0-9a-f-]{36}$/i.test(params.id)) return NextResponse.json({ fout: "Ongeldig id" }, { status: 400 });
 
   const body = await request.json().catch(() => null);

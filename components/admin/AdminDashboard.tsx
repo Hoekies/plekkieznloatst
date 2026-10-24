@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase-browser";
+import { useEffect, useMemo, useState } from "react";
+import { useLiveData } from "@/components/admin/useLiveData";
+import PuzzelVoortgang from "@/components/admin/PuzzelVoortgang";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import LeegScherm from "@/components/admin/LeegScherm";
@@ -38,12 +39,10 @@ interface Props {
 
 
 export default function AdminDashboard({ initData, beperkt = false }: Props) {
-  const [data, setData] = useState<LiveData>(initData);
-  const [realtimeOk, setRealtimeOk] = useState(true);
+  const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
   const [resetFase, setResetFase] = useState<"idle" | "bevestig" | "bezig" | "klaar">("idle");
   // Speler waarvan het detailvenster open staat
   const [detailId, setDetailId] = useState<string | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
     const naam = s.nickname ?? s.login_name;
@@ -56,7 +55,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   }
 
   async function stopSpel(s: SpelerOverzicht) {
-    const naam = s.display_name;
     const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
     if (!res.ok) {
       const { fout } = await res.json().catch(() => ({ fout: null }));
@@ -79,13 +77,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     ververs();
   }
 
-  async function ververs() {
-    try {
-      const res = await fetch("/api/admin/live/spelers");
-      if (res.ok) setData(await res.json());
-    } catch { /* verbindingsfout */ }
-  }
-
   async function bevestigReset() {
     setResetFase("bezig");
     try {
@@ -99,24 +90,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
       setResetFase("idle");
     }
   }
-
-  useEffect(() => {
-    ververs();  // meteen de actuele stand, niet pas na de eerste ronde
-    pollRef.current = setInterval(ververs, POLL_INTERVAL_MS);
-
-    const supabase = createClient();
-    const kanaal = supabase
-      .channel("admin-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "player_sessions" }, ververs)
-      .on("postgres_changes", { event: "*", schema: "public", table: "player_point_progress" }, ververs)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "location_updates" }, ververs)
-      .subscribe((status) => setRealtimeOk(status === "SUBSCRIBED"));
-
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      supabase.removeChannel(kanaal);
-    };
-  }, []);
 
   const { spelers, route, route_punten } = data;
   // Alleen spelers die meedoen (bezig of gefinisht), op volgorde van de stand: hoogste score eerst,
@@ -267,24 +240,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   );
 }
 
-// 🧩 Wat het team na de finish met het puzzelwoord deed: alles gevonden, de gok (goed of fout), nog bezig, of niet geraden
-export function PuzzelRaadStatus({ p, gefinisht }: { p: NonNullable<SpelerOverzicht["puzzel"]>; gefinisht: boolean }) {
-  const [nu, setNu] = useState(() => Date.now());
-  const raadTot = p.raad_tot ? Date.parse(p.raad_tot) : null;
-  const telt = gefinisht && !p.gok && !p.opgelost && !!raadTot && nu < raadTot;
-  useEffect(() => {
-    if (!telt) return;
-    const t = setInterval(() => setNu(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [telt]);
-  if (!gefinisht) return null;
-  const alles = p.open.every(Boolean);
-  if (p.gok) return <span className={`sk-puzzel-gok ${p.goed ? "sk-puzzel-gok--goed" : "sk-puzzel-gok--fout"}`}>{p.goed ? "✓" : "✗"} {p.gok}</span>;
-  if (p.opgelost && alles) return <span className="sk-puzzel-gok sk-puzzel-gok--goed">✓ alle letters gevonden</span>;
-  if (telt) return <span className="sk-puzzel-gok">⏳ raadt nog ({Math.ceil((raadTot! - nu) / 1000)} s)</span>;
-  return <span className="sk-puzzel-gok">— niet geraden</span>;
-}
-
 // ── SpelerKaart ───────────────────────────────────────────────────────────────
 const TEAM_ICONEN = ["🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩"];
 
@@ -309,7 +264,6 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
   beperkt: boolean;
 }) {
   const pct = totaalPunten ? Math.min(100, Math.round((s.bezochte_punten / totaalPunten) * 100)) : 0;
-  const speelt = s.sessie_status === "actief";
   // Inklapbaar: dicht = alleen kop, voortgang en wat aandacht vraagt; open = ook items en knoppen.
   // Een hulpvraag klapt de kaart vanzelf open.
   const [open, setOpen] = useState(false);
@@ -357,16 +311,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
         <div className="sk-lijf">
           <div className="pr-xp-bar sk-balk" title={totaalPunten ? `${s.bezochte_punten} van ${totaalPunten} punten` : undefined}><div className="pr-xp-fill" style={{ width: `${pct}%`, background: kleur }} /></div>
           {/* 🧩 Puzzelwoord: het hele woord, de letters die het team al heeft in goud */}
-          {s.puzzel && (
-            <div className="sk-puzzel" title={s.puzzel.opgelost ? "Puzzelwoord opgelost" : `${s.puzzel.open.filter(Boolean).length} van ${s.puzzel.woord.length} letters gevonden`}>
-              <span aria-hidden>🧩</span>
-              {s.puzzel.woord.split("").map((l, i) => (
-                <span key={i} className={`sk-puzzel-letter${s.puzzel!.open[i] || s.puzzel!.opgelost ? " sk-puzzel-letter--open" : ""}`}>{l}</span>
-              ))}
-              <span className="sk-puzzel-telling">{`${s.puzzel.open.filter(Boolean).length}/${s.puzzel.woord.length}`}</span>
-              <PuzzelRaadStatus p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />
-            </div>
-          )}
+          {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} />}
           {s.wacht && <WachtBlok wacht={s.wacht} onVerkort={beperkt ? undefined : () => onVerkort(s.wacht!.effect_id)} />}
 
           {toonAlles && (s.items.in_balk.length > 0 || s.items.ingezet.length > 0) && (

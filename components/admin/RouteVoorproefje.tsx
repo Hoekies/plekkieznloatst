@@ -9,6 +9,7 @@ import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import { ITEM_INFO } from "@/components/speler/SpeciaalItemLegende";
 import { toonMelding } from "@/components/admin/Melding";
 import type { RouteModus } from "@/types/database";
+import { deelOfDownload, downloadBestand } from "@/lib/delen";
 
 const VoorproefKaart = dynamic(() => import("./VoorproefKaart"), { ssr: false });
 
@@ -124,19 +125,9 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
       setBezig(false);
     }
   }
-  function opslaan(f: File) {
-    const url = URL.createObjectURL(f);
-    const a = document.createElement("a");
-    a.href = url; a.download = f.name; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-  }
   async function versturen(f: File) {
     const tekst = `🎯 Zin in een speurtocht? Een voorproefje van "${route.name}" in PointRush!`;
-    if (navigator.canShare?.({ files: [f] })) {
-      try { await navigator.share({ files: [f], text: tekst }); } catch { /* geannuleerd */ }
-      return;
-    }
-    opslaan(f);
+    if (await deelOfDownload(f, tekst) !== "gedownload") return;
     window.open(`https://wa.me/?text=${encodeURIComponent(tekst + " (PDF is gedownload, voeg hem toe als bijlage)")}`, "_blank");
   }
 
@@ -158,7 +149,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               ) : (
                 <>
                   <button type="button" className="rl-knop rl-knop--goud actie-knop" onClick={() => versturen(pdf)} title="Opent het deelmenu: kies WhatsApp">📲 Versturen</button>
-                  <button type="button" className="rl-knop actie-knop" onClick={() => opslaan(pdf)}>⬇️ Opslaan</button>
+                  <button type="button" className="rl-knop actie-knop" onClick={() => downloadBestand(pdf)}>⬇️ Opslaan</button>
                 </>
               )}
             </div>

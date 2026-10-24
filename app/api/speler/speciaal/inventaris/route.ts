@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { haalItemSessie } from "@/lib/item-sessie";
+import { haalSpeler } from "@/lib/speler-sessie";
 
 export async function GET() {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Niet ingelogd" }, { status: 403 });
-
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return NextResponse.json([]);
+  const ik = await haalSpeler();
+  if (!ik) return NextResponse.json([]);
+  const { admin, spelerId } = ik;
 
   // Lopend spel, of na de finish als de route dat toestaat (tot de uitslag vrij is)
-  const itemSessie = await haalItemSessie(admin, speler.id);
+  const itemSessie = await haalItemSessie(admin, spelerId);
   if (!itemSessie) return NextResponse.json([]);
   const sessie = itemSessie.sessie;
 

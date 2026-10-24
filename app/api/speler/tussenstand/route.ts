@@ -1,36 +1,14 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
-import { haversine } from "@/lib/geo";
-import type { LeaderboardEntry } from "@/lib/types";
+import { haalSpelerSessie } from "@/lib/speler-sessie";
+import { maakStand, routeVanSpel } from "@/lib/stand";
 
+// Tussenstand: elke zoveel minuten (vanaf de eerste start) een paar seconden zichtbaar, of direct door de spelleider
 export async function GET() {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const ctx = await haalSpelerSessie();
+  if (!ctx) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const { admin, spelerId, sessie } = ctx;
 
-  const admin = createAdminClient();
-
-  const { data: speler } = await admin
-    .from("players")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-
-  if (!speler) return NextResponse.json({ fout: "Geen speler" }, { status: 403 });
-
-  const { data: eigenSessie } = await admin
-    .from("player_sessions")
-    .select("route_id")
-    .eq("player_id", speler.id)
-    .eq("status", "actief")
-    .maybeSingle();
-
-  let routeId: string | null = eigenSessie?.route_id ?? null;
-  if (!routeId) {
-    const { data: route } = await admin.from("routes").select("id").eq("is_active", true).maybeSingle();
-    routeId = route?.id ?? null;
-  }
-
+  const routeId = await routeVanSpel(admin, sessie);
   if (!routeId) return NextResponse.json({ zichtbaar: false });
 
   const { data: route } = await admin
@@ -38,110 +16,31 @@ export async function GET() {
     .select("tussenstand_interval_minuten, tussenstand_duur_seconden, tussenstand_trigger_at")
     .eq("id", routeId)
     .single();
-
   if (!route) return NextResponse.json({ zichtbaar: false });
 
-  type RawSessie = {
-    id: string;
-    player_id: string;
-    score: number;
-    started_at: string;
-    finished_at: string | null;
-    players: { login_name: string; nickname: string | null; icon: string | null };
-  };
-
-  const { data: sessies } = await admin
-    .from("player_sessions")
-    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname, icon)")
-    .eq("route_id", routeId)
-    .in("status", ["actief", "voltooid"]);
-
-  const rawSessies = (sessies ?? []) as unknown as RawSessie[];
-
-  const gestartOp = rawSessies.length
-    ? rawSessies.reduce((vroegst, s) => s.started_at < vroegst ? s.started_at : vroegst, rawSessies[0].started_at)
-    : null;
-
+  // Het moment dat het eerste team startte: daar telt het interval vanaf
+  const { data: eerste } = await admin.from("player_sessions").select("started_at")
+    .eq("route_id", routeId).in("status", ["actief", "voltooid"]).order("started_at", { ascending: true }).limit(1).maybeSingle();
+  const gestartOp = eerste?.started_at ?? null;
   const nu = Date.now();
 
-  let periodiekActief = false;
+  let resterendPeriodiek = 0;
   if (gestartOp && route.tussenstand_interval_minuten > 0) {
-    const elapsedSec = (nu - new Date(gestartOp).getTime()) / 1000;
-    const periodeSec = route.tussenstand_interval_minuten * 60;
-    const periodesVerstreken = Math.floor(elapsedSec / periodeSec);
-    const modSec = elapsedSec % periodeSec;
-    // Sla de nulde (game-start-)flits over — anders flitst hij meteen bij 0:00 met enkel nullen
-    periodiekActief = periodesVerstreken >= 1 && modSec < route.tussenstand_duur_seconden;
+    const verstreken = (nu - new Date(gestartOp).getTime()) / 1000;
+    const periode = route.tussenstand_interval_minuten * 60;
+    // De nulde (start)flits overslaan: anders flitst hij meteen bij 0:00 met alleen nullen
+    if (Math.floor(verstreken / periode) >= 1 && verstreken % periode < route.tussenstand_duur_seconden) {
+      resterendPeriodiek = route.tussenstand_duur_seconden - (verstreken % periode);
+    }
   }
-
-  let handmatigActief = false;
   let resterendHandmatig = 0;
   if (route.tussenstand_trigger_at) {
     const sinds = (nu - new Date(route.tussenstand_trigger_at).getTime()) / 1000;
-    handmatigActief = sinds >= 0 && sinds < route.tussenstand_duur_seconden;
-    resterendHandmatig = route.tussenstand_duur_seconden - sinds;
+    if (sinds >= 0 && sinds < route.tussenstand_duur_seconden) resterendHandmatig = route.tussenstand_duur_seconden - sinds;
   }
+  if (resterendPeriodiek <= 0 && resterendHandmatig <= 0) return NextResponse.json({ zichtbaar: false });
 
-  if (!periodiekActief && !handmatigActief) {
-    return NextResponse.json({ zichtbaar: false });
-  }
-
-  let resterendPeriodiek = 0;
-  if (periodiekActief && gestartOp) {
-    const elapsedSec = (nu - new Date(gestartOp).getTime()) / 1000;
-    const periodeSec = route.tussenstand_interval_minuten * 60;
-    resterendPeriodiek = route.tussenstand_duur_seconden - (elapsedSec % periodeSec);
-  }
+  const stand = await maakStand(admin, routeId, spelerId, false);
   const resterendeSeconden = Math.max(Math.ceil(Math.max(resterendPeriodiek, resterendHandmatig)), 1);
-
-  const sessieIds = rawSessies.map((s) => s.id);
-
-  // Afstand per sessie berekenen vanuit locatie-updates
-  const afstandMap = new Map<string, number>();
-  if (sessieIds.length) {
-    const { data: locs } = await admin
-      .from("location_updates")
-      .select("session_id, latitude, longitude, created_at")
-      .in("session_id", sessieIds)
-      .order("created_at", { ascending: true });
-
-    const puntenPerSessie = new Map<string, { latitude: number; longitude: number }[]>();
-    (locs ?? []).forEach((l) => {
-      if (!puntenPerSessie.has(l.session_id)) puntenPerSessie.set(l.session_id, []);
-      puntenPerSessie.get(l.session_id)!.push({ latitude: l.latitude, longitude: l.longitude });
-    });
-
-    puntenPerSessie.forEach((punten, sessieId) => {
-      let totaal = 0;
-      for (let i = 1; i < punten.length; i++) {
-        totaal += haversine(punten[i - 1].latitude, punten[i - 1].longitude, punten[i].latitude, punten[i].longitude);
-      }
-      afstandMap.set(sessieId, Math.round(totaal));
-    });
-  }
-
-  const gesorteerd = rawSessies
-    .map((s) => ({
-      player_id: s.player_id,
-      display_name: s.players.nickname ?? s.players.login_name,
-      icon: s.players.icon,
-      score: s.score,
-      tijd_seconden: Math.floor(
-        ((s.finished_at ? new Date(s.finished_at).getTime() : nu) - new Date(s.started_at).getTime()) / 1000
-      ),
-      distance_meters: afstandMap.get(s.id) ?? 0,
-    }))
-    .sort((a, b) => b.score - a.score || a.tijd_seconden - b.tijd_seconden);
-
-  const tussenstand: LeaderboardEntry[] = gesorteerd.map((s, i) => ({
-    rank: i + 1,
-    display_name: s.display_name,
-    icon: s.icon,
-    score: s.score,
-    tijd_seconden: s.tijd_seconden,
-    distance_meters: s.distance_meters,
-    is_eigen_team: s.player_id === speler.id,
-  }));
-
-  return NextResponse.json({ zichtbaar: true, resterende_seconden: resterendeSeconden, tussenstand });
+  return NextResponse.json({ zichtbaar: true, resterende_seconden: resterendeSeconden, tussenstand: stand });
 }

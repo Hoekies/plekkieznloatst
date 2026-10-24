@@ -13,7 +13,7 @@ const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2
 type Velden = { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string };
 
 // Foto verkleinen in de browser (de opslag neemt max 500 KB): logo's als webp (doorzichtig blijft doorzichtig), foto's als jpg
-async function verklein(bestand: Blob, maxZijde: number, logo: boolean): Promise<Blob | null> {
+export async function verklein(bestand: Blob, maxZijde: number, logo: boolean): Promise<Blob | null> {
   const beeld = await createImageBitmap(bestand).catch(() => null);
   if (!beeld) return null;
   const schaal = Math.min(1, maxZijde / Math.max(beeld.width, beeld.height));

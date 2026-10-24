@@ -12,7 +12,7 @@ function meter(a: Plek, b: Plek): number {
 }
 
 // Geeft per team (0..n-1) de index van het instappunt in `lus` terug
-export function kiesInstappunten(start: Plek, lus: Plek[], teams: number): number[] {
+function kiesInstappunten(start: Plek, lus: Plek[], teams: number): number[] {
   const m = lus.length, n = Math.max(1, teams);
   if (m === 0) return [];
   if (n >= m) return Array.from({ length: n }, (_, k) => k % m);

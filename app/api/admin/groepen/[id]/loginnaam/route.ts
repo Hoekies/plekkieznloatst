@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isAdmin(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 

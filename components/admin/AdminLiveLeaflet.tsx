@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
-import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 import { speelgebiedLaag } from "@/lib/speelgebied";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
@@ -76,20 +76,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
 
       LRef.current = L;
 
-      if (!document.querySelector("#leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css";
-        link.rel = "stylesheet";
-        link.href = "/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(link);
-      }
-
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl: "/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl: "/leaflet/1.9.4/images/marker-shadow.png",
-      });
+      laadLeafletCss();
 
       const map = L.map(containerRef.current, {
         zoom: 14,

@@ -12,7 +12,7 @@ async function lopendeSessies(admin: AdminClient, routeId: string): Promise<stri
 }
 
 // Laat de spelers-apps de route opnieuw inlezen (kolom uit migratie 005; ontbreekt hij, dan gebeurt er niets)
-export async function vraagSpelersTeVernieuwen(admin: AdminClient, routeId: string) {
+async function vraagSpelersTeVernieuwen(admin: AdminClient, routeId: string) {
   try { await admin.from("routes").update({ spelers_vernieuwen_at: new Date().toISOString() }).eq("id", routeId); } catch { /* niet erg */ }
 }
 

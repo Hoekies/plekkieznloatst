@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { logItem } from "@/lib/item-log";
 import { haalItemSessie, doelwitNaFinishVan } from "@/lib/item-sessie";
+import { haalSpeler } from "@/lib/speler-sessie";
 
 const TYPES_MET_DOEL = new Set(["spook", "bom", "wissel", "dief", "banaan"]);
 
@@ -16,15 +15,12 @@ function formatteerDuur(seconden: number): string {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Niet ingelogd" }, { status: 403 });
-
-  const admin = createAdminClient();
-  const { data: speler } = await admin.from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 403 });
+  const ik = await haalSpeler();
+  if (!ik) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 403 });
+  const { admin, spelerId } = ik;
 
   // Lopend spel, of na de finish als de route "items na de finish" toestaat (tot de uitslag vrij is)
-  const itemSessie = await haalItemSessie(admin, speler.id);
+  const itemSessie = await haalItemSessie(admin, spelerId);
   if (!itemSessie) return NextResponse.json({ fout: "Je kunt nu geen items meer inzetten" }, { status: 403 });
   const eigenSessie = itemSessie.sessie;
   if (await spelGepauzeerd(admin, eigenSessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
@@ -84,12 +80,12 @@ export async function POST(request: NextRequest) {
   const { data: namen } = await admin
     .from("players")
     .select("id, nickname, login_name")
-    .in("id", [speler.id, doelSessie?.player_id].filter(Boolean) as string[]);
+    .in("id", [spelerId, doelSessie?.player_id].filter(Boolean) as string[]);
   const teamNaam = (id: string | undefined, standaard: string) => {
     const p = (namen ?? []).find((n) => n.id === id);
     return p?.nickname ?? p?.login_name ?? standaard;
   };
-  const aanvallerNaam = teamNaam(speler.id, "Onbekend team");
+  const aanvallerNaam = teamNaam(spelerId, "Onbekend team");
   const doelNaam = teamNaam(doelSessie?.player_id, "de tegenstander");
 
   const routeSterWaarde = routeWaarden?.ster_waarde ?? item.points_effect ?? 50;

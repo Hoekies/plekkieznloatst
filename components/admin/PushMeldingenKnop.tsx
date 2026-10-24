@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // Menu-item "🔔 Meldingen": pushmeldingen op dit toestel aan- of uitzetten (nieuwe foto, hulpvraag).
 // Werkt ook als de app dicht is, en komt via de telefoon ook op een horloge.
@@ -101,17 +101,10 @@ export default function PushMeldingenKnop() {
         {/* Klein bolletje i.p.v. tekst: past altijd in de smalle menuknop (groen = aan) */}
         {label && <span className={`menu-status menu-status--${stand === "aan" ? "aan" : "uit"}`} title={`Meldingen ${label}`} aria-label={`Meldingen ${label}`} />}
       </button>
-      {open && createPortal(
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420 }}>
+      {open && (
+        <Venster onSluit={() => setOpen(false)} breedte={420}>
             <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">📱 Op dit toestel</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>{stand === "aan" ? "🔔 Meldingen staan aan" : "🔕 Meldingen staan uit"}</div>
-                </div>
-                <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
-              </div>
+              <VensterKop label="📱 Op dit toestel" titel={stand === "aan" ? "🔔 Meldingen staan aan" : "🔕 Meldingen staan uit"} onSluit={() => setOpen(false)} />
               <p style={{ margin: 0, fontSize: "0.86rem", lineHeight: 1.5, color: "var(--text)" }}>
                 Bij een <strong>nieuwe foto</strong> of een <strong>hulpvraag</strong>, ook als de app dicht is (en op je horloge).
               </p>
@@ -133,9 +126,7 @@ export default function PushMeldingenKnop() {
                 {stand === "aan" && <button type="button" className="rl-knop rl-knop--rood" style={{ height: 44, padding: "0 18px", fontWeight: 800 }} disabled={bezig} onClick={zetUit}>🔕 Uitzetten</button>}
               </div>
             </div>
-          </div>
-        </div>,
-        document.body,
+        </Venster>
       )}
     </>
   );

@@ -7,17 +7,13 @@ import { versleutel, ontsleutel } from "@/lib/wachtwoord-kluis";
 
 // Helpers van de spelleider: inloggen met een naam en wachtwoord, en dan alleen meekijken,
 // foto's keuren en punten vrijgeven. Alleen de beheerder maakt ze aan en haalt ze weg.
-async function checkAdmin() {
-  return isAdmin(await haalGebruiker());
-}
-
 async function alleHelpers(admin: ReturnType<typeof createAdminClient>) {
   const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
   return (data?.users ?? []).filter((u) => u.app_metadata?.rol === "helper");
 }
 
 export async function GET(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   // ?id=…: het huidige wachtwoord van die helper (versleutelde kopie), voor opnieuw versturen
   const id = request.nextUrl.searchParams.get("id");
   if (id) {
@@ -42,7 +38,7 @@ function kiesWachtwoord(waarde: unknown): string | null {
 // Nieuw wachtwoord voor een helper: PATCH {id, wachtwoord?}
 // Aan- of uitzetten: PATCH {id, uitgeschakeld: true|false}
 export async function PATCH(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   if (typeof body?.id !== "string") return NextResponse.json({ fout: "id ontbreekt" }, { status: 400 });
   if (typeof body.uitgeschakeld === "boolean") {
@@ -71,7 +67,7 @@ export async function PATCH(request: NextRequest) {
 
 // Nieuwe helper: POST {naam, wachtwoord?}; het wachtwoord komt één keer terug
 export async function POST(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   const admin = createAdminClient();
   const wachtwoord = kiesWachtwoord(body?.wachtwoord);
@@ -100,7 +96,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   if (typeof body?.id !== "string") return NextResponse.json({ fout: "id ontbreekt" }, { status: 400 });
   const admin = createAdminClient();

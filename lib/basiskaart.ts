@@ -44,6 +44,16 @@ export function ruimKaartOp(kaart: { remove: () => unknown } | null | undefined)
   try { kaart?.remove(); } catch { /* al (deels) opgeruimd */ }
 }
 
+// De stylesheet van Leaflet, één keer per pagina (alle kaarten delen hem)
+export function laadLeafletCss() {
+  if (document.getElementById("leaflet-css")) return;
+  const link = document.createElement("link");
+  link.id = "leaflet-css";
+  link.rel = "stylesheet";
+  link.href = "/leaflet/1.9.4/leaflet.css";
+  document.head.appendChild(link);
+}
+
 type Filter = unknown[] | null | undefined;
 type GlKaart = {
   on: (e: string, f: () => void) => void;
@@ -241,6 +251,13 @@ export function pasStijlToe(kaart: unknown, stijl: KaartStijl, ookInrichten: boo
 export async function voegBasiskaartToe(Lin: typeof Leaflet, map: Leaflet.Map, stijl: KaartStijl, { opname = false }: { opname?: boolean } = {}): Promise<Basiskaart> {
   // Werkt met zowel import("leaflet") als import("leaflet").default
   const L = ((Lin as unknown as { default?: typeof Leaflet }).default ?? Lin) as typeof Leaflet;
+  // Standaard-markers uit onze eigen map (de bundel vindt de plaatjes van Leaflet zelf niet)
+  delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "/leaflet/1.9.4/images/marker-icon-2x.png",
+    iconUrl: "/leaflet/1.9.4/images/marker-icon.png",
+    shadowUrl: "/leaflet/1.9.4/images/marker-shadow.png",
+  });
   // Luchtfoto: een laag bovenop de basiskaart, aan of uit
   // In Nederland de PDOK-luchtfoto, daarbuiten de wereldwijde van Esri (PDOK is daar leeg/wit)
   let luchtfoto: Leaflet.TileLayer | null = null;

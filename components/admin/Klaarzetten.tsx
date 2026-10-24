@@ -25,6 +25,16 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
   // Verspreide route: klopt het aantal teams waarvoor de startplekken zijn verdeeld?
   const verwacht = route?.modus === "verspreid" ? route.verwacht_aantal_teams ?? null : null;
   const aantalWijkt = verwacht !== null && spelers.length > 0 && spelers.length !== verwacht;
+  // Aantal spelers wijkt af van het aantal teams waarvoor de route is ingesteld
+  const waarschuwing = aantalWijkt && (
+    <div className="klaar-waarschuwing">
+      <span style={{ flex: 1, minWidth: 0 }}>
+        ⚠️ <strong>{spelers.length} spelers</strong>, maar de route is ingesteld op <strong>{verwacht} teams</strong>.
+        {" "}{spelers.length > (verwacht ?? 0) ? "Teams starten dan op dezelfde plek (de andere kant op)." : "Teams starten dan minder verspreid."}
+      </span>
+      {route && <Link href={`/admin/routes/${route.id}`} className="rl-knop">Aanpassen</Link>}
+    </div>
+  );
   const sleutel = `${VOORVOEGSEL}${route?.id ?? "geen"}`;
   const [handmatig, setHandmatig] = useState<Record<string, boolean>>({});
   // Alles klaar: ingeklapt tot één regel, tenzij je de stappen zelf weer openklapt
@@ -99,15 +109,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
           </span>
           {route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />}
           <button type="button" className="rl-knop" onClick={() => setToonStappen(true)}>Stappen tonen</button>
-        {aantalWijkt && (
-          <div className="klaar-waarschuwing">
-            <span style={{ flex: 1, minWidth: 0 }}>
-              ⚠️ <strong>{spelers.length} spelers</strong>, maar de route is ingesteld op <strong>{verwacht} teams</strong>.
-              {" "}{spelers.length > (verwacht ?? 0) ? "Teams starten dan op dezelfde plek (de andere kant op)." : "Teams starten dan minder verspreid."}
-            </span>
-            {route && <Link href={`/admin/routes/${route.id}`} className="rl-knop">Aanpassen</Link>}
-          </div>
-        )}
+        {waarschuwing}
         </div>
       </div>
     );
@@ -144,15 +146,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
             {!s.klaar && s.actie}
           </div>
         ))}
-        {aantalWijkt && (
-          <div className="klaar-waarschuwing">
-            <span style={{ flex: 1, minWidth: 0 }}>
-              ⚠️ <strong>{spelers.length} spelers</strong>, maar de route is ingesteld op <strong>{verwacht} teams</strong>.
-              {" "}{spelers.length > (verwacht ?? 0) ? "Teams starten dan op dezelfde plek (de andere kant op)." : "Teams starten dan minder verspreid."}
-            </span>
-            {route && <Link href={`/admin/routes/${route.id}`} className="rl-knop">Aanpassen</Link>}
-          </div>
-        )}
+        {waarschuwing}
       </div>
     </div>
   );

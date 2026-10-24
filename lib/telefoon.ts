@@ -11,7 +11,7 @@ export function normaliseerTelefoon(invoer: string): string | null {
 }
 
 // Alleen cijfers, zoals wa.me ze wil
-export function waNummer(telefoon: string): string {
+function waNummer(telefoon: string): string {
   return telefoon.replace(/\D/g, "");
 }
 

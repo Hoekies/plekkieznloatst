@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Export van een complete route (versie 2): speltype en alle instellingen, punten met vraag en
@@ -24,7 +24,7 @@ type Punt = {
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
   const { data: route } = await admin.from("routes").select("*").eq("id", params.id).maybeSingle();

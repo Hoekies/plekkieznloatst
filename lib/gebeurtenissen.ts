@@ -3,7 +3,7 @@ import type { createAdminClient } from "@/lib/supabase-admin";
 // Tijdlijn van het lopende spel, nieuwste eerst: voor het dashboard en het beamerscherm.
 // Wordt samengesteld uit wat al wordt opgeslagen (sessies, voortgang, foto's, itemlogboek, hulp).
 
-export type Gebeurtenis = {
+type Gebeurtenis = {
   id: string;
   tijd: string;
   speler_id: string | null;   // wie het deed (voor de kleur in de tijdlijn)

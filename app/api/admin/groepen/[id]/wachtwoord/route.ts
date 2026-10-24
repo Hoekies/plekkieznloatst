@@ -17,7 +17,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isAdmin(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 

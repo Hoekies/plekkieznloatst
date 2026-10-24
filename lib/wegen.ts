@@ -6,7 +6,7 @@ import { haversine } from "@/lib/geo";
 // Looproutes langs wegen en voetpaden voor de route-editor. Elk stuk tussen twee punten
 // wordt één keer opgevraagd (via /api/admin/wegen) en onthouden. Zolang een stuk er nog
 // niet is, of de dienst niet bereikbaar is, valt alles terug op de rechte lijn.
-export type Plek = { lat: number; lng: number };
+type Plek = { lat: number; lng: number };
 type Stuk = { afstandM: number; lijn: [number, number][] };
 
 // Richting maakt voor lopen niet uit: a→b en b→a delen één opgevraagd stuk

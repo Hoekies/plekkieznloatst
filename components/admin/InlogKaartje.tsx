@@ -6,6 +6,7 @@ import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonMelding } from "@/components/admin/Melding";
 
 import { waLink } from "@/lib/telefoon";
+import { elementNaarPng, deelOfDownload } from "@/lib/delen";
 
 // telefoon: bekend nummer van het team; dan opent WhatsApp meteen die chat (waar dat kan)
 // link: link om direct in te loggen (zonder wachtwoord), met tot wanneer hij werkt
@@ -18,10 +19,10 @@ function totTekst(iso: string) {
   return new Date(iso).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-export const SITE = "https://plekkieznloatst.vercel.app";
+const SITE = "https://plekkieznloatst.vercel.app";
 
 // Het hele bericht: wat het team moet doen, met de directe link (als die er is), de site en de inlog
-export function waTekst(i: Inlog) {
+function waTekst(i: Inlog) {
   if (i.helper) return `Hoi! Je bent helper bij PointRush 🎯\n${SITE}\n\nNaam: *${i.login}*\nWachtwoord: *${i.wachtwoord}*\n\nJe kunt foto's keuren en punten vrijgeven. Bedankt! René`;
   if (i.link) {
     return [
@@ -57,7 +58,7 @@ function useHuisLogo(): string | null {
 
 // Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. Met een inloglink logt de QR-code
 // meteen in (zonder typen); zonder link opent hij de inlogpagina.
-export function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
+function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
   const huisLogo = useHuisLogo();
   return (
     <div className="kaartje" ref={kaartRef}>
@@ -87,12 +88,7 @@ export function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: Rea
 let wachtrij: Promise<unknown> = Promise.resolve();
 function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
   const taak = wachtrij.then(async () => {
-    const { default: html2canvas } = await import("html2canvas-pro");
-    await document.fonts?.ready;
-    await Promise.all([...el.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-    const canvas = await html2canvas(el, { scale: 3, backgroundColor: null, logging: false, useCORS: true });
-    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-    return blob ? new File([blob], naam, { type: "image/png" }) : null;
+    return elementNaarPng(el, naam, 3);
   }).catch(() => null);
   wachtrij = taak;
   return taak;
@@ -115,19 +111,11 @@ async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "kl
       return "klaar";
     } catch { /* klembord niet toegestaan: dan via het deelmenu */ }
   }
-  if (beeld && navigator.canShare?.({ files: [beeld] })) {
-    try {
-      await navigator.share({ files: [beeld], text: tekst });
-      return "link";
-    } catch (e) { if ((e as Error).name === "AbortError") return "geannuleerd"; }
-  }
-  // Geen deelmenu met afbeeldingen: kaartje downloaden en WhatsApp openen met de tekst (link erin)
   if (beeld) {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(beeld);
-    a.download = beeld.name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    const uitkomst = await deelOfDownload(beeld, tekst);
+    if (uitkomst === "gedeeld") return "link";
+    if (uitkomst === "geannuleerd") return "geannuleerd";
+    // Geen deelmenu met afbeeldingen: kaartje gedownload; WhatsApp openen met de tekst (link erin)
     toonMelding("Kaartje gedownload: voeg het in WhatsApp toe bij het bericht", "info");
   }
   window.open(waLink(tekst, inlog.telefoon), "_blank");

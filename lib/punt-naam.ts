@@ -29,7 +29,7 @@ function netjes(tekst: string): string {
 // "Wanneer is het Sint Caecilia Gilde uit Veldhoven-dorp opgericht?"
 //   → ["Sint Caecilia Gilde", "Veldhoven-dorp", "Opgericht"]
 // Namen met hoofdletters blijven bij elkaar; daarna de overige betekenisvolle woorden.
-export function woordenUitVraag(vraag: string | null | undefined): string[] {
+function woordenUitVraag(vraag: string | null | undefined): string[] {
   if (!vraag?.trim()) return [];
   const namen: string[] = [];
   const losse: string[] = [];
@@ -60,7 +60,7 @@ export function woordenUitVraag(vraag: string | null | undefined): string[] {
 }
 
 // Zonder bruikbare vraagzin: het goede antwoord als reserve (geen kaal getal)
-export function woordenUitAntwoord(v: {
+function woordenUitAntwoord(v: {
   correct_text_answers?: string[] | null;
   answer_options?: { text?: string | null; is_correct?: boolean }[] | null;
 }): string[] {

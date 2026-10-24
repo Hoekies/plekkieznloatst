@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { doelwitNaFinishVan } from "@/lib/item-sessie";
+import { haalSpeler } from "@/lib/speler-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
 import { haversine } from "@/lib/geo";
@@ -11,19 +10,14 @@ const DICHTBIJ_METER = 25;
 const DICHTBIJ_MAX_OUD_MS = 2 * 60 * 1000;
 
 export async function GET() {
-  const user = await haalGebruiker();
-  if (!user) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-
-  const admin = createAdminClient();
-
-  const { data: speler } = await admin
-    .from("players").select("id").eq("auth_user_id", user.id).maybeSingle();
-  if (!speler) return NextResponse.json({ locaties: [] });
+  const ik = await haalSpeler();
+  if (!ik) return NextResponse.json({ locaties: [] });
+  const { admin, spelerId } = ik;
 
   const { data: eigenSessie } = await admin
     .from("player_sessions")
     .select("id, route_id")
-    .eq("player_id", speler.id)
+    .eq("player_id", spelerId)
     .in("status", ["actief", "voltooid"])
     .order("started_at", { ascending: false })
     .limit(1)

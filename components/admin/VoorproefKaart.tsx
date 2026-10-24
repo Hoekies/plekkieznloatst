@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { haversine } from "@/lib/geo";
-import { ruimKaartOp, voegBasiskaartToe } from "@/lib/basiskaart";
+import { ruimKaartOp, voegBasiskaartToe, laadLeafletCss } from "@/lib/basiskaart";
 
 type Plek = { lat: number; lng: number };
 
@@ -30,13 +30,7 @@ export default function VoorproefKaart({ punten, items }: { punten: Plek[]; item
     (async () => {
       const L = (await import("leaflet")).default;
       if (weg || !ref.current || !punten.length) return;
-      if (!document.querySelector("#leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css";
-        link.rel = "stylesheet";
-        link.href = "/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(link);
-      }
+      laadLeafletCss();
       map = L.map(ref.current, {
         zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false,
         doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25,

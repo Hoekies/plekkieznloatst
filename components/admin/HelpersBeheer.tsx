@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import { toonMelding } from "@/components/admin/Melding";
-import { InlogKlaar } from "@/components/admin/InlogUitdelen";
-import { WijzigVenster, type BeheerModal } from "@/components/admin/GroepenBeheer";
-import { maakWachtwoord } from "@/lib/wachtwoord";
+import { WijzigVenster, NieuwAccountForm, type BeheerModal } from "@/components/admin/GroepenBeheer";
 import { foutUitleg } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
@@ -57,7 +55,7 @@ export default function HelpersBeheer() {
         </button>
       </div>
 
-      {formulier && <NieuweHelperForm onSuccess={laad} onSluit={() => setFormulier(false)} />}
+      {formulier && <NieuwAccountForm helper onSuccess={laad} onSluit={() => setFormulier(false)} />}
 
       {helpers === null ? (
         <LaadBlokjes aantal={2} hoogte={64} />
@@ -120,67 +118,6 @@ export default function HelpersBeheer() {
       )}
 
       {modal && <WijzigVenster modal={modal} onSluit={() => setModal(null)} />}
-    </div>
-  );
-}
-
-// Zelfde formulier als "+ Nieuwe speler": naam en een voorgesteld wachtwoord
-function NieuweHelperForm({ onSuccess, onSluit }: { onSuccess: () => void; onSluit: () => void }) {
-  const [naam, setNaam] = useState("");
-  const [wachtwoord, setWachtwoord] = useState(() => maakWachtwoord());
-  const [fout, setFout] = useState("");
-  const [laden, setLaden] = useState(false);
-  const [klaar, setKlaar] = useState<{ login: string; wachtwoord: string } | null>(null);
-
-  async function opslaan(e: React.FormEvent) {
-    e.preventDefault();
-    setFout(""); setLaden(true);
-    const res = await fetch("/api/admin/helpers", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ naam: naam.trim(), wachtwoord }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setLaden(false);
-    if (!res.ok) { setFout(data.fout ?? "Er is een fout opgetreden"); return; }
-    setKlaar({ login: data.naam, wachtwoord: data.wachtwoord });
-    onSuccess();
-  }
-
-  if (klaar) {
-    return (
-      <div className="pr-gem-panel" style={{ maxWidth: 560 }}>
-        <div className="pr-gem-panel-inner helper-inlog">
-          <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} aria-label="Sluiten">✕</button>
-          <div className="pr-gem-label">✅ Helper aangemaakt</div>
-          <InlogKlaar inlog={{ ...klaar, helper: true }} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="pr-gem-card">
-      <form onSubmit={opslaan} className="pr-gem-card-inner nieuwe-speler" style={{ flexWrap: "wrap", alignItems: "flex-end", position: "relative" }}>
-        <button type="button" className="editor-paneel-sluit venster-sluit venster-sluit-klein" onClick={onSluit} title="Sluiten" aria-label="Sluiten">✕</button>
-        <div className="pr-gem-avatar nieuwe-speler-icoon">🦺</div>
-        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
-          <label className="form-label">Naam</label>
-          <input className="form-input" value={naam} onChange={(e) => setNaam(e.target.value)} maxLength={30}
-            placeholder="bijv. Anouk" required autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false}
-            title="Hiermee logt de helper in; letters en cijfers, anders dan de loginnamen van de spelers" />
-        </div>
-        <div className="form-group" style={{ flex: "1 1 180px", margin: 0 }}>
-          <label className="form-label">Wachtwoord</label>
-          <div className="ww-veld">
-            <input className="form-input" value={wachtwoord} onChange={(e) => setWachtwoord(e.target.value)}
-              placeholder="min. 8 tekens" required minLength={8} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
-            <button type="button" className="rl-knop rl-knop--icoon" onClick={() => setWachtwoord(maakWachtwoord())} title="Ander voorstel">🎲</button>
-          </div>
-        </div>
-        <div className="nieuwe-speler-knoppen" style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-          <button type="submit" className="rl-knop hoofdknop actie-knop" disabled={laden}>{laden ? "Aanmaken…" : "Aanmaken"}</button>
-        </div>
-        {fout && <div className="melding melding-fout" style={{ flexBasis: "100%", margin: 0 }}><span>⚠️</span> {fout}</div>}
-      </form>
     </div>
   );
 }

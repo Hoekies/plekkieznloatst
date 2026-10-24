@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import type { RoutePunt, Vraag, AntwoordOptie, VraagType } from "@/types/database";
@@ -14,6 +13,7 @@ import { toonMelding } from "./Melding";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
+import Venster from "@/components/shared/Venster";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
@@ -46,14 +46,8 @@ const TYPE_LABEL: Record<VraagType, string> = {
 
 // "Wijzigingen niet opgeslagen?": zelfde opbouw als de andere bevestigingen (icoon, titel, één knop, ✕)
 export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; onSluit: () => void }) {
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 340, position: "relative" }}>
+  return (
+    <Venster onSluit={onSluit} breedte={340} rand={20} relatief>
         <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} title="Terug naar de vraag" aria-label="Terug naar de vraag">✕</button>
         <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", padding: "18px 44px 14px" }}>
           <div style={{ fontSize: "2rem", lineHeight: 1 }}>✋</div>
@@ -62,9 +56,7 @@ export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; o
           <button type="button" className="rl-knop rl-knop--rood" style={{ height: 40, minWidth: 120, padding: "0 22px", justifyContent: "center", fontWeight: 800, marginTop: 4 }}
             onClick={onWeg} autoFocus>Weggooien</button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }
 
@@ -72,14 +64,8 @@ export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; o
 function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
   naam: string; onNaam: (n: string) => void; woorden: string[]; bezig: boolean; onSluit: () => void; onOpslaan: () => void;
 }) {
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420, position: "relative" }}>
+  return (
+    <Venster onSluit={onSluit} breedte={420} rand={20} relatief>
         <button type="button" className="editor-paneel-sluit venster-sluit" onClick={onSluit} title="Terug naar de vraag" aria-label="Terug naar de vraag">✕</button>
         <form className="pr-gem-panel-inner" onSubmit={(e) => { e.preventDefault(); if (naam.trim()) onOpslaan(); }}
           style={{ display: "flex", flexDirection: "column", gap: 10, padding: "18px 22px 16px" }}>
@@ -92,9 +78,7 @@ function NaamVenster({ naam, onNaam, woorden, bezig, onSluit, onOpslaan }: {
             {bezig ? "Opslaan…" : "💾 Opslaan"}
           </button>
         </form>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }
 

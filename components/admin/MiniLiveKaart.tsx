@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
-import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 
 // Kleine kaart op het dashboard: de punten (grijs) en waar de teams nu zijn (hun kleur).
 // Alleen om even te kijken; tikken opent de grote live kaart.
@@ -25,11 +25,7 @@ export default function MiniLiveKaart({ spelers, punten, kleuren }: {
     (async () => {
       const L = (await import("leaflet")).default;
       if (weg || !containerRef.current || mapRef.current) return;
-      if (!document.querySelector("#leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css"; link.rel = "stylesheet"; link.href = "/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(link);
-      }
+      laadLeafletCss();
       const map = L.map(containerRef.current, {
         center: [52.37, 4.9], zoom: 13, zoomControl: false, attributionControl: false,
         dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false, boxZoom: false, keyboard: false,

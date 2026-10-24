@@ -4,7 +4,7 @@ import { normaliseerPuzzel, lettersVoor, RAAD_SECONDEN } from "@/lib/puzzel";
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 // 🧩 Puzzelwoord op de server: de instellingen van een route en de afrekening bij de finish.
-export type PuzzelRegels = { woord: string; omschrijving: string | null; verdeling: Record<string, number>; letterPunten: number; alleBonus: number; raadBonus: number;
+type PuzzelRegels = { woord: string; omschrijving: string | null; verdeling: Record<string, number>; letterPunten: number; alleBonus: number; raadBonus: number;
   // Letters van links naar rechts in plaats van willekeurig (migratie 018)
   opVolgorde: boolean };
 

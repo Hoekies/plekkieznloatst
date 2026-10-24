@@ -30,3 +30,7 @@ tsconfig.tsbuildinfo
 
 # Bronbestanden van de posters (groot); de app gebruikt de webp-versies in public/kaarten
 docs/afbeeldingen/
+
+# Lokale bestanden (niet in git)
+extra info/
+assets/branding/

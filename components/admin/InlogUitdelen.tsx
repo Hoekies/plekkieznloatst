@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import KaartjeVersturen, { type Inlog } from "@/components/admin/InlogKaartje";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import { VensterMetKop } from "@/components/shared/Venster";
 
 // Inloggegevens per team: meerdere spelers in één keer aanmaken en daarna per team het kaartje
 // via WhatsApp versturen (met de link erbij). Eén speler: 📲 Versturen op de spelerskaart.
-export { type Inlog, waTekst } from "@/components/admin/InlogKaartje";
+export { type Inlog } from "@/components/admin/InlogKaartje";
 
 export const KAARTJES_KEY = "pointrush_inlogkaartjes";
 
@@ -28,30 +28,6 @@ export function InlogKlaar({ inlog }: { inlog: Inlog }) {
   );
 }
 
-function Venster({ titel, label, onSluit, children }: { titel: string; label: string; onSluit: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") onSluit(); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [onSluit]);
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 520, maxHeight: "92vh" }}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(92vh - 6px)", overflowY: "auto", padding: "18px 18px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ flex: 1 }}>
-              <div className="pr-gem-label">{label}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>{titel}</div>
-            </div>
-            <button type="button" className="editor-paneel-sluit" onClick={onSluit} aria-label="Sluiten">✕</button>
-          </div>
-          {children}
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
-}
 
 // De lijst met inloggegevens, met versturen, kopiëren en afdrukken
 function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
@@ -102,7 +78,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
         👫 Meerdere
       </button>
       {open && (
-        <Venster label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>
+        <VensterMetKop breedte={520} maxHoogte={92} label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>
           {gemaakt ? <InlogLijst inlogs={gemaakt} /> : (
             <form onSubmit={maak} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", gap: 10 }}>
@@ -124,7 +100,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
               </button>
             </form>
           )}
-        </Venster>
+        </VensterMetKop>
       )}
     </>
   );

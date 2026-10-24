@@ -1,11 +1,11 @@
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import RouteEditorShell from "@/components/admin/RouteEditorShell";
 
 export default async function RouteEditorPage({ params }: { params: { id: string } }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
+  if (!isAdmin(user)) redirect("/login");
 
   const admin = createAdminClient();
   const { data: route } = await admin

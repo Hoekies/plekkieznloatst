@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import type { TeamAntwoorden, AntwoordRij } from "@/lib/admin-antwoorden";
 import LeegScherm from "@/components/admin/LeegScherm";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // Foto's staan in een afgeschermde opslag: een tijdelijke link via de admin-API (onthouden per pad)
 const linkCache = new Map<string, string>();
@@ -20,7 +20,7 @@ export function useFotoUrl(pad: string | null) {
 }
 
 type Foto = AntwoordRij & { team: string; icon: string | null };
-export type FotoKeuren = (fotoId: string, voortgangId: string, status: "goedgekeurd" | "afgekeurd", punten: number, opmerking: string) => Promise<void>;
+type FotoKeuren = (fotoId: string, voortgangId: string, status: "goedgekeurd" | "afgekeurd", punten: number, opmerking: string) => Promise<void>;
 
 // 📸 Alle ingestuurde foto's als raster; tik voor groot, met ✓/✗, punten en een opmerking voor het team.
 // Pijltjes (← →) bladeren, Esc sluit.
@@ -68,25 +68,17 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
   useEffect(() => {
     const toets = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
-      if (e.key === "Escape") onSluit();
       if (e.key === "ArrowLeft") onVorige();
       if (e.key === "ArrowRight") onVolgende();
     };
     window.addEventListener("keydown", toets);
     return () => window.removeEventListener("keydown", toets);
-  }, [onSluit, onVorige, onVolgende]);
+  }, [onVorige, onVolgende]);
   const wacht = f.foto_status === "wacht";
-  return createPortal(
-    <div onClick={onSluit} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.88)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 640, maxHeight: "96vh" }}>
+  return (
+    <Venster onSluit={onSluit} breedte={640} maxHoogte={96} donker={0.88} rand={12}>
         <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "14px 14px 12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="pr-gem-label">📸 {nr} van {totaal} · {f.punt_naam}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#fff" }}>{f.icon ?? "👫"} {f.team}</div>
-            </div>
-            <button type="button" className="editor-paneel-sluit" onClick={onSluit} title="Sluiten (Esc)" aria-label="Sluiten">✕</button>
-          </div>
+          <VensterKop label={<>📸 {nr} van {totaal} · {f.punt_naam}</>} titel={<>{f.icon ?? "👫"} {f.team}</>} onSluit={onSluit} />
           {f.vraag_tekst && <div style={{ fontSize: "0.84rem", color: "var(--text)" }}>{f.vraag_tekst}</div>}
           <div className="foto-groot">
             <button type="button" className="foto-pijl foto-pijl--links" onClick={onVorige} aria-label="Vorige foto">‹</button>
@@ -119,8 +111,6 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
           )}
           <div style={{ fontSize: "0.7rem", color: "var(--muted)", textAlign: "center" }}>← → bladeren · Esc sluiten</div>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </Venster>
   );
 }

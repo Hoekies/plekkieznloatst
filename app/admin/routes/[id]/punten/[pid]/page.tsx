@@ -1,4 +1,4 @@
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import VraagEditorPagina from "@/components/admin/VraagEditorPagina";
@@ -9,7 +9,7 @@ export default async function PuntEditorPage({
   params: { id: string; pid: string };
 }) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") redirect("/login");
+  if (!isAdmin(user)) redirect("/login");
 
   const admin = createAdminClient();
 

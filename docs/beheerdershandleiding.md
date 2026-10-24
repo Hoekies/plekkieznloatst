@@ -564,7 +564,7 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 In het menu onder **Beheer** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
 
 - **🐞 Foutmeldingen uit de app** — zag een speler of beheerder het scherm *Er ging iets mis*, dan staat de fout hier (wanneer, wie en op welke pagina; tik voor de details). Handig om door te geven als iets steeds misgaat. **🗑️ Logboek wissen** maakt de lijst leeg; **🧹 Oude gegevens opruimen** haalt GPS-plekken en fouten ouder dan 30 dagen weg (dat gebeurt ook elke nacht vanzelf, voor de privacy). Daarna is de gelopen route van die oude spellen niet meer te zien.
-- **Database** — de verbinding, en per database-migratie (003 t/m 018) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
+- **Database** — de verbinding, en per database-migratie (003 t/m 019) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.
 - **Opslag** — of de mappen voor afbeeldingen en foto's bestaan.
 - **Instellingen** — of de sleutels in Vercel staan (alleen óf ze er zijn, nooit de waarde), bijvoorbeeld voor pushmeldingen.
 - **Spel** — welke route actief is.
@@ -587,6 +587,8 @@ Nodig: migratie `014_vraagopties_puzzel_verboden.sql` (zie 🩺 Systeemcheck).
 **🗳️ Stemvraag** (vraag-editor → Soort vraag): 2 tot 4 keuzes, zonder goed antwoord. Elk team stemt; de teams die de meest gekozen keuze kozen, krijgen de punten (bij gelijkspel alle koplopers). De stemming sluit vanzelf bij **🏆 Uitslag vrijgeven** of **🏁 Spel afronden**, of eerder met **🗳️ Stemming sluiten** bij Antwoorden → 📊 Per vraag (daar zie je ook de stemmen per keuze). Nodig: migratie `016_huisstijl_geluid_stemvraag.sql`.
 
 **🎨 Huisstijl** (⚙️ Instellingen → 🎨 Uiterlijk): een eigen **kleur** (knoppen en accenten in de spelersapp), een **logo**, bijvoorbeeld van het bedrijf. Dat komt in de spelersapp (bovenbalk en welkomstscherm), op de oorkonde, de uitslag-afbeelding, het PDF-rapport, het voorproefje, de inlogkaartjes, het beamerscherm, de gedeelde kaart en het fotoalbum, en in het beheer op het dashboard, in het menu, op de live kaart en bij de route in het overzicht (zolang die route actief is) en een **welkomstfoto** (achtergrond van het welkomstscherm). Handig bij een bedrijfsuitje. **PR** = de gewone PointRush-kleuren. Nodig: migratie 016.
+
+**🗓️ Achtergronden per seizoen en feestdag** (⚙️ Instellingen → 🎨 Uiterlijk, geldt voor alle routes): upload per thema een achtergrond voor het welkomstscherm. De app kiest vanzelf op datum, feestdag voor seizoen: Halloween (24 okt – 7 nov), Sinterklaas (13 nov – 6 dec), Kerst (7–27 dec), Oud & nieuw (28 dec – 6 jan), Valentijn (7–21 feb), Carnaval en Pasen (elk jaar uitgerekend), Koningsdag (20 apr – 4 mei), en daarbuiten lente, zomer, herfst of winter. Een eigen welkomstfoto van de route gaat altijd voor. Nodig: migratie `019_seizoen_achtergronden.sql`.
 
 **🔔 Geluiden** (⚙️ Instellingen → 🎨 Uiterlijk): kies **🎵 Klassiek**, **👾 Arcade**, **🌙 Zacht** of **🎺 Feest** voor punt bereikt, goed, fout en de finish. Bij het kiezen hoor je de set meteen; **▶** speelt hem nog eens af. Spelers kunnen het geluid zelf uitzetten in ℹ️.
 

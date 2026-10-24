@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import { haversine } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
+import { VensterKop } from "@/components/shared/Venster";
 
 // "🧪 Testronde": de route punt voor punt doorlopen zonder naar buiten te gaan. De kaart vliegt
 // naar elk punt; je ziet de vraag zoals de speler hem krijgt (met het goede antwoord gemarkeerd),
@@ -52,16 +53,9 @@ export default function TestRonde({ routeId, punten, items, verspreid, onGaNaar,
   return (
     <div className="testronde pr-gem-panel">
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 14px 12px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="pr-gem-label">🧪 Testen · 📋 punt voor punt · {stap + 1} van {punten.length}</div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {label} · {punt.name || "naamloos"}
-            </div>
-          </div>
+        <VensterKop label={<>🧪 Testen · 📋 punt voor punt · {stap + 1} van {punten.length}</>} titel={<>{label} · {punt.name || "naamloos"}</>} onSluit={onSluit} sluitLabel="Testen sluiten">
           {onLopen && <button type="button" className="es-link" onClick={onLopen} title="Over de kaart lopen als testspeler">🚶 Lopen</button>}
-          <button type="button" className="editor-paneel-sluit" onClick={onSluit} aria-label="Testen sluiten">✕</button>
-        </div>
+        </VensterKop>
 
         <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>
           {afstand !== null ? `↔ ${afstand} m vanaf het vorige punt (hemelsbreed)` : verspreid ? "Hier verzamelen alle teams; elk team begint daarna ergens anders in het rondje." : "Eerste punt van de route."}

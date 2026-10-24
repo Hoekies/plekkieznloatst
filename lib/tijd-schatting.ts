@@ -3,16 +3,16 @@ import { haversine } from "@/lib/geo";
 // Schatting van afstand en speeltijd per team voor een verspreide route, voor de editor.
 // Het blijft een inschatting: echte teams lopen omwegen, zoeken, overleggen en pauzeren.
 
-export const LOOPSNELHEID_M_PER_MIN = 75;   // 4,5 km/u, wandeltempo van een groep
+const LOOPSNELHEID_M_PER_MIN = 75;   // 4,5 km/u, wandeltempo van een groep
 const MIN_PER_VRAAG = 2;                    // lezen, overleggen, antwoorden (foto iets langer, open korter)
 const MIN_PER_INFOPUNT = 0.5;
 const ITEM_BEREIK_M = 150;                  // items verder van de route laat een team meestal liggen
 const MIN_PER_ITEM = 0.5;                   // oppakken en inzetten
 
 type Plek = { lat: number; lng: number };
-export type SchattingItem = Plek & { type: string; radius: number };
+type SchattingItem = Plek & { type: string; radius: number };
 
-export type TijdSchatting = {
+type TijdSchatting = {
   afstandM: number;
   lopenMin: number;
   vragenMin: number;
@@ -89,7 +89,7 @@ export function schatTeamTijd(route: Plek[], o: {
 // ── Puntenschatting ──────────────────────────────────────────────────────────
 const KANS_GOED = 0.7; // aanname: een team beantwoordt ongeveer 70% van de vragen goed
 
-export type PuntenSchatting = {
+type PuntenSchatting = {
   maxVragen: number;   // alles goed
   vragen: number;      // verwacht bij ~70% goed
   items: number;       // verwacht saldo van items (kan negatief zijn)

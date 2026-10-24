@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { sluitStemmingen } from "@/lib/stemmen";
@@ -9,7 +9,7 @@ import { rekenPuzzelsAf } from "@/lib/puzzel-server";
 // zien de eindstand binnen ~10 seconden verschijnen.
 export async function POST(request: NextRequest) {
   const user = await haalGebruiker();
-  if (user?.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const { vrij } = await request.json();
   const admin = createAdminClient();

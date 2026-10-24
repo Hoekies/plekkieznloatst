@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp } from "@/lib/basiskaart";
+import { voegBasiskaartToe, bewaardeStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 
 export type KaartPunt = { id: string; lat: number; lng: number; label: string };
 
@@ -40,13 +40,7 @@ export default function PuntMiniKaart({ punt, radius, andere = [] }: {
   }
 
   useEffect(() => {
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link");
-      link.id = "leaflet-css";
-      link.rel = "stylesheet";
-      link.href = "/leaflet/1.9.4/leaflet.css";
-      document.head.appendChild(link);
-    }
+    laadLeafletCss();
     let actief = true;
     import("leaflet").then((L) => {
       if (!actief || !containerRef.current || kaartRef.current) return;

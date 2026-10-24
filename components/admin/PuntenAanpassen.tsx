@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // "± Punten": bonus of aftrek voor één team, met een reden (komt in de tijdlijn en het rapport)
 export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId: string; naam: string; onKlaar: () => void }) {
@@ -12,12 +12,6 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
   const [reden, setReden] = useState("");
   const [bezig, setBezig] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [open]);
 
   async function toepassen(e: React.FormEvent) {
     e.preventDefault();
@@ -36,17 +30,10 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
   return (
     <>
       <button type="button" className="rl-knop" onClick={() => setOpen(true)} title="Bonus of aftrek, met een reden"><span className="knop-icoon" aria-hidden>±</span> Punten</button>
-      {open && createPortal(
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 400 }}>
+      {open && (
+        <Venster onSluit={() => setOpen(false)} breedte={400}>
             <form onSubmit={toepassen} className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <div className="pr-gem-label">± Punten aanpassen</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>{naam}</div>
-                </div>
-                <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} aria-label="Sluiten">✕</button>
-              </div>
+              <VensterKop label="± Punten aanpassen" titel={naam} onSluit={() => setOpen(false)} />
               {/* Snelkeuze, of zelf een getal (negatief = aftrek) */}
               <div className="punten-snel">
                 {[-20, -10, 10, 20, 50].map((n) => (
@@ -69,9 +56,7 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
                 {bezig ? "Bezig…" : delta < 0 ? `${delta} punten aftrekken` : `+${delta} punten geven`}
               </button>
             </form>
-          </div>
-        </div>,
-        document.body,
+        </Venster>
       )}
     </>
   );

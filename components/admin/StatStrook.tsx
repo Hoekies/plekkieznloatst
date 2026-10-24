@@ -2,7 +2,7 @@ import SchuifTekst from "@/components/admin/SchuifTekst";
 
 // Compacte strook bovenaan een pagina (Dashboard, Spelers, Antwoorden). Elk vakje heeft dezelfde
 // opbouw: links het icoon, rechts de waarde (getal of naam) met een klein woord eronder.
-export type StatVak = { icoon: string; waarde: string | number; label: string; letOp?: boolean; titel?: string };
+type StatVak = { icoon: string; waarde: string | number; label: string; letOp?: boolean; titel?: string };
 
 export default function StatStrook({ vakken }: { vakken: StatVak[] }) {
   return (

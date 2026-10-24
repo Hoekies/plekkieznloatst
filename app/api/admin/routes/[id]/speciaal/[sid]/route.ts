@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  return user?.app_metadata?.rol === "admin" ? user : null;
-}
 
 const TOEGESTANE_VELDEN = ["name", "type", "latitude", "longitude", "radius_meters", "points_effect"] as const;
 
@@ -13,7 +8,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string; sid: string } }
 ) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
   const update: Record<string, unknown> = {};
   for (const veld of TOEGESTANE_VELDEN) {
@@ -36,7 +31,7 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string; sid: string } }
 ) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   const { error } = await admin
     .from("special_items")

@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-async function checkAdmin() {
-  const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") return null;
-  return user;
-}
-
 export async function GET() {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("routes")
@@ -27,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  if (!await checkAdmin()) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
   const { name } = body;
   if (!name?.trim()) return NextResponse.json({ fout: "Naam is verplicht" }, { status: 400 });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
 import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
@@ -7,7 +7,7 @@ import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
 // GET — alle groepen ophalen
 export async function GET() {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isAdmin(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
@@ -29,7 +29,7 @@ export async function GET() {
 // POST — nieuwe groep aanmaken
 export async function POST(request: NextRequest) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") {
+  if (!isAdmin(user)) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 

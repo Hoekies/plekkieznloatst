@@ -12,6 +12,7 @@ import Oorkonde from "./Oorkonde";
 import PuzzelWoord from "./PuzzelWoord";
 import { strooiConfetti } from "@/lib/confetti";
 import Podium from "./Podium";
+import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 
 interface Props {
@@ -237,14 +238,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, routeNaam, score: i
         </div>
 
         {/* Ko-fi */}
-        <a
-          href="https://ko-fi.com/hoekies"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: "block", width: "50%", margin: "0 auto" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/ko-fi.png" alt="Ko-fi — Steun het project" style={{ width: "100%", height: "auto", display: "block" }} />
-        </a>
+        <KoFiKnop />
       </div>
     </div>
   );

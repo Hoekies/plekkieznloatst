@@ -1,8 +1,7 @@
-import { haalGebruiker } from "@/lib/auth-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import TerugkijkScherm from "@/components/speler/TerugkijkScherm";
 import type { VraagType, FotoStatus } from "@/types/database";
+import { haalSpeler } from "@/lib/speler-sessie";
 
 export type TerugkijkItem = {
   punt_id: string;
@@ -36,22 +35,14 @@ export type TerugkijkGebeurtenis = {
 };
 
 export default async function TerugkijkPage() {
-  const user = await haalGebruiker();
-  if (!user) redirect("/login");
-
-  const admin = createAdminClient();
-
-  const { data: speler } = await admin
-    .from("players")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-  if (!speler) redirect("/login");
+  const ik = await haalSpeler();
+  if (!ik) redirect("/login");
+  const { admin, spelerId } = ik;
 
   const { data: sessie } = await admin
     .from("player_sessions")
     .select("id, route_id")
-    .eq("player_id", speler.id)
+    .eq("player_id", spelerId)
     .eq("status", "voltooid")
     .not("finished_at", "is", null)
     .order("finished_at", { ascending: false })

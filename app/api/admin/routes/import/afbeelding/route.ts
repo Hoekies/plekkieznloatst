@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { haalGebruiker } from "@/lib/auth-server";
+import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Eén afbeelding (of geluidsfragment) uit een geëxporteerde route terugzetten in de opslag, onder hetzelfde pad,
@@ -10,7 +10,7 @@ const GELUID_TYPES = ["audio/mpeg", "audio/mp3", "audio/mp4", "audio/x-m4a", "au
 
 export async function POST(request: NextRequest) {
   const user = await haalGebruiker();
-  if (!user || user.app_metadata?.rol !== "admin") return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const body = await request.json().catch(() => null);
   const sleutel = typeof body?.sleutel === "string" ? body.sleutel : "";

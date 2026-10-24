@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { toonMelding } from "@/components/admin/Melding";
 import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, IMPORT_START_NAAM, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { afstandTekst } from "@/lib/geo";
+import { useSluitMetEsc } from "@/components/shared/Venster";
 
 // "📥 Importeren" (alleen bij een route op volgorde): punten uit een GPX/KML-bestand, of een lijst
 // met coördinaten en Google Maps-links. Twee stappen: kiezen, dan controleren en toevoegen.
@@ -33,12 +34,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
   const gewoon = gevonden.filter((p) => !p.finish).length;
   const metFinish = gevonden.some((p) => p.finish);
 
-  useEffect(() => {
-    if (!open) return;
-    const toets = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", toets);
-    return () => window.removeEventListener("keydown", toets);
-  }, [open]);
+  useSluitMetEsc(() => setOpen(false), open);
 
   function opnieuw() {
     setGevonden([]); setNietHerkend([]); setSpoor(undefined); setFinishWeg(false); setBestandsnaam(null);

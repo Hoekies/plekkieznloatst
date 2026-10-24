@@ -464,13 +464,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     } catch { /* verbindingsfout */ }
   }
 
-  async function haalSpecialeItemsOp() {
-    try {
-      const res = await fetch("/api/speler/speciaal");
-      if (res.ok) verwerkSpecialeItems(await res.json());
-    } catch { /* verbindingsfout */ }
-  }
-
   function verwerkSpecialeItems(items: SpeciaalItem[]) {
     setSpecialeItems(items);
     // Uitleg (ℹ️) onthoudt elk itemtype dat ooit in de route zat, ook na oppakken of respawn
@@ -529,13 +522,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Berichten van de organisatie: elk nieuw bericht één keer tonen, als groot venster dat
   // blijft staan tot het team het wegtikt (gezien-lijst per sessie in localStorage)
-  async function haalBerichtenOp() {
-    try {
-      const res = await fetch("/api/speler/berichten");
-      if (res.ok) verwerkBerichten(await res.json());
-    } catch { /* verbindingsfout */ }
-  }
-
   function verwerkBerichten({ berichten }: BerichtenData) {
     const sleutel = `pr_berichten_gezien_${sessie.id}`;
     let gezien: string[] = [];
@@ -873,13 +859,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   function bewaarItemVoorLater() {
     setActiveSpeciaalItem(null);
-  }
-
-  async function haalTussenstandOp() {
-    try {
-      const res = await fetch("/api/speler/tussenstand");
-      if (res.ok) verwerkTussenstand(await res.json());
-    } catch { /* verbindingsfout */ }
   }
 
   function verwerkTussenstand(data: TussenstandData) {
