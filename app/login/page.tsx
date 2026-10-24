@@ -31,8 +31,11 @@ function LoginForm() {
   const [toonWachtwoord, setToonWachtwoord] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [qrVerlopen, setQrVerlopen] = useState(false);
+
   // 📷 QR-code van het inlogkaartje: loginnaam en wachtwoord staan achter het #-teken → invullen en
-  // meteen inloggen. Het #-deel gaat eerst uit de adresbalk, zodat het wachtwoord niet in de geschiedenis blijft.
+  // meteen inloggen, zolang de code geldig is (48 uur). Daarna alleen de loginnaam invullen.
+  // Het #-deel gaat eerst uit de adresbalk, zodat het wachtwoord niet in de geschiedenis blijft.
   useEffect(() => {
     const probeer = () => {
       const inlog = inlogUitHash(window.location.hash);
@@ -40,6 +43,7 @@ function LoginForm() {
       if (!inlog || !form) return;
       history.replaceState(null, "", window.location.pathname + window.location.search);
       (form.elements.namedItem("naam") as HTMLInputElement).value = inlog.login;
+      if (Date.now() > inlog.tot) { setQrVerlopen(true); (form.elements.namedItem("wachtwoord") as HTMLInputElement).focus(); return; }
       (form.elements.namedItem("wachtwoord") as HTMLInputElement).value = inlog.wachtwoord;
       form.requestSubmit();
     };
@@ -139,6 +143,12 @@ function LoginForm() {
                 {toonWachtwoord ? "🙈" : "👁️"}
               </button>
             </div>
+
+            {qrVerlopen && !foutTekst && (
+              <div style={{ background: "rgba(245,158,11,0.15)", border: "1.5px solid rgba(252,211,77,0.45)", borderRadius: 12, padding: "8px 12px", fontSize: "0.82rem", color: "#FDE68A", marginBottom: 14 }}>
+                ⏱️ De QR-code werkt niet meer (48 uur geldig). Vul het wachtwoord van je kaartje in.
+              </div>
+            )}
 
             {foutTekst && (
               <div style={{

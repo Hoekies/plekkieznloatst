@@ -313,7 +313,7 @@ Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook
 - **Status in één oogopslag**: het stipje rechtsonder op het icoon is groen (speelt), blauw (ingelogd), goud (gefinisht), grijs (niet ingelogd) of rood (uitgeschakeld). Op de pc staat het woord er ook bij.
 - **🔍 Zoeken en sorteren** (vanaf 5 spelers): zoek op naam, login of telefoonnummer en sorteer op **🔤 Naam**, **⚡ Status** of **🆕 Nieuwst** (wordt onthouden).
 - **✏️ Teamnaam aanpassen**: het potloodje achter de naam. Handig bij een ongepaste naam; leeg maken = het team kiest bij de start opnieuw.
-- **🖨️ Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. De **QR-code** op elk kaartje logt meteen in, zonder typen en zonder einddatum: scannen met de camera van de telefoon, of in de app met **📷 Scan je kaartje** op het inlogscherm. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
+- **🖨️ Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. De **QR-code** op elk kaartje logt 48 uur lang meteen in, zonder typen: scannen met de camera van de telefoon, of in de app met **📷 Scan je kaartje** op het inlogscherm. Daarna vult scannen alleen de loginnaam in en typt de speler het wachtwoord van het kaartje. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
 
 #### Meerdere spelers tegelijk
 

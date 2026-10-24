@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SITE, qrInlogAdres } from "@/lib/qr-inlog";
+import { SITE, qrInlogAdres, qrGeldigTot } from "@/lib/qr-inlog";
 import { QRCodeCanvas } from "qrcode.react";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { toonMelding } from "@/components/admin/Melding";
@@ -56,10 +56,15 @@ function useHuisLogo(): string | null {
   return logo;
 }
 
-// Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. De QR-code logt meteen in (zonder typen):
-// met de gegevens van het kaartje, of met de inloglink als er geen wachtwoord bij is.
+// Het inlogkaartje zelf: logo, QR-code, loginnaam en wachtwoord. De QR-code logt 48 uur lang meteen in
+// (zonder typen): via de inloglink als die er is, anders met de gegevens van het kaartje. Daarna: inloggen
+// met loginnaam en wachtwoord.
 function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<HTMLDivElement> }) {
   const huisLogo = useHuisLogo();
+  const qr = inlog.link
+    ? { adres: inlog.link.url, tot: inlog.link.geldig_tot }
+    : inlog.wachtwoord ? (() => { const tot = qrGeldigTot(); return { adres: qrInlogAdres(inlog.login, inlog.wachtwoord, tot), tot: tot.toISOString() }; })()
+    : null;
   return (
     <div className="kaartje" ref={kaartRef}>
       <div className="kaartje-logos">
@@ -69,17 +74,15 @@ function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<
         {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="kaartje-huislogo" />}
       </div>
       <div className="kaartje-midden">
-        <div className="kaartje-qr"><QRCodeCanvas value={inlog.wachtwoord ? qrInlogAdres(inlog.login, inlog.wachtwoord) : inlog.link?.url ?? SITE} size={96} /></div>
+        <div className="kaartje-qr"><QRCodeCanvas value={qr?.adres ?? SITE} size={96} /></div>
         <div className="kaartje-velden">
           <div className="kaartje-veld"><small>{inlog.helper ? "Naam" : "Loginnaam"}</small><b>{inlog.login}</b></div>
           <div className="kaartje-veld kaartje-veld--ww"><small>Wachtwoord</small><b>{inlog.wachtwoord}</b></div>
         </div>
       </div>
       <div className="kaartje-voet">
-        {inlog.wachtwoord
-          ? <>📷 Scan de code: je bent meteen ingelogd · of ga naar <strong>{SITE.replace("https://", "")}</strong></>
-          : inlog.link
-          ? <>📷 Scan de code: je bent meteen ingelogd (tot {totTekst(inlog.link.geldig_tot)})</>
+        {qr
+          ? <>📷 Scan de code: je bent meteen ingelogd (tot {totTekst(qr.tot)}) · daarna via <strong>{SITE.replace("https://", "")}</strong></>
           : <>Ga naar <strong>{SITE.replace("https://", "")}</strong></>}
       </div>
     </div>
