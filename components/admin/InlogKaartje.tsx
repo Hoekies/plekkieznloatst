@@ -64,7 +64,7 @@ function InlogKaartje({ inlog, kaartRef }: { inlog: Inlog; kaartRef?: React.Ref<
     <div className="kaartje" ref={kaartRef}>
       <div className="kaartje-logos">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-breed.png" alt="PointRush" className="kaartje-logo" />
+        <img src="/spellogo/breed.png" alt="PointRush" className="kaartje-logo" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="kaartje-huislogo" />}
       </div>

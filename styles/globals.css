@@ -3275,6 +3275,9 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-beeld { aspect-ratio: 9 / 14; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.3); background: rgba(255,255,255,0.05) center / cover no-repeat;
   color: var(--muted); font-size: 1.6rem; cursor: pointer; }
 .seizoen-vak--nu .seizoen-beeld { border: 2px solid #FFD93B; }
+.seizoen-soorten { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Logo's: hele logo zichtbaar (contain), vierkanter vak */
+.seizoen-raster--logo .seizoen-beeld { aspect-ratio: 4 / 3; background-size: contain; background-origin: content-box; padding: 8px; }
 .seizoen-naam { font-size: 0.74rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; }
 .seizoen-nu { padding: 0 5px; border-radius: 5px; background: #FFD93B; color: #3a1f80; font-size: 0.62rem; font-weight: 800; }
 .seizoen-periode { font-size: 0.66rem; color: var(--muted); }

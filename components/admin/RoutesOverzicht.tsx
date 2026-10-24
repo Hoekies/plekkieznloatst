@@ -17,6 +17,7 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { StartitemsKiezer, NaFinishKiezer } from "@/components/admin/ItemKeuze";
 import Venster from "@/components/shared/Venster";
+import { huisLogoUrl } from "@/lib/huisstijl";
 
 // "vandaag 14:32", "gisteren 09:10", "3 dagen geleden" of "12 okt 2026"
 function wanneer(iso: string): string {
@@ -514,7 +515,7 @@ export default function RoutesOverzicht() {
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
                     {/* Eigen logo (huisstijl), op de telefoon klein onder de naam */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {r.huisstijl_logo_pad && <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/route-afbeeldingen/${r.huisstijl_logo_pad}`} alt="" className="rl-huislogo" />}
+                    {r.huisstijl_logo_pad && <img src={huisLogoUrl(r)!} alt="" className="rl-huislogo" />}
                     {/* Telefoon: spelsoort en datum samen op één regel */}
                     <span className="rl-meta">
                       <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>
@@ -530,7 +531,7 @@ export default function RoutesOverzicht() {
                   {r.huisstijl_logo_pad && (
                     <span className="rl-logovak">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/route-afbeeldingen/${r.huisstijl_logo_pad}`} alt="" />
+                      <img src={huisLogoUrl(r)!} alt="" />
                     </span>
                   )}
                   {/* Telefoon: de volgende stap naast de naam (de status staat al in de kop van de groep) */}

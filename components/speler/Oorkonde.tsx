@@ -40,7 +40,7 @@ export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden,
       <div aria-hidden style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none" }}>
         <div ref={ref} className="oorkonde">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.webp" alt="" className="oorkonde-logo" />
+          <img src="/spellogo/vierkant.webp" alt="" className="oorkonde-logo" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="oorkonde-huislogo" />}
           <div className="oorkonde-kop">Oorkonde</div>

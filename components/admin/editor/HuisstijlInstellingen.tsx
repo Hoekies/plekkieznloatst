@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { OPSLAG } from "@/lib/huisstijl";
 import type { Route } from "@/types/database";
 import { toonMelding } from "@/components/admin/Melding";
 import { GELUID_SETS, speelVoorbeeld, type GeluidSet } from "@/lib/sounds";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 
-const OPSLAG = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/route-afbeeldingen/`;
 // Voorbeeldkleuren; met 🎨 kies je elke andere kleur
 const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2"];
 

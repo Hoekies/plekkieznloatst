@@ -178,7 +178,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         {!typt && !huisLogo && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}
         <div className="pr-logo-wrap" style={typt ? { display: "none" } : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={huisLogo ?? "/logo.webp"} alt={huisLogo ? "Logo" : "PointRush"} style={{
+          <img src={huisLogo ?? "/spellogo/vierkant.webp"} alt={huisLogo ? "Logo" : "PointRush"} style={{
             width: "clamp(110px, 36vw, 170px)", objectFit: "contain", display: "block",
             filter: "drop-shadow(0 14px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,217,59,0.2))",
           }} />

@@ -29,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <SidebarToggle />
         {/* Breed logo in de bovenbalk van de telefoon */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-breed-strak.webp" alt="PointRush" className="admin-mobiel-logo" />
+        <img src="/spellogo/breed.webp" alt="PointRush" className="admin-mobiel-logo" />
         {/* Bericht sturen en uitloggen als icoon; de rest staat in het menu */}
         <div style={{ display: "flex", gap: 8 }}>
           {!helper && <BroadcastKnop alsIcoon />}
@@ -39,7 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="admin-sidebar">
         <div className="admin-sidebar-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
+          <img src="/spellogo/vierkant.webp" alt="PointRush" style={{ width: "90%", objectFit: "contain", display: "block", margin: "0 auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 18px rgba(255,217,59,0.2))" }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" className="admin-sidebar-huislogo" />}
         </div>

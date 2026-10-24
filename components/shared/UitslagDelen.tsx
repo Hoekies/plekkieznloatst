@@ -38,7 +38,7 @@ export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopCl
         <div ref={ref} className="uitslag-kaart">
           <div className="uitslag-kaart-logos">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.webp" alt="" className="uitslag-kaart-logo" />
+            <img src="/spellogo/vierkant.webp" alt="" className="uitslag-kaart-logo" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="uitslag-kaart-huislogo" />}
           </div>

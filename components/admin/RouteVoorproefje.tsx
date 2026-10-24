@@ -202,7 +202,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
               {/* Kop */}
               <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-breed-strak.webp" alt="PointRush" style={{ height: 76, width: "auto" }} />
+                <img src="/spellogo/breed.webp" alt="PointRush" style={{ height: 76, width: "auto" }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#FFE680", letterSpacing: "0.1em", fontSize: 12 }}>VOORPROEFJE</div>
                   <h1 style={{ fontSize: 28, lineHeight: 1.1 }}>{route.name}</h1>

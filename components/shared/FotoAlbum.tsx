@@ -13,7 +13,7 @@ export default function FotoAlbum({ titel, fotos, nietBeschikbaar = false, huisL
     <div className="album">
       <header className="album-kop">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.webp" alt="PointRush" className="album-logo" />
+        <img src="/spellogo/vierkant.webp" alt="PointRush" className="album-logo" />
         {/* Eigen logo van de organisatie (huisstijl van de route) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {huisLogo && <img src={huisLogo} alt="" className="album-huislogo" />}

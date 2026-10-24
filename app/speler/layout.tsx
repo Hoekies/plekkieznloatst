@@ -32,7 +32,7 @@ export default async function SpelerLayout({ children }: { children: React.React
         <VolledigSchermKnop />
         {/* Logo zonder lege randen: vult de hoogte van de balk, links uitgelijnd */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-breed-strak.webp" alt="PointRush" className="speler-header-logo" />
+        <img src="/spellogo/breed.webp" alt="PointRush" className="speler-header-logo" />
         {/* Logo van de organisatie (huisstijl van de route) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {huisstijl.logo && <img src={huisstijl.logo} alt="" className="speler-header-huislogo" />}

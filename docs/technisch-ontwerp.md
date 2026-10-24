@@ -45,6 +45,7 @@ plekkie-zn-loatst/
 │   ├── admin/                        → dashboard, routes (+ editor, punt/vraag, voorproefje), groepen,
 │   │                                   antwoorden, live, rapport, kaartjes, leaderboard, uitleg
 │   ├── speler/                       → intro, kaart, finish, terugkijk, qr
+│   ├── spellogo/[bestand]/           → spellogo van vandaag (seizoenslogo of het gewone), overal i.p.v. /logo.webp
 │   └── api/
 │       ├── admin/                    → beheer: routes, punten, items, groepen, live, broadcast, pauze, …
 │       ├── auth/                     → inloggen, uitloggen, apparaatcheck
@@ -72,7 +73,7 @@ plekkie-zn-loatst/
 │   ├── items/, kaarten/              → itemiconen, speluitleg-afbeeldingen
 │   ├── leaflet/1.9.4/, maplibre/     → kaartstijlen en MapLibre-worker (zelf meegeleverd, geen CDN)
 │   └── sw.js, manifest.webmanifest   → PWA
-├── supabase/migrations/              → 001 … 019 (nieuwe tabellen: altijd expliciete GRANTs)
+├── supabase/migrations/              → 001 … 020 (nieuwe tabellen: altijd expliciete GRANTs)
 ├── middleware.ts                     → sessiecheck, rollen, gebruiker doorgeven in headers
 └── next.config.mjs                   → CSP en cache-headers
 ```

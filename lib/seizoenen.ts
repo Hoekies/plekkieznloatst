@@ -32,6 +32,10 @@ export const THEMAS: Thema[] = [
   { sleutel: "winter", naam: "Winter", emoji: "❄️", feestdag: false, periode: (j) => [d(j, 12, 21), d(j + 1, 3, 20)] },
 ];
 
+// Wat er per thema kan worden geüpload, en in welke kolom van seizoen_achtergronden het staat
+export const SEIZOEN_KOLOM = { achtergrond: "pad", logo: "logo_pad", logo_breed: "logo_breed_pad" } as const;
+export type SeizoenSoort = keyof typeof SEIZOEN_KOLOM;
+
 // Valt de datum in de periode van dit thema? (ook als die over de jaarwisseling loopt)
 function inPeriode(t: Thema, datum: Date): boolean {
   const dag = new Date(datum.getFullYear(), datum.getMonth(), datum.getDate());

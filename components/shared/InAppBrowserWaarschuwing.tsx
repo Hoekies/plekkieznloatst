@@ -42,7 +42,7 @@ export default function InAppBrowserWaarschuwing() {
       fontFamily: "var(--font, system-ui)",
     }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.webp" alt="PointRush" style={{ width: 140, objectFit: "contain", marginBottom: 4 }} />
+      <img src="/spellogo/vierkant.webp" alt="PointRush" style={{ width: 140, objectFit: "contain", marginBottom: 4 }} />
 
       <h2 style={{ color: "#00d9ff", fontWeight: 700, fontSize: "1.2rem", margin: 0, textAlign: "center" }}>
         Open in {browser}

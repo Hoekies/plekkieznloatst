@@ -25,7 +25,7 @@ export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "
           </button>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/logo.webp" alt="PointRush" style={{ height: 44, width: "auto" }} />
+          <img src="/spellogo/vierkant.webp" alt="PointRush" style={{ height: 44, width: "auto" }} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: "1.2rem", color: "#fff", fontWeight: 800 }}>{titel}</h1>

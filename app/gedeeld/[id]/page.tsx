@@ -58,7 +58,7 @@ function NietBeschikbaar() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       gap: 14, padding: 24, textAlign: "center", background: "var(--game-gradient)", color: "#fff" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.webp" alt="PointRush" style={{ width: 160, height: "auto" }} />
+      <img src="/spellogo/vierkant.webp" alt="PointRush" style={{ width: 160, height: "auto" }} />
       <div style={{ fontSize: "3rem", lineHeight: 1 }}>🏁</div>
       <h1 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 800 }}>Deze kaart is niet meer beschikbaar</h1>
       <p style={{ margin: 0, maxWidth: 360, fontSize: "1rem", lineHeight: 1.5, color: "rgba(255,255,255,0.8)" }}>
