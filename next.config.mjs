@@ -61,7 +61,7 @@ const config = {
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, immutable" }],
       },
       {
-        source: "/:bestand(logo.webp|logo-breed-strak.webp|handleiding.jpg|ko-fi.png)",
+        source: "/:bestand(logo.webp|logo-breed-strak.webp|handleiding.jpg)",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
     ];

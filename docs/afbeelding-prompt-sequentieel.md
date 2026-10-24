@@ -49,7 +49,7 @@ Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime
 
 NA HET MAKEN:
 1. Sla het origineel op als "extra info/instructiekaart/route-op-volgorde.png".
-2. Vervang public/kaarten/route-op-volgorde.webp en public/kaarten/route-op-volgorde.jpg (1024x1536; webp en jpg kwaliteit ±85, elk kleiner dan 600 KB).
+2. Vervang public/kaarten/route-op-volgorde.webp (1024x1536, kwaliteit ±85, kleiner dan 600 KB).
 3. Vervang public/kaarten/klein-route-op-volgorde.webp door een verkleinde versie met dezelfde afmetingen als het huidige bestand.
 4. Meld welke bestanden zijn vervangen, met afmetingen en grootte.
 ```

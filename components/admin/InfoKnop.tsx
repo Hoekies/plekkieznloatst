@@ -49,6 +49,15 @@ export default function InfoKnop() {
               <button type="button" className="editor-paneel-sluit" onClick={() => setOpen(false)} title="Sluiten">✕</button>
             </div>
 
+            {/* Voor een nieuwe beheerder: in 6 stappen van route tot uitslag, met plaatjes */}
+            <a href="/admin/beginnen" className="info-regel" onClick={() => setOpen(false)}>
+              <span style={{ fontSize: "1.6rem" }}>🧭</span>
+              <span>
+                <strong>Snel aan de slag</strong>
+                <span className="info-sub">Voor beginners: in 6 stappen van route tot uitslag</span>
+              </span>
+            </a>
+
             <a href="/admin/uitleg" className="info-regel" onClick={() => setOpen(false)}>
               <span style={{ fontSize: "1.6rem" }}>📖</span>
               <span>
