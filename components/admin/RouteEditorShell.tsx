@@ -184,6 +184,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
+  // ❓ Standaard punten per vraag (route) en in één keer op alle vragen zetten
+  const [vraagPuntenStd, setVraagPuntenStd] = useState(initRoute.vraag_punten ?? 65);
+  async function zetAlleVraagPunten() {
+    await slaPuzzelOp({ vraag_punten: vraagPuntenStd });
+    const res = await api(`/api/admin/routes/${route.id}/vraag-punten`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punten: vraagPuntenStd }) });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { toonMelding(uitlegBijStatus(res.status, "Punten zetten", d.fout), "fout"); return; }
+    // Hoogste punten per vraag bijwerken (eigen punten per antwoord kunnen hoger zijn)
+    if (d.max) setVraagMaxPunten((oud) => new Map([...oud, ...Object.entries(d.max as Record<string, number>)]));
+    toonMelding(`${d.aantal} ${d.aantal === 1 ? "vraag staat" : "vragen staan"} nu op ${vraagPuntenStd} punten`, "ok");
+  }
   // 🧪 Testen: eerst kiezen hoe (lopen als team, of alle vragen doorlopen)
   const [testKeuze, setTestKeuze] = useState(false);
   // 🧩 Eigen venster met alle puzzelfuncties (vanuit de werkbalk en de regel boven de puntenlijst)
@@ -966,6 +977,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // ?test=1 (vanuit Spel klaarzetten op het dashboard): meteen de testronde open
   const [testOpen, setTestOpen] = useState(() => zoekParams.get("test") === "1");
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
+  // 🏆 Maximaal te halen voor één team: alle vragen (hoogste punten per vraag), punten zonder vraag, en de bonussen
+  // van het puzzelwoord (alle letters). Items tellen niet mee: die verschillen per spel.
+  const maxVragen = vraagpunten.reduce((som, p) => som + (vraagMaxPunten.get(p.id) ?? 0), 0);
+  const maxOverig = punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "doorlooppunt").reduce((som, p) => som + (p.points ?? 0), 0);
+  const maxPuzzel = route.puzzel_aan && route.puzzelwoord ? normaliseerPuzzel(route.puzzelwoord).length * (route.puzzel_letter_punten ?? 10) + (route.puzzel_bonus ?? 100) : 0;
+  const maxTotaal = maxVragen + maxOverig + maxPuzzel;
   // Vraagpunten zonder vraag (oranje stip op de kaart); alleen een nieuwe Set als de lijst echt verandert
   const zonderVraagSleutel = vraagpunten.filter((p) => !vraagPuntIds.has(p.id)).map((p) => p.id).join(",");
   const zonderVraag = useMemo(() => new Set(zonderVraagSleutel ? zonderVraagSleutel.split(",") : []), [zonderVraagSleutel]);
@@ -1468,8 +1485,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <button type="button" className={`rl-knop alleen-pc-knop${lijstDicht ? "" : " rl-knop--cyan"}`} onClick={wisselLijst}
             title={lijstDicht ? "Puntenlijst tonen" : "Puntenlijst verbergen (meer ruimte voor de kaart)"}><Icoon naam="lijst" /> Lijst</button>
 
-          {/* Wegen: aan/uit-schakelaar; als hij aan staat een aparte knop om opnieuw te berekenen */}
-          <span className="editor-groep">
+          {/* Wegen: aan/uit-schakelaar (op de telefoon niet: daar alleen de hoofdzaken) */}
+          <span className="editor-groep alleen-pc-knop">
             <button className={`rl-knop schakel${wegenAan ? " schakel--aan" : ""}`} role="switch" aria-checked={wegenAan}
               onClick={wisselWegen} disabled={wegen.bezig}
               title={wegenAan ? "Aan: lijnen en afstanden volgen wegen en voetpaden. Klik om uit te zetten (hemelsbreed). Lukt een stuk niet, dan probeert de app het vanzelf opnieuw." : "Uit: lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
@@ -1480,6 +1497,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
             <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
           </button>
+          {/* 🏆 Maximaal te halen (uitleg bij aanwijzen) */}
+          {punten.length > 0 && (
+            <span className="werkbalk-max" title={`Maximaal te halen voor één team: vragen ${maxVragen}${maxOverig ? ` + punten zonder vraag ${maxOverig}` : ""}${maxPuzzel ? ` + puzzelwoord ${maxPuzzel}` : ""}. Items tellen niet mee.`}>
+              🏆 max {maxTotaal.toLocaleString("nl-NL")} pt
+            </span>
+          )}
           {/* 🧩 Puzzelwoord in de werkbalk: alleen als het aan staat; groen = het aantal letters klopt */}
           {(() => {
             const verschil = puzzelLetters - vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
@@ -1504,7 +1527,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-groep editor-gereedschap">
             {/* Importeren alleen bij "Op volgorde": bij een rondje maakt de app de punten zelf */}
             {route.modus === "sequentieel" && <PuntenImporteren routeId={route.id} straal={puntRadius} heeftFinish={punten[punten.length - 1]?.type === "eindpunt"} leeg={punten.length === 0} onKlaar={herlaadPunten} />}
-            <button type="button" className={`rl-knop${tekenGebied ? " rl-knop--cyan" : ""}`} onClick={() => { setTekenGebied((t) => (t ? null : [])); setProef(null); setGeselecteerd(null); }}
+            <button type="button" className={`rl-knop alleen-pc-knop${tekenGebied ? " rl-knop--cyan" : ""}`} onClick={() => { setTekenGebied((t) => (t ? null : [])); setProef(null); setGeselecteerd(null); }}
               title="Verboden gebied tekenen: tik de hoeken aan op de kaart (bijv. een drukke weg of privéterrein)">
               <Icoon naam="verboden" /><span className="alleen-pc"> Verboden gebied</span>
             </button>
@@ -2151,6 +2174,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                     <div className="form-group">
+                      <label className="form-label">❓ Punten per vraag</label>
+                      <span className="inst-uitleg">Wat een nieuwe vraag krijgt.</span>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                        <input className="form-input" type="number" min={0} value={vraagPuntenStd}
+                          onChange={(e) => setVraagPuntenStd(Math.max(0, Number(e.target.value)))}
+                          onBlur={() => slaPuzzelOp({ vraag_punten: vraagPuntenStd })} style={{ width: 100 }} />
+                        <BevestigKnop venster gevaarlijk={false} icoon="❓" titel={`Alle ${vraagpunten.length} vragen op ${vraagPuntenStd} punten zetten?`} vraag=""
+                          uitleg="Eigen punten per antwoord blijven staan." ja="Ja, toepassen" disabled={!vraagPuntIds.size}
+                          onBevestig={zetAlleVraagPunten} className="rl-knop">Op alle vragen toepassen</BevestigKnop>
+                      </div>
+                    </div>
+                    <div className="form-group">
                       <label className="form-label">📏 Radius van de punten (m)</label>
                       <input className="form-input" type="number" min={3} value={puntRadius}
                         onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
@@ -2254,22 +2289,23 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {(
                   <div className="form-group">
                     <label className="form-label">🎒 Startitems — gratis bij de start</label>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: "6px 6px 6px 0" }}>
+                    {/* Alle soorten op één rij: de vakjes krimpen mee met de breedte */}
+                    <div style={{ display: "flex", flexWrap: "nowrap", gap: 6, padding: "6px 8px 6px 0" }}>
                       {STARTITEM_TYPES.map((type) => {
                         const n = startitems[type] ?? 0;
                         return (
                           // Tik = er één bij; het rode − haalt er één af
-                          <div key={type} style={{ position: "relative" }}>
+                          <div key={type} style={{ position: "relative", flex: "1 1 0", minWidth: 0, maxWidth: 40 }}>
                             <button type="button" onClick={() => wijzigStartitem(type, 1)} disabled={n >= MAX_PER_STARTITEM}
                               title={`${ITEM_UITLEG[type] ?? type} Tik = +1 (max ${MAX_PER_STARTITEM}).`}
                               style={{
-                                width: 40, height: 40, borderRadius: 8, cursor: n >= MAX_PER_STARTITEM ? "default" : "pointer", padding: 0,
+                                width: "100%", aspectRatio: "1", borderRadius: 8, cursor: n >= MAX_PER_STARTITEM ? "default" : "pointer", padding: 0,
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 border: `1px solid ${n > 0 ? "rgba(34,197,94,0.7)" : "rgba(255,255,255,0.12)"}`,
                                 background: n > 0 ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
                               }}>
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={`/items/${type}.webp`} alt={type} style={{ width: 26, height: 26, opacity: n > 0 ? 1 : 0.35, filter: n > 0 ? "none" : "grayscale(1)" }} />
+                              <img src={`/items/${type}.webp`} alt={type} style={{ width: "65%", height: "65%", objectFit: "contain", opacity: n > 0 ? 1 : 0.35, filter: n > 0 ? "none" : "grayscale(1)" }} />
                             </button>
                             {n > 0 && (
                               <>
@@ -2458,7 +2494,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Alle vragen achter elkaar */}
         {alleVragenOpen && (
-          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling}
+          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
             heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt} onNaamGewijzigd={puntNaamGewijzigd}
             onSluit={() => setAlleVragenOpen(false)} />
         )}
@@ -2466,7 +2502,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Vraag bewerken als venster over de hele editor */}
         {vraagVenster && (
           <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd} puzzel={puzzelKoppeling}
+            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
               onSluit={(vraag) => {
                 if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
                 setVraagVenster(null);

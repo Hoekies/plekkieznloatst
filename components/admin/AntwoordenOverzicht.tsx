@@ -178,9 +178,10 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
 
       {/* Wat doet Uitslag vrijgeven? (alleen zolang de uitslag nog verborgen is) */}
       {!beperkt && !data.uitslag_vrijgegeven && data.teams.length > 0 && (
-        <div className="inst-uitleg uitslag-uitleg">
-          🏆 <strong>Uitslag vrijgeven</strong>: tot dan zien teams die binnen zijn op hun telefoon <em>Even geduld…</em>, zodat niemand de stand al weet terwijl jij nog foto&apos;s keurt of teams onderweg zijn. Geef je hem vrij, dan zien alle teams de eindstand met het podium, worden open stemvragen afgerond en vervallen overgebleven items. Je kunt hem weer verbergen.
-        </div>
+        <details className="inst-uitleg uitslag-uitleg">
+          <summary>ⓘ Wat doet <strong>Uitslag vrijgeven</strong>?</summary>
+          Tot dan zien teams die binnen zijn op hun telefoon <em>Even geduld…</em>, zodat niemand de stand al weet terwijl jij nog foto&apos;s keurt of teams onderweg zijn. Geef je hem vrij, dan zien alle teams de eindstand met het podium, worden open stemvragen afgerond en vervallen overgebleven items. Je kunt hem weer verbergen.
+        </details>
       )}
       {weergave === "vraag" && <VraagStatistiek teams={data.teams} onOokGoed={ookGoed}
         onSluitStemming={async (puntId) => {

@@ -21,6 +21,7 @@ import MenuGroep from "@/components/admin/MenuGroep";
 import FotoKeurVenster from "@/components/admin/FotoKeuren";
 import SysteemTeller from "@/components/admin/SysteemTeller";
 import MenuIcoon from "@/components/admin/MenuIcoon";
+import PaginaTitel from "@/components/admin/PaginaTitel";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -35,9 +36,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin-shell">
       <div className="admin-mobile-topbar">
         <SidebarToggle />
-        {/* Breed logo in de bovenbalk van de telefoon */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/spellogo/breed.webp" alt="PointRush" className="admin-mobiel-logo" />
+        {/* Telefoon: de naam van de pagina in de bovenbalk (de eigen kopbalk met alleen een titel valt dan weg) */}
+        <PaginaTitel />
         {/* Bericht sturen en uitloggen als icoon; de rest staat in het menu */}
         <div style={{ display: "flex", gap: 8 }}>
           {!helper && <BroadcastKnop alsIcoon />}

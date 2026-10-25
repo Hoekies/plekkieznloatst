@@ -506,17 +506,27 @@ export default function RoutesOverzicht() {
       {!laden && (routes.length > 4 || mappen.length > 0) && (
         <div className="rl-filter">
           <input className="form-input rl-zoek" value={zoek} onChange={(e) => setZoek(e.target.value)} placeholder="🔍 Zoek een route…" aria-label="Zoek een route" />
-          {mappen.length > 0 && <>
-            <button type="button" className={`rl-knop${mapFilter === null ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === null} onClick={() => setMapFilter(null)}>Alle</button>
-            {mappen.map((m) => (
-              <button key={m} type="button" className={`rl-knop${mapFilter === m ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === m} onClick={() => setMapFilter(mapFilter === m ? null : m)}>
-                <Icoon naam="map" /> {m} <span className="seizoen-telling">{routes.filter((r) => r.map === m).length}</span>
-              </button>
-            ))}
-            {routes.some((r) => !r.map) && (
-              <button type="button" className={`rl-knop${mapFilter === "" ? " rl-knop--cyan" : ""}`} aria-pressed={mapFilter === ""} onClick={() => setMapFilter(mapFilter === "" ? null : "")}>Zonder map</button>
-            )}
-          </>}
+          {/* 📁 Filter op map: één balk, één keuze tegelijk (Alle = geen filter) */}
+          {mappen.length > 0 && (
+            <div className="rl-mapfilter" role="radiogroup" aria-label="Filter op map">
+              <span className="rl-mapfilter-label"><Icoon naam="map" /> Map</span>
+              <div className="segment rl-mapfilter-keuzes">
+                <button type="button" role="radio" aria-checked={mapFilter === null} className={mapFilter === null ? "aan" : ""} onClick={() => setMapFilter(null)}>
+                  Alle <span className="rl-mapfilter-telling">{routes.length}</span>
+                </button>
+                {mappen.map((m) => (
+                  <button key={m} type="button" role="radio" aria-checked={mapFilter === m} className={mapFilter === m ? "aan" : ""} onClick={() => setMapFilter(mapFilter === m ? null : m)}>
+                    {m} <span className="rl-mapfilter-telling">{routes.filter((r) => r.map === m).length}</span>
+                  </button>
+                ))}
+                {routes.some((r) => !r.map) && (
+                  <button type="button" role="radio" aria-checked={mapFilter === ""} className={mapFilter === "" ? "aan" : ""} onClick={() => setMapFilter(mapFilter === "" ? null : "")}>
+                    Zonder map <span className="rl-mapfilter-telling">{routes.filter((r) => !r.map).length}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

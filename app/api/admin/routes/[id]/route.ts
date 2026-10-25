@@ -32,6 +32,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.ster_waarde === "number" && body.ster_waarde >= 0) toegestaan.ster_waarde = body.ster_waarde;
   if (typeof body.bom_waarde === "number" && body.bom_waarde >= 0) toegestaan.bom_waarde = body.bom_waarde;
   if (typeof body.item_respawn === "boolean") toegestaan.item_respawn = body.item_respawn;
+  if (typeof body.vraag_punten === "number" && body.vraag_punten >= 0) toegestaan.vraag_punten = Math.round(body.vraag_punten);
   if (typeof body.alle_punten_zichtbaar === "boolean") toegestaan.alle_punten_zichtbaar = body.alle_punten_zichtbaar;
   if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
   if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
@@ -106,6 +107,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
   if (error && /routes.map|column "?map"?|vraag_statistiek/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 022 (routes in mappen) in Supabase" }, { status: 500 });
+  }
+  if (error && /vraag_punten/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 025 (punten per vraag) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel|verboden_gebieden/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 014 (puzzelwoord en verboden gebieden) in Supabase" }, { status: 500 });

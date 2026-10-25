@@ -26,7 +26,7 @@ export default function HusselInstelling({ routeId }: { routeId: string }) {
   return (
     <div className="form-group">
       <label className="form-label">🔀 Antwoorden husselen</label>
-      <span className="inst-uitleg">Aan: elk team ziet de antwoorden van een meerkeuzevraag in een andere volgorde, zodat afkijken niet helpt. Geldt voor alle vragen van deze route.</span>
+      <span className="inst-uitleg">Elk team een andere volgorde: afkijken heeft geen zin.</span>
       <div className="segment" role="radiogroup" aria-label="Antwoorden husselen" style={{ width: 150 }}>
         <button type="button" role="radio" aria-checked={aan === false} className={aan === false ? "aan" : ""} disabled={aan === null} onClick={() => zet(false)}>Uit</button>
         <button type="button" role="radio" aria-checked={aan === true} className={aan === true ? "aan" : ""} disabled={aan === null} onClick={() => zet(true)}>Aan</button>

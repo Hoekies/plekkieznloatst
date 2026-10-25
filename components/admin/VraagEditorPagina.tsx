@@ -104,9 +104,11 @@ interface Props {
   onGewijzigd?: (gewijzigd: boolean) => void;
   // 🧩 Puzzelwoord aan: per vraag kiezen hoeveel letters een goed antwoord geeft (meteen opgeslagen)
   puzzel?: PuzzelKoppeling;
+  // ❓ Punten voor een nieuwe vraag (route-instelling); anders 65
+  standaardPunten?: number;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel, standaardPunten = 65 }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -127,7 +129,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   }
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   // Nieuwe vraag: standaard 65 punten
-  const [punten, setPunten] = useState(bestaandeVraag?.points ?? 65);
+  const [punten, setPunten] = useState(bestaandeVraag?.points ?? standaardPunten);
   // Per vraag aan of uit: een geluidsfragment en een tijdslimiet (migratie 014); husselen staat bij de route
   const [geluidPad, setGeluidPad] = useState<string | null>(bestaandeVraag?.geluid_pad ?? null);
   const [tijdslimiet, setTijdslimiet] = useState<number | null>(bestaandeVraag?.tijdslimiet_seconden ?? null);

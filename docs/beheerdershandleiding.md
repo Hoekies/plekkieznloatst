@@ -21,7 +21,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 **Tijdens een spel** staat onderaan elke beheerpagina (behalve het dashboard en de route-editor) een strook met het aantal teams onderweg, de eindtijd (tik erop om hem te wijzigen), open hulpvragen en foto's om te keuren (tik erop: de foto's openen meteen in het keurvenster), op de pc **🏆 Tussenstand**, en **⏸️ Pauze** / **▶️ Verder**. Op de telefoon staat alles op één regel, met alleen iconen en getallen.
 
-**Op de telefoon** staat de kaart op het dashboard standaard dicht (tik op *Kaart* om hem te openen), zodat je eerst ziet wat er moet gebeuren. Op een breed scherm staat rechts naast de teams een grote live kaart met de tijdlijn eronder.
+**Op de telefoon** staat de naam van de pagina bovenin (naast ☰), meldingen verschijnen bovenaan, en in de route-editor staan alleen de hoofdknoppen (de rest, zoals wegen, importeren en verboden gebied, doe je op de pc). De kaart staat op het dashboard standaard dicht (tik op *Kaart* om hem te openen), zodat je eerst ziet wat er moet gebeuren. Op een breed scherm staat rechts naast de teams een grote live kaart met de tijdlijn eronder.
 
 **Menu als iconen:** met **« Inklappen** onderaan het menu zie je alleen de iconen; op de pc als smalle balk, op de telefoon opent het ☰-menu dan als smalle balk.
 
@@ -29,7 +29,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 ---
 
-**📁 Routes ordenen:** zet een route met de knop **📁 Map** in een map (bijv. *Bedrijfsuitjes*). Boven de lijst kies je een map, of zoek je op naam. Nodig: migratie `022_routes_map_statistiek.sql`.
+**📁 Routes ordenen:** zet een route met de knop **📁 Map** in een map (bijv. *Bedrijfsuitjes*). Boven de lijst staat een filter: zoek op naam, of kies bij **Map** één map (met het aantal routes erachter), *Zonder map* of *Alle*. Nodig: migratie `022_routes_map_statistiek.sql`.
 
 **📊 Welke vragen gaan vaak fout?** In de puntenlijst van de route-editor staat bij elk punt met een vraag hoe vaak die goed ging, over alle gespeelde spellen samen (bijv. *✓ 62% · 13×*; rood onder 40%). Bij 🧹 Nieuw spel voorbereiden telt de app de antwoorden eerst op, zodat het bewaard blijft. Nodig: migratie 022.
 
@@ -67,6 +67,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **⚙️ Meer instellingen** (uitklapbaar, onder de antwoorden): geluid, tijdslimiet en **🧪 Openen met QR-code**. Die QR-code is alleen om te testen: je opent het punt door de code te scannen, zonder ernaartoe te lopen (met 🖨️ printen).
    - **Goed of fout** bij een meerkeuzevraag: tik op het rondje voor een antwoord om het goed (✓, groen) of fout (✗, rood) te maken. **Meer dan één goed antwoord mag**; minstens één goed en minstens één fout. Kiest een team een van de goede antwoorden, dan krijgt het *Goed!*; na afloop ziet het alle goede antwoorden.
    - **💬 Uitleg per antwoord** (schakelaar naast *± Punten per antwoord*): onder elk antwoord een regel voor een korte uitleg, bijv. *waarom is dit niet goed?* Het team ziet na het antwoorden de uitleg bij zijn eigen antwoord en bij de goede antwoorden. Leeg laten mag. Nodig: migratie `023_antwoord_uitleg.sql` (zie 🩺 Systeemcheck).
+   - **Punten**: een nieuwe vraag krijgt de standaard van de route. Die stel je in bij ⚙️ Instellingen → 📍 Punten → **❓ Punten per vraag**; met *Op alle vragen toepassen* zet je meteen alle vragen op dat aantal (nodig: migratie `025_routes_vraag_punten.sql`). In de werkbalk zie je *🏆 max … pt*: wat één team maximaal kan halen (alle vragen, punten zonder vraag en het puzzelwoord; items niet). Wijs het aan voor de opbouw.
    - Bij een meerkeuzevraag kun je met de schakelaar **± Punten per antwoord** (rechts boven de antwoorden) per antwoord punten invullen, ook negatief (bijv. −25 voor een fout antwoord). Uit = het goede antwoord krijgt de punten van de vraag, de andere 0. Minpunten tellen altijd: een team kan in de min komen (het puntenvlak wordt dan rood). Nodig: migratie `021_score_negatief.sql`; zonder die migratie blijft de score op 0 staan.
    - Bij een open vraag kies je **🔤 Tekst** (één goed antwoord per regel) of **🔢 Getal**, met een **marge** (±). Bij tekst tellen hoofdletters, accenten, spaties en leestekens niet mee, en bij antwoorden van 5 letters of meer mag er **één tikfout** in zitten (*Amsterdm* is goed voor *Amsterdam*). Korte antwoorden moeten precies kloppen.
    - **📝 Alle vragen** (bovenin de editor) — alle vragen achter elkaar invullen zonder elk punt apart te openen. Links staan alle vraagpunten (✅ = heeft een vraag, ⚠️ = nog niet), rechts de vraag-editor. Met **Opslaan & volgende →** ga je meteen door; **Overslaan →** en **← Vorige** bladeren zonder op te slaan. Het venster begint bij het eerste punt zonder vraag.

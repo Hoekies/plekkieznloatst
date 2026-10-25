@@ -93,7 +93,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
 
   return (
     <>
-      <button type="button" className="rl-knop" onClick={() => setOpen(true)}
+      <button type="button" className="rl-knop alleen-pc-knop" onClick={() => setOpen(true)}
         title="Punten importeren (GPX, KML, lijst of Google Maps-links)" aria-label="Punten importeren">
         <Icoon naam="downloaden" /><span className="alleen-pc"> Importeren</span>
       </button>

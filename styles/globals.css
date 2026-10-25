@@ -3419,7 +3419,7 @@ button.spelstrook-let { font-family: inherit; font-size: inherit; cursor: pointe
 .spelstrook .rl-knop { height: 34px; }
 
 /* 📁 Routes: zoeken en mappen */
-.rl-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -8px 0 18px; }
+.rl-filter { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: -8px 0 18px; }
 .rl-zoek { flex: 1 1 220px; max-width: 320px; height: 34px; box-sizing: border-box; }
 .rl-map { color: #FFE680; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
 /* 📊 Vraag-statistiek in de puntenlijst van de route-editor */
@@ -3746,3 +3746,43 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .start-uitleg-eerst { padding: 12px 14px; border-radius: 14px; background: rgba(0,217,255,0.12); border: 1px solid rgba(0,217,255,0.45); color: #CFFAFE; font-size: 0.92rem; line-height: 1.45; }
 .hulp-knop-rustig { opacity: 0.75; font-size: 0.7rem !important; border-color: rgba(255,255,255,0.5) !important; }
 .puzzel-start { width: 100%; margin-top: 4px; }
+.werkbalk-max { display: inline-flex; align-items: center; height: 32px; padding: 0 10px; border-radius: 9px; font-size: 0.78rem; font-weight: 800; color: #FFE680;
+  background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.35); white-space: nowrap; cursor: default; }
+@media (max-width: 768px) { .werkbalk-max { display: none; } }
+/* 📁 Routes: filter op map als één segmentbalk (op de telefoon horizontaal te schuiven) */
+.rl-mapfilter { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 auto; }
+.rl-mapfilter-label { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.segment.rl-mapfilter-keuzes { flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.segment.rl-mapfilter-keuzes::-webkit-scrollbar { display: none; }
+.segment.rl-mapfilter-keuzes > button { flex: 0 0 auto; padding: 7px 12px; font-size: 0.8rem; white-space: nowrap; }
+.rl-mapfilter-telling { margin-left: 4px; font-size: 0.7rem; font-weight: 700; opacity: 0.7; }
+
+/* ── 📱 Beheer op de telefoon ── */
+.mobiel-paginatitel { display: none; }
+@media (max-width: 768px) {
+  /* 1. Paginanaam in de bovenste balk; een kopbalk met alleen een titel valt weg */
+  .mobiel-paginatitel { display: inline-flex; align-items: center; gap: 8px; min-width: 0; flex: 1; justify-content: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; white-space: nowrap; overflow: hidden; }
+  .mobiel-paginatitel .menu-icoon svg { width: 20px; height: 20px; }
+  .admin-topbar .admin-topbar-titel { display: none; }
+  .admin-topbar:has(> .admin-topbar-titel:only-child) { display: none; }
+  .admin-topbar:has(> .admin-topbar-titel + .topbar-huislogo-vak:last-child) { display: none; }
+  /* 2. Geen eigen logo in de kopbalk van het dashboard */
+  .huislogo-kop, .topbar-huislogo-vak { display: none !important; }
+  /* 3. Route-editor: minder knoppen, dus grotere en leesbare */
+  .editor-gereedschap-rij { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .route-editor-topbar .editor-gereedschap-rij .rl-knop .alleen-pc { font-size: 0.64rem !important; }
+  /* 5. Grotere tikvakken */
+  .editor-paneel-sluit, .venster-sluit { min-width: 40px; min-height: 40px; }
+  .lijst-vraagknop { min-width: 36px; min-height: 36px; }
+  .live-lijst-open { width: 36px; height: 36px; }
+  /* 6. Meldingen bovenin, niet over de knoppen onderin */
+  .toast-houder { top: calc(env(safe-area-inset-top) + 64px); bottom: auto; }
+  /* 7. Keurvenster: de knoppen blijven onderin in beeld */
+  .keur-knoppen { position: sticky; bottom: -14px; z-index: 2; padding: 10px 0 4px; background: linear-gradient(to top, rgba(42,21,102,1) 75%, rgba(42,21,102,0)); }
+  /* 8. Spelers: knoppen per team groter, met meer ruimte */
+  .gb-kaart .gb-iconen { gap: 8px !important; }
+  .gb-kaart .gb-iconen > .rl-knop { height: 52px !important; }
+}
+.uitslag-uitleg summary { cursor: pointer; color: var(--text); }
+.uitslag-uitleg[open] summary { margin-bottom: 4px; }
