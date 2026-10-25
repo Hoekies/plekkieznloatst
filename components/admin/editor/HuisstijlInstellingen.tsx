@@ -63,69 +63,68 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
     await upload("logo", await res.blob(), true);
   }
 
+  // Eén regel per instelling: links de naam met een korte uitleg, rechts de knoppen
+  const rij = (naam: string, uitleg: string, inhoud: React.ReactNode) => (
+    <div className="huisstijl-regel">
+      <div className="huisstijl-naam"><strong>{naam}</strong><span>{uitleg}</span></div>
+      <div className="huisstijl-knoppen">{inhoud}</div>
+    </div>
+  );
+
   return (
     <div className="form-group huisstijl">
-      <label className="form-label">🎨 Huisstijl voor de spelers</label>
-      <span className="inst-uitleg">
-        Laat de app eruitzien als jouw organisatie, bijvoorbeeld bij een bedrijfsuitje. Alles is optioneel; zonder keuze zien de spelers de gewone PointRush-stijl.
-      </span>
-      {/* Accentkleur: knoppen en accenten in de spelersapp */}
-      <div className="huisstijl-rij">
-        <span className="huisstijl-label">Kleur</span>
+      <span className="inst-uitleg">Alles is optioneel. Zonder keuze zien de spelers de gewone PointRush-stijl.</span>
+
+      {rij("Kleur", "Knoppen en accenten in de spelersapp", <>
         <button type="button" className={`huisstijl-kleur huisstijl-kleur--standaard${!kleur ? " aan" : ""}`} onClick={() => onOpslaan({ huisstijl_kleur: null })} title="Gewone PointRush-kleuren">PR</button>
         {KLEUREN.map((k) => (
           <button key={k} type="button" className={`huisstijl-kleur${kleur?.toUpperCase() === k ? " aan" : ""}`} style={{ background: k }} onClick={() => onOpslaan({ huisstijl_kleur: k })} aria-label={`Kleur ${k}`} />
         ))}
         <label className={`huisstijl-kleur huisstijl-kleur--eigen${kleur && !KLEUREN.includes(kleur.toUpperCase()) ? " aan" : ""}`} title="Eigen kleur kiezen" style={kleur && !KLEUREN.includes(kleur.toUpperCase()) ? { background: kleur } : undefined}>
-          🎨<input type="color" value={kleur ?? "#FF8A00"} onChange={(e) => onOpslaan({ huisstijl_kleur: e.target.value.toUpperCase() })} />
+          <Icoon naam="palet" /><input type="color" value={kleur ?? "#FF8A00"} onChange={(e) => onOpslaan({ huisstijl_kleur: e.target.value.toUpperCase() })} />
         </label>
-      </div>
-      {/* Logo (bovenbalk en welkomstscherm) en welkomstfoto (achtergrond van het welkomstscherm) */}
-      <div className="huisstijl-rij">
-        <span className="huisstijl-label">Logo</span>
+      </>)}
+
+      {/* Logo: bovenbalk, welkomstscherm, oorkonde, uitslag-afbeelding en rapport; wordt bij uploaden vanzelf uitgeknipt */}
+      {rij("Logo", "Bovenbalk, welkomstscherm, oorkonde en rapport", <>
         {route.huisstijl_logo_pad && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={OPSLAG + route.huisstijl_logo_pad} alt="Logo" className="huisstijl-voorbeeld huisstijl-voorbeeld--logo" />
         )}
-        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => logoRef.current?.click()}>{bezig === "logo" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.huisstijl_logo_pad ? <><Icoon naam="herhalen" />{" Ander logo"}</> : <><Icoon naam="versturen" />{" Logo kiezen"}</>}</button>
+        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => logoRef.current?.click()}>
+          {bezig === "logo" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.huisstijl_logo_pad ? <><Icoon naam="herhalen" />{" Ander"}</> : <><Icoon naam="foto" />{" Kiezen"}</>}
+        </button>
         {route.huisstijl_logo_pad && (
-          <button type="button" className="rl-knop" disabled={!!bezig} onClick={knipHuidig} title="Achtergrond doorzichtig maken en de lege randen eraf halen">
-            {bezig === "knip" ? <><Icoon naam="laden" />{" Uitknippen…"}</> : <><Icoon naam="knippen" />{" Uitknippen"}</>}
+          <button type="button" className="rl-knop rl-knop--icoon" disabled={!!bezig} onClick={knipHuidig} title="Uitknippen: achtergrond doorzichtig maken en de lege randen eraf halen" aria-label="Uitknippen">
+            <Icoon naam={bezig === "knip" ? "laden" : "knippen"} />
           </button>
         )}
-        {route.huisstijl_logo_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ huisstijl_logo_pad: null })} title="Logo weghalen" aria-label="Logo weghalen">✕</button>}
+        {route.huisstijl_logo_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ huisstijl_logo_pad: null })} title="Logo weghalen" aria-label="Logo weghalen"><Icoon naam="wissen" /></button>}
         <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("logo", e.target.files?.[0]); e.target.value = ""; }} />
-      </div>
-      <span className="inst-uitleg huisstijl-uitleg">
-        🏢 <strong>Logo</strong> (bijv. van het bedrijf): komt naast het PointRush-logo in de bovenbalk van de spelersapp, groot op het welkomstscherm, en op de oorkonde, de uitslag-afbeelding en het PDF-rapport. Bij het uploaden knipt de app het logo vanzelf uit: een effen achtergrond (wit of grijs) wordt doorzichtig en lege randen gaan eraf. Met <strong>✂️ Uitknippen</strong> doe je dat alsnog bij het huidige logo.
-      </span>
-      <div className="huisstijl-rij">
-        <span className="huisstijl-label">Welkomstfoto</span>
+      </>)}
+
+      {rij("Welkomstfoto", "Achtergrond van het eerste scherm, waar teams hun naam en icoon kiezen", <>
         {route.welkom_foto_pad && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={OPSLAG + route.welkom_foto_pad} alt="Welkomstfoto" className="huisstijl-voorbeeld" />
         )}
-        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => fotoRef.current?.click()}>{bezig === "foto" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.welkom_foto_pad ? <><Icoon naam="herhalen" />{" Andere foto"}</> : <><Icoon naam="versturen" />{" Foto kiezen"}</>}</button>
-        {route.welkom_foto_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ welkom_foto_pad: null })} title="Foto weghalen" aria-label="Foto weghalen">✕</button>}
+        <button type="button" className="rl-knop" disabled={!!bezig} onClick={() => fotoRef.current?.click()}>
+          {bezig === "foto" ? <><Icoon naam="laden" />{" Uploaden…"}</> : route.welkom_foto_pad ? <><Icoon naam="herhalen" />{" Andere"}</> : <><Icoon naam="foto" />{" Kiezen"}</>}
+        </button>
+        {route.welkom_foto_pad && <button type="button" className="rl-knop rl-knop--rood rl-knop--icoon" onClick={() => onOpslaan({ welkom_foto_pad: null })} title="Foto weghalen" aria-label="Foto weghalen"><Icoon naam="wissen" /></button>}
         <input ref={fotoRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { upload("foto", e.target.files?.[0]); e.target.value = ""; }} />
-      </div>
-      <span className="inst-uitleg huisstijl-uitleg">
-        🖼️ <strong>Welkomstfoto</strong>: de achtergrond van het eerste scherm dat de spelers zien, waar ze hun teamnaam en icoon kiezen. Bijvoorbeeld een foto van de plek of van het bedrijf.
-      </span>
-      {/* 🔔 Geluiden bij punt bereikt, goed, fout en finish; ▶ speelt de hele set af */}
-      <div className="huisstijl-rij">
-        <span className="huisstijl-label">🔔 Geluiden</span>
-        <div className="segment" role="radiogroup" aria-label="Geluidset" style={{ flex: "1 1 260px" }}>
+      </>)}
+
+      {/* Geluiden bij punt bereikt, goed, fout en finish; kiezen speelt meteen een voorbeeld */}
+      {rij("Geluiden", "Bij een punt, goed of fout antwoord en de finish", <>
+        <div className="segment huisstijl-geluid" role="radiogroup" aria-label="Geluidset">
           {GELUID_SETS.map((g) => (
             <button key={g.set} type="button" role="radio" aria-checked={set === g.set} className={set === g.set ? "aan" : ""}
               onClick={() => { onOpslaan({ geluid_set: g.set }); speelVoorbeeld(g.set); }}>{g.naam}</button>
           ))}
         </div>
-        <button type="button" className="rl-knop rl-knop--icoon" onClick={() => speelVoorbeeld(set)} title="Luister: punt, goed, fout en finish" aria-label="Voorbeeld afspelen">▶</button>
-      </div>
-      <span className="inst-uitleg">
-        🎨 <strong>Kleur</strong>: de kleur van de knoppen in de spelersapp. 🔔 <strong>Geluiden</strong>: wat de spelers horen bij een punt, een goed of fout antwoord en de finish.
-      </span>
+        <button type="button" className="rl-knop rl-knop--icoon" onClick={() => speelVoorbeeld(set)} title="Luister: punt, goed, fout en finish" aria-label="Voorbeeld afspelen"><Icoon naam="start" /></button>
+      </>)}
     </div>
   );
 }

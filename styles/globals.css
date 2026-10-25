@@ -3664,3 +3664,11 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .werkbalk-puzzel--goed { color: #4ade80; }
 .werkbalk-puzzel--uit { color: var(--muted); }
 .items-op-weg { margin: 8px 10px 4px; height: 32px; font-size: 0.78rem; align-self: flex-start; }
+/* 🎨 Huisstijl: per instelling één regel, naam + korte uitleg links, knoppen rechts */
+.huisstijl-regel { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+.huisstijl-naam { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.huisstijl-naam strong { color: #fff; font-size: 0.86rem; }
+.huisstijl-naam span { color: var(--muted); font-size: 0.7rem; line-height: 1.35; }
+.huisstijl-knoppen { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.huisstijl-geluid { flex: 1 1 220px; }
+@media (max-width: 560px) { .huisstijl-regel { grid-template-columns: 1fr; gap: 6px; } }
