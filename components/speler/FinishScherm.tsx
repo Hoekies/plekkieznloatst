@@ -94,8 +94,10 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
     };
   }, []);
 
+  // flexShrink 0: met overflow hidden krimpt dit vak anders tot de schermhoogte en is de rest niet te zien
+  // (dan kun je niet scrollen)
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", overflow: "hidden", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", flexShrink: 0, position: "relative", overflow: "hidden", alignItems: "center" }}>
 
       {/* Inhoud */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "32px 20px 48px", width: "100%", maxWidth: 600 }}>
