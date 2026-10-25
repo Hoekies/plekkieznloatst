@@ -90,7 +90,18 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <input className="form-input" value={woord} maxLength={30} placeholder="Of typ zelf een woord, bijv. KASTEEL"
               onChange={(e) => setWoord(e.target.value.toUpperCase())} onBlur={() => onOpslaan({ puzzelwoord: woord })} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
+            {letters > 0 && <span className="puzzel-aantal" title="Letters in het woord (spaties en leestekens tellen niet)">{letters} letters</span>}
           </div>
+          {/* Meteen tijdens het typen: klopt het woord met de vragen, en zo niet, hoeveel vragen te veel of te kort? */}
+          {letters > 0 && (
+            <div className={`puzzel-telling${verschil === 0 ? " puzzel-telling--goed" : ""}`}>
+              {verschil === 0
+                ? <>✅ Klopt: {letters} letters, en de vragen geven samen {teVerdienen} letters.</>
+                : verschil > 0
+                  ? <>⚠️ <strong>{verschil} {verschil === 1 ? "vraag" : "vragen"} te kort</strong>: het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Maak {verschil === 1 ? "een vraag" : `${verschil} vragen`} extra, laat hieronder {verschil === 1 ? "een vraag" : `${verschil} vragen`} <strong>2 letters</strong> geven, of maak het woord korter.</>
+                  : <>⚠️ <strong>{-verschil} {verschil === -1 ? "vraag" : "vragen"} te veel</strong>: het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Zet hieronder {-verschil === 1 ? "een vraag" : `${-verschil} vragen`} op <strong>Geen</strong>, of maak het woord langer.</>}
+            </div>
+          )}
           {/* Volgorde van de letters */}
           <div className="inst-rij">
             <span className="inst-rij-label">Letters</span>
@@ -126,18 +137,8 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
             Bij de finish krijgt het team punten voor elke gevonden letter. Alle letters gevonden: de bonus erbij. Niet alles gevonden? Dan mag het team het woord zelf afmaken voor de punten bij <em>Woord zelf afmaken</em>.
           </span>
 
-          {/* Stap 2: klopt het aantal letters met de vragen? */}
-          {letters > 0 && (
-            <div className={`puzzel-telling${verschil === 0 ? " puzzel-telling--goed" : ""}`}>
-              {verschil === 0
-                ? <>✅ Klopt: het woord heeft {letters} letters en de vragen geven samen {teVerdienen} letters.</>
-                : verschil > 0
-                  ? <>⚠️ Het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Kies hieronder {verschil} {verschil === 1 ? "vraag" : "vragen"} die <strong>2 letters</strong> {verschil === 1 ? "geeft" : "geven"}, of maak het woord korter.</>
-                  : <>⚠️ Het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Kies hieronder {-verschil} {verschil === -1 ? "vraag" : "vragen"} die <strong>geen letter</strong> {verschil === -1 ? "geeft" : "geven"}, of maak het woord langer.</>}
-            </div>
-          )}
-          {/* Per vraag: geen, 1 of 2 letters (alleen nodig als het aantal niet klopt, of als er al iets is aangepast) */}
-          {letters > 0 && (verschil !== 0 || Object.keys(verdeling).length > 0) && (
+          {/* Per vraag: geen, 1 of 2 letters (ook te kiezen in de vraag-editor, bij de vraag zelf) */}
+          {letters > 0 && vraagpunten.length > 0 && (
             <div className="puzzel-verdeling">
               {vraagpunten.map((p, i) => {
                 const n = lettersVoor(verdeling, p.id);

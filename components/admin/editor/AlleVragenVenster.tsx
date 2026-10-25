@@ -6,11 +6,13 @@ import VraagEditorPagina, { NietOpgeslagenVenster, type VraagMetAntwoorden } fro
 import type { KaartPunt } from "../PuntMiniKaart";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import Icoon from "@/components/admin/Icoon";
+import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
-export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onNaamGewijzigd, onSluit }: {
+export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onNaamGewijzigd, onSluit, puzzel }: {
   routeId: string;
+  puzzel?: PuzzelKoppeling;              // 🧩 puzzelwoord aan: letters per vraag
   kaartPunten: KaartPunt[];              // alle punten van de route, voor het kaartje
   punten: RoutePunt[];                   // de vraagpunten, in routevolgorde
   nummer: (p: RoutePunt) => string;      // zelfde nummer als op de kaart
@@ -78,7 +80,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
           {!punt ? null : vraag === undefined ? (
             <div style={{ padding: 24 }}><LaadBlokjes aantal={3} hoogte={56} /></div>
           ) : (
-            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd}
+            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd} puzzel={puzzel}
               navigatie={{
                 positie: `${index + 1} van ${punten.length}`,
                 onVorige: index > 0 ? () => setIndex(index - 1) : undefined,

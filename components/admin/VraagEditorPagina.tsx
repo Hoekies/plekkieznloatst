@@ -16,6 +16,7 @@ import type { KaartPunt } from "./PuntMiniKaart";
 import Venster from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
+import PuzzelLetterKeuze, { type PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
@@ -101,9 +102,11 @@ interface Props {
   navigatie?: { positie: string; onVorige?: () => void; onVolgende?: () => void };
   // Zijn er niet-opgeslagen wijzigingen? (zodat de lijst bij alle vragen kan waarschuwen)
   onGewijzigd?: (gewijzigd: boolean) => void;
+  // 🧩 Puzzelwoord aan: per vraag kiezen hoeveel letters een goed antwoord geeft (meteen opgeslagen)
+  puzzel?: PuzzelKoppeling;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -125,8 +128,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   // Nieuwe vraag: standaard 65 punten
   const [punten, setPunten] = useState(bestaandeVraag?.points ?? 65);
-  // Per vraag aan of uit: antwoorden husselen, een geluidsfragment, een tijdslimiet (migratie 014)
-  const [husselen, setHusselen] = useState(!!bestaandeVraag?.antwoorden_husselen);
+  // Per vraag aan of uit: een geluidsfragment en een tijdslimiet (migratie 014); husselen staat bij de route
   const [geluidPad, setGeluidPad] = useState<string | null>(bestaandeVraag?.geluid_pad ?? null);
   const [tijdslimiet, setTijdslimiet] = useState<number | null>(bestaandeVraag?.tijdslimiet_seconden ?? null);
   const [geluidBezig, setGeluidBezig] = useState(false);
@@ -247,7 +249,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     setIsNumeriek(numeriek);
     setNumeriekeWaarde(numeriek ? String(v.numeric_answer) : "");
     setTolerantie(String(v.numeric_tolerance ?? 0));
-    setHusselen(v.antwoorden_husselen);
     setGeluidPad(v.geluid_pad);
     setTijdslimiet(v.tijdslimiet_seconden);
     toonMelding("Vraag overgenomen: pas aan en sla op", "ok");
@@ -291,7 +292,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       question_text: tekst.trim(),
       question_image_path: vraagAfbeelding,
       points: punten,
-      antwoorden_husselen: husselen,
       geluid_pad: geluidPad,
       tijdslimiet_seconden: type === "foto_opdracht" ? null : tijdslimiet,
     };
@@ -519,6 +519,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   onChange={(e) => setPunten(Number(e.target.value))} title="Zoveel punten krijgt een team voor het goede antwoord" />
               </div>
             </div>
+            {puzzel && <PuzzelLetterKeuze puzzel={puzzel} puntId={punt.id} />}
 
             {stem && (
               <div className="form-group">
@@ -659,21 +660,14 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <UitklapPijl open={meerOpen} />
                 <span><Icoon naam="instellingen" /> Meer instellingen</span>
                 <span className="vraag-meer-samenvatting">
-                  {[husselen && meerkeuze ? "🔀 husselen" : "", geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "husselen, geluid, tijdslimiet, QR-code om te testen"}
+                  {[geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "geluid, tijdslimiet, QR-code om te testen"}
                 </span>
               </button>
               {meerOpen && (
                 <div className="vraag-meer-inhoud">
-                  {/* 🔀 Antwoorden husselen: elk team ziet de antwoorden in een andere volgorde (tegen afkijken) */}
+                  {/* 🔀 Antwoorden husselen staat bij de route, niet per vraag */}
                   {meerkeuze && (
-                    <div className="form-group">
-                      <label className="form-label">Volgorde van de antwoorden</label>
-                      <button type="button" className={`rl-knop schakel${husselen ? " schakel--aan" : ""}`} role="switch" aria-checked={husselen}
-                        style={{ height: 32, alignSelf: "flex-start", fontSize: "0.8rem" }} onClick={() => setHusselen((v) => !v)}>
-                        <Icoon naam="husselen" /> Antwoorden husselen<span className="schakel-bol" aria-hidden />
-                      </button>
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt.</span>
-                    </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>🔀 Antwoorden husselen stel je in voor de hele route: ⚙️ Instellingen → 🎮 Spel.</span>
                   )}
 
                   {/* 🔊 Geluidsfragment bij de vraag, bijvoorbeeld "welk lied is dit?" */}

@@ -32,6 +32,9 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
+import { normaliseerPuzzel } from "@/lib/puzzel";
+import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
+import HusselInstelling from "@/components/admin/editor/HusselInstelling";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -942,6 +945,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // ?test=1 (vanuit Spel klaarzetten op het dashboard): meteen de testronde open
   const [testOpen, setTestOpen] = useState(() => zoekParams.get("test") === "1");
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
+  // 🧩 Puzzelwoord aan: in de vraag-editor per vraag kiezen hoeveel letters een goed antwoord geeft
+  const puzzelLetters = route.puzzel_aan ? normaliseerPuzzel(route.puzzelwoord).length : 0;
+  const puzzelKoppeling: PuzzelKoppeling | undefined = puzzelLetters > 0 ? {
+    letters: puzzelLetters,
+    verdeling: route.puzzel_verdeling ?? {},
+    vraagIds: vraagpunten.map((p) => p.id),
+    onZet: (puntId, n) => {
+      const nieuw = { ...(route.puzzel_verdeling ?? {}) };
+      if (n === 1) delete nieuw[puntId]; else nieuw[puntId] = n;
+      slaPuzzelOp({ puzzel_verdeling: nieuw });
+    },
+  } : undefined;
   const kaartNummer = (p: RoutePunt) => {
     const i = punten.findIndex((x) => x.id === p.id);
     return String(route.modus === "verspreid" && punten.length >= 3 ? i : i + 1);
@@ -2040,6 +2055,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   {tussenstandInterval > 0 && ![10, 15, 20, 30].includes(tussenstandInterval) && <span className="inst-uitleg">Nu ingesteld: elke {tussenstandInterval} min.</span>}
                 </div>
 
+                {/* 🔀 Antwoorden husselen: voor de hele route, niet per vraag */}
+                <HusselInstelling routeId={route.id} />
+
                   </>
                 )}
 
@@ -2390,7 +2408,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Alle vragen achter elkaar */}
         {alleVragenOpen && (
-          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer}
+          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling}
             heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt} onNaamGewijzigd={puntNaamGewijzigd}
             onSluit={() => setAlleVragenOpen(false)} />
         )}
@@ -2398,7 +2416,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Vraag bewerken als venster over de hele editor */}
         {vraagVenster && (
           <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd}
+            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd} puzzel={puzzelKoppeling}
               onSluit={(vraag) => {
                 if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
                 setVraagVenster(null);

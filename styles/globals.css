@@ -3641,3 +3641,10 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 /* Speler: uitleg bij een antwoord (na het antwoorden) */
 .feedback-uitleg { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,0.2); color: #fff; font-size: 0.88rem; line-height: 1.4; text-align: left; }
 .feedback-uitleg--goed { margin-top: 0; background: rgba(34,197,94,0.12); border: 1px solid rgba(134,239,172,0.35); }
+/* 🧩 Vraag-editor: letters voor het puzzelwoord, op één regel */
+.puzzel-keuze { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 12px; background: rgba(255,217,59,0.07); border: 1px solid rgba(255,217,59,0.3); }
+.puzzel-keuze-titel { font-size: 0.8rem; font-weight: 700; color: #FFE680; }
+.puzzel-keuze-segment { width: 150px; }
+.puzzel-keuze-telling { margin-left: auto; font-size: 0.74rem; font-weight: 700; color: #FBBF24; }
+.puzzel-keuze-telling--goed { color: #4ade80; }
+.puzzel-aantal { flex: none; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; color: #FFE680; background: rgba(255,217,59,0.12); border: 1px solid rgba(255,217,59,0.4); }

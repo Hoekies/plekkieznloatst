@@ -116,8 +116,13 @@ export async function PUT(request: NextRequest, { params }: Params) {
   // Per vraag: husselen, geluid en tijdslimiet (migratie 014). Los opgeslagen, zodat een vraag zonder deze
   // opties ook werkt als de migratie nog niet gedraaid is.
   const limiet = Number(body.tijdslimiet_seconden);
+  // 🔀 Husselen geldt voor de hele route (⚙️ Instellingen → 🎮 Spel): overnemen van de andere vragen van de route
+  const { data: anderePunten } = await admin.from("route_points").select("id").eq("route_id", params.id).neq("id", params.pid);
+  const { count: metHusselen } = anderePunten?.length
+    ? await admin.from("questions").select("id", { count: "exact", head: true }).in("route_point_id", anderePunten.map((p) => p.id)).eq("antwoorden_husselen", true)
+    : { count: 0 };
   const extra = {
-    antwoorden_husselen: body.antwoorden_husselen === true,
+    antwoorden_husselen: (metHusselen ?? 0) > 0,
     geluid_pad: typeof body.geluid_pad === "string" && body.geluid_pad ? body.geluid_pad : null,
     tijdslimiet_seconden: Number.isFinite(limiet) && limiet >= 10 ? Math.min(600, Math.round(limiet)) : null,
   };
