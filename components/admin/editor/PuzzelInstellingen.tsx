@@ -5,6 +5,17 @@ import type { Route } from "@/types/database";
 import { toonMelding } from "@/components/admin/Melding";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import Icoon from "@/components/admin/Icoon";
+import UitklapPijl from "@/components/shared/UitklapPijl";
+
+// 🎲 Letters automatisch verdelen: elke vraag 1 letter; is het woord langer, dan geven willekeurige vragen er 2,
+// is het korter, dan geven willekeurige vragen er geen. Zo klopt het meteen (tenzij het woord meer dan twee keer
+// zo lang is als het aantal vragen).
+export function verdeelLetters(vraagIds: string[], letters: number): Record<string, number> {
+  const verschil = letters - vraagIds.length;
+  if (!verschil || !vraagIds.length) return {};
+  const geschud = [...vraagIds].sort(() => Math.random() - 0.5);
+  return Object.fromEntries(geschud.slice(0, Math.min(Math.abs(verschil), vraagIds.length)).map((id) => [id, verschil > 0 ? 2 : 0]));
+}
 
 type Velden = { puzzel_aan?: boolean; puzzelwoord?: string; puzzel_bonus?: number; puzzel_omschrijving?: string; puzzel_verdeling?: Record<string, number>;
   puzzel_volgorde?: "willekeurig" | "op_volgorde";
@@ -49,8 +60,26 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
   }
   async function kies(v: { woord: string; omschrijving: string }) {
     setWoord(v.woord); setOmschrijving(v.omschrijving); setVoorstellen(null);
-    await onOpslaan({ puzzelwoord: v.woord, puzzel_omschrijving: v.omschrijving });
+    await bewaarWoord(v.woord, { puzzel_omschrijving: v.omschrijving });
   }
+  // Nieuw woord: de letters vanzelf over de vragen verdelen als het aantal niet klopt
+  async function bewaarWoord(nieuw: string, extra: Velden = {}) {
+    const n = normaliseerPuzzel(nieuw).length;
+    const klopt = n === vraagpunten.reduce((t, p) => t + lettersVoor(verdeling, p.id), 0);
+    if (!n || klopt) { await onOpslaan({ puzzelwoord: nieuw, ...extra }); return; }
+    const nieuweVerdeling = verdeelLetters(vraagpunten.map((p) => p.id), n);
+    setVerdeling(nieuweVerdeling);
+    await onOpslaan({ puzzelwoord: nieuw, puzzel_verdeling: nieuweVerdeling, ...extra });
+  }
+  async function verdeelOpnieuw() {
+    const nieuw = verdeelLetters(vraagpunten.map((p) => p.id), letters);
+    setVerdeling(nieuw);
+    await onOpslaan({ puzzel_verdeling: nieuw });
+    toonMelding("Letters opnieuw verdeeld over de vragen", "ok");
+  }
+  const [lijstOpen, setLijstOpen] = useState(false);
+  const aangepast = Object.keys(verdeling).filter((id) => vraagpunten.some((p) => p.id === id)).length;
+
   async function zetLetters(puntId: string, n: number) {
     const nieuw = { ...verdeling };
     if (n === 1) delete nieuw[puntId]; else nieuw[puntId] = n;
@@ -89,17 +118,23 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
           )}
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <input className="form-input" value={woord} maxLength={30} placeholder="Of typ zelf een woord, bijv. KASTEEL"
-              onChange={(e) => setWoord(e.target.value.toUpperCase())} onBlur={() => onOpslaan({ puzzelwoord: woord })} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
+              onChange={(e) => setWoord(e.target.value.toUpperCase())} onBlur={() => { if (woord !== (route.puzzelwoord ?? "")) bewaarWoord(woord); }} style={{ flex: "1 1 160px", letterSpacing: "0.12em", fontWeight: 700 }} />
             {letters > 0 && <span className="puzzel-aantal" title="Letters in het woord (spaties en leestekens tellen niet)">{letters} letters</span>}
           </div>
           {/* Meteen tijdens het typen: klopt het woord met de vragen, en zo niet, hoeveel vragen te veel of te kort? */}
           {letters > 0 && (
             <div className={`puzzel-telling${verschil === 0 ? " puzzel-telling--goed" : ""}`}>
               {verschil === 0
-                ? <>✅ Klopt: {letters} letters, en de vragen geven samen {teVerdienen} letters.</>
+                ? <>✅ Klopt: {letters} letters, en de vragen geven samen {teVerdienen} letters.{aangepast > 0 && <> {aangepast} {aangepast === 1 ? "vraag geeft" : "vragen geven"} geen of 2 letters.</>}</>
                 : verschil > 0
                   ? <>⚠️ <strong>{verschil} {verschil === 1 ? "vraag" : "vragen"} te kort</strong>: het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Maak {verschil === 1 ? "een vraag" : `${verschil} vragen`} extra, laat hieronder {verschil === 1 ? "een vraag" : `${verschil} vragen`} <strong>2 letters</strong> geven, of maak het woord korter.</>
                   : <>⚠️ <strong>{-verschil} {verschil === -1 ? "vraag" : "vragen"} te veel</strong>: het woord heeft {letters} letters, de vragen geven er {teVerdienen}. Zet hieronder {-verschil === 1 ? "een vraag" : `${-verschil} vragen`} op <strong>Geen</strong>, of maak het woord langer.</>}
+              {vraagpunten.length > 0 && (
+                <button type="button" className="rl-knop puzzel-verdeel" onClick={verdeelOpnieuw}
+                  title="Willekeurige vragen geven geen of 2 letters, zodat het aantal klopt">
+                  <Icoon naam="dobbelsteen" /> {verschil === 0 ? "Opnieuw verdelen" : "Laat het kloppen"}
+                </button>
+              )}
             </div>
           )}
           {/* Volgorde van de letters */}
@@ -137,8 +172,14 @@ export default function PuzzelInstellingen({ route, vraagpunten, onOpslaan }: {
             Bij de finish krijgt het team punten voor elke gevonden letter. Alle letters gevonden: de bonus erbij. Niet alles gevonden? Dan mag het team het woord zelf afmaken voor de punten bij <em>Woord zelf afmaken</em>.
           </span>
 
-          {/* Per vraag: geen, 1 of 2 letters (ook te kiezen in de vraag-editor, bij de vraag zelf) */}
+          {/* Per vraag: geen, 1 of 2 letters. Gaat meestal vanzelf; zelf aanpassen kan hier (ingeklapt) of in de
+              vraag-editor bij de vraag zelf */}
           {letters > 0 && vraagpunten.length > 0 && (
+            <button type="button" className="puzzel-lijst-kop" onClick={() => setLijstOpen((o) => !o)} aria-expanded={lijstOpen}>
+              <UitklapPijl open={lijstOpen} /> Zelf per vraag aanpassen
+            </button>
+          )}
+          {letters > 0 && vraagpunten.length > 0 && lijstOpen && (
             <div className="puzzel-verdeling">
               {vraagpunten.map((p, i) => {
                 const n = lettersVoor(verdeling, p.id);

@@ -3648,3 +3648,7 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .puzzel-keuze-telling { margin-left: auto; font-size: 0.74rem; font-weight: 700; color: #FBBF24; }
 .puzzel-keuze-telling--goed { color: #4ade80; }
 .puzzel-aantal { flex: none; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; color: #FFE680; background: rgba(255,217,59,0.12); border: 1px solid rgba(255,217,59,0.4); }
+/* 🧩 Puzzel: knop om de letters automatisch te verdelen, en de inklapbare lijst per vraag */
+.puzzel-telling { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.puzzel-verdeel { margin-left: auto; height: 30px; font-size: 0.76rem; }
+.puzzel-lijst-kop { display: flex; align-items: center; gap: 8px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
