@@ -1532,7 +1532,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "2px 0", background: "none", border: "none", cursor: "pointer", color: "var(--ink)", fontSize: "0.74rem", fontWeight: 700, textAlign: "left" }}>
                       <UitklapPijl open={rondjeOpen} />
                       <Icoon naam="rondje" /> Rondje
-                      <span style={{ color: "var(--muted)", fontWeight: 400 }}>
+                      <span style={{ color: "var(--muted)", fontWeight: 400, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
                       </span>
                     </button>

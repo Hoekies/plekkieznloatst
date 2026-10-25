@@ -3001,7 +3001,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop-icoon { width: 24px; font-size: 1.2rem; }
   body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop svg { width: 20px; height: 20px; }
   body:has(.route-editor-topbar) .admin-uitlog-hoek .info-knop { width: 40px; }
-  .route-editor-topbar .editor-kop { padding-right: 110px; flex-wrap: wrap; row-gap: 6px; }
+  .route-editor-topbar .editor-kop { padding-right: 165px; flex-wrap: wrap; row-gap: 6px; }
   .route-editor-topbar .editor-naam { min-width: 90px; }
 }
 
@@ -3549,11 +3549,11 @@ body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop > .knop-svg svg {
    In een gekleurde of gekozen knop volgt het icoon gewoon de kleur van de knop. */
 .knop-svg--goed, .knop-svg--verder { --ik: #4ade80; }
 .knop-svg--waarschuwing, .knop-svg--laden, .knop-svg--bezig, .knop-svg--pauze, .knop-svg--bel { --ik: #fbbf24; }
-.knop-svg--wissen, .knop-svg--stoppen, .knop-svg--verboden, .knop-svg--bom { --ik: #f87171; }
+.knop-svg--wissen, .knop-svg--stoppen, .knop-svg--bom { --ik: #f87171; }
 .knop-svg--uitslag, .knop-svg--nieuw, .knop-svg--tip, .knop-svg--sleutel { --ik: #ffd93b; }
 .knop-svg[class*="knop-svg--"] { color: var(--ik, inherit); }
 .knop-svg--goed, .knop-svg--verder, .knop-svg--waarschuwing, .knop-svg--laden, .knop-svg--bezig, .knop-svg--pauze, .knop-svg--bel,
-.knop-svg--wissen, .knop-svg--stoppen, .knop-svg--verboden, .knop-svg--bom, .knop-svg--uitslag, .knop-svg--nieuw, .knop-svg--tip, .knop-svg--sleutel {
+.knop-svg--wissen, .knop-svg--stoppen, .knop-svg--bom, .knop-svg--uitslag, .knop-svg--nieuw, .knop-svg--tip, .knop-svg--sleutel {
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ik) 65%, transparent)); }
 :is(.rl-knop--rood, .rl-knop--cyan, .rl-knop--groen, .actief, .aan, .hoofdknop, .spelstrook-let--hulp, :disabled) .knop-svg { color: inherit; filter: none; }
 
