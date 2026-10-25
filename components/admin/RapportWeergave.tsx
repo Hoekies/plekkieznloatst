@@ -118,7 +118,8 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "0.12em", color: "#FFE680", fontSize: "0.95rem" }}>
               {voorlopig ? "AAN KOP (VOORLOPIG)" : "🏆 DE WINNAAR 🏆"}
             </div>
-            <div style={{ fontSize: "4.5rem", lineHeight: 1.1, marginTop: 6 }}>{stand[0].icon ?? "🥇"}</div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {stand[0].foto ? <img src={stand[0].foto} alt="" crossOrigin="anonymous" className="rapport-winnaar-foto" /> : <div style={{ fontSize: "4.5rem", lineHeight: 1.1, marginTop: 6 }}>{stand[0].icon ?? "🥇"}</div>}
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2.6rem", lineHeight: 1.1, color: "#fff", textShadow: "0 3px 0 rgba(0,0,0,0.35)" }}>
               {stand[0].naam}
             </div>
@@ -162,7 +163,11 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
               <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#B8AED6" }}>{routeNaam}</span>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-              <h2 style={{ fontSize: "1.4rem" }}>{MEDAILLE[i] ?? `${i + 1}.`} {t.icon ?? "👫"} {t.naam}</h2>
+              <h2 style={{ fontSize: "1.4rem", display: "flex", alignItems: "center", gap: 10 }}>
+                {MEDAILLE[i] ?? `${i + 1}.`}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {t.foto ? <img src={t.foto} alt="" crossOrigin="anonymous" className="rapport-team-foto" /> : (t.icon ?? "👫")} {t.naam}
+              </h2>
               <span style={{ marginLeft: "auto", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, color: "#00d9ff" }}>{t.score} punten</span>
             </div>
             <div style={{ fontSize: "0.85rem", color: "#D4CCF0", marginTop: 4 }}>

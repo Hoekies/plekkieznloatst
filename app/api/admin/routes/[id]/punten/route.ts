@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { voegPuntToeAanLopendeSpellen } from "@/lib/route-sessies";
+import { zetFinishOpdracht } from "@/lib/teamfoto";
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     .select()
     .single();
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  // 📸 Nieuwe finish: standaard de opdracht "groepsfoto of selfie" (wordt de teamfoto in de uitslag)
+  if (data.type === "eindpunt") await zetFinishOpdracht(admin, data.id);
   // Loopt er een spel op deze route? Dan krijgt elk team het nieuwe punt vóór de finish
   await voegPuntToeAanLopendeSpellen(admin, params.id, data.id);
   return NextResponse.json(data, { status: 201 });

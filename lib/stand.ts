@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import type { LeaderboardEntry } from "@/lib/types";
+import { teamFotos } from "@/lib/teamfoto";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -45,10 +46,13 @@ export async function maakStand(admin: AdminClient, routeId: string, eigenSpeler
   const { data } = await query;
   const sessies = (data ?? []) as unknown as RawSessie[];
   const afstand = await afstandPerSessie(admin, sessies.map((s) => s.id));
+  // Eindstand: de groepsfoto bij de finish als teamfoto
+  const fotos = alleenGefinisht ? await teamFotos(admin, routeId, sessies.map((s) => s.id)) : new Map<string, string>();
   const nu = Date.now();
   return sessies
     .map((s) => ({
       player_id: s.player_id,
+      foto: fotos.get(s.id) ?? null,
       display_name: s.players.nickname ?? s.players.login_name,
       icon: s.players.icon,
       score: s.score,
@@ -57,7 +61,7 @@ export async function maakStand(admin: AdminClient, routeId: string, eigenSpeler
     }))
     .sort((a, b) => b.score - a.score || a.tijd_seconden - b.tijd_seconden)
     .map((s, i) => ({
-      rank: i + 1, display_name: s.display_name, icon: s.icon, score: s.score,
+      rank: i + 1, display_name: s.display_name, icon: s.icon, foto: s.foto, score: s.score,
       tijd_seconden: s.tijd_seconden, distance_meters: s.distance_meters, is_eigen_team: s.player_id === eigenSpelerId,
     }));
 }

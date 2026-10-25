@@ -6,6 +6,7 @@ import FinishScherm from "@/components/speler/FinishScherm";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
+import { teamFotos } from "@/lib/teamfoto";
 
 export default async function FinishPage() {
   const user = await haalGebruiker();
@@ -112,10 +113,13 @@ export default async function FinishPage() {
     }))
     .sort((a, b) => b.score - a.score || a.tijd_seconden - b.tijd_seconden);
 
+  // 📸 Groepsfoto's bij de finish (goedgekeurd) als teamfoto
+  const fotos = route ? await teamFotos(admin, route.id, gesorteerd.map((s) => s.sessie_id).concat(sessie.id)) : new Map<string, string>();
   const initLeaderboard: LeaderboardEntry[] = gesorteerd.map((s, i) => ({
     rank: i + 1,
     display_name: s.display_name,
     icon: s.icon,
+    foto: fotos.get(s.sessie_id) ?? null,
     score: s.score,
     tijd_seconden: s.tijd_seconden,
     distance_meters: s.distance_meters,
@@ -129,6 +133,7 @@ export default async function FinishPage() {
     <FinishScherm
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
+      teamFoto={fotos.get(sessie.id) ?? null}
       routeNaam={route?.name ?? null}
       huisLogo={huisLogoUrl(route)}
       score={sessie.score}

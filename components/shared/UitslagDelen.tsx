@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 
-type UitslagTeam = { naam: string; icon: string | null; score: number; plaats: number; eigen?: boolean };
+// foto: groepsfoto bij de finish (goedgekeurd); anders het icoon
+type UitslagTeam = { naam: string; icon: string | null; foto?: string | null; score: number; plaats: number; eigen?: boolean };
 
 // 🖼️ Uitslag als afbeelding om te delen (WhatsApp, Instagram): podium met de top 3 en de rest eronder.
 // Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje (zoals de oorkonde).
@@ -49,7 +50,8 @@ export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopCl
               <div key={p} className={`uitslag-kaart-plek uitslag-kaart-plek--${p}`}>
                 {top(p).map((t) => (
                   <div key={t.naam} className={`uitslag-kaart-team${t.eigen ? " uitslag-kaart-team--eigen" : ""}`}>
-                    <span className="uitslag-kaart-icoon">{t.icon ?? "👫"}</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {t.foto ? <img src={t.foto} alt="" crossOrigin="anonymous" className="uitslag-kaart-foto" /> : <span className="uitslag-kaart-icoon">{t.icon ?? "👫"}</span>}
                     <span className="uitslag-kaart-naam">{t.naam}</span>
                     <span className="uitslag-kaart-score">{t.score} pt</span>
                   </div>

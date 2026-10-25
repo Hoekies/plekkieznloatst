@@ -22,7 +22,8 @@ export default function Podium({ stand }: { stand: LeaderboardEntry[] }) {
           <div className="podium-teams">
             {teams.map((t) => (
               <div key={t.display_name} className={`podium-team${t.is_eigen_team ? " podium-team--eigen" : ""}`}>
-                <span className="podium-icoon">{t.icon ?? "👫"}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {t.foto ? <img src={t.foto} alt="" className="podium-foto" /> : <span className="podium-icoon">{t.icon ?? "👫"}</span>}
                 <span className="podium-naam">{t.display_name}</span>
                 <span className="podium-score">{t.score} pt</span>
               </div>

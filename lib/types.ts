@@ -7,6 +7,8 @@ export type LeaderboardEntry = {
   tijd_seconden: number;
   distance_meters: number;
   is_eigen_team: boolean;
+  // 📸 Goedgekeurde groepsfoto/selfie bij de finish (tijdelijke link); anders het icoon
+  foto?: string | null;
 };
 
 export type SpelerLocatie = {

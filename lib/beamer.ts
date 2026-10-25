@@ -29,6 +29,7 @@ export type BeamerData = {
   route: { naam: string; modus: string; huis_logo?: string | null };
   route_punten: LiveData["route_punten"];
   speciale_items: LiveData["speciale_items"];
-  spelers: SpelerOverzicht[];
+  // foto: groepsfoto bij de finish (goedgekeurd), alleen in de stand
+  spelers: (SpelerOverzicht & { foto?: string | null })[];
   gebeurtenissen: { id: string; tijd: string; speler_id: string | null; icoon: string; item: string | null; tekst: string }[];
 };

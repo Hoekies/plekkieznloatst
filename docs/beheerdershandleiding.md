@@ -520,6 +520,8 @@ Met **⏹ Deactiveren** bij de route (Routes of de editor) haal je de route uit 
 
 ### Spel resetten
 
+**📸 Teamfoto in de uitslag:** een nieuwe finish krijgt standaard de foto-opdracht *"Maak een groepsfoto of selfie met het hele team"* (0 punten; aanpassen of weghalen in de vraag-editor van de finish). Is de foto van een team **goedgekeurd**, dan staat die foto in plaats van het icoon op het podium, de oorkonde, de uitslag-afbeelding om te delen, het beamerscherm en bij het team in het PDF-rapport. Dat werkt ook bij bestaande routes waar al een foto-opdracht bij de finish staat. Zonder (goedgekeurde) foto blijft het icoon.
+
 Stap 4 van **🏁 Spel afronden** is **🧹 Nieuw spel voorbereiden**: tik op **🧹 Opruimen** (met bevestiging; maak eerst het rapport en het fotoalbum als je die wilt bewaren). Dit is de enige plek om alles op te ruimen. Dit wist:
 
 - Alle spellen van alle teams, ook van gefinishte teams: niemand is daarna nog bezig of gefinisht

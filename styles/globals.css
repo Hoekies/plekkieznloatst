@@ -3786,3 +3786,12 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 }
 .uitslag-uitleg summary { cursor: pointer; color: var(--text); }
 .uitslag-uitleg[open] summary { margin-bottom: 4px; }
+/* 📸 Teamfoto (groepsfoto bij de finish) in de uitslag: rond, in plaats van het icoon */
+.podium-foto { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+.podium-plek--1 .podium-foto { width: 76px; height: 76px; border-color: #FACC15; }
+.oorkonde-foto { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid #FACC15; display: block; margin: 0 auto; }
+.uitslag-kaart-foto { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; }
+.uitslag-kaart-plek--1 .uitslag-kaart-foto { width: 84px; height: 84px; border-color: #FACC15; }
+.beamer-foto { width: 1.9em; height: 1.9em; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.8); flex: none; }
+.rapport-winnaar-foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #FACC15; margin-top: 6px; }
+.rapport-team-foto { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; }

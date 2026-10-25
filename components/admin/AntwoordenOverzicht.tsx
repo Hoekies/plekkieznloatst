@@ -165,7 +165,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             // Plaats: hoogste score eerst; bij gelijke score de snelste (zoals de stand)
             const duur = (t: TeamAntwoorden) => (t.finished_at ? Date.parse(t.finished_at) : Date.now()) - (t.started_at ? Date.parse(t.started_at) : 0);
             const lijst = [...data.teams].sort((a, b) => b.score - a.score || duur(a) - duur(b));
-            return lijst.map((t, i) => ({ naam: t.naam, icon: t.icon, score: t.score, plaats: i + 1 }));
+            return lijst.map((t, i) => ({ naam: t.naam, icon: t.icon, foto: t.foto ?? null, score: t.score, plaats: i + 1 }));
           })()} />
         )}
         <a className="rl-knop actie-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"

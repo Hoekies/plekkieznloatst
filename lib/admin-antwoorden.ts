@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { tekstAfstand, normaliseerAntwoord } from "@/lib/geo";
 import { huisLogoUrl } from "@/lib/huisstijl";
+import { teamFotos } from "@/lib/teamfoto";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -32,6 +33,8 @@ export type TeamAntwoorden = {
   sessie_id: string;
   naam: string;
   icon: string | null;
+  // 📸 Groepsfoto bij de finish (goedgekeurd), tijdelijke link
+  foto?: string | null;
   status: string;
   score: number;
   started_at: string | null;
@@ -139,5 +142,7 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
   }).sort((a, b) => a.naam.localeCompare(b.naam));
 
   const wachtende_fotos = (fotos ?? []).filter((f) => f.status === "wacht").length;
+  const teamFotoMap = await teamFotos(admin, route.id, teams.map((t) => t.sessie_id));
+  teams.forEach((t) => { t.foto = teamFotoMap.get(t.sessie_id) ?? null; });
   return { route: { id: route.id, name: route.name, huis_logo: huisLogoUrl(route) }, uitslag_vrijgegeven: !!route.uitslag_vrijgegeven, teams, wachtende_fotos };
 }

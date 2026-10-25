@@ -90,7 +90,8 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
             <div key={s.player_id} className={`beamer-rij${i === 0 && s.score > 0 ? " beamer-rij--eerste" : ""}`} style={{ borderLeftColor: kleuren.get(s.player_id) }}
               ref={(el) => { if (el) rijen.current.set(s.player_id, el); else rijen.current.delete(s.player_id); }}>
               <span className="beamer-plek">{i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}</span>
-              <span className="beamer-icoon">{s.icon ?? "👫"}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {s.foto ? <img src={s.foto} alt="" className="beamer-foto" /> : <span className="beamer-icoon">{s.icon ?? "👫"}</span>}
               <span className="beamer-naam">
                 {s.display_name}{s.sessie_status === "voltooid" && " 🏁"}
                 {/* 🧩 Hoeveel letters van het puzzelwoord (niet welke) */}

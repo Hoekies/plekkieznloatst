@@ -3,6 +3,7 @@ import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { voegPuntToeAanLopendeSpellen } from "@/lib/route-sessies";
 import { IMPORT_START_NAAM, IMPORT_START_TEKST } from "@/lib/punten-import";
+import { zetFinishOpdracht } from "@/lib/teamfoto";
 
 // Punten importeren: meerdere punten in één keer, vóór de finish (als die er is). Alleen bij "Op volgorde".
 // Ze worden infopunten met dezelfde tekst (bijv. "Punt bereikt! Loop door naar het volgende punt.").
@@ -63,6 +64,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ fout: error?.message ?? "Importeren mislukt" }, { status: 500 });
   }
 
+  // 📸 Nieuwe finish: standaard de opdracht "groepsfoto of selfie"
+  for (const p of nieuw) if (p.type === "eindpunt") await zetFinishOpdracht(admin, p.id);
   // Loopt er een spel op deze route? Dan krijgt elk team de nieuwe punten vóór de finish
   for (const p of [...nieuw].sort((a, b) => a.order_index - b.order_index)) {
     await voegPuntToeAanLopendeSpellen(admin, params.id, p.id);

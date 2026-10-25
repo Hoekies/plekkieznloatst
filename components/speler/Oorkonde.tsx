@@ -6,8 +6,10 @@ import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 
 // 🏅 Oorkonde bij de finish: een afbeelding met teamnaam, plaats, punten, tijd en afstand, om te delen
 // in de groepsapp. Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje.
-export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null }: {
-  teamNaam: string; icoon: string | null; routeNaam: string | null; punten: number; seconden: number; meters: number;
+export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null }: {
+  teamNaam: string; icoon: string | null; routeNaam: string | null;
+  // 📸 Groepsfoto bij de finish (goedgekeurd); anders het icoon
+  foto?: string | null; punten: number; seconden: number; meters: number;
   // Alleen als de uitslag vrij is
   plaats: number | null; aantalTeams: number;
   // Eigen logo van de organisatie (huisstijl van de route)
@@ -44,7 +46,8 @@ export default function Oorkonde({ teamNaam, icoon, routeNaam, punten, seconden,
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="oorkonde-huislogo" />}
           <div className="oorkonde-kop">Oorkonde</div>
-          <div className="oorkonde-icoon">{icoon ?? "🏁"}</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {foto ? <img src={foto} alt="" crossOrigin="anonymous" className="oorkonde-foto" /> : <div className="oorkonde-icoon">{icoon ?? "🏁"}</div>}
           <div className="oorkonde-team">{teamNaam}</div>
           <div className="oorkonde-zin">heeft {routeNaam ? <>de route <strong>{routeNaam}</strong></> : "de route"} uitgelopen</div>
           {plaats !== null && (
