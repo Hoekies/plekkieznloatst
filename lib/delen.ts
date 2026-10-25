@@ -6,13 +6,34 @@ export function bestandsnaamDeel(tekst: string): string {
 }
 
 // Een HTML-element als PNG-bestand. Wacht eerst op de lettertypen en de afbeeldingen erin.
+// Afbeeldingen van een ander adres (teamfoto's en logo's uit Supabase) eerst zelf ophalen en tijdelijk als
+// blob-link in het element zetten: staat dezelfde foto al ergens op de pagina (zonder crossOrigin), dan geeft
+// de browser anders de bewaarde versie terug en laat html2canvas de foto stil weg (lege cirkel).
 export async function elementNaarPng(el: HTMLElement, naam: string, schaal = 2): Promise<File | null> {
   const { default: html2canvas } = await import("html2canvas-pro");
   await document.fonts?.ready;
-  await Promise.all([...el.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
-  const canvas = await html2canvas(el, { scale: schaal, backgroundColor: null, logging: false, useCORS: true });
-  const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
-  return blob ? new File([blob], naam, { type: "image/png" }) : null;
+  const terug: (() => void)[] = [];
+  await Promise.all([...el.querySelectorAll("img")].map(async (img) => {
+    const src = img.currentSrc || img.src;
+    if (src && /^https?:/.test(src) && new URL(src).origin !== location.origin) {
+      try {
+        const res = await fetch(src, { cache: "no-store" });
+        if (res.ok) {
+          const blobUrl = URL.createObjectURL(await res.blob());
+          img.src = blobUrl;
+          terug.push(() => { img.src = src; URL.revokeObjectURL(blobUrl); });
+        }
+      } catch { /* dan de gewone link */ }
+    }
+    await img.decode().catch(() => undefined);
+  }));
+  try {
+    const canvas = await html2canvas(el, { scale: schaal, backgroundColor: null, logging: false, useCORS: true });
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
+    return blob ? new File([blob], naam, { type: "image/png" }) : null;
+  } finally {
+    terug.forEach((f) => f());
+  }
 }
 
 // Bestand opslaan op het apparaat
