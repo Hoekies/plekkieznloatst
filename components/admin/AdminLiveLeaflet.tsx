@@ -338,12 +338,11 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         <KaartStijlKnoppen stijl={!vector && stijl === "donker" ? "licht" : stijl} onKies={kiesStijl} inBlok />
       </KaartBediening>
       {/* Onder de zoomknoppen: alles weer in beeld */}
-      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Hele route en alle teams in beeld" aria-label="Alles in beeld"><Icoon naam="inbeeld" /></button>
+      <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Centreren: hele route en alle teams in beeld" aria-label="Alles in beeld"><Icoon naam="centreren" /></button>
       {!volgen && !volgId && (
         <button
           onClick={() => setVolgen(true)}
-          className="btn-premium--cyan"
-          style={{ position: "absolute", top: 12, left: 60, zIndex: 1000, fontSize: "0.8rem", padding: "8px 14px" }}>
+          className="rl-knop rl-knop--cyan kaart-volg">
           <Icoon naam="punt" /> Volg spelers
         </button>
       )}

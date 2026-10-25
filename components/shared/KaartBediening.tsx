@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Map as KaartIcoon } from "lucide-react";
 
 // Linksonder op de kaart: kaartlagen en licht/donker/luchtfoto in één paneel, in te klappen tot
 // één knopje (zodat het geen punten bedekt). Ingeklapt of niet wordt onthouden op dit toestel.
@@ -19,7 +20,7 @@ export default function KaartBediening({ children, extraKlasse = "" }: { childre
   if (ingeklapt) {
     return (
       <div className={`kaart-bediening kaart-bediening--in ${extraKlasse}`} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="kaart-bediening-open" onClick={() => wissel(false)} title="Kaartlagen en kaartstijl" aria-label="Kaartlagen en kaartstijl tonen">🗺️ <span>Kaart</span></button>
+        <button type="button" className="kaart-bediening-open" onClick={() => wissel(false)} title="Kaartlagen en kaartstijl" aria-label="Kaartlagen en kaartstijl tonen"><KaartIcoon size={18} strokeWidth={2} aria-hidden /> <span>Kaart</span></button>
       </div>
     );
   }

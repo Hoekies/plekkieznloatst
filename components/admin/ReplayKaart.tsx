@@ -40,6 +40,8 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
   const [film, setFilm] = useState<number | null>(null);  // voortgang 0..1 tijdens het opnemen
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<GlMap | null>(null);
+  // Begin-uitsnede (alle sporen), voor de knop Centreren
+  const grenzenRef = useRef<import("maplibre-gl").LngLatBounds | null>(null);
   const markersRef = useRef<Map<string, { marker: GlMarker; finish: boolean }>>(new Map());
   const maplibreRef = useRef<typeof import("maplibre-gl") | null>(null);
   const [klaar, setKlaar] = useState(false);
@@ -69,6 +71,7 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
       setStijl(beginStijl);
       const alle = teams.flatMap((t) => t.spoor.map((p): [number, number] => [p[2], p[1]]));
       const grenzen = alle.length ? alle.reduce((b, c) => b.extend(c), new maplibre.LngLatBounds(alle[0], alle[0])) : null;
+      grenzenRef.current = grenzen;
       const map = new maplibre.Map({
         container: containerRef.current, style: VECTOR_STIJL_URL, attributionControl: false,
         ...(grenzen ? { bounds: grenzen, fitBoundsOptions: { padding: 50, maxZoom: 17 } } : { center: [5.3, 52.1] as [number, number], zoom: 7 }),
@@ -254,6 +257,10 @@ export default function ReplayKaart({ teams, route_punten, kleuren, titel = null
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", position: "relative" }}>
       <div style={{ flex: 1, minHeight: 0, position: "relative", zIndex: 0 }}>
         <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+        {!geenWebgl && (
+          <button type="button" className="kaart-alles kaart-alles--gl" title="Centreren: alle sporen in beeld" aria-label="Centreren"
+            onClick={() => grenzenRef.current && mapRef.current?.fitBounds(grenzenRef.current, { padding: 50, maxZoom: 17 })}><Icoon naam="centreren" /></button>
+        )}
         {geenWebgl && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)", padding: 24, textAlign: "center" }}>
             De replay heeft een browser met WebGL nodig. Probeer het op een andere computer of telefoon.

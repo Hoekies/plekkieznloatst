@@ -7,6 +7,7 @@ import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type Ka
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
 import { itemNaam, itemEmoji } from "@/components/speler/SpeciaalItemLegende";
+import Icoon from "@/components/admin/Icoon";
 
 // Leaflet wordt alleen client-side geladen
 declare global {
@@ -557,12 +558,31 @@ export default function LeafletKaart({
     kaartRef.current.setView([vliegNaar.lat, vliegNaar.lng], vliegNaar.zoom ?? 15);
   }, [vliegNaar, kaartKlaar]);
 
+  // Centreren: alle punten en items in beeld (één punt: inzoomen op dat punt)
+  function inBeeld() {
+    const kaart = kaartRef.current;
+    if (!kaart || !punten.length) return;
+    import("leaflet").then((L) => {
+      const plekken: [number, number][] = [
+        ...punten.map((p): [number, number] => [p.latitude, p.longitude]),
+        ...specialeItems.map((i): [number, number] => [i.latitude, i.longitude]),
+      ];
+      kaart.invalidateSize();
+      if (plekken.length === 1) kaart.setView(plekken[0], 16, { animate: true });
+      else kaart.fitBounds(L.latLngBounds(plekken), { padding: [40, 40], maxZoom: 17, animate: true });
+    });
+  }
+
   return (
     // z-index hier is bewust gezet: position:relative zonder z-index vormt geen eigen
     // stacking-context, waardoor Leaflet's interne panes (tot z-index 700 voor popups)
     // zouden "lekken" en boven pagina-elementen als het admin-hamburgermenu komen te staan.
     <div style={{ flex: 1, position: "relative", minWidth: 0, zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      {/* Onder + en −: centreren, de hele route (punten en items) weer in beeld zoals bij het openen */}
+      {punten.length > 0 && (
+        <button type="button" className="kaart-alles" onClick={inBeeld} title="Centreren: hele route in beeld" aria-label="Centreren"><Icoon naam="centreren" /></button>
+      )}
       {/* Linksonder op de kaart: kaartlagen en licht/donker/luchtfoto in één blok */}
       <KaartBediening>
         {lagenKnoppen}

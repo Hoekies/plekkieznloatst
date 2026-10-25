@@ -2431,6 +2431,9 @@ button.route-stap:hover { color: var(--ink); }
 .kaart-alles { position: absolute; top: 84px; left: 10px; z-index: 1000; width: 34px; height: 34px; border-radius: 4px; border: 2px solid rgba(0,0,0,0.2);
   background: #fff; color: #333; font-size: 1.15rem; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .kaart-alles:hover { background: #f4f4f4; }
+.kaart-alles .knop-svg svg { width: 18px; height: 18px; }
+/* Replay (vectorkaart): onder de zoom- en kompasknoppen */
+.kaart-alles--gl { top: 112px; width: 29px; height: 29px; border: 0; border-radius: 4px; box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
 /* Inlogkaartje: met een eigen logo staan beide logo's even hoog naast elkaar, met een dun streepje ertussen */
 .kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .kaartje-logos:has(.kaartje-huislogo) .kaartje-logo { height: 52px; }
@@ -3627,3 +3630,5 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
   .dash-zijkolom .mini-livekaart-kaart { height: 340px; }
   .dash-zijkolom .tijdlijn-lijst { max-height: max(200px, calc(100vh - 620px)); }
 }
+/* Live kaart: "Volg spelers" naast de zoomknoppen, in de gewone knopstijl */
+.kaart-volg { position: absolute; top: 10px; left: 56px; z-index: 1000; height: 36px; box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
