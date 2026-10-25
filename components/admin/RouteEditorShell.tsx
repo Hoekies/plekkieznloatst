@@ -32,7 +32,7 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
-import { normaliseerPuzzel } from "@/lib/puzzel";
+import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import HusselInstelling from "@/components/admin/editor/HusselInstelling";
 
@@ -184,6 +184,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
+  // 🧩 Eigen venster met alle puzzelfuncties (vanuit de werkbalk en de regel boven de puntenlijst)
+  const [puzzelOpen, setPuzzelOpen] = useState(false);
   const [opslaan, setOpslaan] = useState(false);
   const [naamWijzig, setNaamWijzig] = useState(false);
   const [nieuweNaam, setNieuweNaam] = useState(route.name);
@@ -1462,6 +1464,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
             <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
           </button>
+          {/* 🧩 Puzzelwoord in de werkbalk: alleen als het aan staat; groen = het aantal letters klopt */}
+          {(() => {
+            const verschil = puzzelLetters - vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
+            return (
+              <button type="button" className={`rl-knop werkbalk-puzzel${!route.puzzel_aan ? " werkbalk-puzzel--uit" : puzzelLetters && verschil === 0 ? " werkbalk-puzzel--goed" : ""}`}
+                onClick={() => setPuzzelOpen(true)}
+                title={!route.puzzel_aan ? "Puzzelwoord staat uit: tik om het aan te zetten" : !puzzelLetters ? "Puzzelwoord staat aan, maar er is nog geen woord" : verschil === 0
+                  ? `Puzzelwoord ${normaliseerPuzzel(route.puzzelwoord)}: ${puzzelLetters} letters, klopt met de vragen`
+                  : `Puzzelwoord: ${verschil > 0 ? `${verschil} vragen te kort` : `${-verschil} vragen te veel`}`}>
+                <span aria-hidden>🧩</span> {!route.puzzel_aan ? <span className="alleen-pc">Uit</span> : !puzzelLetters ? "?" : verschil === 0 ? `${puzzelLetters} ✓` : `${puzzelLetters} ⚠️`}
+              </button>
+            );
+          })()}
           <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
             onClick={() => { const aan = !(proef || testOpen); setProef(aan ? NIEUWE_PROEF : null); setTestOpen(false); setGeselecteerd(null); }}
             title="Testen: klik over de kaart en loop als testspeler mee (punten, items en vallen gaan af zoals op straat), of bekijk de vragen punt voor punt">
@@ -1672,6 +1687,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {route.modus === "sequentieel" && punten.length >= 2 && (() => {
               const totaalM = wegen.totaal(puntPlekken);
               return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : wegen.aan ? "📏 hemelsbreed (wegen laden…)" : "📏 hemelsbreed"}</span>;
+            })()}
+
+            {/* 🧩 Puzzelwoord: in één oogopslag aan of uit, en of het aantal letters klopt; tik = instellingen */}
+            {(() => {
+              const teVerdienen = vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
+              const verschil = puzzelLetters - teVerdienen;
+              return (
+                <button type="button" className={`puzzel-chip${puzzelLetters ? "" : " puzzel-chip--uit"}`}
+                  onClick={() => setPuzzelOpen(true)} title="Puzzelwoord instellen">
+                  <span aria-hidden>🧩</span>
+                  {!route.puzzel_aan ? <span>Puzzelwoord uit</span>
+                    : !puzzelLetters ? <span>Puzzelwoord aan, nog geen woord</span>
+                    : <>
+                        <strong className="puzzel-chip-woord">{normaliseerPuzzel(route.puzzelwoord)}</strong>
+                        <span className={`puzzel-chip-stand${verschil === 0 ? " puzzel-chip-stand--goed" : ""}`}>
+                          {verschil === 0 ? `✓ ${puzzelLetters} letters` : verschil > 0 ? `⚠️ ${verschil} te kort` : `⚠️ ${-verschil} te veel`}
+                        </span>
+                      </>}
+                </button>
+              );
             })()}
           </div>}
 
@@ -2013,7 +2048,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </div>
                 {/* 9. Eén zin: wat stel je hier in? */}
                 <span className="inst-uitleg inst-tab-uitleg">{{
-                  spel: "Hoe het spel verloopt: de tussenstand op de telefoons en het puzzelwoord.",
+                  spel: "Hoe het spel verloopt: de tussenstand op de telefoons en het husselen van de antwoorden.",
                   punten: "Wat de spelers van de route zien en hoe dichtbij ze bij een punt moeten komen.",
                   items: "De speciale items: wat ze doen, wat elk team bij de start krijgt en wat na de finish nog mag.",
                   uiterlijk: "Hoe de spelersapp eruitziet en klinkt: kleur, logo, welkomstfoto en geluiden.",
@@ -2061,10 +2096,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </>
                 )}
 
-                {/* 🧩 Puzzelwoord: aan of uit; elke goede vraag geeft een letter (per vraag aan te passen) */}
-                {instellingenTab === "spel" && (
-                  <PuzzelInstellingen route={route} vraagpunten={vraagpunten.map((p) => ({ id: p.id, name: p.name }))} onOpslaan={slaPuzzelOp} />
-                )}
+                {/* 🧩 Puzzelwoord staat niet hier maar achter het 🧩-knopje in de werkbalk (eigen venster) */}
 
                 {/* 🎨 Huisstijl en 🔔 geluiden voor de spelers */}
                 {instellingenTab === "uiterlijk" && (
@@ -2422,6 +2454,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 setVraagVenster(null);
               }} />
           </div>
+        )}
+
+        {/* 🧩 Puzzelwoord: aan/uit, woord, bedenken, letters verdelen en per vraag, zonder het hele instellingenvenster */}
+        {puzzelOpen && (
+          <VensterMetKop icoon="🧩" label="Route-instelling" titel="Puzzelwoord" onSluit={() => setPuzzelOpen(false)} breedte={560} maxHoogte={92}>
+            <PuzzelInstellingen route={route} vraagpunten={vraagpunten.map((p) => ({ id: p.id, name: p.name }))} onOpslaan={slaPuzzelOp} />
+          </VensterMetKop>
         )}
 
         {/* Startpunt voor een team kiezen */}

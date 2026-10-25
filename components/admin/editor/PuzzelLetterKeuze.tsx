@@ -11,7 +11,7 @@ export type PuzzelKoppeling = {
 };
 
 // 🧩 Per vraag: telt deze mee voor het puzzelwoord? Geen letter, 1 of 2. Ernaast meteen of het woord nog
-// klopt met wat alle vragen samen opleveren. Hetzelfde als in de route-instellingen (🧩 Puzzel), maar
+// klopt met wat alle vragen samen opleveren. Hetzelfde als in het 🧩-venster van de route-editor, maar
 // hier bij de vraag zelf.
 export default function PuzzelLetterKeuze({ puzzel, puntId }: { puzzel: PuzzelKoppeling; puntId: string }) {
   const n = lettersVoor(puzzel.verdeling, puntId);
