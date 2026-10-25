@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { opDeWeg } from "@/lib/op-de-weg";
+import { opDeWeg, speelplaatsen } from "@/lib/op-de-weg";
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
@@ -49,10 +49,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const { data: items, error } = await admin.from("special_items").select("id, latitude, longitude").eq("route_id", params.id).eq("is_startitem", false);
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   let verplaatst = 0;
+  // 🛝 Speelplaatsen en schoolpleinen één keer ophalen: items die daarop liggen blijven liggen
+  const vlakken = await speelplaatsen((items ?? []).map((it) => ({ lat: it.latitude, lng: it.longitude })));
   // Twee tegelijk, om de gratis dienst niet te overvragen
   for (let i = 0; i < (items ?? []).length; i += 2) {
     await Promise.all(items!.slice(i, i + 2).map(async (it) => {
-      const plek = await opDeWeg({ lat: it.latitude, lng: it.longitude });
+      const plek = await opDeWeg({ lat: it.latitude, lng: it.longitude }, 60, vlakken);
       if (plek.lat === it.latitude && plek.lng === it.longitude) return;
       await admin.from("special_items").update({ latitude: plek.lat, longitude: plek.lng }).eq("id", it.id);
       verplaatst++;

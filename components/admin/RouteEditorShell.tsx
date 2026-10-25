@@ -1926,7 +1926,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <>
                   <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
                   <button type="button" className="rl-knop" style={{ margin: "8px 10px" }} disabled={opWegBezig} onClick={itemsOpDeWeg}
-                    title="Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad, de stoep of de weg leggen">
+                    title="Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad, de stoep of de weg leggen; items op een speelplaats of schoolplein blijven liggen">
                     {opWegBezig ? <><Icoon naam="laden" />{" Bezig…"}</> : <><Icoon naam="weg" />{" Alle items op de weg"}</>}
                   </button>
                 </>
