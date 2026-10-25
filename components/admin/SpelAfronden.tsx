@@ -11,13 +11,15 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { openKaartjes } from "@/components/admin/InlogUitdelen";
 import Icoon from "@/components/admin/Icoon";
 
-// 🏁 Spel afronden in stappen: (1) wie nog onderweg is stoppen, (2) uitslag vrijgeven, (3) rapport en foto's
-// bewaren, (4) nieuw spel voorbereiden. Elke stap heeft één knop; een gedane stap krijgt een vinkje. Je mag
-// een stap overslaan (bijv. alleen opruimen na een testspel). Dit is ook de enige plek om alles op te ruimen.
+// Twee knoppen, elk met een eigen venster in stappen:
+// 🏁 Afronden: (1) wie nog onderweg is stoppen, (2) uitslag vrijgeven, (3) rapport en foto's bewaren.
+// 🧹 Opruimen: (1) nieuw spel voorbereiden, (2) eventueel een volgende groep met nieuwe wachtwoorden.
+// Elke stap heeft één knop; een gedane stap krijgt een vinkje. Een stap overslaan mag (bijv. alleen opruimen
+// na een testspel). Opruimen is de enige plek om alles op te ruimen.
 export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
   spelend: SpelerOverzicht[]; uitslagVrij: boolean; onGewijzigd: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<"afronden" | "opruimen" | null>(null);
   const [rapportOpen, setRapportOpen] = useState(false);
   const [vrij, setVrij] = useState<boolean | null>(null);
   const onderweg = spelend.filter((s) => s.sessie_status === "actief");
@@ -60,11 +62,14 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
 
   return (
     <>
-      <button type="button" className="rl-knop rl-knop--cyan actie-knop" onClick={() => setOpen(true)}>
-        <Icoon naam="vlag" /> <span className="alleen-pc">{uitslag ? "Afronden en opruimen" : "Spel afronden"}</span><span className="alleen-mobiel">Afronden</span>
+      <button type="button" className="rl-knop rl-knop--cyan actie-knop" onClick={() => setOpen("afronden")}>
+        <Icoon naam="vlag" /> Afronden
       </button>
-      {open && (
-        <VensterMetKop icoon="🏁" label="Spel afronden" titel="In vijf stappen klaar" onSluit={() => setOpen(false)} breedte={520} maxHoogte={92}>
+      <button type="button" className="rl-knop actie-knop" onClick={() => setOpen("opruimen")}>
+        <Icoon naam="wissen" /> Opruimen
+      </button>
+      {open === "afronden" && (
+        <VensterMetKop icoon="🏁" label="Spel afronden" titel="In drie stappen klaar" onSluit={() => setOpen(null)} breedte={520} maxHoogte={92}>
           <div className="afrond-stappen">
             {stap(1, onderweg.length === 0, "Iedereen stoppen",
               onderweg.length ? `Nog ${onderweg.length} ${onderweg.length === 1 ? "team" : "teams"} onderweg: ${onderweg.map((s) => s.display_name).join(", ")}` : "Niemand meer onderweg",
@@ -79,11 +84,17 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
             {stap(3, rapportOpen, "Rapport en foto's bewaren", "Het rapport (PDF) en bij Antwoorden de Excel, PDF per team en het fotoalbum",
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer" onClick={() => setRapportOpen(true)}><Icoon naam="rapport" /> Rapport</a>
-                <Link className="rl-knop" href="/admin/antwoorden" onClick={() => setOpen(false)}><Icoon naam="downloaden" /> Antwoorden</Link>
+                <Link className="rl-knop" href="/admin/antwoorden" onClick={() => setOpen(null)}><Icoon naam="downloaden" /> Antwoorden</Link>
               </div>)}
-            {stap(4, false, "Nieuw spel voorbereiden", "Spellen, antwoorden en foto's weg; routes, vragen en spelers blijven",
-              <NieuwSpelKnop className="rl-knop rl-knop--rood" onKlaar={() => { setOpen(false); window.location.reload(); }} />)}
-            {stap(5, nieuweGroepKlaar, "Volgende groep (optioneel)", "Zelfde logins, maar nieuwe wachtwoorden; teamnaam, icoon en telefoon gaan eraf. Teams weghalen kan bij Spelers.",
+          </div>
+        </VensterMetKop>
+      )}
+      {open === "opruimen" && (
+        <VensterMetKop icoon="🧹" label="Opruimen" titel="Klaar voor het volgende spel" onSluit={() => setOpen(null)} breedte={520} maxHoogte={92}>
+          <div className="afrond-stappen">
+            {stap(1, false, "Nieuw spel voorbereiden", "Spellen, antwoorden en foto's weg; routes, vragen en spelers blijven. Bewaar eerst het rapport bij 🏁 Afronden.",
+              <NieuwSpelKnop className="rl-knop rl-knop--rood" onKlaar={() => { setOpen(null); window.location.reload(); }} />)}
+            {stap(2, nieuweGroepKlaar, "Volgende groep (optioneel)", "Zelfde logins, maar nieuwe wachtwoorden; teamnaam, icoon en telefoon gaan eraf. Teams weghalen kan bij Spelers.",
               <BevestigKnop venster icoon="🔁" titel="Nieuwe groep voorbereiden?" vraag=""
                 uitleg="Alle teams krijgen een nieuw wachtwoord en worden uitgelogd; de oude kaartjes werken niet meer. Teamnaam, icoon en telefoonnummer gaan eraf. Daarna openen de nieuwe kaartjes om te printen."
                 ja="Ja, nieuwe wachtwoorden" onBevestig={nieuweGroep} className="rl-knop">

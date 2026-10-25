@@ -7,7 +7,7 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import Icoon from "@/components/admin/Icoon";
 
 // 🧹 Nieuw spel voorbereiden (vroeger "Reset spel"): alle gespeelde spellen, antwoorden, foto's en opgepakte
-// items weg; routes, vragen en spelers blijven. Staat op één plek: stap 4 van 🏁 Spel afronden.
+// items weg; routes, vragen en spelers blijven. Staat op één plek: stap 1 van 🧹 Opruimen (Spelleider).
 export default function NieuwSpelKnop({ onKlaar, className = "rl-knop actie-knop" }: { onKlaar?: () => void; className?: string }) {
   async function reset() {
     const res = await fetch("/api/admin/reset", { method: "POST" }).catch(() => null);

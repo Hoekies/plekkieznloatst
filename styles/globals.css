@@ -457,7 +457,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 .speler-content {
   flex: 1;
+  /* Zonder min-height: 0 groeit dit vak mee met de inhoud en knipt de shell (overflow: hidden) de rest af:
+     dan kun je bijv. op het finishscherm niet scrollen */
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
 }
@@ -1669,7 +1673,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .spelleider-status { flex: 1 1 240px; min-width: 0; }
 .spelleider-knoppen { display: flex; gap: 8px; flex-shrink: 0; }
 @media (max-width: 768px) {
-  /* Twee knoppen per regel (Pauze · Eindtijd), de laatste (Spel afronden) over de volle breedte */
+  /* Twee knoppen per regel (Pauze · Eindtijd, Afronden · Opruimen); een losse laatste over de volle breedte */
   .spelleider-knoppen { flex: 1 1 100%; flex-wrap: wrap; }
   .spelleider-knoppen > * { flex: 1 1 40%; min-width: 0; justify-content: center; padding: 0 10px !important; white-space: nowrap; }
 }
@@ -3555,7 +3559,7 @@ body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop > .knop-svg svg {
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ik) 65%, transparent)); }
 :is(.rl-knop--rood, .rl-knop--cyan, .rl-knop--groen, .actief, .aan, .hoofdknop, .spelstrook-let--hulp, :disabled) .knop-svg { color: inherit; filter: none; }
 
-/* 🏁 Spel afronden: vier stappen onder elkaar, nummer of vinkje links, knop rechts */
+/* 🏁 Afronden en 🧹 Opruimen: stappen onder elkaar, nummer of vinkje links, knop rechts */
 .afrond-stappen { display: flex; flex-direction: column; gap: 8px; }
 .afrond-stap { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .afrond-stap--klaar { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.3); }

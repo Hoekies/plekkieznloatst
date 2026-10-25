@@ -213,7 +213,7 @@ export default function BeginnenPagina() {
             </Scherm>
           }>
             <ol>
-              <li>Iedereen binnen? Klik bij <strong>🎯 Spelleider</strong> op <strong>🏁 Spel afronden</strong>.</li>
+              <li>Iedereen binnen? Klik bij <strong>🎯 Spelleider</strong> op <strong>🏁 Afronden</strong>; daarna <strong>🧹 Opruimen</strong> voor het volgende spel.</li>
               <li>Ga naar <strong>📝 Antwoorden</strong> en keur de <strong>foto&apos;s</strong>: goed of fout.</li>
               <li>Klik op <strong>🏆 Uitslag vrijgeven</strong>: alle teams zien de eindstand en hun oorkonde.</li>
               <li>Wil je een verslag? Met <strong>📄 Rapport delen</strong> stuur je de uitslag als PDF.</li>

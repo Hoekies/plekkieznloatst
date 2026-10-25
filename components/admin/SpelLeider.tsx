@@ -170,7 +170,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               )}
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
-              {/* 🏁 Afronden in stappen: stoppen, uitslag, rapport, opruimen voor de volgende groep */}
+              {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
               <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
             </div>
           )}

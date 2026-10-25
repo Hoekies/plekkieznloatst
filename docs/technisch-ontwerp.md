@@ -292,7 +292,7 @@ Gedeelde beheeronderdelen (vaste vorm overal)
   ├── <Icoon> lijn-iconen op alle knoppen in het beheer (lucide-react); de speler-app houdt emoji
   ├── <MenuGroep> ⚙️ Instellingen: paneel dat naar rechts uitklapt (portal, blijft gemount)
   ├── <FotoKeurVenster> één keurvenster in de layout; openFotoKeuren() vanaf elke pagina, sneltoetsen G/F/S
-  ├── <SpelAfronden> 🏁 vier stappen: stoppen, uitslag, rapport, opruimen (enige plek voor de reset)
+  ├── <SpelAfronden> 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (reset, volgende groep; enige plek voor de reset)
   └── <SysteemTeller> rood bolletje bij ⚙️/Systeemcheck (check 1× per 10 min, sessionStorage)
 ```
 
