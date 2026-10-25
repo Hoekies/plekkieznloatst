@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { speelDong } from "@/lib/sounds";
 import { useBeheerStatus, verversBeheerStatus, type HulpMelding } from "@/components/admin/useBeheerStatus";
 import { toonMelding } from "@/components/admin/Melding";
@@ -17,6 +18,7 @@ function minutenGeleden(iso: string): string {
 // gedeelde bron (useBeheerStatus); de knipperende tabtitel regelt TabTeller.
 export default function HulpMeldingen() {
   const { hulp: meldingen } = useBeheerStatus();
+  const pad = usePathname();
   const [bezig, setBezig] = useState<string | null>(null);
   const gezienRef = useRef<Set<string>>(new Set());
 
@@ -46,7 +48,8 @@ export default function HulpMeldingen() {
     haalOp();
   }
 
-  if (meldingen.length === 0) return null;
+  // Op het dashboard staat de hulpvraag al open in de spelleider (met dezelfde knoppen): daar geen popup
+  if (meldingen.length === 0 || pad === "/admin") return null;
 
   return (
     <div style={{

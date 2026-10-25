@@ -26,9 +26,13 @@ interface Props {
   // Kaartlagen van buitenaf (live kaart: knop in de bovenbalk); zonder: eigen keuze, onthouden per toestel
   lagen?: { sporen: boolean; items: boolean };
   onWisselLaag?: (laag: "sporen" | "items") => void;
+  // Tik op een teammarker: het venster van dat team (vrijgeven, bellen, bericht)
+  onKiesSpeler?: (playerId: string) => void;
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen, lagen: lagenVanBuiten, onWisselLaag }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen, lagen: lagenVanBuiten, onWisselLaag, onKiesSpeler }: Props) {
+  const kiesRef = useRef(onKiesSpeler);
+  kiesRef.current = onKiesSpeler;
   const sporenLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
   // Laatste versie van de callback voor de sleep-handler (die wordt maar één keer gekoppeld)
   const stopVolgenRef = useRef(onStopVolgen);
@@ -194,10 +198,13 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       const label = isKlaar ? "🏁" : escapeHtml(speler.icon ?? speler.display_name.charAt(0).toUpperCase());
       const gevolgd = volgId === speler.player_id;
       const maat = gevolgd ? 44 : 34;
+      // ⚠️ Hulpvraag: oranje pulserende ring om de marker
+      const hulpRing = speler.hulp ? `<span class="kaart-hulp-ring" style="width:${maat + 16}px;height:${maat + 16}px"></span>` : "";
 
       const icon = L.divIcon({
         className: "",
-        html: `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        html: `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;cursor:${onKiesSpeler ? "pointer" : "default"}">
+          ${hulpRing}
           <div style="
             width:${maat}px;height:${maat}px;border-radius:50%;
             background:#3a1f80;border:3px solid ${kleur};
@@ -222,7 +229,9 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         bestaand.setIcon(icon);
         bestaand.setZIndexOffset(gevolgd ? 1000 : 0);
       } else {
-        const marker = L.marker(latlng, { icon, interactive: false, zIndexOffset: gevolgd ? 1000 : 0 }).addTo(map);
+        const marker = L.marker(latlng, { icon, interactive: true, zIndexOffset: gevolgd ? 1000 : 0, keyboard: false })
+          .on("click", () => kiesRef.current?.(speler.player_id))
+          .addTo(map);
         spelerMarkersRef.current.set(speler.player_id, marker);
       }
     });
@@ -339,11 +348,12 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       </KaartBediening>
       {/* Onder de zoomknoppen: alles weer in beeld */}
       <button type="button" className="kaart-alles" onClick={allesInBeeld} title="Centreren: hele route en alle teams in beeld" aria-label="Alles in beeld"><Icoon naam="centreren" /></button>
-      {!volgen && !volgId && (
-        <button
-          onClick={() => setVolgen(true)}
-          className="rl-knop rl-knop--cyan kaart-volg">
-          <Icoon naam="punt" /> Volg spelers
+      {/* Meebewegen: de kaart houdt alle teams in beeld (slepen zet het uit); naast Centreren */}
+      {!volgId && (onKiesSpeler || !volgen) && (
+        <button type="button" onClick={() => setVolgen((v) => !v)} aria-pressed={volgen}
+          className={`kaart-meebewegen${volgen ? " kaart-meebewegen--aan" : ""}`}
+          title={volgen ? "Meebewegen staat aan: de kaart houdt alle teams in beeld (slepen zet het uit)" : "Meebewegen: de kaart houdt alle teams in beeld"}>
+          <Icoon naam="doel" /> Meebewegen
         </button>
       )}
     </div>

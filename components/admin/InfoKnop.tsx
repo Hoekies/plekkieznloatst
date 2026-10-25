@@ -15,7 +15,7 @@ import Icoon from "@/components/admin/Icoon";
 const KAARTEN = [
   { titel: "Spelers (A5)", src: "/handleiding.jpg", klein: "/kaarten/klein-spelers.webp", papier: "A5" },
   { titel: "Route op volgorde", src: "/kaarten/route-op-volgorde.webp", klein: "/kaarten/klein-route-op-volgorde.webp", papier: "A5" },
-  { titel: "Verspreide route", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A5" },
+  { titel: "Rondje", src: "/kaarten/verspreid.webp", klein: "/kaarten/klein-verspreid.webp", papier: "A5" },
 ].map((k) => ({ ...k, src: metVersie(k.src), klein: metVersie(k.klein) }));
 
 // 🖨️ Kaart printen: een eigen venster met alleen de kaart, staand op het juiste papier, zonder marges;

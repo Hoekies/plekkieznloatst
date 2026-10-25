@@ -3040,12 +3040,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .lijst-rij--door .lijst-badge { width: 20px !important; height: 20px !important; font-size: 0.66rem !important; border-width: 1.5px !important; margin: 0 3.5px; }
 .lijst-rij--door > div:nth-child(2) { font-size: 0.74rem !important; font-weight: 500 !important; color: var(--muted) !important; }
 
-/* Editorbalk rustiger: het gereedschap (importeren, op de weg, leegmaken) en ↻ opnieuw alleen als icoon,
-   met uitleg bij aanwijzen; de hoofdzaken (lijst, wegen, vragen, test) houden hun tekst */
-@media (min-width: 769px) {
-  .route-editor-topbar .editor-gereedschap .alleen-pc, .route-editor-topbar .editor-opnieuw .alleen-pc { display: none !important; }
-  .route-editor-topbar .editor-gereedschap .rl-knop, .route-editor-topbar .editor-opnieuw { min-width: 40px; padding: 0 10px; justify-content: center; font-size: 1rem; }
-}
+/* Editorbalk: ook het gereedschap (importeren, verboden gebied, op de weg) met tekst, zodat je ziet wat het doet */
 
 /* Spelersapp: infopunt als kaartje onderin (de kaart blijft zichtbaar); vragen blijven volledig scherm */
 .info-kaartje { position: fixed; left: 12px; right: 12px; bottom: max(14px, calc(env(safe-area-inset-bottom) + 10px)); z-index: 1000;
@@ -3672,3 +3667,64 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .huisstijl-knoppen { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .huisstijl-geluid { flex: 1 1 220px; }
 @media (max-width: 560px) { .huisstijl-regel { grid-template-columns: 1fr; gap: 6px; } }
+/* 🧲 Venster Op de weg: twee grote vinkknoppen, daaronder de instelling voor nieuwe items */
+.opweg-keuzes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.opweg-keuze { display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.05); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.opweg-keuze:disabled { opacity: 0.4; cursor: default; }
+.opweg-keuze--aan { border-color: rgba(0,217,255,0.6); background: rgba(0,217,255,0.12); }
+.opweg-vink { width: 20px; height: 20px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.45); display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; flex: none; }
+.opweg-keuze--aan .opweg-vink { background: var(--cyan); border-color: var(--cyan); color: #1a0b3d; }
+.opweg-aantal { margin-left: auto; color: var(--muted); font-weight: 600; }
+.opweg-instelling { display: flex; align-items: center; gap: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+.opweg-instelling .huisstijl-naam { flex: 1; }
+/* ⚠️ Instellingen: gevaarlijke actie onderaan, apart */
+.inst-gevaarlijk { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(248,113,113,0.35); background: rgba(248,113,113,0.06); }
+.inst-gevaarlijk .huisstijl-naam { flex: 1; }
+/* 🧪 Testen: twee grote keuzeknoppen */
+.test-keuze { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.05); color: #fff; font: inherit; text-align: left; cursor: pointer; }
+.test-keuze:hover:not(:disabled) { border-color: rgba(0,217,255,0.55); background: rgba(0,217,255,0.1); }
+.test-keuze:disabled { opacity: 0.4; cursor: default; }
+.test-keuze > .knop-svg svg { width: 24px; height: 24px; }
+.test-keuze > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+.test-keuze strong { font-size: 0.92rem; }
+.test-keuze strong + span { font-size: 0.76rem; color: var(--muted); line-height: 1.4; }
+/* ⚙️ Route-instellingen: elke instelling één regel, zoals bij Uiterlijk: naam + korte uitleg links, keuze rechts */
+@media (min-width: 561px) {
+  .inst-inhoud > .form-group:not(.huisstijl) { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: 14px; row-gap: 6px; align-items: center;
+    padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .inst-inhoud > .form-group:not(.huisstijl) > * { grid-column: 2; min-width: 0; }
+  .inst-inhoud > .form-group:not(.huisstijl) > .form-label { grid-column: 1; grid-row: 1; margin: 0; color: #fff; font-size: 0.84rem; text-transform: none; letter-spacing: 0; }
+  .inst-inhoud > .form-group:not(.huisstijl) > .inst-uitleg,
+  .inst-inhoud > .form-group:not(.huisstijl) > span[style*="font-size:0.7"] { grid-column: 1; grid-row: 2 / span 4; align-self: start; font-size: 0.7rem !important; line-height: 1.35; }
+}
+.spelers-tabs { width: 280px; max-width: 100%; margin-bottom: 14px; }
+.segment.spelers-tabs > button { padding: 8px 10px; font-size: 0.84rem; }
+.gb-doetmee { font-size: 0.68rem; font-weight: 700; color: #4ade80; white-space: nowrap; }
+.gb-doetmee--uit { color: #f87171; }
+/* Dashboard: aantikbare vakjes, routenaam in de kop, filter en tabbladen rechts */
+button.stat-vak { font: inherit; color: inherit; cursor: pointer; text-align: left; }
+button.stat-vak:hover { border-color: rgba(255,255,255,0.35); }
+.dash-route { font-family: var(--font-body, inherit); font-size: 0.8rem; font-weight: 700; color: var(--muted); padding: 3px 10px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 768px) { .dash-route { display: none; } }
+.dash-filter { width: 200px; }
+.dash-filter-leeg { padding: 14px; text-align: center; color: #4ade80; font-weight: 700; font-size: 0.86rem; }
+.dash-zijtabs { width: 100%; }
+/* 📡 Live kaart: hulp-ring om een teammarker, Meebewegen naast Centreren, ⓘ per team in de lijst */
+.kaart-hulp-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin-top: -9px; border-radius: 50%; pointer-events: none;
+  border: 3px solid #FB923C; box-shadow: 0 0 14px rgba(251,146,60,0.8); animation: kaart-hulp 1.4s ease-out infinite; }
+@keyframes kaart-hulp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.85); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+@media (prefers-reduced-motion: reduce) { .kaart-hulp-ring { animation: none; } }
+.kaart-meebewegen { position: absolute; top: 84px; left: 52px; z-index: 1000; height: 34px; padding: 0 10px; border-radius: 4px; border: 2px solid rgba(0,0,0,0.2);
+  background: #fff; color: #333; font: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.kaart-meebewegen--aan { background: #00D9FF; color: #1a0b3d; border-color: rgba(0,0,0,0.25); }
+.live-lijst-hulp { margin-right: 4px; }
+.live-lijst-open { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
+.live-lijst-open:hover { color: #fff; background: rgba(255,255,255,0.1); }
+/* 📱 Telefoon: teamlijst als paneel van onderen, en geen spelstrook op de live kaart */
+@media (max-width: 768px) {
+  .live-kaart-lijst { top: auto !important; bottom: 10px !important; left: 10px !important; right: 10px !important; max-width: none !important; max-height: 45vh !important; }
+  body:has(.live-kaart-lijst) .spelstrook { display: none; }
+}

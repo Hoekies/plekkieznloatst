@@ -39,6 +39,17 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
   // Typt de speler de teamnaam (toetsenbord open)? Dan het logo weg en het venster bovenaan,
   // zodat het veld en de iconen boven het toetsenbord blijven
   const [typt, setTypt] = useState(false);
+  // Het zichtbare stuk boven het toetsenbord (iOS schuift de pagina zelf omhoog): het venster komt daar
+  // in het midden, in plaats van helemaal bovenaan onder de statusbalk
+  const [zicht, setZicht] = useState<{ top: number; hoogte: number } | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!typt || !vv) { setZicht(null); return; }
+    const zet = () => setZicht({ top: vv.offsetTop, hoogte: vv.height });
+    zet();
+    vv.addEventListener("resize", zet); vv.addEventListener("scroll", zet);
+    return () => { vv.removeEventListener("resize", zet); vv.removeEventListener("scroll", zet); };
+  }, [typt]);
   const [gekozenIcono, setGekozenIcono] = useState<string | null>(null);
   const [gebruikteIconen, setGebruikteIconen] = useState<string[]>([]);
   const [profielFout, setProfielFout] = useState("");
@@ -128,7 +139,8 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
 
   return (
     <div className={`pr-stage${welkomFoto ? " intro--foto" : ""}${huisLogo ? " intro--huislogo" : ""}`} style={{
-      position: "fixed", inset: 0, zIndex: 200,
+      position: "fixed", zIndex: 200, left: 0, right: 0,
+      ...(zicht ? { top: zicht.top, height: zicht.hoogte } : { top: 0, bottom: 0 }),
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: typt ? "flex-start" : "center",
       overflowY: "auto",
@@ -173,6 +185,8 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         padding: "16px 28px",
         textAlign: "center",
         maxWidth: 380, width: "100%",
+        // Tijdens het typen: midden in het zichtbare stuk (auto-marges: past het niet, dan blijft de bovenkant zichtbaar)
+        ...(zicht ? { marginTop: "auto", marginBottom: "auto" } : {}),
       }}>
         {/* Logo */}
         {!typt && !huisLogo && <div className="pr-logo-glow" style={{ width: 200, height: 200 }} />}

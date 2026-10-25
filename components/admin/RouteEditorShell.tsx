@@ -184,6 +184,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
   const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
+  // 🧪 Testen: eerst kiezen hoe (lopen als team, of alle vragen doorlopen)
+  const [testKeuze, setTestKeuze] = useState(false);
   // 🧩 Eigen venster met alle puzzelfuncties (vanuit de werkbalk en de regel boven de puntenlijst)
   const [puzzelOpen, setPuzzelOpen] = useState(false);
   const [opslaan, setOpslaan] = useState(false);
@@ -855,6 +857,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // 🧲 Items op de weg leggen (standaard aan). Uit: een item blijft precies waar je het neerlegt, bijv. op een
   // speelplaats. Onthouden op dit toestel.
   const [itemsOpWeg, setItemsOpWeg] = useState(true);
+  // 🧲 Venster "Op de weg": wat moet er op de weg (punten, items)
+  const [opWegVenster, setOpWegVenster] = useState(false);
+  const [opWegKeuze, setOpWegKeuze] = useState({ punten: true, items: true });
+  async function legOpDeWeg() {
+    setOpWegVenster(false);
+    if (opWegKeuze.punten && punten.length) await puntenOpDeWeg();
+    if (opWegKeuze.items && specialeItems.length) await itemsOpDeWeg();
+  }
   useEffect(() => { try { setItemsOpWeg(localStorage.getItem("pr_items_op_weg") !== "uit"); } catch { /* geen opslag */ } }, []);
   function wisselItemsOpWeg() {
     setItemsOpWeg((a) => { try { localStorage.setItem("pr_items_op_weg", a ? "uit" : "aan"); } catch { /* geen opslag */ } return !a; });
@@ -956,6 +966,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // ?test=1 (vanuit Spel klaarzetten op het dashboard): meteen de testronde open
   const [testOpen, setTestOpen] = useState(() => zoekParams.get("test") === "1");
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
+  // Vraagpunten zonder vraag (oranje stip op de kaart); alleen een nieuwe Set als de lijst echt verandert
+  const zonderVraagSleutel = vraagpunten.filter((p) => !vraagPuntIds.has(p.id)).map((p) => p.id).join(",");
+  const zonderVraag = useMemo(() => new Set(zonderVraagSleutel ? zonderVraagSleutel.split(",") : []), [zonderVraagSleutel]);
   // 🧩 Puzzelwoord aan: in de vraag-editor per vraag kiezen hoeveel letters een goed antwoord geeft
   const puzzelLetters = route.puzzel_aan ? normaliseerPuzzel(route.puzzelwoord).length : 0;
   const puzzelKoppeling: PuzzelKoppeling | undefined = puzzelLetters > 0 ? {
@@ -1375,11 +1388,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 return (
                   <Fragment key={naam}>
                     {i > 0 && <span className="route-stap-pijl" aria-hidden>›</span>}
-                    {i === 1 ? (
-                      <button type="button" className={cls} onClick={() => setControleOpen(true)} title="Controleer of de route klaar is om te spelen">
-                        {i < fase ? <><Icoon naam="klaar" />{" "}</> : ""}{naam}{controle.length ? <span className="editor-teller">{controle.length}</span> : null}
-                      </button>
-                    ) : <span className={cls}>{i < fase ? "✓ " : ""}{naam}</span>}
+                    <span className={cls}>{i < fase ? "✓ " : ""}{naam}</span>
                   </Fragment>
                 );
               })}
@@ -1390,17 +1399,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <span className="alleen-pc editor-modus-naam">{MODUS_INFO[route.modus].label}</span>
             </span>
             {/* De volgende stap */}
-            {!route.is_active && route.status !== "gepubliceerd" && (
-              <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                title="Controleren en starten: is alles in orde, dan kunnen de spelers beginnen"><Icoon naam="start" /> Starten</button>
+            {/* De volgende stap, altijd één opvallende knop: Controleren (zolang er iets mist) → Starten → Naar spelers sturen */}
+            {!route.is_active && (
+              <button className={`rl-knop editor-volgende ${controle.length ? "rl-knop--goud" : "rl-knop--cyan"}`} onClick={() => setControleOpen(true)}
+                title={controle.length ? `Nog ${controle.length} ${controle.length === 1 ? "punt" : "punten"} om na te kijken voordat je kunt starten` : "Laatste controle, daarna kunnen de spelers beginnen"}>
+                {controle.length
+                  ? <><Icoon naam="waarschuwing" /> Controleren <span className="editor-teller">{controle.length}</span></>
+                  : <><Icoon naam="start" /> Starten</>}
+              </button>
             )}
             {!route.is_active && route.status === "gepubliceerd" && (
-              <>
-                <button className="rl-knop rl-knop--cyan editor-volgende" onClick={() => setControleOpen(true)}
-                  title="Laatste controle, daarna kunnen de spelers beginnen"><Icoon naam="start" /> Starten</button>
-                <button className="rl-knop" onClick={() => zetStatus("concept")}
-                  title="Terug naar concept (weer bewerken voordat je activeert)"><Icoon naam="terug" /><span className="alleen-pc"> Concept</span></button>
-              </>
+              <button className="rl-knop" onClick={() => zetStatus("concept")}
+                title="Terug naar concept (weer bewerken voordat je activeert)"><Icoon naam="terug" /><span className="alleen-pc"> Concept</span></button>
             )}
             {route.is_active && (
               <BevestigKnop venster gevaarlijk={false} icoon="📲" titel="Wijzigingen naar de spelers sturen?" vraag="" ja="Ja, versturen"
@@ -1462,14 +1472,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <span className="editor-groep">
             <button className={`rl-knop schakel${wegenAan ? " schakel--aan" : ""}`} role="switch" aria-checked={wegenAan}
               onClick={wisselWegen} disabled={wegen.bezig}
-              title={wegenAan ? "Aan: lijnen en afstanden volgen wegen en voetpaden. Klik om uit te zetten (hemelsbreed)." : "Uit: lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
+              title={wegenAan ? "Aan: lijnen en afstanden volgen wegen en voetpaden. Klik om uit te zetten (hemelsbreed). Lukt een stuk niet, dan probeert de app het vanzelf opnieuw." : "Uit: lijnen en afstanden zijn hemelsbreed. Klik om wegen en voetpaden te volgen."}>
               {wegen.bezig ? <Icoon naam="laden" /> : <Icoon naam="lopen" />}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
-            {wegenAan && (
-              <button className="rl-knop editor-opnieuw" onClick={wegen.herbereken} disabled={wegen.bezig} title="Alle lijnen en afstanden opnieuw berekenen">
-                ↻<span className="alleen-pc"> Opnieuw</span>
-              </button>
-            )}
           </span>
           <button className="rl-knop" disabled={!vraagpunten.length}
             onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
@@ -1489,8 +1494,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             );
           })()}
           <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
-            onClick={() => { const aan = !(proef || testOpen); setProef(aan ? NIEUWE_PROEF : null); setTestOpen(false); setGeselecteerd(null); }}
-            title="Testen: klik over de kaart en loop als testspeler mee (punten, items en vallen gaan af zoals op straat), of bekijk de vragen punt voor punt">
+            onClick={() => { if (proef || testOpen) { setProef(null); setTestOpen(false); } else setTestKeuze(true); setGeselecteerd(null); }}
+            title={proef || testOpen ? "Testen stoppen" : "Testen: lopen als team, of alle vragen doorlopen"}>
             <Icoon naam="testen" /><span className="alleen-pc"> Testen</span>
           </button>
 
@@ -1503,22 +1508,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               title="Verboden gebied tekenen: tik de hoeken aan op de kaart (bijv. een drukke weg of privéterrein)">
               <Icoon naam="verboden" /><span className="alleen-pc"> Verboden gebied</span>
             </button>
-            <BevestigKnop venster gevaarlijk={false} icoon="🧲" titel="Alle punten op de weg zetten?"
-              vraag="" uitleg={`Elk punt schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (tot 200 m).${route.modus === "verspreid" ? " Start en finish blijven staan." : ""} Terugzetten kan met ↶ Ongedaan.`}
-              ja="Ja, op de weg zetten" onBevestig={puntenOpDeWeg} disabled={!punten.length || opDeWegBezig}
-              className="rl-knop" tip="Alle punten op de weg of het voetpad zetten" tipOnder>
-              {opDeWegBezig ? <Icoon naam="laden" /> : <Icoon naam="magneet" />}<span className="alleen-pc"> Op de weg</span>
-            </BevestigKnop>
-            {!route.is_active && (
-              <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
-                vraag="" uitleg={punten.length || specialeItems.length
-                  ? `Alle ${punten.length} punten (met hun vragen), ${specialeItems.length} items en de gekozen start en finish gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`
-                  : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
-                ja="Ja, alles weg" onBevestig={maakRouteLeeg} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
-                className="rl-knop" tip="Route leegmaken: alle punten en items weg" tipOnder>
-                <Icoon naam="wissen" /><span className="alleen-pc"> Leegmaken</span>
-              </BevestigKnop>
-            )}
+            {/* 🧲 Op de weg: één venster voor punten en items, en of nieuwe items vanzelf op de weg komen */}
+            <button type="button" className="rl-knop" disabled={(!punten.length && !specialeItems.length) || opDeWegBezig || opWegBezig}
+              onClick={() => { setOpWegKeuze({ punten: punten.length > 0, items: specialeItems.length > 0 }); setOpWegVenster(true); }}
+              data-tip="Punten en items op de weg of het voetpad leggen" data-tip-pos="onder" aria-label="Op de weg">
+              {opDeWegBezig || opWegBezig ? <Icoon naam="laden" /> : <Icoon naam="magneet" />}<span className="alleen-pc"> Op de weg</span>
+            </button>
           </span>
           </span>
 
@@ -1663,8 +1658,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </>
                   )}
 
-                  {/* Looproute per team, in dezelfde kleur als op de kaart */}
-                  {teamRoutes.length > 0 && (
+                  {/* Looproute per team, in dezelfde kleur als op de kaart (ingeklapt onder de Rondje-regel, zodat de
+                      lijst rustig begint; een uitgelicht team blijft zichtbaar) */}
+                  {teamRoutes.length > 0 && (rondjeOpen || uitgelichtTeam !== null) && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "0.7rem" }}>
                       {teamRoutes.map((t) => {
                         const open = uitgelichtTeam === t.teamIndex;
@@ -1883,7 +1879,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   uitleg="Langs de route die de teams lopen, verdeeld over de soorten. Terugzetten kan met ↶ Ongedaan." knopTekst="Ja, plaatsen"
                   onBevestig={plaatsAlleVoorstellen} disabled={autoItemsBezig}
                   className="rl-knop rl-knop--cyan" style={{ width: "100%", height: 36, justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  {autoItemsBezig ? <><Icoon naam="laden" />{" Plaatsen…"}</> : <><Icoon naam="nieuw" />{` Items automatisch plaatsen (${itemCheck.voorstellen.length})`}</>}
+                  {autoItemsBezig ? <><Icoon naam="laden" />{" Plaatsen…"}</> : <><Icoon naam="nieuw" />{` Items verdelen (${itemCheck.voorstellen.length})`}</>}
                 </BevestigKnop>
               </div>
             )}
@@ -1978,14 +1974,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </>
               );
             })()}
-            {/* 🧲 Aan: elk item komt op de weg of het voetpad; uit: precies waar je het neerlegt (bijv. op een speelplaats) */}
-            {actieveTab === "items" && (
-              <button type="button" className={`rl-knop schakel items-op-weg${itemsOpWeg ? " schakel--aan" : ""}`} role="switch" aria-checked={itemsOpWeg}
-                onClick={wisselItemsOpWeg}
-                title={itemsOpWeg ? "Aan: een item komt vanzelf op de dichtstbijzijnde weg of het voetpad" : "Uit: een item blijft precies waar je het neerlegt (bijv. op een speelplaats)"}>
-                <Icoon naam="magneet" /> Items op de weg leggen<span className="schakel-bol" aria-hidden />
-              </button>
-            )}
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
@@ -1994,10 +1982,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               ) : (
                 <>
                   <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
-                  <button type="button" className="rl-knop" style={{ margin: "8px 10px" }} disabled={opWegBezig} onClick={itemsOpDeWeg}
-                    title="Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad, de stoep of de weg leggen; items op een speelplaats of schoolplein blijven liggen">
-                    {opWegBezig ? <><Icoon naam="laden" />{" Bezig…"}</> : <><Icoon naam="weg" />{" Alle items op de weg"}</>}
-                  </button>
                 </>
               )
             )}
@@ -2057,7 +2041,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setInstellingenOpen(false)} title="Sluiten" aria-label="Sluiten">✕</button>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* inst-inhoud: elke instelling als één regel (naam en korte uitleg links, de keuze rechts) */}
+              <div className="inst-inhoud" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
                 {/* Onderwerpen als knoppen */}
                 <div className="segment" role="tablist" aria-label="Onderwerp">
@@ -2182,6 +2167,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
                     </div>}
+                    {/* ⚠️ Gevaarlijk: niet in de werkbalk, zodat je het niet per ongeluk aantikt */}
+                    {!route.is_active && (
+                      <div className="inst-gevaarlijk">
+                        <div className="huisstijl-naam"><strong>Route leegmaken</strong><span>Alle punten, vragen en items weg; naam en instellingen blijven</span></div>
+                        <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
+                          vraag="" uitleg={punten.length || specialeItems.length
+                            ? `Alle ${punten.length} punten (met hun vragen), ${specialeItems.length} items en de gekozen start en finish gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`
+                            : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
+                          ja="Ja, alles weg" onBevestig={() => { setInstellingenOpen(false); return maakRouteLeeg(); }} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
+                          className="rl-knop rl-knop--rood">
+                          <Icoon naam="wissen" /> Leegmaken
+                        </BevestigKnop>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -2330,7 +2329,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {/* Respawn */}
                 {meerInstellingen && route.modus === "verspreid" && (
                   <div className="form-group">
-                    <label className="form-label">🔄 Respawn (verspreid-modus)</label>
+                    <label className="form-label">🔄 Respawn (bij een Rondje)</label>
                     <span className="inst-uitleg">Een opgepakt item komt na een tijdje terug op dezelfde plek.</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div className="segment" role="radiogroup" aria-label="Respawn" style={{ width: 150 }}>
@@ -2475,6 +2474,48 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </div>
         )}
 
+        {/* 🧪 Testen: één venster met de manieren van testen */}
+        {testKeuze && (
+          <VensterMetKop icoon="🧪" label="Testen" titel="Hoe wil je testen?" onSluit={() => setTestKeuze(false)} breedte={440}>
+            <button type="button" className="test-keuze" onClick={() => { setTestKeuze(false); setTestOpen(false); setProef(NIEUWE_PROEF); }}>
+              <Icoon naam="lopen" /><span><strong>Lopen als team</strong><span>Klik over de kaart en loop mee: punten, vragen, items en vallen gaan af zoals op straat</span></span>
+            </button>
+            <button type="button" className="test-keuze" disabled={!vraagpunten.length} onClick={() => { setTestKeuze(false); setProef(null); setTestOpen(true); }}>
+              <Icoon naam="klembord" /><span><strong>Alle vragen doorlopen</strong><span>Punt voor punt, zonder te lopen: de kaart vliegt mee, je ziet elke vraag zoals de speler</span></span>
+            </button>
+            <span className="inst-uitleg">Een punt op straat openen zonder erheen te lopen: zet in de vraag-editor (⚙️ Meer instellingen) <em>Openen met QR-code</em> aan en print de code.</span>
+          </VensterMetKop>
+        )}
+
+        {/* 🧲 Op de weg: kies punten en/of items; en of nieuwe items vanzelf op de weg komen */}
+        {opWegVenster && (
+          <VensterMetKop icoon="🧲" label="Gereedschap" titel="Op de weg leggen" onSluit={() => setOpWegVenster(false)} breedte={420}>
+            <span className="inst-uitleg">Alles schuift naar de dichtstbijzijnde weg, stoep of het voetpad. Wat er al op ligt, blijft staan; items op een speelplaats of schoolplein ook.</span>
+            <div className="opweg-keuzes">
+              <button type="button" role="checkbox" aria-checked={opWegKeuze.punten} disabled={!punten.length}
+                className={`opweg-keuze${opWegKeuze.punten && punten.length ? " opweg-keuze--aan" : ""}`} onClick={() => setOpWegKeuze((k) => ({ ...k, punten: !k.punten }))}>
+                <span className="opweg-vink" aria-hidden>{opWegKeuze.punten && punten.length ? "✓" : ""}</span>
+                <Icoon naam="punt" /> Punten <span className="opweg-aantal">{punten.length}</span>
+              </button>
+              <button type="button" role="checkbox" aria-checked={opWegKeuze.items} disabled={!specialeItems.length}
+                className={`opweg-keuze${opWegKeuze.items && specialeItems.length ? " opweg-keuze--aan" : ""}`} onClick={() => setOpWegKeuze((k) => ({ ...k, items: !k.items }))}>
+                <span className="opweg-vink" aria-hidden>{opWegKeuze.items && specialeItems.length ? "✓" : ""}</span>
+                <Icoon naam="items" /> Items <span className="opweg-aantal">{specialeItems.length}</span>
+              </button>
+            </div>
+            {route.modus === "verspreid" && opWegKeuze.punten && <span className="inst-uitleg">Start en finish blijven staan. Punten terugzetten kan met ↶ Ongedaan.</span>}
+            <button type="button" className="rl-knop rl-knop--cyan" style={{ height: 42, justifyContent: "center", fontWeight: 800 }}
+              disabled={!(opWegKeuze.punten && punten.length) && !(opWegKeuze.items && specialeItems.length)} onClick={legOpDeWeg}>
+              <Icoon naam="magneet" /> Op de weg leggen
+            </button>
+            <div className="opweg-instelling">
+              <div className="huisstijl-naam"><strong>Nieuwe items vanzelf op de weg</strong><span>Uit: een item blijft precies waar je het neerlegt, bijv. op een speelplaats</span></div>
+              <button type="button" className={`rl-knop schakel${itemsOpWeg ? " schakel--aan" : ""}`} role="switch" aria-checked={itemsOpWeg} onClick={wisselItemsOpWeg}
+                aria-label="Nieuwe items vanzelf op de weg" style={{ height: 32 }}>{itemsOpWeg ? "Aan" : "Uit"}<span className="schakel-bol" aria-hidden /></button>
+            </div>
+          </VensterMetKop>
+        )}
+
         {/* 🧩 Puzzelwoord: aan/uit, woord, bedenken, letters verdelen en per vraag, zonder het hele instellingenvenster */}
         {puzzelOpen && (
           <VensterMetKop icoon="🧩" label="Route-instelling" titel="Puzzelwoord" onSluit={() => setPuzzelOpen(false)} breedte={560} maxHoogte={92}>
@@ -2591,6 +2632,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </div>
           }
           punten={punten}
+          zonderVraag={zonderVraag}
           addModus={addModus || addSpeciaalModus || centrumModus || !!plaatsType}
           geselecteerdId={geselecteerd?.id ?? null}
           specialeItems={lagen.items ? specialeItems : []}

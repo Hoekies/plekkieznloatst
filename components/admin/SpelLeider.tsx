@@ -113,7 +113,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   // nieuwe melding bij, dan klapt het vanzelf weer open.
   const rustig = aandacht.length === 0 && !gepauzeerd;
   const [keuze, setKeuze] = useState<boolean | null>(null);  // null = vanzelf (open als er iets is)
-  const open = keuze ?? !rustig;
+  // Vraagt iets aandacht (hulp, foto's, pauze), dan blijft het blok altijd open: zo zit een hulpvraag nooit verstopt
+  const open = !rustig || (keuze ?? false);
   const [vorigAantal, setVorigAantal] = useState(aandacht.length);
   useEffect(() => {
     if (aandacht.length > vorigAantal) setKeuze(null);
@@ -147,9 +148,9 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         <div className="spelleider-kop">
           {/* Tik op de status (of de pijl) om in te klappen */}
           <div className="spelleider-status spelleider-status--klik"
-            onClick={() => setKeuze(false)} role="button" tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") setKeuze(false); }}
-            title="Inklappen">
+            onClick={() => { if (rustig) setKeuze(false); }} role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" && rustig) setKeuze(false); }}
+            title={rustig ? "Inklappen" : "Blijft open zolang er iets aandacht vraagt"}>
             <div className="pr-gem-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <UitklapPijl open />
               🎯 Spelleider

@@ -8,6 +8,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
+import { openKaartjes } from "@/components/admin/InlogUitdelen";
 import Icoon from "@/components/admin/Icoon";
 
 // 🏁 Spel afronden in stappen: (1) wie nog onderweg is stoppen, (2) uitslag vrijgeven, (3) rapport en foto's
@@ -36,6 +37,19 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
     if (res?.ok) { setVrij(true); onGewijzigd(); }
   }
 
+  // 🔁 Volgende groep met dezelfde logins: nieuwe wachtwoorden, namen en telefoons eraf, en meteen de kaartjes
+  async function nieuweGroep() {
+    const res = await fetch("/api/admin/groepen/kaartjes", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nieuweGroep: true }),
+    }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { toonMelding(uitlegBijStatus(res?.status ?? 0, "Nieuwe groep", data.fout), "fout"); return; }
+    setNieuweGroepKlaar(true);
+    toonMelding("Nieuwe wachtwoorden gemaakt: de kaartjes staan klaar om te printen", "ok");
+    if (data.inlogs?.length) openKaartjes(data.inlogs);
+  }
+  const [nieuweGroepKlaar, setNieuweGroepKlaar] = useState(false);
+
   const stap = (nr: number, klaar: boolean, titel: string, uitleg: string, knop: React.ReactNode) => (
     <div className={`afrond-stap${klaar ? " afrond-stap--klaar" : ""}`}>
       <span className="afrond-nr" aria-hidden>{klaar ? <Icoon naam="klaar" /> : nr}</span>
@@ -50,7 +64,7 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
         <Icoon naam="vlag" /> <span className="alleen-pc">{uitslag ? "Afronden en opruimen" : "Spel afronden"}</span><span className="alleen-mobiel">Afronden</span>
       </button>
       {open && (
-        <VensterMetKop icoon="🏁" label="Spel afronden" titel="In vier stappen klaar" onSluit={() => setOpen(false)} breedte={520} maxHoogte={92}>
+        <VensterMetKop icoon="🏁" label="Spel afronden" titel="In vijf stappen klaar" onSluit={() => setOpen(false)} breedte={520} maxHoogte={92}>
           <div className="afrond-stappen">
             {stap(1, onderweg.length === 0, "Iedereen stoppen",
               onderweg.length ? `Nog ${onderweg.length} ${onderweg.length === 1 ? "team" : "teams"} onderweg: ${onderweg.map((s) => s.display_name).join(", ")}` : "Niemand meer onderweg",
@@ -69,6 +83,12 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
               </div>)}
             {stap(4, false, "Nieuw spel voorbereiden", "Spellen, antwoorden en foto's weg; routes, vragen en spelers blijven",
               <NieuwSpelKnop className="rl-knop rl-knop--rood" onKlaar={() => { setOpen(false); window.location.reload(); }} />)}
+            {stap(5, nieuweGroepKlaar, "Volgende groep (optioneel)", "Zelfde logins, maar nieuwe wachtwoorden; teamnaam, icoon en telefoon gaan eraf. Teams weghalen kan bij Spelers.",
+              <BevestigKnop venster icoon="🔁" titel="Nieuwe groep voorbereiden?" vraag=""
+                uitleg="Alle teams krijgen een nieuw wachtwoord en worden uitgelogd; de oude kaartjes werken niet meer. Teamnaam, icoon en telefoonnummer gaan eraf. Daarna openen de nieuwe kaartjes om te printen."
+                ja="Ja, nieuwe wachtwoorden" onBevestig={nieuweGroep} className="rl-knop">
+                <Icoon naam="sleutel" /> Nieuwe groep
+              </BevestigKnop>)}
           </div>
         </VensterMetKop>
       )}

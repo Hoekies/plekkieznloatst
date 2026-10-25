@@ -1,5 +1,4 @@
-import GroepenBeheer from "@/components/admin/GroepenBeheer";
-import HelpersBeheer from "@/components/admin/HelpersBeheer";
+import SpelersTabs from "@/components/admin/SpelersTabs";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 
 export default function GroepenPagina() {
@@ -9,8 +8,7 @@ export default function GroepenPagina() {
         <span className="admin-topbar-titel"><MenuIcoon naam="spelers" />Spelers</span>
       </div>
       <div className="admin-content">
-        <GroepenBeheer />
-        <HelpersBeheer />
+        <SpelersTabs />
       </div>
     </>
   );

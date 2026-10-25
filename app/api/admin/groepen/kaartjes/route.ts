@@ -23,9 +23,15 @@ export async function POST(request: NextRequest) {
   const origin = new URL(request.url).origin;
   const geldigTot = new Date(Date.now() + LINK_UREN * 3600_000).toISOString();
   const onbekend: string[] = [];
+  // 🔁 Nieuwe groep (na het afronden): dezelfde logins, maar alles van de vorige groep eraf
+  const nieuweGroep = body?.nieuweGroep === true;
   for (const p of (data ?? []) as Rij[]) {
-    let wachtwoord = ontsleutel(p.wachtwoord_versleuteld);
-    if (!wachtwoord && body?.nieuw === true) {
+    if (nieuweGroep) {
+      await admin.from("players").update({ nickname: null, icon: null, telefoon: null, active_device_id: null }).eq("id", p.id);
+      p.nickname = null; p.telefoon = null;
+    }
+    let wachtwoord = nieuweGroep ? null : ontsleutel(p.wachtwoord_versleuteld);
+    if (!wachtwoord && (body?.nieuw === true || nieuweGroep)) {
       const nieuw = maakWachtwoord();
       const { error: fout } = await admin.auth.admin.updateUserById(p.auth_user_id, { password: nieuw });
       if (!fout) { await bewaarWachtwoord(admin, p.id, nieuw); wachtwoord = nieuw; }

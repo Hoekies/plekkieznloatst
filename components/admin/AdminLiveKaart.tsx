@@ -12,6 +12,10 @@ import UitklapPijl from "@/components/shared/UitklapPijl";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 import Icoon from "@/components/admin/Icoon";
+import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
+import { SpelerActies } from "@/components/admin/AdminDashboard";
+import { minutenNietGezien } from "@/components/admin/SpelLeider";
+import type { SpelerOverzicht } from "@/lib/admin-live";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -32,7 +36,7 @@ interface Props {
 }
 
 export default function AdminLiveKaart({ initData }: Props) {
-  const { data, realtimeOk } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live-kaart");
+  const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live-kaart");
   // Speler die de kaart volgt (null = iedereen in beeld houden)
   const [volgId, setVolgId] = useState<string | null>(null);
   // Spoor van de laatste 10 minuten per speler
@@ -42,10 +46,18 @@ export default function AdminLiveKaart({ initData }: Props) {
   const [replayLaden, setReplayLaden] = useState(false);
   // Teamlijst rechtsboven in- of uitgeklapt (onthouden per toestel)
   const [lijstDicht, setLijstDicht] = useState(false);
-  useEffect(() => { try { setLijstDicht(localStorage.getItem("pr_live_lijst") === "dicht"); } catch { /* geen opslag */ } }, []);
+  // Standaard: op de pc open, op de telefoon dicht (dan schuift hij van onderen op)
+  useEffect(() => {
+    try {
+      const keuze = localStorage.getItem("pr_live_lijst2");
+      setLijstDicht(keuze ? keuze === "dicht" : window.matchMedia("(max-width: 768px)").matches);
+    } catch { /* geen opslag */ }
+  }, []);
   function wisselLijst() {
-    setLijstDicht((d) => { try { localStorage.setItem("pr_live_lijst", d ? "open" : "dicht"); } catch { /* geen opslag */ } return !d; });
+    setLijstDicht((d) => { try { localStorage.setItem("pr_live_lijst2", d ? "open" : "dicht"); } catch { /* geen opslag */ } return !d; });
   }
+  // Venster van één team (tik op de marker of het ⓘ in de lijst)
+  const [detailId, setDetailId] = useState<string | null>(null);
   // Kaartlagen (sporen, items): hier, zodat Items aan/uit ook in de bovenbalk kan; onthouden per toestel
   const [lagen, setLagen] = useState<{ sporen: boolean; items: boolean }>({ sporen: true, items: true });
   useEffect(() => {
@@ -97,6 +109,18 @@ export default function AdminLiveKaart({ initData }: Props) {
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const spelersOpKaart = spelers.filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid");
+  const detail = detailId ? spelersOpKaart.find((s) => s.player_id === detailId) : undefined;
+  const stand = [...spelersOpKaart].sort((a, b) => b.score - a.score);
+  const rangVan = (s: SpelerOverzicht) => stand.indexOf(s) + 1;
+  // Knoppen in het teamvenster: een verzoek, bij een fout een melding, daarna de kaart verversen
+  async function actie(url: string, method: string, wat: string, gelukt?: string) {
+    const res = await fetch(url, { method }).catch(() => null);
+    if (!res?.ok) {
+      const { fout } = res ? await res.json().catch(() => ({ fout: null })) : { fout: null };
+      toonMelding(uitlegBijStatus(res?.status ?? 0, wat, fout), "fout");
+    } else if (gelukt) toonMelding(gelukt, "ok");
+    ververs();
+  }
   // Zelfde kleur per speler als op het dashboard
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
 
@@ -113,10 +137,6 @@ export default function AdminLiveKaart({ initData }: Props) {
           <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setReplay(null)}><Icoon naam="live" /> Terug naar live</button>
         ) : (
           <>
-            <button type="button" className={`rl-knop${lagen.items ? " rl-knop--cyan" : " knop-uit"}`} aria-pressed={lagen.items} onClick={() => wisselLaag("items")}
-              title={lagen.items ? "Items op de kaart verbergen (rustiger beeld)" : "Items op de kaart tonen"}>
-              <Icoon naam="items" /><span className="alleen-pc"> Items {lagen.items ? "aan" : "uit"}</span>
-            </button>
             <button type="button" className="rl-knop" onClick={openBeamer} title="Live kaart, stand en gebeurtenissen groot op een tv of beamer (zonder inloggen)">
               <Icoon naam="beamer" /><span className="alleen-pc"> Beamer</span>
             </button>
@@ -142,7 +162,8 @@ export default function AdminLiveKaart({ initData }: Props) {
         {/* Kaart */}
         <div className="live-kaart-rand" style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
           <AdminLiveLeaflet spelers={spelers} route_punten={route_punten} speciale_items={data.speciale_items} modus={data.route?.modus ?? null}
-            kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} lagen={lagen} onWisselLaag={wisselLaag} />
+            kleuren={kleuren} sporen={sporen} volgId={volgId} onStopVolgen={() => setVolgId(null)} lagen={lagen} onWisselLaag={wisselLaag}
+            onKiesSpeler={setDetailId} />
         </div>
 
         {/* Overlay: spelerslijst. Tik op een naam om die speler te volgen */}
@@ -163,7 +184,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                   <span style={{ width: 11, height: 11, borderRadius: "50%", flexShrink: 0, background: kleuren.get(s.player_id) }} />
                   <span style={{ minWidth: 0, flex: 1 }}>
                     <span className="live-lijst-kop">
-                      <span className="live-lijst-naam">{s.sessie_status === "voltooid" ? <><Icoon naam="vlag" />{" "}</> : ""}{s.display_name}</span>
+                      <span className="live-lijst-naam">{s.hulp ? <span className="live-lijst-hulp" title="Hulpvraag: kan een punt niet bereiken">⚠️</span> : null}{minutenNietGezien(s) !== null && !s.hulp ? <span title="Een tijd niet gezien">📵 </span> : null}{s.sessie_status === "voltooid" ? <><Icoon naam="vlag" />{" "}</> : ""}{s.display_name}</span>
                       <span className={`live-lijst-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
                     </span>
                     {/* Waar het team heen loopt (of: gefinisht) */}
@@ -179,6 +200,10 @@ export default function AdminLiveKaart({ initData }: Props) {
                     )}
                   </span>
                   {volgt && <span aria-hidden style={{ fontSize: "0.9rem" }}><Icoon naam="doel" /></span>}
+                  {/* Venster van dit team: vrijgeven, bellen, bericht */}
+                  <span role="button" tabIndex={0} className="live-lijst-open" title="Alles van dit team" aria-label={`Alles van ${s.display_name}`}
+                    onClick={(e) => { e.stopPropagation(); setDetailId(s.player_id); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setDetailId(s.player_id); } }}><Icoon naam="info" /></span>
                 </button>
               );
             })
@@ -186,6 +211,17 @@ export default function AdminLiveKaart({ initData }: Props) {
          </div>
         </div>
       </div>
+      )}
+
+      {/* Venster van één team, met dezelfde knoppen als op het dashboard */}
+      {detail && (
+        <SpelerDetailVenster speler={detail} rang={rangVan(detail)} kleur={kleuren.get(detail.player_id) ?? "#A78BFA"}
+          totaalPunten={route_punten.length} onSluit={() => setDetailId(null)}
+          acties={<SpelerActies s={detail} kanVrijgeven beperkt={false}
+            onVrijgeven={() => actie(`/api/admin/sessies/${detail.sessie_id}/punt-vrijgeven`, "POST", "Vrijgeven", `Punt van ${detail.display_name} vrijgegeven`)}
+            onStop={() => { actie(`/api/admin/groepen/${detail.player_id}/spel-stoppen`, "POST", "Stoppen"); setDetailId(null); }}
+            onNegeer={(hulpId) => actie(`/api/admin/hulp/${hulpId}`, "PATCH", "Negeren")}
+            onGewijzigd={ververs} />} />
       )}
     </div>
   );

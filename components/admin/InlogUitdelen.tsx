@@ -51,10 +51,12 @@ function InlogLijst({ inlogs }: { inlogs: Inlog[] }) {
   );
 }
 
-// "👫 Meerdere" — spelers in één keer aanmaken
-export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
+// "+ Spelers": één of meer teams in één keer aanmaken (wachtwoord maakt de app), met optioneel de
+// telefoonnummers erbij. Zelf loginnaam en wachtwoord kiezen kan nog via onZelf.
+export function MeerdereSpelersKnop({ onKlaar, onZelf, hoofd = false }: { onKlaar: () => void; onZelf?: () => void; hoofd?: boolean }) {
   const [open, setOpen] = useState(false);
-  const [aantal, setAantal] = useState(4);
+  const [aantal, setAantal] = useState(1);
+  const [telefoons, setTelefoons] = useState("");
   const [voorvoegsel, setVoorvoegsel] = useState("speler");
   const [bezig, setBezig] = useState(false);
   const [gemaakt, setGemaakt] = useState<Inlog[] | null>(null);
@@ -63,7 +65,7 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
     e.preventDefault();
     setBezig(true);
     const res = await fetch("/api/admin/groepen/meerdere", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aantal, voorvoegsel }),
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aantal, voorvoegsel, telefoons: telefoons.split(/[\n,;]+/).map((t) => t.trim()).filter(Boolean) }),
     });
     const data = await res.json().catch(() => ({}));
     setBezig(false);
@@ -71,15 +73,15 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
     setGemaakt(data.gemaakt);
     onKlaar();
   }
-  const sluit = () => { setOpen(false); setGemaakt(null); };
+  const sluit = () => { setOpen(false); setGemaakt(null); setTelefoons(""); };
 
   return (
     <>
-      <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} title="Meerdere spelers in één keer aanmaken">
-        <Icoon naam="spelers" /> Meerdere
+      <button type="button" className={hoofd ? "btn btn-primary actie-knop" : "rl-knop actie-knop"} onClick={() => setOpen(true)} title="Eén of meer teams aanmaken">
+        <Icoon naam="plus" /> Spelers
       </button>
       {open && (
-        <VensterMetKop breedte={520} maxHoogte={92} label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} spelers aangemaakt` : "Meerdere spelers"} onSluit={sluit}>
+        <VensterMetKop breedte={520} maxHoogte={92} label="Spelers aanmaken" titel={gemaakt ? `${gemaakt.length} ${gemaakt.length === 1 ? "team" : "teams"} aangemaakt` : "Teams aanmaken"} onSluit={sluit}>
           {gemaakt ? <InlogLijst inlogs={gemaakt} /> : (
             <form onSubmit={maak} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", gap: 12 }}>
@@ -94,11 +96,18 @@ export function MeerdereSpelersKnop({ onKlaar }: { onKlaar: () => void }) {
                 </div>
               </div>
               <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                Bijv. <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}1</strong>, <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}2</strong>, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord.
+                Bijv. <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}1</strong>, <strong style={{ color: "var(--ink)" }}>{voorvoegsel || "speler"}2</strong>, … (bezette nummers worden overgeslagen), elk met een makkelijk wachtwoord. De teamnaam kiezen de teams zelf.
+              </div>
+              {/* 📞 Optioneel: dan kun je meteen bellen en gaat WhatsApp direct naar de juiste chat */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label">Telefoonnummers <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "var(--muted)" }}>· mag leeg, één per regel, op volgorde</span></label>
+                <textarea className="form-input" rows={Math.min(6, Math.max(2, aantal))} value={telefoons} onChange={(e) => setTelefoons(e.target.value)}
+                  placeholder={"06 12 34 56 78\n06 98 76 54 32"} style={{ resize: "vertical", fontFamily: "inherit" }} />
               </div>
               <button type="submit" className="rl-knop hoofdknop" style={{ height: 44 }} disabled={bezig || !voorvoegsel}>
-                {bezig ? "Aanmaken…" : <><Icoon naam="plus" />{` ${aantal} spelers aanmaken`}</>}
+                {bezig ? "Aanmaken…" : <><Icoon naam="plus" />{` ${aantal} ${aantal === 1 ? "team" : "teams"} aanmaken`}</>}
               </button>
+              {onZelf && <button type="button" className="es-link" style={{ alignSelf: "center" }} onClick={() => { setOpen(false); onZelf(); }}>Liever zelf een loginnaam en wachtwoord kiezen</button>}
             </form>
           )}
         </VensterMetKop>

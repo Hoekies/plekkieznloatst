@@ -37,6 +37,8 @@ interface Props {
   addModus: boolean;
   geselecteerdId: string | null;
   specialeItems?: SpeciaalItem[];
+  // Vraagpunten die nog geen vraag hebben: oranje stip op de marker
+  zonderVraag?: Set<string>;
   guideCirkel?: GuideCirkel | null;
   // Verspreid: eerste punt = start-hub (🏠), lus-punten genummerd vanaf 1
   hubModus?: boolean;
@@ -73,7 +75,7 @@ interface Props {
 }
 
 export default function LeafletKaart({
-  lagenKnoppen, punten, addModus, geselecteerdId, specialeItems = [],
+  lagenKnoppen, punten, addModus, geselecteerdId, specialeItems = [], zonderVraag,
   guideCirkel = null, hubModus = false, teamRoutes = [], hoofdStukken,
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
@@ -184,7 +186,7 @@ export default function LeafletKaart({
         const isGeselecteerd = pt.id === geselecteerdId;
         const isHubStart = hubModus && i === 0;
         const label = pt.type === "eindpunt" ? "🏁" : isHubStart ? "🏠" : String(hubModus ? i : i + 1);
-        const icon = maakIcoon(L, pt.type, label, isHubStart, isGeselecteerd);
+        const icon = maakIcoon(L, pt.type, label, isHubStart, isGeselecteerd, zonderVraag?.has(pt.id) ?? false);
 
         if (markersRef.current.has(pt.id)) {
           const marker = markersRef.current.get(pt.id)!;
@@ -230,7 +232,7 @@ export default function LeafletKaart({
         }
       }
     });
-  }, [punten, geselecteerdId, hubModus, teamRoutes.length, kaartKlaar, hoofdStukken]);
+  }, [punten, geselecteerdId, hubModus, teamRoutes.length, kaartKlaar, hoofdStukken, zonderVraag]);
 
   // Speciale item markers
   useEffect(() => {
@@ -616,14 +618,18 @@ function maakIcoon(
   type: RoutePunt["type"],
   label: string,
   isHubStart: boolean,
-  geselecteerd: boolean
+  geselecteerd: boolean,
+  zonderVraag = false,
 ) {
   const bg = isHubStart ? "#16A34A" : type === "eindpunt" ? "#F59E0B" : type === "informatiepunt" ? "#06B6D4" : type === "doorlooppunt" ? "#64748B" : "#1E40AF";
   const ring = geselecteerd ? `box-shadow:0 0 0 3px #fff,0 0 0 5px ${bg};` : "";
   return L.divIcon({
     html: `<div style="width:32px;height:32px;border-radius:50%;background:${bg};color:#fff;
       display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;
-      border:2px solid #fff;${ring}transition:box-shadow 0.15s">${label}</div>`,
+      border:2px solid #fff;${ring}transition:box-shadow 0.15s;position:relative">${label}${zonderVraag
+        // Vraagpunt zonder vraag: oranje stip rechtsboven, zodat je op de kaart ziet waar nog iets moet
+        ? `<span title="Nog geen vraag" style="position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;background:#FB923C;border:2px solid #fff;box-shadow:0 0 6px rgba(251,146,60,0.8)"></span>`
+        : ""}</div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
     className: "",

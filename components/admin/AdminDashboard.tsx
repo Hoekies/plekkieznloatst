@@ -10,6 +10,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -65,6 +66,20 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     try { setKaartOpen(localStorage.getItem("pr_dash_kaart_open") === "1"); } catch { /* geen opslag */ }
     return () => mq.removeEventListener("change", zet);
   }, []);
+  // 🖥️ Breed scherm (twee kolommen): puntenverloop als tabblad naast de tijdlijn
+  const [breed, setBreed] = useState(false);
+  const [zijTab, setZijTab] = useState<"tijdlijn" | "verloop">("tijdlijn");
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1100px)");
+    const zet = () => setBreed(mq.matches);
+    zet(); mq.addEventListener("change", zet);
+    try { if (localStorage.getItem("pr_dash_zijtab") === "verloop") setZijTab("verloop"); } catch { /* geen opslag */ }
+    return () => mq.removeEventListener("change", zet);
+  }, []);
+  function kiesZijTab(t: "tijdlijn" | "verloop") {
+    setZijTab(t);
+    try { localStorage.setItem("pr_dash_zijtab", t); } catch { /* geen opslag */ }
+  }
   function wisselKaart() {
     setKaartOpen((o) => { try { localStorage.setItem("pr_dash_kaart_open", o ? "0" : "1"); } catch { /* geen opslag */ } return !o; });
   }
@@ -114,7 +129,11 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
   const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
-  const koploper = spelend[0];
+  // Hulpvragen, en een filter op wie aandacht nodig heeft (hulp, wachten, een tijd niet gezien)
+  const aantalHulp = spelend.filter((s) => s.hulp).length;
+  const [filter, setFilter] = useState<"alles" | "aandacht">("alles");
+  const aandacht = (s: SpelerOverzicht) => !!s.hulp || !!s.wacht || minutenNietGezien(s) !== null;
+  const zichtbaar = filter === "aandacht" ? spelend.filter(aandacht) : spelend;
   // Vaste kleur per speler (zelfde als op de live kaart en de spelerspagina)
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
   const detail = detailId ? spelend.find((s) => s.player_id === detailId) : undefined;
@@ -125,6 +144,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
       <div className="admin-topbar dashboard-topbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
         <span className="admin-topbar-titel" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <MenuIcoon naam="dashboard" />Dashboard
+          {/* De actieve route (stond eerst in de strook) */}
+          {route && <span className="dash-route" title="Actieve route">{route.name}</span>}
           {/* Eigen logo van de organisatie (huisstijl van de actieve route) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {route?.huis_logo && <img src={route.huis_logo} alt="" className="huislogo-kop" />}
@@ -152,11 +173,13 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 
         {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
         <div style={{ marginBottom: 16 }}>
+          {/* Wat er nu is én wat je kunt doen: hulp en foto's zijn aan te tikken */}
           <StatStrook vakken={[
-            { icoon: "🗺️", waarde: route?.name ?? "—", label: "actieve route" },
             { icoon: "⚡", waarde: aantalActief, label: "onderweg" },
             { icoon: "🏁", waarde: aantalKlaar, label: "gefinisht" },
-            { icoon: "🥇", waarde: koploper ? `${koploper.score} pt` : "—", label: koploper ? koploper.display_name : "koploper", titel: koploper ? `Koploper: ${koploper.display_name} (${koploper.score} pt)` : "Nog geen koploper" },
+            { icoon: "⚠️", waarde: aantalHulp, label: aantalHulp === 1 ? "hulpvraag" : "hulpvragen", letOp: aantalHulp > 0,
+              onKlik: aantalHulp ? () => { setFilter("aandacht"); document.querySelector(".spelleider")?.scrollIntoView({ behavior: "smooth", block: "center" }); } : undefined },
+            { icoon: "📸", waarde: data.wachtende_fotos ?? 0, label: "foto's te keuren", letOp: !!data.wachtende_fotos, onKlik: data.wachtende_fotos ? openFotoKeuren : undefined },
           ]} />
         </div>
 
@@ -173,7 +196,16 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           <div style={{ minWidth: 0 }}>
             {/* Spelende spelers, op volgorde van de stand */}
             <SectieKop titel={`🏆 Spelende spelers${spelend.length ? ` (${spelend.length})` : ""}`}
-              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined} />
+              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined}>
+              {spelend.length > 3 && !spelersDicht && (
+                <div className="segment dash-filter" role="radiogroup" aria-label="Welke teams">
+                  <button type="button" role="radio" aria-checked={filter === "alles"} className={filter === "alles" ? "aan" : ""} onClick={() => setFilter("alles")}>Alles</button>
+                  <button type="button" role="radio" aria-checked={filter === "aandacht"} className={filter === "aandacht" ? "aan" : ""} onClick={() => setFilter("aandacht")}>
+                    Aandacht {spelend.filter(aandacht).length ? `(${spelend.filter(aandacht).length})` : ""}
+                  </button>
+                </div>
+              )}
+            </SectieKop>
             {spelersDicht && spelend.length > 0 ? null : spelend.length === 0 ? (
               !route ? (
                 <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Kies eerst een route en activeer hem.</LeegScherm>
@@ -184,10 +216,11 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               )
             ) : (
               <div>
-                {spelend.map((s, i) => (
+                {filter === "aandacht" && zichtbaar.length === 0 && <div className="dash-filter-leeg">✓ Geen team heeft nu aandacht nodig</div>}
+                {zichtbaar.map((s) => (
                   <SpelerKaart
                     key={s.player_id}
-                    rang={i + 1}
+                    rang={spelend.indexOf(s) + 1}
                     speler={s}
                     kleur={kleuren.get(s.player_id) ?? "#A78BFA"}
                     totaalPunten={totaalPunten}
@@ -204,7 +237,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               </div>
             )}
             {/* 📈 Stand door het spel heen, per team: los van het in- en uitklappen van de spelers */}
-            {spelend.length > 0 && <PuntenVerloop kleuren={kleuren} />}
+            {spelend.length > 0 && !breed && <PuntenVerloop kleuren={kleuren} />}
           </div>
           {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
           {route && spelend.length > 0 && (
@@ -218,7 +251,16 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
                   {kaartOpen && <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />}
                 </div>
               ) : <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />}
-              <Tijdlijn kleuren={kleuren} teams={spelend.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />
+              {/* Breed scherm: tijdlijn en puntenverloop als tabbladen rechts; anders staat het verloop onder de teams */}
+              {breed && (
+                <div className="segment dash-zijtabs" role="tablist" aria-label="Rechterkolom">
+                  <button type="button" role="tab" aria-selected={zijTab === "tijdlijn"} className={zijTab === "tijdlijn" ? "aan" : ""} onClick={() => kiesZijTab("tijdlijn")}>📜 Wat gebeurt er</button>
+                  <button type="button" role="tab" aria-selected={zijTab === "verloop"} className={zijTab === "verloop" ? "aan" : ""} onClick={() => kiesZijTab("verloop")}>📈 Puntenverloop</button>
+                </div>
+              )}
+              {breed && zijTab === "verloop"
+                ? <PuntenVerloop kleuren={kleuren} />
+                : <Tijdlijn kleuren={kleuren} teams={spelend.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />}
             </div>
           )}
         </div>
@@ -332,7 +374,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
 
 // Knoppen bij een speler: punt vrijgeven, punten, bericht en stoppen (gefinisht: alleen punten).
 // Op de spelerskaart én in het venster met alle details. Op de telefoon korte teksten.
-function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer, onGewijzigd }: {
+export function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer, onGewijzigd }: {
   s: SpelerOverzicht; kanVrijgeven: boolean; beperkt: boolean;
   onVrijgeven: () => void; onStop: () => void; onNegeer: (hulpId: string) => void; onGewijzigd: () => void;
 }) {

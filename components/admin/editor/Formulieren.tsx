@@ -53,7 +53,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
         <div className="editor-paneel-noot">⚠️ Onzichtbaar voor spelers. Duur: ⚙️ Instellingen.</div>
       )}
       {alleenPlekzooi && type !== "plekzooi" && (
-        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Sequentieel toont alleen plek zooi; dit item ziet niemand.</div>
+        <div className="editor-paneel-noot" style={{ color: "#F87171" }}>Op volgorde toont alleen plek zooi; dit item ziet niemand.</div>
       )}
       {item.claimed && <div className="editor-paneel-noot">✅ Dit item is al opgepakt.</div>}
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { maakSpeler, maakWachtwoord } from "@/lib/speler-aanmaken";
+import { normaliseerTelefoon } from "@/lib/telefoon";
 
 // Meerdere spelers in één keer: voorvoegsel + volgnummer (bv. speler5 t/m speler12), elk met een
 // makkelijk wachtwoord. Geeft de inloggegevens terug om meteen uit te delen.
@@ -15,12 +16,14 @@ export async function POST(request: NextRequest) {
   if (!voorvoegsel) return NextResponse.json({ fout: "Vul een naam in (alleen letters en cijfers)" }, { status: 400 });
   if (!(aantal >= 1 && aantal <= 30)) return NextResponse.json({ fout: "Kies 1 tot 30 spelers" }, { status: 400 });
 
+  // 📞 Optioneel: telefoonnummers, op volgorde voor de nieuwe teams (leeg of ongeldig = geen nummer)
+  const telefoons: (string | null)[] = Array.isArray(body?.telefoons) ? body.telefoons.map((t: unknown) => (typeof t === "string" ? normaliseerTelefoon(t) : null)) : [];
   const admin = createAdminClient();
   // Eerstvolgende vrije nummers: bestaande loginnamen met dit voorvoegsel overslaan
   const { data: bestaand } = await admin.from("players").select("login_name").ilike("login_name", `${voorvoegsel}%`);
   const bezet = new Set((bestaand ?? []).map((p) => (p.login_name ?? "").toLowerCase()));
 
-  const gemaakt: { id: string; login: string; wachtwoord: string }[] = [];
+  const gemaakt: { id: string; login: string; wachtwoord: string; telefoon: string | null }[] = [];
   let nummer = 1;
   while (gemaakt.length < aantal && nummer < 1000) {
     const login = `${voorvoegsel}${nummer++}`;
@@ -31,7 +34,9 @@ export async function POST(request: NextRequest) {
       if (r.status === 400) continue;  // toch bezet: volgende nummer
       return NextResponse.json({ fout: r.fout, gemaakt }, { status: r.status });
     }
-    gemaakt.push({ id: r.speler.id, login, wachtwoord });
+    const telefoon = telefoons[gemaakt.length] ?? null;
+    if (telefoon) await admin.from("players").update({ telefoon }).eq("id", r.speler.id);
+    gemaakt.push({ id: r.speler.id, login, wachtwoord, telefoon });
   }
   return NextResponse.json({ gemaakt });
 }

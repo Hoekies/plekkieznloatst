@@ -17,7 +17,7 @@ import StatStrook from "@/components/admin/StatStrook";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
-import Venster, { VensterKop } from "@/components/shared/Venster";
+import Venster, { VensterKop, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 
@@ -196,8 +196,9 @@ export default function GroepenBeheer() {
           className="rl-knop rl-knop--icoon rl-knop--rood gb-verwijder"
           tip={g.heeft_spel ? "Stop eerst het spel, dan kun je verwijderen" : "Speler verwijderen (met spellen en foto's)"}><Icoon naam="wissen" /><span className="gb-label">Verwijder</span></BevestigKnop>
         </div>
-        <div className="gb-schakelaar"
-          title={isUit ? "Aanzetten" : "Uitzetten"}
+        <span className={`gb-doetmee${isUit ? " gb-doetmee--uit" : ""}`} aria-hidden>{isUit ? "Doet niet mee" : "Doet mee"}</span>
+        <div className="gb-schakelaar" role="switch" aria-checked={!isUit} aria-label="Doet mee"
+          title={isUit ? "Doet niet mee (kan niet inloggen): tik om weer mee te laten doen" : "Doet mee: tik om dit team uit te zetten (kan dan niet inloggen)"}
           onClick={async () => {
             const res = await fetch(`/api/admin/groepen/${g.id}/schakel`, { method: "PATCH" });
             if (res.ok) setGroepen((prev) => prev.map((x) => x.id === g.id ? { ...x, is_uitgeschakeld: !x.is_uitgeschakeld } : x));
@@ -236,14 +237,10 @@ export default function GroepenBeheer() {
 
       {/* Nieuwe speler en meerdere links, WhatsApp rechts; op de telefoon vier gelijke knoppen op één regel */}
       <div className="spelers-acties">
-          <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
-            <Icoon naam="plus" /> <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
-          </button>
-          <MeerdereSpelersKnop onKlaar={laadGroepen} />
-          {groepen.some((g) => !g.is_uitgeschakeld) && <AlleKaartjesKnop />}
-          {/* Inloggegevens en uitleg versturen: hier, waar je de spelers maakt */}
-          <span className="spelers-acties-ruimte" />
-          <WhatsAppKnop />
+          {/* Eén knop voor één of meer teams; zelf loginnaam en wachtwoord kiezen kan vanuit dat venster */}
+          <MeerdereSpelersKnop onKlaar={laadGroepen} onZelf={() => setToonFormulier(true)} hoofd />
+          {/* 📤 Uitdelen: kaartjes printen en WhatsApp, in één venster */}
+          <UitdeelKnop heeftSpelers={groepen.some((g) => !g.is_uitgeschakeld)} />
       </div>
 
 
@@ -506,3 +503,29 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
     </Venster>
   );
 }
+
+// 📤 Uitdelen: alle inlogkaartjes printen, of uitleg en kaartjes via WhatsApp versturen. Eén team: 🔑 Inlog bij dat team.
+function UitdeelKnop({ heeftSpelers }: { heeftSpelers: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} disabled={!heeftSpelers} title="Inloggegevens uitdelen: printen of WhatsApp">
+        <Icoon naam="versturen" /> Uitdelen
+      </button>
+      {open && (
+        <VensterMetKop icoon="📤" label="Spelers" titel="Inloggegevens uitdelen" onSluit={() => setOpen(false)} breedte={460}>
+          <div className="huisstijl-regel">
+            <div className="huisstijl-naam"><strong>Printen</strong><span>Alle inlogkaartjes op papier, om uit te delen bij de start</span></div>
+            <div className="huisstijl-knoppen"><AlleKaartjesKnop /></div>
+          </div>
+          <div className="huisstijl-regel">
+            <div className="huisstijl-naam"><strong>WhatsApp</strong><span>Uitleg, beginscherm en kaartje per team naar hun telefoon</span></div>
+            <div className="huisstijl-knoppen"><WhatsAppKnop /></div>
+          </div>
+          <span className="inst-uitleg">Eén team: tik op 🔑 Inlog bij dat team (nieuw wachtwoord, kaartje of inloglink).</span>
+        </VensterMetKop>
+      )}
+    </>
+  );
+}
+
