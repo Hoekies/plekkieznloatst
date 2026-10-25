@@ -82,5 +82,10 @@ export async function GET() {
   const { data: actief } = await admin.from("routes").select("name").eq("is_active", true).maybeSingle();
   checks.push({ groep: "Spel", naam: actief ? `Actieve route: ${actief.name}` : "Geen actieve route", ok: true });
 
+  // Migraties op nummer (013 en 021 worden apart gecontroleerd en kwamen anders achteraan); de rest blijft op zijn plek
+  const nr = (c: Check) => Number(c.naam.match(/^Migratie (\d+)/)?.[1] ?? -1);
+  const plek = new Map(checks.map((c, i) => [c, i]));
+  checks.sort((a, b) => a.groep !== b.groep || nr(a) < 0 || nr(b) < 0 ? plek.get(a)! - plek.get(b)! : nr(a) - nr(b));
+
   return NextResponse.json({ checks });
 }
