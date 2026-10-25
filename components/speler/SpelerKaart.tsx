@@ -222,6 +222,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // direct bijgewerkt (niet via state), anders tekent de hele kaart tientallen keren per seconde opnieuw.
   const pijlRef = useRef<HTMLSpanElement>(null);
   const koersRef = useRef(0);
+  // Dezelfde pijl in de melding over de eerste meters (naar het eerste punt)
+  const startPijlRef = useRef<HTMLSpanElement>(null);
+  const startKoersRef = useRef(0);
   const kopRef = useRef<number | null>(null);
   // kompasAan: het kompas geeft echt een richting door (dan draait de pijl mee). We luisteren altijd; komt er
   // niets binnen (iPhone zonder toestemming, of geen kompas), dan blijft het "noorden boven".
@@ -236,6 +239,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       kopRef.current = kop;
       if (!kompasAanRef.current) { kompasAanRef.current = true; setKompasAan(true); }
       if (pijlRef.current) pijlRef.current.style.transform = `rotate(${koersRef.current - kop}deg)`;
+      if (startPijlRef.current) startPijlRef.current.style.transform = `rotate(${startKoersRef.current - kop}deg)`;
     };
     window.addEventListener("deviceorientationabsolute", draai);
     window.addEventListener("deviceorientation", draai);
@@ -1216,12 +1220,18 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
         {wachtOpStartVraag && (
           // Naast de zoomknoppen (niet eroverheen); de pijl in een rondje, net als rechtsboven bij het volgende punt
-          <div className="startvraag-melding">
-            {richtingTelt && positie && richtPunt && (
-              <span className="startvraag-pijl" aria-hidden>
-                <span style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90 - (kompasAan ? kopRef.current ?? 0 : 0)}deg)` }}>➤</span>
-              </span>
-            )}
+          // Tik = kompas aan (iPhone vraagt toestemming); de pijl draait dan mee met de telefoon
+          <div className="startvraag-melding" role="button" tabIndex={0} onClick={kompasAan ? undefined : zetKompasAan}
+            title={kompasAan ? "De pijl wijst de kant op waar je heen moet" : "Tik om de pijl mee te laten draaien met je telefoon"}>
+            {richtingTelt && positie && richtPunt && (() => {
+              startKoersRef.current = richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90;
+              return (
+                <span className="startvraag-pijl" aria-hidden>
+                  <span ref={startPijlRef} style={{ transform: `rotate(${startKoersRef.current - (kompasAan ? kopRef.current ?? 0 : 0)}deg)` }}>➤</span>
+                  <span className="startvraag-kompas">{kompasAan ? "🧭" : "N↑"}</span>
+                </span>
+              );
+            })()}
             <span>🚶 Loop nog <strong>{nogTeLopen} meter</strong>{richtingTelt ? " langs de oranje stippellijn" : ""}, dan krijg je je eerste vraag!</span>
           </div>
         )}

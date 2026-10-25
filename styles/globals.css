@@ -3815,3 +3815,8 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   .route-editor-topbar .editor-kop > * { flex-shrink: 0; }
   .route-editor-topbar .editor-kop > .editor-naam { flex-shrink: 1; }
 }
+/* Eerste meters: kompas-teken klein rechtsonder bij de pijl; de melding is aan te tikken (kompas aan) */
+.startvraag-pijl { position: relative; }
+.startvraag-pijl > .startvraag-kompas { position: absolute; right: -8px; bottom: -6px; padding: 1px 4px; border-radius: 8px; background: #3a1f80; color: #fff;
+  font-size: 0.58rem; font-weight: 800; transition: none; }
+.startvraag-melding { cursor: pointer; }
