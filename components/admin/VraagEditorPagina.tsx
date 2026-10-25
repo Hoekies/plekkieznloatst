@@ -152,6 +152,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     is_correct: boolean;
     // Leeg = standaard (goed antwoord krijgt de vraagpunten, fout 0); mag negatief zijn
     punten: string;
+    // 💬 Waarom dit antwoord (niet) goed is; leeg = geen uitleg
+    uitleg: string;
   }[]>(
     bestaandeVraag?.answer_options.length === 4
       ? bestaandeVraag.answer_options.map((a) => ({
@@ -160,17 +162,20 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           image_path: a.image_path,
           is_correct: a.is_correct,
           punten: a.punten === null || a.punten === undefined ? "" : String(a.punten),
+          uitleg: a.uitleg ?? "",
         }))
       // Stemvraag met 2 of 3 keuzes: op hun kleur terugzetten, de rest leeg
       : bestaandeVraag?.type === "stemvraag"
         ? KLEUREN.map((c) => {
             const a = bestaandeVraag.answer_options.find((o) => o.color === c);
-            return { color: c, text: a?.text ?? "", image_path: null, is_correct: false, punten: "" };
+            return { color: c, text: a?.text ?? "", image_path: null, is_correct: false, punten: "", uitleg: "" };
           })
-        : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" }))
+        : KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "", uitleg: "" }))
   );
   // Punten per antwoord: een uitzondering, dus pas zichtbaar als je hem aanzet (of als hij al gebruikt wordt)
   const [perAntwoord, setPerAntwoord] = useState(() => antwoorden.some((a) => a.punten !== ""));
+  // 💬 Uitleg per antwoord (bijv. waarom een antwoord fout is): ook een optie, zichtbaar als je hem aanzet
+  const [perUitleg, setPerUitleg] = useState(() => antwoorden.some((a) => a.uitleg !== ""));
   const antwoordRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const [openAntwoorden, setOpenAntwoorden] = useState(
@@ -227,13 +232,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       const nieuw = v.answer_options.map((a) => ({
         color: a.color as typeof KLEUREN[number], text: a.text ?? "", image_path: a.image_path, is_correct: a.is_correct,
         punten: a.punten === null || a.punten === undefined ? "" : String(a.punten),
+        uitleg: a.uitleg ?? "",
       }));
       setAntwoorden(nieuw);
       if (nieuw.some((a) => a.punten !== "")) setPerAntwoord(true);
+      if (nieuw.some((a) => a.uitleg !== "")) setPerUitleg(true);
     } else if (v.type === "stemvraag") {
-      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: v.answer_options.find((o) => o.color === c)?.text ?? "", image_path: null, is_correct: false, punten: "" })));
+      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: v.answer_options.find((o) => o.color === c)?.text ?? "", image_path: null, is_correct: false, punten: "", uitleg: "" })));
     } else {
-      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "" })));
+      setAntwoorden(KLEUREN.map((c) => ({ color: c, text: "", image_path: null, is_correct: c === "geel", punten: "", uitleg: "" })));
     }
     setOpenAntwoorden((v.correct_text_answers ?? []).join("\n"));
     const numeriek = v.numeric_answer !== null && v.numeric_answer !== undefined;
@@ -246,8 +253,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     toonMelding("Vraag overgenomen: pas aan en sla op", "ok");
   }
 
+  // Goed of fout per antwoord: meerdere goede antwoorden mag, maar er moet er minstens één goed blijven
   function setCorrect(index: number) {
-    setAntwoorden((a) => a.map((ant, i) => ({ ...ant, is_correct: i === index })));
+    setAntwoorden((a) => {
+      if (a[index].is_correct && a.filter((x) => x.is_correct).length === 1) {
+        toonMelding("Er moet minstens één antwoord goed zijn", "info");
+        return a;
+      }
+      return a.map((ant, i) => i === index ? { ...ant, is_correct: !ant.is_correct } : ant);
+    });
   }
 
   function wisselPerAntwoord() {
@@ -321,6 +335,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         image_path: antwoordType === "afbeelding" ? a.image_path : null,
         is_correct: a.is_correct,
         punten: a.punten.trim() === "" ? null : Math.round(Number(a.punten)),
+        uitleg: perUitleg ? a.uitleg.trim() || null : null,
       }));
     }
 
@@ -528,30 +543,36 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               <div className="form-group">
                 {/* Kop: uitleg links, rechts de schakelaar voor eigen punten per antwoord */}
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
-                  <label className="form-label" style={{ margin: 0, flex: 1, minWidth: 0 }}>Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· klik op het rondje bij het goede antwoord</span></label>
+                  <label className="form-label" style={{ margin: 0, flex: 1, minWidth: 0 }}>Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· tik op het rondje bij elk goed antwoord (meer dan één mag)</span></label>
                   <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
                     style={{ height: 30, fontSize: "0.78rem" }} onClick={wisselPerAntwoord}
                     title={`Uit: goed krijgt ${punten} punten, fout 0. Aan: elk antwoord eigen punten (ook negatief).`}>
                     ± Punten per antwoord<span className="schakel-bol" aria-hidden />
                   </button>
+                  <button type="button" className={`rl-knop schakel${perUitleg ? " schakel--aan" : ""}`} role="switch" aria-checked={perUitleg}
+                    style={{ height: 30, fontSize: "0.78rem" }} onClick={() => setPerUitleg((u) => !u)}
+                    title="Per antwoord een korte uitleg, bijv. waarom het niet goed is. De speler ziet die na het antwoorden.">
+                    💬 Uitleg per antwoord<span className="schakel-bol" aria-hidden />
+                  </button>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {antwoorden.map((ant, i) => (
                     <div key={ant.color} style={{
-                      display: "flex", alignItems: "center", gap: 12,
+                      display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
                       padding: "6px 10px", borderRadius: "var(--radius-md)",
                       border: `2px solid ${ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)"}`,
                       background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : "transparent",
                     }}>
                       <button type="button" onClick={() => setCorrect(i)}
-                        title={ant.is_correct ? "Dit is het goede antwoord" : "Maak dit het goede antwoord"}
-                        aria-label={`Antwoord ${ant.color} is het goede antwoord`} aria-pressed={ant.is_correct}
+                        title={ant.is_correct ? "Goed antwoord: tik om fout te maken" : "Fout antwoord: tik om goed te maken"}
+                        aria-label={`Antwoord ${ant.color} is goed`} aria-pressed={ant.is_correct}
                         style={{
                           width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
                           border: `2px solid ${LABEL_KLEUR[ant.color]}`,
                           background: ant.is_correct ? LABEL_KLEUR[ant.color] : "transparent",
-                          cursor: "pointer",
-                        }} />
+                          cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          color: "#1a0b3d", fontSize: "0.8rem", fontWeight: 900, lineHeight: 1, padding: 0,
+                        }}>{ant.is_correct ? "✓" : ""}</button>
                       <span style={{
                         width: 46, fontSize: "0.75rem", fontWeight: 700,
                         color: LABEL_KLEUR[ant.color], flexShrink: 0, textTransform: "capitalize",
@@ -570,7 +591,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                           compact
                         />
                       )}
-                      {ant.is_correct && <span style={{ fontSize: "0.7rem", fontWeight: 700, color: LABEL_KLEUR[ant.color], flexShrink: 0 }}>✓ goed</span>}
+                      {/* Goed of fout duidelijk bij elk antwoord */}
+                      <span className={`antw-oordeel${ant.is_correct ? " antw-oordeel--goed" : ""}`}>{ant.is_correct ? "✓ goed" : "✗ fout"}</span>
                       {perAntwoord && (
                         <>
                           <input className="form-input" type="number" step={1}
@@ -582,6 +604,13 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                             style={{ width: 76, flexShrink: 0, fontSize: "0.88rem", textAlign: "right" }} />
                           <span style={{ fontSize: "0.72rem", color: "var(--muted)", flexShrink: 0 }}>pt</span>
                         </>
+                      )}
+                      {/* 💬 Uitleg op een eigen regel onder het antwoord */}
+                      {perUitleg && (
+                        <input className="form-input antw-uitleg" maxLength={200} value={ant.uitleg}
+                          aria-label={`Uitleg bij antwoord ${ant.color}`}
+                          placeholder={ant.is_correct ? "💬 Uitleg (mag leeg), bijv. waarom dit goed is" : "💬 Waarom is dit niet goed? (mag leeg)"}
+                          onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, uitleg: e.target.value } : x))} />
                       )}
                     </div>
                   ))}

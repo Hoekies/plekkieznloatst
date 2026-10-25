@@ -13,13 +13,15 @@ import type { ProefStand } from "./proeflopen";
 const SpelerLeaflet = dynamic(() => import("@/components/speler/SpelerLeaflet"), { ssr: false });
 
 type AdminVraag = Omit<VraagData, "answer_options"> & { correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null;
-  answer_options: (VraagData["answer_options"][number] & { is_correct: boolean; punten: number | null })[] };
+  answer_options: (VraagData["answer_options"][number] & { is_correct: boolean; punten: number | null; uitleg?: string | null })[] };
 
 // Antwoord beoordelen zoals de server dat doet (zelfde regels), maar hier in de browser: er wordt niets opgeslagen
 function beoordeel(v: VraagData, antwoordId: string | null, openTekst?: string, teLaat?: boolean): Feedback {
   const a = v as unknown as AdminVraag;
   const juiste = a.answer_options?.find((o) => o.is_correct) ?? null;
-  const basis = { correct_answer_id: juiste?.id ?? null, correct_text_answers: null, numeric_answer: null, numeric_tolerance: null };
+  const basis = { correct_answer_id: juiste?.id ?? null, correct_answer_ids: (a.answer_options ?? []).filter((o) => o.is_correct).map((o) => o.id),
+    uitleg: Object.fromEntries((a.answer_options ?? []).filter((o) => o.uitleg && (o.is_correct || o.id === antwoordId)).map((o) => [o.id, o.uitleg as string])),
+    correct_text_answers: null, numeric_answer: null, numeric_tolerance: null };
   if (a.type === "stemvraag") return { ...basis, correct_answer_id: null, is_correct: null, stem: true, points_awarded: 0 };
   if (teLaat) return { ...basis, is_correct: false, points_awarded: 0 };
   if (a.type === "open") {

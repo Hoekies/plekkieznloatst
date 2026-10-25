@@ -3632,3 +3632,12 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 }
 /* Live kaart: "Volg spelers" naast de zoomknoppen, in de gewone knopstijl */
 .kaart-volg { position: absolute; top: 10px; left: 56px; z-index: 1000; height: 36px; box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+/* Vraag-editor: bij elk meerkeuze-antwoord goed (groen) of fout (rood, rustig) */
+.antw-oordeel { flex-shrink: 0; min-width: 48px; text-align: center; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 800;
+  color: #fca5a5; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
+.antw-oordeel--goed { color: #4ade80; background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.45); }
+.antw-uitleg { flex: 1 1 100%; margin-left: 34px; font-size: 0.82rem; min-height: 34px !important; }
+@media (max-width: 768px) { .antw-uitleg { margin-left: 0; } }
+/* Speler: uitleg bij een antwoord (na het antwoorden) */
+.feedback-uitleg { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,0.2); color: #fff; font-size: 0.88rem; line-height: 1.4; text-align: left; }
+.feedback-uitleg--goed { margin-top: 0; background: rgba(34,197,94,0.12); border: 1px solid rgba(134,239,172,0.35); }

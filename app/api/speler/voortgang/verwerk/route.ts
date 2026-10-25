@@ -49,6 +49,8 @@ export async function POST(request: NextRequest) {
 
   // Feedback-info die teruggestuurd wordt voor de UI
   let correctAnswerId: string | null = null;
+  let correctAnswerIds: string[] = [];
+  const uitleg: Record<string, string> = {};
   let correctTextAnswers: string[] | null = null;
   let numericAnswer: number | null = null;
   let numericTolerance: number | null = null;
@@ -83,7 +85,13 @@ export async function POST(request: NextRequest) {
       isCorrect = gekozen.is_correct;
       // Eigen punten per antwoord (kan negatief zijn); anders goed = vraagpunten, fout = 0
       puntWaarde = typeof gekozen.punten === "number" ? gekozen.punten : (isCorrect ? vraag.points : 0);
-      correctAnswerId = vraag.answer_options.find((a: { is_correct: boolean }) => a.is_correct)?.id ?? null;
+      // Er kunnen meerdere antwoorden goed zijn: allemaal meesturen (de eerste blijft voor oudere apps)
+      correctAnswerIds = vraag.answer_options.filter((a: { is_correct: boolean }) => a.is_correct).map((a: { id: string }) => a.id);
+      correctAnswerId = correctAnswerIds[0] ?? null;
+      // 💬 Uitleg per antwoord (migratie 023), voor de antwoorden die de speler daarna ziet: het gekozen en de goede
+      for (const o of vraag.answer_options as { id: string; uitleg?: string | null }[]) {
+        if (o.uitleg && (o.id === selected_answer_id || correctAnswerIds.includes(o.id))) uitleg[o.id] = o.uitleg;
+      }
     } else if (vraag.type === "stemvraag") {
       if (!selected_answer_id) return NextResponse.json({ fout: "Geen keuze opgegeven" }, { status: 400 });
       if (!vraag.answer_options.some((a: { id: string }) => a.id === selected_answer_id)) return NextResponse.json({ fout: "Ongeldige keuze" }, { status: 400 });
@@ -244,6 +252,8 @@ export async function POST(request: NextRequest) {
     is_correct: isCorrect,
     points_awarded: puntWaarde,
     correct_answer_id: correctAnswerId,
+    correct_answer_ids: correctAnswerIds,
+    uitleg,
     correct_text_answers: correctTextAnswers,
     numeric_answer: numericAnswer,
     numeric_tolerance: numericTolerance,

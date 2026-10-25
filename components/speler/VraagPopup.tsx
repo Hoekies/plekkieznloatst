@@ -54,6 +54,10 @@ export type Feedback = {
   stem?: boolean;
   points_awarded: number;
   correct_answer_id: string | null;
+  // Alle goede antwoorden (er kunnen er meer zijn); ontbreekt bij een oud antwoord: dan alleen correct_answer_id
+  correct_answer_ids?: string[];
+  // 💬 Uitleg per antwoord (alleen bij het gekozen en de goede antwoorden), op antwoord-id
+  uitleg?: Record<string, string>;
   correct_text_answers: string[] | null;
   numeric_answer: number | null;
   numeric_tolerance: number | null;
@@ -194,6 +198,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         stem: !!data.stem,
         points_awarded: data.points_awarded,
         correct_answer_id: data.correct_answer_id ?? null,
+        correct_answer_ids: data.correct_answer_ids ?? undefined,
+        uitleg: data.uitleg ?? undefined,
         correct_text_answers: data.correct_text_answers ?? null,
         numeric_answer: data.numeric_answer ?? null,
         numeric_tolerance: data.numeric_tolerance ?? null,
@@ -654,6 +660,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
   vraag: VraagData;
   gekozenId: string | null;
 }) {
+  const juisteIds = feedback.correct_answer_ids?.length ? feedback.correct_answer_ids : feedback.correct_answer_id ? [feedback.correct_answer_id] : [];
   // 🗳️ Stem uitgebracht: de uitslag komt pas als de stemming sluit
   if (feedback.stem && feedback.is_correct === null) {
     return (
@@ -686,18 +693,25 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
             {feedback.points_awarded} punt{feedback.points_awarded !== -1 ? "en" : ""} — die gaan van je score af
           </div>
         )}
+        {/* 💬 Uitleg bij het gekozen antwoord (bijv. waarom het niet goed is) */}
+        {gekozenId && feedback.uitleg?.[gekozenId] && <div className="feedback-uitleg">💬 {feedback.uitleg[gekozenId]}</div>}
       </div>
 
       {!feedback.is_correct && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--muted)", fontWeight: 600 }}>
-            Het juiste antwoord:
+            {juisteIds.length > 1 ? "De juiste antwoorden:" : "Het juiste antwoord:"}
           </p>
+          {/* 💬 Uitleg bij de goede antwoorden */}
+          {juisteIds.filter((id) => feedback.uitleg?.[id]).map((id) => {
+            const optie = vraag.answer_options.find((o) => o.id === id);
+            return <div key={id} className="feedback-uitleg feedback-uitleg--goed">💬 {optie?.text ? <strong>{optie.text}: </strong> : null}{feedback.uitleg![id]}</div>;
+          })}
 
           {vraag.type === "meerkeuze_afbeelding" && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {vraag.answer_options.map((optie) => {
-                const isJuist = optie.id === feedback.correct_answer_id;
+                const isJuist = juisteIds.includes(optie.id);
                 const wasGekozen = optie.id === gekozenId;
                 if (!isJuist && !wasGekozen) return null;
                 return (
@@ -727,7 +741,7 @@ function FeedbackWeergave({ feedback, vraag, gekozenId }: {
           {vraag.type === "meerkeuze_tekst" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {vraag.answer_options.map((optie) => {
-                const isJuist = optie.id === feedback.correct_answer_id;
+                const isJuist = juisteIds.includes(optie.id);
                 const wasGekozen = optie.id === gekozenId;
                 return (
                   <div key={optie.id} style={{

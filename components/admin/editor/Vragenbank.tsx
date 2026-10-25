@@ -12,7 +12,7 @@ export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
   correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null;
   antwoorden_husselen: boolean; geluid_pad: string | null; tijdslimiet_seconden: number | null;
-  answer_options: { color: string; text: string | null; image_path: string | null; is_correct: boolean; punten: number | null }[];
+  answer_options: { color: string; text: string | null; image_path: string | null; is_correct: boolean; uitleg?: string | null; punten: number | null }[];
   punt_naam: string; route_naam: string;
   favoriet: boolean; verborgen: boolean;
 };
@@ -114,7 +114,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
                   : gevonden.map((v, i) => {
                     const goed = v.type === "open"
                       ? (v.numeric_answer != null ? String(v.numeric_answer) : (v.correct_text_answers ?? []).join(" / "))
-                      : v.answer_options.find((o) => o.is_correct)?.text ?? "";
+                      : v.answer_options.filter((o) => o.is_correct).map((o) => o.text ?? "").filter(Boolean).join(" / ");
                     // Kopje bij elke nieuwe soort
                     const kop = metKopjes && (i === 0 || gevonden[i - 1].type !== v.type);
                     return (

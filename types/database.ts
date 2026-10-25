@@ -115,6 +115,8 @@ export interface AntwoordOptie {
   is_correct: boolean;
   // Punten voor dit antwoord; null = goed antwoord krijgt de vraagpunten, fout 0
   punten: number | null;
+  // 💬 Waarom dit antwoord (niet) goed is; de speler ziet het na het antwoorden (migratie 023)
+  uitleg?: string | null;
 }
 
 export interface Speler {

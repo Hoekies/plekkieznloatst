@@ -89,7 +89,12 @@ export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData
       const vraag = vraagMap.get(v.route_point_id);
       if (!vraag) continue; // informatiepunten en eindpunt zonder vraag
       const punt = puntMap.get(v.route_point_id);
-      const juiste = vraag.answer_options?.find((o) => o.is_correct);
+      // Meerdere goede antwoorden kan: de tekst noemt ze allemaal; de punten van het beste goede antwoord tellen
+      const goede = (vraag.answer_options ?? []).filter((o) => o.is_correct);
+      const juiste = goede.length > 1
+        ? { ...goede[0], text: goede.some((o) => o.text) ? goede.map((o) => o.text ?? "(afbeelding)").join(" / ") : null,
+            punten: goede.some((o) => typeof o.punten === "number") ? Math.max(...goede.map((o) => o.punten ?? vraag.points)) : null }
+        : goede[0];
       const gekozen = vraag.answer_options?.find((o) => o.id === v.selected_answer_id);
       const foto = fotoMap.get(`${s.id}:${v.route_point_id}`);
       const isStem = vraag.type === "stemvraag";

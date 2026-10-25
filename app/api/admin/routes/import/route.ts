@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 
 type AntwoordOptieImport = {
   order_index: number; color: string; answer_type: string; text: string | null;
-  image_path: string | null; is_correct: boolean; punten?: number | null;
+  image_path: string | null; is_correct: boolean; punten?: number | null; uitleg?: string | null;
 };
 type VraagImport = {
   type: string; question_text: string; question_image_path: string | null; points: number;
@@ -47,6 +47,8 @@ export async function POST(request: Request) {
 
   let body: RouteExport;
   try { body = await request.json(); } catch { return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 }); }
+  // 💬 Uitleg per antwoord alleen meenemen als migratie 023 gedraaid is (anders mislukt het invoegen)
+  const uitlegKan = !(await createAdminClient().from("answer_options").select("uitleg").limit(1)).error;
 
   if (![1, 2].includes(body._version) || typeof body.route?.name !== "string" || !Array.isArray(body.route_punten)) {
     return NextResponse.json({ fout: "Ongeldig export-bestand (verkeerde versie of structuur)" }, { status: 400 });
@@ -137,6 +139,7 @@ export async function POST(request: Request) {
           image_path: opt.image_path ?? null,
           is_correct: opt.is_correct ?? false,
           ...(typeof opt.punten === "number" && Number.isFinite(opt.punten) ? { punten: Math.round(opt.punten) } : {}),
+          ...(uitlegKan && opt.uitleg ? { uitleg: String(opt.uitleg).slice(0, 200) } : {}),
         })),
       );
     }

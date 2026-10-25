@@ -21,7 +21,9 @@ export async function keurAntwoordGoed(admin: AdminClient, voortgangId: string):
     .maybeSingle();
   if (!vraag || vraag.type === "foto_opdracht") return { fout: "Geen goed te keuren vraag", status: 400 };
 
-  const juiste = (vraag.answer_options as { is_correct: boolean; punten: number | null }[] | null)?.find((o) => o.is_correct);
+  // Meerdere goede antwoorden kan: het team krijgt de punten van het beste
+  const juiste = ((vraag.answer_options as { is_correct: boolean; punten: number | null }[] | null) ?? []).filter((o) => o.is_correct)
+    .sort((a, b) => (b.punten ?? vraag.points) - (a.punten ?? vraag.points))[0];
   const nieuwePunten = (typeof juiste?.punten === "number" ? juiste.punten : null) ?? vraag.points;
   const verschil = nieuwePunten - (rij.points_awarded ?? 0);
 

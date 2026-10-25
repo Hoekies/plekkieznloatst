@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 const NIET_MEE = new Set(["id", "name", "status", "is_active", "created_at", "updated_at", "uitslag_vrijgegeven",
   "tussenstand_trigger_at", "items_last_rotated_at", "instappunten"]);
 
-type Optie = { order_index: number; color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; punten?: number | null };
+type Optie = { order_index: number; color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; uitleg?: string | null; punten?: number | null };
 type Vraag = {
   type: string; question_text: string; question_image_path: string | null; points: number;
   correct_text_answers: string[] | null; numeric_answer: number | null; numeric_tolerance: number | null; answer_options: Optie[];
@@ -75,7 +75,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
           antwoorden_husselen: vraag.antwoorden_husselen ?? false, geluid_pad: vraag.geluid_pad ?? null, tijdslimiet_seconden: vraag.tijdslimiet_seconden ?? null,
           antwoord_opties: [...vraag.answer_options].sort((a, b) => a.order_index - b.order_index).map((o) => ({
             order_index: o.order_index, color: o.color, answer_type: o.answer_type, text: o.text,
-            image_path: o.image_path, is_correct: o.is_correct, punten: o.punten ?? null,
+            image_path: o.image_path, is_correct: o.is_correct, punten: o.punten ?? null, uitleg: o.uitleg ?? null,
           })),
         } : null,
       };
