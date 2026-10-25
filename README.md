@@ -28,7 +28,7 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Een speler direct uitloggen of het gekoppelde apparaat resetten
 - Dashboard met stappenplan, spelleider (wat vraagt aandacht), stand, tijdlijn en details per speler
 - Live kaart met vaste kleur per speler, speler volgen en spoor van de laatste 10 minuten
-- Scherpe vectorkaart (OpenFreeMap) in licht, donker of luchtfoto (PDOK), met speelgebied, parkeerplaatsen, huisnummers en alleen openbare paden
+- Scherpe vectorkaart (OpenFreeMap) in licht, donker of luchtfoto (PDOK), met parkeerplaatsen, huisnummers en alleen openbare paden
 - Replay in 3D: schuin kijken, draaien en een camera die meebeweegt
 - Route-editor: punten op de weg zetten, route leegmaken, items langs de wegen
 - Wachttijd van spook of plek zooi inkorten, punt vrijgeven, spel per speler stoppen
@@ -123,9 +123,9 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 ### Database
 
-Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema (de samengevoegde migraties 001–038). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
+Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema: de samengevoegde oude migraties 001–038 en daaronder de latere migraties 002–026, elk onder een kopje met hun oude nummer (meldingen in de app en de Systeemcheck noemen dat nummer, bijv. "migratie 023"). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-De bestaande database heeft dit al. Nieuwe wijzigingen komen als `002_…`, `003_…` enz. in dezelfde map; de oude losse migraties staan in de git-geschiedenis. Draai ze op volgorde in de SQL Editor; ze mogen vaker gedraaid worden. `006_correcties_en_eindtijd.sql` is nodig voor punten aanpassen en de eindtijd, `007_vragenbank.sql` voor favorieten in de vragenbank, `008_inloglinks.sql` voor inloglinks zonder wachtwoord, `009_teambericht_en_telefoon.sql` voor berichten aan één team en telefoonnummers, `010_pauze.sql` voor pauzeren, `011_wachtwoord_bewaren.sql` om hetzelfde wachtwoord opnieuw te kunnen versturen, `012_hele_route_zichtbaar.sql` om bij een route op volgorde de hele route te tonen, `013_doorlooppunt.sql` voor punten zonder scherm (🚶 Door), `014_vraagopties_puzzel_verboden.sql` voor husselen, geluid en tijdslimiet per vraag, het puzzelwoord en verboden gebieden, `015_indexen_opruimen_foutlog.sql` voor snellere zoekopdrachten, het nachtelijk opruimen van GPS-plekken ouder dan 30 dagen (pg_cron) en het foutlogboek in de Systeemcheck, `016_huisstijl_geluid_stemvraag.sql` voor huisstijl, geluidset en de stemvraag, `017_puzzel_verdeling.sql` om het puzzelwoord aan/uit te zetten en per vraag 0, 1 of 2 letters te geven, `018_puzzel_gok.sql` om de gok bij de finish te bewaren (één poging binnen 1 minuut) en de volgorde van de letters, `019_seizoen_achtergronden.sql` voor achtergronden per seizoen en feestdag, `020_seizoen_logos.sql` voor het spellogo per seizoen en feestdag, `021_score_negatief.sql` zodat minpunten (bom, fout antwoord, aftrek) een team in de min kunnen brengen, `022_routes_map_statistiek.sql` voor routes in mappen en de vraag-statistiek per route.
+De bestaande database heeft dit allemaal al (gecontroleerd op 25 oktober 2026). Nieuwe wijzigingen komen weer als `002_…`, `003_…` enz. in dezelfde map; draai ze op volgorde in de SQL Editor (ze mogen vaker gedraaid worden). De oude losse migraties staan in de git-geschiedenis.
 
 ### Starten
 

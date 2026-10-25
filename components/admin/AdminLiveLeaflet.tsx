@@ -5,7 +5,6 @@ import type { SpelerOverzicht, RoutePuntKort } from "@/lib/admin-live";
 import type { SpeciaalItem } from "@/types/database";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, bewaardeStijl, bewaarStijl, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
-import { speelgebiedLaag } from "@/lib/speelgebied";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 import KaartBediening from "@/components/shared/KaartBediening";
 import Icoon from "@/components/admin/Icoon";
@@ -62,8 +61,6 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     return nieuw;
   });
   const [vector, setVector] = useState(false);
-  // Speelgebied: buiten de route iets grijzer
-  const gebiedRef = useRef<ReturnType<typeof speelgebiedLaag> | null>(null);
   function kiesStijl(s: KaartStijl) {
     setStijl(s);
     bewaarStijl(s);
@@ -94,7 +91,6 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       sporenLaagRef.current = L.layerGroup().addTo(map);
 
       mapRef.current = map;
-      gebiedRef.current = speelgebiedLaag(L, map);
       setKaartKlaar(true);
 
       // Basiskaart daarna: vectortegels van OpenFreeMap (scherp op elk zoomniveau),
@@ -167,11 +163,6 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       puntMarkersRef.current.set(punt.id, marker);
     });
   }, [route_punten, kaartKlaar, modus, spelers, kleuren]);
-
-  // Speelgebied: alles buiten de route iets grijzer (donkerder bij de donkere kaart)
-  useEffect(() => {
-    gebiedRef.current?.(route_punten.map((p) => ({ lat: p.latitude, lng: p.longitude })), stijl === "donker");
-  }, [route_punten, kaartKlaar, stijl]);
 
   // Spelermarkers bijwerken
   useEffect(() => {

@@ -1,88 +1,69 @@
-# Afbeelding-prompt — Korte spelershandleiding (A5)
+# Afbeelding-prompt — Spelerskaart (A5, dubbel te vouwen)
 
-Een korte, bondige handleiding voor spelers, bedoeld om op **A5** te printen of uit te delen.
-
-**Zo gebruik je hem:**
-1. Open ChatGPT (met beeldgeneratie).
-2. **Upload het logo** [`public/logo.png`](../public/logo.png) als bijlage — ChatGPT kent het logo niet en moet het precies overnemen.
-3. Plak de tekst uit de codeblok hieronder en verstuur.
-4. Klopt een tekst niet helemaal? Vraag ChatGPT om alleen die tekst te corrigeren, dan blijft de rest staan.
+Prompt voor **Codex**: maakt de spelerskaart en vervangt `public/handleiding.jpg` en het voorbeeldje
+`public/kaarten/klein-spelers.webp`. Maak deze als eerste: de routekaarten
+([sequentieel](afbeelding-prompt-sequentieel.md), [verspreid](afbeelding-prompt-verspreid.md)) nemen de stijl ervan over.
 
 ```
-Create a printable one-page player guide for the mobile GPS game "PointRush", to be
-printed on A5 paper in PORTRAIT orientation. Use a 2:3 portrait canvas (1024x1536) and keep
-all text and important elements at least 5% away from every edge so nothing is cut off
-when printing.
+Maak een nieuwe printbare instructiekaart voor spelers van de GPS-game PointRush en vervang daarmee de bestaande kaart in deze repo. Pas geen code aan.
 
-LOGO: Place the attached logo image at the top center, unchanged — do not redraw,
-restyle, recolor or re-letter it. It is the official game logo (white running figure on
-purple and orange isometric tiles, a bomb, a purple ghost, "+10" and "+25" badges, and the
-lettering "POINT RUSH by Hoekies"). Everything else on the page must match its style.
+Basis: gebruik public/handleiding.jpg als voorbeeld voor stijl en sfeer, en public/logo-breed.png als logo (exact overnemen: niet hertekenen, niet herletteren, niet verkleuren).
 
-LANGUAGE: All text in the image must be in DUTCH, spelled exactly as given below. Do not
-add, translate or invent any other text. Keep the amount of text small and large enough to
-read on A5.
+FORMAAT EN VOUWEN (belangrijk):
+- Staand, verhouding 2:3 (1024x1536), bedoeld voor A5.
+- De kaart wordt dubbel gevouwen: precies op de helft van de hoogte loopt een horizontale vouwlijn als dunne witte STIPPELLIJN over de hele breedte, met rechts klein het woord "vouwlijn".
+- GEEN enkel paneel, tekst of icoon mag over de vouwlijn lopen: alles staat volledig in de bovenste óf de onderste helft, met minstens 3% ruimte boven en onder de lijn.
+- Alles minstens 5% van de buitenrand af.
 
-LOOK AND FEEL (match the game's own screens):
-- Background: deep night-sky gradient from purple (#3a1a73) at the top to very dark
-  violet (#0c0322) at the bottom, with a few small glowing gold sparkles.
-- A few small floating emoji "orbs" near the edges for decoration: 👻 ⭐ 💣 🍌.
-- Content sits on rounded dark-purple glass panels with a thin gold (#ffd93b) border and
-  a soft glow — like the game's login panel.
-- Headings in bold, chunky, rounded game lettering in white with a subtle dark outline;
-  body text in clean light lavender-white.
-- Accent colors: glossy orange (#ff8a00 to #e35d00, like the game's buttons), gold
-  (#ffd93b), bright purple (#8b5cf6), cyan (#00d9ff), green (#22c55e).
-- Playful, bright, arcade-game feel. Flat vector illustration style, not photorealistic,
-  no people's faces.
+STIJL: donkere nachthemel-achtergrond van paars (#3a1a73) bovenaan naar heel donker violet (#0c0322) onderaan, kleine gouden sparkles. Inhoud op afgeronde donkerpaarse glazen panelen met een dunne gouden rand (#ffd93b). Koppen in dikke, ronde game-letters (wit); tekst licht lavendel-wit. Accenten: glanzend oranje (#ff8a00 → #e35d00), goud, paars, cyaan, groen. Vrolijk arcade-gevoel, platte vector-illustratie, geen gezichten van mensen.
 
-LAYOUT (top to bottom):
+TAAL: alle tekst in het NEDERLANDS, exact zoals hieronder. Geen andere tekst toevoegen of vertalen.
 
-1. The attached logo, top center.
-   Directly under it, a glossy orange pill-shaped banner with: "ZO SPEEL JE!"
+BOVENSTE HELFT:
+1. Het logo, bovenaan in het midden.
+2. Daaronder een glanzende oranje pil met: "ZO SPEEL JE!"
+3. Twee panelen naast elkaar:
+   Paneel "In 4 stappen op pad" (genummerde stappen 1–4 in gouden rondjes):
+   1 📷 Scan de QR-code op je kaartje: je bent meteen ingelogd
+   2 🦊 Kies een teamnaam en een icoon
+   3 📍 Zet locatie en geluid aan
+   4 🚀 Druk op "Op pad!"
+   Paneel "Op de kaart":
+   🔵 Blauw punt = hier moet je heen
+   🟠 Start: loop het stukje langs de oranje stippellijn
+   ❗ Oranje ! = je bent er: beantwoord de vraag
+   ✅ Groen = punt gehaald
+   🧭 Tik op de afstand: de pijl draait mee
+   ❓ Oranje ?-knop = uitleg van alles
 
-2. Panel "In 4 stappen op pad" — four numbered steps, each with a small round icon:
-   ① 📱 Open de link en log in met je groep
-   ② 🦊 Kies een teamnaam en een icoon
-   ③ 📍 Geef locatietoegang en zet je geluid aan
-   ④ 🚀 Druk op "GA OP PAD"
+ONDERSTE HELFT:
+4. Paneel "Items" (het grootste paneel). Eerst één regel:
+   "Loop over een item om het te pakken. Tik onderin op het item om het te gebruiken."
+   Daarna een raster van 2 kolommen × 5 rijen, in precies deze volgorde. Elk item: een rond glanzend icoon (gebruik de iconen uit public/items/<naam>.webp als voorbeeld) + vetgedrukte naam + korte uitleg:
+   Ster — meteen punten erbij
+   Verdubbeling — volgende goede antwoord telt dubbel
+   Radar — 2 minuten de andere teams zien
+   Bom — ander team verliest punten
+   Spook — hun volgende punt verdwijnt even
+   Dief — pik punten van een ander team
+   Banaan — hun volgende twee punten ruilen
+   Wissel — ruil je score met een ander team
+   Vraagteken — een gok: punten erbij of eraf
+   Plek zooi — onzichtbare val: even stilstaan
+5. Paneel "Tips" (2 kolommen):
+   🧩 Puzzelwoord: elke goede vraag = een letter
+   ⏱️ Bij de finish: tik Start en raad het woord in 1 minuut
+   📸 Finish: groepsfoto of selfie = jullie foto op het podium
+   🔔 Klokslag? Een ander team valt je aan!
+   ⚠️ Punt niet te bereiken? Tik op "Niet bereikbaar?"
+   🔴 Rood puntenvlak = jullie staan in de min
+6. Onderaan een brede glanzende oranje balk met witte tekst: "PAK DE PUNTEN EN MAAK HET WOORD!"
 
-3. Panel "Op de kaart" — a small cartoon phone showing a map, with a short legend:
-   🔵 Jij
-   🟣 Stippellijn = weg naar je volgende punt
-   📍 Bij het punt? Druk op de 📍-knop en beantwoord de vraag
-   ⓘ Oranje i-knop = uitleg van het spel en alle items
-   (Layout note, do not print: keep this panel small so the items panel gets the most space.)
+Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime marges, consequente ronde vormen, geen extra tekst.
 
-4. Panel "Items op de kaart" — the largest panel. First one short line:
-   "Loop over een item om het te pakken. Tik het onderin aan en kies een tegenstander."
-   Then a compact grid of 10 items: 2 columns × 5 rows, in exactly this order. Each item: a
-   small round glossy icon (the item emoji on a colored circle, like map markers) + bold
-   item name + a short explanation:
-   ⭐ Ster — je krijgt meteen extra punten cadeau
-   🔴 Verdubbeling — je volgende vraag telt dubbel
-   📡 Radar — zie 2 minuten waar alle tegenstanders lopen
-   💣 Bom — een tegenstander verliest punten
-   👻 Spook — het volgende punt van een tegenstander verdwijnt even
-   🦹 Dief — de punten van hun volgende goede antwoord zijn voor jou
-   🍌 Banaan — gooi het volgende punt van een tegenstander om
-   🔄 Wissel — ruil je score met een tegenstander
-   ❓ Vraagteken — gokken: grote winst of pech!
-   ⛔ Plek zooi — onzichtbare val: je staat even stil
-   Under the grid, one small line in gold: "Route op volgorde? Dan krijg je bij de start
-   één 🍌 banaan en liggen er alleen plek-zooi-vallen."
-   Draw the ❓ Vraagteken icon differently from the others: a rainbow-colored circle with a
-   bold white "?" and a gold glow — exactly how it looks on the game map.
-
-5. Panel "Tips" — three short lines with small icons:
-   🔔 Hoor je een klokslag? Een tegenstander valt je aan!
-   ⚠️ Kun je een punt echt niet bereiken? Tik rechtsonder op "Niet bereikbaar?"
-   📲 Houd de app open, dan mis je niets
-
-6. Bottom: a wide glossy orange banner with bold white text: "VEEL PLEZIER — EN PAK DIE PUNTEN!"
-
-Make it clean and easy to scan in a few seconds: clear hierarchy, generous spacing,
-consistent rounded shapes, and no extra text beyond what is listed above.
+NA HET MAKEN:
+1. Sla het origineel op als "extra info/instructiekaart/instructiekaart.png".
+2. Vervang public/handleiding.jpg door deze kaart (JPG, 1024x1536, kwaliteit ±85, kleiner dan 600 KB).
+3. Vervang public/kaarten/klein-spelers.webp door een verkleinde versie, met dezelfde afmetingen als het huidige bestand.
+4. Meld welke bestanden zijn gemaakt en vervangen, met hun afmetingen en grootte.
 ```
-
-> **Tip:** ChatGPT maakt geen exact A5-formaat. De staande 2:3-verhouding komt er dicht bij (A5 is 1:1,41). Print met "passend op pagina"; de 5%-rand zorgt dat er niets wegvalt.

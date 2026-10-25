@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const metUitleg = (body.antwoorden ?? []).some((a: { uitleg?: string | null }) => typeof a.uitleg === "string" && a.uitleg.trim());
   if (metUitleg) {
     const { error } = await admin.from("answer_options").select("uitleg").limit(1);
-    if (error) return NextResponse.json({ fout: "Uitleg per antwoord kan pas na migratie 023: draai 023_antwoord_uitleg.sql in Supabase → SQL Editor (of haal de uitleg weg)." }, { status: 400 });
+    if (error) return NextResponse.json({ fout: "Uitleg per antwoord kan pas na migratie 023: draai dat deel uit 001_schema.sql in Supabase → SQL Editor (of haal de uitleg weg)." }, { status: 400 });
   }
 
   // Bestaande vraag opzoeken

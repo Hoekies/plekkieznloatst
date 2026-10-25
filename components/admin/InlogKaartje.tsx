@@ -105,9 +105,14 @@ function naarAfbeelding(el: HTMLElement, naam: string): Promise<File | null> {
 // Geeft terug of de reserveknop zinvol is.
 async function versturen(inlog: Inlog, beeld: File | null): Promise<"link" | "klaar" | "geannuleerd"> {
   const tekst = waTekst(inlog);
-  // Computer: WhatsApp maakt van "plaatje + tekst" via het deelmenu twee losse berichten. Daarom: kaartje op het
-  // klembord en de chat openen met de tekst al ingevuld. Plak je het kaartje (Ctrl+V), dan wordt de tekst het
-  // bijschrift eronder: één bericht, net als op de telefoon.
+  // Eerst het deelmenu (ook op de computer): dan gaat het kaartje met de QR-code altijd mee, en blijven de
+  // emoji's heel. Een wa.me-link maakt op de computer van emoji's een vraagteken.
+  if (beeld && navigator.canShare?.({ files: [beeld] })) {
+    const uitkomst = await deelOfDownload(beeld, tekst);
+    if (uitkomst !== "gedownload") return uitkomst === "gedeeld" ? "link" : "geannuleerd";
+  }
+  // Computer zonder deelmenu voor afbeeldingen: kaartje op het klembord en de chat openen met de tekst al
+  // ingevuld. Plak je het kaartje (Ctrl+V), dan wordt de tekst het bijschrift eronder.
   const computer = !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && window.matchMedia("(pointer: fine)").matches;
   if (beeld && computer && typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
     try {
