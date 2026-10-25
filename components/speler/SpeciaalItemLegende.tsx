@@ -44,16 +44,16 @@ export const itemEmoji = (type: string) => ITEM_INFO[type]?.emoji ?? "❓";
 export const SPELUITLEG: Record<"sequentieel" | "verspreid", string[]> = {
   // Kort en in gewone woorden: lopen → vraag → volgend punt, en wat je met items doet
   sequentieel: [
-    "Loop naar het blauwe punt op de kaart.",
-    "Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
-    "Daarna zie je het volgende punt. Het team met de meeste punten wint.",
-    "Items staan onderin: tik erop om ze te gebruiken. Pas op voor onzichtbare vallen!",
+    "📍 Loop naar het blauwe punt op de kaart.",
+    "❓ Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
+    "➡️ Daarna zie je het volgende punt. Het team met de meeste punten wint.",
+    "🎒 Items staan onderin: tik erop om ze te gebruiken. Pas op voor onzichtbare vallen!",
   ],
   verspreid: [
-    "Loop naar het blauwe punt op de kaart.",
-    "Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
-    "Daarna zie je het volgende punt. Het team met de meeste punten wint.",
-    "Loop over een item op de kaart om het te pakken. Het komt onderin: tik erop om het te gebruiken.",
+    "📍 Loop naar het blauwe punt op de kaart.",
+    "❓ Ben je er? Dan krijg je een vraag. Goed antwoord = punten.",
+    "➡️ Daarna zie je het volgende punt. Het team met de meeste punten wint.",
+    "🎁 Loop over een item op de kaart om het te pakken. Het komt onderin: tik erop om het te gebruiken.",
   ],
 };
 

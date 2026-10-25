@@ -27,7 +27,8 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 Op de kaart zie je:
 
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
-- **🎯 Centreren** — linksonder (naast 📍): zet de kaart weer op jullie plek
+- **🎯 Centreren** — linksonder: zet de kaart weer op jullie plek. Of je bij een punt bent, controleert de app zelf.
+- **Afstand en pijl** — rechtsboven: hoe ver het volgende punt is en welke kant op. Tik erop om de pijl mee te laten draaien met je telefoon (🧭 kompas); anders wijst hij zoals de kaart, met het noorden boven.
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
 - **☀️** rechts, net boven de itembalk — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
 - **Het volgende doel** — genummerd cirkeltje
@@ -85,9 +86,9 @@ Gooit een tegenstander een banaan naar jullie, dan hoor je een diepe klokslag (o
 
 ---
 
-## Uitleg in de app (i)
+## Uitleg in de app (?)
 
-Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel), **🗺️ Op de kaart** (wat de rondjes, kleuren en tekens betekenen) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
+Rechtsboven op de kaart staat de oranje **?**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel), **🗺️ Op de kaart** (wat de rondjes, kleuren en tekens betekenen) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
 
 ---
 

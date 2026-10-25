@@ -38,6 +38,6 @@ export function puzzelStand(woord: string, sessieId: string, goed: number, opgel
 
 // 🧩 Uitleg voor de speler (bij de start en achter het 🧩 boven de kaart), met de punten van deze route
 export function puzzelUitleg(p: { letterPunten: number; alleBonus: number; raadBonus: number }): string {
-  return `🧩 Puzzelwoord: elke goede vraag geeft een letter (+${p.letterPunten} per letter). Alle letters gevonden: +${p.alleBonus}. ` +
-    `Niet alles? Bij de finish heb je ${RAAD_SECONDEN / 60} minuut om het woord af te maken: +${p.raadBonus}.`;
+  return `🧩 Puzzelwoord: elke goede vraag geeft een letter (+${p.letterPunten} per letter). Alle letters gevonden? Dan +${p.alleBonus} extra. ` +
+    `Niet alle letters, maar raad je bij de finish het woord? Dan +${p.raadBonus} extra (je tikt op Start en hebt dan ${RAAD_SECONDEN / 60} minuut).`;
 }

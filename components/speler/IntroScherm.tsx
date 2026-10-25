@@ -87,7 +87,8 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
           timeout: 12000,
         })
       );
-      setFase("gereed");
+      // Locatie gevonden: meteen starten (geen extra "Ga op pad"-scherm); bij een fout komt dat scherm met opnieuw proberen
+      startSpel();
     } catch {
       setFase("geweigerd");
     }

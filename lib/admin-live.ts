@@ -3,7 +3,8 @@ import type { SpeciaalItem } from "@/types/database";
 import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import { puzzelRegels } from "@/lib/puzzel-server";
-import { puzzelVolgorde, lettersVoor, RAAD_SECONDEN } from "@/lib/puzzel";
+import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
+import { raadVenster, RAAD_WACHT_MIN } from "@/lib/puzzel-server";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -187,12 +188,15 @@ export async function haalLiveData(): Promise<LiveData> {
       if (p.is_correct && vraagPunten.has(p.route_point_id)) gevonden.set(p.session_id, (gevonden.get(p.session_id) ?? 0) + lettersVoor(regels.verdeling, p.route_point_id));
     });
     for (const s of sessies) {
-      const r = s as { puzzel_opgelost?: boolean; puzzel_gok?: string | null; puzzel_gok_goed?: boolean | null; finished_at?: string | null };
+      const r = s as { puzzel_opgelost?: boolean; puzzel_gok?: string | null; puzzel_gok_goed?: boolean | null; finished_at?: string | null; puzzel_raad_start?: string | null };
+      // Raadtijd: na "Start" een minuut (migratie 024); nog niet gestart = tot 30 min na de finish kan het nog
+      const venster = raadVenster(r);
+      const raadTot = venster.tot ?? (venster.kanStarten && r.finished_at ? Date.parse(r.finished_at) + RAAD_WACHT_MIN * 60000 : null);
       const open = new Set(puzzelVolgorde(s.id, regels.woord.length, regels.opVolgorde).slice(0, gevonden.get(s.id) ?? 0));
       puzzelMap.set(s.id, {
         woord: regels.woord, open: regels.woord.split("").map((_, i) => open.has(i)), opgelost: !!r.puzzel_opgelost,
         gok: r.puzzel_gok ?? null, goed: r.puzzel_gok_goed ?? null,
-        raad_tot: s.status === "voltooid" && r.finished_at ? new Date(Date.parse(r.finished_at) + RAAD_SECONDEN * 1000).toISOString() : null,
+        raad_tot: s.status === "voltooid" && raadTot ? new Date(raadTot).toISOString() : null,
       });
     }
   }

@@ -135,6 +135,17 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   const [specialeItems, setSpecialeItems] = useState<SpeciaalItem[]>([]);
   const [inventaris, setInventaris] = useState<SpeciaalItem[]>([]);
+  // Nieuwe soort item in de balk? Dan één keer uitleggen wat het doet
+  useEffect(() => {
+    const sleutel = `pr_items_uitgelegd_${sessie.id}`;
+    let gezien: string[] = [];
+    try { gezien = JSON.parse(localStorage.getItem(sleutel) ?? "[]"); } catch { /* geen opslag */ }
+    const nieuw = inventaris.map((i) => i.type).find((t) => !gezien.includes(t) && ITEM_INFO[t]);
+    if (!nieuw) return;
+    setEersteItem(nieuw);
+    try { localStorage.setItem(sleutel, JSON.stringify([...gezien, nieuw])); } catch { /* geen opslag */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventaris]);
   const [legendeItems, setLegendeItems] = useState<SpeciaalItem[]>([]);
   const [ghostTot, setGhostTot] = useState<number | null>(null);
   // Knop 🎯: de kaart op de eigen plek centreren
@@ -143,6 +154,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const gehadPlekzooiRef = useRef<Set<string>>(new Set());
   const [opgepakt, setOpgepakt] = useState<{ item: SpeciaalItem; extra: string } | null>(null);
   const [hulpOpen, setHulpOpen] = useState(false);
+  // "Niet bereikbaar?" eerst rustig (grijs); fel oranje pas als het team 5 minuten op weg is naar hetzelfde
+  // punt, of er dichtbij is (binnen 150 m) maar het niet haalt
+  const [doelSinds, setDoelSinds] = useState(() => Date.now());
+  const [klok, setKlok] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setKlok(Date.now()), 30000); return () => clearInterval(t); }, []);
   const hulpIdRef = useRef<string | null>(null);
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
@@ -151,6 +167,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
+  // 📸 Foto's die nog op keuring wachten (null = nog niet bekend)
+  const [fotosWacht, setFotosWacht] = useState<number | null>(null);
+  // 🎁 Eerste item van een soort: een kaartje met wat het doet (per soort één keer, onthouden op dit toestel)
+  const [eersteItem, setEersteItem] = useState<string | null>(null);
   // Score omhoog of omlaag: "+N" of "−N" zweeft even op uit het puntenvlak
   const vorigeScore = useRef(sessie.score);
   const [sprong, setSprong] = useState<{ id: number; verschil: number } | null>(null);
@@ -194,6 +214,36 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const verwerktIds = new Set(voortgang.filter((v) => v.answered_at).map((v) => v.route_point_id));
   const bereiktIds = new Set(voortgang.filter((v) => v.reached_at && !v.answered_at).map((v) => v.route_point_id));
   const activePunt = punten[verwerktIds.size] ?? null;
+  // 🧭 Kompas: de pijl naar het punt draait mee met de telefoon (tik op de afstand om het aan te zetten; de
+  // iPhone vraagt dan toestemming). Zonder kompas wijst de pijl zoals de kaart: noorden boven. De pijl wordt
+  // direct bijgewerkt (niet via state), anders tekent de hele kaart tientallen keren per seconde opnieuw.
+  const pijlRef = useRef<HTMLSpanElement>(null);
+  const koersRef = useRef(0);
+  const kopRef = useRef<number | null>(null);
+  const [kompasAan, setKompasAan] = useState(false);
+  async function zetKompasAan() {
+    const D = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent;
+    if (D?.requestPermission) { try { if (await D.requestPermission() !== "granted") return; } catch { return; } }
+    setKompasAan(true);
+  }
+  useEffect(() => {
+    if (!kompasAan) return;
+    const draai = (e: Event) => {
+      const o = e as DeviceOrientationEvent & { webkitCompassHeading?: number };
+      const kop = typeof o.webkitCompassHeading === "number" ? o.webkitCompassHeading : o.absolute && o.alpha !== null ? 360 - o.alpha : null;
+      if (kop === null) return;
+      kopRef.current = kop;
+      if (pijlRef.current) pijlRef.current.style.transform = `rotate(${koersRef.current - kop}deg)`;
+    };
+    window.addEventListener("deviceorientationabsolute", draai);
+    window.addEventListener("deviceorientation", draai);
+    return () => { window.removeEventListener("deviceorientationabsolute", draai); window.removeEventListener("deviceorientation", draai); };
+  }, [kompasAan]);
+
+  // Nieuw doel: de klok voor "Niet bereikbaar?" begint opnieuw
+  useEffect(() => { setDoelSinds(Date.now()); }, [activePunt?.id]);
+  const hulpOpvallend = hulpOpen || klok - doelSinds > 5 * 60000
+    || (!!positie && !!activePunt && haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude) < 150);
   const stilSet = new Set(stilleIds);
   // ⛔ In welk verboden gebied staat het team nu (naam), of null; trillen bij binnenlopen
   const inVerbodenGebied = positie ? verbodenGebieden.find((g) => g.punten.length >= 3 && binnenVlak(positie.latitude, positie.longitude, g.punten))?.naam ?? null : null;
@@ -518,6 +568,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       // Eindtijd voorbij: het spel is voor iedereen afgelopen, de stand telt
       if (data?.tijd_op) { speelFinish(); tril(TRIL.finish); router.push("/speler/finish"); return true; }
       setEindtijd(data?.eindtijd ?? null);
+      // 📸 Foto beoordeeld? Dan is het aantal wachtende foto's gedaald: even melden
+      const wacht = typeof data?.fotos_wacht === "number" ? data.fotos_wacht : 0;
+      setFotosWacht((oud) => { if (oud !== null && wacht < oud) setOpgehaaldToast("📸 Jullie foto is beoordeeld: kijk bij je score"); return wacht; });
       setPauze(data?.pauze ?? null);
       if (data?.score !== undefined) setScore(data.score);
       // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
@@ -919,12 +972,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     setTussenstand(null);
   }
 
-  function controleerLocatie() {
-    if (!positie || !activePunt || bereiktIds.has(activePunt.id) || popupPunt || plekzooiActief || pauzeRef.current) return;
-    const afstand = haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
-    if (afstand <= activePunt.radius_meters) markeerBereikt(activePunt);
-  }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, height: "100%", position: "relative" }}>
 
@@ -951,7 +998,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} pauze={pauze} />}
         <button
           onClick={() => setLegendeOpen(true)}
-          title="Wat doen de speciale items?"
+          title="Uitleg: het spel en de items" aria-label="Uitleg"
           style={{
             position: "relative", overflow: "hidden",
             width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
@@ -962,9 +1009,12 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             fontWeight: 800, fontFamily: "var(--font-display)",
             boxShadow: "inset 0 1px 1px rgba(255,255,255,0.5), 0 3px 0 #8a3300, 0 5px 10px rgba(0,0,0,0.4)",
           }}>
-          i
+          ?
         </button>
       </div>
+
+      {/* 📸 Ingestuurde foto's die nog op keuring wachten */}
+      {!!fotosWacht && <div className="foto-wacht-balk">📸 {fotosWacht} foto{fotosWacht === 1 ? "" : "'s"} {fotosWacht === 1 ? "wacht" : "wachten"} op keuring; de punten komen daarna</div>}
 
       {/* 🧩 Puzzelwoord (alleen als de route er een heeft): ververst bij elke goede vraag */}
       <PuzzelWoord ververs={voortgang.filter((v) => v.is_correct === true).length} />
@@ -982,7 +1032,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       )}
       {gpsStatus === "zwak" && (
         <div style={{ position: "absolute", top: 110, left: "50%", transform: "translateX(-50%)", zIndex: 900, whiteSpace: "nowrap", background: "rgba(234, 179, 8, 0.85)", backdropFilter: "blur(10px)", color: "#fff", padding: "7px 18px", borderRadius: 30, fontSize: "0.78rem", fontWeight: 600, boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
-          ⚠️ GPS-nauwkeurigheid te laag — ga naar buiten
+          📡 Zwak GPS-signaal{positie ? ` (± ${Math.round(positie.accuracy)} m)` : ""}: loop naar open lucht
         </div>
       )}
       {gpsStatus === "weg" && (
@@ -1190,32 +1240,26 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
         {/* Afstand en richting naar het volgende punt (de kaart staat altijd met het noorden boven) */}
         {positie && activePunt && !wachtOpStartVraag && !ghostTot && !popupPunt && !bereiktIds.has(activePunt.id) && (
-          <div className="doel-wijzer" title="Afstand en richting naar het volgende punt" aria-live="polite">
-            <span className="doel-wijzer-pijl" aria-hidden
-              style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude)}deg)` }}>➤</span>
+          <button type="button" className="doel-wijzer" aria-live="polite" onClick={kompasAan ? undefined : zetKompasAan}
+            title={kompasAan ? "De pijl wijst de kant op waar je heen moet (kompas aan)" : "Afstand en richting (noorden boven). Tik om de pijl mee te laten draaien met je telefoon"}>
+            {(() => {
+              koersRef.current = richting(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude);
+              return <span ref={pijlRef} className="doel-wijzer-pijl" aria-hidden style={{ transform: `rotate(${koersRef.current - (kompasAan ? kopRef.current ?? 0 : 0)}deg)` }}>➤</span>;
+            })()}
             <span>{afstandTekst(haversine(positie.latitude, positie.longitude, activePunt.latitude, activePunt.longitude))}</span>
-          </div>
+            <span className="doel-wijzer-kompas" aria-hidden>{kompasAan ? "🧭" : "N↑"}</span>
+          </button>
         )}
 
         {/* Centreren op de eigen plek (naast 📍, of op die plek als 📍 er niet staat) */}
         {positie && !popupPunt && (
           <button onClick={() => setCentreerVerzoek((n) => n + 1)} title="Kaart op mijn plek zetten" aria-label="Kaart op mijn plek zetten"
             className="pr-loc-btn"
-            style={{ bottom: knoepBottomOffset, left: activePunt && !bereiktIds.has(activePunt.id) && gpsStatus !== "laden" ? 64 : 16, zIndex: 1000 }}>
+            style={{ bottom: knoepBottomOffset, left: 16, zIndex: 1000 }}>
             🎯
           </button>
         )}
 
-        {/* Controleer locatie-knop */}
-        {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && gpsStatus !== "laden" && (
-          <button
-            onClick={controleerLocatie}
-            title="Controleer locatie"
-            className="pr-loc-btn"
-            style={{ bottom: knoepBottomOffset, left: 16, zIndex: 1000 }}>
-            📍
-          </button>
-        )}
 
         {/* Punt niet bereikbaar → organisatie waarschuwen (rechtsonder, op één lijn met 📍) */}
         {activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot && (
@@ -1223,10 +1267,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             onClick={hulpOpen ? undefined : meldOnbereikbaar}
             disabled={hulpOpen}
             title="Meld dat jullie het volgende punt niet kunnen bereiken"
+            className={hulpOpvallend ? undefined : "hulp-knop-rustig"}
             style={{
               position: "absolute", bottom: knoepBottomOffset, right: 16, zIndex: 1000,
               padding: "7px 12px", borderRadius: 99,
-              background: hulpOpen ? "rgba(15,23,42,0.85)" : "rgba(255,138,0,0.92)",
+              background: hulpOpen ? "rgba(15,23,42,0.85)" : hulpOpvallend ? "rgba(255,138,0,0.92)" : "rgba(15,23,42,0.6)",
               border: "2px solid #fff", color: "#fff",
               fontSize: "0.75rem", fontWeight: 700, fontFamily: "var(--font-display)",
               boxShadow: "0 3px 10px rgba(0,0,0,0.4)", cursor: hulpOpen ? "default" : "pointer",
@@ -1237,7 +1282,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
 
         {/* Inventaris balk onderin de kaart */}
-        <InventarisBar inventaris={inventaris} onGebruik={(item) => setActiveSpeciaalItem(item)} />
+        {/* Eerste keer een item van deze soort: kort wat het doet */}
+        {eersteItem && ITEM_INFO[eersteItem] && (
+          <div className="eerste-item" role="status" style={{ bottom: knoepBottomOffset + 52 }} onClick={() => setEersteItem(null)}>
+            <span className="eerste-item-emoji" aria-hidden>{ITEM_INFO[eersteItem].emoji}</span>
+            <span><strong>Je hebt een {ITEM_INFO[eersteItem].naam.toLowerCase()}!</strong> {ITEM_INFO[eersteItem].beschrijving(waarden)} Tik onderin op het item om het te gebruiken.</span>
+            <button type="button" className="eerste-item-sluit" aria-label="Sluiten">✕</button>
+          </div>
+        )}
+        <InventarisBar inventaris={inventaris} onGebruik={(item) => { setEersteItem(null); setActiveSpeciaalItem(item); }} />
       </div>
 
       {/* Punt bereikt → vraag/info popup */}

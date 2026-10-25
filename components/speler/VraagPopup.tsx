@@ -306,10 +306,19 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         {popupFase === "start" && startUitleg && (
           <>
             <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 800, color: "#fff" }}>Welkom bij de start! 🚩</h2>
-            <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 10, fontSize: "1rem", lineHeight: 1.55, color: "#fff" }}>
-              {startUitleg.regels.map((r) => <li key={r}>{r}</li>)}
-              {vraag && <li><strong>Je eerste vraag krijg je na 25 meter lopen, langs de oranje stippellijn op de kaart.</strong></li>}
-            </ul>
+            {/* Elke regel als rij: icoon in een rondje, de zin ernaast */}
+            <div className="start-uitleg">
+              {startUitleg.regels.map((r) => {
+                const m = r.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
+                return (
+                  <div key={r} className="start-uitleg-rij">
+                    <span className="start-uitleg-icoon" aria-hidden>{m ? m[1] : "•"}</span>
+                    <span>{m ? m[2] : r}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {vraag && <div className="start-uitleg-eerst">🚶 Je eerste vraag krijg je na <strong>25 meter</strong> lopen, langs de oranje stippellijn op de kaart.</div>}
             <div style={{ background: "rgba(255,217,59,0.12)", border: "1px solid rgba(255,217,59,0.45)", borderRadius: 14, padding: "14px 16px", color: "#FFE58A" }}>
               <div style={{ fontWeight: 700, fontSize: "1rem", lineHeight: 1.5 }}>{startUitleg.afsluiting}</div>
               <div style={{ marginTop: 6, fontStyle: "italic" }}>{startUitleg.ondertekening}</div>

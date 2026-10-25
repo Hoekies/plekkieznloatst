@@ -41,7 +41,8 @@ Jullie route bestaat uit drie stukken:
 Op de kaart zie je:
 
 - **Jouw locatie** — jullie eigen teamicoon in een blauw rondje, met jullie teamnaam eronder
-- **🎯 Centreren** — linksonder (naast 📍): zet de kaart weer op jullie plek
+- **🎯 Centreren** — linksonder: zet de kaart weer op jullie plek. Of je bij een punt bent, controleert de app zelf.
+- **Afstand en pijl** — rechtsboven: hoe ver het volgende punt is en welke kant op. Tik erop om de pijl mee te laten draaien met je telefoon (🧭 kompas); anders wijst hij zoals de kaart, met het noorden boven.
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
 - **☀️** rechts, net boven de itembalk — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
 - **Het volgende doel** — genummerd cirkeltje
@@ -79,9 +80,9 @@ Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS 
 
 ---
 
-## Uitleg in de app (i)
+## Uitleg in de app (?)
 
-Rechtsboven op de kaart staat de oranje **i**-knop. Daar vind je **💡 Zo werkt het** (met ook **🗺️ Op de kaart**: wat de rondjes, kleuren en tekens betekenen):
+Rechtsboven op de kaart staat de oranje **?**-knop. Daar vind je **💡 Zo werkt het** (met ook **🗺️ Op de kaart**: wat de rondjes, kleuren en tekens betekenen):
 
 - **🎯 Het spel** — de spelregels in drie zinnen.
 - **Items** — alle items die in jullie route voorkomen.

@@ -3728,3 +3728,21 @@ button.stat-vak:hover { border-color: rgba(255,255,255,0.35); }
   .live-kaart-lijst { top: auto !important; bottom: 10px !important; left: 10px !important; right: 10px !important; max-width: none !important; max-height: 45vh !important; }
   body:has(.live-kaart-lijst) .spelstrook { display: none; }
 }
+/* Speler: afstand/richting is een knop (tik = kompas aan) */
+button.doel-wijzer { pointer-events: auto; cursor: pointer; }
+.doel-wijzer-kompas { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.7); }
+/* Speler: uitleg bij het eerste item van een soort, foto's op keuring, startuitleg in rijen */
+.eerste-item { position: absolute; left: 12px; right: 12px; z-index: 1001; display: flex; align-items: flex-start; gap: 10px; padding: 12px 36px 12px 12px;
+  border-radius: 14px; background: rgba(28,12,69,0.96); border: 2px solid #FFD93B; color: #fff; font-size: 0.86rem; line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45); animation: toast-in 0.25s ease-out; }
+.eerste-item-emoji { font-size: 1.8rem; line-height: 1; flex: none; }
+.eerste-item-sluit { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; }
+.foto-wacht-balk { margin: 4px 12px 0; padding: 6px 10px; border-radius: 10px; background: rgba(251,191,36,0.14); border: 1px solid rgba(251,191,36,0.45); color: #FDE68A; font-size: 0.78rem; font-weight: 700; text-align: center; }
+.start-uitleg { display: flex; flex-direction: column; gap: 8px; }
+.start-uitleg-rij { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; font-size: 0.95rem; line-height: 1.45; }
+.start-uitleg-icoon { flex: none; width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  background: rgba(255,217,59,0.15); border: 1px solid rgba(255,217,59,0.4); }
+.start-uitleg-eerst { padding: 12px 14px; border-radius: 14px; background: rgba(0,217,255,0.12); border: 1px solid rgba(0,217,255,0.45); color: #CFFAFE; font-size: 0.92rem; line-height: 1.45; }
+.hulp-knop-rustig { opacity: 0.75; font-size: 0.7rem !important; border-color: rgba(255,255,255,0.5) !important; }
+.puzzel-start { width: 100%; margin-top: 4px; }

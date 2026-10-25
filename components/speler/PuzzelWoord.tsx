@@ -7,7 +7,7 @@ import { strooiConfetti } from "@/lib/confetti";
 // Na de finish ook: hoeveel letters gevonden, en de punten per letter en voor het afmaken
 type Stand = PuzzelStand & { actief: true; gevonden?: number; gefinisht?: boolean; letter_punten?: number; raad_bonus?: number;
   // Raden na de finish: tot wanneer, of het al voorbij is, en wat het team invulde
-  raad_tot?: string | null; afgesloten?: boolean; gok?: string | null; gok_goed?: boolean | null };
+  raad_tot?: string | null; raad_kan_starten?: boolean; afgesloten?: boolean; gok?: string | null; gok_goed?: boolean | null };
 
 // 🧩 Puzzelwoord: de letters die het team al verdiend heeft (de rest leeg). Tijdens het spel als smalle balk;
 // bij de finish (raden) met een invulveld voor de bonuspunten. Zonder puzzelwoord in de route: niets.
@@ -39,6 +39,14 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
 
   if (!stand) return null;
 
+  async function startRaden() {
+    setBezig(true);
+    const res = await fetch("/api/speler/puzzel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ start: true }) }).catch(() => null);
+    const d = res ? await res.json().catch(() => null) : null;
+    setBezig(false);
+    if (d?.actief) setStand(d);
+  }
+
   async function raad(e: React.FormEvent) {
     e.preventDefault();
     if (!gok.trim()) return;
@@ -69,7 +77,6 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
         {uitleg && (
           <div className="puzzel-uitleg" onClick={() => setUitleg(false)}>
             <span>{puzzelUitleg({ letterPunten: stand.letter_punten ?? 0, alleBonus: stand.bonus, raadBonus: stand.raad_bonus ?? 0 })}</span>
-            {stand.omschrijving && <span className="puzzel-uitleg-hint">💡 {stand.omschrijving}</span>}
           </div>
         )}
       </>
@@ -82,15 +89,20 @@ export default function PuzzelWoord({ ververs = 0, raden = false }: { ververs?: 
   return (
     <div className="puzzel-raden">
       <div className="puzzel-raden-kop">🧩 Puzzelwoord</div>
-      {stand.omschrijving && <div className="puzzel-hint">💡 {stand.omschrijving}</div>}
       {tegels}
       <div className="puzzel-punten">
         <span>🔤 {gevonden} van {stand.lengte} letters gevonden{letterPunten ? <> · <strong>+{gevonden * letterPunten}</strong></> : null}</span>
         {allesGevonden && <span>🎉 Alle letters gevonden · <strong>+{stand.bonus}</strong></span>}
         {!allesGevonden && stand.opgelost && <span>🎉 Woord afgemaakt · <strong>+{stand.raad_bonus ?? 0}</strong></span>}
       </div>
-      {/* Eén poging binnen de minuut na de finish */}
-      {!stand.opgelost && !stand.afgesloten && !tijdOm && (
+      {/* Eerst zelf starten: dan pas loopt de minuut */}
+      {!stand.opgelost && !stand.afgesloten && stand.raad_kan_starten && !raadTot && (
+        <button type="button" className="btn-premium--compact puzzel-start" disabled={bezig} onClick={startRaden}>
+          ⏱️ Start: 1 minuut om het woord te raden
+        </button>
+      )}
+      {/* Eén poging binnen de minuut */}
+      {!stand.opgelost && !stand.afgesloten && !tijdOm && !!raadTot && (
         <>
           {raadTot && <div className="puzzel-klok">⏱️ Nog <strong>{Math.max(0, Math.ceil((raadTot - nu) / 1000))}</strong> seconden · één poging</div>}
           <form onSubmit={raad} className="puzzel-raden-veld">

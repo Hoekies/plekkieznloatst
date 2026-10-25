@@ -23,8 +23,10 @@ export async function GET() {
   // "Wijzigingen naar spelers sturen" (migratie 005): los opvragen, zodat een ontbrekende kolom
   // het spel nooit stopt
   const { data: vernieuw } = await admin.from("routes").select("spelers_vernieuwen_at").eq("id", sessie.route_id).maybeSingle();
+  // 📸 Foto's die nog op keuring wachten (de speler ziet dat bij de puntenbalk)
+  const { count: fotosWacht } = await admin.from("foto_inzendingen").select("id", { count: "exact", head: true }).eq("session_id", sessie.id).eq("status", "wacht");
   // pauze: het spel is gepauzeerd sinds (de app toont dan een pauzescherm)
-  return NextResponse.json({ ...sessie, eindtijd: tijd.eindtijd, pauze: tijd.pauze, vernieuw_at: (vernieuw as { spelers_vernieuwen_at?: string | null } | null)?.spelers_vernieuwen_at ?? null });
+  return NextResponse.json({ ...sessie, eindtijd: tijd.eindtijd, pauze: tijd.pauze, vernieuw_at: (vernieuw as { spelers_vernieuwen_at?: string | null } | null)?.spelers_vernieuwen_at ?? null, fotos_wacht: fotosWacht ?? 0 });
 }
 
 export async function POST() {
