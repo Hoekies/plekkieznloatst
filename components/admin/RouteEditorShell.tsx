@@ -35,6 +35,7 @@ import Icoon from "@/components/admin/Icoon";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import HusselInstelling from "@/components/admin/editor/HusselInstelling";
+import SchuifTekst from "@/components/admin/SchuifTekst";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -186,6 +187,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
   // ❓ Standaard punten per vraag (route) en in één keer op alle vragen zetten
   const [vraagPuntenStd, setVraagPuntenStd] = useState(initRoute.vraag_punten ?? 65);
+  // 🚶 Rondje: meters lopen na het welkomstscherm voor de eerste vraag
+  const [startMeter, setStartMeter] = useState(initRoute.startvraag_meter ?? 25);
   async function zetAlleVraagPunten() {
     await slaPuzzelOp({ vraag_punten: vraagPuntenStd });
     const res = await api(`/api/admin/routes/${route.id}/vraag-punten`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punten: vraagPuntenStd }) });
@@ -1460,8 +1463,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <button className="rl-knop" onClick={() => setNaamWijzig(false)} title="Annuleren" aria-label="Annuleren">✕</button>
             </div>
           ) : (
-            <h1 className="editor-naam" style={{ minWidth: 0, cursor: "pointer", fontSize: "1.1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} onClick={() => setNaamWijzig(true)} title="Klik om naam te wijzigen">
-              {route.name} <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>✏️</span>
+            // Lange naam: schuift heen en weer, zodat de hele kop op één regel past
+            <h1 className="editor-naam" style={{ minWidth: 0, cursor: "pointer", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setNaamWijzig(true)} title={`${route.name}: klik om de naam te wijzigen`}>
+              <SchuifTekst tekst={route.name} style={{ minWidth: 0, flex: "0 1 auto" }} /> <span style={{ fontSize: "0.7rem", color: "var(--muted)", flex: "none" }}>✏️</span>
             </h1>
           )}
           {!naamWijzig && <span className="editor-status-kop">{statusGroep}</span>}
@@ -2173,6 +2177,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
 
+                    {route.modus === "verspreid" && (
+                      <div className="form-group">
+                        <label className="form-label">🚶 Eerste vraag na</label>
+                        <span className="inst-uitleg">Meters lopen vanaf de start (0 = meteen).</span>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <input className="form-input" type="number" min={0} max={500} value={startMeter}
+                            onChange={(e) => setStartMeter(Math.max(0, Math.min(500, Number(e.target.value))))}
+                            onBlur={() => slaPuzzelOp({ startvraag_meter: startMeter })} style={{ width: 100 }} />
+                          <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>meter</span>
+                        </div>
+                      </div>
+                    )}
                     <div className="form-group">
                       <label className="form-label">❓ Punten per vraag</label>
                       <span className="inst-uitleg">Wat een nieuwe vraag krijgt.</span>

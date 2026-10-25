@@ -28,6 +28,7 @@ const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolo
   { nr: "023", bestand: "023_antwoord_uitleg.sql", wat: "uitleg per antwoord", tabel: "answer_options", kolom: "uitleg" },
   { nr: "024", bestand: "024_puzzel_raad_start.sql", wat: "puzzelwoord raden met Start", tabel: "player_sessions", kolom: "puzzel_raad_start" },
   { nr: "025", bestand: "025_routes_vraag_punten.sql", wat: "punten per vraag", tabel: "routes", kolom: "vraag_punten" },
+  { nr: "026", bestand: "026_routes_startvraag_meter.sql", wat: "afstand tot de eerste vraag", tabel: "routes", kolom: "startvraag_meter" },
 ];
 
 export async function GET() {

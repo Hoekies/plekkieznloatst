@@ -224,7 +224,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [qrEnabled, setQrEnabled] = useState(punt.qr_unlock_enabled ?? false);
   const [qrSecret, setQrSecret] = useState(punt.qr_secret ?? "");
   const [qrOpslaan, setQrOpslaan] = useState(false);
-  const qrUrl = qrSecret ? `${SITE_URL}/speler/qr?p=${punt.id}&s=${qrSecret}` : "";
+  // QR-code: opent de proefversie van deze vraag op de telefoon (niets opgeslagen); van daaruit kan een ingelogd
+  // testteam het punt ook echt openen
+  const qrUrl = qrSecret ? `${SITE_URL}/proef/${punt.id}?s=${qrSecret}` : "";
 
   // Vraag uit de vragenbank overnemen: vult het formulier, opslaan doe je zelf
   function neemOver(v: BankVraag) {
@@ -711,7 +713,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                       </button>
                       {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}><Icoon naam="printen" /> QR-code printen</button>}
                     </div>
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Alleen om te testen: open dit punt door de QR-code te scannen, zonder ernaartoe te lopen. Wordt meteen opgeslagen.</span>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Scan met je telefoon: je krijgt deze vraag als proef, precies zoals de speler (er wordt niets opgeslagen). Wordt meteen opgeslagen.</span>
                     {qrEnabled && qrUrl && (
                       <div id="qr-print-zone" style={{ marginTop: 8, padding: 12, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
                         <QRCodeSVG value={qrUrl} size={140} />

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
 import { ontgrendelAudio, speelPuntBereikt } from "@/lib/sounds";
+import { vraagKompas } from "@/lib/kompas";
 
 type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "starten";
 
@@ -289,7 +290,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
             {/* Meteen een geluidje en een tril: zo merkt de speler of het geluid aan staat (en het geluid
                 is ontgrendeld, wat op de iPhone een tik nodig heeft) */}
             <button className="btn-premium--compact" onClick={() => {
-              ontgrendelAudio(); speelPuntBereikt();
+              ontgrendelAudio(); speelPuntBereikt(); vraagKompas();
               try { navigator.vibrate?.([120, 80, 120]); } catch { /* trillen niet mogelijk */ }
               setFase("permissie"); vraagLocatiePermissie();
             }}>

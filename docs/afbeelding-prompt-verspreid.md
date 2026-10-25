@@ -1,11 +1,11 @@
-# Afbeelding-prompt — Verspreide route (lus)
+# Afbeelding-prompt — Rondje (verspreide route)
 
-Prompt voor **Codex**: maakt de instructiekaart voor het speltype **Verspreide route**, in dezelfde stijl
+Prompt voor **Codex**: maakt de instructiekaart voor het speltype **Rondje**, in dezelfde stijl
 als de spelerskaart (`public/handleiding.jpg`), en vervangt de kaart in `public/kaarten/`. Maak eerst de
 spelerskaart, dan deze: Codex neemt de stijl daarvan over. Gebaseerd op [spel-verspreid.md](spel-verspreid.md).
 
 ```
-Maak een nieuwe printbare instructiekaart voor het speltype "Verspreide route" van de GPS-game PointRush en vervang daarmee de bestaande kaart in deze repo. Pas geen code aan.
+Maak een nieuwe printbare instructiekaart voor het speltype "Rondje" van de GPS-game PointRush en vervang daarmee de bestaande kaart in deze repo. Pas geen code aan.
 
 STIJL: precies dezelfde stijl als de spelerskaart public/handleiding.jpg (achtergrond, panelen met gouden rand, letters, kleuren, oranje pillen en balk, sparkles). Gebruik public/logo-breed.png als logo (exact overnemen: niet hertekenen, niet herletteren, niet verkleuren) en de iconen uit public/items/<naam>.webp als voorbeeld voor items.
 
@@ -18,14 +18,14 @@ TAAL: alle tekst in het NEDERLANDS, exact zoals hieronder. Geen andere tekst toe
 
 BOVENSTE HELFT:
 1. Het logo, bovenaan in het midden.
-2. Glanzende oranje pil: "VERSPREIDE ROUTE"
+2. Glanzende oranje pil: "RONDJE"
 3. Paneel "Het idee" met een klein schema: een rondje van 6 genummerde punten, in het midden een vlag 🏁 (start en finish). Drie gekleurde team-pijlen gaan van het midden naar elk een ander punt op het rondje, ongeveer even lang. Onderschrift:
    "Iedereen start en finisht op dezelfde plek. Elk team begint op een ander punt van het rondje."
 4. Paneel "Zo gaat het" (genummerd 1–4 in gouden rondjes):
    1 📷 Scan de QR-code op je kaartje
    2 🦊 Kies een teamnaam en een icoon
    3 🚀 Druk op "Op pad!"
-   4 🟠 Loop 25 m langs de oranje stippellijn: dan krijg je je eerste vraag
+   4 🟠 Loop het stukje langs de oranje stippellijn: dan krijg je je eerste vraag
 
 ONDERSTE HELFT:
 5. Paneel "Items". Eerst één regel: "Loop over een item om het te pakken. Tik onderin op het item om het te gebruiken."
@@ -45,6 +45,8 @@ ONDERSTE HELFT:
    🔄 Komen items terug? Dan loont nog een rondje
    🔔 Klokslag? Een ander team valt je aan!
    🧩 Puzzelwoord? Elke goede vraag = een letter
+   🧭 Tik op de afstand: de pijl draait mee met je telefoon
+   📸 Finish: groepsfoto of selfie = jullie foto op het podium
 7. Onderaan een brede glanzende oranje balk met witte tekst: "PAK DE PUNTEN EN MAAK HET WOORD!"
 
 Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime marges, consequente ronde vormen, geen extra tekst.

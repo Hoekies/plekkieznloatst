@@ -43,6 +43,8 @@ ONDERSTE HELFT:
    🎯 Gooi hem naar een team dat bijna bij een punt is
    🔔 Klokslag? Een ander team valt je aan!
    🧩 Puzzelwoord? Elke goede vraag = een letter
+   🧭 Tik op de afstand: de pijl draait mee met je telefoon
+   📸 Finish: groepsfoto of selfie = jullie foto op het podium
 7. Onderaan een brede glanzende oranje balk met witte tekst: "PAK DE PUNTEN EN MAAK HET WOORD!"
 
 Overzichtelijk en in een paar seconden te scannen: duidelijke hiërarchie, ruime marges, consequente ronde vormen, geen extra tekst.

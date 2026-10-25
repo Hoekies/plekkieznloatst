@@ -16,6 +16,7 @@ import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
 import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 import { puzzelUitleg } from "@/lib/puzzel";
+import { vraagKompas } from "@/lib/kompas";
 
 // Na het welkomstscherm op het startpunt: zoveel meter lopen voordat de startvraag komt
 const STARTVRAAG_NA_METER = 25;
@@ -45,6 +46,8 @@ interface Props {
   initVoortgang: SpelerPuntVoortgang[];
   modus: "sequentieel" | "verspreid";
   waarden: RouteWaarden;
+  // 🚶 Zoveel meter lopen na het welkomstscherm voor de eerste vraag (route-instelling, migratie 026)
+  startVraagMeter?: number;
   // Punten zonder tekst, foto of vraag: tellen vanzelf als gepasseerd, zonder venster
   stilleIds?: string[];
   // Op volgorde: alle punten en de lijn ertussen meteen op de kaart
@@ -94,7 +97,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -220,25 +223,24 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const pijlRef = useRef<HTMLSpanElement>(null);
   const koersRef = useRef(0);
   const kopRef = useRef<number | null>(null);
+  // kompasAan: het kompas geeft echt een richting door (dan draait de pijl mee). We luisteren altijd; komt er
+  // niets binnen (iPhone zonder toestemming, of geen kompas), dan blijft het "noorden boven".
   const [kompasAan, setKompasAan] = useState(false);
-  async function zetKompasAan() {
-    const D = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent;
-    if (D?.requestPermission) { try { if (await D.requestPermission() !== "granted") return; } catch { return; } }
-    setKompasAan(true);
-  }
+  const kompasAanRef = useRef(false);
+  async function zetKompasAan() { await vraagKompas(); }
   useEffect(() => {
-    if (!kompasAan) return;
     const draai = (e: Event) => {
       const o = e as DeviceOrientationEvent & { webkitCompassHeading?: number };
       const kop = typeof o.webkitCompassHeading === "number" ? o.webkitCompassHeading : o.absolute && o.alpha !== null ? 360 - o.alpha : null;
-      if (kop === null) return;
+      if (kop === null || Number.isNaN(kop)) return;
       kopRef.current = kop;
+      if (!kompasAanRef.current) { kompasAanRef.current = true; setKompasAan(true); }
       if (pijlRef.current) pijlRef.current.style.transform = `rotate(${koersRef.current - kop}deg)`;
     };
     window.addEventListener("deviceorientationabsolute", draai);
     window.addEventListener("deviceorientation", draai);
     return () => { window.removeEventListener("deviceorientationabsolute", draai); window.removeEventListener("deviceorientation", draai); };
-  }, [kompasAan]);
+  }, []);
 
   // Nieuw doel: de klok voor "Niet bereikbaar?" begint opnieuw
   useEffect(() => { setDoelSinds(Date.now()); }, [activePunt?.id]);
@@ -277,7 +279,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const richtPunt = startPunt ? punten[1] ?? null : null;
   const afstandTotRichtPunt = positie && richtPunt ? haversine(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) : null;
   const richtingTelt = startVraagAfstand !== null && afstandTotRichtPunt !== null && !!richtPunt;
-  const startDoelMeter = richtingTelt ? Math.min(STARTVRAAG_NA_METER, Math.max(5, startVraagAfstand! - richtPunt!.radius_meters)) : STARTVRAAG_NA_METER;
+  const startDoelMeter = richtingTelt ? Math.min(startVraagMeter, Math.max(5, startVraagAfstand! - richtPunt!.radius_meters)) : startVraagMeter;
   const startGelopen = !wachtOpStartVraag ? 0 : richtingTelt ? startVraagAfstand! - afstandTotRichtPunt! : kmAfgelegd - startVraagVanaf!;
   const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(startDoelMeter - startGelopen)) : 0;
 
@@ -1217,7 +1219,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           <div className="startvraag-melding">
             {richtingTelt && positie && richtPunt && (
               <span className="startvraag-pijl" aria-hidden>
-                <span style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90}deg)` }}>➤</span>
+                <span style={{ transform: `rotate(${richting(positie.latitude, positie.longitude, richtPunt.latitude, richtPunt.longitude) - 90 - (kompasAan ? kopRef.current ?? 0 : 0)}deg)` }}>➤</span>
               </span>
             )}
             <span>🚶 Loop nog <strong>{nogTeLopen} meter</strong>{richtingTelt ? " langs de oranje stippellijn" : ""}, dan krijg je je eerste vraag!</span>
@@ -1299,8 +1301,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           punt={popupPunt}
           onVerwerkt={puntVerwerkt}
           start={startPunt && popupPunt.id === startPunt.id ? (startVraagKlaar ? "vraag" : "uitleg") : undefined}
-          startUitleg={{ regels: puzzel ? [...SPELUITLEG[modus], puzzelUitleg(puzzel)] : SPELUITLEG[modus], ...START_AFSLUITING }}
-          onStartVraagLater={() => { setPopupPunt(null); setStartVraagVanaf(kmAfgelegdRef.current); }}
+          startUitleg={{ regels: puzzel ? [...SPELUITLEG[modus], puzzelUitleg(puzzel)] : SPELUITLEG[modus], ...START_AFSLUITING, meter: startVraagMeter }}
+          onStartVraagLater={() => { vraagKompas(); setPopupPunt(null); setStartVraagVanaf(kmAfgelegdRef.current); }}
         />
       )}
 

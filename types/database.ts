@@ -36,6 +36,8 @@ export interface Route {
   puzzel_raad_bonus?: number | null;
   // ❓ Standaard punten voor een nieuwe vraag (migratie 025); leeg = 65
   vraag_punten?: number | null;
+  // 🚶 Rondje: meters lopen voor de eerste vraag (migratie 026); leeg = 25
+  startvraag_meter?: number | null;
   // Letters willekeurig (per team anders) of op volgorde (migratie 018)
   puzzel_volgorde?: "willekeurig" | "op_volgorde" | null;
   // 🎨 Huisstijl en 🔔 geluidset (migratie 016)

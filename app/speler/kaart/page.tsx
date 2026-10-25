@@ -88,6 +88,7 @@ export default async function SpelerKaartPage() {
       punten={punten}
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
+      startVraagMeter={(route as { startvraag_meter?: number | null }).startvraag_meter ?? undefined}
       puzzel={puzzelRegels(route)}
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}

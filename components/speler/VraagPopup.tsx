@@ -79,7 +79,7 @@ interface Props {
   // Startpunt: eerst een welkomstscherm met speluitleg ("uitleg"); heeft het startpunt een
   // vraag, dan komt die pas later na een stukje lopen ("vraag").
   start?: "uitleg" | "vraag";
-  startUitleg?: { regels: string[]; afsluiting: string; ondertekening: string };
+  startUitleg?: { regels: string[]; afsluiting: string; ondertekening: string; meter?: number };
   onStartVraagLater?: () => void;
   // 🧪 Testen in de editor: de vraag komt uit de editor en het antwoord wordt ter plekke beoordeeld; er gaat niets naar de server
   proef?: {
@@ -318,7 +318,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                 );
               })}
             </div>
-            {vraag && <div className="start-uitleg-eerst">🚶 Je eerste vraag krijg je na <strong>25 meter</strong> lopen, langs de oranje stippellijn op de kaart.</div>}
+            {vraag && <div className="start-uitleg-eerst">🚶 Je eerste vraag krijg je na <strong>{startUitleg.meter ?? 25} meter</strong> lopen, langs de oranje stippellijn op de kaart.</div>}
             <div style={{ background: "rgba(255,217,59,0.12)", border: "1px solid rgba(255,217,59,0.45)", borderRadius: 14, padding: "14px 16px", color: "#FFE58A" }}>
               <div style={{ fontWeight: 700, fontSize: "1rem", lineHeight: 1.5 }}>{startUitleg.afsluiting}</div>
               <div style={{ marginTop: 6, fontStyle: "italic" }}>{startUitleg.ondertekening}</div>

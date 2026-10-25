@@ -36,7 +36,9 @@ export async function middleware(request: NextRequest) {
     // Beamerscherm: openbaar met een geheime link (de sleutel controleert de API zelf)
     && !pad.startsWith("/beamer/") && !pad.startsWith("/api/beamer/")
     // Fotoalbum: openbaar met een geheime link (de pagina controleert de sleutel)
-    && !pad.startsWith("/album/")) {
+    && !pad.startsWith("/album/")
+    // 🧪 Proefversie van een vraag via de QR-code: openbaar met de geheime code (de API controleert die)
+    && !pad.startsWith("/proef/") && !pad.startsWith("/api/proef/")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
