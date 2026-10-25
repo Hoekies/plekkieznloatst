@@ -852,16 +852,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setGeselecteerd((g) => g && g.id === nieuw.id && g.name === nieuw.name ? { ...g, name: nieuweNaam } : g);
   }
 
+  // 🧲 Items op de weg leggen (standaard aan). Uit: een item blijft precies waar je het neerlegt, bijv. op een
+  // speelplaats. Onthouden op dit toestel.
+  const [itemsOpWeg, setItemsOpWeg] = useState(true);
+  useEffect(() => { try { setItemsOpWeg(localStorage.getItem("pr_items_op_weg") !== "uit"); } catch { /* geen opslag */ } }, []);
+  function wisselItemsOpWeg() {
+    setItemsOpWeg((a) => { try { localStorage.setItem("pr_items_op_weg", a ? "uit" : "aan"); } catch { /* geen opslag */ } return !a; });
+  }
+
   async function voegSpeciaalItemToeOp(lat: number, lng: number, voorstelType?: string, openPaneel = true) {
     const res = await api(`/api/admin/routes/${route.id}/speciaal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // Sequentieel: alleen plek zooi op de kaart (teams krijgen een startbanaan in hun balk)
-      body: JSON.stringify(voorstelType
+      // vrij: 🧲 staat uit, dus precies hier laten liggen
+      body: JSON.stringify({ ...(voorstelType
         ? { latitude: lat, longitude: lng, type: voorstelType, name: voorstelType === "plekzooi" ? "Plek zooi" : "Speciaal item", points_effect: voorstelType === "ster" ? 50 : 0, radius_meters: itemRadius }
         : route.modus === "sequentieel"
         ? { latitude: lat, longitude: lng, type: "plekzooi", name: "Plek zooi", points_effect: 0, radius_meters: itemRadius }
-        : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50, radius_meters: itemRadius }),
+        : { latitude: lat, longitude: lng, type: "ster", name: "Speciaal item", points_effect: 50, radius_meters: itemRadius }), vrij: !itemsOpWeg }),
     });
     if (res.ok) {
       const nieuw: SpeciaalItem = await res.json();
@@ -1054,7 +1063,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const { type, name, latitude, longitude, radius_meters, points_effect } = st.item;
         const res = await api(`/api/admin/routes/${route.id}/speciaal`, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, name, latitude, longitude, radius_meters, points_effect }),
+          // Ongedaan maken: terug op precies de oude plek
+        body: JSON.stringify({ type, name, latitude, longitude, radius_meters, points_effect, vrij: true }),
         });
         if (res.ok) {
           const terug: SpeciaalItem = await res.json();
@@ -1174,7 +1184,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await api(`/api/admin/routes/${route.id}/speciaal/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(update),
+      // Verplaatsen: op de weg leggen, of precies hier (🧲 uit, of bij ongedaan maken)
+      body: JSON.stringify("latitude" in update ? { ...update, vrij: !itemsOpWeg || !registreer } : update),
     });
     if (res.ok) {
       const bijgewerkt: SpeciaalItem = await res.json();
@@ -1967,6 +1978,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </>
               );
             })()}
+            {/* 🧲 Aan: elk item komt op de weg of het voetpad; uit: precies waar je het neerlegt (bijv. op een speelplaats) */}
+            {actieveTab === "items" && (
+              <button type="button" className={`rl-knop schakel items-op-weg${itemsOpWeg ? " schakel--aan" : ""}`} role="switch" aria-checked={itemsOpWeg}
+                onClick={wisselItemsOpWeg}
+                title={itemsOpWeg ? "Aan: een item komt vanzelf op de dichtstbijzijnde weg of het voetpad" : "Uit: een item blijft precies waar je het neerlegt (bijv. op een speelplaats)"}>
+                <Icoon naam="magneet" /> Items op de weg leggen<span className="schakel-bol" aria-hidden />
+              </button>
+            )}
             {actieveTab === "items" && (
               specialeItems.length === 0 ? (
                 <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>

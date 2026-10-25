@@ -3663,3 +3663,4 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .werkbalk-puzzel { color: #FBBF24; }
 .werkbalk-puzzel--goed { color: #4ade80; }
 .werkbalk-puzzel--uit { color: var(--muted); }
+.items-op-weg { margin: 8px 10px 4px; height: 32px; font-size: 0.78rem; align-self: flex-start; }

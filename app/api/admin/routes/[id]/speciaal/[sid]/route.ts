@@ -15,9 +15,9 @@ export async function PATCH(
   for (const veld of TOEGESTANE_VELDEN) {
     if (veld in body) update[veld] = body[veld];
   }
-  // Verplaatst: op de weg leggen
+  // Verplaatst: op de weg leggen, tenzij "vrij" (dan precies waar het is neergezet)
   if (typeof body.latitude === "number" && typeof body.longitude === "number") {
-    const plek = await opDeWeg({ lat: body.latitude, lng: body.longitude });
+    const plek = body.vrij === true ? { lat: body.latitude, lng: body.longitude } : await opDeWeg({ lat: body.latitude, lng: body.longitude });
     update.latitude = plek.lat; update.longitude = plek.lng;
   }
 

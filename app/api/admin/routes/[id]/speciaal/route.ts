@@ -20,8 +20,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json();
   const admin = createAdminClient();
-  // Item op de weg leggen (niet in een tuin of tussen huizen)
-  const plek = await opDeWeg({ lat: body.latitude, lng: body.longitude });
+  // Item op de weg leggen (niet in een tuin of tussen huizen), tenzij "vrij": dan precies waar het is neergelegd
+  const plek = body.vrij === true ? { lat: body.latitude, lng: body.longitude } : await opDeWeg({ lat: body.latitude, lng: body.longitude });
 
   const { data, error } = await admin
     .from("special_items")
