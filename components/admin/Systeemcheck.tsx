@@ -5,6 +5,7 @@ import type { Check } from "@/app/api/admin/systeem/route";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
+import { zetSysteemProblemen } from "@/components/admin/SysteemTeller";
 
 type Fout = { id: string; created_at: string; rol: string | null; wie: string | null; pad: string | null; bericht: string; details: string | null; browser: string | null };
 
@@ -73,6 +74,7 @@ export default function Systeemcheck() {
     const data = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) { setFout(data.fout ?? "Controleren lukte niet"); return; }
     setChecks(data.checks);
+    zetSysteemProblemen((data.checks as Check[]).filter((c) => !c.ok).length);
   }
   useEffect(() => { controleer(); }, []);
 

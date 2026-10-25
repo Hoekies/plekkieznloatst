@@ -14,12 +14,14 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | 📝 **Antwoorden** | Antwoorden en foto's keuren, uitslag vrijgeven, rapport |
 | 📡 **Live kaart** | Waar iedereen loopt |
 | 🗺️ **Routes** | Routes maken, klaarzetten, activeren, voorproefje |
-| ⚙️ **Instellingen** (klapt als paneel naar rechts uit) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
-| **Info & uitleg** | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
+| ⚙️ **Instellingen** (klapt als paneel naar rechts uit; een rood bolletje = de Systeemcheck vond iets) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
+| **Info & uitleg** (op de pc onderin de ❓-hulpkolom, op de telefoon in het menu) | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
 Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt); vetgedrukte knopnamen met 👆 kun je aantikken, dan licht die knop op het scherm op.
 
-**Tijdens een spel** staat onderaan elke beheerpagina (behalve het dashboard en de route-editor) een strook met het aantal teams onderweg, de resterende tijd, open hulpvragen en foto's om te keuren (tik erop om erheen te gaan), en **⏸️ Pauze** / **▶️ Verder**.
+**Tijdens een spel** staat onderaan elke beheerpagina (behalve het dashboard en de route-editor) een strook met het aantal teams onderweg, de eindtijd (tik erop om hem te wijzigen), open hulpvragen en foto's om te keuren (tik erop: de foto's openen meteen in het keurvenster), op de pc **🏆 Tussenstand**, en **⏸️ Pauze** / **▶️ Verder**. Op de telefoon staat alles op één regel, met alleen iconen en getallen.
+
+**Op de telefoon** staat de kaart op het dashboard standaard dicht (tik op *Kaart* om hem te openen), zodat je eerst ziet wat er moet gebeuren. Op een breed scherm staat rechts naast de teams een grote live kaart met de tijdlijn eronder.
 
 **Menu als iconen:** met **« Inklappen** onderaan het menu zie je alleen de iconen; op de pc als smalle balk, op de telefoon opent het ☰-menu dan als smalle balk.
 
@@ -351,7 +353,7 @@ Verstuur ze meteen: na het sluiten zijn de wachtwoorden niet meer te zien.
 
 #### Telefoonnummer van een team
 
-Met de **📞** rechts op de spelerskaart (naast de 🔑) vul je het telefoonnummer van het team in, bijvoorbeeld *06 12 34 56 78*. Is er een nummer, dan is de 📞 groen en staat het nummer op de kaart. Voordelen:
+Met de **📞 Telefoon** rechts op de spelerskaart (naast de 🔑) vul je het telefoonnummer van het team in, bijvoorbeeld *06 12 34 56 78*. Is er een nummer, dan staan op de kaart meteen **📞 Bellen** en **WhatsApp**, en staat het nummer onder de naam (tik erop om het te wijzigen). Voordelen:
 - **WhatsApp opent meteen de juiste chat** bij het versturen van een inloglink, en bij de link na het kaartje. (Het kaartje zelf gaat via het deelmenu van de telefoon; daar kies je de chat nog zelf.)
 - Op het dashboard staan in het detailvenster van het team **📞 Bellen** en **WhatsApp**, handig als een team niet reageert.
 - Hiervoor moet SQL-bestand 009 in Supabase gedraaid zijn.
@@ -416,7 +418,7 @@ Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team)
 
 ## Het spel starten
 
-> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan met bovenaan **👉 Wat nu:** de eerstvolgende stap (die valt ook op in de lijst). Is er geen actieve route, dan staan de routes die op ✅ Klaar staan er meteen als knop (**▶ naam**: laatste controle en starten). De stappen: route actief, spelers aangemaakt, inloggegevens verstuurd, zelf getest en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *🧹 Nieuw spel voorbereiden* worden je eigen vinkjes gewist.
+> **📋 Spel klaarzetten**: zolang niemand speelt, staat op het dashboard een stappenplan met bovenaan **👉 Wat nu:** de eerstvolgende stap (die valt ook op in de lijst). Is er geen actieve route, dan staan de routes die op ✅ Klaar staan er meteen als knop (**▶ naam**: laatste controle en starten). De stappen: route actief, spelers aangemaakt (met **👫 Meerdere** maak je ze hier meteen aan), inloggegevens verstuurd, zelf getest (**🧪 Testen** opent de testronde van de route) en spelers ingelogd. Wat de app zelf kan zien, vinkt hij zelf af; "verstuurd" en "getest" vink je af door op het bolletje te tikken. Staat alles op ✓, dan klapt het in tot één regel. Bij *🧹 Nieuw spel voorbereiden* worden je eigen vinkjes gewist.
 
 1. Ga naar de gewenste route en klik op **▶ Starten**. Eerst opent **🩺 Klaar om te spelen?** met alles wat nog aandacht nodig heeft: vraagpunten zonder vraag, punten zonder naam, een ontbrekende finish, te weinig of te veel items, en (bij Verspreid) teams met een duidelijk langere aanloop of speeltijd. ❌ moet je eerst oplossen; bij alleen ⚠️ kun je **Toch starten**. Met **🩺 Controleren** in de routekop bekijk je deze lijst ook tussendoor.
    - Er kan maar één route tegelijk actief zijn.
@@ -464,11 +466,11 @@ Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht n
 
 ### Meldingen op je telefoon en horloge
 
-Met **🔔 Meldingen** in het menu (onder ⚙️ Instellingen) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat.
+Met **🔔 Meldingen** in het menu (onder ⚙️ Instellingen) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat. Tik je op de melding van een hulpvraag, dan opent het dashboard meteen met het venster van dat team (punt vrijgeven, bellen).
 
 ### Eindtijd van het spel
 
-Met **⏰ Eindtijd** (in het Spelleider-blok, of al bij *Spel klaarzetten*) zet je de tijd waarop het spel stopt: kies **30 min**, **1 uur**, **1½ uur** of **2 uur** vanaf nu, of vul zelf een tijd in. Ligt die tijd vandaag al achter je, dan geldt morgen. De knop toont daarna *Stopt om 16:00* en bij de spelleider zie je hoe lang het nog duurt.
+Met **⏰ Eindtijd** (in het Spelleider-blok, in de spelstrook onderaan elke pagina, of al bij *Spel klaarzetten*) zet je de tijd waarop het spel stopt: kies **30 min**, **1 uur**, **1½ uur** of **2 uur** vanaf nu, of vul zelf een tijd in. Ligt die tijd vandaag al achter je, dan geldt morgen. De knop toont daarna *Stopt om 16:00* en bij de spelleider zie je hoe lang het nog duurt.
 
 - De teams zien bovenin hun app een **aftelklok ⏰**. In de laatste 10 minuten wordt die rood en krijgen ze één keer een groot venster: *"Nog 10 minuten! Om 16:00 stopt het spel."*
 - **Op de eindtijd** is elk team dat nog onderweg is gefinisht, met de punten van dat moment. Hun app gaat naar het finishscherm; antwoorden die later binnenkomen tellen niet meer. Nieuwe spellen starten kan dan niet meer.
@@ -515,7 +517,7 @@ Met **⏹ Deactiveren** bij de route (Routes of de editor) haal je de route uit 
 
 ### Spel resetten
 
-Na **🏁 Spel afronden** staat bij de spelleider op het dashboard **🧹 Nieuw spel voorbereiden** (met bevestiging; maak eerst het rapport en het fotoalbum als je die wilt bewaren). Dit wist:
+Stap 4 van **🏁 Spel afronden** is **🧹 Nieuw spel voorbereiden**: tik op **🧹 Opruimen** (met bevestiging; maak eerst het rapport en het fotoalbum als je die wilt bewaren). Dit is de enige plek om alles op te ruimen. Dit wist:
 
 - Alle spellen van alle teams, ook van gefinishte teams: niemand is daarna nog bezig of gefinisht
 - Alle locatiegeschiedenis (gelopen routes), voortgang, antwoorden en scores
@@ -543,13 +545,13 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 - **📥 Excel** — alle antwoorden als bestand (per team en per vraag: antwoord, goed antwoord, goed/fout en punten) om in Excel te openen.
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
-- **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Tik je op de pushmelding *"📸 Nieuwe foto"*, dan opent dit venster meteen.
+- **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Twijfel je, tik dan **Later**: die foto komt achteraan. Op de pc gaat het nog sneller met de toetsen **G** (goed), **F** (afkeuren) en **S** (later). Hetzelfde venster opent vanuit de spelstrook, de spelleider, *Antwoorden → Foto's* en de pushmelding *"📸 Nieuwe foto"*.
 - **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groepsapp of persoon. Met **👫 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 - **📸 Fotoalbum** (bij Rapport delen) — alle foto's van de foto-opdrachten op één pagina, met teamnaam en punt; tik op een foto om hem groot te zien en door te bladeren. Met **📲 Delen** stuur je de link (bijvoorbeeld in de groepsapp); openen kan zonder inloggen. Afgekeurde foto's staan er niet in.
 
-> **🏁 Spel afronden** (in het Spelleider-blok op het dashboard): geeft in één keer de uitslag vrij en opent het rapport. De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
+> **🏁 Spel afronden** (in het Spelleider-blok op het dashboard) opent een venster met vier stappen, elk met één knop; een gedane stap krijgt een vinkje: (1) **Iedereen stoppen** als er nog teams onderweg zijn, (2) **🏆 Vrijgeven** van de uitslag, (3) het **📄 Rapport** en bij Antwoorden de Excel, PDF per team en het fotoalbum, (4) **🧹 Opruimen** voor een nieuw spel. Een stap overslaan mag (bijv. alleen opruimen na een testspel). De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
 
 Bij het starten van een route en bij **🧹 Nieuw spel voorbereiden** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 
@@ -574,7 +576,7 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 
 ## 🩺 Systeemcheck
 
-In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. Die laat in één overzicht zien of alles klopt:
+In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. Vindt die iets (bijv. een migratie die nog moet), dan staat er een rood bolletje met het aantal bij ⚙️ Instellingen en bij Systeemcheck. Die laat in één overzicht zien of alles klopt:
 
 - **🐞 Foutmeldingen** — zag een speler of beheerder het scherm *Er ging iets mis*, dan staat de fout hier (wanneer, wie en op welke pagina; tik voor de details). Handig om door te geven als iets steeds misgaat. **🗑️ Wissen** maakt de lijst leeg; **🧹 Oude gegevens opruimen** haalt GPS-plekken en fouten ouder dan 30 dagen weg (dat gebeurt ook elke nacht vanzelf, voor de privacy). Daarna is de gelopen route van die oude spellen niet meer te zien.
 - **Database** — de verbinding, en per database-migratie (003 t/m 019) of hij gedraaid is. Ontbreekt er een, dan staat erbij welk bestand je in Supabase → SQL Editor moet draaien.

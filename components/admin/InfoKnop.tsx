@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import VersieRegel from "@/components/admin/VersieRegel";
 import KoFiKnop from "@/components/shared/KoFiKnop";
@@ -33,14 +33,25 @@ body { display: flex; align-items: center; justify-content: center; } img { max-
   if (img?.complete) print(); else img?.addEventListener("load", print);
 }
 
+// Info-venster openen van buitenaf (de ❓-hulpkolom op de pc: daar staat Info niet in het menu)
+export function openInfo() {
+  window.dispatchEvent(new Event("pr-info-open"));
+}
+
 export default function InfoKnop() {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const opener = () => setOpen(true);
+    window.addEventListener("pr-info-open", opener);
+    return () => window.removeEventListener("pr-info-open", opener);
+  }, []);
 
   useSluitMetEsc(() => setOpen(false), open);
 
   return (
     <>
-      <button type="button" className="admin-nav-link" onClick={() => setOpen(true)} title="Handleiding, instructiekaarten en Ko-fi">
+      {/* Op de pc staat dit in de ❓-hulpkolom (rechtsboven); in het menu alleen op de telefoon */}
+      <button type="button" className="admin-nav-link info-menu-knop" onClick={() => setOpen(true)} title="Handleiding, instructiekaarten en Ko-fi">
         <MenuIcoon naam="info" /> Info &amp; uitleg
       </button>
       {open && createPortal(

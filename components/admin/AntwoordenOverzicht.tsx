@@ -13,6 +13,7 @@ import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 import Icoon from "@/components/admin/Icoon";
+import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 
 type Data = {
   route: { id: string; name: string; huis_logo?: string | null } | null;
@@ -186,6 +187,12 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
           await actie("stemming", () => fetch("/api/admin/stemming", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ punt_id: puntId }) }));
           toonMelding("Stemming gesloten: de punten zijn uitgedeeld", "ok");
         }} />}
+      {/* Foto's die wachten: één voor één keuren in het keurvenster (sneller dan in het overzicht) */}
+      {weergave === "fotos" && !!data.wachtende_fotos && (
+        <button type="button" className="rl-knop rl-knop--groen antw-keur-knop" onClick={openFotoKeuren}>
+          <Icoon naam="camera" /> {data.wachtende_fotos} {data.wachtende_fotos === 1 ? "foto" : "foto's"} één voor één keuren
+        </button>
+      )}
       {weergave === "fotos" && <FotoGalerij teams={data.teams} bezig={bezig}
         onKeur={(fotoId, voortgangId, status, punten, opmerking) => keurFoto(fotoId, voortgangId, status, punten, opmerking)} />}
 
@@ -226,7 +233,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             <span className="antw-pijl">{team.rijen.length > 0 && <UitklapPijl open={open} />}</span>
             <span className="pr-gem-avatar" style={{ width: 40, height: 40, fontSize: "1.5rem" }}>{team.icon ?? "👫"}</span>
             <span style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-              <span style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{team.naam}</span>
+              <span className="antw-teamnaam">{team.naam}</span>
               {team.rijen.length === 0
                 ? <span className="antw-nog-niets" style={{ marginLeft: 0 }}>nog geen vragen beantwoord</span>
                 : <span className="antw-telling">

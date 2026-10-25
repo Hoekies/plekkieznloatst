@@ -11,8 +11,9 @@ export default function SectieKop({ titel, children, open, onWissel }: {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 12 }}>
       {onWissel ? (
-        <button type="button" onClick={onWissel} aria-expanded={open}
-          style={{ ...TITEL_STIJL, flex: 1, minWidth: 80, display: "flex", alignItems: "center", gap: 8, padding: 0, border: 0, background: "none", cursor: "pointer", textAlign: "left" }}>
+        // De pijl staat recht onder de pijlen van de blokken eromheen (spelleider, puntenverloop): zelfde inspringing
+        <button type="button" onClick={onWissel} aria-expanded={open} className="sectie-kop-knop"
+          style={{ ...TITEL_STIJL, flex: 1, minWidth: 80, display: "flex", alignItems: "center", gap: 8, border: 0, background: "none", cursor: "pointer", textAlign: "left" }}>
           <UitklapPijl open={!!open} />{titel}
         </button>
       ) : (

@@ -27,7 +27,8 @@ export function resterend(eindtijd: string, nu = Date.now()): string {
 
 // "⏰ Eindtijd": om deze tijd stopt het spel voor iedereen en telt de stand.
 // Spelers zien de tijd aftellen en krijgen 10 minuten van tevoren een waarschuwing.
-export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; eindtijd: string | null | undefined }) {
+// strook: in de spelstrook, met de resterende tijd ("nog 25 min") en klein
+export default function EindtijdKnop({ routeId, eindtijd, strook = false }: { routeId: string; eindtijd: string | null | undefined; strook?: boolean }) {
   const [open, setOpen] = useState(false);
   const [huidig, setHuidig] = useState<string | null>(eindtijd ?? null);
   const [tijd, setTijd] = useState("");
@@ -57,8 +58,11 @@ export default function EindtijdKnop({ routeId, eindtijd }: { routeId: string; e
 
   return (
     <>
-      <button type="button" className={`rl-knop actie-knop${huidig ? " rl-knop--goud" : ""}`} onClick={() => setOpen(true)} title="Om deze tijd stopt het spel voor iedereen">
-        <Icoon naam="alarm" /> {huidig ? `Stopt om ${hhmm(new Date(huidig))}` : "Eindtijd"}
+      <button type="button" className={strook ? "spelstrook-chip spelstrook-chip--knop" : `rl-knop actie-knop${huidig ? " rl-knop--goud" : ""}`} onClick={() => setOpen(true)}
+        title={huidig ? `Het spel stopt om ${hhmm(new Date(huidig))}: tik om te wijzigen` : "Eindtijd instellen: om deze tijd stopt het spel voor iedereen"}>
+        <Icoon naam="alarm" /> {strook
+          ? huidig && new Date(huidig).getTime() > Date.now() ? <><span className="alleen-pc">nog </span><strong>{resterend(huidig, Date.now())}</strong></> : <span className="alleen-pc">Eindtijd</span>
+          : huidig ? `Stopt om ${hhmm(new Date(huidig))}` : "Eindtijd"}
       </button>
       {open && (
         <Venster onSluit={() => setOpen(false)} breedte={380}>

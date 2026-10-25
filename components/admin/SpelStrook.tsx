@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBeheerStatus, verversBeheerStatus } from "@/components/admin/useBeheerStatus";
 import { stuurPauze } from "@/components/admin/SpelLeider";
-import { resterend } from "@/components/admin/EindtijdKnop";
+import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
+import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 import Icoon from "@/components/admin/Icoon";
 
 // 🎯 Spelstrook: tijdens een spel onderaan elke beheerpagina (behalve het dashboard, daar staat de
@@ -27,18 +29,22 @@ export default function SpelStrook({ beperkt = false }: { beperkt?: boolean }) {
 
   return (
     <div className="spelstrook" role="status">
-      <span className="spelstrook-label"><i className={`spelstrook-dot${pauze ? " spelstrook-dot--pauze" : ""}`} aria-hidden />{pauze ? "Gepauzeerd" : "Spel bezig"}</span>
-      <span className="spelstrook-chip">🎯 <strong>{onderweg}</strong> onderweg</span>
-      {eindtijd && <span className="spelstrook-chip">⏰ nog <strong>{resterend(eindtijd, nu)}</strong></span>}
-      {hulp.length > 0 && <Link href="/admin" className="spelstrook-let spelstrook-let--hulp"><Icoon naam="waarschuwing" /> {hulp.length} {hulp.length === 1 ? "hulpvraag" : "hulpvragen"}</Link>}
-      {fotos > 0 && <Link href="/admin/antwoorden" className="spelstrook-let"><Icoon naam="camera" /> {fotos} foto{fotos === 1 ? "" : "'s"} te keuren</Link>}
+      <span className="spelstrook-label"><i className={`spelstrook-dot${pauze ? " spelstrook-dot--pauze" : ""}`} aria-hidden /><span className="alleen-pc">{pauze ? "Gepauzeerd" : "Spel bezig"}</span></span>
+      <span className="spelstrook-chip" title="Teams onderweg"><Icoon naam="doel" /> <strong>{onderweg}</strong><span className="alleen-pc"> onderweg</span></span>
+      {/* Eindtijd: tik om te wijzigen (helpers zien alleen de resterende tijd) */}
+      {beperkt
+        ? eindtijd && <span className="spelstrook-chip"><Icoon naam="alarm" /> <span className="alleen-pc">nog </span><strong>{resterend(eindtijd, nu)}</strong></span>
+        : <EindtijdKnop routeId={live.route.id} eindtijd={live.route.eindtijd} strook />}
+      {hulp.length > 0 && <Link href="/admin" className="spelstrook-let spelstrook-let--hulp"><Icoon naam="waarschuwing" /> {hulp.length}<span className="alleen-pc"> {hulp.length === 1 ? "hulpvraag" : "hulpvragen"}</span></Link>}
+      {fotos > 0 && <button type="button" onClick={openFotoKeuren} className="spelstrook-let"><Icoon naam="camera" /> {fotos}<span className="alleen-pc"> foto{fotos === 1 ? "" : "'s"} te keuren</span></button>}
       <span style={{ flex: 1 }} />
+      {!beperkt && !pauze && <span className="alleen-pc-blok"><TussenstandKnop /></span>}
       {!beperkt && (pauze
-        ? <button type="button" className="rl-knop rl-knop--groen" onClick={() => zetPauze(false)} data-sneltoets="p" title="Verder (sneltoets P)"><Icoon naam="verder" /> Verder</button>
+        ? <button type="button" className="rl-knop rl-knop--groen" onClick={() => zetPauze(false)} data-sneltoets="p" title="Verder (sneltoets P)" aria-label="Verder"><Icoon naam="verder" /><span className="alleen-pc"> Verder</span></button>
         : <BevestigKnop venster gevaarlijk={false} icoon="⏸️" titel="Spel pauzeren?" sneltoets="p" title="Pauze (sneltoets P)"
             vraag="Alle teams zien een pauzescherm en kunnen even niets doen. De eindtijd loopt niet door." ja="Ja, pauzeren"
-            onBevestig={() => zetPauze(true)} className="rl-knop"><Icoon naam="pauze" /> Pauze</BevestigKnop>)}
-      <Link href="/admin" className="rl-knop"><Icoon naam="thuis" /> Dashboard</Link>
+            onBevestig={() => zetPauze(true)} className="rl-knop" aria-label="Pauze"><Icoon naam="pauze" /><span className="alleen-pc"> Pauze</span></BevestigKnop>)}
+      <Link href="/admin" className="rl-knop" title="Naar het dashboard" aria-label="Dashboard"><Icoon naam="thuis" /><span className="alleen-pc"> Dashboard</span></Link>
     </div>
   );
 }

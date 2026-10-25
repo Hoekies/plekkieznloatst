@@ -9,7 +9,8 @@ import { MeerdereSpelersKnop, InlogKlaar } from "@/components/admin/InlogUitdele
 import { maakWachtwoord } from "@/lib/wachtwoord";
 import InlogLinkSectie, { tijdTekst } from "@/components/admin/InlogLink";
 import TelefoonVenster from "@/components/admin/TelefoonVenster";
-import { toonTelefoon } from "@/lib/telefoon";
+import { toonTelefoon, waLink } from "@/lib/telefoon";
+import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import LeegScherm from "@/components/admin/LeegScherm";
 import StatStrook from "@/components/admin/StatStrook";
@@ -141,7 +142,8 @@ export default function GroepenBeheer() {
 
             {g.login_name && <span><span className="gb-login-woord">Login: </span><strong style={{ color: "var(--ink)" }}>{g.login_name}</strong> · </span>}
             {g.toegang_tot && new Date(g.toegang_tot).getTime() > Date.now() && <span style={{ color: "#FFE680" }}>🔗 tot {tijdTekst(g.toegang_tot)} · </span>}
-            {g.telefoon && <span className="gb-tel">📞 {toonTelefoon(g.telefoon)} · </span>}
+            {/* Het nummer: tik om te wijzigen */}
+            {g.telefoon && <><button type="button" className="gb-tel" onClick={() => setTelVoor(g)} title="Telefoonnummer wijzigen">📞 {toonTelefoon(g.telefoon)} <Icoon naam="bewerken" /></button><span className="gb-tel-punt"> · </span></>}
             <span className="gb-status-pc" style={{ color: status.kleur, fontWeight: status.sleutel === "weg" ? 400 : 700 }}>{status.tekst}</span>
           </div>
         </div>
@@ -169,10 +171,19 @@ export default function GroepenBeheer() {
             <Icoon naam="stoppen" /><span className="gb-label gb-label--altijd">Stop spel</span>
           </BevestigKnop>
         )}
-        {/* 📞 Telefoonnummer en 🔑 inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
-        {!isUit && (
-          <button type="button" className={`rl-knop rl-knop--icoon gb-icoon${g.telefoon ? " rl-knop--groen" : ""}`} aria-label="Telefoonnummer"
-            title={g.telefoon ? `Telefoon: ${toonTelefoon(g.telefoon)}` : "Telefoonnummer toevoegen"}
+        {/* 📞 Met nummer: meteen bellen of WhatsAppen (wijzigen: tik op het nummer). Zonder: nummer toevoegen.
+            🔑 Inloggegevens versturen (nieuw wachtwoord, kaartje via WhatsApp) */}
+        {!isUit && g.telefoon && (
+          <>
+            <a className="rl-knop rl-knop--icoon rl-knop--groen gb-icoon" href={`tel:${g.telefoon}`} aria-label={`${displayNaam} bellen`}
+              title={`Bellen: ${toonTelefoon(g.telefoon)}`}><Icoon naam="bellen" /><span className="gb-label">Bellen</span></a>
+            <a className="rl-knop rl-knop--icoon gb-icoon gb-wa" href={waLink("", g.telefoon)} target="_blank" rel="noopener noreferrer"
+              aria-label={`WhatsApp naar ${displayNaam}`} title="WhatsApp-bericht sturen"><WhatsAppLogo maat={18} /><span className="gb-label">WhatsApp</span></a>
+          </>
+        )}
+        {!isUit && !g.telefoon && (
+          <button type="button" className="rl-knop rl-knop--icoon gb-icoon" aria-label="Telefoonnummer toevoegen"
+            title="Telefoonnummer toevoegen (dan kun je meteen bellen of WhatsAppen)"
             onClick={() => setTelVoor(g)}><Icoon naam="bellen" /><span className="gb-label">Telefoon</span></button>
         )}
         {!isUit && (
@@ -223,15 +234,15 @@ export default function GroepenBeheer() {
         { icoon: "⏸", waarde: groepen.filter((g) => g.is_uitgeschakeld).length, label: "uit" },
       ]} />
 
-      {/* Nieuwe speler en meerdere links, WhatsApp rechts */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+      {/* Nieuwe speler en meerdere links, WhatsApp rechts; op de telefoon vier gelijke knoppen op één regel */}
+      <div className="spelers-acties">
           <button className="btn btn-primary actie-knop" onClick={() => setToonFormulier(true)}>
             <Icoon naam="plus" /> <span className="alleen-pc">Nieuwe speler</span><span className="alleen-mobiel">Speler</span>
           </button>
           <MeerdereSpelersKnop onKlaar={laadGroepen} />
           {groepen.some((g) => !g.is_uitgeschakeld) && <AlleKaartjesKnop />}
           {/* Inloggegevens en uitleg versturen: hier, waar je de spelers maakt */}
-          <span style={{ flex: 1 }} />
+          <span className="spelers-acties-ruimte" />
           <WhatsAppKnop />
       </div>
 

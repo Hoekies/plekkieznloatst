@@ -7,9 +7,9 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import SectieKop from "@/components/admin/SectieKop";
 import LeegScherm from "@/components/admin/LeegScherm";
 import { toonMelding } from "@/components/admin/Melding";
-import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 import MenuIcoon from "@/components/admin/MenuIcoon";
+import UitklapPijl from "@/components/shared/UitklapPijl";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -45,9 +45,29 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
   // Speler waarvan het detailvenster open staat
   const [detailId, setDetailId] = useState<string | null>(null);
+  // Geopend vanuit een pushmelding (?team=…): meteen het venster van dat team
+  useEffect(() => {
+    const team = new URLSearchParams(window.location.search).get("team");
+    if (!team) return;
+    setDetailId(team);
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
   // 🏆 Spelende spelers in te klappen (onthouden op dit toestel)
   const [spelersDicht, setSpelersDicht] = useState(false);
   useEffect(() => { try { setSpelersDicht(localStorage.getItem("pr_dash_spelers_dicht") === "1"); } catch { /* geen opslag */ } }, []);
+  // 📱 Telefoon: de kaart standaard dicht (eerst wat er moet gebeuren); open/dicht onthouden. Pc: altijd zichtbaar
+  const [telefoon, setTelefoon] = useState(false);
+  const [kaartOpen, setKaartOpen] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const zet = () => setTelefoon(mq.matches);
+    zet(); mq.addEventListener("change", zet);
+    try { setKaartOpen(localStorage.getItem("pr_dash_kaart_open") === "1"); } catch { /* geen opslag */ }
+    return () => mq.removeEventListener("change", zet);
+  }, []);
+  function wisselKaart() {
+    setKaartOpen((o) => { try { localStorage.setItem("pr_dash_kaart_open", o ? "0" : "1"); } catch { /* geen opslag */ } return !o; });
+  }
   function wisselSpelers() {
     setSpelersDicht((d) => { try { localStorage.setItem("pr_dash_spelers_dicht", d ? "0" : "1"); } catch { /* geen opslag */ } return !d; });
   }
@@ -111,8 +131,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         </span>
         <FotoBeoordelingPanel />
         <div style={{ justifySelf: "end", display: "flex", alignItems: "center", gap: 12 }}>
-          {/* 💣 Spel resetten: op de pc hier; op de telefoon staat hij in het menu */}
-          {!beperkt && <span className="alleen-pc-blok"><NieuwSpelKnop kort className="rl-knop rl-knop--rood" onKlaar={ververs} /></span>}
           <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
             <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
             {realtimeOk ? "Live" : "Verbinding weg"}
@@ -148,7 +166,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             ? !beperkt && <Klaarzetten route={route} spelers={spelers} />
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
                 uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
-                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} />}
+                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} />}
         </div>
 
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
@@ -191,7 +209,15 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
           {route && spelend.length > 0 && (
             <div className="dash-zijkolom">
-              <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />
+              {telefoon ? (
+                <div className="verloop dash-kaart">
+                  <button type="button" className="verloop-kop" onClick={wisselKaart} aria-expanded={kaartOpen}>
+                    <UitklapPijl open={kaartOpen} /><MenuIcoon naam="live" /><span>Kaart</span>
+                    <span className="dash-kaart-aantal">{aantalActief} {aantalActief === 1 ? "team" : "teams"} onderweg</span>
+                  </button>
+                  {kaartOpen && <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />}
+                </div>
+              ) : <MiniLiveKaart spelers={spelers} punten={route_punten} kleuren={kleuren} />}
               <Tijdlijn kleuren={kleuren} teams={spelend.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />
             </div>
           )}

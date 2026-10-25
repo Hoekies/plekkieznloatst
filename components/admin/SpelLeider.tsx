@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
-import NieuwSpelKnop from "@/components/admin/NieuwSpelKnop";
+import SpelAfronden from "@/components/admin/SpelAfronden";
+import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 import UitklapPijl from "@/components/shared/UitklapPijl";
@@ -38,7 +38,7 @@ export async function stuurPauze(aan: boolean): Promise<string | null | undefine
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
@@ -50,6 +50,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   pauze?: string | null;
   // Hulp (helper): geen eindtijd en niet afronden
   beperkt?: boolean;
+  onGewijzigd: () => void;
 }) {
   // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
   const [nu, setNu] = useState(() => Date.now());
@@ -58,7 +59,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   const start = spelend.map((s) => s.started_at).filter((t): t is string => !!t).sort()[0];
   const onderweg = spelend.filter((s) => s.sessie_status === "actief").length;
 
-  const aandacht: { id: string; kleur: string | null; tekst: string; speler?: SpelerOverzicht; link?: string; actie?: React.ReactNode }[] = [];
+  const aandacht: { id: string; kleur: string | null; tekst: string; speler?: SpelerOverzicht; klik?: () => void; actie?: React.ReactNode }[] = [];
   for (const s of spelend) {
     if (s.hulp) aandacht.push({ id: `hulp-${s.player_id}`, kleur: "#FF8A00", tekst: `⚠️ ${s.display_name} kan ${s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken`, speler: s });
   }
@@ -68,7 +69,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       aandacht.push({ id: `wacht-${s.player_id}`, kleur: "#A78BFA", tekst: `${s.wacht.soort === "spook" ? "👻" : "⛔"} ${s.display_name} moet wachten (${s.wacht.soort === "spook" ? "spook" : "plek zooi"}, nog ± ${min} min)`, speler: s });
     }
   }
-  if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, link: "/admin/antwoorden" });
+  if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, klik: openFotoKeuren });
   // 🧹 Vergeten spellen (uren niets): eigen melding met afsluiten, niet ook nog bij "niet gezien"
   const vergeten = spelend.filter((s) => (minutenNietGezien(s, nu) ?? 0) >= VERGETEN_MIN);
   if (vergeten.length && !beperkt) {
@@ -105,15 +106,6 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   async function wisselPauze(aan: boolean) {
     const p = await stuurPauze(aan);
     if (p !== undefined) setPauzeLokaal(p);
-  }
-
-  async function afronden() {
-    // Rapport meteen openen (een venster openen mag alleen direct na de klik)
-    window.open("/admin/rapport", "_blank");
-    const res = await fetch("/api/admin/uitslag", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij: true }),
-    }).catch(() => null);
-    toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : uitlegBijStatus(res?.status ?? 0, "Uitslag vrijgeven"), res?.ok ? "ok" : "fout");
   }
 
   // Niets aan de hand (geen aandachtspunten, geen pauze): standaard ingeklapt tot één regel.
@@ -177,17 +169,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               )}
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
-              {/* Afronden: uitslag vrijgeven en het rapport openen, in één keer */}
-              <BevestigKnop venster gevaarlijk={false} icoon="🏁"
-                titel={onderweg ? `Spel afronden? (${onderweg} nog onderweg)` : "Spel afronden?"}
-                vraag="" ja="Ja, uitslag vrijgeven en rapport openen" knopTekst="Ja, uitslag vrijgeven" onBevestig={afronden}
-                className="rl-knop rl-knop--cyan actie-knop">
-                <Icoon naam="vlag" /> {uitslagVrij
-                  ? <><span className="alleen-pc">Rapport openen</span><span className="alleen-mobiel">Rapport</span></>
-                  : <><span className="alleen-pc">Spel afronden</span><span className="alleen-mobiel">Afronden</span></>}
-              </BevestigKnop>
-              {/* Na het afronden: alles opruimen voor de volgende groep */}
-              {uitslagVrij && <NieuwSpelKnop onKlaar={() => window.location.reload()} />}
+              {/* 🏁 Afronden in stappen: stoppen, uitslag, rapport, opruimen voor de volgende groep */}
+              <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
             </div>
           )}
         </div>
@@ -203,9 +186,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
           const inhoud = <><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span><span aria-hidden style={{ color: "var(--muted)" }}>›</span></>;
           const stijl = { borderLeftColor: (a.speler && kleuren.get(a.speler.player_id)) || a.kleur || undefined };
           if (a.actie) return <div key={a.id} className="spelleider-regel" style={{ ...stijl, display: "flex", alignItems: "center", gap: 12 }}><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span>{a.actie}</div>;
-          return a.link
-            ? <Link key={a.id} href={a.link} className="spelleider-regel spelleider-regel--knop" style={stijl}>{inhoud}</Link>
-            : <button key={a.id} type="button" className="spelleider-regel spelleider-regel--knop" style={stijl} onClick={() => a.speler && onKies(a.speler)}>{inhoud}</button>;
+          return <button key={a.id} type="button" className="spelleider-regel spelleider-regel--knop" style={stijl} onClick={() => a.klik ? a.klik() : a.speler && onKies(a.speler)}>{inhoud}</button>;
         })}
       </div>
     </div>

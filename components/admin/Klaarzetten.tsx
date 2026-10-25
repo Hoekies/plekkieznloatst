@@ -6,6 +6,8 @@ import type { SpelerOverzicht } from "@/lib/admin-live";
 import EindtijdKnop from "@/components/admin/EindtijdKnop";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import Icoon from "@/components/admin/Icoon";
+import { MeerdereSpelersKnop } from "@/components/admin/InlogUitdelen";
+import { verversBeheerStatus } from "@/components/admin/useBeheerStatus";
 
 const VOORVOEGSEL = "pointrush_klaarzetten_";
 const LEEG_EVENT = "pointrush-klaarzetten-leeg";
@@ -78,7 +80,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       id: "spelers", auto: true, klaar: spelers.length > 0,
       titel: spelers.length ? `${spelers.length} speler${spelers.length !== 1 ? "s" : ""} aangemaakt` : "Maak de spelers aan",
       uitleg: "Per team een loginnaam en wachtwoord.",
-      actie: !spelers.length && <Link href="/admin/groepen" className="rl-knop hoofdknop"><Icoon naam="spelers" /> Naar spelers</Link>,
+      // Meteen hier een aantal teams aanmaken (zonder naar Spelers te gaan)
+      actie: !spelers.length && <MeerdereSpelersKnop onKlaar={() => verversBeheerStatus()} />,
     },
     {
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,
@@ -90,6 +93,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       id: "test", auto: false, klaar: !!handmatig.test,
       titel: "Zelf getest",
       uitleg: "Loop een stukje als testspeler.",
+      actie: route && <Link href={`/admin/routes/${route.id}?test=1`} className="rl-knop"><Icoon naam="testen" /> Testen</Link>,
     },
     {
       id: "ingelogd", auto: true, klaar: spelers.length > 0 && ingelogd === spelers.length,

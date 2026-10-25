@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import Icoon from "@/components/admin/Icoon";
+import { openInfo } from "@/components/admin/InfoKnop";
 
 // 👆 Aanwijzen: een vetgedrukte knopnaam in de uitleg (bijv. "📢 Bericht sturen") zoeken op het scherm,
 // op de tekst, de tooltip (data-tip/title) of de naam voor schermlezers (aria-label). Emoji en tekens tellen niet mee.
@@ -105,6 +106,8 @@ export default function HulpKolom() {
           <div className="hulp-kolom-voet">
             <Link href="/admin/beginnen"><Icoon naam="kompas" /> Snel aan de slag</Link>
             <Link href="/admin/uitleg"><Icoon naam="handleiding" /> Volledige handleiding</Link>
+            {/* Wat eerst onder Info & uitleg in het menu stond: instructiekaarten (printen) en Ko-fi */}
+            <button type="button" onClick={openInfo}><Icoon naam="spelerskaart" /> Instructiekaarten en info</button>
           </div>
         </aside>
       )}

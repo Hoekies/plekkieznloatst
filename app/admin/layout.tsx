@@ -18,6 +18,8 @@ import TabTeller from "@/components/admin/TabTeller";
 import Sneltoetsen from "@/components/admin/Sneltoetsen";
 import SpelStrook from "@/components/admin/SpelStrook";
 import MenuGroep from "@/components/admin/MenuGroep";
+import FotoKeurVenster from "@/components/admin/FotoKeuren";
+import SysteemTeller from "@/components/admin/SysteemTeller";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -60,9 +62,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </nav>
         {/* ⚙️ Instellingen: seizoenen, systeemcheck en de meldingen op dit toestel (helpers: alleen meldingen) */}
         <div className="admin-menu-blok">
-          <MenuGroep icoon={<MenuIcoon naam="instellingen" />} titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
+          <MenuGroep icoon={<MenuIcoon naam="instellingen" />} teller={helper ? undefined : <SysteemTeller />} titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
             {!helper && <AdminNavLink href="/admin/seizoenen"><MenuIcoon naam="seizoenen" /> Seizoenen</AdminNavLink>}
-            {!helper && <AdminNavLink href="/admin/systeem"><MenuIcoon naam="systeem" /> Systeemcheck</AdminNavLink>}
+            {!helper && <AdminNavLink href="/admin/systeem"><MenuIcoon naam="systeem" /> Systeemcheck<SysteemTeller /></AdminNavLink>}
             <PushMeldingenKnop />
           </MenuGroep>
         </div>
@@ -92,6 +94,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* ⌨️ ? = hulp, B = bericht, P = pauze */}
       <Sneltoetsen />
       <MeldingHouder />
+      {/* 📸 Eén keurvenster voor het hele beheer */}
+      <FotoKeurVenster />
     </div>
   );
 }

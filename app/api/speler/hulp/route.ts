@@ -52,7 +52,8 @@ export async function POST() {
   await stuurPushNaarBeheer({
     titel: `⚠️ ${team?.nickname ?? team?.login_name ?? "Een team"} kan een punt niet bereiken`,
     tekst: `"${punt.name}" is niet te bereiken. Tik om het punt vrij te geven.`,
-    url: "/admin",
+    // Tik op de melding: het dashboard opent meteen met het venster van dit team (vrijgeven, bellen)
+    url: `/admin?team=${sessie.player_id}`,
     tag: `hulp-${sessie.id}`,
   });
 

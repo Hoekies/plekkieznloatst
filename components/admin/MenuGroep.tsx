@@ -7,8 +7,9 @@ import { usePathname } from "next/navigation";
 // ⚙️ Groep in het menu (bijv. Instellingen): klapt als paneel naar rechts uit, naast het menu, zodat het menu
 // zelf niet langer wordt. Dicht bij een keuze, een tik ernaast of Esc. Staat de pagina waar je bent in de
 // groep, dan licht de knop op.
-export default function MenuGroep({ icoon, titel, paden, children }: {
-  icoon: React.ReactNode; titel: string; paden: string[]; children: React.ReactNode;
+// teller: bolletje achter de titel (bijv. problemen uit de Systeemcheck)
+export default function MenuGroep({ icoon, titel, paden, teller, children }: {
+  icoon: React.ReactNode; titel: string; paden: string[]; teller?: React.ReactNode; children: React.ReactNode;
 }) {
   const pad = usePathname();
   const knop = useRef<HTMLButtonElement>(null);
@@ -51,7 +52,7 @@ export default function MenuGroep({ icoon, titel, paden, children }: {
     <>
       <button ref={knop} type="button" className={`admin-nav-link menu-groep-kop${hier ? " actief" : ""}${open ? " menu-groep-kop--open" : ""}`}
         onClick={() => setOpen((o) => !o)} aria-expanded={open} title={titel}>
-        {icoon} {titel}<i className="menu-groep-pijl" />
+        {icoon} {titel}{teller}<i className="menu-groep-pijl" />
       </button>
       {/* Het paneel blijft bestaan als het dicht is (alleen verborgen), zodat een venster dat een knop erin
           opent (bijv. 🔔 Meldingen) open blijft */}

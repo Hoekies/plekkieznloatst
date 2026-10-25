@@ -20,5 +20,5 @@ export function teamStatus(sessie: string | null | undefined, ingelogd = true): 
 
 export default function StatusLabel({ status }: { status: TeamStatus }) {
   const s = STIJL[status];
-  return <span className={`pr-gem-chip status-label ${s.cls}`}><span aria-hidden>{s.icoon}</span> {s.label}</span>;
+  return <span title={s.label} className={`pr-gem-chip status-label ${s.cls}`}><span aria-hidden>{s.icoon}</span><span className="status-label-tekst"> {s.label}</span></span>;
 }

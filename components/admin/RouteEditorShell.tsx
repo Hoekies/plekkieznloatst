@@ -939,7 +939,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Alle vragen achter elkaar invullen (knop 📝 Alle vragen)
   const [alleVragenOpen, setAlleVragenOpen] = useState(false);
   // Testronde: de route punt voor punt doorlopen zonder naar buiten te gaan
-  const [testOpen, setTestOpen] = useState(false);
+  // ?test=1 (vanuit Spel klaarzetten op het dashboard): meteen de testronde open
+  const [testOpen, setTestOpen] = useState(() => zoekParams.get("test") === "1");
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
   const kaartNummer = (p: RoutePunt) => {
     const i = punten.findIndex((x) => x.id === p.id);
