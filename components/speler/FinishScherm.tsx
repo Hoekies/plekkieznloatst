@@ -43,6 +43,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
   const [score, setScore] = useState(initScore);
+  const telOp = useTelOp(score);
   // Items die na de finish nog ingezet mogen worden (tot de uitslag vrij is)
   const [items, setItems] = useState<SpeciaalItem[]>([]);
   const [tegenstanders, setTegenstanders] = useState<{ session_id: string; teamnaam: string; gefinisht: boolean }[]>([]);
@@ -100,20 +101,27 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%", flexShrink: 0, position: "relative", overflow: "hidden", alignItems: "center" }}>
 
       {/* Inhoud */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "32px 20px 48px", width: "100%", maxWidth: 600 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, padding: "18px 16px 48px", width: "100%", maxWidth: 600 }}>
 
-        {/* Titel */}
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "3.5rem", lineHeight: 1 }}>🏁</div>
-          <h1 style={{ margin: "12px 0 4px", fontSize: "1.6rem" }}>Finish!</h1>
-          <p style={{ color: "var(--muted)", margin: 0, fontSize: "0.9rem" }}>{groepNaam}</p>
+        {/* 🎉 Feestelijke kop: draaiende stralen, geblokte finishrand, teamfoto of icoon in een gouden ring */}
+        <div className="finish-held">
+          <div className="finish-stralen" aria-hidden />
+          <span className="finish-vlag finish-vlag--links" aria-hidden>🏁</span>
+          <span className="finish-vlag finish-vlag--rechts" aria-hidden>🏁</span>
+          <div className="finish-avatar">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {teamFoto ? <img src={teamFoto} alt="" /> : <span>{teamIcoon ?? "🏆"}</span>}
+          </div>
+          <h1 className="finish-titel">Finish!</h1>
+          <div className="finish-team">{groepNaam}</div>
+          <div className="finish-sub">Goed gedaan, jullie zijn binnen! 🎉</div>
         </div>
 
         {/* Score + tijd + afstand */}
-        <div style={{ display: "flex", gap: 12, width: "100%" }}>
-          <StatKaart waarde={String(score)} label={vrij ? "punten" : "punten (voorlopig)"} kleur="var(--blue)" />
-          <StatKaart waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="var(--ink)" tabular />
-          <StatKaart waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="var(--green, #16A34A)" />
+        <div className="finish-stats">
+          <StatKaart icoon="⭐" waarde={String(telOp)} label={vrij ? "punten" : "punten (voorlopig)"} kleur="#FFD23F" />
+          <StatKaart icoon="⏱️" waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="#67E8F9" tabular />
+          <StatKaart icoon="🚶" waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="#4ADE80" />
         </div>
 
         {/* 🧩 Puzzelwoord raden voor bonuspunten (als de route er een heeft) */}
@@ -249,19 +257,32 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
 }
 
 // ── StatKaart ──────────────────────────────────────────────────────────────────
-function StatKaart({ waarde, label, kleur, tabular }: { waarde: string; label: string; kleur: string; tabular?: boolean }) {
+function StatKaart({ icoon, waarde, label, kleur, tabular }: { icoon: string; waarde: string; label: string; kleur: string; tabular?: boolean }) {
   return (
-    <div style={{
-      flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: 16,
-      padding: "16px 12px", textAlign: "center",
-      border: "1px solid var(--line)",
-    }}>
-      <div style={{
-        fontSize: "1.7rem", fontWeight: 800, color: kleur,
-        fontVariantNumeric: tabular ? "tabular-nums" : undefined,
-        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-      }}>{waarde}</div>
-      <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>{label}</div>
+    <div className="finish-stat" style={{ "--stat-kleur": kleur } as React.CSSProperties}>
+      <div className="finish-stat-icoon" aria-hidden>{icoon}</div>
+      <div className="finish-stat-waarde" style={{ fontVariantNumeric: tabular ? "tabular-nums" : undefined }}>{waarde}</div>
+      <div className="finish-stat-label">{label}</div>
     </div>
   );
+}
+
+// Score die bij binnenkomst van 0 omhoog telt; latere wijzigingen (foto goedgekeurd) gaan meteen
+function useTelOp(doel: number, ms = 1200): number {
+  const [waarde, setWaarde] = useState(0);
+  const eerste = useRef(true);
+  useEffect(() => {
+    if (!eerste.current || doel <= 0 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setWaarde(doel); return; }
+    eerste.current = false;
+    const start = performance.now();
+    let frame = 0;
+    const stap = (nu: number) => {
+      const t = Math.min(1, (nu - start) / ms);
+      setWaarde(Math.round(doel * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) frame = requestAnimationFrame(stap);
+    };
+    frame = requestAnimationFrame(stap);
+    return () => cancelAnimationFrame(frame);
+  }, [doel, ms]);
+  return waarde;
 }
