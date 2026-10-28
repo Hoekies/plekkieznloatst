@@ -41,13 +41,17 @@ interface Props {
 
 const POLL_INTERVAL_MS = 10000;
 
-export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden, huisLogo = null, themaSleutel }: Props) {
+export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos: beginWacht, itemsNaFinish, waarden, huisLogo = null, themaSleutel }: Props) {
   const thema = FINISH_THEMAS[themaSleutel ?? huidigFinishThema()];
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
   const [score, setScore] = useState(initScore);
   const telOp = useTelOp(score);
+  // 📸 De eigen selfie of groepsfoto bij de finish verschijnt zodra de organisatie hem goedkeurt (zonder herladen),
+  // en het aantal foto's in de keuring telt mee af
+  const [teamFoto, setTeamFoto] = useState<string | null>(beginFoto);
+  const [wachtendeFotos, setWachtendeFotos] = useState(beginWacht);
   // Items die na de finish nog ingezet mogen worden (tot de uitslag vrij is)
   const [items, setItems] = useState<SpeciaalItem[]>([]);
   const [tegenstanders, setTegenstanders] = useState<{ session_id: string; teamnaam: string; gefinisht: boolean }[]>([]);
@@ -88,6 +92,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
           const data = await res.json();
           if (typeof data.score === "number") setScore(data.score);
           if (typeof data.vrijgegeven === "boolean") setVrij(data.vrijgegeven);
+          if (typeof data.fotos_wacht === "number") setWachtendeFotos(data.fotos_wacht);
+          // Elke keer een nieuwe tijdelijke link: alleen vervangen als het echt een andere foto is (anders knippert hij)
+          if (typeof data.foto === "string") setTeamFoto((oud) => oud && oud.split("?")[0] === data.foto.split("?")[0] ? oud : data.foto);
           // Houd de laatste bekende staat als de server leeg teruggeeft (bijv. na reset)
           if (data.leaderboard?.length) setLeaderboard(data.leaderboard);
         }

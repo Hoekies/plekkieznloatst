@@ -9,7 +9,7 @@ import { useWegen } from "@/lib/wegen";
 import { itemAdvies, voorgesteldePlekken, ITEM_GROEPEN } from "@/lib/item-advies";
 import { schatTeamTijd, schatTeamPunten } from "@/lib/tijd-schatting";
 import { duurKort } from "@/lib/tijd";
-import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan } from "@/lib/startitems";
+import { STARTITEM_TYPES, MAX_PER_STARTITEM, startitemsVan, startitemsMeter, STARTITEMS_METER_KEUZES } from "@/lib/startitems";
 import { ITEMS_NA_FINISH, itemsNaFinishVan } from "@/lib/item-sessie";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import type { VraagMetAntwoorden } from "@/components/admin/VraagEditorPagina";
@@ -577,13 +577,22 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Startitems: wat elk team bij de start gratis in de balk krijgt
   const [startitems, setStartitems] = useState<Record<string, number>>(() => startitemsVan(initRoute));
+  // Na hoeveel meter lopen (0 = meteen bij het begin)
+  const [itemsMeter, setItemsMeter] = useState(() => startitemsMeter(initRoute));
+  async function slaStartitemsOp(items: Record<string, number>, meter: number) {
+    await api(`/api/admin/routes/${route.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ startitems: { ...items, _meter: meter } }),
+    });
+  }
   async function wijzigStartitem(type: string, delta: number) {
     const nieuw = { ...startitems, [type]: Math.max(0, Math.min(MAX_PER_STARTITEM, (startitems[type] ?? 0) + delta)) };
     setStartitems(nieuw);
-    await api(`/api/admin/routes/${route.id}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ startitems: nieuw }),
-    });
+    await slaStartitemsOp(nieuw, itemsMeter);
+  }
+  async function kiesItemsMeter(m: number) {
+    setItemsMeter(m);
+    await slaStartitemsOp(startitems, m);
   }
   // Per item: mag een gefinisht team dit nog inzetten (tot de uitslag vrij is)
   const naFinishTypes = itemsNaFinishVan(route);
@@ -1917,15 +1926,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: "0.82rem", fontWeight: 800,
                     }}>{badge}</div>
-                    <div style={{ flex: 1, minWidth: 0, fontSize: "0.82rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--ink)" }}>
-                      {pt.name}
+                    {/* Naam met daaronder klein hoe vaak de vraag goed ging: de naam houdt zo altijd zijn ruimte
+                        (naast elkaar duwde het percentage de naam in de smalle lijst helemaal weg) */}
+                    <div className="lijst-naam-blok">
+                      <div className="lijst-naam">{pt.name}</div>
+                      {/* 📊 Hoe vaak ging deze vraag goed (alle gespeelde spellen); rood als het vaak fout gaat */}
+                      {statistiek[pt.id]?.n ? (() => {
+                        const t = statistiek[pt.id]; const pct = Math.round((t.goed / t.n) * 100);
+                        return <span className={`lijst-stat${pct < 40 ? " lijst-stat--laag" : pct >= 75 ? " lijst-stat--hoog" : ""}`}
+                          title={`${t.goed} van de ${t.n} keer goed beantwoord (alle gespeelde spellen)`}>✓ {pct}% · {t.n}×</span>;
+                      })() : null}
                     </div>
-                    {/* 📊 Hoe vaak ging deze vraag goed (alle gespeelde spellen); rood als het vaak fout gaat */}
-                    {statistiek[pt.id]?.n ? (() => {
-                      const t = statistiek[pt.id]; const pct = Math.round((t.goed / t.n) * 100);
-                      return <span className={`lijst-stat${pct < 40 ? " lijst-stat--laag" : pct >= 75 ? " lijst-stat--hoog" : ""}`}
-                        title={`${t.goed} van de ${t.n} keer goed beantwoord (alle gespeelde spellen)`}>✓ {pct}% · {t.n}×</span>;
-                    })() : null}
                     {/* Klikbaar: opent meteen de vraag van dit punt */}
                     {vraagPuntIds.has(pt.id) ? (
                       <button type="button" className="lijst-vraagknop" title="Vraag ingevuld: klik om te bewerken" aria-label="Vraag bewerken"
@@ -2397,8 +2408,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         );
                       })}
                     </div>
+                    {/* Na hoeveel meter lopen: 0 = meteen bij het begin */}
+                    <div className="segment" role="radiogroup" aria-label="Startitems na hoeveel meter" style={{ marginTop: 4 }}>
+                      {STARTITEMS_METER_KEUZES.map((m) => (
+                        <button key={m} type="button" role="radio" aria-checked={itemsMeter === m} className={itemsMeter === m ? "aan" : ""}
+                          onClick={() => kiesItemsMeter(m)}>{m === 0 ? "Meteen" : `${m} m`}</button>
+                      ))}
+                    </div>
                     <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      Tik op een item voor +1. Elk team krijgt dit na 100 meter lopen in de balk.
+                      Tik op een item voor +1. Elk team krijgt dit {itemsMeter === 0 ? "meteen bij het begin" : `na ${itemsMeter} meter lopen`} in de balk.
                     </span>
                   </div>
                 )}

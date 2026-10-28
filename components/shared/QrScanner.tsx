@@ -17,9 +17,11 @@ async function cameraFout(e: unknown): Promise<string> {
   try { geweigerd = geweigerd || (await navigator.permissions?.query({ name: "camera" as PermissionName }))?.state === "denied"; } catch { /* niet elke browser kent dit */ }
   if (!geweigerd) return "De camera startte niet. Tik op Opnieuw proberen, of log in met je loginnaam en wachtwoord.";
   if (android) {
+    // De geïnstalleerde app op Android draait in Chrome: de camera-toestemming hoort bij Chrome en de site,
+    // niet bij de app (onder Apps → PointRush staat daarom geen camera)
     return app
-      ? "De camera staat uit voor PointRush. Ga naar Instellingen van je telefoon → Apps → PointRush → Rechten → Camera → Toestaan. Tik daarna op Opnieuw proberen."
-      : "De camera staat uit voor deze site. Tik bovenin naast het adres op het slotje (of ⓘ) → Rechten → Camera → Toestaan. Tik daarna op Opnieuw proberen.";
+      ? "De camera staat uit voor PointRush. Open Chrome → ⋮ → Instellingen → Site-instellingen → Camera → kies plekkieznloatst.vercel.app → Toestaan. Staat Chrome zelf de camera niet toe: Instellingen van je telefoon → Apps → Chrome → Rechten → Camera → Toestaan. Tik daarna op Opnieuw proberen. Lukt het niet: scan de QR-code met de camera-app van je telefoon, dan ben je ook ingelogd."
+      : "De camera staat uit voor deze site. Tik bovenin naast het adres op het slotje (of ⓘ) → Rechten → Camera → Toestaan. Staat Chrome zelf de camera niet toe: Instellingen van je telefoon → Apps → Chrome → Rechten → Camera. Tik daarna op Opnieuw proberen.";
   }
   return "De camera mag niet worden gebruikt. Geef toestemming voor de camera in de instellingen (iPhone: Instellingen → Safari → Camera → Vraag of Sta toe), en tik op Opnieuw proberen.";
 }

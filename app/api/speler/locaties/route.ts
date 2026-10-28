@@ -1,15 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { doelwitNaFinishVan } from "@/lib/item-sessie";
 import { haalSpeler } from "@/lib/speler-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
 import { haversine } from "@/lib/geo";
 
-// Zonder radar zie je een ander team alleen als het dichtbij is (en de plekken vers zijn)
+// Zonder radar zie je een ander team alleen als het dichtbij is (en de plekken vers zijn): dan staan icoon en
+// teamnaam op de kaart. 25 m in plaats van precies 20, omdat GPS op een telefoon al gauw 10 m afwijkt.
 const DICHTBIJ_METER = 25;
 const DICHTBIJ_MAX_OUD_MS = 2 * 60 * 1000;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const ik = await haalSpeler();
   if (!ik) return NextResponse.json({ locaties: [] });
   const { admin, spelerId } = ik;
@@ -54,17 +55,22 @@ export async function GET() {
 
   let locaties: SpelerLocatie[];
 
-  // Laatste plek van elk team (ook van jezelf, voor "dichtbij")
-  const { data: locatieRows } = await admin
-    .from("location_updates")
-    .select("session_id, latitude, longitude, created_at")
-    .in("session_id", [...sessieIds, eigenSessie.id])
-    .order("created_at", { ascending: false })
-    .limit((sessieIds.length + 1) * 5);
-  const laatste = new Map<string, { latitude: number; longitude: number; created_at: string }>();
-  for (const row of locatieRows ?? []) if (!laatste.has(row.session_id)) laatste.set(row.session_id, row);
-  const eigen = laatste.get(eigenSessie.id);
+  // Laatste plek van elk team apart opvragen. Eén gezamenlijke "nieuwste N" miste juist het team dat stilstond:
+  // een lopend team vulde de lijst met zijn eigen plekken, en dan zagen twee teams vlak bij elkaar elkaar niet.
+  type Plek = { latitude: number; longitude: number; created_at: string };
+  const laatste = new Map<string, Plek>();
+  await Promise.all([...sessieIds, eigenSessie.id].map(async (id) => {
+    const { data } = await admin.from("location_updates").select("latitude, longitude, created_at")
+      .eq("session_id", id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (data) laatste.set(id, data as Plek);
+  }));
   const nu = Date.now();
+  // Eigen plek: liefst zoals de telefoon hem nu meestuurt (vers), anders de laatst opgeslagen
+  const zoek = request.nextUrl.searchParams;
+  const lat = Number(zoek.get("lat")), lng = Number(zoek.get("lng"));
+  const eigen: Plek | undefined = Number.isFinite(lat) && Number.isFinite(lng) && zoek.get("lat") !== null
+    ? { latitude: lat, longitude: lng, created_at: new Date(nu).toISOString() }
+    : laatste.get(eigenSessie.id);
   const recent = (t: string) => nu - new Date(t).getTime() <= DICHTBIJ_MAX_OUD_MS;
 
   // Zichtbaar op de kaart: iedereen met een actieve radar (2 minuten), en anders alleen teams die

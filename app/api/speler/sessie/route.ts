@@ -213,7 +213,7 @@ export async function POST() {
     }
   }
 
-  // Startitems komen pas na 100 meter lopen (zie /api/speler/startitems)
+  // Startitems komen na het ingestelde aantal meter lopen, of meteen (zie /api/speler/startitems)
 
   return NextResponse.json({ ...sessie, modus: route.modus });
 }

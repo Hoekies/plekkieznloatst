@@ -5,6 +5,7 @@ import SpelerKaart from "@/components/speler/SpelerKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { herstelTeamVolgorde } from "@/lib/route-sessies";
+import { startitemsMeter } from "@/lib/startitems";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -99,6 +100,7 @@ export default async function SpelerKaartPage() {
       initVoortgang={voortgang ?? []}
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
       startVraagMeter={(route as { startvraag_meter?: number | null }).startvraag_meter ?? undefined}
+      startitemsNaMeter={startitemsMeter(route)}
       puzzel={puzzelRegels(route)}
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}

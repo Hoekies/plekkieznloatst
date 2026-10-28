@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { haversine, richting, afstandTekst, binnenVlak } from "@/lib/geo";
@@ -48,6 +49,8 @@ interface Props {
   waarden: RouteWaarden;
   // 🚶 Zoveel meter lopen na het welkomstscherm voor de eerste vraag (route-instelling, migratie 026)
   startVraagMeter?: number;
+  // 🎒 Na hoeveel meter lopen de startitems komen (0 = meteen)
+  startitemsNaMeter?: number;
   // Punten zonder tekst, foto of vraag: tellen vanzelf als gepasseerd, zonder venster
   stilleIds?: string[];
   // Op volgorde: alle punten en de lijn ertussen meteen op de kaart
@@ -97,7 +100,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -183,7 +186,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (!verschil) return;
     const id = Date.now();
     setSprong({ id, verschil });
-    const t = setTimeout(() => setSprong((x) => (x?.id === id ? null : x)), 1600);
+    const t = setTimeout(() => setSprong((x) => (x?.id === id ? null : x)), 2100);  // even lang als de animatie
     return () => clearTimeout(t);
   }, [score]);
   // Eindtijd van het spel (door de beheerder ingesteld), telt af in de statistiekenbalk
@@ -287,7 +290,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const startGelopen = !wachtOpStartVraag ? 0 : richtingTelt ? startVraagAfstand! - afstandTotRichtPunt! : kmAfgelegd - startVraagVanaf!;
   const nogTeLopen = wachtOpStartVraag ? Math.max(0, Math.ceil(startDoelMeter - startGelopen)) : 0;
 
-  // 100 meter gelopen → startitems van de organisatie ophalen en het welkomstscherm tonen
+  // Genoeg gelopen (instelling van de route, standaard 100 m; 0 = meteen) → startitems ophalen en tonen
   useEffect(() => {
     let opslag: { gelopen: number; klaar?: boolean } = { gelopen: 0 };
     try { opslag = JSON.parse(localStorage.getItem(startitemsKey) ?? "null") ?? opslag; } catch { /* geen opslag */ }
@@ -296,7 +299,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (gelopenBasisRef.current === null) gelopenBasisRef.current = opslag.gelopen ?? 0;
     const gelopen = Math.max(gelopenBasisRef.current, kmAfgelegd);
     try { localStorage.setItem(startitemsKey, JSON.stringify({ gelopen })); } catch { /* geen opslag */ }
-    if (gelopen < STARTITEMS_NA_METER || startitemsBezigRef.current) return;
+    if (gelopen < startitemsNaMeter || startitemsBezigRef.current) return;
     startitemsBezigRef.current = true;
     fetch("/api/speler/startitems", { method: "POST" })
       .then((r) => (r.ok ? r.json() : null))
@@ -539,7 +542,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   async function haalAndereSpelersOp() {
     try {
-      const res = await fetch("/api/speler/locaties");
+      // Eigen plek van nu meesturen: dan rekent de server "dichtbij" met de verse plek, niet met de laatst opgeslagen
+      const p = positieRef.current;
+      const res = await fetch(p ? `/api/speler/locaties?lat=${p.latitude}&lng=${p.longitude}` : "/api/speler/locaties");
       if (res.ok) {
         const data = await res.json();
         setAndereSpelers(data.locaties ?? []);
@@ -1014,7 +1019,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <div className={`pr-hud-gem ${score < 0 ? "pr-hud-gem--min" : "pr-hud-gem--orange"} pr-hud-gem--groot pr-hud-gem--score`}>
           <span className="pr-hud-icoon">⭐</span>
           <span className="pr-hud-getal" style={{ fontSize: hudGetalGrootte(String(score)) }}>{score}</span>
-          {sprong && <span key={sprong.id} className={`score-sprong${sprong.verschil < 0 ? " score-sprong--min" : ""}`} aria-hidden>{sprong.verschil > 0 ? "+" : "−"}{Math.abs(sprong.verschil)}</span>}
+          {/* Groot midden in beeld, daarna zweeft hij omhoog naar de score (via een portal: los van de kop) */}
+          {sprong && createPortal(<span key={sprong.id} className={`score-sprong${sprong.verschil < 0 ? " score-sprong--min" : ""}`} aria-hidden>{sprong.verschil > 0 ? "+" : "−"}{Math.abs(sprong.verschil)}</span>, document.body)}
         </div>
         {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} pauze={pauze} />}
         <button
