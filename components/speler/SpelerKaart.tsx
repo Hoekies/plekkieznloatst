@@ -14,6 +14,7 @@ import { laadVragenVooruit, wisVraagCache } from "@/lib/vraag-cache";
 import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
+import BonusVraag from "./BonusVraag";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
 import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 import { puzzelUitleg } from "@/lib/puzzel";
@@ -1328,6 +1329,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           </div>
         )}
         <InventarisBar inventaris={inventaris} onGebruik={(item) => { setEersteItem(null); setActiveSpeciaalItem(item); }} />
+        {/* ⚡ Bonusvraag van de spelleider: bij iedereen tegelijk in beeld */}
+        <BonusVraag />
       </div>
 
       {/* Punt bereikt → vraag/info popup */}

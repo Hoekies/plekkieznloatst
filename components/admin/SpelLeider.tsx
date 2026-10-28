@@ -7,6 +7,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import SpelAfronden from "@/components/admin/SpelAfronden";
+import BonusKnop from "@/components/admin/BonusKnop";
 import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
@@ -210,6 +211,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               )}
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
+              {/* ⚡ Bonusvraag: klaarzetten, nu sturen en foto's keuren */}
+              <BonusKnop />
               {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
               <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
             </div>

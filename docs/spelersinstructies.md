@@ -16,7 +16,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 
 **Inloggen**
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je team, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
-Op je inlogkaartje staat een **QR-code**: scan die met de camera van je telefoon en je bent meteen ingelogd. De code werkt 48 uur (de datum staat op het kaartje); daarna log je in met de loginnaam en het wachtwoord van het kaartje. Op het inlogscherm staat bovenaan de ronde knop **📷 QR-code scannen**; naam en wachtwoord typen kan onder *Typ je naam en wachtwoord*. Staat PointRush als app op je telefoon? Tik dan op **📷 QR-code scannen** en houd de QR-code in het vak (de eerste keer vraagt de telefoon toestemming voor de camera). Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Scan dan in de app met **📷 QR-code scannen** de QR-code van je kaartje of die van de spelleider.
+Op je inlogkaartje staat een **QR-code**: scan die met de camera van je telefoon en je bent meteen ingelogd. De code werkt 48 uur (de datum staat op het kaartje); daarna log je in met de loginnaam en het wachtwoord van het kaartje. Op het inlogscherm staat bovenaan de ronde knop **📷 QR-code scannen**; daaronder vul je naam en wachtwoord in. Staat PointRush als app op je telefoon? Tik dan op **📷 QR-code scannen** en houd de QR-code in het vak (de eerste keer vraagt de telefoon toestemming voor de camera). Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Scan dan in de app met **📷 QR-code scannen** de QR-code van je kaartje of die van de spelleider.
 
 **Als app op je telefoon**
 Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (Android) of legt uit hoe je hem op je beginscherm zet (iPhone). Als app opent PointRush volledig scherm, zonder adresbalk.
@@ -52,6 +52,9 @@ Zodra de organisatie de uitslag vrijgeeft, staat bij de finish **🏅 Oorkonde d
 
 **Geluid**
 In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i**-knop (**🔊 Geluid**). Trillen blijft werken.
+
+**⚡ Bonusvraag**
+Soms komt er onverwacht een bonusvraag in beeld, met een eigen geluidje: bij alle teams tegelijk. Snel zijn loont: het eerste team met het goede antwoord krijgt de meeste punten, de volgende steeds minder. Je hebt één poging, en de klok loopt. Bij een foto-opdracht maak je een foto; de punten komen erbij als de organisatie hem heeft goedgekeurd. Even geen tijd? Tik op *Later*: bovenin blijft een knopje staan zolang de vraag open is.
 
 **🗳️ Stemvraag**
 Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste teams kiezen. Kozen jullie hetzelfde als de meerderheid, dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).

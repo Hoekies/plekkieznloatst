@@ -38,8 +38,6 @@ function LoginForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
   const [qrVerlopen, setQrVerlopen] = useState(false);
-  // ⌨️ Naam en wachtwoord typen staat ingeklapt: scannen is de snelste weg. Open na een fout met naam of wachtwoord
-  const [typOpen, setTypOpen] = useState(fout === "wachtwoord" || fout === "ongeldig" || fout === "leeg");
 
   // 📷 QR-code van het inlogkaartje: loginnaam en wachtwoord staan achter het #-teken → invullen en
   // meteen inloggen, zolang de code geldig is (48 uur). Daarna alleen de loginnaam invullen.
@@ -51,7 +49,6 @@ function LoginForm() {
       if (!inlog || !form) return;
       history.replaceState(null, "", window.location.pathname + window.location.search);
       (form.elements.namedItem("naam") as HTMLInputElement).value = inlog.login;
-      setTypOpen(true);
       if (Date.now() > inlog.tot) { setQrVerlopen(true); setTimeout(() => (form.elements.namedItem("wachtwoord") as HTMLInputElement | null)?.focus(), 0); return; }
       (form.elements.namedItem("wachtwoord") as HTMLInputElement).value = inlog.wachtwoord;
       form.requestSubmit();
@@ -121,11 +118,8 @@ function LoginForm() {
           )}
           <LinkInloggen />
           <div className="login-of" aria-hidden><span>of</span></div>
-          {!typOpen && (
-            <button type="button" className="login-typ-knop" onClick={() => setTypOpen(true)}>Typ je naam en wachtwoord</button>
-          )}
-          {/* Altijd in de pagina (de QR van het kaartje vult hem in en verstuurt hem), ingeklapt tot je wilt typen */}
-          <form ref={formRef} action="/api/auth/inloggen" method="post" className={`login-form${typOpen ? "" : " login-form--dicht"}`}
+          {/* ⌨️ Naam en wachtwoord altijd open onder de scanknop (de QR van het kaartje vult ze ook in) */}
+          <form ref={formRef} action="/api/auth/inloggen" method="post" className="login-form"
             onSubmit={() => strooiConfetti({ aantal: 70, duurMs: 1400, knal: true })}>
 
             <label htmlFor="naam" className="pr-field-label2">

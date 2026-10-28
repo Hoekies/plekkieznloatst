@@ -62,6 +62,9 @@ export async function POST() {
     await stap("Gelopen routes wissen", admin.from("location_updates").delete().not("id", "is", null));
     await stap("Itemeffecten wissen", admin.from("special_item_effects").delete().not("id", "is", null));
     await stap("Foto-inzendingen wissen", admin.from("foto_inzendingen").delete().not("id", "is", null));
+    // ⚡ Bonusvragen: antwoorden weg en de vragen weer klaar voor het volgende spel (zonder migratie 004: overslaan)
+    await admin.from("bonus_antwoorden").delete().not("id", "is", null).then(() => undefined, () => undefined);
+    await admin.from("bonus_vragen").update({ gestart_op: null, aantal_teams: null }).not("id", "is", null).then(() => undefined, () => undefined);
     // session_point_order cascadet mee via ON DELETE CASCADE
     await stap("Spellen wissen", admin.from("player_sessions").delete().not("id", "is", null));
 

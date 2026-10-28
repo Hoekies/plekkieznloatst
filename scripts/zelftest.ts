@@ -6,6 +6,7 @@ import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek }
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
+import { bonusPunten, bonusOpen } from "../lib/bonus";
 
 let goed = 0;
 function test(naam: string, f: () => void) {
@@ -48,6 +49,18 @@ test("puzzelwoord", () => {
   const s = puzzelStand("SLEUTEL", "sessie-1", 3, false, 100);
   assert.equal(s.letters.filter(Boolean).length, 3);
   assert.equal(puzzelStand("SLEUTEL", "x", 0, true, 100).letters.join(""), "SLEUTEL");
+});
+
+test("bonusvraag: eerste alles, daarna steeds minder", () => {
+  // 3 teams, 90 punten: 90 · 60 · 30
+  assert.deepEqual([1, 2, 3].map((p) => bonusPunten(90, 3, p)), [90, 60, 30]);
+  // 3 teams, 100 punten: afgerond 100 · 67 · 33; goed is altijd minstens 1 punt
+  assert.deepEqual([1, 2, 3, 4].map((p) => bonusPunten(100, 3, p)), [100, 67, 33, 1]);
+  assert.equal(bonusPunten(100, 0, 1), 100);
+  const nu = Date.now();
+  assert.equal(bonusOpen({ gestart_op: new Date(nu - 30_000).toISOString(), duur_seconden: 60 }, nu), true);
+  assert.equal(bonusOpen({ gestart_op: new Date(nu - 61_000).toISOString(), duur_seconden: 60 }, nu), false);
+  assert.equal(bonusOpen({ gestart_op: null, duur_seconden: 60 }, nu), false);
 });
 
 test("seizoensachtergrond op datum", () => {

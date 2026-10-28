@@ -69,6 +69,9 @@ export async function GET() {
     cache: "no-store",
   }).then((r) => r.status === 401 || r.status === 403).catch(() => false);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 003: puzzelwoord afgeschermd voor spelers", ok: routesAfgeschermd, uitleg: routesAfgeschermd ? undefined : "Draai in Supabase → SQL Editor het bestand supabase/migrations/003_afschermen_en_startitems.sql." });
+  // Migratie 004: ⚡ bonusvragen
+  const { error: bonusFout } = await admin.from("bonus_antwoorden").select("id").limit(1);
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 004: ⚡ bonusvragen", ok: !bonusFout, uitleg: bonusFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/004_bonusvragen.sql." : undefined });
 
   // Opslag (afbeeldingen en foto's)
   const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();

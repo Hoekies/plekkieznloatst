@@ -4020,15 +4020,12 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 @keyframes eindstand-rij { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .eindstand-rij { opacity: 1; animation: none; } .eindstand-stralen, .onthulling-stralen { animation: none; } }
 
-/* 🎫 Speels inlogscherm: ronde scanknop bovenaan, typen ingeklapt, stippelroute op de achtergrond */
+/* 🎫 Speels inlogscherm: ronde scanknop bovenaan, daaronder naam en wachtwoord, stippelroute op de achtergrond */
 /* Achter alles, maar boven de achtergrond van het scherm (isolation) */
 .login-scherm { isolation: isolate; }
 .login-route { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.9; }
 .login-ticket .pr-panel-inner { position: relative; }
-.login-typ-knop { display: block; width: 100%; padding: 8px; border: none; background: none; cursor: pointer; font: inherit; font-weight: 600; font-size: 0.86rem;
-  color: rgba(255,255,255,0.78); text-decoration: underline; text-underline-offset: 3px; }
 .login-form { display: flex; flex-direction: column; animation: login-open 0.3s ease-out; }
-.login-form--dicht { display: none; }
 .login-fout { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 4px; padding: 8px 12px; border-radius: 12px; font-size: 0.82rem; color: #FCA5A5;
   background: rgba(239,68,68,0.18); border: 1.5px solid rgba(239,68,68,0.4); animation: login-schud 0.5s ease-in-out; }
 .login-logo--stuiter { animation: login-stuiter 0.9s cubic-bezier(.3,1.6,.5,1) both; }
@@ -4044,7 +4041,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* 📷 Ronde scanknop op het inlogscherm: strak icoon, kleine tekst eronder, zachte puls */
 .qr-knop { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 4px auto 0; padding: 0; border: none; background: none; cursor: pointer; font: inherit; color: #fff; }
-.qr-knop-rond { position: relative; width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
+.qr-knop-rond { position: relative; width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
   background: linear-gradient(160deg, #22D3EE, #0E7490); box-shadow: 0 6px 18px rgba(0,217,255,0.35), inset 0 1px 0 rgba(255,255,255,0.35); transition: transform 0.15s; }
 .qr-knop-rond::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(34,211,238,0.5); animation: qr-puls 2.4s ease-out infinite; }
 .qr-knop:active .qr-knop-rond { transform: scale(0.94); }
@@ -4053,3 +4050,73 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 /* "of" tussen scannen en typen */
 .login-of { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; font-size: 0.72rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; }
 .login-of::before, .login-of::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+
+/* ⚡ Bonusvraag bij de speler (BonusVraag.tsx): over alles heen, goud met een bliksem */
+.bonus-achter { position: fixed; inset: 0; z-index: 3500; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: radial-gradient(circle at 50% 30%, rgba(255,200,40,0.35), rgba(10,4,30,0.92) 70%); animation: onthulling-in 0.3s ease-out; }
+.bonus-kaart { width: 100%; max-width: 400px; max-height: 92vh; overflow-y: auto; padding: 18px 16px 14px; border-radius: 22px; color: #fff;
+  background: linear-gradient(180deg, #3b1d8f, #22105a); border: 3px solid #FFD93B; box-shadow: 0 0 0 4px rgba(255,217,59,0.2), 0 0 50px rgba(255,217,59,0.45);
+  animation: onthulling-pop 0.5s cubic-bezier(.2,1.6,.4,1); }
+.bonus-kop { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.bonus-bliksem { font-size: 2rem; line-height: 1; animation: bonus-flits 0.9s ease-in-out infinite alternate; }
+.bonus-titel { flex: 1; font-family: var(--font-display); font-weight: 900; font-size: 1.3rem; letter-spacing: 0.06em; color: #FFD93B; }
+.bonus-tijd { padding: 3px 10px; border-radius: 999px; font-weight: 800; font-variant-numeric: tabular-nums; background: rgba(255,255,255,0.12); }
+.bonus-tijd--bijna { background: #DC2626; animation: bonus-flits 0.5s ease-in-out infinite alternate; }
+.bonus-uitleg { margin: 0 0 10px; font-size: 0.82rem; color: #cbd5f5; line-height: 1.4; }
+.bonus-vraag { margin-bottom: 12px; padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.08); font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; line-height: 1.3; }
+.bonus-keuzes { display: flex; flex-direction: column; gap: 8px; }
+.bonus-keuze { width: 100%; padding: 13px 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); color: #fff;
+  font: inherit; font-weight: 700; font-size: 1rem; text-align: left; cursor: pointer; }
+.bonus-keuze:active:not(:disabled) { transform: scale(0.98); background: rgba(255,217,59,0.2); }
+.bonus-keuze:disabled { opacity: 0.6; }
+.bonus-keuze--goud { text-align: center; color: #2a1566; border: none; background: linear-gradient(180deg, #FFE680, #FFC21A); box-shadow: 0 4px 0 #B8860B; }
+.bonus-keuze--klein { width: auto; flex: 0 0 auto; text-align: center; }
+.bonus-foto { display: flex; flex-direction: column; gap: 10px; }
+.bonus-foto-voorbeeld { width: 100%; max-height: 40vh; object-fit: cover; border-radius: 14px; }
+.bonus-foto-knoppen { display: flex; gap: 8px; }
+.bonus-foto-knoppen .bonus-keuze--goud { flex: 1; }
+.bonus-fout { margin-top: 8px; font-size: 0.84rem; color: #FCA5A5; }
+.bonus-later { display: block; margin: 12px auto 0; padding: 4px 8px; border: none; background: none; color: rgba(255,255,255,0.6); font: inherit; font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+.bonus-uitslag { text-align: center; }
+.bonus-uitslag p { margin: 6px 0 0; color: #e8f0ff; }
+.bonus-uitslag-groot { font-family: var(--font-display); font-weight: 900; font-size: 1.8rem; }
+.bonus-sluit { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; border: none; font: inherit; font-weight: 800; color: #2a1566; cursor: pointer;
+  background: linear-gradient(180deg, #FFE680, #FFC21A); box-shadow: 0 4px 0 #B8860B; }
+/* Ingeklapt: knopje bovenin met de resterende tijd */
+.bonus-knopje { position: fixed; z-index: 1500; top: calc(max(10px, env(safe-area-inset-top)) + 56px); left: 50%; transform: translateX(-50%); padding: 7px 14px; border-radius: 999px;
+  border: 2px solid #fff; background: linear-gradient(180deg, #FFE680, #FFC21A); color: #2a1566; font: inherit; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4); animation: bonus-puls 1.4s ease-in-out infinite; }
+@keyframes bonus-flits { from { opacity: 1; transform: scale(1); } to { opacity: 0.75; transform: scale(1.08); } }
+@keyframes bonus-puls { 0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 0 0 rgba(255,217,59,0.6); } 50% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 0 8px rgba(255,217,59,0); } }
+
+/* ⚡ Bonusvraag in het beheer (BonusKnop.tsx) */
+.antw-tab-teller--rustig { background: rgba(255,255,255,0.18); color: #fff; }
+.bonus-lijst { display: flex; flex-direction: column; gap: 10px; }
+.bonus-leeg { font-size: 0.82rem; color: var(--muted); }
+.bonus-rij { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 8px; }
+.bonus-rij--loopt { border-color: #FFD93B; box-shadow: 0 0 0 2px rgba(255,217,59,0.25); }
+.bonus-rij-kop { display: flex; align-items: flex-start; gap: 10px; }
+.bonus-rij-soort { font-size: 1.3rem; line-height: 1.2; }
+.bonus-rij-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bonus-rij-tekst strong { color: #fff; overflow-wrap: anywhere; }
+.bonus-rij-tekst span { font-size: 0.74rem; color: var(--muted); }
+.bonus-status { flex-shrink: 0; font-size: 0.74rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.bonus-status--loopt { color: #FFD93B; }
+.bonus-status--gepland { color: #A5F3FC; }
+.bonus-rij-knoppen { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.bonus-antwoorden { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed rgba(255,255,255,0.12); padding-top: 8px; }
+.bonus-antwoord { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; }
+.bonus-antwoord > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bonus-antwoord-foto { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; display: block; }
+.bonus-antwoord-uitslag { display: flex; gap: 6px; }
+.bonus-punten { color: #4ADE80; }
+.bonus-mis { color: #FCA5A5; }
+.bonus-nieuw { align-self: flex-start; }
+.bonus-form { display: flex; flex-direction: column; gap: 6px; }
+.bonus-form .segment { align-self: flex-start; margin-bottom: 4px; }
+.bonus-hint { font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.bonus-keuze-rij { display: flex; align-items: center; gap: 6px; }
+.bonus-keuze-rij .form-input { margin: 0; }
+.bonus-goed { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); background: none; color: rgba(255,255,255,0.4); font-weight: 900; cursor: pointer; }
+.bonus-goed--aan { background: #22C55E; border-color: #22C55E; color: #fff; }
+.bonus-form-knoppen { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }

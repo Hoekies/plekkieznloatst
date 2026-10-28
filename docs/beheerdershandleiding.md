@@ -508,6 +508,18 @@ Kan een team zijn volgende punt echt niet bereiken (afgesloten weg, bouwhek, onv
 
 Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken. Het team ziet dan eerst *"📨 Punt vrijgegeven — de organisatie heeft dit punt voor jullie vrijgegeven"* en daarna de vraag. Dat werkt ook op de start: de vraag van het startpunt komt dan meteen, zonder eerst 25 meter te lopen. Na het antwoord ziet het team het volgende punt.
 
+### ⚡ Bonusvraag
+
+Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen geluid: ook bij teams die al gefinisht zijn (tot de uitslag vrij is). Zet hem klaar met **⚡ Bonusvraag** in het Spelleider-blok (of vooraf bij *Spel klaarzetten*). Nodig: migratie 004 (`supabase/migrations/004_bonusvragen.sql`).
+
+- **Soort:** 🔘 *Meerkeuze* (2 tot 4 keuzes; tik ✓ bij het goede antwoord) of 📸 *Foto-opdracht* ("maak een foto van …").
+- **Punten:** de eerste goede krijgt alles, de volgende steeds minder. Bij 3 teams en 90 punten: 90 · 60 · 30. Het venster laat de verdeling voor het huidige aantal teams zien.
+- **Wanneer:** *na 15/30/45/60 min* speeltijd (gerekend vanaf de start van het eerste team), of *Met de knop*. Met **▶ Nu sturen** stuur je hem meteen.
+- **Hoe lang open:** 1, 2, 5 of 10 minuten; daarna sluit hij. Teams kunnen hem met *Later* even wegtikken; bovenin blijft dan een knopje met de resterende tijd.
+- **Eén poging** per team: fout is 0 punten.
+- **Foto's** keur je in hetzelfde venster met **Goed** of **Af**. De punten tellen op volgorde van *insturen*, niet van keuren: wie het eerst een goede foto stuurde, krijgt de meeste punten. Je krijgt een pushmelding bij elke bonusfoto.
+- Een gestarte bonusvraag kun je niet meer aanpassen. Weghalen kan altijd; al gegeven punten gaan er dan weer af. Bij **🧹 Opruimen** gaan de antwoorden weg en staan de vragen weer klaar voor het volgende spel.
+
 ### Tussenstand tonen
 
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:

@@ -13,6 +13,7 @@ import PuzzelWoord from "./PuzzelWoord";
 import { strooiConfetti } from "@/lib/confetti";
 import Podium from "./Podium";
 import UitslagOnthulling from "./UitslagOnthulling";
+import BonusVraag from "./BonusVraag";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
@@ -249,6 +250,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
             onSluit={() => setActiefItem(null)}
           />
         )}
+
+        {/* ⚡ Bonusvraag: ook gefinishte teams doen mee, tot de uitslag vrij is */}
+        {!vrij && <BonusVraag />}
 
         {onthulling && <UitslagOnthulling plaats={onthulling.plaats} aantal={onthulling.aantal} kleuren={[...thema.kleuren]}
           onSluit={() => { setOnthulling(null); document.getElementById("eindstand")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />}

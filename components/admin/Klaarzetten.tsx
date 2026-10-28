@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import EindtijdKnop from "@/components/admin/EindtijdKnop";
+import BonusKnop from "@/components/admin/BonusKnop";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
 import Icoon from "@/components/admin/Icoon";
 import { MeerdereSpelersKnop } from "@/components/admin/InlogUitdelen";
@@ -103,6 +104,12 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       actie: route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />,
     },
     {
+      id: "bonus", auto: true, optioneel: true, klaar: false,
+      titel: "⚡ Bonusvraag (mag)",
+      uitleg: "Een extra vraag die na een ingestelde speeltijd bij alle teams tegelijk in beeld komt.",
+      actie: route && <BonusKnop />,
+    },
+    {
       id: "ingelogd", auto: true, klaar: spelers.length > 0 && ingelogd === spelers.length,
       titel: `Spelers ingelogd: ${ingelogd}/${spelers.length}`,
       uitleg: "Daarna kunnen ze op ‘Ga op pad’ drukken.",
@@ -121,6 +128,8 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
             ✅ Alles klaar — wacht tot de spelers op ‘Ga op pad’ drukken
           </span>
           {route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />}
+          {/* ⚡ Bonusvraag alvast klaarzetten */}
+          {route && <BonusKnop />}
           <button type="button" className="rl-knop" onClick={() => setToonStappen(true)}>Stappen tonen</button>
         {waarschuwing}
         </div>

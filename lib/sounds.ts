@@ -90,6 +90,12 @@ export function speelVoorbeeld(set: GeluidSet) {
   [s.punt, s.goed, s.fout, s.finish].forEach((toon, i) => setTimeout(() => speel(toon[0], toon[1], toon[2], toon[3], true), i * 1100));
 }
 
+// ⚡ Bonusvraag: een eigen alarmpje dat opvalt (drie snelle belletjes, dan een stijgende zwiep)
+export function speelBonus() {
+  speel([1319, 1319, 1319], 0.36, "square", 0.12);
+  setTimeout(() => speel([523, 659, 784, 1047, 1319, 1568, 2093], 0.55, "triangle", 0.25), 420);
+}
+
 // 🏆 Uitslag: de winnaar krijgt een fanfare (ta-ta-ta-taaa, twee keer, de tweede hoger)
 export function speelOverwinning() {
   speel([523, 523, 523, 698], 0.7, "triangle", 0.28);
