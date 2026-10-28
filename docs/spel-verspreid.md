@@ -16,7 +16,7 @@ Alle teams **starten en finishen op dezelfde plek** 🏠 — de verzamelplek van
 ## Hoe begin je?
 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
-2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Tik in de app op **📷 Scan je kaartje** en scan de QR-code van je kaartje.)
+2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Tik in de app op **📷 QR-code scannen** en scan de QR-code van je kaartje.)
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
 4. Lees de uitleg, tik op **OK, begrepen** (je hoort een geluidje en de telefoon trilt), geef locatietoegang, en druk op **Ga op pad** — de kaart opent met het startpunt als eerste doel.
 

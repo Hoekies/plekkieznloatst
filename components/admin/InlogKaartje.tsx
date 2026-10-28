@@ -33,7 +33,7 @@ function waTekst(i: Inlog) {
       `Loginnaam: *${i.login}*`,
       `Wachtwoord: *${i.wachtwoord}*`,
       "",
-      "📱 Staat PointRush als app op je telefoon? Tik dan in de app op 📷 Scan je kaartje en scan de QR-code op het kaartje.",
+      "📱 Staat PointRush als app op je telefoon? Tik dan in de app op 📷 QR-code scannen en scan de QR-code op het kaartje.",
       "",
       `👉 *Direct inloggen* (werkt tot ${totTekst(i.link.geldig_tot)}):`,
       i.link.url,

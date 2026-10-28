@@ -110,10 +110,9 @@ function LoginForm() {
         />
       </div>
 
-      {/* 🎫 Het paneel ziet eruit als het inlogkaartje: stempel, scanknop bovenaan, een scheurlijn, typen eronder */}
+      {/* Rustig paneel: bovenaan de ronde scanknop, dan "of", dan typen (ingeklapt) */}
       <div className="pr-panel login-ticket">
         <div className="pr-panel-inner">
-          <span className="login-stempel" aria-hidden>PointRush</span>
           {foutTekst && (
             <div className="login-fout" role="alert">
               <span>⚠️</span>
@@ -121,9 +120,9 @@ function LoginForm() {
             </div>
           )}
           <LinkInloggen />
-          <div className="login-scheur" aria-hidden />
+          <div className="login-of" aria-hidden><span>of</span></div>
           {!typOpen && (
-            <button type="button" className="login-typ-knop" onClick={() => setTypOpen(true)}>⌨️ Of typ je naam en wachtwoord</button>
+            <button type="button" className="login-typ-knop" onClick={() => setTypOpen(true)}>Typ je naam en wachtwoord</button>
           )}
           {/* Altijd in de pagina (de QR van het kaartje vult hem in en verstuurt hem), ingeklapt tot je wilt typen */}
           <form ref={formRef} action="/api/auth/inloggen" method="post" className={`login-form${typOpen ? "" : " login-form--dicht"}`}

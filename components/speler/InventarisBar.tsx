@@ -30,6 +30,10 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
   }
 
   const slots = [...groepen.entries()];
+  // Veel soorten (tot 9): de knoppen worden kleiner zodat ze altijd allemaal op het scherm passen
+  // (vroeger liepen ze links en rechts buiten beeld en waren die niet meer aan te tikken)
+  const gat = slots.length > 5 ? 6 : 10;
+  const maat = `min(54px, calc((100vw - 24px - ${(slots.length - 1) * gat}px) / ${slots.length}))`;
 
   // Smalle balk onderaan in de achtergrondkleur van de app (--bg): in Safari loopt hij naadloos over in de
   // onderbalk van de browser, die iOS in dezelfde kleur kleurt. De knoppen staan half op de balk, half
@@ -53,7 +57,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 10,
+        gap: gat,
       }}>
       {slots.map(([type, items]) => {
         const stijl = ITEM_STIJL[type] ?? { kleur: "#555", emoji: "?", label: type };
@@ -65,7 +69,11 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
             onClick={() => onGebruik(items[0])}
             title={`${stijl.label} gebruiken`}
             className="pr-hud-slot2"
-            style={{ background: `linear-gradient(180deg, ${stijl.kleur}ee, ${stijl.kleur}88 48%, ${stijl.kleur}cc 50%, ${stijl.kleur} 100%)` }}
+            // Dichte knop: de itemkleur als vaste ondergrond met glans erover (vroeger halfdoorzichtig, de kaart scheen erdoor)
+            style={{
+              width: maat, height: maat, fontSize: `calc(${maat} * 0.5)`, flexShrink: 0,
+              background: `linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.1) 48%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0.04) 100%), ${stijl.kleur}`,
+            }}
           >
             {stijl.emoji}
             {count > 1 && (
