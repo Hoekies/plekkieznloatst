@@ -118,11 +118,21 @@ export default function Systeemcheck() {
                   </span>
                 </div>
               ))}
-              {isOpen && (
-                <div className="systeem-raster">
-                  {inGroep.filter((c) => c.ok).map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
-                </div>
-              )}
+              {isOpen && (() => {
+                // Opgeruimd: alle oude migraties die in orde zijn als één vakje (anders groeit de lijst met elke migratie)
+                const goed = inGroep.filter((c) => c.ok);
+                const oud = goed.filter((c) => /^Migratie \d+/.test(c.naam));
+                const nrs = oud.map((c) => /^Migratie (\d+)/.exec(c.naam)![1]).sort();
+                const rest = oud.length > 3 ? goed.filter((c) => !oud.includes(c)) : goed;
+                return (
+                  <div className="systeem-raster">
+                    {oud.length > 3 && (
+                      <span className="systeem-vakje" title={oud.map((c) => c.naam).join("\n")}>✓ Migraties {nrs[0]}–{nrs[nrs.length - 1]} ({oud.length})</span>
+                    )}
+                    {rest.map((c) => <span key={c.naam} className="systeem-vakje" title={c.naam}>✓ {c.naam}</span>)}
+                  </div>
+                );
+              })()}
             </div>
           );
         })}

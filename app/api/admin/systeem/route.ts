@@ -68,7 +68,12 @@ export async function GET() {
     headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""}` },
     cache: "no-store",
   }).then((r) => r.status === 401 || r.status === 403).catch(() => false);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 003: puzzelwoord afgeschermd voor spelers", ok: routesAfgeschermd, uitleg: routesAfgeschermd ? undefined : "Draai in Supabase → SQL Editor het bestand supabase/migrations/003_afschermen_en_startitems.sql." });
+  // Ook de kolom van 003 (startitems maar één keer): die regel kan apart vergeten worden
+  const { error: startitemsFout } = await admin.from("player_sessions").select("startitems_op").limit(1);
+  const ok003 = routesAfgeschermd && !startitemsFout;
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 003: puzzelwoord afgeschermd en startitems één keer", ok: ok003, uitleg: ok003 ? undefined
+    : !routesAfgeschermd ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/003_afschermen_en_startitems.sql."
+    : "Draai in Supabase → SQL Editor nog: ALTER TABLE player_sessions ADD COLUMN IF NOT EXISTS startitems_op timestamptz; NOTIFY pgrst, 'reload schema';" });
   // Migratie 004: ⚡ bonusvragen
   const { error: bonusFout } = await admin.from("bonus_antwoorden").select("id").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 004: ⚡ bonusvragen", ok: !bonusFout, uitleg: bonusFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/004_bonusvragen.sql." : undefined });
