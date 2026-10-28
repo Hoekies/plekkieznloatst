@@ -3929,3 +3929,11 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .admin-main .pr-gem-card-inner { background: #33197a; box-shadow: none; }
 .admin-main .pr-gem-panel .pr-corner-chip.pr-badge { box-shadow: 0 0 0 2px #000, 2px 3px 0 rgba(0,0,0,0.45); }
 .admin-main .sk-stip--vol { box-shadow: none; }
+
+/* 📱 QR om in te loggen (Spelers): groot en wit, zodat een telefooncamera hem van afstand leest */
+.qr-inlog { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.qr-inlog-code { width: min(340px, 78vw); padding: 14px; border-radius: 16px; background: #fff; }
+.qr-inlog-uitleg { margin: 0; text-align: center; color: var(--ink); font-size: 0.95rem; line-height: 1.45; }
+.qr-inlog-let-op { margin: 0; padding: 8px 12px; border-radius: 10px; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.5); color: #FDE68A; font-size: 0.86rem; }
+.qr-inlog-fout { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #FCA5A5; text-align: center; }
+.qr-inlog-laden { display: flex; justify-content: center; padding: 60px 0; }

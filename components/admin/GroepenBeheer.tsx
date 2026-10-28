@@ -20,6 +20,7 @@ import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExt
 import Venster, { VensterKop, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
+import QrInlogVenster from "@/components/admin/QrInlogVenster";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -49,6 +50,8 @@ export default function GroepenBeheer() {
   const [modal, setModal] = useState<BeheerModal | null>(null);
   // 📞 Telefoonnummer van dit team
   const [telVoor, setTelVoor] = useState<Groep | null>(null);
+  // 📱 QR om in te loggen: groot op het scherm, de speler scant hem en is meteen ingelogd
+  const [qrVoor, setQrVoor] = useState<Groep | null>(null);
   const [uitOpen, setUitOpen] = useState(false);
   // ✏️ Teamnaam aanpassen
   const [naamVoor, setNaamVoor] = useState<Groep | null>(null);
@@ -187,6 +190,11 @@ export default function GroepenBeheer() {
             onClick={() => setTelVoor(g)}><Icoon naam="bellen" /><span className="gb-label">Telefoon</span></button>
         )}
         {!isUit && (
+          <button type="button" className="rl-knop rl-knop--icoon gb-icoon" aria-label="QR om in te loggen"
+            title="QR om in te loggen: groot op het scherm, de speler scant hem met zijn telefoon en is meteen ingelogd"
+            onClick={() => setQrVoor(g)}><Icoon naam="qr" /><span className="gb-label">QR</span></button>
+        )}
+        {!isUit && (
           <button type="button" className="rl-knop rl-knop--icoon rl-knop--cyan gb-icoon" aria-label="Inloggegevens versturen"
             title="Inloggegevens versturen: nieuw wachtwoord en het kaartje via WhatsApp"
             onClick={() => setModal({ id: g.id, groepNaam: displayNaam, icoon: g.icon, login: g.login_name, toegangTot: g.toegang_tot, telefoon: g.telefoon })}><Icoon naam="sleutel" /><span className="gb-label">Inlog</span></button>
@@ -286,6 +294,10 @@ export default function GroepenBeheer() {
       {naamVoor && (
         <TeamnaamVenster spelerId={naamVoor.id} naam={naamVoor.nickname} icoon={naamVoor.icon} onSluit={() => setNaamVoor(null)}
           onOpgeslagen={(n) => setGroepen((prev) => prev.map((x) => x.id === naamVoor.id ? { ...x, nickname: n } : x))} />
+      )}
+      {qrVoor && (
+        <QrInlogVenster spelerId={qrVoor.id} naam={qrVoor.nickname ?? qrVoor.login_name ?? "Speler"} icoon={qrVoor.icon}
+          anderApparaat={!!qrVoor.active_device_id} onSluit={() => setQrVoor(null)} />
       )}
       {telVoor && (
         <TelefoonVenster spelerId={telVoor.id} naam={telVoor.nickname ?? telVoor.login_name ?? "Speler"} icoon={telVoor.icon} telefoon={telVoor.telefoon ?? null}

@@ -338,6 +338,8 @@ Met **+ Spelers** maak je in één keer tot 30 teams aan, elk met een makkelijk 
 #### Inloggegevens per team uitdelen
 
 Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (4 uur, ½ dag, **1 dag** of 2 dagen). Standaard gaan wachtwoord én directe link samen mee op het kaartje. Wil je alleen een link sturen (zonder wachtwoord), tik dan onderaan op *🔗 Alleen een link sturen*.
+
+**📱 QR om in te loggen** (de knop *QR* naast de 🔑): een grote QR-code op het scherm. De speler scant hem met de camera van zijn telefoon en is meteen ingelogd, zonder typen (een inloglink die 12 uur geldig is). Handig aan de start: telefoon erbij, scannen, klaar. Speelt het team al op een andere telefoon, dan meldt het venster dat; tik dan eerst op *Apparaat* om de oude telefoon vrij te geven.
 - Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
 - Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 

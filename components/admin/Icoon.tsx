@@ -5,7 +5,7 @@ import {
   Magnet, Mail, Map, MapPin, Megaphone, MessageCircle, Mountain, PanelLeft, Pause, Pencil, PenLine, Phone, Play,
   Printer, Radio, RefreshCw, Rocket, Scan, Send, Settings, Share2, Shuffle, SkipForward, Sparkles, Spline, Square,
   SquareCheckBig, Timer, Trash2, TriangleAlert, Trophy, Tv, Type, Undo2, Users, Video, Vote,
-  Bomb, Clapperboard, Hourglass, Palette, Pin, Plus, Pointer, Rewind, Route, Save, Scissors, Tag, Zap, ArrowRight, Target, Repeat, Check, ChevronLeft, X, Maximize,
+  Bomb, Clapperboard, Hourglass, Palette, Pin, Plus, Pointer, Rewind, Route, Save, Scissors, Tag, Zap, ArrowRight, Target, Repeat, Check, ChevronLeft, X, Maximize, QrCode,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,7 +26,7 @@ const ICONEN = {
   tekst: Type, terug: Undo2, spelers: Users, meebewegen: Video, stemmen: Vote,
   bom: Bomb, film: Clapperboard, laden: Hourglass, palet: Palette, pin: Pin, plus: Plus, aanwijzen: Pointer, replay: Rewind,
   weg: Route, opslaan: Save, knippen: Scissors, label: Tag, bezig: Zap, volgende: ArrowRight, doel: Target, herhalen: Repeat,
-  start: Play, vorige: ChevronLeft, klaar: Check, fout: X, centreren: Maximize,
+  start: Play, vorige: ChevronLeft, klaar: Check, fout: X, centreren: Maximize, qr: QrCode,
 } satisfies Record<string, LucideIcon>;
 
 export type IcoonNaam = keyof typeof ICONEN;
