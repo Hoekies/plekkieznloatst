@@ -90,6 +90,41 @@ export function speelVoorbeeld(set: GeluidSet) {
   [s.punt, s.goed, s.fout, s.finish].forEach((toon, i) => setTimeout(() => speel(toon[0], toon[1], toon[2], toon[3], true), i * 1100));
 }
 
+// 🏆 Uitslag: de winnaar krijgt een fanfare (ta-ta-ta-taaa, twee keer, de tweede hoger)
+export function speelOverwinning() {
+  speel([523, 523, 523, 698], 0.7, "triangle", 0.28);
+  setTimeout(() => speel([659, 659, 659, 880], 0.7, "triangle", 0.28), 750);
+  setTimeout(() => speel([784, 1047, 1319, 1568], 1.0, "sine", 0.3), 1500);
+}
+
+// 🎺 Uitslag voor wie niet won: een knipogende "wah wah wah wahhh" (glijdende trombone, steeds lager)
+export function speelHelaas() {
+  if (!geluidAan()) return;
+  try {
+    const ac = getCtx();
+    if (ac.state === "suspended") ac.resume();
+    const tonen: [number, number, number][] = [[392, 370, 0.38], [370, 349, 0.38], [349, 330, 0.38], [330, 262, 1.1]];
+    let t = ac.currentTime;
+    for (const [van, naar, duur] of tonen) {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = "sawtooth";
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.frequency.setValueAtTime(van, t);
+      osc.frequency.linearRampToValueAtTime(naar, t + duur);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.12, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duur);
+      osc.start(t);
+      osc.stop(t + duur + 0.05);
+      t += duur + 0.04;
+    }
+  } catch {
+    // AudioContext niet beschikbaar
+  }
+}
+
 export function speelDong() {
   // Diepe klokslag — een ander team heeft een item tegen jou ingezet.
   // Grondtoon plus een paar niet-harmonische boventonen, zoals bij een echte klok.

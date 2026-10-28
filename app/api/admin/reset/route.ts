@@ -72,6 +72,11 @@ export async function POST() {
       .not("id", "is", null));
     // Stemvragen weer open (de stemmen zelf zijn al gewist)
     await stap("Stemvragen openen", admin.from("questions").update({ stem_gesloten: false }).eq("type", "stemvraag"));
+    // 🚪 Iedereen uitloggen: het vorige spel is weg, dus geen telefoon blijft aan een team hangen (ook de tijd van
+    // een inloglink vervalt). Wie daarna opnieuw inlogt of de QR scant, kan meteen verder.
+    await stap("Spelers uitloggen", admin.from("players")
+      .update({ force_logout_at: new Date().toISOString(), active_device_id: null, toegang_tot: null })
+      .not("id", "is", null));
 
     // De foto's zelf ook uit de opslag, zodat die niet volloopt
     fotosVerwijderd = await leegFotoOpslag(admin);

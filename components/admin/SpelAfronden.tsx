@@ -92,7 +92,7 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
       {open === "opruimen" && (
         <VensterMetKop icoon="🧹" label="Opruimen" titel="Klaar voor het volgende spel" onSluit={() => setOpen(null)} breedte={520} maxHoogte={92}>
           <div className="afrond-stappen">
-            {stap(1, false, "Nieuw spel voorbereiden", "Spellen, antwoorden en foto's weg; routes, vragen en spelers blijven. Bewaar eerst het rapport bij 🏁 Afronden.",
+            {stap(1, false, "Nieuw spel voorbereiden", "Spellen, antwoorden en foto's weg en iedereen uitgelogd; routes, vragen en spelers blijven. Bewaar eerst het rapport bij 🏁 Afronden.",
               <NieuwSpelKnop className="rl-knop rl-knop--rood" onKlaar={() => { setOpen(null); window.location.reload(); }} />)}
             {stap(2, nieuweGroepKlaar, "Volgende groep (optioneel)", "Zelfde logins, maar nieuwe wachtwoorden; teamnaam, icoon en telefoon gaan eraf. Teams weghalen kan bij Spelers.",
               <BevestigKnop venster icoon="🔁" titel="Nieuwe groep voorbereiden?" vraag=""

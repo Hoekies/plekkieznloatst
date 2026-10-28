@@ -1217,8 +1217,10 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           spelerNaam={spelerNaam}
           teamKleur={teamKleur}
           centreerVerzoek={centreerVerzoek}
-          // Op dezelfde hoogte als 🎯 linksonder; staat "Niet bereikbaar?" rechtsonder, dan erboven
-          stijlOnder={activePunt && !bereiktIds.has(activePunt.id) && !popupPunt && !ghostTot ? knoepBottomOffset + 46 : knoepBottomOffset}
+          // Licht/donker/luchtfoto links, op dezelfde hoogte direct naast 🎯 (16 + 30 breed + 8 ruimte), niet meer
+          // rechts boven "Niet bereikbaar?"; zonder 🎯 op de plek van 🎯
+          stijlOnder={knoepBottomOffset}
+          stijlLinks={positie && !popupPunt ? 54 : 16}
           positie={positie}
           punten={punten}
           verwerktIds={verwerktIds}

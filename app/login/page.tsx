@@ -7,6 +7,7 @@ import VolledigSchermKnop from "@/components/shared/VolledigSchermKnop";
 import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import AppInstallatie from "@/components/shared/AppInstallatie";
 import LinkInloggen from "@/components/shared/LinkInloggen";
+import { strooiConfetti } from "@/lib/confetti";
 
 function LoginForm() {
   const params = useSearchParams();
@@ -24,7 +25,7 @@ function LoginForm() {
       : fout === "uitgeschakeld"
       ? "Dit account is uitgeschakeld. Neem contact op met de spelleider."
       : fout === "apparaat"
-      ? "Dit team speelt al op een andere telefoon (of in een andere browser of de app). Vraag de spelleider om het apparaat vrij te geven en probeer het daarna opnieuw."
+      ? "Dit team speelt al op een andere telefoon (of in een andere browser of de app). Log daar uit, of vraag de spelleider om de QR-code om in te loggen."
       : fout === "uitgelogd"
       ? "Je bent door de beheerder uitgelogd."
       : fout === "link-verlopen"
@@ -37,6 +38,8 @@ function LoginForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
   const [qrVerlopen, setQrVerlopen] = useState(false);
+  // ⌨️ Naam en wachtwoord typen staat ingeklapt: scannen is de snelste weg. Open na een fout met naam of wachtwoord
+  const [typOpen, setTypOpen] = useState(fout === "wachtwoord" || fout === "ongeldig" || fout === "leeg");
 
   // 📷 QR-code van het inlogkaartje: loginnaam en wachtwoord staan achter het #-teken → invullen en
   // meteen inloggen, zolang de code geldig is (48 uur). Daarna alleen de loginnaam invullen.
@@ -48,7 +51,8 @@ function LoginForm() {
       if (!inlog || !form) return;
       history.replaceState(null, "", window.location.pathname + window.location.search);
       (form.elements.namedItem("naam") as HTMLInputElement).value = inlog.login;
-      if (Date.now() > inlog.tot) { setQrVerlopen(true); (form.elements.namedItem("wachtwoord") as HTMLInputElement).focus(); return; }
+      setTypOpen(true);
+      if (Date.now() > inlog.tot) { setQrVerlopen(true); setTimeout(() => (form.elements.namedItem("wachtwoord") as HTMLInputElement | null)?.focus(), 0); return; }
       (form.elements.namedItem("wachtwoord") as HTMLInputElement).value = inlog.wachtwoord;
       form.requestSubmit();
     };
@@ -85,20 +89,45 @@ function LoginForm() {
       <span className="pr-orb" style={{ top: "78%", left: "9%", animationDelay: "0.8s" }}>💣</span>
       <span className="pr-orb" style={{ top: "80%", right: "10%", animationDelay: "1.6s" }}>🍌</span>
 
+      {/* 🗺️ Vage stippelroute op de achtergrond, met een pinnetje dat erover loopt */}
+      <svg className="login-route" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        <path id="login-pad" d="M -20 640 C 80 560, 40 470, 140 430 S 300 470, 330 360 S 220 220, 300 150 S 420 60, 440 20"
+          fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="4" strokeDasharray="2 14" strokeLinecap="round" />
+        <g className="login-route-pin">
+          <circle r="9" fill="#FFD23F" stroke="#fff" strokeWidth="3" />
+          <animateMotion dur="14s" repeatCount="indefinite" rotate="0"><mpath href="#login-pad" /></animateMotion>
+        </g>
+      </svg>
+
       <div className="pr-logo-glow" />
       <div className="pr-logo-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/spellogo/vierkant.webp"
           alt="PointRush"
-          className="login-logo"
+          className="login-logo login-logo--stuiter"
           style={{ display: "block", filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.55)) drop-shadow(0 0 30px rgba(255,217,59,0.25))" }}
         />
       </div>
 
-      <div className="pr-panel">
+      {/* 🎫 Het paneel ziet eruit als het inlogkaartje: stempel, scanknop bovenaan, een scheurlijn, typen eronder */}
+      <div className="pr-panel login-ticket">
         <div className="pr-panel-inner">
-          <form ref={formRef} action="/api/auth/inloggen" method="post" style={{ display: "flex", flexDirection: "column" }}>
+          <span className="login-stempel" aria-hidden>PointRush</span>
+          {foutTekst && (
+            <div className="login-fout" role="alert">
+              <span>⚠️</span>
+              <span>{foutTekst}</span>
+            </div>
+          )}
+          <LinkInloggen />
+          <div className="login-scheur" aria-hidden />
+          {!typOpen && (
+            <button type="button" className="login-typ-knop" onClick={() => setTypOpen(true)}>⌨️ Of typ je naam en wachtwoord</button>
+          )}
+          {/* Altijd in de pagina (de QR van het kaartje vult hem in en verstuurt hem), ingeklapt tot je wilt typen */}
+          <form ref={formRef} action="/api/auth/inloggen" method="post" className={`login-form${typOpen ? "" : " login-form--dicht"}`}
+            onSubmit={() => strooiConfetti({ aantal: 70, duurMs: 1400, knal: true })}>
 
             <label htmlFor="naam" className="pr-field-label2">
               Naam
@@ -157,30 +186,10 @@ function LoginForm() {
               </div>
             )}
 
-            {foutTekst && (
-              <div style={{
-                background: "rgba(239, 68, 68, 0.18)",
-                border: "1.5px solid rgba(239, 68, 68, 0.4)",
-                borderRadius: 12,
-                padding: "8px 12px",
-                fontSize: "0.82rem",
-                color: "#FCA5A5",
-                display: "flex",
-                gap: 8,
-                alignItems: "flex-start",
-                marginBottom: 14,
-              }}>
-                <span>⚠️</span>
-                <span>{foutTekst}</span>
-              </div>
-            )}
-
-            <button type="submit" className="btn-premium--compact">
-              INLOGGEN →
+            <button type="submit" className="btn-premium--compact login-ga">
+              🚀 GA SPELEN!
             </button>
           </form>
-          {/* In de geïnstalleerde app: inloggen met een link uit WhatsApp */}
-          <LinkInloggen />
         </div>
       </div>
 

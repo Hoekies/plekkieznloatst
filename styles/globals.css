@@ -1747,8 +1747,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .route-editor-topbar .editor-balk-scheiding { height: 24px; }
 
 /* Inlogscherm: knop om PointRush als app te installeren (Android) */
-.app-installeer-knop { margin: 14px auto 0; display: block; max-width: 340px; width: 100%; padding: 12px 16px; border-radius: 14px; cursor: pointer;
-  background: rgba(0,217,255,0.14); border: 1.5px solid rgba(0,217,255,0.55); color: #A5F3FC; font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; }
+/* Klein chipje (was een brede balk die veel aandacht trok) */
+.app-installeer-knop { margin: 12px auto 0; display: block; width: auto; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  background: rgba(0,217,255,0.1); border: 1px solid rgba(0,217,255,0.4); color: #A5F3FC; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; }
 /* iPhone: stappen om PointRush op het beginscherm te zetten */
 .ios-stappen { margin: 0; padding-left: 22px; text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; line-height: 1.4; color: #fff; }
 .ios-stappen strong { color: #FFE680; }
@@ -2043,8 +2044,6 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .login-scherm .btn-premium--compact { padding: 10px 0; }
 .login-scherm .link-inloggen-knop { margin-top: 10px; padding: 8px; font-size: 0.84rem; }
 .login-scherm .link-inloggen-knop.link-inloggen-scan { margin-top: 12px; padding: 12px 10px 10px; font-size: 1rem; }
-/* Link plakken: klein en rustig onder de scanknop */
-.login-scherm .link-inloggen-scan + .link-inloggen-knop { margin-top: 8px; padding: 6px; border: none; background: none; text-decoration: underline; font-weight: 600; color: rgba(255,255,255,0.75); }
 
 /* Spelerkaart dashboard: voortgangsbalk over de volle breedte */
 .sk-lijf > .pr-xp-bar { max-width: none; }
@@ -3910,7 +3909,8 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   filter: drop-shadow(0 3px 0 rgba(110,35,0,0.6)) drop-shadow(0 0 16px rgba(255,200,0,0.45)); animation: finish-pop 0.7s 0.12s cubic-bezier(.2,1.6,.4,1) both; }
 .finish-team { display: inline-block; max-width: 100%; margin-top: 8px; padding: 5px 16px; border-radius: 18px; overflow-wrap: anywhere;
   background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
-.finish-sub { margin-top: 8px; font-size: 0.86rem; color: rgba(255,255,255,0.82); }
+/* Altijd op één regel: op een smalle telefoon iets kleiner in plaats van afbreken */
+.finish-sub { margin-top: 8px; font-size: min(0.86rem, 3.2vw); color: rgba(255,255,255,0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .finish-stats { display: flex; gap: 10px; width: 100%; }
 .finish-stat { flex: 1; min-width: 0; padding: 10px 6px 12px; border-radius: 16px; text-align: center;
   background: linear-gradient(180deg, color-mix(in srgb, var(--stat-kleur) 16%, transparent), rgba(255,255,255,0.03));
@@ -3923,6 +3923,10 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .finish-stat-waarde { margin-top: 4px; font-family: var(--font-display); font-size: clamp(0.95rem, 4.6vw, 1.6rem); font-weight: 800; line-height: 1.1; color: var(--stat-kleur);
   text-shadow: 0 0 14px color-mix(in srgb, var(--stat-kleur) 50%, transparent); white-space: nowrap; }
 .finish-stat-label { margin-top: 2px; font-size: 0.82rem; color: var(--muted); }
+/* 🔒 Voor de uitslag: wat er daarna komt (oorkonde, antwoorden, gelopen route) */
+.finish-na-uitslag { width: 100%; padding: 9px 12px; border-radius: 12px; text-align: center; font-size: 0.82rem; color: var(--muted);
+  background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); }
+.finish-na-uitslag strong { color: #e8f0ff; }
 /* Voorlopige score: direct onder de cijfers */
 .finish-status { width: 100%; margin-top: -8px; padding: 9px 12px; border-radius: 12px; text-align: center; font-size: 0.9rem; color: #FFE680;
   background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.4); }
@@ -3970,3 +3974,75 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* QR-scanner: camera geweigerd of bezet → opnieuw proberen na het geven van toestemming */
 .qr-scan-opnieuw { margin: 0 14px 14px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,217,59,0.6); background: rgba(255,217,59,0.14); color: #FFE680; font: inherit; font-weight: 700; cursor: pointer; }
+
+/* 🏆 Uitslag-onthulling (UitslagOnthulling.tsx): over het hele scherm de eigen plaats */
+.onthulling { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: radial-gradient(circle at 50% 40%, rgba(60,30,140,0.85), rgba(8,3,28,0.94)); animation: onthulling-in 0.35s ease-out; }
+.onthulling--winnaar { background: radial-gradient(circle at 50% 40%, rgba(255,200,40,0.55), rgba(40,14,90,0.95) 70%); }
+.onthulling-kaart { position: relative; overflow: hidden; width: 100%; max-width: 380px; text-align: center; padding: 28px 20px 22px; border-radius: 24px;
+  background: linear-gradient(180deg, #3b1d8f, #24105e); border: 2px solid rgba(255,255,255,0.18); box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: onthulling-pop 0.6s cubic-bezier(.2,1.6,.4,1); }
+.onthulling--winnaar .onthulling-kaart { border: 3px solid #FFD93B; box-shadow: 0 0 0 4px rgba(255,217,59,0.25), 0 0 60px rgba(255,217,59,0.55); }
+.onthulling-stralen { position: absolute; inset: -60%; background: repeating-conic-gradient(rgba(255,217,59,0.16) 0 10deg, transparent 10deg 20deg);
+  animation: eindstand-draai 14s linear infinite; pointer-events: none; }
+.onthulling-beker { position: relative; font-size: 5.5rem; line-height: 1; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5)); animation: onthulling-beker 1.2s ease-in-out infinite alternate; }
+.onthulling-plaats { position: relative; margin-top: 10px; font-family: var(--font-display); font-weight: 900; font-size: 1.7rem; line-height: 1.15; color: #fff; }
+.onthulling--winnaar .onthulling-plaats { font-size: 2rem; background: linear-gradient(90deg, #FFE680, #FFD23F, #FFF6C8, #FFD23F); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.onthulling-tekst { position: relative; margin: 10px 0 0; font-size: 1rem; line-height: 1.45; color: #e8f0ff; }
+.onthulling-klein { position: relative; margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
+.onthulling-knop { position: relative; margin-top: 18px; width: 100%; padding: 13px; border-radius: 14px; border: none; cursor: pointer; font: inherit; font-weight: 800; font-size: 1rem;
+  color: #2a1566; background: linear-gradient(180deg, #FFE680, #FFC21A); box-shadow: 0 4px 0 #B8860B; }
+.onthulling-knop:active { transform: translateY(2px); box-shadow: 0 2px 0 #B8860B; }
+@keyframes onthulling-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes onthulling-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes onthulling-beker { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-8px) rotate(5deg); } }
+
+/* 🏆 Eindstand na het vrijgeven: gouden lijst met draaiende stralen, glanzende titel, rijen schuiven één voor één binnen */
+.eindstand-feest { position: relative; overflow: hidden; padding: 16px 12px 14px; border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255,217,59,0.14), rgba(42,21,102,0.6) 45%); border: 2px solid rgba(255,217,59,0.55);
+  box-shadow: 0 0 0 4px rgba(255,217,59,0.08), 0 10px 40px rgba(0,0,0,0.35); }
+.eindstand-feest > *:not(.eindstand-stralen) { position: relative; }
+.eindstand-stralen { position: absolute; left: 50%; top: 0; width: 900px; height: 900px; margin-left: -450px; margin-top: -450px; pointer-events: none;
+  background: repeating-conic-gradient(rgba(255,217,59,0.09) 0 8deg, transparent 8deg 16deg); animation: eindstand-draai 30s linear infinite;
+  -webkit-mask-image: radial-gradient(circle, #000 0 30%, transparent 60%); mask-image: radial-gradient(circle, #000 0 30%, transparent 60%); }
+.eindstand-titel { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 12px; font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; }
+/* Goudglans alleen op het woord (anders kleurt de 🏆 mee) */
+.eindstand-glans {
+  background: linear-gradient(90deg, #FFE680 0%, #FFD23F 30%, #FFF6C8 50%, #FFD23F 70%, #FFE680 100%); background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: eindstand-glans 3s linear infinite; }
+.eindstand-rij { opacity: 0; animation: eindstand-rij 0.5s ease-out forwards; border-radius: 16px; }
+.eindstand-rij--1 { padding: 2px; background: linear-gradient(135deg, #FFF6C8, #FFD23F, #B8860B); box-shadow: 0 0 18px rgba(255,217,59,0.45); }
+.eindstand-rij--2 { padding: 2px; background: linear-gradient(135deg, #F1F5F9, #CBD5E1, #64748B); }
+.eindstand-rij--3 { padding: 2px; background: linear-gradient(135deg, #FED7AA, #D97706, #7C2D12); }
+.eindstand-rij--1 > div, .eindstand-rij--2 > div, .eindstand-rij--3 > div { background-color: #2a1566 !important; }
+@keyframes eindstand-draai { to { transform: rotate(360deg); } }
+@keyframes eindstand-glans { to { background-position: 200% center; } }
+@keyframes eindstand-rij { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .eindstand-rij { opacity: 1; animation: none; } .eindstand-stralen, .onthulling-stralen { animation: none; } }
+
+/* 🎫 Speels inlogscherm: paneel als inlogkaartje, scanknop bovenaan, typen ingeklapt, stippelroute op de achtergrond */
+/* Achter alles, maar boven de achtergrond van het scherm (isolation) */
+.login-scherm { isolation: isolate; }
+.login-route { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.9; }
+.login-ticket .pr-panel-inner { position: relative; }
+.login-stempel { position: absolute; top: 10px; right: 10px; transform: rotate(12deg); padding: 2px 8px; border: 2px solid rgba(255,210,63,0.55); border-radius: 6px;
+  font-family: var(--font-display); font-weight: 900; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,210,63,0.7); pointer-events: none; }
+.login-scheur { position: relative; margin: 16px -18px 10px; border-top: 2px dashed rgba(255,255,255,0.22); }
+.login-scheur::before, .login-scheur::after { content: ""; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: #1d0c4f; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+.login-scheur::before { left: -10px; } .login-scheur::after { right: -10px; }
+.login-typ-knop { display: block; width: 100%; padding: 8px; border: none; background: none; cursor: pointer; font: inherit; font-weight: 600; font-size: 0.86rem;
+  color: rgba(255,255,255,0.78); text-decoration: underline; text-underline-offset: 3px; }
+.login-form { display: flex; flex-direction: column; animation: login-open 0.3s ease-out; }
+.login-form--dicht { display: none; }
+.login-fout { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 4px; padding: 8px 12px; border-radius: 12px; font-size: 0.82rem; color: #FCA5A5;
+  background: rgba(239,68,68,0.18); border: 1.5px solid rgba(239,68,68,0.4); animation: login-schud 0.5s ease-in-out; }
+.login-logo--stuiter { animation: login-stuiter 0.9s cubic-bezier(.3,1.6,.5,1) both; }
+.login-ga { animation: login-wiebel 4s ease-in-out 1.5s infinite; }
+.login-route-pin circle { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+.login-scherm .pr-orb { animation-name: login-zweef; }
+@keyframes login-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes login-schud { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@keyframes login-stuiter { 0% { transform: translateY(-40px) scale(0.8); opacity: 0; } 60% { transform: translateY(6px) scale(1.04); opacity: 1; } 100% { transform: none; } }
+@keyframes login-wiebel { 0%, 86%, 100% { transform: none; } 89% { transform: rotate(-2.5deg) scale(1.03); } 92% { transform: rotate(2.5deg) scale(1.03); } 95% { transform: rotate(-1.5deg); } }
+@keyframes login-zweef { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-12px) rotate(8deg); } }
+@media (prefers-reduced-motion: reduce) { .login-route-pin { display: none; } }

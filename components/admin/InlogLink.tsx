@@ -21,7 +21,7 @@ export function tijdTekst(iso: string) {
 }
 
 function waLinkTekst(url: string, geldigTot: string) {
-  return `Hoi! Tik op de link om PointRush te openen 🎯 Je hoeft niet in te loggen.\n${url}\n\nDe link werkt tot ${tijdTekst(geldigTot)}.\nHeb je de app al? Kopieer de link en kies in de app 🔗 Inloggen met link.\n\nVeel plezier! René`;
+  return `Hoi! Tik op de link om PointRush te openen 🎯 Je hoeft niet in te loggen.\n${url}\n\nDe link werkt tot ${tijdTekst(geldigTot)}.\nHeb je de app al? Open de link dan gewoon: je speelt in de browser, of vraag de spelleider om de QR-code om in de app te scannen.\n\nVeel plezier! René`;
 }
 
 // "🔗 Link zonder wachtwoord": het team logt in met alleen een link, voor een gekozen tijd.

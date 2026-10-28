@@ -78,11 +78,6 @@ export default function GroepenBeheer() {
     return () => clearInterval(timer);
   }, []);
 
-  async function resetApparaat(id: string) {
-    const res = await fetch(`/api/admin/groepen/${id}/apparaat`, { method: "PATCH" });
-    if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
-  }
-
   async function logGroepUit(id: string) {
     const res = await fetch(`/api/admin/groepen/${id}/uitloggen`, { method: "PATCH" });
     if (res.ok) setGroepen((prev) => prev.map((g) => g.id === id ? { ...g, active_device_id: null } : g));
@@ -156,15 +151,11 @@ export default function GroepenBeheer() {
         <div className="gb-schakel gb-rechts">
         <div className="gb-iconen">
         {/* Alleen als er iets te ontkoppelen, uit te loggen of te stoppen valt */}
-        {!isUit && g.active_device_id && (
-          <button className="rl-knop gb-tekstknop" onClick={() => resetApparaat(g.id)}
-            title="Toestel ontkoppelen, zodat de speler elders kan inloggen">
-            <Icoon naam="slot-open" /><span className="gb-label gb-label--altijd">Apparaat</span>
-          </button>
-        )}
+        {/* Geen aparte "Apparaat"-knop meer: die liet de oude telefoon ingelogd, en die pakte het team binnen
+            20 seconden terug. Uitloggen (of de QR laten scannen) maakt de weg vrij voor een andere telefoon. */}
         {!isUit && g.active_device_id && (
           <button className="rl-knop rl-knop--rood gb-tekstknop" onClick={() => logGroepUit(g.id)}
-            title="Uitloggen; het spel blijft staan">
+            title="Uitloggen op elke telefoon; het spel blijft staan. Daarna kan het team op elke telefoon opnieuw inloggen">
             <Icoon naam="uitloggen" /><span className="gb-label gb-label--altijd">Uitloggen</span>
           </button>
         )}

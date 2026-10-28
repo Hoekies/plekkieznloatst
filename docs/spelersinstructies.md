@@ -16,7 +16,7 @@ Weet je niet welk spel je speelt? Je ziet het vanzelf: **voordat je op "Ga op pa
 
 **Inloggen**
 Open de link die je van de organisatie hebt gekregen, log in met de loginnaam en het wachtwoord van je team, en kies een teamnaam en icoon. Elk team krijgt automatisch een ander, nog vrij icoon voorgesteld.
-Op je inlogkaartje staat een **QR-code**: scan die met de camera van je telefoon en je bent meteen ingelogd. De code werkt 48 uur (de datum staat op het kaartje); daarna log je in met de loginnaam en het wachtwoord van het kaartje. Staat PointRush als app op je telefoon? Tik dan op het inlogscherm op **📷 Scan je kaartje** en houd de QR-code in het vak (de eerste keer vraagt de telefoon toestemming voor de camera). Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Kopieer de link dan in WhatsApp en tik in de app op **🔗 Inloggen met link**.
+Op je inlogkaartje staat een **QR-code**: scan die met de camera van je telefoon en je bent meteen ingelogd. De code werkt 48 uur (de datum staat op het kaartje); daarna log je in met de loginnaam en het wachtwoord van het kaartje. Op het inlogscherm staat bovenaan de grote knop **📷 Scan je kaartje**; naam en wachtwoord typen kan onder *Of typ je naam en wachtwoord*. Staat PointRush als app op je telefoon? Tik dan op **📷 Scan je kaartje** en houd de QR-code in het vak (de eerste keer vraagt de telefoon toestemming voor de camera). Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen; na de tijd die erbij staat word je vanzelf uitgelogd. Staat PointRush al als app op je telefoon? Scan dan in de app met **📷 Scan je kaartje** de QR-code van je kaartje of die van de spelleider.
 
 **Als app op je telefoon**
 Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (Android) of legt uit hoe je hem op je beginscherm zet (iPhone). Als app opent PointRush volledig scherm, zonder adresbalk.
@@ -24,7 +24,7 @@ Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (
 - **iPhone:** tik op de deelknop (vierkantje met pijl omhoog; in Safari onderin, in Chrome bovenin) → **Zet op beginscherm**.
 
 **Eén apparaat per team**
-Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude: tijdens het spel staat **🚪 Uitloggen** onderaan onder de oranje **i**-knop (zo tik je er niet per ongeluk op). Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om het apparaat te resetten.
+Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude: tijdens het spel staat **🚪 Uitloggen** onderaan onder de oranje **i**-knop (zo tik je er niet per ongeluk op). Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om de QR-code om in te loggen: scan je die met de nieuwe telefoon, dan neemt die het team over.
 
 **Locatie en geluid**
 Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Tik je bij de uitleg op **OK, begrepen**, dan hoor je meteen een geluidje en trilt je telefoon (Android): zo weet je dat je geluid goed staat. Hoor je niets, zet je telefoon dan niet op stil. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
@@ -48,7 +48,7 @@ Hoofdletters, accenten en spaties maken niet uit, en bij langere woorden mag er 
 Tijdens het spel blijft je scherm aan, zodat je telefoon niet in slaap valt en geluid en trillen altijd werken. Wil je batterij sparen? Zet dan onder de oranje **i**-knop **🔆 Scherm aan laten** uit.
 
 **Oorkonde**
-Bij de finish staat **🏅 Oorkonde delen**: een mooie afbeelding met jullie teamnaam, punten, tijd en afstand (en jullie plaats zodra de uitslag bekend is), om te delen in de groepsapp.
+Zodra de organisatie de uitslag vrijgeeft, staat bij de finish **🏅 Oorkonde delen**: een mooie afbeelding met jullie teamnaam, plaats, punten, tijd en afstand, om te delen in de groepsapp. Tegelijk komen ook *📖 Antwoorden & items* en *🗺️ Gelopen route* erbij. Daarvoor niet, zodat niemand de antwoorden doorgeeft aan teams die nog spelen.
 
 **Geluid**
 In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i**-knop (**🔊 Geluid**). Trillen blijft werken.
@@ -57,7 +57,7 @@ In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i*
 Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste teams kiezen. Kozen jullie hetzelfde als de meerderheid, dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).
 
 **🏆 Uitslag**
-Bij de uitslag komen de nummers 3, 2 en 1 op het podium. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
+Zodra de organisatie de uitslag vrijgeeft, zie je meteen jullie plaats over het hele scherm: de winnaar krijgt confetti en een fanfare, de andere teams een knipoog. Daarna komen in de eindstand de nummers 3, 2 en 1 op het podium. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
 
 **Puzzelwoord en tijdslimiet**
 Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes. Tik op 🧩 voor de uitleg en de punten; de uitleg staat ook in het welkomstscherm bij de start. Elke goed beantwoorde vraag geeft een letter (punten per letter). Alle letters gevonden? Dan krijg je een bonus. Mis je letters? Raad het woord dan bij de finish voor extra punten: tik op **Start** en je hebt 1 minuut, met één poging. Ingestuurde foto's: zolang ze op keuring wachten, zie je dat onder de puntenbalk; de punten komen erbij zodra de foto is goedgekeurd. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
@@ -66,7 +66,7 @@ Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk l
 Rode vlakken op de kaart zijn verboden gebieden (bijvoorbeeld een drukke weg). Loop je erin, dan trilt je telefoon en krijg je een melding: loop terug.
 
 **Kaart**
-De kaart begint altijd licht. Met de knop **☀️** rechts boven de itembalk wissel je naar een donkere kaart (🌙) of een luchtfoto (🛰️).
+De kaart begint altijd licht. Met de knop **☀️** linksonder naast 🎯 wissel je naar een donkere kaart (🌙) of een luchtfoto (🛰️).
 
 **Eindtijd**
 Heeft de organisatie een eindtijd ingesteld, dan zie je bovenin de app een aftelklok ⏰. In de laatste 10 minuten wordt die rood en krijg je een waarschuwing. Op de eindtijd stopt het spel voor iedereen en tellen jullie punten van dat moment, ook als je nog niet bij de finish bent.

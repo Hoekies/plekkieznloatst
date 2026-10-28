@@ -223,7 +223,7 @@ export default function BeginnenPagina() {
           <div className="pr-gem-panel"><div className="pr-gem-panel-inner">
             <h2 style={{ margin: "0 0 10px", fontFamily: "var(--font-display)", color: "#fff" }}>🆘 Hulp bij problemen</h2>
             <div className="sg-faq">
-              <div><strong>Een team kan niet inloggen</strong>Bij 👫 Spelers: <em>🔓 Apparaat</em> (de vorige telefoon loslaten) of 🔑 een nieuw kaartje sturen.</div>
+              <div><strong>Een team kan niet inloggen</strong>Bij 👫 Spelers: <em>📱 QR</em> laten scannen (die telefoon neemt het team over), <em>🚪 Uitloggen</em> of 🔑 een nieuw kaartje sturen.</div>
               <div><strong>Een punt is niet te bereiken</strong>Op het dashboard bij het team: <em>⏭️ Vrijgeven</em>. Het team krijgt de vraag waar het ook is.</div>
               <div><strong>Verkeerde punten gegeven</strong>Op het dashboard: <em>± Punten</em> met een reden (een minteken haalt punten eraf).</div>
               <div><strong>Werkt iets niet?</strong>Kijk bij <em>🩺 Systeemcheck</em> (menu, onder ⚙️ Instellingen): daar staat wat er mist en hoe je het oplost.</div>

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import TerugkijkScherm from "@/components/speler/TerugkijkScherm";
 import type { VraagType, FotoStatus } from "@/types/database";
-import { spelerOfNaarLogin } from "@/lib/speler-sessie";
+import { spelerOfNaarLogin, terugkijkenMag } from "@/lib/speler-sessie";
 
 export type TerugkijkItem = {
   punt_id: string;
@@ -49,6 +49,7 @@ export default async function TerugkijkPage() {
     .maybeSingle();
 
   if (!sessie) redirect("/speler/finish");
+  if (!(await terugkijkenMag(admin, sessie.route_id))) redirect("/speler/finish");
 
   // Alle voortgang voor deze sessie
   const { data: voortgang } = await admin

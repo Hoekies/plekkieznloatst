@@ -69,7 +69,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       aandacht.push({ id: `wacht-${s.player_id}`, kleur: "#A78BFA", tekst: `${s.wacht.soort === "spook" ? "👻" : "⛔"} ${s.display_name} moet wachten (${s.wacht.soort === "spook" ? "spook" : "plek zooi"}, nog ± ${min} min)`, speler: s });
     }
   }
-  if (wachtendeFotos > 0) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, klik: openFotoKeuren });
+  // Iedereen binnen en de uitslag nog dicht: de foto's staan dan al in de regel "Iedereen is binnen" (hieronder)
+  if (wachtendeFotos > 0 && !(onderweg === 0 && spelend.length > 0 && !uitslagVrij && !beperkt)) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, klik: openFotoKeuren });
   // 🧹 Vergeten spellen (uren niets): eigen melding met afsluiten, niet ook nog bij "niet gezien"
   const vergeten = spelend.filter((s) => (minutenNietGezien(s, nu) ?? 0) >= VERGETEN_MIN);
   if (vergeten.length && !beperkt) {
@@ -91,6 +92,45 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(minutenNietGezien(s, nu)!)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
   } else if (stil.length > 1) {
     aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${stil.length} teams een tijd niet gezien: ${stil.map((s) => s.display_name).join(", ")}` });
+  }
+
+  // 🏁 Iedereen is binnen: wat de spelleider nu moet doen, bovenaan en met de knop erbij. Eerst de foto's keuren
+  // (die tellen mee), dan de uitslag vrijgeven (pas dan zien de teams de eindstand, hun oorkonde, de antwoorden en
+  // de gelopen route), daarna het rapport bewaren en opruimen.
+  const iedereenBinnen = spelend.length > 0 && onderweg === 0;
+  if (iedereenBinnen && !beperkt) {
+    if (!uitslagVrij) {
+      aandacht.unshift({
+        id: "uitslag", kleur: "#00D9FF",
+        tekst: wachtendeFotos > 0
+          ? `🏁 Iedereen is binnen. Stap 1: keur de ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""}. Stap 2: geef de uitslag vrij.`
+          : "🏁 Iedereen is binnen: geef de uitslag vrij. Tot dan wachten de teams op hun eindstand, oorkonde, antwoorden en gelopen route.",
+        actie: (
+          <span style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            {wachtendeFotos > 0 && <button type="button" className="rl-knop rl-knop--groen" onClick={openFotoKeuren}><Icoon naam="camera" /> Foto&apos;s keuren</button>}
+            <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Uitslag vrijgeven?" ja="Ja, vrijgeven" onBevestig={geefUitslagVrij}
+              vraag={`Alle teams zien dan de eindstand, hun oorkonde, de antwoorden en de gelopen route.${wachtendeFotos > 0 ? ` ⚠️ Er ${wachtendeFotos === 1 ? "is nog 1 foto" : `zijn nog ${wachtendeFotos} foto's`} niet gekeurd.` : ""}`}
+              className={`rl-knop${wachtendeFotos > 0 ? "" : " rl-knop--cyan"}`}>
+              <Icoon naam="uitslag" /> Uitslag vrijgeven
+            </BevestigKnop>
+          </span>
+        ),
+      });
+    } else {
+      aandacht.unshift({
+        id: "afgerond", kleur: "#4ADE80",
+        tekst: "✅ Uitslag vrijgegeven. Bewaar nu het rapport; daarna ruim je op met 🧹 Opruimen.",
+        actie: <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"><Icoon naam="rapport" /> Rapport</a>,
+      });
+    }
+  }
+  async function geefUitslagVrij() {
+    const res = await fetch("/api/admin/uitslag", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij: true }),
+    }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    toonMelding(res?.ok ? "Uitslag vrijgegeven: iedereen ziet de eindstand" : uitlegBijStatus(res?.status ?? 0, "Uitslag vrijgeven", data.fout), res?.ok ? "ok" : "fout");
+    if (res?.ok) onGewijzigd();
   }
 
   async function sluitVergeten(lijst: SpelerOverzicht[]) {
@@ -122,7 +162,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   }, [aandacht.length, vorigAantal]);
   const status = (
     <>
-      {start ? `Speelt sinds ${duurKort(Math.floor((nu - new Date(start).getTime()) / 60000))}` : "Spel loopt"} · {onderweg} onderweg
+      {start ? `Speelt sinds ${duurKort(Math.floor((nu - new Date(start).getTime()) / 60000))}` : "Spel loopt"} · {iedereenBinnen ? "🏁 iedereen is binnen" : `${onderweg} onderweg`}
       {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
     </>
   );

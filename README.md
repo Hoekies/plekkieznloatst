@@ -25,7 +25,7 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Verspreid-modus: automatische puntgenerator in cirkelpatroon, met versleepbaar middelpunt en ghost-voorvertoning
 - Teams starten verspreid over de route, met ongeveer gelijke aanloop vanaf de startplek
 - Spelers aanmaken, in-/uitschakelen, verwijderen en inloggegevens beheren; inloggegevens versturen via WhatsApp
-- Een speler direct uitloggen of het gekoppelde apparaat resetten
+- Een speler direct uitloggen (daarna kan het team op elke telefoon opnieuw inloggen)
 - Dashboard met stappenplan, spelleider (wat vraagt aandacht), stand, tijdlijn en details per speler
 - Live kaart met vaste kleur per speler, speler volgen en spoor van de laatste 10 minuten
 - Scherpe vectorkaart (OpenFreeMap) in licht, donker of luchtfoto (PDOK), met parkeerplaatsen, huisnummers en alleen openbare paden

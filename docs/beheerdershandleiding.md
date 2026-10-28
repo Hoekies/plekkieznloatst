@@ -339,7 +339,7 @@ Met **+ Spelers** maak je in één keer tot 30 teams aan, elk met een makkelijk 
 
 Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (4 uur, ½ dag, **1 dag** of 2 dagen). Standaard gaan wachtwoord én directe link samen mee op het kaartje. Wil je alleen een link sturen (zonder wachtwoord), tik dan onderaan op *🔗 Alleen een link sturen*.
 
-**📱 QR om in te loggen** (de knop *QR* naast de 🔑): een grote QR-code op het scherm. De speler scant hem met de camera van zijn telefoon en is meteen ingelogd, zonder typen (een inloglink die 12 uur geldig is). Handig aan de start: telefoon erbij, scannen, klaar. Speelt het team al op een andere telefoon, dan meldt het venster dat. Wie scant, neemt het team over: de telefoon die scant wordt de teamtelefoon en de vorige telefoon wordt uitgelogd. Dat geldt voor elke inloglink, ook een link via WhatsApp. Met loginnaam en wachtwoord gaat het niet zo: dan weigert de app een tweede telefoon (met een melding) tot je op *Apparaat* tikt. Let op bij de iPhone: de gewone camera opent de link in Safari, en Safari telt als een ander apparaat dan de geïnstalleerde app. Speelt het team in de app, scan dan met *📷 Scan je kaartje* in de app zelf.
+**📱 QR om in te loggen** (de knop *QR* naast de 🔑): een grote QR-code op het scherm. De speler scant hem met de camera van zijn telefoon en is meteen ingelogd, zonder typen (een inloglink die 12 uur geldig is). Handig aan de start: telefoon erbij, scannen, klaar. Speelt het team al op een andere telefoon, dan meldt het venster dat. Wie scant, neemt het team over: de telefoon die scant wordt de teamtelefoon en de vorige telefoon wordt uitgelogd. Dat geldt voor elke inloglink, ook een link via WhatsApp. Met loginnaam en wachtwoord gaat het niet zo: dan weigert de app een tweede telefoon (met een melding) tot je het team met **🚪 Uitloggen** uitlogt. Let op bij de iPhone: de gewone camera opent de link in Safari, en Safari telt als een ander apparaat dan de geïnstalleerde app. Speelt het team in de app, scan dan met *📷 Scan je kaartje* in de app zelf.
 
 Typt een speler een bestaande naam met een verkeerd wachtwoord, dan blijft de naam staan en vraagt de app alleen het wachtwoord opnieuw.
 - Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
@@ -347,7 +347,7 @@ Typt een speler een bestaande naam met een verkeerd wachtwoord, dan blijft de na
 
 Na **Opslaan en versturen** zie je het **inlogkaartje** (logo, QR-code waarmee de speler meteen inlogt, loginnaam en wachtwoord) met daaronder **WhatsApp**: het kaartje gaat als afbeelding naar de chat die je kiest, met het hele bericht eronder:
 - naar de site gaan en inloggen met **loginnaam** en **wachtwoord**;
-- wat te doen als PointRush al als app op de telefoon staat (link kopiëren → **🔗 Inloggen met link**);
+- wat te doen als PointRush al als app op de telefoon staat (in de app met **📷 Scan je kaartje** de QR-code van het kaartje scannen);
 - en onderaan 👉 **Direct inloggen** met de link (en tot wanneer die werkt).
 
 Op de telefoon zet WhatsApp dat bericht als bijschrift bij het kaartje: één bericht. Op de computer kopieert de app het kaartje en opent WhatsApp met de tekst al ingevuld (bij een bekend nummer meteen de goede chat); plak het kaartje met **Ctrl+V**, dan komt de tekst er als bijschrift onder, ook als één bericht. Lukt dat niet, dan gaat het via het deelmenu; laat WhatsApp de tekst dan weg, tik op **Tekst ontbreekt? Stuur het bericht erachteraan**.
@@ -370,7 +370,7 @@ Met de **📞 Telefoon** rechts op de spelerskaart (naast de 🔑) vul je het te
 In hetzelfde venster achter de **🔑** kies je bovenin **🔗 Link zonder wachtwoord**. Kies hoe lang de link geldig is (**4 uur**, **½ dag**, **1 dag** of **2 dagen**) en tik **🔗 Link maken**. Je krijgt een QR-code (om ter plekke te laten scannen) en **WhatsApp**: een bericht met de link en tot wanneer hij werkt.
 
 - Het team tikt op de link en is meteen ingelogd, zonder loginnaam en wachtwoord. Binnen de geldigheid werkt de link vaker, bijvoorbeeld na het wegdrukken van de app. Eén telefoon per team blijft gelden.
-- **Staat PointRush als app op de telefoon?** Een link uit WhatsApp opent in de browser, en de app heeft een eigen inlog. Laat het team de link dan in WhatsApp ingedrukt houden → **Kopiëren**, de app openen en op het inlogscherm **🔗 Inloggen met link** tikken: de app pakt de link van het klembord (of ze plakken hem). Dit staat ook kort in het WhatsApp-bericht.
+- **Staat PointRush als app op de telefoon?** Een link uit WhatsApp opent in de browser, en de app heeft een eigen inlog. Laat het team dan in de app op **📷 Scan je kaartje** tikken en de QR-code van het kaartje scannen, of laat ze de grote QR uit het beheer scannen (*QR* op de spelerskaart). Dit staat ook kort in het WhatsApp-bericht.
 - **Is de tijd om**, dan wordt het team automatisch uitgelogd (binnen een halve minuut) en werkt de link niet meer. Een lopend spel blijft bewaard.
 - Op de spelerskaart zie je **🔗 tot …** zolang het team via een link toegang heeft. Met **Intrekken** (in hetzelfde venster) werkt geen enkele link van dat team meer en wordt het team uitgelogd.
 - Logt het team daarna gewoon in met loginnaam en wachtwoord, dan geldt er geen tijdslimiet.
@@ -391,17 +391,18 @@ Handig bij een testspeler die niet meer mee moet doen, of om teams tijdelijk te 
 
 Met de rode **🗑️** rechts op de spelerskaart (naast de schakelaar) verwijder je een speler helemaal, na bevestiging: het inlogaccount, alle spellen (score, antwoorden, gelopen route), de ingestuurde foto's en de regels in het itemlogboek. De loginnaam is daarna weer vrij. Speelt de speler nog, dan is de 🗑️ grijs: stop eerst het spel. Let op: bij een afgelopen spel verdwijnt de speler ook uit het rapport en de uitslag, dus maak eerst de PDF als je die wilt bewaren.
 
-#### Apparaat resetten
+#### Een team kan niet inloggen (andere telefoon)
 
-Een team kan maar op één apparaat tegelijk ingelogd zijn. Wordt de app weggedrukt zónder uit te loggen, dan blijft die koppeling hangen en kan het team **op geen enkel apparaat meer inloggen** — ook niet op hetzelfde.
+Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil het team wisselen van telefoon, of is de oude telefoon weg of leeg, dan zijn er twee oplossingen, allebei met behoud van alle voortgang en punten:
 
-Klik dan op **🔓 Apparaat** op de spelerskaart (alleen zichtbaar zolang er een toestel gekoppeld is). De koppeling wordt losgelaten en het team kan direct opnieuw inloggen, met behoud van alle voortgang en punten.
+- Laat de nieuwe telefoon de QR-code scannen (*QR* op de spelerskaart). Die telefoon neemt het team over; de oude wordt uitgelogd.
+- Of klik op **🚪 Uitloggen**: dan kan het team op elke telefoon opnieuw inloggen met naam en wachtwoord.
 
 > Dit is de meest voorkomende storing tijdens een spel. Als een team belt met "we kunnen niet meer inloggen", is dit vrijwel altijd de oplossing.
 
 #### Een team direct uitloggen
 
-De knop **🚪 Uitloggen** staat alleen op de spelerskaart zolang het team ingelogd is (groen **● Ingelogd**). Alle knoppen van een speler (🔓 Apparaat, 🚪 Uitloggen, ⏹️ Stop spel, 📞, 🔑, 🗑️) staan in één rij; op de telefoon als één balk met onder elk icoon een korte tekst. Klik erop om een team meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt het team automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
+De knop **🚪 Uitloggen** staat alleen op de spelerskaart zolang het team ingelogd is (groen **● Ingelogd**). Alle knoppen van een speler (🚪 Uitloggen, ⏹️ Stop spel, 📞, 🔑, 🗑️) staan in één rij; op de telefoon als één balk met onder elk icoon een korte tekst. Klik erop om een team meteen uit te loggen, ook als hun sessie op dit moment nog open staat. Binnen zo'n 20 seconden wordt het team automatisch teruggestuurd naar het inlogscherm, met de melding "Je bent door de beheerder uitgelogd." Hun apparaatkoppeling wordt tegelijk losgelaten, zodat ze (of iemand anders) direct opnieuw kunnen inloggen.
 
 Handig als je een team bewust wilt onderbreken — bijvoorbeeld bij onsportief gedrag of een verkeerd uitgedeelde inlog.
 
@@ -533,6 +534,7 @@ Stap 1 van **🧹 Opruimen** (naast **🏁 Afronden** in het Spelleider-blok) is
 - Alle ingestuurde foto's, ook uit de opslag van Supabase
 - Alle opgepakte items (die liggen weer op de kaart), startitems, effecten en het itemlogboek
 - De uitslag gaat weer op verborgen, de eindtijd en een pauze gaan eraf en stemvragen gaan weer open (stel de eindtijd voor de volgende groep opnieuw in)
+- Alle spelers worden uitgelogd (binnen ongeveer 20 seconden) en geen telefoon blijft aan een team gekoppeld; de wachtwoorden blijven hetzelfde
 
 Lukt een stap niet, dan stopt het opruimen en zegt de melding welke stap; probeer het dan opnieuw.
 
@@ -557,7 +559,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 - **✓ Toch goed** — lijkt een fout antwoord genoeg op het goede (een tikfout, een andere schrijfwijze)? Klik erop en het team krijgt alsnog de punten van het goede antwoord.
 - **Foto-opdrachten** — teams sturen een foto in en spelen meteen door. Jij keurt de foto's hier (✓ met punten, of ✗). De punten gaan direct bij de score op, ook als het team al gefinisht is.
 - **📷 Foto's beoordelen** (bovenaan het dashboard, met het aantal wachtende foto's): één foto tegelijk, groot in beeld, met het team en het punt. Pas eventueel de punten aan (standaard het maximum) en tik **✓ Goed** of **✗ Afkeuren**; daarna komt vanzelf de volgende. Twijfel je, tik dan **Later**: die foto komt achteraan. Op de pc gaat het nog sneller met de toetsen **G** (goed), **F** (afkeuren) en **S** (later). Hetzelfde venster opent vanuit de spelstrook, de spelleider, *Antwoorden → Foto's* en de pushmelding *"📸 Nieuwe foto"*.
-- **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
+- **🏆 Uitslag vrijgeven** — teams die gefinisht zijn zien "Even geduld…" tot jij hier de uitslag vrijgeeft; daarna verschijnt de eindstand binnen ongeveer 10 seconden bij iedereen. Pas dan zien de teams ook hun oorkonde, hun antwoorden en items en hun gelopen route. Is iedereen binnen, dan staat in het Spelleider-blok bovenaan wat je nog moet doen, met de knop erbij: eerst de foto's keuren, dan de uitslag vrijgeven, daarna het rapport bewaren. Zijn er nog teams onderweg of foto's niet gekeurd, dan waarschuwt de knop eerst. Je kunt de uitslag ook weer verbergen.
 
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groepsapp of persoon. Met **👫 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 - **📸 Fotoalbum** (bij Rapport delen) — alle foto's van de foto-opdrachten op één pagina, met teamnaam en punt; tik op een foto om hem groot te zien en door te bladeren. Met **📲 Delen** stuur je de link (bijvoorbeeld in de groepsapp); openen kan zonder inloggen. Afgekeurde foto's staan er niet in.
@@ -581,7 +583,7 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 - **Radar**: een team dat Radar gebruikt, ziet 2 minuten lang de exacte GPS-posities van alle andere teams. Daarna keert de weergave terug naar de globale positie.
 - **Rondje**: het eerste punt is het startpunt en het laatste de finish — samen op één verzamelplek. Kies daarvoor een centrale plek waar alle teams goed kunnen samenkomen.
 - **Aantal teams instellen** (Rondje): stel het verwachte aantal teams in vóórdat je de route activeert. Dit bepaalt hoeveel startplekken er over het rondje worden verdeeld. Een team dat begint, krijgt de **eerste vrije startplek** (gestopte of oude spellen tellen niet mee, dus wie opnieuw begint komt nooit op de plek van een ander). Zijn er **meer teams dan startplekken**, dan start het extra team op een bezette plek maar loopt het rondje **de andere kant op**, zodat ze niet samen lopen. Klopt het aantal spelers niet met het ingestelde aantal teams, dan waarschuwt het stappenplan op het dashboard, met een knop naar de route.
-- **Eén login per apparaat**: een team kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur het team naar **Uitloggen** op het oude apparaat als ze willen wisselen, gebruik **🔓 Apparaat** (bij Spelers) als dat niet meer lukt, of log het team vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
+- **Eén login per apparaat**: een team kan niet gelijktijdig op twee apparaten ingelogd zijn — bij een tweede inlogpoging wordt die nieuwe poging geweigerd en blijft het eerste apparaat actief. Stuur het team naar **Uitloggen** op het oude apparaat als ze willen wisselen, laat de nieuwe telefoon de QR-code scannen, of log het team vanuit het adminpaneel zelf uit met **🚪 Uitloggen**.
 - **Icoon kiezen**: elk team kiest bij het interscherm automatisch een nog vrij icoon; zodra alle iconen vergeven zijn mogen teams er eentje dubbel hebben.
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
 

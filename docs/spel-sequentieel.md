@@ -14,11 +14,11 @@ Alle teams lopen dezelfde route, in dezelfde volgorde. Je kunt elkaar dus onderw
 ## Hoe begin je?
 
 1. Open de link die je van de organisatie hebt gekregen op je telefoon.
-2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Kopieer de link en tik in de app op **🔗 Inloggen met link**.)
+2. Log in met de **loginnaam** en het **wachtwoord** van je team. Kreeg je een link om **direct in te loggen**? Tik daarop, dan hoef je niets in te vullen. (Staat PointRush al als app op je telefoon? Tik in de app op **📷 Scan je kaartje** en scan de QR-code van je kaartje.)
 3. Kies een teamnaam en een icoon (elk team krijgt automatisch een ander, nog vrij icoon voorgesteld).
 4. Lees de uitleg, tik op **OK, begrepen** (je hoort een geluidje en de telefoon trilt), geef locatietoegang, en druk op **Ga op pad** — de kaart opent en jullie eerste punt verschijnt.
 
-> Een team kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om het apparaat te resetten.
+> Een team kan maar op één apparaat tegelijk ingelogd zijn. Log eerst uit op het oude apparaat als jullie willen wisselen van telefoon. Lukt inloggen niet meer omdat de app is weggedrukt zonder uitloggen? Vraag de organisatie om de QR-code om in te loggen.
 
 ---
 
@@ -30,7 +30,7 @@ Op de kaart zie je:
 - **🎯 Centreren** — linksonder: zet de kaart weer op jullie plek. Of je bij een punt bent, controleert de app zelf.
 - **Afstand en pijl** — rechtsboven: hoe ver het volgende punt is en welke kant op. Tik erop om de pijl mee te laten draaien met je telefoon (🧭 kompas); anders wijst hij zoals de kaart, met het noorden boven.
 - **➤ Afstand en richting** — rechtsboven: hoe ver het volgende punt nog is en een pijltje die kant op (de kaart staat altijd met het noorden boven)
-- **☀️** rechts, net boven de itembalk — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
+- **☀️** linksonder, naast 🎯 — tik om te wisselen tussen een lichte kaart, een donkere kaart (🌙) en een luchtfoto (🛰️). De kaart begint altijd licht
 - **Het volgende doel** — genummerd cirkeltje
 - **Reeds bezochte punten** — groen met een vinkje
 - **Andere teams** zie je alleen als ze binnen 25 meter van jullie zijn (met hun icoon en naam) — en zij jullie ook

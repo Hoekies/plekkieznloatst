@@ -208,7 +208,8 @@ export async function POST(request: NextRequest) {
 
       if (onbezochtSpo.length < 2) {
         await admin.from("special_items").update({ used_at: null }).eq("id", item.id);
-        return NextResponse.json({ fout: "Deze tegenstander heeft niet genoeg punten over om te wisselen" }, { status: 400 });
+        // "Punten" las als score; het gaat om de plekken op de kaart die dit team nog moet lopen
+        return NextResponse.json({ fout: "Bij dit team kan de banaan niets meer omwisselen: ze zijn bijna klaar. Kies een ander team, je houdt de banaan." }, { status: 400 });
       }
 
       // Het volgende punt ruilt van plek met het punt daarna: 1-2-3 wordt 2-1-3.

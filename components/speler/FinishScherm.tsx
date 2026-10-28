@@ -12,6 +12,7 @@ import Oorkonde from "./Oorkonde";
 import PuzzelWoord from "./PuzzelWoord";
 import { strooiConfetti } from "@/lib/confetti";
 import Podium from "./Podium";
+import UitslagOnthulling from "./UitslagOnthulling";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
@@ -83,6 +84,19 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsNaFinish]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 🏆 Zodra de uitslag vrij is (ook als die binnenkomt terwijl de pagina open staat): één keer per toestel de
+  // eigen plaats over het hele scherm, met confetti en fanfare voor de winnaar en een knipoog voor de rest
+  const [onthulling, setOnthulling] = useState<{ plaats: number; aantal: number } | null>(null);
+  useEffect(() => {
+    if (!vrij || !leaderboard.length) return;
+    const eigen = leaderboard.find((e) => e.is_eigen_team);
+    if (!eigen) return;
+    const sleutel = `pr_uitslag_gezien_${routeNaam ?? ""}_${groepNaam}_${tijdSeconden}`;
+    try { if (localStorage.getItem(sleutel)) return; localStorage.setItem(sleutel, "1"); } catch { /* geen opslag: gewoon tonen */ }
+    setOnthulling({ plaats: eigen.rank, aantal: leaderboard.length });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vrij, leaderboard]);
 
   useEffect(() => {
     // 🎉 Confetti bij binnenkomst, in de kleuren van het seizoen: een knal en daarna een regen
@@ -156,9 +170,16 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         {/* 🧩 Puzzelwoord raden voor bonuspunten (als de route er een heeft) */}
         <PuzzelWoord raden />
 
-        {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is; daarvoor met "voorlopige score") */}
+        {/* Oorkonde, antwoorden en gelopen route pas als de spelleider de uitslag vrijgeeft: anders kan een team de
+            antwoorden doorgeven aan teams die nog spelen. Tot dan een korte uitleg. */}
+        {!vrij && (
+          <div className="finish-na-uitslag">
+            🔒 Na de uitslag: je <strong>oorkonde</strong>, alle <strong>antwoorden &amp; items</strong> en je <strong>gelopen route</strong>.
+          </div>
+        )}
+        {vrij && <>
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
-          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={!vrij} />
+          plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>
@@ -175,6 +196,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
             🗺️ Gelopen route
           </button>
         </div>
+        </>}
 
         {/* Items na de finish: nog inzetten op teams die onderweg zijn, tot de uitslag vrij is */}
         {itemsNaFinish && !vrij && items.length > 0 && (
@@ -228,10 +250,14 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
           />
         )}
 
-        {/* Leaderboard */}
-        <div style={{ width: "100%" }}>
-          <h2 style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, marginBottom: 14, color: "#00d9ff" }}>
-            <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> {vrij ? "Eindstand" : "Wachten op de uitslag"}
+        {onthulling && <UitslagOnthulling plaats={onthulling.plaats} aantal={onthulling.aantal} kleuren={[...thema.kleuren]}
+          onSluit={() => { setOnthulling(null); document.getElementById("eindstand")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />}
+
+        {/* Leaderboard; na het vrijgeven feestelijk: gouden lijst, stralen erachter, podium en de rijen schuiven binnen */}
+        <div id="eindstand" className={vrij && leaderboard.length ? "eindstand-feest" : undefined} style={{ width: "100%" }}>
+          {vrij && leaderboard.length > 0 && <div className="eindstand-stralen" aria-hidden />}
+          <h2 className={vrij ? "eindstand-titel" : undefined} style={vrij ? undefined : { display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, marginBottom: 14, color: "#00d9ff" }}>
+            <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> {vrij ? <span className="eindstand-glans">Eindstand</span> : "Wachten op de uitslag"}
           </h2>
           {!vrij ? (
             <div style={{
@@ -254,8 +280,11 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
               <Podium stand={leaderboard} />
               <UitslagDelen routeNaam={routeNaam} huisLogo={huisLogo} knopStijl={{ width: "100%", fontSize: "0.95rem", padding: "13px 6px", borderRadius: 14, fontWeight: 800 }}
                 stand={leaderboard.map((e) => ({ naam: e.display_name, icon: e.icon, foto: e.foto ?? null, score: e.score, plaats: e.rank, eigen: e.is_eigen_team }))} />
-              {leaderboard.map((entry) => (
-                <StandRij key={entry.rank} entry={entry} />
+              {leaderboard.map((entry, i) => (
+                <div key={`${entry.rank}-${entry.display_name}`} className={`eindstand-rij${entry.rank <= 3 ? ` eindstand-rij--${entry.rank}` : ""}`}
+                  style={{ animationDelay: `${2.2 + i * 0.15}s` }}>
+                  <StandRij entry={entry} />
+                </div>
               ))}
             </div>
           )}

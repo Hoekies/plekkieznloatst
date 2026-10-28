@@ -36,6 +36,8 @@ interface Props {
   centreerVerzoek?: number;
   // Hoogte (px) waarboven de knoppen voor licht/donker/luchtfoto staan (boven de itembalk)
   stijlOnder?: number;
+  // Links in plaats van rechts (px van de linkerkant): op de spelerskaart naast 🎯
+  stijlLinks?: number;
   ghostedPuntId: string | null;
   // Eerste meters na de start: welke kant op (het volgende punt); er komt een korte stippellijn die kant op
   richtingNaar?: { latitude: number; longitude: number } | null;
@@ -44,7 +46,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0 }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -130,7 +132,15 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   useEffect(() => {
     if (!centreerVerzoek || !positie || !mapRef.current) return;
     const map = mapRef.current;
-    map.setView([positie.latitude, positie.longitude], Math.max(map.getZoom(), ZOOM_SPELER), { animate: true });
+    // iPhone: de adresbalk en thuisbalk veranderen de schermhoogte zonder dat Leaflet het merkt; eerst de maat
+    // opnieuw meten, anders komt de eigen plek scheef in beeld
+    map.invalidateSize({ pan: false });
+    const doel: [number, number] = [positie.latitude, positie.longitude];
+    const zoom = Math.max(map.getZoom(), ZOOM_SPELER);
+    // Inzoomen met animatie hapert op de iPhone (de scherpe kaart loopt dan achter): inzoomen meteen,
+    // alleen het verschuiven op hetzelfde zoomniveau gaat vloeiend
+    if (zoom !== map.getZoom()) map.setView(doel, zoom, { animate: false });
+    else map.panTo(doel, { animate: true, duration: 0.4 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centreerVerzoek]);
 
@@ -392,8 +402,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         }
       `}</style>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-      {/* Rechts, onder elkaar, net boven de itembalk: licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
-      <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} verticaal enkel onderAfstand={stijlOnder} />
+      {/* Net boven de itembalk (rechts, of links naast 🎯): licht, donker of luchtfoto (zonder vectorkaart geen donker) */}
+      <KaartStijlKnoppen stijl={stijl} onKies={kiesStijl} verticaal enkel onderAfstand={stijlOnder} linksAfstand={stijlLinks} />
     </>
   );
 }

@@ -62,7 +62,7 @@ export default function AppInstallatie({ toonKnop = false }: { toonKnop?: boolea
     <>
       {verzoek && (
         <button type="button" className="app-installeer-knop" data-geen-volledig onClick={installeer}>
-          📲 Installeer als app — volledig scherm, zonder balken
+          📲 Installeer als app
         </button>
       )}
       {vraag && createPortal(

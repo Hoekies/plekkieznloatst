@@ -45,6 +45,14 @@ export async function spelerOfNaarLogin() {
   return uit;
 }
 
+// Terugkijken (antwoorden, items, gelopen route) en de oorkonde pas als de beheerder de uitslag heeft vrijgegeven,
+// zodat geen team de antwoorden doorgeeft aan teams die nog spelen. Een oud spel (route niet meer actief) mag altijd.
+export async function terugkijkenMag(admin: ReturnType<typeof createAdminClient>, routeId: string | null | undefined): Promise<boolean> {
+  if (!routeId) return true;
+  const { data: route } = await admin.from("routes").select("is_active, uitslag_vrijgegeven").eq("id", routeId).maybeSingle();
+  return !route || !route.is_active || !!route.uitslag_vrijgegeven;
+}
+
 // De ingelogde speler en zijn spel. Standaard alleen een lopend spel;
 // ookVoltooid: het laatste lopende of gefinishte spel (finish, terugkijken).
 export async function haalSpelerSessie({ ookVoltooid = false }: { ookVoltooid?: boolean } = {}) {
