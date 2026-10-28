@@ -72,7 +72,7 @@ export default async function TerugkijkPage() {
   // Vragen
   const { data: vragen } = await admin
     .from("questions")
-    .select("id, route_point_id, type, question_text, question_image_path, points")
+    .select("id, route_point_id, type, question_text, question_image_path, points, correct_text_answers, numeric_answer, numeric_tolerance")
     .in("route_point_id", puntIds);
 
   const vraagMap = new Map((vragen ?? []).map((v) => [v.route_point_id, v]));
@@ -146,17 +146,27 @@ export default async function TerugkijkPage() {
     let juisteTekst: string | null = null;
     let juisteAfbeelding: string | null = null;
 
-    if (vraag && v.selected_answer_id) {
+    // Wat goed was: bij meerkeuze alle goede antwoorden (er kunnen er meer zijn), bij een open vraag de
+    // goedgekeurde antwoorden of het getal met de marge. Ook als het team te laat was (geen keuze). Een
+    // stemvraag heeft geen goed antwoord (de meerderheid besliste).
+    if (vraag && vraag.type !== "stemvraag" && vraag.type !== "foto_opdracht") {
       const vraagOpties = optiesPerVraag.get(vraag.id) ?? [];
       const gekozen = vraagOpties.find((o) => o.id === v.selected_answer_id);
-      const juiste = vraagOpties.find((o) => o.is_correct);
+      const juiste = vraagOpties.filter((o) => o.is_correct);
       gekozenTekst = gekozen?.text ?? null;
       gekozenAfbeelding = gekozen?.image_path ?? null;
-      juisteTekst = juiste?.text ?? null;
-      juisteAfbeelding = juiste?.image_path ?? null;
-    } else if (vraag && vraag.type === "open" && v.is_correct === false) {
-      // Toon het eerste geaccepteerde antwoord als hint
-      juisteTekst = null; // zit in vraag.correct_text_answers maar die fetchen we hier niet
+      if (vraag.type === "open") {
+        juisteTekst = vraag.numeric_answer !== null
+          ? `${vraag.numeric_answer}${vraag.numeric_tolerance ? ` (± ${vraag.numeric_tolerance})` : ""}`
+          : (vraag.correct_text_answers ?? []).join(" · ") || null;
+      } else {
+        juisteTekst = juiste.map((o) => o.text).filter(Boolean).join(" · ") || null;
+        juisteAfbeelding = juiste.find((o) => o.image_path)?.image_path ?? null;
+      }
+    } else if (vraag && v.selected_answer_id) {
+      const gekozen = (optiesPerVraag.get(vraag.id) ?? []).find((o) => o.id === v.selected_answer_id);
+      gekozenTekst = gekozen?.text ?? null;
+      gekozenAfbeelding = gekozen?.image_path ?? null;
     }
 
     return {

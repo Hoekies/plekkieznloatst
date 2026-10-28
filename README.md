@@ -125,7 +125,7 @@ SUPABASE_SERVICE_ROLE_KEY=jouw-service-role-key
 
 Voor een **nieuw, leeg** Supabase-project: voer `supabase/migrations/001_schema.sql` in één keer uit in de Supabase SQL Editor. Dat bestand bevat het volledige schema: de samengevoegde oude migraties 001–038 en daaronder de latere migraties 002–026, elk onder een kopje met hun oude nummer (meldingen in de app en de Systeemcheck noemen dat nummer, bijv. "migratie 023"). Bovenin staat wat je daarna nog in het dashboard moet doen (storage-buckets en de beheerder).
 
-**Nieuw: `002_atomaire_acties.sql`** (28 oktober 2026, na de audits): scores, itemwissels en de banaan in één stap in de database, en één vraag per punt. Draai dit bestand één keer in de SQL Editor; tot dan werkt de app op de oude manier verder en meldt de Systeemcheck het.
+**Nieuw: `002_atomaire_acties.sql`** (28 oktober 2026, na de audits): scores, itemwissels en de banaan in één stap in de database, en één vraag per punt. Draai dit bestand één keer in de SQL Editor; tot dan werkt de app op de oude manier verder en meldt de Systeemcheck het. **Nieuw: `003_afschermen_en_startitems.sql`**: spelers kunnen de tabel `routes` (met het puzzelwoord) niet meer zelf lezen, en startitems worden maar één keer per spel uitgedeeld.
 
 De bestaande database heeft dit allemaal al (gecontroleerd op 25 oktober 2026). Nieuwe wijzigingen komen weer als `002_…`, `003_…` enz. in dezelfde map; draai ze op volgorde in de SQL Editor (ze mogen vaker gedraaid worden). De oude losse migraties staan in de git-geschiedenis.
 

@@ -15,6 +15,9 @@ export default function DeviceGuard() {
       deviceId = crypto.randomUUID();
       localStorage.setItem(DEVICE_ID_KEY, deviceId);
     }
+    // Ook als cookie, zodat de server bij élk verzoek ziet van welke telefoon het komt (lib/speler-sessie.ts):
+    // een tweede telefoon van hetzelfde team wordt dan ook door de server geweigerd, niet alleen door deze controle
+    document.cookie = `pr_toestel=${deviceId}; path=/; max-age=31536000; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
 
     let gestopt = false;
 

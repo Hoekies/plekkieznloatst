@@ -1,6 +1,6 @@
 {
   "datum": "2026-10-27",
-  "methode": "Echte hulp-API en geëxtraheerde zoekfunctie; effectcontrole met React/fetch-mocks. FOUT betekent huidig gebrek bevestigd.",
+  "methode": "Echte hulp-API en geëxtraheerde zoekfunctie; effectcontrole met React/fetch-mocks. FOUT = nog open gebrek bevestigd; OPGELOST = sinds 28-10-2026 gerepareerd.",
   "resultaten": [
     {
       "naam": "Route-editor krijgt eigen hulp met vier hoofdstukken",
@@ -11,15 +11,15 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: aparte vraag-editor krijgt dezelfde algemene hulp als de route-editor",
+      "naam": "OPGELOST: de aparte vraag-editor krijgt bovenaan de uitleg bij het invullen van een vraag",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: link naar starten heeft geen doel in de hulpkolom",
+      "naam": "OPGELOST: link naar Het spel starten gaat naar de volledige handleiding (nieuw tabblad)",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: verouderde verwijzing plaatst puzzelwoord nog onder instellingen-tab Spel",
+      "naam": "OPGELOST: de hulp verwijst voor het puzzelwoord naar de werkbalk, niet meer naar Instellingen → Spel",
       "geslaagd": true
     },
     {
@@ -31,15 +31,15 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: gecombineerde knopnaam Vraag invullen / bewerken wordt niet herkend",
+      "naam": "OPGELOST: gecombineerde knopnaam Vraag invullen / bewerken wordt herkend",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: gelijknamige Instellingen-knoppen wijzen naar de eerste in DOM",
+      "naam": "OPGELOST: bij gelijknamige knoppen wint de knop op de pagina van die in het menu",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: visibility hidden wordt als zichtbaar beschouwd bij knopzoeken",
+      "naam": "OPGELOST: een knop met visibility hidden wordt niet aangewezen",
       "geslaagd": true
     },
     {
@@ -47,7 +47,7 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: netwerkfout wordt gecachet en opnieuw openen probeert niet opnieuw",
+      "naam": "OPGELOST: na een netwerkfout volgt een foutmelding en Opnieuw proberen haalt opnieuw op",
       "geslaagd": true
     },
     {

@@ -2317,7 +2317,7 @@ button.route-stap:hover { color: var(--ink); }
     display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     font-size: 1.05rem !important; line-height: 1;
   }
-  .gb-label, .gb-label--altijd { display: block; margin: 0; font-size: 0.58rem; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .gb-label, .gb-label--altijd { display: block; margin: 0; font-size: 0.66rem; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .gb-kaart .gb-verwijder:disabled { display: none; }
   .gb-login-woord, .gb-tel-punt { display: none; }
   .gb-tel { display: flex; margin-top: 2px; }
@@ -2767,7 +2767,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .rl-icoonknoppen > * { flex: 1 1 0; min-width: 0; }
   .rl-icoonknoppen > .rl-leeg { display: none !important; }
   .pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: auto !important; padding: 0 2px; }
-  .rl-knop-label { font-size: 0.58rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .rl-knop-label { font-size: 0.66rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* Kaartbediening op de telefoon: één rustige balk onderaan (icoontjes), naast de knop "≡ Lijst" */
@@ -2795,7 +2795,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .editor-gereedschap-rij .editor-groep { display: contents; }
   .editor-gereedschap-rij .editor-opnieuw { display: none !important; }
   .route-editor-topbar .editor-gereedschap-rij .rl-knop { min-width: 0 !important; width: 100%; padding: 0 2px !important; border-radius: 9px !important; border-left-width: 1px !important; }
-  .route-editor-topbar .editor-gereedschap-rij .rl-knop .alleen-pc { font-size: 0.54rem !important; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .route-editor-topbar .editor-gereedschap-rij .rl-knop .alleen-pc { font-size: 0.64rem !important; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* Strook op de telefoon: even brede vakjes, icoon + getal met een klein woord eronder */
@@ -2816,7 +2816,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .stat-vak-icoon { font-size: 1.05rem; }
   .stat-vak-tekst { align-items: center; max-width: 100%; }
   .stat-vak-waarde { font-size: 0.85rem; max-width: 100%; }
-  .stat-vak-label { font-size: 0.58rem; max-width: 100%; }
+  .stat-vak-label { font-size: 0.7rem; max-width: 100%; }
 }
 
 /* Spelerskaart: licht/donker/luchtfoto rechts, onder elkaar, net boven de itembalk en "Niet bereikbaar?" */
@@ -3189,6 +3189,8 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .geen-bereik { position: absolute; top: 68px; left: 50%; transform: translateX(-50%); z-index: 960; max-width: calc(100% - 24px); width: max-content;
   padding: 8px 14px; border-radius: 999px; background: rgba(180,83,9,0.95); color: #fff; font-size: 0.82rem; font-weight: 700; text-align: center;
   box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
+/* Door de server geweigerd (uit de wachtrij): rood en iets lager, zodat beide meldingen passen */
+.geen-bereik--mislukt { top: 110px; border: none; border-radius: 14px; background: rgba(185,28,28,0.95); cursor: pointer; font-family: inherit; line-height: 1.35; }
 
 /* Spelerskaart: "Loop nog … meter" na het welkomstscherm, naast de zoomknoppen, met een duidelijke pijl */
 .startvraag-melding { position: absolute; top: 12px; left: 54px; right: 12px; z-index: 950; display: flex; align-items: center; gap: 10px;
@@ -3355,7 +3357,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .systeem-onderdeel .systeem-telling { min-width: 64px; text-align: right; }
 
 /* ❓ Hulpkolom (components/admin/HulpKolom.tsx): smalle kolom rechts met de uitleg bij deze pagina (alleen pc) */
-.hulp-kolom { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; z-index: 950; display: flex; flex-direction: column;
+.hulp-kolom { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; max-width: 92vw; z-index: 2100; display: flex; flex-direction: column;
   background: linear-gradient(180deg, #2a1566 0%, #1c0c45 100%); border-left: 1px solid rgba(255,217,59,0.35); box-shadow: -10px 0 30px rgba(0,0,0,0.35); }
 .hulp-kolom-kop { display: flex; align-items: center; gap: 10px; min-height: 84px; box-sizing: border-box; padding: 0 16px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .hulp-kolom-titel { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; }
@@ -3385,12 +3387,33 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .hulp-niveau-2 > summary { font-size: 1rem; }
 .hulp-niveau-3 > summary, .hulp-niveau-4 > summary { font-size: 0.92rem; }
 .hulp-knop--aan { border-color: rgba(255,217,59,0.7) !important; background: rgba(255,217,59,0.15) !important; }
-@media (min-width: 769px) {
+/* Breed scherm (vanaf 1200 px): de hulp staat als kolom naast de pagina, die maakt ruimte. Ook een open
+   vraag-editor of Alle vragen maakt ruimte, zodat de hulp ernaast blijft. Smaller: de hulp schuift als paneel
+   over de pagina en de editor houdt zijn volle breedte (anders bleef er op een kleine laptop te weinig over). */
+@media (min-width: 1200px) {
   .hulp-open .admin-main { margin-right: 360px; }
   .hulp-open .admin-uitlog-hoek { right: 388px; }
+  html.hulp-open [data-vraagvenster] { right: 360px !important; }
 }
+@media (max-width: 1199px) {
+  .hulp-kolom { box-shadow: -18px 0 40px rgba(0,0,0,0.55); }
+}
+/* Telefoon in de editor: een eigen ?-knop rechtsonder (de kopknoppen staan daar niet) */
+.hulp-knop-mobiel { display: none; }
 @media (max-width: 768px) {
-  .hulp-kolom, .hulp-knop { display: none !important; }
+  .hulp-knop-mobiel { display: inline-flex; position: fixed; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 1500;
+    width: 44px; height: 44px; border-radius: 50%; align-items: center; justify-content: center; border: 1px solid rgba(255,217,59,0.6);
+    background: rgba(42,21,102,0.92); color: #FFE680; font-size: 1.1rem; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
+  .hulp-kolom { width: 100%; max-width: 100%; }
+  .hulp-kolom-kop { min-height: 56px; }
+}
+/* Bovenaan de hulp: de uitleg bij het onderdeel waar je nu bent */
+.hulp-focus { margin-bottom: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(0,217,255,0.08); border: 1px solid rgba(0,217,255,0.35); }
+.hulp-focus-kop { font-family: var(--font-display); font-weight: 800; color: #67E8F9; margin-bottom: 6px; }
+.hulp-fout { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; color: var(--ink); font-size: 0.9rem; }
+.hulp-tekst strong.hulp-wijsbaar:focus-visible { outline: 2px solid #FFE680; outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 768px) {
+  .hulp-knop { display: none !important; }
 }
 /* 👆 Aanwijzen vanuit de hulp: knopnamen die op het scherm staan zijn aanklikbaar; de knop licht dan goud op */
 .hulp-tekst strong.hulp-wijsbaar { cursor: pointer; color: #FFE680; border-bottom: 1px dashed rgba(255,230,128,0.7); }
@@ -3848,8 +3871,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .finish-dwarrel { position: absolute; font-size: 1.2rem; line-height: 1; opacity: 0.85; pointer-events: none; animation: finish-dwarrel 6s ease-in-out infinite; }
 .finish-dwarrel--1 { left: 22%; top: 46%; }
 .finish-dwarrel--2 { right: 20%; top: 58%; animation-delay: -3s; }
-.finish-thema { display: inline-block; margin: 0 0 8px; padding: 3px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 800; color: #fff;
-  background: color-mix(in srgb, var(--thema-1, #F59E0B) 30%, rgba(0,0,0,0.35)); border: 1px solid color-mix(in srgb, var(--thema-1, #F59E0B) 70%, transparent); }
 .finish-avatar { width: 108px; height: 108px; margin: 0 auto 8px; padding: 4px; border-radius: 50%;
   background: conic-gradient(#FFF3B0, #FFD23F, #F59E0B, #FFD23F, #FFF3B0);
   box-shadow: 0 0 0 4px rgba(255,255,255,0.14), 0 0 34px rgba(255,200,0,0.65); animation: finish-pop 0.7s cubic-bezier(.2,1.6,.4,1) both; }
@@ -3884,4 +3905,27 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 @keyframes finish-puls { 50% { opacity: 0.3; } }
 @media (prefers-reduced-motion: reduce) {
   .finish-stralen, .finish-vlag, .finish-dwarrel, .finish-avatar, .finish-titel, .finish-stat, .finish-live-stip { animation: none; }
+}/* Doorgaan bij een infopunt geweigerd: de reden in het kaartje */
+.info-kaartje-fout { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: rgba(239,68,68,0.16); border: 1px solid rgba(239,68,68,0.5); color: #FECACA; font-size: 0.86rem; }
+
+/* Minder beweging (systeeminstelling): geen herhalende of lange animaties en geen vloeiend scrollen, overal
+   (login, finish, hulp aanwijzen, livekaart). Alleen de laad-spinner blijft draaien: die laat zien dat er iets gebeurt. */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.spinner), *:not(.spinner)::before, *:not(.spinner)::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
 }
+
+/* Kleine knoppen ruimer aan te tikken (audit G04): het zichtbare icoon blijft gelijk, het tikvlak wordt groter */
+.editor-tip-sluit, .wachtwoord-oog { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }
+.antwoord-goed-rondje { min-width: 32px; min-height: 32px; }
+
+/* 🧘 Rustiger beheer (audit G08): de spelstijl (gouden randen, gloed, diepe schaduwen) blijft voor login, spelers en
+   finish. In het beheer zelf rustige panelen met een dunne rand, zodat wat echt aandacht vraagt (hulpvraag,
+   pauze, foto's keuren, de oranje volgende stap) er duidelijk uitspringt. Vensters (pop-ups) houden hun stijl. */
+.admin-main .pr-gem-panel { background: rgba(255,255,255,0.14); padding: 1px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.admin-main .pr-gem-panel-inner { background: #33197a; box-shadow: none; }
+.admin-main .pr-gem-card { background: rgba(255,255,255,0.12); padding: 1px; }
+.admin-main .pr-gem-card-inner { background: #33197a; box-shadow: none; }
+.admin-main .pr-gem-panel .pr-corner-chip.pr-badge { box-shadow: 0 0 0 2px #000, 2px 3px 0 rgba(0,0,0,0.45); }
+.admin-main .sk-stip--vol { box-shadow: none; }

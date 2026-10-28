@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { voegPuntToeAanLopendeSpellen } from "@/lib/route-sessies";
+import { werkLopendeSpellenBij } from "@/lib/route-sessies";
 import { IMPORT_START_NAAM, IMPORT_START_TEKST } from "@/lib/punten-import";
 import { zetFinishOpdracht } from "@/lib/teamfoto";
 
@@ -66,9 +66,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
   // 📸 Nieuwe finish: standaard de opdracht "groepsfoto of selfie"
   for (const p of nieuw) if (p.type === "eindpunt") await zetFinishOpdracht(admin, p.id);
-  // Loopt er een spel op deze route? Dan krijgt elk team de nieuwe punten vóór de finish
-  for (const p of [...nieuw].sort((a, b) => a.order_index - b.order_index)) {
-    await voegPuntToeAanLopendeSpellen(admin, params.id, p.id);
-  }
-  return NextResponse.json({ ok: true, aantal: nieuw.length }, { status: 201 });
+  // Loopt er een spel op deze route? Dan krijgt elk team alle nieuwe punten in één keer vóór de finish,
+  // en pas daarna laten de spelers-apps de route opnieuw inlezen
+  const teamsBij = await werkLopendeSpellenBij(admin, params.id);
+  return NextResponse.json({ ok: true, aantal: nieuw.length, ...(teamsBij ? {} : { waarschuwing: "Bij een of meer lopende teams lukte het bijwerken niet; hun app probeert het opnieuw bij het verversen" }) }, { status: 201 });
 }

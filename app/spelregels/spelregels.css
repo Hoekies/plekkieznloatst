@@ -1,0 +1,34 @@
+/* 📄 Spelregels voor spelers (app/spelregels): op het scherm in de spelstijl, groot en rustig leesbaar;
+   geprint een lichte A5-versie (zwart op wit, geen grote gekleurde vlakken, spaart inkt). */
+.spelregels { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; color: #F3EEFF; font-size: 1.05rem; line-height: 1.6; }
+html:has(.spelregels), body:has(.spelregels) { background: #1c0c45; }
+.sr-kop { text-align: center; margin-bottom: 14px; }
+.sr-logo { width: min(320px, 80%); height: auto; }
+.spelregels h1 { margin: 8px 0 4px; font-size: 1.8rem; color: #FFE680; }
+.spelregels h2 { margin: 0 0 8px; font-size: 1.25rem; color: #FFE680; }
+.sr-doel { margin: 0; font-size: 1.1rem; }
+.spelregels section { margin: 12px 0; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,217,59,0.35); }
+.spelregels ol, .spelregels ul { margin: 0; padding-left: 22px; }
+.spelregels li { margin: 4px 0; }
+.spelregels p { margin: 0 0 8px; }
+.sr-items { list-style: none; padding-left: 0 !important; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+.sr-items li { display: flex; align-items: center; gap: 8px; }
+.sr-items img { width: 30px; height: 30px; flex-shrink: 0; }
+.sr-voet { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+.sr-print { padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,217,59,0.6); background: rgba(255,217,59,0.12); color: #FFE680; font: inherit; font-weight: 700; cursor: pointer; }
+@media (max-width: 480px) { .sr-items { grid-template-columns: 1fr; } }
+
+/* Lichte printversie op A5 */
+@media print {
+  @page { size: A5 portrait; margin: 9mm; }
+  html:has(.spelregels), body:has(.spelregels) { background: #fff !important; }
+  .spelregels { max-width: none; padding: 0; color: #000; font-size: 10.5pt; line-height: 1.35; }
+  .spelregels h1 { color: #000; font-size: 15pt; margin: 2mm 0 1mm; }
+  .spelregels h2 { color: #000; font-size: 11.5pt; margin: 0 0 1mm; }
+  .sr-logo { width: 45mm; }
+  .spelregels section { background: none; border: 0.3mm solid #999; border-radius: 3mm; padding: 2mm 3mm; margin: 2mm 0; break-inside: avoid; }
+  .sr-items { gap: 0.5mm 4mm; }
+  .sr-items img { width: 6mm; height: 6mm; filter: grayscale(1); }
+  .sr-print { display: none; }
+  .sr-voet { color: #555; margin-top: 2mm; font-size: 8pt; justify-content: center; }
+}

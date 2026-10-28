@@ -5,6 +5,7 @@ import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
+import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 
 let goed = 0;
 function test(naam: string, f: () => void) {
@@ -59,19 +60,19 @@ test("seizoensachtergrond op datum", () => {
 });
 
 // 👆 De hulpkolom wijst knoppen aan op hun naam: elke vetgedrukte knopnaam in de handleiding (met een emoji
-// ervoor) moet ook echt in de app staan. "A / B", "A → B" en "A en B" tellen als losse namen; tekst tussen
-// haakjes telt niet mee. Uitzonderingen: kopjes in de handleiding die geen knop zijn.
+// ervoor) moet ook echt in de app staan. Dezelfde regel als de hulpkolom zelf (lib/hulp-namen.ts): "A / B",
+// "A → B" en "A en B" tellen als losse namen; tekst tussen haakjes telt niet mee. Uitzonderingen: kopjes in de
+// handleiding die geen knop zijn.
 test("handleiding noemt alleen knoppen die bestaan", () => {
   const GEEN_KNOP = ["mini-kaart"];
-  const norm = (t: string) => t.toLowerCase().replace(/&amp;/g, "&").replace(/\(.*?\)/g, " ")
-    .replace(/[\p{Extended_Pictographic}️‍]/gu, "").replace(/[+·…:"“”'‘’]/g, " ").replace(/\s+/g, " ").trim();
+  const norm = normaliseerNaam;
   const bestanden = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true })
     .flatMap((e) => e.isDirectory() ? bestanden(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []);
   const bron = norm(["app", "components", "lib"].flatMap(bestanden).map((b) => fs.readFileSync(b, "utf8")).join("\n").replace(/[{}<>`$/=]/g, " "));
   const md = fs.readFileSync("docs/beheerdershandleiding.md", "utf8");
   const namen = [...md.matchAll(/\*\*(\p{Extended_Pictographic}[^*]{2,60})\*\*/gu)]
     .map((m) => m[1].trim()).filter((k) => !/[.:?]$/.test(k))
-    .flatMap((k) => k.split(/\s(?:\/|→|en)\s/)).map(norm).filter((k) => k.length >= 3 && !GEEN_KNOP.includes(k));
+    .flatMap(hulpNamen).filter((k) => !GEEN_KNOP.includes(k));
   const mis = [...new Set(namen.filter((k) => !bron.includes(k)))];
   assert.deepEqual(mis, [], `Niet in de app gevonden (pas de handleiding of de knop aan): ${mis.join(", ")}`);
 });

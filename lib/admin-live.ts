@@ -138,7 +138,7 @@ export async function haalLiveData(): Promise<LiveData> {
   )];
   // Alles per sessie tegelijk ophalen
   const leeg = Promise.resolve({ data: null });
-  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes] = await Promise.all([
+  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes, spoRes] = await Promise.all([
     huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
     sessieIds.length
       ? admin.from("player_point_progress").select("session_id, route_point_id, is_correct").in("session_id", sessieIds).not("answered_at", "is", null)
@@ -165,7 +165,26 @@ export async function haalLiveData(): Promise<LiveData> {
       ? admin.from("special_item_effects").select("id, target_session_id, effect_type, expires_at")
           .in("target_session_id", sessieIds).in("effect_type", ["ghost", "plekzooi"]).gt("expires_at", new Date().toISOString())
       : leeg,
+    // De eigen volgorde per team (rondje, banaan): daaruit volgt het volgende punt
+    sessieIds.length
+      ? admin.from("session_point_order").select("session_id, volgorde, route_point_id").in("session_id", sessieIds).order("volgorde")
+      : leeg,
   ]);
+
+  // Het volgende punt van een team: het eerste punt in de eigen volgorde dat nog niet is afgerond (een punt
+  // met een open vraag telt dus nog als doel). Zonder eigen volgorde: de routevolgorde. Niet current_point_id:
+  // dat is het laatst bereikte punt, en daar wees de lijn dan terug naar.
+  const volgordeMap = new Map<string, string[]>();
+  ((spoRes.data ?? []) as { session_id: string; route_point_id: string }[]).forEach((r) => {
+    volgordeMap.set(r.session_id, [...(volgordeMap.get(r.session_id) ?? []), r.route_point_id]);
+  });
+
+  const volgendPuntId = (sessie: { id: string; status: string } | null | undefined): string | null => {
+    if (sessie?.status !== "actief") return null;
+    const klaar = new Set(bezochtMap.get(sessie.id) ?? []);
+    const volgorde = volgordeMap.get(sessie.id) ?? routePunten.map((p) => p.id);
+    return volgorde.find((id) => !klaar.has(id)) ?? null;
+  };
 
   const puntNaam = new Map<string, string>();
   ((ptsRes.data ?? []) as { id: string; name: string }[]).forEach((p) => puntNaam.set(p.id, p.name));
@@ -261,10 +280,11 @@ export async function haalLiveData(): Promise<LiveData> {
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
       wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
       puzzel: sessie ? (puzzelMap.get(sessie.id) ?? null) : null,
-      volgend_punt_id: sessie?.status === "actief" ? (sessie.current_point_id ?? null) : null,
+      volgend_punt_id: volgendPuntId(sessie),
       bezochte_ids: sessie ? (bezochtMap.get(sessie.id) ?? []) : [],
       volgend_punt: (() => {
-        const p = sessie?.status === "actief" && sessie.current_point_id ? routePunten.find((r) => r.id === sessie.current_point_id) : null;
+        const id = volgendPuntId(sessie);
+        const p = id ? routePunten.find((r) => r.id === id) : null;
         return p ? { lat: p.latitude, lng: p.longitude } : null;
       })(),
     };

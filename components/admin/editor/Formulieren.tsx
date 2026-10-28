@@ -1,7 +1,7 @@
 "use client";
 
 // Bewerkpanelen van de route-editor: een punt, een item, en de statuslabel bovenin.
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
 import { ITEM_UITLEG } from "./item-uitleg";
 import NaamKiezer from "../NaamKiezer";
@@ -63,10 +63,13 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
 }
 
 // ── PuntForm ──────────────────────────────────────────────────────────────────
-export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden, onOpslaan, onVerwijder, onSluit, info, onOpDeWeg }: {
+export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden, onOpslaan, onVerwijder, onSluit, info, onOpDeWeg, onBewaarBijSluiten }: {
   punt: RoutePunt; opslaan: boolean; fout: string; heeftVraag: boolean; onVraag: () => void;
   naamWoorden: string[];
   onOpslaan: (u: Partial<RoutePunt>) => void; onVerwijder: () => void; onSluit: () => void;
+  // Paneel dicht (✕, tik op de kaart of een ander punt) met nog niet opgeslagen naam, tekst of soort:
+  // die worden dan vanzelf bewaard, zodat er niets verloren gaat
+  onBewaarBijSluiten?: (punt: RoutePunt, u: Partial<RoutePunt>) => void;
   // Extra: de vraag (kort), welke teams hier beginnen en welke items in de buurt liggen
   info?: { vraagTekst?: string | null; teams?: { naam: string; kleur: string }[]; items?: string[] };
   // Dit ene punt op de dichtstbijzijnde weg of het voetpad zetten
@@ -84,6 +87,21 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
   // Naam elders gewijzigd (bij het opslaan van de vraag): meteen overnemen. Tijdens het typen hier
   // verandert punt.name niet, dus dit vecht niet met lokale invoer.
   useEffect(() => { setNaam(punt.name); }, [punt.name]);
+
+  // Bij het sluiten: wat nog niet is opgeslagen alsnog bewaren (niet na verwijderen)
+  const laatsteRef = useRef({ naam, beschrijving, type, punt, weg: false });
+  laatsteRef.current = { ...laatsteRef.current, naam, beschrijving, type, punt };
+  useEffect(() => () => {
+    const l = laatsteRef.current;
+    if (l.weg || !onBewaarBijSluiten) return;
+    const u: Partial<RoutePunt> = {};
+    if (l.naam.trim() && l.naam !== l.punt.name) u.name = l.naam;
+    if (l.beschrijving !== (l.punt.description ?? "")) u.description = l.beschrijving;
+    if (l.type !== l.punt.type) u.type = l.type;
+    if (Object.keys(u).length) onBewaarBijSluiten(l.punt, u);
+  // Alleen bij het sluiten (unmount); het paneel krijgt per punt een eigen key
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="editor-paneel-inhoud">
@@ -129,12 +147,16 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
             <textarea className="form-textarea" spellCheck lang="nl" value={beschrijving} onChange={(e) => setBeschrijving(e.target.value)}
               placeholder="Dit lezen de spelers als ze hier aankomen" style={{ fontSize: "0.85rem", minHeight: 60 }} />
           </div>
-          {/* Een infopunt met een vraag (zoals een startvraag): de spelers krijgen dan de vraag */}
-          {heeftVraag && (
+          {/* Een infopunt met een vraag (zoals een startvraag): de spelers krijgen dan de vraag. Ook zonder
+              vraag kun je er hier een aan hangen (de startvraag van een rondje is verplicht) */}
+          {heeftVraag ? (
             <>
               <div className="editor-paneel-noot" style={{ color: "#FBBF24" }}>❓ Hier hangt ook een vraag (bijv. een startvraag). Die krijgen de spelers in plaats van de tekst.</div>
               <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}><Icoon naam="vraag" /> Vraag bewerken →</button>
             </>
+          ) : (
+            <button type="button" onClick={onVraag} className="rl-knop" style={{ width: "100%", justifyContent: "center" }}
+              title="Een vraag aan dit punt hangen, bijvoorbeeld de startvraag"><Icoon naam="plus" /> Vraag toevoegen →</button>
           )}
         </>
       )}
@@ -182,7 +204,7 @@ export function PuntForm({ punt, opslaan, fout, heeftVraag, onVraag, naamWoorden
           onClick={() => onOpslaan({ name: naam, description: beschrijving, type })}>
           {opslaan ? "Opslaan…" : "Opslaan"}
         </button>
-        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={onVerwijder}><Icoon naam="wissen" /></button>
+        <button className="rl-knop rl-knop--rood rl-knop--icoon" title="Verwijderen" aria-label="Verwijderen" onClick={() => { laatsteRef.current.weg = true; onVerwijder(); }}><Icoon naam="wissen" /></button>
       </div>
     </div>
   );

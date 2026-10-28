@@ -39,7 +39,9 @@ export async function middleware(request: NextRequest) {
     // Fotoalbum: openbaar met een geheime link (de pagina controleert de sleutel)
     && !pad.startsWith("/album/")
     // 🧪 Proefversie van een vraag via de QR-code: openbaar met de geheime code (de API controleert die)
-    && !pad.startsWith("/proef/") && !pad.startsWith("/api/proef/")) {
+    && !pad.startsWith("/proef/") && !pad.startsWith("/api/proef/")
+    // 📄 Spelregels voor spelers als tekst (ook de stijl /spelregels.css): openbaar, de link gaat mee in de groepsapp
+    && !pad.startsWith("/spelregels")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

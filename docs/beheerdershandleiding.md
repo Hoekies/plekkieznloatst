@@ -17,7 +17,7 @@ Als beheerder stel jij de routes in, maak je de spelers aan, start je het spel e
 | ⚙️ **Instellingen** (klapt als paneel naar rechts uit; een rood bolletje = de Systeemcheck vond iets) | 🗓️ Seizoenen, 🩺 Systeemcheck en 🔔 Meldingen op dit toestel |
 | **Info & uitleg** (op de pc onderin de ❓-hulpkolom, op de telefoon in het menu) | **🧭 Snel aan de slag** (voor beginners: in 6 stappen van route tot uitslag, met plaatjes), deze handleiding, de instructiekaarten (met **🖨️ Printen** op A5, dubbel te vouwen), Ko-fi, en het versienummer met de datum van de laatste update |
 
-Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt); vetgedrukte knopnamen met 👆 kun je aantikken, dan licht die knop op het scherm op.
+Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **Uitloggen**. Op de pc staat daar ook **❓ Hulp**: een smalle kolom rechts met de uitleg uit deze handleiding over de pagina waar je bent (blijft open als je van menu wisselt); vetgedrukte knopnamen met 👆 kun je aantikken (of met Tab en Enter), dan licht die knop op het scherm op. In de route-editor staat bovenaan de hulp de uitleg bij wat je nu doet (🎯 Nu: een vraag invullen, een punt aanpassen, items, …), en de hulp blijft naast een open vraag staan. Op een kleinere laptop schuift de hulp als paneel over de pagina; op de telefoon staat in de editor rechtsonder een eigen ?-knop. Links naar de volledige handleiding openen in een nieuw tabblad, zodat je niets kwijtraakt.
 
 **Tijdens een spel** staat onderaan elke beheerpagina (behalve het dashboard en de route-editor) een strook met het aantal teams onderweg, de eindtijd (tik erop om hem te wijzigen), open hulpvragen en foto's om te keuren (tik erop: de foto's openen meteen in het keurvenster), op de pc **🏆 Tussenstand**, en **⏸️ Pauze** / **▶️ Verder**. Op de telefoon staat alles op één regel, met alleen iconen en getallen.
 
@@ -61,7 +61,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
    - **🚶 Door** (doorlopen): de spelers krijgen hier **geen scherm**. Het punt telt vanzelf als gepasseerd (kort trillen en "✓ gepasseerd") en het volgende punt verschijnt; het levert geen punten op. Snijden ze een bocht af en missen ze zo'n punt, dan telt het toch zodra ze het volgende punt bereiken. Hangt er nog een vraag aan, dan wordt die niet gesteld. In de puntenlijst en op de kaart is zo'n punt grijs, met 🚶 erachter. Nodig: migratie 013.
    - **🏁 Eind**: hier finisht het team; met **Opdracht bij de finish** hang je er eventueel een opdracht aan, zoals een selfie.
    - Een nieuwe vraag krijgt standaard **65 punten** (aan te passen bij *Punten*).
-   - **De vraag-editor**: links het formulier (soort vraag → vraag → afbeelding en punten → antwoorden), daarnaast **Zo ziet de speler het**, en op een breed scherm rechts het kaartje met waar het punt ligt. **💾 Vraag opslaan** staat altijd onderaan in beeld, met eventuele foutmelding erboven (bij een leeg antwoord staat de cursor meteen in dat veld). Ga je weg met niet-opgeslagen wijzigingen, dan vraagt de editor eerst of je ze wilt weggooien.
+   - **De vraag-editor**: links het formulier (soort vraag → vraag → afbeelding en punten → antwoorden), daarnaast een *inhoudsvoorbeeld* (de echte weergave op de telefoon zie je met 🧪 Testen of de QR-code), en op een breed scherm rechts het kaartje met waar het punt ligt. **💾 Vraag opslaan** staat altijd onderaan in beeld, met eventuele foutmelding erboven (bij een leeg antwoord staat de cursor meteen in dat veld). Ga je weg met niet-opgeslagen wijzigingen, dan vraagt de editor eerst of je ze wilt weggooien.
    - **🏷️ Naam van het punt**: bij **Opslaan** vraagt de editor eerst *Hoe heet dit punt?*, met de huidige naam ingevuld en de woorden uit de vraag als voorstel (💡). Pas aan of druk meteen op **💾 Opslaan** (of Enter). Spelers zien de naam pas na afloop.
    - **🖼️ Afbeelding kiezen**: een foto wordt vierkant opgeslagen. Je ziet eerst de **hele foto** in het vierkant (niet-vierkant? dan vult een vervaagde versie de randen). Zoom in met de schuif of **⬛ Vierkant vullen** en sleep om te kiezen wat er in beeld komt; **🖼️ Hele foto** zet hem terug.
    - **⚙️ Meer instellingen** (uitklapbaar, onder de antwoorden): geluid, tijdslimiet en **🧪 Openen met QR-code**. Scan die QR-code met je telefoon: je krijgt deze ene vraag als **proef**, precies zoals de speler hem ziet (foto, antwoorden, tijdslimiet, goed of fout en de uitleg). Er wordt niets opgeslagen, inloggen hoeft niet, de route hoeft niet actief te zijn en de volgorde maakt niet uit. Onderaan de proef staat nog een link om het punt als ingelogd testteam echt te openen (dat telt wel mee). Met 🖨️ printen hang je de code ergens op.
@@ -148,7 +148,7 @@ In de route-editor opent **⚙️ Instellingen** bovenin een venster met vier ta
 
 | Tabblad | Wat staat erin |
 |---|---|
-| **🎮 Spel** | het speltype (alleen ter info), de **🏆 tussenstand** op de telefoons (Uit, elke 10, 15, 20 of 30 min, en hoe lang zichtbaar) en het **🧩 puzzelwoord** |
+| **🎮 Spel** | het speltype (alleen ter info), de **🏆 tussenstand** op de telefoons (Uit, elke 10, 15, 20 of 30 min, en hoe lang zichtbaar). Het puzzelwoord staat niet meer hier: tik op **🧩 Puzzelwoord** in de werkbalk |
 | **📍 Punten** | wat de spelers van de route zien, **⛔ verboden gebieden** (met **+ Gebied tekenen**), de radius; onder Meer: punten voor een punt zonder vraag |
 | **🎁 Items** | radius, **🎒 startitems**, **🏁 items na de finish**; onder Meer: item-waarden, duur van effecten en **🔄 respawn** (Verspreid) |
 | **🎨 Uiterlijk** | kleur, logo, welkomstfoto en geluiden voor de spelers |
@@ -583,6 +583,10 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 
 ## 🩺 Systeemcheck
 
+> **📄 Spelregels als tekst**: op `/spelregels` staat dezelfde uitleg als de spelerskaart als gewone tekst (geen inloggen nodig, te vergroten en voor te lezen). Met **🖨️ Printen (A5, licht)** print je een lichte versie zonder grote gekleurde vlakken. De link staat in Info & uitleg en gaat mee in het WhatsApp-bericht als je de spelerskaart meestuurt.
+>
+> **Nieuwe migratie 003** (`supabase/migrations/003_afschermen_en_startitems.sql`): spelers kunnen het puzzelwoord niet meer rechtstreeks uit de database lezen, en startitems worden maar één keer per spel uitgedeeld. De Systeemcheck meldt het als die nog niet gedraaid is.
+>
 > **Nieuwe migratie 002** (`supabase/migrations/002_atomaire_acties.sql`): punten, wissel, dief en banaan in één stap in de database, zodat twee dingen tegelijk elkaar niet meer overschrijven. De Systeemcheck meldt het als die nog niet gedraaid is; tot dan werkt alles op de oude manier.
 
 In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. (Alle migraties staan in één bestand, `supabase/migrations/001_schema.sql`, elk onder een kopje met hun nummer: mist er een, dan draai je dat deel in Supabase → SQL Editor.) Vindt die iets (bijv. een migratie die nog moet), dan staat er een rood bolletje met het aantal bij ⚙️ Instellingen en bij Systeemcheck. Die laat in één overzicht zien of alles klopt:

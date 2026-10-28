@@ -98,6 +98,8 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
       clearTimeout(timer);
       if (pollRef.current) clearInterval(pollRef.current);
     };
+  // thema ligt vast voor deze pagina (van de server)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // flexShrink 0: met overflow hidden krimpt dit vak anders tot de schermhoogte en is de rest niet te zien
@@ -116,7 +118,6 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
           <span className="finish-vlag finish-vlag--rechts" aria-hidden>{thema.versiering[1]}</span>
           <span className="finish-dwarrel finish-dwarrel--1" aria-hidden>{thema.versiering[2]}</span>
           <span className="finish-dwarrel finish-dwarrel--2" aria-hidden>{thema.versiering[3]}</span>
-          <span className="finish-thema">{thema.emoji} {thema.naam}</span>
           <div className="finish-avatar">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {teamFoto ? <img src={teamFoto} alt="" /> : <span>{teamIcoon ?? "🏆"}</span>}

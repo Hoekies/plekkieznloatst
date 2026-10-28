@@ -6,16 +6,19 @@ import { speelGoedAntwoord, speelFoutAntwoord } from "@/lib/sounds";
 import { strooiConfetti } from "@/lib/confetti";
 import { tril, TRIL } from "@/lib/tril";
 import { stuur } from "@/lib/wachtrij";
-import { haalVraag } from "@/lib/vraag-cache";
+import { haalVraag, wisVraagCache } from "@/lib/vraag-cache";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
+// Kleuren van de antwoorden, met tekst die goed leesbaar is (contrast minstens 4,5:1): donkere tekst op geel,
+// witte tekst op iets donkerder rood en groen
 const KLEUR_RAND: Record<string, string> = {
   geel: "#F59E0B",
   blauw: "#1E40AF",
-  rood: "#EF4444",
-  groen: "#16A34A",
+  rood: "#DC2626",
+  groen: "#15803D",
 };
+const KLEUR_TEKST: Record<string, string> = { geel: "#2A1600", blauw: "#ffffff", rood: "#ffffff", groen: "#ffffff" };
 // Vaste knop onderaan de popup — compact gehouden, was op mobiel onnodig log
 const KNOP_ONDERAAN_STIJL: CSSProperties = { width: "100%", padding: "13px 0", fontSize: "0.92rem", borderRadius: 13 };
 
@@ -131,6 +134,10 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       if (r.status === "ok") {
         const data = await r.res.json();
         onVerwerkt(data.voortgang ?? data);
+      } else {
+        // Geweigerd: zeggen waarom (anders bleef de knop gewoon staan zonder uitleg)
+        const data = await r.res.json().catch(() => ({}));
+        setFout(data.fout ?? "Doorgaan lukte niet, probeer het opnieuw");
       }
     } finally {
       setBezig(false);
@@ -184,8 +191,15 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       const res = r.res;
 
       if (!res.ok) {
-        const data = await res.json();
-        setFout(data.fout ?? "Indienen mislukt");
+        const data = await res.json().catch(() => ({}));
+        // De vraag is intussen door de organisatie aangepast: de nieuwe versie ophalen, dan kan het team opnieuw kiezen
+        if (data.fout === "Ongeldig antwoord" || data.fout === "Ongeldige keuze") {
+          wisVraagCache(punt.id);
+          setFout("De vraag is net aangepast: kies opnieuw");
+          setLaadPoging((n) => n + 1);
+          return;
+        }
+        setFout(data.fout ?? "Indienen mislukt, probeer het opnieuw");
         return;
       }
 
@@ -225,8 +239,9 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
     if (proef) { voortgangRef.current = lokaalAfgerond(punt.id); setPopupFase("foto_ingestuurd"); return; }
     setBezig(true); setFout("");
     try {
-      // Comprimeer via canvas (max 1200px)
-      const bmp = await createImageBitmap(fotoBestand);
+      // Comprimeer via canvas (max 1200px). Kan de telefoon de foto niet lezen, dan zeggen we dat (de foto blijft gekozen)
+      const bmp = await createImageBitmap(fotoBestand).catch(() => null);
+      if (!bmp) { setFout("Deze foto kan niet worden gelezen. Kies een andere foto of maak een nieuwe."); return; }
       const maxW = 1200;
       const scale = bmp.width > maxW ? maxW / bmp.width : 1;
       const canvas = document.createElement("canvas");
@@ -241,10 +256,11 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       formData.append("foto", new File([blob], "foto.jpg", { type: "image/jpeg" }));
       formData.append("route_point_id", punt.id);
 
-      const res = await fetch("/api/speler/foto", { method: "POST", body: formData });
+      const res = await fetch("/api/speler/foto", { method: "POST", body: formData }).catch(() => null);
+      if (!res) { setFout("Geen verbinding: de foto is niet verstuurd. Probeer het opnieuw zodra er bereik is."); return; }
       if (!res.ok) {
-        const data = await res.json();
-        setFout(data.fout ?? "Upload mislukt");
+        const data = await res.json().catch(() => ({}));
+        setFout(data.fout ?? "Upload mislukt, probeer het opnieuw");
         return;
       }
       // Niet wachten op de keuring: het punt is afgerond, de punten komen na de keuring
@@ -268,6 +284,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         ) : (
           <div className="info-kaartje-inhoud"><InfoInhoud punt={punt} /></div>
         )}
+        {fout && <div className="info-kaartje-fout" role="alert">{fout}</div>}
         <button className="btn btn-primary" style={KNOP_ONDERAAN_STIJL} disabled={bezig || popupFase === "laden"} onClick={verwerkDirect}>
           {bezig ? "Even geduld…" : "Doorgaan →"}
         </button>
@@ -404,7 +421,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                       {optie.text && (
                         <div style={{
                           padding: "8px 10px", fontSize: "0.88rem", fontWeight: 600,
-                          textAlign: "center", color: "#ffffff",
+                          textAlign: "center", color: KLEUR_TEKST[optie.color] ?? "#ffffff",
                         }}>
                           {optie.text}
                         </div>
@@ -451,7 +468,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         color: isGekozen ? "#1a0b3d" : "#ffffff",
                         border: "2px solid rgba(255,255,255,0.7)",
                       }}>{isGekozen ? "✓" : String.fromCharCode(65 + i)}</span>
-                      <span style={{ fontSize: "1rem", fontWeight: 600, color: "#ffffff" }}>{optie.text}</span>
+                      <span style={{ fontSize: "1rem", fontWeight: 700, color: KLEUR_TEKST[optie.color] ?? "#ffffff" }}>{optie.text}</span>
                     </button>
                   );
                 })}

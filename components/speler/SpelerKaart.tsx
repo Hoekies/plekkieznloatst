@@ -8,8 +8,8 @@ import { createClient } from "@/lib/supabase-browser";
 import { speelPuntBereikt, speelFinish, speelDong } from "@/lib/sounds";
 import { tril, TRIL } from "@/lib/tril";
 import { useSchermAan } from "@/lib/scherm-aan";
-import { stuur, verstuurWachtrij, opWachtrij, wachtrijAantal } from "@/lib/wachtrij";
-import { laadVragenVooruit } from "@/lib/vraag-cache";
+import { stuur, verstuurWachtrij, opWachtrij, wachtrijAantal, zetWachtrijSessie, leesMislukt, opMislukt, wisMislukt, type MislukteOpdracht } from "@/lib/wachtrij";
+import { laadVragenVooruit, wisVraagCache } from "@/lib/vraag-cache";
 import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
@@ -498,14 +498,21 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   // Zonder bereik: hoeveel stappen er nog wachten; versturen zodra er weer bereik is (en elke 15 s)
   const [wachtend, setWachtend] = useState(0);
+  // Wat de server weigerde (met de reden), of wat bij een eerder spel hoorde: niet stil weg, maar in beeld
+  const [mislukt, setMislukt] = useState<MislukteOpdracht[]>([]);
   useEffect(() => {
+    // Nieuwe opdrachten horen bij dit spel; wachtende van een eerder spel gaan niet meer mee
+    zetWachtrijSessie(sessie.id);
+    setMislukt(leesMislukt());
+    const afMislukt = opMislukt(setMislukt);
     setWachtend(wachtrijAantal());
     const af = opWachtrij(setWachtend);
     const probeer = () => { if (wachtrijAantal()) verstuurWachtrij(); };
     probeer();
     window.addEventListener("online", probeer);
     const t = setInterval(probeer, 15000);
-    return () => { af(); window.removeEventListener("online", probeer); clearInterval(t); };
+    return () => { af(); afMislukt(); window.removeEventListener("online", probeer); clearInterval(t); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Vragen van het volgende punt en de twee daarna alvast ophalen (ook bruikbaar zonder bereik)
@@ -581,6 +588,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (data?.score !== undefined) setScore(data.score);
       // De beheerder heeft wijzigingen naar de spelers gestuurd: route opnieuw inlezen
       if (vernieuwRef.current !== undefined && data?.vernieuw_at && data.vernieuw_at !== vernieuwRef.current) {
+        // Ook de vooruit opgehaalde vragen vergeten: die kunnen zijn aangepast
+        wisVraagCache();
+        laadVragenVooruit(punten.slice(verwerktIds.size, verwerktIds.size + 3).map((p) => p.id));
         router.refresh();
         setOpgehaaldToast("🔄 De route is bijgewerkt");
         if (opgehaaldTimerRef.current) clearTimeout(opgehaaldTimerRef.current);
@@ -774,25 +784,29 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
         speelPuntBereikt(); tril(TRIL.itemGepakt);
         if (data.item.type === "ster") {
-          // Direct inzetten: punten meteen bijschrijven
+          // Direct inzetten: punten meteen bijschrijven. Lukt dat niet (geen bereik, serverfout), dan komt de
+          // ster in de balk: het team kan hem dan zelf nog inzetten en raakt hem niet kwijt.
           const effectRes = await fetch("/api/speler/speciaal/effect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ special_item_id: data.item.id, ...huidigePlek() }),
-          });
-          if (effectRes.ok) {
+          }).catch(() => null);
+          if (effectRes?.ok) {
             setScore((prev) => prev + data.item.points_effect);
             haalScoreOp();
+            setOpgepakt({ item: data.item, extra: "De bonuspunten staan al op je score!" });
+          } else {
+            setInventaris((prev) => [...prev, data.item]);
+            setOpgepakt({ item: data.item, extra: "Nog niet bijgeschreven: tik erop in je balk om de punten te pakken." });
           }
-          setOpgepakt({ item: data.item, extra: effectRes.ok ? "De bonuspunten staan al op je score!" : "De bonuspunten komen eraan." });
         } else if (data.item.type === "vraagteken") {
           // Een vraagteken komt niet in de balk: hij wordt meteen gespeeld
           const effectRes = await fetch("/api/speler/speciaal/effect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ special_item_id: data.item.id, ...huidigePlek() }),
-          });
-          const effect = effectRes.ok ? await effectRes.json() : null;
+          }).catch(() => null);
+          const effect = effectRes?.ok ? await effectRes.json() : null;
           if (effect?.ok) {
             inventarisItemGebruikt(data.item.id, effect.eigen_notificatie ?? "❓ Vraagteken gespeeld!");
           } else {
@@ -1244,6 +1258,13 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
               ? <>🏁 Bijna klaar! Je laatste {wachtend === 1 ? "stap gaat" : `${wachtend} stappen gaan`} mee zodra er bereik is.</>
               : <>📡 Geen bereik · {wachtend === 1 ? "1 stap wacht" : `${wachtend} stappen wachten`}, gaat vanzelf mee</>}
           </div>
+        )}
+        {/* Bewaard zonder bereik, maar later door de server geweigerd: laten zien waarom (tik = weg) */}
+        {mislukt.length > 0 && (
+          <button type="button" className="geen-bereik geen-bereik--mislukt" onClick={wisMislukt}
+            title={mislukt.map((m) => m.reden).join("\n")}>
+            ⚠️ {mislukt.length === 1 ? "1 stap kon" : `${mislukt.length} stappen konden`} niet mee: {mislukt[mislukt.length - 1].reden}. Vraag zo nodig de organisatie. (tik = sluiten)
+          </button>
         )}
 
         {/* ⛔ In een verboden gebied: duidelijke waarschuwing tot het team eruit is */}

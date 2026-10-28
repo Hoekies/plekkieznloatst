@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import SpelerKaart from "@/components/speler/SpelerKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { puzzelRegels } from "@/lib/puzzel-server";
+import { herstelTeamVolgorde } from "@/lib/route-sessies";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -28,7 +29,7 @@ export default async function SpelerKaartPage() {
 
   if (!sessie) redirect("/speler");
 
-  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spo }, { data: alleSpelers }] = await Promise.all([
+  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spoEerst }, { data: alleSpelers }] = await Promise.all([
     admin
       .from("route_points")
       .select("*")
@@ -56,16 +57,25 @@ export default async function SpelerKaartPage() {
   // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw (met melding)
   if (!route?.is_active) redirect("/speler?gestopt=1");
 
-  // Verspreid: is de route na de start van de sessie aangepast (punten toegevoegd of
-  // verwijderd), dan klopt de teamvolgorde niet meer. Sessie afsluiten en opnieuw starten.
-  // Sequentieel heeft dezelfde teamvolgorde (voor de banaan); oudere sessies zonder volgorde lopen gewoon door.
+  // Is de route na de start aangepast (punten toegevoegd of verwijderd), dan klopt de teamvolgorde niet
+  // meer. Eerst herstellen (nieuwe punten vóór de finish, verwijderde eruit); alleen als dat niet lukt, de
+  // sessie afsluiten zodat het team opnieuw kan starten. Vroeger ging de sessie meteen verloren, ook als de
+  // beheerder net midden in een import zat. Sequentieel heeft dezelfde teamvolgorde (voor de banaan); oudere
+  // sessies zonder volgorde lopen gewoon door.
+  let spo = spoEerst;
   const heeftVolgorde = (spo?.length ?? 0) > 0;
-  if (
-    (route.modus === "verspreid" || (route.modus === "sequentieel" && heeftVolgorde)) &&
-    (spo?.length ?? 0) !== (ruwePunten?.length ?? 0)
-  ) {
-    await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", sessie.id);
-    redirect("/speler");
+  const moetKloppen = route.modus === "verspreid" || (route.modus === "sequentieel" && heeftVolgorde);
+  const klopt = () => (spo?.length ?? 0) === (ruwePunten?.length ?? 0)
+    && (spo ?? []).every((s) => (ruwePunten ?? []).some((p) => p.id === s.route_point_id));
+  if (moetKloppen && !klopt()) {
+    const hersteld = heeftVolgorde && await herstelTeamVolgorde(admin, sessie.id, (ruwePunten ?? []).map((p) => p.id));
+    if (hersteld) {
+      ({ data: spo } = await admin.from("session_point_order").select("volgorde, route_point_id").eq("session_id", sessie.id).order("volgorde"));
+    }
+    if (!hersteld || !klopt()) {
+      await admin.from("player_sessions").update({ status: "vervallen" }).eq("id", sessie.id);
+      redirect("/speler");
+    }
   }
 
   // Doorlooppunten: de speler loopt er gewoon langs (geen scherm), het volgende punt verschijnt

@@ -165,6 +165,10 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
           <span style={{ marginLeft: "auto", fontSize: "1rem" }}>{item.is_correct ? "✅" : "❌"}</span>
         </div>
       )}
+      {/* Open vraag fout (of te laat): wat goed was */}
+      {item.vraag_type === "open" && item.is_correct === false && item.juiste_antwoord_tekst && (
+        <AntwoordRij label="Juiste antwoord" tekst={item.juiste_antwoord_tekst} afbeelding={null} goed />
+      )}
 
       {/* Foto-opdracht */}
       {isFoto && item.foto_pad && (

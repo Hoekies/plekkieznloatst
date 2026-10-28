@@ -67,7 +67,9 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
     }).catch(() => { /* dan gaat de link mee */ });
   }, []);
 
-  const bericht = [keuze.tekst ? tekst.trim() : "", keuze.beginscherm ? BEGINSCHERM_UITLEG : ""].filter(Boolean).join("\n\n");
+  // Met de spelerskaart mee: ook de link naar de spelregels als tekst (te vergroten en voor te lezen)
+  const bericht = [keuze.tekst ? tekst.trim() : "", keuze.beginscherm ? BEGINSCHERM_UITLEG : "",
+    keuze.kaart ? `📄 De uitleg als tekst: ${SITE}/spelregels` : ""].filter(Boolean).join("\n\n");
   const files = keuze.kaart && kaartBestand ? [kaartBestand] : [];
   const niksGekozen = !bericht && !keuze.kaart;
 

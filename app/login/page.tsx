@@ -138,7 +138,7 @@ function LoginForm() {
                   background: "none", border: "none", cursor: "pointer",
                   color: "rgba(255,255,255,0.45)", fontSize: "1.1rem", lineHeight: 1, padding: 0,
                 }}
-                aria-label={toonWachtwoord ? "Verberg wachtwoord" : "Toon wachtwoord"}
+                className="wachtwoord-oog" aria-label={toonWachtwoord ? "Verberg wachtwoord" : "Toon wachtwoord"}
               >
                 {toonWachtwoord ? "🙈" : "👁️"}
               </button>

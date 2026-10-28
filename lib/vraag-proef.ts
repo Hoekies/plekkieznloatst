@@ -14,8 +14,15 @@ export function beoordeel(v: VraagData, antwoordId: string | null, openTekst?: s
   const basis = { correct_answer_id: juiste?.id ?? null, correct_answer_ids: (a.answer_options ?? []).filter((o) => o.is_correct).map((o) => o.id),
     uitleg: Object.fromEntries((a.answer_options ?? []).filter((o) => o.uitleg && (o.is_correct || o.id === antwoordId)).map((o) => [o.id, o.uitleg as string])),
     correct_text_answers: null, numeric_answer: null, numeric_tolerance: null };
+  // Te laat: fout, net als op de server (ook een stemvraag), maar wel met het goede antwoord erbij
+  if (teLaat) {
+    if (a.type === "stemvraag") return { ...basis, correct_answer_id: null, correct_answer_ids: [], is_correct: false, stem: true, points_awarded: 0 };
+    const open = a.type === "open"
+      ? a.numeric_answer != null ? { numeric_answer: a.numeric_answer, numeric_tolerance: a.numeric_tolerance ?? 0 } : { correct_text_answers: a.correct_text_answers ?? [] }
+      : {};
+    return { ...basis, ...open, is_correct: false, points_awarded: 0 };
+  }
   if (a.type === "stemvraag") return { ...basis, correct_answer_id: null, is_correct: null, stem: true, points_awarded: 0 };
-  if (teLaat) return { ...basis, is_correct: false, points_awarded: 0 };
   if (a.type === "open") {
     if (a.numeric_answer != null) {
       const getal = normaliserenNumeriek(openTekst ?? "");

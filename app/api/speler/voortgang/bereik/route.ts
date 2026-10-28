@@ -11,6 +11,8 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { route_point_id, qr_secret } = body;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
+  // Uit de wachtrij van een eerder spel (na uitloggen of een nieuw spel): niet bij dit spel optellen
+  if (body.sessie_id && body.sessie_id !== sessie.id) return NextResponse.json({ fout: "Dit hoort bij een eerder spel" }, { status: 409 });
 
   // Controleer of punt bij de route hoort
   const { data: punt } = await admin

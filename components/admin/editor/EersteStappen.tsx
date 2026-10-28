@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Icoon from "@/components/admin/Icoon";
 
 // 🚀 Eerste stappen: bij een nieuwe route stap voor stap van lege kaart naar een speelbare route.
@@ -34,7 +35,8 @@ type Props = {
   km: number; onKm: (n: number) => void;
   aantal: number; onAantal: (n: number) => void;
   onBewaarInstellingen: () => void;
-  onMaakPunten: () => Promise<void>;
+  // Geven terug of het gelukt is: alleen dan gaat de wizard verder
+  onMaakPunten: () => Promise<boolean>;
   maakBezig: boolean;
   // Voorbeeld: de punten 15° verder over de cirkel
   onAnderVoorbeeld: () => void;
@@ -45,7 +47,7 @@ type Props = {
   itemAantal: number;
   onItemAantal: (n: number) => void;
   aantalItems: number;
-  onItems: () => Promise<void>;
+  onItems: () => Promise<boolean | void>;
   itemsBezig: boolean;
   vraagpunten: number;
   metVraag: number;
@@ -61,6 +63,8 @@ export default function EersteStappen(p: Props) {
     ? ["📍 Startpunt", "🏁 Finish", "👥 Teams en afstand", "🗺️ Voorbeeld", "🎁 Items", "📝 Vragen", "🩺 Controleren"]
     : ["📍 Startpunt", "📍 Punten zetten", "🏁 Finish", "📝 Vragen", "🩺 Controleren"];
   const stap = Math.min(p.stap, stappen.length - 1);
+  // "Opnieuw maken" haalt de bestaande punten (met hun vragen) weg: eerst bevestigen
+  const [opnieuwBevestigen, setOpnieuwBevestigen] = useState(false);
   const naar = (n: number) => { p.onKies(null); p.onStap(n); };
   const volgende: Knop = { tekst: "Volgende →", onClick: () => naar(stap + 1) };
 
@@ -120,19 +124,27 @@ export default function EersteStappen(p: Props) {
     if (!(p.km > 0 && p.teams >= 2 && p.aantal >= 3)) nogNiet = "Vul de afstand in.";
   } else if (rondje && stap === 3) {
     zin = <>Zo komen de <strong>{p.aantal} punten</strong> te liggen (gestippeld). De app zet ze straks op de weg of het voetpad.</>;
-    if (p.aantalPunten >= 3) inhoud = <div className="es-ok">✓ {p.aantalPunten} punten staan op de kaart. Verslepen kan altijd nog.</div>;
-    hoofd = {
-      tekst: p.maakBezig ? "⏳ Punten maken…" : p.aantalPunten >= 3 ? "✓ Opnieuw maken" : "✓ Ja, maak de punten",
-      onClick: async () => { await p.onMaakPunten(); naar(stap + 1); }, uit: p.maakBezig,
-    };
-    extra = { tekst: "🔄 Ander voorbeeld", onClick: p.onAnderVoorbeeld, uit: p.maakBezig };
+    const maak = async () => { setOpnieuwBevestigen(false); if (await p.onMaakPunten()) naar(stap + 1); };
+    if (p.aantalPunten >= 3 && opnieuwBevestigen) {
+      // Opnieuw maken wist alle punten en de vragen die eraan hangen: niet terug te draaien
+      inhoud = <div className="es-let-op">⚠️ Opnieuw maken haalt alle {p.aantalPunten} punten weg{p.metVraag ? <>, met de <strong>{p.metVraag} {p.metVraag === 1 ? "vraag" : "vragen"}</strong> die je al hebt ingevuld</> : null}. Dat kan niet ongedaan worden gemaakt. Liever de punten verslepen?</div>;
+      hoofd = { tekst: p.maakBezig ? "⏳ Punten maken…" : "Ja, opnieuw maken", onClick: maak, uit: p.maakBezig };
+      extra = { tekst: "Nee, houden", onClick: () => setOpnieuwBevestigen(false) };
+    } else if (p.aantalPunten >= 3) {
+      inhoud = <div className="es-ok">✓ {p.aantalPunten} punten staan op de kaart. Verslepen kan altijd nog.</div>;
+      hoofd = volgende;
+      extra = { tekst: "🔄 Opnieuw maken", onClick: () => setOpnieuwBevestigen(true), uit: p.maakBezig };
+    } else {
+      hoofd = { tekst: p.maakBezig ? "⏳ Punten maken…" : "✓ Ja, maak de punten", onClick: maak, uit: p.maakBezig };
+      extra = { tekst: "🔄 Ander voorbeeld", onClick: p.onAnderVoorbeeld, uit: p.maakBezig };
+    }
   } else if (rondje && stap === 4) {
     zin = <>Voorgestelde items staan doorzichtig op de kaart. Meer of minder?</>;
     inhoud = (<>
       {getal("Items", p.itemAantal, p.onItemAantal, 0, 60)}
       {p.aantalItems > 0 && <div className="es-ok">✓ Er liggen al {p.aantalItems} items.</div>}
     </>);
-    hoofd = { tekst: p.itemsBezig ? "⏳ Plaatsen…" : `✨ Plaats ${p.itemAantal} items`, onClick: async () => { await p.onItems(); naar(stap + 1); }, uit: p.itemsBezig || p.itemAantal === 0 };
+    hoofd = { tekst: p.itemsBezig ? "⏳ Plaatsen…" : `✨ Plaats ${p.itemAantal} items`, onClick: async () => { if (await p.onItems() !== false) naar(stap + 1); }, uit: p.itemsBezig || p.itemAantal === 0 };
     extra = { tekst: "Later →", onClick: () => naar(stap + 1) };
   } else if (!rondje && stap === 1) {
     zin = <>Tik de volgende punten aan, <strong>in de volgorde</strong> van lopen. Een GPX? Gebruik 📥 Importeren.</>;
@@ -145,7 +157,7 @@ export default function EersteStappen(p: Props) {
     inhoud = kiesKnop("finish", "🏁 Finish aantikken", p.heeftFinish);
     if (!p.heeftFinish) nogNiet = "Tik eerst de finish aan.";
   } else if (stap === vragenStap) {
-    zin = <>Bij elk vraagpunt hoort een vraag. Nu invullen, of later.</>;
+    zin = <>Bij elk vraagpunt hoort een vraag{rondje ? ", en bij de start de eerste vraag" : ""}. Nu invullen, of later.</>;
     inhoud = <div className={p.metVraag === p.vraagpunten && p.vraagpunten > 0 ? "es-ok" : "es-let-op"}>{p.metVraag} van {p.vraagpunten} vragen ingevuld</div>;
     hoofd = { tekst: "📝 Vragen invullen", onClick: p.onVragen, uit: !p.vraagpunten };
     extra = { tekst: "Later →", onClick: () => naar(stap + 1) };

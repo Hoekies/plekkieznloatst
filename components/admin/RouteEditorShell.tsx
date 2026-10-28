@@ -776,8 +776,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     toonMelding("De route is leeg", "ok");
   }
 
-  async function genereerPuntenInCirkel() {
-    if (!centrumPunt || doelAfstandKm <= 0) return;
+  // Geeft terug of het gelukt is (de eerste stappen gaan alleen dan verder)
+  async function genereerPuntenInCirkel(): Promise<boolean> {
+    if (!centrumPunt || doelAfstandKm <= 0) return false;
     const radiusM = (doelAfstandKm * 1000) / (2 * Math.PI);
     // Op de cirkel, en dan elk punt naar de dichtstbijzijnde weg of het voetpad
     const coords = await opDeWeg(puntenOpCirkel(centrumPunt.lat, centrumPunt.lng, radiusM, aantalPunten, cirkelDraai));
@@ -786,7 +787,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       if (!res.ok) {
         toonMelding(`"${pt.name}" kon niet verwijderd worden — de punten zijn niet opnieuw gegenereerd.`, "fout");
         await herlaadPunten();
-        return;
+        return false;
       }
     }
     setPunten([]);
@@ -821,6 +822,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (resEind.ok) nieuwePunten.push(await resEind.json());
 
     setPunten(nieuwePunten);
+    // Alles gelukt? Anders melden hoeveel er wel staan (de stap blijft dan staan om het opnieuw te proberen)
+    const verwacht = coords.length + 2;
+    if (nieuwePunten.length < verwacht) {
+      toonMelding(`Er zijn ${nieuwePunten.length} van de ${verwacht} punten gemaakt. Probeer het opnieuw.`, "fout");
+      return false;
+    }
+    return true;
   }
 
   async function voegPuntToeOp(lat: number, lng: number) {
@@ -903,6 +911,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       if (openPaneel) setGeselecteerdSpeciaal(nieuw);
       setAddSpeciaalModus(false);
     }
+    return res.ok;
   }
 
   // ✨ Items automatisch plaatsen: alle voorstellen (zoveel als het advies voor deze route) in één keer
@@ -911,9 +920,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const lijst = itemCheck?.voorstellen ?? [];
     if (!lijst.length) return;
     setAutoItemsBezig(true);
-    for (const v of lijst) await voegSpeciaalItemToeOp(v.lat, v.lng, v.type, false);
+    // Tel wat echt gelukt is (niet het aantal voorstellen)
+    let gelukt = 0;
+    for (const v of lijst) if (await voegSpeciaalItemToeOp(v.lat, v.lng, v.type, false).catch(() => false)) gelukt++;
     setAutoItemsBezig(false);
-    toonMelding(`${lijst.length} items geplaatst langs de route. Terugzetten kan met ↶ Ongedaan.`, "ok");
+    if (gelukt === lijst.length) toonMelding(`${gelukt} items geplaatst langs de route. Terugzetten kan met ↶ Ongedaan.`, "ok");
+    else toonMelding(`${gelukt} van ${lijst.length} items geplaatst. Tik nog eens om de rest te plaatsen.`, "fout");
+    return gelukt === lijst.length;
   }
 
   // 🛣️ Items die naast de weg liggen (in een tuin, tussen huizen) op het dichtstbijzijnde pad leggen
@@ -979,7 +992,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Testronde: de route punt voor punt doorlopen zonder naar buiten te gaan
   // ?test=1 (vanuit Spel klaarzetten op het dashboard): meteen de testronde open
   const [testOpen, setTestOpen] = useState(() => zoekParams.get("test") === "1");
+  // ❓ De hulpkolom laat de uitleg zien bij het onderdeel waar je nu bent (vraag, punt, items, …)
+  const hulpOnderdeel = vraagVenster || alleVragenOpen ? "vraag" : controleOpen ? "controle" : instellingenOpen ? "instellingen"
+    : geselecteerdSpeciaal || actieveTab === "items" ? "items" : geselecteerd ? "punt" : "kaart";
+  useEffect(() => {
+    document.documentElement.dataset.hulp = hulpOnderdeel;
+    return () => { delete document.documentElement.dataset.hulp; };
+  }, [hulpOnderdeel]);
   const vraagpunten = punten.filter((p) => p.type === "vraagpunt");
+  // 📝 Alle vragen: ook de verplichte startvraag (🏠 bij een rondje) en de finishopdracht, op routevolgorde
+  const alleVragenPunten = punten.filter((p, i) => p.type === "vraagpunt" || p.type === "eindpunt"
+    || (route.modus === "verspreid" && punten.length >= 3 && i === 0));
   // 🏆 Maximaal te halen voor één team: alle vragen (hoogste punten per vraag), punten zonder vraag, en de bonussen
   // van het puzzelwoord (alle letters). Items tellen niet mee: die verschillen per spel.
   const maxVragen = vraagpunten.reduce((som, p) => som + (vraagMaxPunten.get(p.id) ?? 0), 0);
@@ -1015,9 +1038,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     id: p.id, lat: p.latitude, lng: p.longitude,
     label: p.type === "eindpunt" && i === punten.length - 1 ? "🏁" : route.modus === "verspreid" && punten.length >= 3 && i === 0 ? "🏠" : kaartNummer(p),
   }));
+  // Een laadfout is niet hetzelfde als "nog geen vraag": dan geen leeg formulier openen (opslaan zou de
+  // bestaande vraag overschrijven), maar melden en opnieuw laten proberen
   async function openVraag(punt: RoutePunt) {
-    const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}/vraag`);
-    setVraagVenster({ punt, vraag: res.ok ? await res.json() : null });
+    const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}/vraag`).catch(() => null);
+    if (!res?.ok) { toonMelding("De vraag kon niet worden geladen: probeer het opnieuw", "fout"); return; }
+    setVraagVenster({ punt, vraag: await res.json() });
   }
   function vraagBijgewerkt(puntId: string, vraag: VraagMetAntwoorden | null) {
     setVraagPuntIds((oud) => { const n = new Set(oud); if (vraag) n.add(puntId); else n.delete(puntId); return n; });
@@ -1077,12 +1103,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (bron) for (const k of Object.keys(update) as (keyof T)[]) oud[k] = bron[k];
     return oud;
   }
-  async function zetVolgorde(lijst: RoutePunt[]) {
+  // Nieuwe volgorde opslaan. Mislukt het, dan de oude volgorde terug in beeld (de database heeft die nog)
+  async function zetVolgorde(lijst: RoutePunt[]): Promise<boolean> {
+    const vorige = punten;
     setPunten(lijst);
-    await api(`/api/admin/routes/${route.id}/punten/volgorde`, {
+    const res = await api(`/api/admin/routes/${route.id}/punten/volgorde`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ volgorde: lijst.map((x) => x.id) }),
     });
+    if (!res.ok) {
+      setPunten(vorige);
+      toonMelding("Volgorde opslaan lukte niet; de oude volgorde staat er weer", "fout");
+      return false;
+    }
+    return true;
   }
 
   async function maakOngedaan() {
@@ -1090,7 +1124,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (!st || bezigMetHerstel) return;
     setBezigMetHerstel(true);
     setHerstelToast(null);
-    setStappen((oud) => oud.slice(0, -1));
+    // De stap gaat pas uit de geschiedenis als het herstellen echt gelukt is; anders kan het opnieuw
+    let gelukt = true;
     try {
       if (st.soort === "item-weg") {
         const { type, name, latitude, longitude, radius_meters, points_effect } = st.item;
@@ -1103,14 +1138,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           const terug: SpeciaalItem = await res.json();
           idMapRef.current.set(st.item.id, terug.id);
           setSpecialeItems((p) => [...p, terug]);
-        }
+        } else gelukt = false;
       } else if (st.soort === "punt-weg") {
         const p = st.punt;
         const res = await api(`/api/admin/routes/${route.id}/punten`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: p.type, name: p.name, latitude: p.latitude, longitude: p.longitude, radius_meters: p.radius_meters, points: p.points }),
         });
-        if (!res.ok) return;
+        if (!res.ok) { gelukt = false; return; }
         const terug: RoutePunt = await res.json();
         idMapRef.current.set(p.id, terug.id);
         // Overige velden en de vraag met antwoorden terugzetten
@@ -1130,14 +1165,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         lijst.splice(Math.min(st.plek, lijst.length), 0, { ...p, id: terug.id });
         await zetVolgorde(lijst);
         await herlaadPunten();
+        // Het punt staat er weer (eventueel op een andere plek): de stap is gedaan
       } else if (st.soort === "item-erbij") {
         const id = los(st.id);
-        await api(`/api/admin/routes/${route.id}/speciaal/${id}`, { method: "DELETE" });
+        const res = await api(`/api/admin/routes/${route.id}/speciaal/${id}`, { method: "DELETE" });
+        if (!res.ok) { gelukt = false; return; }
         setSpecialeItems((p) => p.filter((i) => i.id !== id));
         if (geselecteerdSpeciaal?.id === id) setGeselecteerdSpeciaal(null);
       } else if (st.soort === "punt-erbij") {
         const id = los(st.id);
-        await api(`/api/admin/routes/${route.id}/punten/${id}`, { method: "DELETE" });
+        const res = await api(`/api/admin/routes/${route.id}/punten/${id}`, { method: "DELETE" });
+        if (!res.ok) { gelukt = false; return; }
         if (geselecteerd?.id === id) setGeselecteerd(null);
         await herlaadPunten();
       } else if (st.soort === "item-gewijzigd") {
@@ -1151,7 +1189,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           const bijgewerkt: RoutePunt = await res.json();
           setPunten((p) => p.map((pt) => pt.id === id ? bijgewerkt : pt));
           setGeselecteerd((g) => (g?.id === id ? bijgewerkt : g));
-        }
+        } else gelukt = false;
       } else if (st.soort === "volgorde") {
         // Oude volgorde terug; punten die er toen nog niet waren blijven vóór de finish staan
         const perId = new Map(punten.map((p) => [p.id, p]));
@@ -1159,10 +1197,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         const nieuw = punten.filter((p) => !lijst.includes(p));
         const eind = lijst[lijst.length - 1]?.type === "eindpunt" ? lijst.length - 1 : lijst.length;
         lijst.splice(eind, 0, ...nieuw);
-        await zetVolgorde(lijst);
+        if (!await zetVolgorde(lijst)) gelukt = false;
       }
+    } catch {
+      gelukt = false;
     } finally {
       setBezigMetHerstel(false);
+      if (gelukt) setStappen((oud) => oud[oud.length - 1] === st ? oud.slice(0, -1) : oud);
+      else toonMelding(`Ongedaan maken lukte niet (${stapLabel(st)}): probeer het nog een keer`, "fout");
     }
   }
   // Sneltoetsen (pc), niet tijdens het typen in een veld of met een venster open:
@@ -1355,6 +1397,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, tussenstand_duur_seconden: seconden }));
   }
 
+  // Puntpaneel dicht met nog niet opgeslagen wijzigingen: die alsnog bewaren (voor dát punt)
+  async function bewaarPuntBijSluiten(punt: RoutePunt, update: Partial<RoutePunt>) {
+    onthoud({ soort: "punt-gewijzigd", id: punt.id, oud: oudeWaarden(punt, update) });
+    const res = await api(`/api/admin/routes/${route.id}/punten/${punt.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(update),
+    }).catch(() => null);
+    if (res?.ok) {
+      const bijgewerkt: RoutePunt = await res.json();
+      setPunten((p) => p.map((pt) => pt.id === bijgewerkt.id ? bijgewerkt : pt));
+      toonMelding(`Wijzigingen van "${bijgewerkt.name}" bewaard`, "ok");
+    } else toonMelding(`Wijzigingen van "${punt.name}" konden niet worden bewaard: open het punt en sla opnieuw op`, "fout");
+  }
+
   async function slaPuntOp(update: Partial<RoutePunt>) {
     if (!geselecteerd) return;
     onthoud({ soort: "punt-gewijzigd", id: geselecteerd.id, oud: oudeWaarden(geselecteerd, update) });
@@ -1497,9 +1552,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {wegen.bezig ? <Icoon naam="laden" /> : <Icoon naam="lopen" />}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
           </span>
-          <button className="rl-knop" disabled={!vraagpunten.length}
-            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen (zoveel punten hebben al een vraag)">
-            <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}/{vraagpunten.length}</span>
+          <button className="rl-knop" disabled={!alleVragenPunten.length}
+            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, ook de startvraag en de finishopdracht (zoveel punten hebben al een vraag)">
+            <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{alleVragenPunten.filter((p) => vraagPuntIds.has(p.id)).length}/{alleVragenPunten.length}</span>
           </button>
           {/* 🏆 Maximaal te halen (uitleg bij aanwijzen) */}
           {punten.length > 0 && (
@@ -1661,7 +1716,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <>
                       {punten.length > 0 ? (
                         <BevestigKnop venster icoon="🎲" titel={`De ${punten.length} punten vervangen door nieuwe?`} className="btn btn-cyan" style={{ width: "100%", fontSize: "0.78rem", padding: "6px 10px" }}
-                          vraag="" ja="Ja, vervang" onBevestig={genereerPuntenInCirkel}>
+                          vraag="" ja="Ja, vervang" onBevestig={async () => { await genereerPuntenInCirkel(); }}>
                           <Icoon naam="dobbelsteen" /> Punten maken in de cirkel
                         </BevestigKnop>
                       ) : (
@@ -1904,7 +1959,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               <div style={{ margin: "0 10px 8px" }}>
                 <BevestigKnop venster gevaarlijk={false} icoon="✨" titel={`${itemCheck.voorstellen.length} items automatisch plaatsen?`} vraag=""
                   uitleg="Langs de route die de teams lopen, verdeeld over de soorten. Terugzetten kan met ↶ Ongedaan." knopTekst="Ja, plaatsen"
-                  onBevestig={plaatsAlleVoorstellen} disabled={autoItemsBezig}
+                  onBevestig={async () => { await plaatsAlleVoorstellen(); }} disabled={autoItemsBezig}
                   className="rl-knop rl-knop--cyan" style={{ width: "100%", height: 36, justifyContent: "center", display: "inline-flex", alignItems: "center", gap: 6 }}>
                   {autoItemsBezig ? <><Icoon naam="laden" />{" Plaatsen…"}</> : <><Icoon naam="nieuw" />{` Items verdelen (${itemCheck.voorstellen.length})`}</>}
                 </BevestigKnop>
@@ -2510,7 +2565,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Alle vragen achter elkaar */}
         {alleVragenOpen && (
-          <AlleVragenVenster routeId={route.id} punten={vraagpunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
+          <AlleVragenVenster routeId={route.id} punten={alleVragenPunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
             heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt} onNaamGewijzigd={puntNaamGewijzigd}
             onSluit={() => setAlleVragenOpen(false)} />
         )}
@@ -2738,14 +2793,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             km={doelAfstandKm} onKm={setDoelAfstandKm}
             aantal={aantalPunten} onAantal={(n) => { setAantalHandmatig(true); setAantalPunten(n); }}
             onBewaarInstellingen={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
-            onMaakPunten={async () => { setMaakBezig(true); try { await genereerPuntenInCirkel(); } finally { setMaakBezig(false); } }}
+            onMaakPunten={async () => { setMaakBezig(true); try { return await genereerPuntenInCirkel(); } finally { setMaakBezig(false); } }}
             maakBezig={maakBezig}
             onAnderVoorbeeld={() => setCirkelDraai((d) => (d + 15) % 360)}
             aantalPunten={punten.length}
             heeftFinish={punten[punten.length - 1]?.type === "eindpunt"}
             itemAantal={itemCheck?.voorstellen.length ?? 0} onItemAantal={(n) => setItemDoel(n)} aantalItems={specialeItems.length}
             onItems={plaatsAlleVoorstellen} itemsBezig={autoItemsBezig}
-            vraagpunten={vraagpunten.length} metVraag={vraagpunten.filter((p) => vraagPuntIds.has(p.id)).length}
+            vraagpunten={alleVragenPunten.length} metVraag={alleVragenPunten.filter((p) => vraagPuntIds.has(p.id)).length}
             onVragen={() => setAlleVragenOpen(true)}
             onControleren={() => { setStappenOpen(false); setControleOpen(true); }}
           />
@@ -2820,7 +2875,9 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
             style={paneelPlek ? { left: paneelPlek.x, top: paneelPlek.y } : undefined}>
             {geselecteerd && (
               <PuntForm
+                key={geselecteerd.id}
                 punt={geselecteerd}
+                onBewaarBijSluiten={bewaarPuntBijSluiten}
                 onVraag={() => openVraag(geselecteerd)}
                 opslaan={opslaan}
                 fout={fout}

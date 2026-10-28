@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { LiveData } from "@/lib/admin-live";
 import { meldLiveData } from "@/components/admin/useBeheerStatus";
@@ -10,13 +10,29 @@ import { meldLiveData } from "@/components/admin/useBeheerStatus";
 export function useLiveData(initData: LiveData, pollMs: number, kanaal: string) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
+  // Elke aanvraag krijgt een nummer; een antwoord van een oudere aanvraag die later binnenkomt, mag een
+  // nieuwere stand niet overschrijven. Komt er een aanvraag bij terwijl er al een loopt, dan één keer erna.
+  const nummerRef = useRef(0);
+  const getoondRef = useRef(0);
+  const bezigRef = useRef(false);
+  const nogEensRef = useRef(false);
 
   async function ververs() {
+    if (bezigRef.current) { nogEensRef.current = true; return; }
+    bezigRef.current = true;
+    const nr = ++nummerRef.current;
     try {
-      const res = await fetch("/api/admin/live/spelers");
+      const res = await fetch("/api/admin/live/spelers", { cache: "no-store" });
       // Ook doorgeven aan de gedeelde bron (tabteller, strook), zodat die niet nog eens ophaalt
-      if (res.ok) { const d = await res.json(); setData(d); meldLiveData(d); }
+      if (res.ok) {
+        const d = await res.json();
+        if (nr > getoondRef.current) { getoondRef.current = nr; setData(d); meldLiveData(d); }
+      }
     } catch { /* verbindingsfout */ }
+    finally {
+      bezigRef.current = false;
+      if (nogEensRef.current) { nogEensRef.current = false; ververs(); }
+    }
   }
 
   useEffect(() => {

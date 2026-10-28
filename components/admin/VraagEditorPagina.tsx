@@ -208,7 +208,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [opgeslagen, setOpgeslagen] = useState(false);
 
   // Niet-opgeslagen wijzigingen: vergelijken met hoe de vraag binnenkwam
-  const huidig = JSON.stringify({ type, tekst, vraagAfbeelding, punten, antwoorden, openAntwoorden, numeriekeWaarde, tolerantie, isNumeriek, naam: naam.trim() });
+  // (ook geluid en tijdslimiet: die gaan pas mee bij Opslaan)
+  const huidig = JSON.stringify({ type, tekst, vraagAfbeelding, punten, antwoorden, openAntwoorden, numeriekeWaarde, tolerantie, isNumeriek, naam: naam.trim(), geluidPad, tijdslimiet });
   const beginRef = useRef<string | null>(null);
   if (beginRef.current === null) beginRef.current = huidig;
   const gewijzigd = huidig !== beginRef.current;
@@ -343,7 +344,10 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
       }));
     }
 
-    if (!naamGekozen) { setOpslaan(false); setNaamVenster(true); return; }
+    // Naam van het punt alleen vragen als het nog een standaardnaam heeft (bijv. "Punt 3"); een bewust gekozen
+    // naam niet bij elke opslag opnieuw (hernoemen kan bij Meer instellingen)
+    const standaardNaam = punt.type !== "eindpunt" && /^(punt \d+|startpunt|nieuw punt)?$/i.test(naam.trim());
+    if (!naamGekozen && standaardNaam) { setOpslaan(false); setNaamVenster(true); return; }
     setNaamVenster(false);
 
     if (naam.trim() && naam.trim() !== punt.name) {
@@ -568,7 +572,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                       border: `2px solid ${ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)"}`,
                       background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : "transparent",
                     }}>
-                      <button type="button" onClick={() => setCorrect(i)}
+                      <button type="button" className="antwoord-goed-rondje" onClick={() => setCorrect(i)}
                         title={ant.is_correct ? "Goed antwoord: tik om fout te maken" : "Fout antwoord: tik om goed te maken"}
                         aria-label={`Antwoord ${ant.color} is goed`} aria-pressed={ant.is_correct}
                         style={{
@@ -747,7 +751,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           background: "var(--bg)",
           display: "flex", flexDirection: "column", minHeight: 0,
         }}>
-          <div className="vraag-kolom-kop">👁 Zo ziet de speler het</div>
+          <div className="vraag-kolom-kop" title="Alleen de inhoud. De echte weergave op de telefoon zie je met 🧪 Testen of de QR-code bij Meer instellingen">👁 Inhoudsvoorbeeld</div>
 
           <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px", display: "flex", justifyContent: "center" }}>
             <div style={{

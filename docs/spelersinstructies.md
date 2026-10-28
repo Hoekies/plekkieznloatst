@@ -33,7 +33,7 @@ Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spel
 Je telefoon trilt bij een bereikt punt, een opgepakt item, je startitems, een goed of fout antwoord, een aanval van een ander team, een bericht van de organisatie en de finish. Zo merk je het ook als de telefoon in je zak zit.
 
 **Geen bereik?**
-Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld in het buitengebied), dan bewaart de app wat je doet: punten bereiken, doorgaan en je antwoorden. Bovenin staat dan een oranje strook **📡 Geen bereik**. Zodra er weer bereik is, gaat alles vanzelf mee en zie je je punten. De vragen van de volgende punten heeft de app al opgehaald, en de kaart van het speelgebied ook. Alleen een foto insturen lukt pas weer met bereik.
+Speel gewoon door. Komt je telefoon even zonder internet te zitten (bijvoorbeeld in het buitengebied), dan bewaart de app wat je doet: punten bereiken, doorgaan en je antwoorden. Bovenin staat dan een oranje strook **📡 Geen bereik**. Zodra er weer bereik is, gaat alles vanzelf mee en zie je je punten. De vragen van de volgende punten heeft de app al opgehaald, en de kaart van het speelgebied ook. Alleen een foto insturen lukt pas weer met bereik. Kon een bewaarde stap later toch niet mee (bijvoorbeeld omdat het spel intussen was gestopt), dan zie je een rode melding met de reden; vraag dan zo nodig de organisatie.
 
 **Batterij**
 De app gaat zuinig met je batterij om: staat je scherm uit of zit de app op de achtergrond, dan vraagt hij niets op. Ben je nog ver van een punt, dan bewaart hij je plek minder vaak.

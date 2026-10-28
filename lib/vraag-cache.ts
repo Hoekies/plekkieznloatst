@@ -13,6 +13,11 @@ export async function haalVraag<T>(puntId: string): Promise<T | null> {
   return data;
 }
 
+// Vergeten (één punt, of alles): na een wijziging door de organisatie de vraag opnieuw ophalen
+export function wisVraagCache(puntId?: string) {
+  if (puntId) cache.delete(puntId); else cache.clear();
+}
+
 export function laadVragenVooruit(puntIds: string[]) {
   for (const id of puntIds) if (!cache.has(id)) haalVraag(id).catch(() => { /* later opnieuw */ });
 }

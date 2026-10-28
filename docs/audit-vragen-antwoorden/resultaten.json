@@ -71,7 +71,7 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: verlopen vraag geeft geen juiste antwoorden in feedback",
+      "naam": "OPGELOST: na tijdoverschrijding staat het goede antwoord in de feedback",
       "geslaagd": true
     },
     {
@@ -147,19 +147,19 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: proef behandelt verlopen stemvraag anders dan server",
+      "naam": "OPGELOST: proef en server behandelen een verlopen stemvraag hetzelfde",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: Doorgaan bij informatiepunt toont geen serverfout",
+      "naam": "OPGELOST: Doorgaan bij informatiepunt toont de serverfout",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: foto-conversiefout komt zonder zichtbare foutmelding terug",
+      "naam": "OPGELOST: foto-conversiefout geeft een zichtbare foutmelding",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: vraag-cache bewaart oude antwoord-ID na wijziging",
+      "naam": "OPGELOST: vraag-cache haalt na wissen (wijziging door de organisatie) de nieuwe vraag op",
       "geslaagd": true
     }
   ]

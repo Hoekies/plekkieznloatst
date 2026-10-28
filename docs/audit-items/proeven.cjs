@@ -132,6 +132,7 @@ function omgeving(type = 'ster', extraRoute = {}) {
       if (n === '@/lib/auth-server') return { haalGebruiker: async () => ({ id: 'u' + actor }), isBeheer: () => true };
       if (n === '@/lib/supabase-admin') return { createAdminClient: () => admin };
       if (n === '@/lib/push') return { stuurPushNaarBeheer: async () => {} };
+      if (n === 'next/headers') return { cookies: () => ({ get: () => undefined }) };
       if (n.startsWith('@/')) return laad(n);
       if (n.startsWith('.')) return laad(path.resolve(path.dirname(p), n));
       throw Error('Onverwachte import: ' + n);
@@ -211,13 +212,13 @@ function clientFunctie(naam, globals) {
   await test('OPGELOST: dief neemt de laatste goede vraag, niet een betaald infopunt', async () => { const e = omgeving('dief'); e.tabellen.player_point_progress.push({ id: 'vraag', session_id: 's2', route_point_id: 'a', is_correct: true, points_awarded: 80, answered_at: new Date(NU - 2000).toISOString() }, { id: 'info', session_id: 's2', route_point_id: 'start', is_correct: true, points_awarded: 10, answered_at: new Date(NU - 1000).toISOString() }); await e.effect(); assert.equal(e.sessie().score, 180); assert.equal(e.sessie('s2').score, 120); });
   await test('OPGELOST: kaartitems zijn niet claimbaar zonder of met een verre positie', async () => { const e = omgeving('bom'); e.item().claimed = false; e.item().claimed_by_session_id = null; const h = e.laad('app/api/speler/speciaal/claim/route.ts'); assert.equal((await h.POST(e.req({ special_item_id: 'item' }))).status, 400); assert.equal((await h.POST(e.req({ special_item_id: 'item', latitude: 52.01, longitude: 5 }))).status, 400); assert.equal(e.item().claimed, false); });
   await test('OPGELOST: na verstreken eindtijd werkt een item niet meer', async () => { const e = omgeving('bom', { eindtijd: new Date(NU - 1000).toISOString() }); assert.equal((await e.effect()).status, 403); assert.equal(e.sessie('s2').score, 200); });
-  await test('FOUT: gelijktijdige startitemaanvragen geven twee sets', async () => { const e = omgeving('ster', { startitems: { bom: 1 } }); const h = e.laad('app/api/speler/startitems/route.ts'); await Promise.all([h.POST(), h.POST()]); assert.equal(e.tabellen.special_items.filter((x) => x.is_startitem).length, 2); });
-  await test('FOUT: startitems zijn direct en tijdens pauze opvraagbaar', async () => { const e = omgeving('ster', { startitems: { bom: 1 }, gepauzeerd_sinds: new Date(NU).toISOString() }); const h = e.laad('app/api/speler/startitems/route.ts'); assert.equal((await (await h.POST()).json()).items.length, 1); });
+  await test('OPGELOST: gelijktijdige startitemaanvragen geven één set', async () => { const e = omgeving('ster', { startitems: { bom: 1 } }); const h = e.laad('app/api/speler/startitems/route.ts'); await Promise.all([h.POST(), h.POST()]); assert.equal(e.tabellen.special_items.filter((x) => x.is_startitem).length, 1); });
+  await test('OPGELOST: startitems niet tijdens pauze en niet vóór het eerste stuk lopen', async () => { const e = omgeving('ster', { startitems: { bom: 1 }, gepauzeerd_sinds: new Date(NU).toISOString() }); const h = e.laad('app/api/speler/startitems/route.ts'); assert.equal((await h.POST()).status, 409); e.tabellen.routes[0].gepauzeerd_sinds = null; e.sessie().afstand_m = 20; assert.equal((await h.POST()).status, 409); e.sessie().afstand_m = 120; assert.equal((await (await h.POST()).json()).items.length, 1); });
   await test('OPGELOST: gelijktijdige scorewijzigingen tellen allebei mee', async () => { const e = omgeving('ster'); await Promise.all([e.laad('lib/score.ts').telBijScore(e.admin, 's1', 10), e.laad('lib/score.ts').telBijScore(e.admin, 's1', 20)]); assert.equal(e.sessie().score, 130); });
   await test('OPGELOST: een opslagfout bij een val geeft een fout, niet "al gehad"', async () => { const e = omgeving('plekzooi'); e.fouten.push({ tabel: 'special_item_effects', op: 'insert' }); const r = await e.claim(); assert.equal(r.status, 503); assert.equal(e.tabellen.special_item_effects.length, 0); });
   await test('OPGELOST: betaald infopunt laat de verdubbeling staan', async () => { const e = omgeving('verdubbeling'); await e.effect(); e.tabellen.player_point_progress.push({ id: 'info', session_id: 's1', route_point_id: 'start', answered_at: null }); const r = await e.laad('app/api/speler/voortgang/verwerk/route.ts').POST(e.req({ route_point_id: 'start' })); assert.equal(r.status, 200); assert.equal(e.sessie().score, 110); assert.equal(e.tabellen.special_item_effects.length, 1); });
   await test('OPGELOST: uitloggen/volgende groep weigert oude toestellen, een nieuwe login mag verder', async () => { const m = e0.laad('lib/inlog-moment.ts'); const uit = '2026-10-28T10:00:00.000Z'; assert.equal(m.uitgelogdNaLogin(uit, '2026-10-28T09:59:00.000Z'), true); assert.equal(m.uitgelogdNaLogin(uit, '2026-10-28T10:01:00.000Z'), false); assert.equal(m.uitgelogdNaLogin(null, null), false); assert.equal(m.uitgelogdNaLogin(uit, null), true); const deel = (o) => Buffer.from(JSON.stringify(o)).toString('base64url'); const token = 'x.' + deel({ iat: 1, amr: [{ method: 'password', timestamp: 1761645600 }] }) + '.y'; assert.equal(m.inlogMoment(token), new Date(1761645600000).toISOString()); });
-  for (const [type, foutvorm] of [['ster', 'http'], ['vraagteken', 'http'], ['vraagteken', 'netwerk']]) await test((type === 'vraagteken' && foutvorm === 'http' ? '' : 'FOUT: ') + type + ' na ' + foutvorm + 'fout bij direct inzetten', async () => {
+  for (const [type, foutvorm] of [['ster', 'http'], ['vraagteken', 'http'], ['vraagteken', 'netwerk']]) await test((type === 'vraagteken' && foutvorm === 'http' ? '' : 'OPGELOST: ') + type + ' na ' + foutvorm + 'fout bij direct inzetten komt in de balk', async () => {
     const e = omgeving(type); Object.assign(e.item(), { claimed: false, claimed_by_session_id: null });
     let inventaris = [], melding;
     const handler = clientFunctie('claimSpeciaalItem', {
@@ -226,10 +227,22 @@ function clientFunctie(naam, globals) {
       setInventaris: (f) => { inventaris = f(inventaris); }, setOpgepakt: (v) => { melding = v; },
       fetch: async (url, opties) => { if (url.endsWith('/claim')) return e.laad('app/api/speler/speciaal/claim/route.ts').POST(e.req(JSON.parse(opties.body))); if (foutvorm === 'netwerk') throw Error('Geen verbinding'); return new Response('{}', { status: 503 }); }
     });
-    if (foutvorm === 'netwerk') await assert.rejects(() => handler(kopie(e.item())), /Geen verbinding/); else await handler(kopie(e.item()));
+    await handler(kopie(e.item()));
     assert.equal(e.item().claimed, true); assert.equal(e.item().used_at, null);
-    assert.equal(inventaris.length, type === 'vraagteken' && foutvorm === 'http' ? 1 : 0);
-    if (type === 'ster') assert.ok(melding.extra.includes('komen eraan'));
+    assert.equal(inventaris.length, 1);
+    if (type === 'ster') assert.ok(melding.extra.includes('balk'));
+  });
+  await test('OPGELOST: punten erbij en eraf tijdens een spel: elk team houdt een kloppende volgorde', async () => {
+    const e = omgeving('ster');
+    const rs = e.laad('lib/route-sessies.ts');
+    e.tabellen.route_points.splice(3, 0, { id: 'c', route_id: 'r1', name: 'c', order_index: 4, type: 'vraagpunt', latitude: 52.01, longitude: 5.01, points: 10 }, { id: 'd', route_id: 'r1', name: 'd', order_index: 5, type: 'vraagpunt', latitude: 52.02, longitude: 5.02, points: 10 });
+    e.tabellen.route_points.find((p) => p.id === 'eind').order_index = 6;
+    assert.equal(await rs.werkLopendeSpellenBij(e.admin, 'r1'), true);
+    const volgorde = (sid) => e.tabellen.session_point_order.filter((r) => r.session_id === sid).sort((a, b) => a.volgorde - b.volgorde).map((r) => r.route_point_id + r.volgorde).join(',');
+    assert.equal(volgorde('s1'), 'start1,a2,b3,c4,d5,eind6');
+    e.tabellen.route_points = e.tabellen.route_points.filter((p) => p.id !== 'a');
+    assert.equal(await rs.werkLopendeSpellenBij(e.admin, 'r1'), true);
+    assert.equal(volgorde('s2'), 'start1,b2,c3,d4,eind5');
   });
   console.log(`\n${resultaten.filter((r) => r.geslaagd).length}/${resultaten.length} controles geslaagd. FOUT = nog openstaande tekortkoming (bewust nog gereproduceerd); OPGELOST = sinds 28-10-2026 gerepareerd, bewaakt het gewenste gedrag.`);
   fs.writeFileSync(path.join(__dirname, 'resultaten.json'), JSON.stringify({ datum: '2026-10-28', methode: 'Echte handlers met lokale Supabase-simulatie; geen live database', resultaten }, null, 2));

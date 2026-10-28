@@ -41,69 +41,80 @@ function nodes(n, uit = []) {
 }
 const dummy = () => null;
 const resultaten = [];
-const bevestigd = (tekst) => { resultaten.push(tekst); console.log(`BEVESTIGD: ${tekst}`); };
+// Sinds 28-10-2026 zijn deze gebreken gerepareerd: de proeven bewaken nu het gewenste gedrag (OPGELOST).
+const bevestigd = (tekst) => { resultaten.push(tekst); console.log(`OPGELOST: ${tekst}`); };
 
 (async () => {
   const velden = { type: 'open', tekst: 'Hoe heet deze plek?', vraagAfbeelding: null, punten: 65, antwoorden: [], openAntwoorden: 'Molen', numeriekeWaarde: '', tolerantie: '0', isNumeriek: false, naam: 'Bestaande naam', geluidPad: null, tijdslimiet: null };
   const oud = waarde(vraagEditor, 'huidig', velden);
   velden.geluidPad = 'geluid.mp3'; velden.tijdslimiet = 30;
-  assert.equal(waarde(vraagEditor, 'huidig', velden), oud);
-  bevestigd('Geluid/tijdslimiet wijzigen verandert de niet-opgeslagen-vergelijking niet.');
+  assert.notEqual(waarde(vraagEditor, 'huidig', velden), oud);
+  velden.geluidPad = null; velden.tijdslimiet = null;
+  bevestigd('Geluid/tijdslimiet wijzigen telt mee als niet-opgeslagen wijziging (E06).');
 
   const punten = [{ id: 'start', name: 'Start', type: 'informatiepunt', latitude: 52, longitude: 5 }, { id: 'a', name: 'Vraag A', type: 'vraagpunt' }, { id: 'b', name: 'Vraag B', type: 'vraagpunt' }, { id: 'eind', name: 'Finish', type: 'eindpunt' }];
-  const ids = waarde(editor, 'vraagpunten', { punten }).map((p) => p.id);
-  assert.deepEqual(Array.from(ids), ['a', 'b']);
-  const controle = functie('lib/route-controle.ts', 'routeControle').fn({ punten, modus: 'verspreid', vraagPuntIds: new Set(ids), verwachtTeams: 2, itemTekort: 0, itemTeVeel: false, teamAanloopM: [], teamMinuten: [] });
-  assert.ok(controle.some((r) => r.niveau === 'fout' && r.tekst.includes('startpunt')));
-  let si = 0, states = [], opgeslagen = 0, gesloten = 0;
+  const ids = waarde(editor, 'alleVragenPunten', { punten, route: { modus: 'verspreid' } }).map((p) => p.id);
+  assert.deepEqual(Array.from(ids), ['start', 'a', 'b', 'eind']);
+  let si = 0, states = [], opgeslagen = 0, gesloten = 0, bewaard = [], effecten = [];
   const useState = (init) => { const i = si++; if (!(i in states)) states[i] = typeof init === 'function' ? init() : init; return [states[i], (v) => { states[i] = typeof v === 'function' ? v(states[i]) : v; }]; };
-  const puntForm = functie('components/admin/editor/Formulieren.tsx', 'PuntForm', { useState, useEffect: () => {}, NaamKiezer: dummy, Icoon: dummy });
-  const p = { punt: punten[0], opslaan: false, fout: '', heeftVraag: false, naamWoorden: [], onVraag: () => {}, onOpslaan: () => opgeslagen++, onSluit: () => gesloten++, onVerwijder: () => {} };
+  const puntForm = functie('components/admin/editor/Formulieren.tsx', 'PuntForm', { useState, useEffect: (fn) => { effecten.push(fn); }, useRef: (v) => ({ current: v }), NaamKiezer: dummy, Icoon: dummy });
+  const p = { punt: punten[0], opslaan: false, fout: '', heeftVraag: false, naamWoorden: [], onVraag: () => {}, onOpslaan: () => opgeslagen++, onSluit: () => gesloten++, onVerwijder: () => {}, onBewaarBijSluiten: (pt, u) => { bewaard.push([pt.id, u]); } };
   let tree = puntForm.fn(p);
-  assert.equal(nodes(tree).filter((n) => n.props.onClick === p.onVraag).length, 0);
-  bevestigd('Verplichte startvraag ontbreekt in Alle vragen; het infopuntpaneel heeft ook geen knop om die vraag toe te voegen.');
+  assert.equal(nodes(tree).filter((n) => n.props.onClick === p.onVraag).length, 1);
+  bevestigd('Startvraag en finishopdracht staan in Alle vragen; het infopuntpaneel heeft een knop Vraag toevoegen (E01).');
 
   nodes(tree).find((n) => n.type === 'textarea').props.onChange({ target: { value: 'Nieuwe instructie' } });
-  si = 0; tree = puntForm.fn(p);
+  si = 0; effecten = []; tree = puntForm.fn(p);
   assert.equal(nodes(tree).find((n) => n.type === 'textarea').props.value, 'Nieuwe instructie');
   nodes(tree).find((n) => n.type === 'button' && n.props['aria-label'] === 'Sluiten').props.onClick();
-  assert.equal(opgeslagen, 0); assert.equal(gesloten, 1);
-  bevestigd('Puntpaneel sluit na tekstwijziging zonder opslaan of eigen waarschuwing.');
+  // Sluiten = het paneel verdwijnt: de opruimfuncties van de effecten draaien
+  effecten.map((fn) => fn()).filter((x) => typeof x === 'function').forEach((opruimen) => opruimen());
+  assert.equal(gesloten, 1); assert.equal(bewaard.length, 1); assert.equal(bewaard[0][1].description, 'Nieuwe instructie');
+  bevestigd('Puntpaneel sluiten met een gewijzigde tekst bewaart die tekst vanzelf (E05).');
 
-  const geladen = functie(editor, 'openVraag', { route: { id: 'route' }, api: async () => new Response('{"fout":"Tijdelijk niet beschikbaar"}', { status: 500 }), setVraagVenster: (v) => { geladen.ctx.venster = v; } });
-  await geladen.fn(punten[1]); assert.equal(geladen.ctx.venster.vraag, null);
-  bevestigd('HTTP 500 bij vraag laden wordt een lege bewerkbare vraag.');
+  const meldingen0 = [];
+  const geladen = functie(editor, 'openVraag', { route: { id: 'route' }, api: async () => new Response('{"fout":"Tijdelijk niet beschikbaar"}', { status: 500 }), setVraagVenster: (v) => { geladen.ctx.venster = v; }, toonMelding: (...m) => meldingen0.push(m) });
+  await geladen.fn(punten[1]); assert.equal(geladen.ctx.venster, undefined); assert.equal(meldingen0[0][1], 'fout');
+  bevestigd('HTTP 500 bij vraag laden opent geen leeg formulier maar geeft een melding (E03).');
 
-  const undo = functie(editor, 'maakOngedaan', { stappen: [{ soort: 'punt-gewijzigd', id: 'a', oud: { name: 'Oud' } }], bezigMetHerstel: false, route: { id: 'route' }, los: (x) => x, api: async () => new Response('{}', { status: 503 }), setBezigMetHerstel: () => {}, setHerstelToast: () => {}, setStappen: (f) => { undo.ctx.stappen = f(undo.ctx.stappen); } });
-  await undo.fn(); assert.equal(undo.ctx.stappen.length, 0);
-  bevestigd('Mislukte undo met HTTP 503 verwijdert de herstelstap uit de geschiedenis.');
+  const meldingen1 = [];
+  const undo = functie(editor, 'maakOngedaan', { stappen: [{ soort: 'punt-gewijzigd', id: 'a', oud: { name: 'Oud' } }], bezigMetHerstel: false, route: { id: 'route' }, los: (x) => x, api: async () => new Response('{}', { status: 503 }), setBezigMetHerstel: () => {}, setHerstelToast: () => {}, setStappen: (f) => { undo.ctx.stappen = f(undo.ctx.stappen); }, setPunten: () => {}, setGeselecteerd: () => {}, toonMelding: (...m) => meldingen1.push(m), stapLabel: () => 'punt gewijzigd' });
+  await undo.fn(); assert.equal(undo.ctx.stappen.length, 1); assert.equal(meldingen1[0][1], 'fout');
+  bevestigd('Mislukte undo houdt de herstelstap, zodat opnieuw proberen kan (E04).');
 
   let aantalApi = 0;
-  const maak = functie(editor, 'genereerPuntenInCirkel', { centrumPunt: { lat: 52, lng: 5 }, doelAfstandKm: 1, aantalPunten: 2, cirkelDraai: 0, punten: [], route: { id: 'route' }, finishPunt: null, puntenOpCirkel: () => [], opDeWeg: async () => [], setPunten: () => {}, setGeselecteerd: () => {}, api: async () => { aantalApi++; return new Response('{}', { status: 500 }); } });
+  const maak = functie(editor, 'genereerPuntenInCirkel', { centrumPunt: { lat: 52, lng: 5 }, doelAfstandKm: 1, aantalPunten: 2, cirkelDraai: 0, punten: [], route: { id: 'route' }, finishPunt: null, puntenOpCirkel: () => [], opDeWeg: async () => [], setPunten: () => {}, setGeselecteerd: () => {}, toonMelding: () => {}, api: async () => { aantalApi++; return new Response('{}', { status: 500 }); } });
   let stap = 3;
-  const wizard = functie('components/admin/editor/EersteStappen.tsx', 'EersteStappen', { Icoon: dummy });
+  let wsi = 0; const wStates = [];
+  const wUseState = (init) => { const i = wsi++; if (!(i in wStates)) wStates[i] = init; return [wStates[i], (v) => { wStates[i] = typeof v === 'function' ? v(wStates[i]) : v; }]; };
+  const wizard = functie('components/admin/editor/EersteStappen.tsx', 'EersteStappen', { Icoon: dummy, useState: wUseState });
   const w = wizard.fn({ modus: 'verspreid', stap: 3, aantal: 2, aantalPunten: 0, onMaakPunten: maak.fn, onStap: (n) => { stap = n; }, onKies: () => {}, onZoek: () => {} });
   await nodes(w).find((n) => n.type === 'button' && String(n.props.className).includes('es-hoofd')).props.onClick();
-  assert.ok(aantalApi > 0); assert.equal(stap, 4);
-  bevestigd('Wizard gaat naar Items nadat alle aanvragen voor nieuwe routepunten mislukken.');
+  assert.ok(aantalApi > 0); assert.equal(stap, 3);
+  bevestigd('Wizard blijft op Voorbeeld als het maken van de punten mislukt (E07).');
 
-  let verwijderd = [], bevestigingen = 0, undoOpgeslagen = 0, nieuwNr = 0;
-  const opnieuw = functie(editor, 'genereerPuntenInCirkel', { centrumPunt: { lat: 52, lng: 5 }, doelAfstandKm: 1, aantalPunten: 2, cirkelDraai: 0, punten, route: { id: 'route' }, finishPunt: null, puntenOpCirkel: () => [{ lat: 52.1, lng: 5.1 }], opDeWeg: async (v) => v, setPunten: () => {}, setGeselecteerd: () => {}, confirm: () => { bevestigingen++; return true; }, onthoud: () => { undoOpgeslagen++; }, api: async (url, opt) => { if (opt.method === 'DELETE') { verwijderd.push(url); return new Response('{}'); } return new Response(JSON.stringify({ id: `nieuw${nieuwNr++}`, ...JSON.parse(opt.body) })); } });
-  const w2 = wizard.fn({ modus: 'verspreid', stap: 3, aantal: 2, aantalPunten: 4, onMaakPunten: opnieuw.fn, onStap: () => {}, onKies: () => {}, onZoek: () => {} });
+  let verwijderd = [];
+  const opnieuw = functie(editor, 'genereerPuntenInCirkel', { centrumPunt: { lat: 52, lng: 5 }, doelAfstandKm: 1, aantalPunten: 2, cirkelDraai: 0, punten, route: { id: 'route' }, finishPunt: null, puntenOpCirkel: () => [{ lat: 52.1, lng: 5.1 }], opDeWeg: async (v) => v, setPunten: () => {}, setGeselecteerd: () => {}, toonMelding: () => {}, api: async (url, opt) => { if (opt.method === 'DELETE') { verwijderd.push(url); return new Response('{}'); } return new Response(JSON.stringify({ id: 'nieuw', ...JSON.parse(opt.body) })); } });
+  wsi = 0;
+  const w2 = wizard.fn({ modus: 'verspreid', stap: 3, aantal: 2, aantalPunten: 4, metVraag: 2, onMaakPunten: opnieuw.fn, onStap: () => {}, onKies: () => {}, onZoek: () => {} });
   await nodes(w2).find((n) => n.type === 'button' && String(n.props.className).includes('es-hoofd')).props.onClick();
-  assert.equal(verwijderd.length, 4); assert.equal(bevestigingen, 0); assert.equal(undoOpgeslagen, 0);
-  bevestigd('Opnieuw maken in de wizard verwijdert vier bestaande punten zonder extra bevestiging of undo-opslag.');
+  assert.equal(verwijderd.length, 0);
+  const extra = nodes(w2).find((n) => n.type === 'button' && String(n.props.className).includes('es-extra'));
+  extra.props.onClick(); wsi = 0;
+  const w3 = wizard.fn({ modus: 'verspreid', stap: 3, aantal: 2, aantalPunten: 4, metVraag: 2, onMaakPunten: opnieuw.fn, onStap: () => {}, onKies: () => {}, onZoek: () => {} });
+  assert.ok(nodes(w3).some((n) => n.props.className === 'es-let-op'));
+  bevestigd('Opnieuw maken in de wizard vraagt eerst om bevestiging en noemt de vragen die weggaan (E02).');
 
   let meldingen = [], geprobeerd = 0;
   const item = functie(editor, 'voegSpeciaalItemToeOp', { route: { id: 'route' }, itemRadius: 15, itemsOpWeg: true, api: async () => { geprobeerd++; return new Response('{}', { status: 503 }); } });
   const items = functie(editor, 'plaatsAlleVoorstellen', { itemCheck: { voorstellen: [{ lat: 1, lng: 2, type: 'ster' }, { lat: 2, lng: 3, type: 'bom' }] }, setAutoItemsBezig: () => {}, voegSpeciaalItemToeOp: item.fn, toonMelding: (...m) => { meldingen.push(m); } });
-  await items.fn(); assert.equal(geprobeerd, 2); assert.equal(meldingen[0][1], 'ok'); assert.ok(meldingen[0][0].includes('2 items geplaatst'));
-  bevestigd('Itemplaatsing meldt twee geplaatste items terwijl beide aanvragen HTTP 503 geven.');
+  assert.equal(await items.fn(), false); assert.equal(geprobeerd, 2); assert.equal(meldingen[0][1], 'fout'); assert.ok(meldingen[0][0].includes('0 van 2'));
+  bevestigd('Itemplaatsing meldt hoeveel er echt zijn geplaatst (E08).');
 
   let naamDialoog = false, netwerk = 0;
-  const save = functie(vraagEditor, 'slaOp', { ...velden, punt: { name: 'Bestaande naam' }, type: 'foto_opdracht', setFout: () => {}, setOpslaan: () => {}, setNaamVenster: (v) => { naamDialoog = v; }, geluidPad: null, tijdslimiet: null, fetch: () => { netwerk++; } });
-  await save.fn(undefined, false); assert.equal(naamDialoog, true); assert.equal(netwerk, 0);
-  bevestigd('Opslaan bij een bestaande ongewijzigde puntnaam opent opnieuw eerst de naamdialoog.');
+  const save = functie(vraagEditor, 'slaOp', { ...velden, punt: { name: 'Bestaande naam', type: 'vraagpunt' }, type: 'foto_opdracht', setFout: () => {}, setOpslaan: () => {}, setNaamVenster: (v) => { naamDialoog = v; }, geluidPad: null, tijdslimiet: null, foutUitleg: async () => 'fout', routeId: 'route', fetch: async () => { netwerk++; throw Error('geen netwerk in de proef'); } });
+  await save.fn(undefined, false); assert.equal(naamDialoog, false); assert.ok(netwerk > 0);
+  bevestigd('Opslaan bij een bestaande, bewust gekozen puntnaam slaat meteen op zonder naamvraag (E09).');
 
   console.log(`\n${resultaten.length} lokale controles afgerond. Geen echte netwerkverzoeken uitgevoerd.`);
 })().catch((e) => { console.error(e); process.exitCode = 1; });

@@ -62,6 +62,13 @@ export async function GET() {
   // Nieuwe migratie 002: scores in één stap. Aanroep op een sessie die niet bestaat verandert niets.
   const { error: atoomFout } = await admin.rpc("pr_score_bij", { p_sessie: "00000000-0000-0000-0000-000000000000", p_delta: 0 });
   checks.push({ groep: "Database", naam: "Nieuwe migratie 002: scores en items in één stap", ok: !atoomFout, uitleg: atoomFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/002_atomaire_acties.sql. Tot dan werkt alles op de oude manier." : undefined });
+  // Migratie 003: spelers mogen routes (met het puzzelwoord) niet zelf lezen. Met de openbare sleutel moet
+  // Supabase het verzoek weigeren (zonder die migratie: een lege lijst).
+  const routesAfgeschermd = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/routes?select=id&limit=1`, {
+    headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""}` },
+    cache: "no-store",
+  }).then((r) => r.status === 401 || r.status === 403).catch(() => false);
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 003: puzzelwoord afgeschermd voor spelers", ok: routesAfgeschermd, uitleg: routesAfgeschermd ? undefined : "Draai in Supabase → SQL Editor het bestand supabase/migrations/003_afschermen_en_startitems.sql." });
 
   // Opslag (afbeeldingen en foto's)
   const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();

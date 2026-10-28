@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import type { SpelerSessie } from "@/types/database";
@@ -13,7 +14,11 @@ export async function haalSpeler() {
   // "*": toegang_tot (migratie 008) en is_uitgeschakeld mogen ontbreken zonder dat iedereen eruit vliegt
   const { data: speler } = await admin.from("players").select("*").eq("auth_user_id", user.id).maybeSingle();
   if (!speler) return null;
-  const s = speler as { id: string; is_uitgeschakeld?: boolean | null; force_logout_at?: string | null; toegang_tot?: string | null };
+  const s = speler as { id: string; is_uitgeschakeld?: boolean | null; force_logout_at?: string | null; toegang_tot?: string | null; active_device_id?: string | null };
+  // Eén telefoon per team: komt dit verzoek van een andere telefoon dan de geregistreerde, dan weigeren.
+  // Zonder cookie (oude app, of nog niet gezet) gewoon door: de app-controle (device-check) vangt dat op.
+  const toestel = cookies().get("pr_toestel")?.value;
+  if (s.active_device_id && toestel && toestel !== s.active_device_id) return null;
   // Uitgelogd door de beheerder (of "Volgende groep"): alleen sessies van vóór dat moment; wie daarna
   // opnieuw inlogt, mag gewoon verder
   if (s.is_uitgeschakeld || uitgelogdNaLogin(s.force_logout_at, user.login)) return null;

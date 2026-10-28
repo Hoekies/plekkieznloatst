@@ -79,6 +79,15 @@ export default function InfoKnop() {
               </span>
             </a>
 
+            {/* Dezelfde uitleg als de spelerskaart, als gewone tekst (vergroten, voorlezen) en licht te printen op A5 */}
+            <a href="/spelregels" target="_blank" rel="noopener noreferrer" className="info-regel" onClick={() => setOpen(false)}>
+              <Icoon naam="tekst" />
+              <span>
+                <strong>Spelregels als tekst</strong>
+                <span className="info-sub">Voor spelers, zonder inloggen; met een lichte printversie (A5)</span>
+              </span>
+            </a>
+
             <div className="info-kop">🃏 Instructiekaarten</div>
             <div className="info-kaarten">
               {KAARTEN.map((k) => (

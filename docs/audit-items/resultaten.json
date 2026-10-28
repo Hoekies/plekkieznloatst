@@ -171,11 +171,11 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: gelijktijdige startitemaanvragen geven twee sets",
+      "naam": "OPGELOST: gelijktijdige startitemaanvragen geven één set",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: startitems zijn direct en tijdens pauze opvraagbaar",
+      "naam": "OPGELOST: startitems niet tijdens pauze en niet vóór het eerste stuk lopen",
       "geslaagd": true
     },
     {
@@ -195,15 +195,19 @@
       "geslaagd": true
     },
     {
-      "naam": "FOUT: ster na httpfout bij direct inzetten",
+      "naam": "OPGELOST: ster na httpfout bij direct inzetten komt in de balk",
       "geslaagd": true
     },
     {
-      "naam": "vraagteken na httpfout bij direct inzetten",
+      "naam": "vraagteken na httpfout bij direct inzetten komt in de balk",
       "geslaagd": true
     },
     {
-      "naam": "FOUT: vraagteken na netwerkfout bij direct inzetten",
+      "naam": "OPGELOST: vraagteken na netwerkfout bij direct inzetten komt in de balk",
+      "geslaagd": true
+    },
+    {
+      "naam": "OPGELOST: punten erbij en eraf tijdens een spel: elk team houdt een kloppende volgorde",
       "geslaagd": true
     }
   ]

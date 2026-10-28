@@ -24,7 +24,10 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
 }) {
   // Begin bij het eerste punt zonder vraag
   const [index, setIndex] = useState(() => Math.max(0, punten.findIndex((p) => !heeftVraag(p.id))));
-  const [vraag, setVraag] = useState<VraagMetAntwoorden | null | undefined>(undefined);
+  // undefined = laden, null = nog geen vraag, "fout" = laden mislukt (dan niet bewerken: opslaan zou de
+  // bestaande vraag overschrijven)
+  const [vraag, setVraag] = useState<VraagMetAntwoorden | null | undefined | "fout">(undefined);
+  const [poging, setPoging] = useState(0);
   const punt = punten[index];
   const puntId = punt?.id;
 
@@ -33,11 +36,11 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
     let actief = true;
     setVraag(undefined);
     fetch(`/api/admin/routes/${routeId}/punten/${puntId}/vraag`)
-      .then((r) => (r.ok ? r.json() : null))
+      .then(async (r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((v) => { if (actief) setVraag(v ?? null); })
-      .catch(() => { if (actief) setVraag(null); });
+      .catch(() => { if (actief) setVraag("fout"); });
     return () => { actief = false; };
-  }, [routeId, puntId]);
+  }, [routeId, puntId, poging]);
 
   const klaar = punten.filter((p) => heeftVraag(p.id)).length;
   // Niet-opgeslagen wijzigingen: eerst vragen voordat je via de lijst of ✕ weggaat
@@ -80,6 +83,12 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
         <div style={{ flex: 1, minHeight: 0 }}>
           {!punt ? null : vraag === undefined ? (
             <div style={{ padding: 24 }}><LaadBlokjes aantal={3} hoogte={56} /></div>
+          ) : vraag === "fout" ? (
+            <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start", color: "var(--ink)" }}>
+              <strong>⚠️ De vraag kon niet worden geladen</strong>
+              <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Er is niets veranderd. Controleer de verbinding en probeer het opnieuw.</span>
+              <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setPoging((n) => n + 1)}><Icoon naam="vernieuwen" /> Opnieuw proberen</button>
+            </div>
           ) : (
             <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd} puzzel={puzzel} standaardPunten={standaardPunten}
               navigatie={{

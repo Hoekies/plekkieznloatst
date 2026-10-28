@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
   // De tijdslimiet van de vraag is verstreken: de vraag telt als fout
   const teLaat = body.te_laat === true;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
+  // Uit de wachtrij van een eerder spel (na uitloggen of een nieuw spel): niet bij dit spel optellen
+  if (body.sessie_id && body.sessie_id !== sessie.id) return NextResponse.json({ fout: "Dit hoort bij een eerder spel" }, { status: 409 });
 
   const { data: punt } = await admin
     .from("route_points")
@@ -83,6 +85,15 @@ export async function POST(request: NextRequest) {
     } else if (teLaat && vraag.type !== "foto_opdracht") {
       isCorrect = false;
       puntWaarde = 0;
+      // Toch laten zien wat het goede antwoord was (niet bij een stemvraag: daar is er geen)
+      if (vraag.type !== "stemvraag") {
+        correctAnswerIds = (vraag.answer_options ?? []).filter((a: { is_correct: boolean }) => a.is_correct).map((a: { id: string }) => a.id);
+        correctAnswerId = correctAnswerIds[0] ?? null;
+        if (vraag.type === "open") {
+          if (vraag.numeric_answer !== null) { numericAnswer = vraag.numeric_answer; numericTolerance = vraag.numeric_tolerance ?? 0; }
+          else correctTextAnswers = vraag.correct_text_answers ?? [];
+        }
+      }
     } else if (vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding") {
       if (!selected_answer_id) return NextResponse.json({ fout: "Geen antwoord opgegeven" }, { status: 400 });
 
