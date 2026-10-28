@@ -3937,3 +3937,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .qr-inlog-let-op { margin: 0; padding: 8px 12px; border-radius: 10px; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.5); color: #FDE68A; font-size: 0.86rem; }
 .qr-inlog-fout { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #FCA5A5; text-align: center; }
 .qr-inlog-laden { display: flex; justify-content: center; padding: 60px 0; }
+
+/* QR-scanner: camera geweigerd of bezet → opnieuw proberen na het geven van toestemming */
+.qr-scan-opnieuw { margin: 0 14px 14px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,217,59,0.6); background: rgba(255,217,59,0.14); color: #FFE680; font: inherit; font-weight: 700; cursor: pointer; }
