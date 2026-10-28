@@ -26,6 +26,7 @@ import ContactKnop from "@/components/admin/ContactKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import StatStrook from "@/components/admin/StatStrook";
 import dynamic from "next/dynamic";
+import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
@@ -279,7 +280,6 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
 }
 
 // ── SpelerKaart ───────────────────────────────────────────────────────────────
-const TEAM_ICONEN = ["🦊", "🐸", "🦄", "🐧", "🦁", "🐙", "🐻", "🦋", "🐺", "🦩"];
 
 function teamIcoonVoor(id: string): string {
   let hash = 0;

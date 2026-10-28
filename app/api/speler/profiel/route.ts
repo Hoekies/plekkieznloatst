@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
-// Moet gelijk blijven aan ICONEN.length in components/speler/IntroScherm.tsx
-const AANTAL_ICONEN = 15;
+import { TEAM_ICONEN, isTeamIcoon } from "@/lib/team-iconen";
+
+// Zoveel verschillende iconen zijn er (lib/team-iconen.ts)
+const AANTAL_ICONEN = TEAM_ICONEN.length;
 
 export async function PATCH(request: NextRequest) {
   const user = await haalGebruiker();
@@ -12,6 +14,7 @@ export async function PATCH(request: NextRequest) {
   const { teamnaam, icon } = await request.json();
   const naam = typeof teamnaam === "string" ? teamnaam.trim().slice(0, 30) : "";
   if (!naam || !icon) return NextResponse.json({ fout: "Naam en icoon zijn verplicht" }, { status: 400 });
+  if (!isTeamIcoon(icon)) return NextResponse.json({ fout: "Kies een van de iconen" }, { status: 400 });
 
   const admin = createAdminClient();
 

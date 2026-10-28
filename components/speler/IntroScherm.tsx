@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
 import { ontgrendelAudio, speelPuntBereikt } from "@/lib/sounds";
+import { TEAM_ICONEN, ICONEN_IN_BEELD, schud, willekeurigIcoon } from "@/lib/team-iconen";
 import { vraagKompas } from "@/lib/kompas";
 
 type Fase = "profiel" | "melding" | "permissie" | "gereed" | "geweigerd" | "starten";
@@ -18,11 +19,6 @@ interface Props {
   huisLogo?: string | null;
 }
 
-const ICONEN = [
-  "🦊", "🐸", "🐧", "🦁", "🐙", "🐝",
-  "🦄", "🦓", "🐑", "🦙",
-  "🤡", "👽", "🤖", "🍕", "🦸",
-];
 
 export default function IntroScherm({ modus, melding = null, welkomFoto = null, huisLogo = null }: Props) {
   const router = useRouter();
@@ -53,6 +49,12 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
   }, [typt]);
   const [gekozenIcono, setGekozenIcono] = useState<string | null>(null);
   const [gebruikteIconen, setGebruikteIconen] = useState<string[]>([]);
+  // 🎭 Welke iconen er nu in beeld staan: een willekeurige keuze uit mensen, dieren en dingen (lib/team-iconen.ts)
+  const [inBeeld, setInBeeld] = useState<string[]>([]);
+  function nieuweKeuze(gebruikt: string[], houd: string | null) {
+    const vrij = schud(TEAM_ICONEN.filter((i) => !gebruikt.includes(i) && i !== houd));
+    setInBeeld(schud([...(houd ? [houd] : []), ...vrij.slice(0, ICONEN_IN_BEELD - (houd ? 1 : 0))]));
+  }
   const [profielFout, setProfielFout] = useState("");
   const [profielBezig, setProfielBezig] = useState(false);
 
@@ -66,11 +68,14 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         if (!actief) return;
         const gebruikt: string[] = data.gebruikt ?? [];
         setGebruikteIconen(gebruikt);
-        const beschikbaar = ICONEN.filter((i) => !gebruikt.includes(i));
-        const pool = beschikbaar.length > 0 ? beschikbaar : ICONEN;
-        setGekozenIcono(pool[Math.floor(Math.random() * pool.length)]);
+        const icoon = willekeurigIcoon(gebruikt);
+        setGekozenIcono(icoon);
+        nieuweKeuze(gebruikt, icoon);
       } catch {
-        if (actief) setGekozenIcono(ICONEN[Math.floor(Math.random() * ICONEN.length)]);
+        if (!actief) return;
+        const icoon = willekeurigIcoon();
+        setGekozenIcono(icoon);
+        nieuweKeuze([], icoon);
       }
     })();
     return () => { actief = false; };
@@ -224,7 +229,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
 
               <label className="pr-field-label2" style={{ marginTop: 4 }}>Kies een icoon</label>
               <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 14 }}>
-                {ICONEN.map((icoon) => {
+                {inBeeld.map((icoon) => {
                   const inGebruik = gebruikteIconen.includes(icoon) && icoon !== gekozenIcono;
                   const geselecteerd = gekozenIcono === icoon;
                   return (
@@ -239,6 +244,9 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
                     </button>
                   );
                 })}
+                {/* 🔀 Andere iconen laten zien (het gekozen icoon blijft staan) */}
+                <button type="button" className="pr-icon-chip pr-icon-chip--schud" onClick={() => nieuweKeuze(gebruikteIconen, gekozenIcono)}
+                  title="Andere iconen" aria-label="Andere iconen laten zien">🔀</button>
               </div>
 
               {profielFout && <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: "0 0 14px" }}>{profielFout}</p>}

@@ -3,6 +3,7 @@ import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bewaarWachtwoord, ontsleutel } from "@/lib/wachtwoord-kluis";
 import { maakWachtwoord } from "@/lib/wachtwoord";
+import { willekeurigIcoon } from "@/lib/team-iconen";
 import { maakLinkCode, hashLinkCode } from "@/lib/inlog-link";
 
 // QR-code op het kaartje = direct inloggen; zo lang werkt de link (en de toegang die hij geeft)
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       // logt daarna gewoon in. Icoon terug naar het standaardicoon (de kolom mag niet leeg zijn).
       const [{ error: intrekFout }, { error: profielFout }] = await Promise.all([
         admin.from("inlog_links").update({ ingetrokken: true }).eq("player_id", p.id).eq("ingetrokken", false),
-        admin.from("players").update({ nickname: null, icon: "🦊", telefoon: null, active_device_id: null, toegang_tot: null, force_logout_at: new Date().toISOString() }).eq("id", p.id),
+        admin.from("players").update({ nickname: null, icon: willekeurigIcoon(), telefoon: null, active_device_id: null, toegang_tot: null, force_logout_at: new Date().toISOString() }).eq("id", p.id),
       ]);
       if (intrekFout || profielFout) {
         return NextResponse.json({ fout: `Nieuwe groep voorbereiden lukte niet bij ${p.nickname ?? p.login_name}: ${(intrekFout ?? profielFout)!.message}` }, { status: 500 });
