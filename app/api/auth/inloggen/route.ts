@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
 
   // Bepaal het e-mailadres: spelers loggen in met login_name, admins met e-mail
   let email = naam;
+  // Bestaat de spelernaam, dan bij een fout wachtwoord alleen het wachtwoord opnieuw vragen
+  let naamBekend = false;
   if (!naam.includes("@")) {
     // Speler: zoek op login_name in de players tabel
     const admin = createAdminClient();
@@ -28,6 +30,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.redirect(new URL("/login?fout=uitgeschakeld", request.url), { status: 303 });
       }
       email = loginNaarEmail(naam);
+      naamBekend = true;
     } else {
       // Geen speler met deze naam: misschien een helper van de spelleider
       email = helperNaarEmail(naam);
@@ -52,7 +55,12 @@ export async function POST(request: NextRequest) {
 
   if (error || !data.user) {
     const geblokkeerd = error && (error.code === "user_banned" || /banned/i.test(error.message));
-    return NextResponse.redirect(new URL(`/login?fout=${geblokkeerd ? "uitgeschakeld" : "ongeldig"}`, request.url), { status: 303 });
+    // De naam gaat mee terug, zodat de speler hem niet opnieuw hoeft te typen
+    const fout = geblokkeerd ? "uitgeschakeld" : naamBekend ? "wachtwoord" : "ongeldig";
+    const terug = new URL("/login", request.url);
+    terug.searchParams.set("fout", fout);
+    if (!geblokkeerd) terug.searchParams.set("naam", naam);
+    return NextResponse.redirect(terug, { status: 303 });
   }
 
   // Een oude uitlog-vlag (force_logout_at) blijft staan: deze verse login is nieuwer en mag gewoon verder

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { geluidAan, zetGeluid } from "@/lib/sounds";
-import type { SpeciaalItem } from "@/types/database";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
@@ -65,7 +64,8 @@ export const START_AFSLUITING = {
 
 interface Props {
   onSluit: () => void;
-  speciaalItems?: SpeciaalItem[];
+  // Itemtypen die in deze route voorkomen; zonder lijst: alle items
+  itemTypen?: string[];
   modus: "sequentieel" | "verspreid";
   waarden: RouteWaarden;
   // Scherm aan laten (alleen als de browser het kan)
@@ -74,17 +74,18 @@ interface Props {
   extraUitleg?: string[];
 }
 
-export default function SpeciaalItemLegende({ onSluit, speciaalItems, modus, waarden, schermAan, extraUitleg = [] }: Props) {
+export default function SpeciaalItemLegende({ onSluit, itemTypen, modus, waarden, schermAan, extraUitleg = [] }: Props) {
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
   const [geluid, setGeluid] = useState(true);
   useEffect(() => { setGeluid(geluidAan()); }, []);
 
-  // Alleen itemtypen die in deze route voorkomen (zonder lijst: alles), in de vaste volgorde
-  const inRoute = new Set<string>((speciaalItems ?? []).map((i) => i.type));
+  // Alleen itemtypen die in deze route voorkomen (zonder lijst: alles), in de vaste volgorde.
+  // Een route zonder items toont dus ook geen kopje "Items".
+  const inRoute = new Set<string>(itemTypen ?? []);
   const items = Object.entries(ITEM_INFO)
-    .filter(([type]) => !speciaalItems?.length || inRoute.has(type))
+    .filter(([type]) => !itemTypen || inRoute.has(type))
     .map(([type, info]) => ({ ...info, type }));
 
   return (

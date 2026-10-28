@@ -85,7 +85,7 @@ Werkt de locatiecheck niet? Loop een paar meter door en probeer opnieuw — GPS 
 Rechtsboven op de kaart staat de oranje **?**-knop. Daar vind je **💡 Zo werkt het** (met ook **🗺️ Op de kaart**: wat de rondjes, kleuren en tekens betekenen):
 
 - **🎯 Het spel** — de spelregels in drie zinnen.
-- **Items** — alle items die in jullie route voorkomen.
+- **Items** — alleen de items die in jullie route voorkomen: wat op de kaart ligt plus de startitems.
 
 Alles staat ingeklapt. Tik op een regel om de uitleg te openen, en nog een keer (op de titel of op de uitleg zelf) om hem weer in te klappen.
 

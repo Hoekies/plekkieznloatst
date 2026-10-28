@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import { haalRouteVerslag } from "@/lib/team-verslag";
 import GelopenRoute from "@/components/speler/GelopenRoute";
-import { haalSpeler } from "@/lib/speler-sessie";
+import { spelerOfNaarLogin } from "@/lib/speler-sessie";
 
 export default async function GelopenRoutePagina() {
-  const ik = await haalSpeler();
-  if (!ik) redirect("/login");
+  const ik = await spelerOfNaarLogin();
   const { admin, spelerId } = ik;
 
   const { data: sessie } = await admin

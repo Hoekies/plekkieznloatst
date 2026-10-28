@@ -274,7 +274,7 @@ Wanneer de doelafstand is ingesteld, kun je punten automatisch laten plaatsen:
 
 #### Beschikbare itemtypen
 
-De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), ingeklapt per item en met de echte waarden uit jouw route-instellingen. In de spelersapp heet het andere team altijd de **tegenstander**.
+De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), ingeklapt per item en met de echte waarden uit jouw route-instellingen. Ze zien alleen de items die in hun route voorkomen: wat op de kaart ligt (bij Sequentieel alleen plek zooi) plus de ingestelde startitems. In de spelersapp heet het andere team altijd de **tegenstander**.
 
 | Item | Naam | Effect |
 |---|---|---|
@@ -339,7 +339,9 @@ Met **+ Spelers** maak je in één keer tot 30 teams aan, elk met een makkelijk 
 
 Rechts op elke spelerskaart, naast de 🗑️, staat de blauwe **🔑**. Er opent een venster met de **loginnaam** (daar kun je hem ook wijzigen), het **huidige wachtwoord** en hoe lang de **link om direct in te loggen** geldig is (4 uur, ½ dag, **1 dag** of 2 dagen). Standaard gaan wachtwoord én directe link samen mee op het kaartje. Wil je alleen een link sturen (zonder wachtwoord), tik dan onderaan op *🔗 Alleen een link sturen*.
 
-**📱 QR om in te loggen** (de knop *QR* naast de 🔑): een grote QR-code op het scherm. De speler scant hem met de camera van zijn telefoon en is meteen ingelogd, zonder typen (een inloglink die 12 uur geldig is). Handig aan de start: telefoon erbij, scannen, klaar. Speelt het team al op een andere telefoon, dan meldt het venster dat; tik dan eerst op *Apparaat* om de oude telefoon vrij te geven.
+**📱 QR om in te loggen** (de knop *QR* naast de 🔑): een grote QR-code op het scherm. De speler scant hem met de camera van zijn telefoon en is meteen ingelogd, zonder typen (een inloglink die 12 uur geldig is). Handig aan de start: telefoon erbij, scannen, klaar. Speelt het team al op een andere telefoon, dan meldt het venster dat; tik dan eerst op *Apparaat* om de oude telefoon vrij te geven. Let op bij de iPhone: de gewone camera opent de link in Safari, en Safari telt als een ander apparaat dan de geïnstalleerde app. Speelt het team in de app, scan dan met *📷 Scan je kaartje* in de app zelf. Wordt een telefoon geweigerd, dan ziet de speler op de inlogpagina waarom.
+
+Typt een speler een bestaande naam met een verkeerd wachtwoord, dan blijft de naam staan en vraagt de app alleen het wachtwoord opnieuw.
 - Het wachtwoord **blijft hetzelfde** als je het zo verstuurt. Met **🎲** maak je een nieuw (of typ zelf iets); wie al is ingelogd, blijft ingelogd.
 - Wachtwoorden worden versleuteld bewaard, zodat je ze later opnieuw kunt versturen. Bij teams van vóór deze versie is het wachtwoord nog onbekend: die krijgen eenmalig een nieuw. (SQL-bestand 011.)
 

@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import IntroScherm from "@/components/speler/IntroScherm";
 import { haalHuisstijl } from "@/lib/huisstijl";
-import { haalSpeler } from "@/lib/speler-sessie";
+import { spelerOfNaarLogin } from "@/lib/speler-sessie";
 
 export default async function SpelerHomePage({ searchParams }: { searchParams: { gestopt?: string } }) {
-  const ik = await haalSpeler();
-  if (!ik) redirect("/login");
+  const ik = await spelerOfNaarLogin();
   const { admin, spelerId } = ik;
 
   // Actieve route ophalen: nodig om een sessie op een oude route te herkennen, en zodat het

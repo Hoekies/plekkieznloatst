@@ -5,7 +5,7 @@ import SpelerKaart from "@/components/speler/SpelerKaart";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { herstelTeamVolgorde } from "@/lib/route-sessies";
-import { startitemsMeter } from "@/lib/startitems";
+import { startitemsMeter, startitemsVan } from "@/lib/startitems";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -30,7 +30,7 @@ export default async function SpelerKaartPage() {
 
   if (!sessie) redirect("/speler");
 
-  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spoEerst }, { data: alleSpelers }] = await Promise.all([
+  const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spoEerst }, { data: alleSpelers }, { data: kaartItems }] = await Promise.all([
     admin
       .from("route_points")
       .select("*")
@@ -53,6 +53,8 @@ export default async function SpelerKaartPage() {
       .order("volgorde"),
     // Voor de vaste teamkleur (zelfde als in het beheer)
     admin.from("players").select("id"),
+    // Itemtypen die op de kaart van deze route liggen (voor de uitleg onder ℹ️)
+    admin.from("special_items").select("type").eq("route_id", sessie.route_id).eq("is_startitem", false),
   ]);
 
   // Sessie op een route die niet meer actief is → /speler sluit hem af en start opnieuw (met melding)
@@ -83,6 +85,13 @@ export default async function SpelerKaartPage() {
   // Niet het eerste punt van een rondje: dat is de start met het welkomstscherm
   const stilleIds = (ruwePunten ?? []).filter((p, i) => p.type === "doorlooppunt" && !(route.modus === "verspreid" && i === 0)).map((p) => p.id);
 
+  // De uitleg (ℹ️) toont alleen items die in deze route echt voorkomen: wat op de kaart ligt (Sequentieel
+  // speelt daarvan alleen plek zooi) plus de ingestelde startitems
+  const itemTypen = Array.from(new Set([
+    ...(kaartItems ?? []).map((i) => i.type as string).filter((t) => route.modus === "verspreid" || t === "plekzooi"),
+    ...Object.keys(startitemsVan(route)),
+  ]));
+
   // Sorteer punten op de teamvolgorde
   let punten = ruwePunten ?? [];
   if (spo && heeftVolgorde) {
@@ -101,6 +110,7 @@ export default async function SpelerKaartPage() {
       modus={route.modus === "verspreid" ? "verspreid" : "sequentieel"}
       startVraagMeter={(route as { startvraag_meter?: number | null }).startvraag_meter ?? undefined}
       startitemsNaMeter={startitemsMeter(route)}
+      itemTypen={itemTypen}
       puzzel={puzzelRegels(route)}
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}

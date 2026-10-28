@@ -27,9 +27,9 @@ export async function GET() {
       .lte("respawn_at", new Date().toISOString());
   }
 
-  // Ook opgepakte items meesturen: de kaart slaat die over (claimed), maar de uitleg (ℹ️)
-  // blijft zo elk itemtype tonen dat in deze route zit. Startitems zijn altijd geclaimd,
-  // dus ze komen alleen in de uitleg. Sequentieel: alleen plek zooi op de kaart.
+  // Ook opgepakte items meesturen: de kaart slaat die over (claimed). De uitleg (ℹ️) haalt zijn
+  // itemtypen niet meer hieruit maar uit de route zelf (app/speler/kaart/page.tsx).
+  // Sequentieel: alleen plek zooi op de kaart.
   let query = admin
     .from("special_items")
     .select("*")

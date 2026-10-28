@@ -11,15 +11,20 @@ import LinkInloggen from "@/components/shared/LinkInloggen";
 function LoginForm() {
   const params = useSearchParams();
   const fout = params.get("fout");
+  // Na een mislukte poging staat de naam al ingevuld; klopte de naam wel, dan alleen het wachtwoord opnieuw
+  const vorigeNaam = params.get("naam") ?? "";
+  const alleenWachtwoord = fout === "wachtwoord" && !!vorigeNaam;
   const foutTekst =
-    fout === "ongeldig"
+    fout === "wachtwoord"
+      ? "Het wachtwoord klopt niet. Vul alleen het wachtwoord opnieuw in."
+      : fout === "ongeldig"
       ? "Ongeldige naam of wachtwoord. Probeer het opnieuw."
       : fout === "leeg"
       ? "Vul je naam en wachtwoord in."
       : fout === "uitgeschakeld"
       ? "Dit account is uitgeschakeld. Neem contact op met de spelleider."
       : fout === "apparaat"
-      ? "Dit account is al actief op een ander apparaat. Probeer het opnieuw zodra die sessie is afgesloten."
+      ? "Dit team speelt al op een andere telefoon (of in een andere browser of de app). Vraag de spelleider om het apparaat vrij te geven en probeer het daarna opnieuw."
       : fout === "uitgelogd"
       ? "Je bent door de beheerder uitgelogd."
       : fout === "link-verlopen"
@@ -104,6 +109,7 @@ function LoginForm() {
               className="pr-field-input2"
               type="text"
               placeholder="bijv. speler1"
+              defaultValue={vorigeNaam}
               required
               autoComplete="username"
               // Geen automatische hoofdletter (iPhone) of autocorrectie: de loginnaam is altijd kleine letters
@@ -122,6 +128,7 @@ function LoginForm() {
                 className="pr-field-input2"
                 type={toonWachtwoord ? "text" : "password"}
                 placeholder="••••••••"
+                autoFocus={alleenWachtwoord}
                 required
                 autoComplete="current-password"
                 // Ook als het wachtwoord zichtbaar is: geen automatische hoofdletter of autocorrectie

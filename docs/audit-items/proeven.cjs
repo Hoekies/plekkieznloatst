@@ -133,6 +133,7 @@ function omgeving(type = 'ster', extraRoute = {}) {
       if (n === '@/lib/supabase-admin') return { createAdminClient: () => admin };
       if (n === '@/lib/push') return { stuurPushNaarBeheer: async () => {} };
       if (n === 'next/headers') return { cookies: () => ({ get: () => undefined }) };
+      if (n === 'next/navigation') return { redirect: (u) => { throw Error('redirect ' + u); } };
       if (n.startsWith('@/')) return laad(n);
       if (n.startsWith('.')) return laad(path.resolve(path.dirname(p), n));
       throw Error('Onverwachte import: ' + n);

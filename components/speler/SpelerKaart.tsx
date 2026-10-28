@@ -51,6 +51,8 @@ interface Props {
   startVraagMeter?: number;
   // 🎒 Na hoeveel meter lopen de startitems komen (0 = meteen)
   startitemsNaMeter?: number;
+  // Itemtypen die in deze route voorkomen (kaart + startitems): alleen die staan in de uitleg (ℹ️)
+  itemTypen?: string[];
   // Punten zonder tekst, foto of vraag: tellen vanzelf als gepasseerd, zonder venster
   stilleIds?: string[];
   // Op volgorde: alle punten en de lijn ertussen meteen op de kaart
@@ -100,7 +102,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -152,7 +154,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     try { localStorage.setItem(sleutel, JSON.stringify([...gezien, nieuw])); } catch { /* geen opslag */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventaris]);
-  const [legendeItems, setLegendeItems] = useState<SpeciaalItem[]>([]);
   const [ghostTot, setGhostTot] = useState<number | null>(null);
   // Knop 🎯: de kaart op de eigen plek centreren
   const [centreerVerzoek, setCentreerVerzoek] = useState(0);
@@ -555,12 +556,6 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
 
   function verwerkSpecialeItems(items: SpeciaalItem[]) {
     setSpecialeItems(items);
-    // Uitleg (ℹ️) onthoudt elk itemtype dat ooit in de route zat, ook na oppakken of respawn
-    setLegendeItems((prev) => {
-      const bekend = new Set(prev.map((i) => i.type));
-      const nieuw = items.filter((i) => !bekend.has(i.type) && bekend.add(i.type));
-      return nieuw.length > 0 ? [...prev, ...nieuw] : prev;
-    });
   }
 
   async function haalInventarisOp() {
@@ -1364,7 +1359,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <SpeciaalItemLegende
           extraUitleg={puzzel ? [puzzelUitleg(puzzel)] : []}
           onSluit={() => setLegendeOpen(false)}
-          speciaalItems={legendeItems}
+          itemTypen={itemTypen}
           modus={modus}
           waarden={waarden}
           schermAan={schermAan}

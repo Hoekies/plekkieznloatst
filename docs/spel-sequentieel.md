@@ -88,7 +88,7 @@ Gooit een tegenstander een banaan naar jullie, dan hoor je een diepe klokslag (o
 
 ## Uitleg in de app (?)
 
-Rechtsboven op de kaart staat de oranje **?**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel), **🗺️ Op de kaart** (wat de rondjes, kleuren en tekens betekenen) en de uitleg van de banaan en de plek zooi. Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
+Rechtsboven op de kaart staat de oranje **?**-knop. Daar vind je **💡 Zo werkt het**: de spelregels in drie zinnen (🎯 Het spel), **🗺️ Op de kaart** (wat de rondjes, kleuren en tekens betekenen) en de uitleg van de items die in jullie route voorkomen (de startitems en de plek zooi, als die er ligt). Alles staat ingeklapt: tik op een regel om hem te openen, en nog een keer om hem weer in te klappen.
 
 ---
 
