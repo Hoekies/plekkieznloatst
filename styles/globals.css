@@ -2528,12 +2528,13 @@ button.route-stap:hover { color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { .pr-pin--actief .pr-pin-kop, .pr-pin--actief .pr-pin-schaduw, .pr-pin--actief .pr-pin-ring { animation: none; } }
 /* 🏆 Podium bij de uitslag: 3, dan 2, dan 1 komt omhoog */
 .podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin: 6px 0 14px; min-height: 230px; }
-.podium-plek { flex: 1; max-width: 170px; display: flex; flex-direction: column; align-items: stretch; }
+.podium-plek { flex: 1 1 0; min-width: 0; max-width: 170px; display: flex; flex-direction: column; align-items: stretch; }
 .podium-teams { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; opacity: 0; animation: podium-in 0.5s ease-out forwards; }
 .podium-team { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .podium-icoon { font-size: 2rem; line-height: 1.1; }
 .podium-plek--1 .podium-icoon { font-size: 2.6rem; }
-.podium-naam { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.85rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium-naam { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.85rem; line-height: 1.2; max-width: 100%; overflow: hidden; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .podium-score { font-size: 0.75rem; color: #FFE680; font-weight: 700; }
 .podium-team--eigen .podium-naam { color: #00D9FF; }
 .podium-blok { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; padding-top: 8px; border-radius: 12px 12px 4px 4px;
@@ -2734,9 +2735,11 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .dashboard-topbar { flex-wrap: nowrap !important; gap: 8px !important; }
   .dashboard-topbar .admin-live-badge--ok { font-size: 0; gap: 0; padding: 7px; }
   .dashboard-topbar .header-knop { padding: 0 12px !important; }
-  /* Spelleider: pauze, eindtijd en afronden naast elkaar */
-  .spelleider-knoppen { flex-wrap: nowrap; }
-  .spelleider-knoppen > * { flex: 1 1 0 !important; font-size: 0.78rem !important; padding: 0 6px !important; }
+  /* Spelleider: twee regels. Boven de knoppen voor tijdens het spel (pauze, stand, eindtijd), onder afronden
+     en opruimen. Alles op één regel paste niet: opruimen viel buiten beeld. */
+  .spelleider-knoppen { flex-wrap: wrap; }
+  .spelleider-knoppen > * { flex: 1 1 28% !important; font-size: 0.8rem !important; padding: 0 6px !important; }
+  .spelleider-knoppen > .spelleider-afrond { flex: 1 1 40% !important; }
   /* Spelerskaart: cijfers op één regel */
   .sk-stats { gap: 2px 8px; font-size: 0.72rem; }
   /* Antwoorden: knoppen netjes onder de tabbladen, "nog niets" op een eigen regel */
@@ -3825,9 +3828,12 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   font-size: 0.58rem; font-weight: 800; transition: none; }
 .startvraag-melding { cursor: pointer; }
 
-/* 🎉 Finishscherm: feestelijke kop (stralen, geblokte rand, gouden ring en letters) en cijfers die erin springen */
+/* 🎉 Finishscherm: feestelijke kop (stralen, geblokte rand, gouden ring en letters) en cijfers die erin springen.
+   Kleuren en versiering van het seizoen of de feestdag komen uit lib/finish-thema.ts (--thema-*). */
 .finish-held { position: relative; width: 100%; text-align: center; padding: 30px 16px 18px; border-radius: 24px; overflow: hidden; isolation: isolate;
-  background: radial-gradient(circle at 50% 32%, rgba(255,214,64,0.32), transparent 62%), linear-gradient(160deg, rgba(124,58,237,0.6), rgba(236,72,153,0.35));
+  background: radial-gradient(circle at 50% 32%, rgba(255,214,64,0.3), transparent 62%),
+    linear-gradient(160deg, color-mix(in srgb, var(--thema-1, #7C3AED) 45%, transparent), color-mix(in srgb, var(--thema-2, #EC4899) 25%, transparent)),
+    var(--thema-basis, #351B49);
   border: 1px solid rgba(255,214,64,0.5); box-shadow: 0 12px 40px rgba(255,170,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18); }
 .finish-held::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; opacity: 0.9;
   background: repeating-conic-gradient(#fff 0 25%, #1b1030 0 50%) 0 0 / 12px 12px; }
@@ -3837,7 +3843,13 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   animation: finish-draai 40s linear infinite; }
 .finish-vlag { position: absolute; top: 26px; font-size: 2rem; line-height: 1; transform-origin: 20% 90%; animation: finish-zwaai 1.4s ease-in-out infinite; }
 .finish-vlag--links { left: 16px; }
-.finish-vlag--rechts { right: 16px; scale: -1 1; animation-delay: -0.7s; }
+.finish-vlag--rechts { right: 16px; animation-delay: -0.7s; }
+/* Kleine versiering die rustig dwarrelt */
+.finish-dwarrel { position: absolute; font-size: 1.2rem; line-height: 1; opacity: 0.85; pointer-events: none; animation: finish-dwarrel 6s ease-in-out infinite; }
+.finish-dwarrel--1 { left: 22%; top: 46%; }
+.finish-dwarrel--2 { right: 20%; top: 58%; animation-delay: -3s; }
+.finish-thema { display: inline-block; margin: 0 0 8px; padding: 3px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 800; color: #fff;
+  background: color-mix(in srgb, var(--thema-1, #F59E0B) 30%, rgba(0,0,0,0.35)); border: 1px solid color-mix(in srgb, var(--thema-1, #F59E0B) 70%, transparent); }
 .finish-avatar { width: 108px; height: 108px; margin: 0 auto 8px; padding: 4px; border-radius: 50%;
   background: conic-gradient(#FFF3B0, #FFD23F, #F59E0B, #FFD23F, #FFF3B0);
   box-shadow: 0 0 0 4px rgba(255,255,255,0.14), 0 0 34px rgba(255,200,0,0.65); animation: finish-pop 0.7s cubic-bezier(.2,1.6,.4,1) both; }
@@ -3845,7 +3857,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .finish-titel { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 2.7rem; line-height: 1.05; letter-spacing: 0.05em; text-transform: uppercase;
   background: linear-gradient(180deg, #FFF8D0 0%, #FFD23F 48%, #F59E0B 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 3px 0 rgba(110,35,0,0.6)) drop-shadow(0 0 16px rgba(255,200,0,0.45)); animation: finish-pop 0.7s 0.12s cubic-bezier(.2,1.6,.4,1) both; }
-.finish-team { display: inline-block; max-width: 100%; margin-top: 8px; padding: 5px 16px; border-radius: 99px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.finish-team { display: inline-block; max-width: 100%; margin-top: 8px; padding: 5px 16px; border-radius: 18px; overflow-wrap: anywhere;
   background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
 .finish-sub { margin-top: 8px; font-size: 0.86rem; color: rgba(255,255,255,0.82); }
 .finish-stats { display: flex; gap: 10px; width: 100%; }
@@ -3856,13 +3868,20 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .finish-stat:nth-child(2) { animation-delay: 0.35s; }
 .finish-stat:nth-child(3) { animation-delay: 0.45s; }
 .finish-stat-icoon { font-size: 1.15rem; line-height: 1; }
-.finish-stat-waarde { margin-top: 4px; font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; line-height: 1.1; color: var(--stat-kleur);
-  text-shadow: 0 0 14px color-mix(in srgb, var(--stat-kleur) 50%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.finish-stat-label { margin-top: 2px; font-size: 0.7rem; color: var(--muted); }
+/* Cijfers altijd helemaal leesbaar (ook 10:00:00 op een smal scherm): de letter krimpt mee met de breedte */
+.finish-stat-waarde { margin-top: 4px; font-family: var(--font-display); font-size: clamp(0.95rem, 4.6vw, 1.6rem); font-weight: 800; line-height: 1.1; color: var(--stat-kleur);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--stat-kleur) 50%, transparent); white-space: nowrap; }
+.finish-stat-label { margin-top: 2px; font-size: 0.82rem; color: var(--muted); }
+/* Voorlopige score: direct onder de cijfers */
+.finish-status { width: 100%; margin-top: -8px; padding: 9px 12px; border-radius: 12px; text-align: center; font-size: 0.9rem; color: #FFE680;
+  background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.4); }
+.finish-live-stip { width: 8px; height: 8px; border-radius: 50%; background: var(--green, #16A34A); display: inline-block; animation: finish-puls 1.5s ease-in-out infinite; }
 @keyframes finish-draai { to { rotate: 360deg; } }
 @keyframes finish-zwaai { 0%, 100% { rotate: -10deg; } 50% { rotate: 12deg; } }
 @keyframes finish-pop { from { opacity: 0; transform: scale(0.4); } }
 @keyframes finish-op { from { opacity: 0; transform: translateY(14px) scale(0.92); } }
+@keyframes finish-dwarrel { 0%, 100% { translate: 0 0; rotate: -8deg; } 50% { translate: 0 -10px; rotate: 8deg; } }
+@keyframes finish-puls { 50% { opacity: 0.3; } }
 @media (prefers-reduced-motion: reduce) {
-  .finish-stralen, .finish-vlag, .finish-avatar, .finish-titel, .finish-stat { animation: none; }
+  .finish-stralen, .finish-vlag, .finish-dwarrel, .finish-avatar, .finish-titel, .finish-stat, .finish-live-stip { animation: none; }
 }

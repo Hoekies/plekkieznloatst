@@ -6,7 +6,7 @@ import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 
 // 🏅 Oorkonde bij de finish: een afbeelding met teamnaam, plaats, punten, tijd en afstand, om te delen
 // in de groepsapp. Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje.
-export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null }: {
+export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null, voorlopig = false }: {
   teamNaam: string; icoon: string | null; routeNaam: string | null;
   // 📸 Groepsfoto bij de finish (goedgekeurd); anders het icoon
   foto?: string | null; punten: number; seconden: number; meters: number;
@@ -14,6 +14,8 @@ export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punt
   plaats: number | null; aantalTeams: number;
   // Eigen logo van de organisatie (huisstijl van de route)
   huisLogo?: string | null;
+  // Uitslag nog niet vrij: dan staat "voorlopige score" op het kaartje (er kunnen nog punten bijkomen)
+  voorlopig?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bezig, setBezig] = useState(false);
@@ -54,7 +56,7 @@ export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punt
             <div className="oorkonde-plaats">{medaille} {plaats}e plaats <span>van {aantalTeams} teams</span></div>
           )}
           <div className="oorkonde-cijfers">
-            <div><strong>{punten}</strong><span>punten</span></div>
+            <div><strong>{punten}</strong><span>{voorlopig ? "punten (voorlopig)" : "punten"}</span></div>
             <div><strong>{formateerTijd(seconden)}</strong><span>tijd</span></div>
             <div><strong>{meters ? afstandTekst(meters) : "—"}</strong><span>gelopen</span></div>
           </div>

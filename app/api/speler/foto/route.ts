@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
+import { spelGepauzeerd, PAUZE_FOUT, rondAfAlsTijdVoorbij, eindtijdVoorbij } from "@/lib/eindtijd";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import { stuurPushNaarBeheer } from "@/lib/push";
@@ -9,7 +9,10 @@ export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
   if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
   const admin = ctx.admin, sessie = ctx.sessie;
-  if (await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
+  // Zelfde regels als een gewoon antwoord: na de eindtijd telt niets meer mee, en niet tijdens een pauze
+  const tijd = await rondAfAlsTijdVoorbij(admin, sessie.route_id);
+  if (eindtijdVoorbij(tijd)) return NextResponse.json({ fout: "Het spel is afgelopen: de eindtijd is voorbij" }, { status: 403 });
+  if (tijd.pauze || await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
   const formData = await request.formData();
   const bestand = formData.get("foto") as File | null;
   const routePointId = formData.get("route_point_id") as string | null;
@@ -34,6 +37,11 @@ export async function POST(request: NextRequest) {
 
   if (!punt) return NextResponse.json({ fout: "Ongeldig punt" }, { status: 400 });
 
+  // Alleen bij een echte foto-opdracht: anders kon een meerkeuzevraag met een foto worden "beantwoord"
+  const { data: vraag, error: vraagFout } = await admin.from("questions").select("type").eq("route_point_id", routePointId).maybeSingle();
+  if (vraagFout) return NextResponse.json({ fout: "De vraag kon niet worden geladen, probeer het opnieuw" }, { status: 503 });
+  if (vraag?.type !== "foto_opdracht") return NextResponse.json({ fout: "Bij dit punt hoort geen foto-opdracht" }, { status: 400 });
+
   // Alleen een punt dat het team bereikt heeft en nog niet afgerond is
   const { data: voortgangRij } = await admin
     .from("player_point_progress")
@@ -52,7 +60,30 @@ export async function POST(request: NextRequest) {
     .eq("route_point_id", routePointId)
     .maybeSingle();
 
-  if (bestaandeInzending) return NextResponse.json({ fout: "Al een foto ingediend" }, { status: 409 });
+  // Het team speelt meteen door: het punt wordt afgerond, de punten komen erbij zodra de beheerder de foto
+  // heeft goedgekeurd (vóór de uitslag wordt vrijgegeven). Eerst het punt claimen (alleen als het nog open
+  // staat), dan pas uploaden; mislukt het uploaden, dan gaat het punt weer open en kan het team het opnieuw
+  // proberen.
+  const rondAf = () => admin
+    .from("player_point_progress")
+    .update({ answered_at: new Date().toISOString(), is_correct: null, points_awarded: 0 })
+    .eq("id", voortgangRij.id)
+    .is("answered_at", null)
+    .select()
+    .maybeSingle();
+  const zetOpen = () => admin.from("player_point_progress").update({ answered_at: null, points_awarded: null }).eq("id", voortgangRij.id)
+    .then(() => undefined, () => undefined);
+
+  // Er is al een foto (een eerdere poging bleef halverwege steken): alleen het punt nog afronden
+  if (bestaandeInzending) {
+    const { data: voortgang } = await rondAf();
+    if (!voortgang) return NextResponse.json({ fout: "Al een foto ingediend" }, { status: 409 });
+    return NextResponse.json({ foto_id: bestaandeInzending.id, voortgang });
+  }
+
+  const { data: voortgang, error: claimFout } = await rondAf();
+  if (claimFout) return NextResponse.json({ fout: "Opslaan lukte niet, probeer het opnieuw" }, { status: 500 });
+  if (!voortgang) return NextResponse.json({ fout: "Dit punt is al afgerond" }, { status: 409 });
 
   // Upload naar Storage
   const ext = bestand.type === "image/png" ? "png" : bestand.type === "image/webp" ? "webp" : "jpg";
@@ -63,10 +94,10 @@ export async function POST(request: NextRequest) {
     .from("foto-inzendingen")
     .upload(pad, buffer, { contentType: bestand.type, upsert: true });
 
-  if (uploadFout) return NextResponse.json({ fout: uploadFout.message }, { status: 500 });
-
-  // Sessie bijwerken
-  await admin.from("player_sessions").update({ current_point_id: routePointId }).eq("id", sessie.id);
+  if (uploadFout) {
+    await zetOpen();
+    return NextResponse.json({ fout: "Foto uploaden lukte niet, probeer het opnieuw" }, { status: 500 });
+  }
 
   // Foto-inzending aanmaken
   const { data: inzending, error: inzendingFout } = await admin
@@ -81,16 +112,14 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (inzendingFout) return NextResponse.json({ fout: inzendingFout.message }, { status: 500 });
+  if (inzendingFout) {
+    await zetOpen();
+    await admin.storage.from("foto-inzendingen").remove([pad]).catch(() => undefined);
+    return NextResponse.json({ fout: "Foto opslaan lukte niet, probeer het opnieuw" }, { status: 500 });
+  }
 
-  // Het team speelt meteen door: het punt is afgerond, de punten komen erbij zodra de
-  // beheerder de foto heeft goedgekeurd (vóór de uitslag wordt vrijgegeven).
-  const { data: voortgang } = await admin
-    .from("player_point_progress")
-    .update({ answered_at: new Date().toISOString(), is_correct: null, points_awarded: 0 })
-    .eq("id", voortgangRij.id)
-    .select()
-    .single();
+  // Sessie bijwerken
+  await admin.from("player_sessions").update({ current_point_id: routePointId }).eq("id", sessie.id);
 
   // Foto-opdracht bij de finish (bijv. een selfie): na het insturen is het team gefinisht.
   // De eindtijd ligt vast; de punten volgen na de keuring.

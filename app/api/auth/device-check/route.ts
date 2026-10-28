@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { inlogMoment, uitgelogdNaLogin } from "@/lib/inlog-moment";
 
 export async function POST(request: NextRequest) {
   const { deviceId } = await request.json();
@@ -20,10 +21,12 @@ export async function POST(request: NextRequest) {
 
   if (!speler) return NextResponse.json({ fout: "Speler niet gevonden" }, { status: 404 });
 
-  // Door de beheerder uitgelogd
-  if (speler.force_logout_at) {
+  // Door de beheerder uitgelogd (of "Volgende groep"): alleen dit toestel als het van vóór dat moment is
+  // ingelogd. Het tijdstip blijft staan, zodat ook andere oude toestellen er later nog uit gaan; wie daarna
+  // opnieuw inlogt, heeft een nieuwer inlogmoment en mag verder.
+  const { data: { session } } = await supabase.auth.getSession();
+  if (uitgelogdNaLogin(speler.force_logout_at, inlogMoment(session?.access_token))) {
     await supabase.auth.signOut();
-    await admin.from("players").update({ force_logout_at: null, active_device_id: null }).eq("id", speler.id);
     return NextResponse.json({ fout: "Je bent door de beheerder uitgelogd.", reden: "uitgelogd" }, { status: 409 });
   }
 

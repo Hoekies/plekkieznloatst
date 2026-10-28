@@ -59,6 +59,9 @@ export async function GET() {
   });
   const minOk = !!scoreFout && scoreFout.code !== "23514";
   checks.push({ groep: "Database", naam: "Migratie 021: minpunten (score onder 0)", ok: minOk, uitleg: minOk ? undefined : "Draai in Supabase → SQL Editor het deel \"Migratie 021\" uit supabase/migrations/001_schema.sql." });
+  // Nieuwe migratie 002: scores in één stap. Aanroep op een sessie die niet bestaat verandert niets.
+  const { error: atoomFout } = await admin.rpc("pr_score_bij", { p_sessie: "00000000-0000-0000-0000-000000000000", p_delta: 0 });
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 002: scores en items in één stap", ok: !atoomFout, uitleg: atoomFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/002_atomaire_acties.sql. Tot dan werkt alles op de oude manier." : undefined });
 
   // Opslag (afbeeldingen en foto's)
   const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();

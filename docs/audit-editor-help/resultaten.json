@@ -1,0 +1,62 @@
+{
+  "datum": "2026-10-27",
+  "methode": "Echte hulp-API en geëxtraheerde zoekfunctie; effectcontrole met React/fetch-mocks. FOUT betekent huidig gebrek bevestigd.",
+  "resultaten": [
+    {
+      "naam": "Route-editor krijgt eigen hulp met vier hoofdstukken",
+      "geslaagd": true
+    },
+    {
+      "naam": "Startuitleg en itemuitleg zijn aanwezig",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: aparte vraag-editor krijgt dezelfde algemene hulp als de route-editor",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: link naar starten heeft geen doel in de hulpkolom",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: verouderde verwijzing plaatst puzzelwoord nog onder instellingen-tab Spel",
+      "geslaagd": true
+    },
+    {
+      "naam": "Aanwijzen vindt knop via aria-label en negeert eigen hulpkolom",
+      "geslaagd": true
+    },
+    {
+      "naam": "Aanwijzen geeft exacte match voorrang boven langere tekst",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: gecombineerde knopnaam Vraag invullen / bewerken wordt niet herkend",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: gelijknamige Instellingen-knoppen wijzen naar de eerste in DOM",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: visibility hidden wordt als zichtbaar beschouwd bij knopzoeken",
+      "geslaagd": true
+    },
+    {
+      "naam": "Knop zonder clientrects wordt wel overgeslagen",
+      "geslaagd": true
+    },
+    {
+      "naam": "FOUT: netwerkfout wordt gecachet en opnieuw openen probeert niet opnieuw",
+      "geslaagd": true
+    },
+    {
+      "naam": "Padwissel na fout kan wel opnieuw ophalen",
+      "geslaagd": true
+    },
+    {
+      "naam": "Oude fetchrespons wordt genegeerd na opruimen van effect",
+      "geslaagd": true
+    }
+  ]
+}

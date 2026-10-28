@@ -14,6 +14,7 @@ import { strooiConfetti } from "@/lib/confetti";
 import Podium from "./Podium";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
+import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
 
 interface Props {
   groepNaam: string;
@@ -34,11 +35,14 @@ interface Props {
   waarden: RouteWaarden;
   // Eigen logo van de organisatie (huisstijl): op de oorkonde en de uitslag
   huisLogo?: string | null;
+  // 🎃 Seizoen of feestdag van vandaag (door de server gekozen, zodat server en browser hetzelfde tonen)
+  themaSleutel?: FinishThemaSleutel;
 }
 
 const POLL_INTERVAL_MS = 10000;
 
-export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden, huisLogo = null }: Props) {
+export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos, itemsNaFinish, waarden, huisLogo = null, themaSleutel }: Props) {
+  const thema = FINISH_THEMAS[themaSleutel ?? huidigFinishThema()];
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);
@@ -72,9 +76,10 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    // 🎉 Confetti bij binnenkomst: een knal en daarna een regen
-    strooiConfetti({ aantal: 140, duurMs: 2600, knal: true });
-    const timer = setTimeout(() => strooiConfetti({ aantal: 120, duurMs: 3500 }), 900);
+    // 🎉 Confetti bij binnenkomst, in de kleuren van het seizoen: een knal en daarna een regen
+    const kleuren = [...thema.kleuren, "#FFD23F", "#FFFFFF"];
+    strooiConfetti({ aantal: 140, duurMs: 2600, knal: true, kleuren });
+    const timer = setTimeout(() => strooiConfetti({ aantal: 120, duurMs: 3500, kleuren }), 900);
 
     pollRef.current = setInterval(async () => {
       try {
@@ -103,33 +108,44 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
       {/* Inhoud */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, padding: "18px 16px 48px", width: "100%", maxWidth: 600 }}>
 
-        {/* 🎉 Feestelijke kop: draaiende stralen, geblokte finishrand, teamfoto of icoon in een gouden ring */}
-        <div className="finish-held">
+        {/* 🎉 Feestelijke kop in de stijl van het seizoen of de feestdag (lib/finish-thema.ts): stralen,
+            geblokte finishrand, versiering van het thema, teamfoto of icoon in een gouden ring */}
+        <div className="finish-held" style={{ "--thema-1": thema.kleuren[0], "--thema-2": thema.kleuren[1], "--thema-3": thema.kleuren[2], "--thema-basis": thema.basis } as React.CSSProperties}>
           <div className="finish-stralen" aria-hidden />
-          <span className="finish-vlag finish-vlag--links" aria-hidden>🏁</span>
-          <span className="finish-vlag finish-vlag--rechts" aria-hidden>🏁</span>
+          <span className="finish-vlag finish-vlag--links" aria-hidden>{thema.versiering[0]}</span>
+          <span className="finish-vlag finish-vlag--rechts" aria-hidden>{thema.versiering[1]}</span>
+          <span className="finish-dwarrel finish-dwarrel--1" aria-hidden>{thema.versiering[2]}</span>
+          <span className="finish-dwarrel finish-dwarrel--2" aria-hidden>{thema.versiering[3]}</span>
+          <span className="finish-thema">{thema.emoji} {thema.naam}</span>
           <div className="finish-avatar">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {teamFoto ? <img src={teamFoto} alt="" /> : <span>{teamIcoon ?? "🏆"}</span>}
           </div>
           <h1 className="finish-titel">Finish!</h1>
-          <div className="finish-team">{groepNaam}</div>
-          <div className="finish-sub">Goed gedaan, jullie zijn binnen! 🎉</div>
+          <div className="finish-team" title={groepNaam}>{groepNaam}</div>
+          <div className="finish-sub">{thema.tekst} 🎉</div>
         </div>
 
         {/* Score + tijd + afstand */}
         <div className="finish-stats">
-          <StatKaart icoon="⭐" waarde={String(telOp)} label={vrij ? "punten" : "punten (voorlopig)"} kleur="#FFD23F" />
+          <StatKaart icoon="⭐" waarde={String(telOp)} label="punten" kleur="#FFD23F" />
           <StatKaart icoon="⏱️" waarde={formateerTijd(tijdSeconden)} label="speeltijd" kleur="#67E8F9" tabular />
           <StatKaart icoon="🚶" waarde={distanceMeters ? afstandTekst(distanceMeters) : "—"} label="afstand" kleur="#4ADE80" />
         </div>
+        {/* Direct bij de score: is hij al definitief, en waarom wacht het team nog? */}
+        {!vrij && (
+          <div className="finish-status">
+            ⏳ <strong>Voorlopige score</strong>
+            {wachtendeFotos > 0 ? ` · ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} in de keuring` : " · wacht op de uitslag"}
+          </div>
+        )}
 
         {/* 🧩 Puzzelwoord raden voor bonuspunten (als de route er een heeft) */}
         <PuzzelWoord raden />
 
-        {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is) */}
+        {/* Oorkonde om te delen (met plaats zodra de uitslag vrij is; daarvoor met "voorlopige score") */}
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
-          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} huisLogo={huisLogo} />
+          plaats={vrij ? leaderboard.find((e) => e.is_eigen_team)?.rank ?? null : null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={!vrij} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>
@@ -202,7 +218,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
         {/* Leaderboard */}
         <div style={{ width: "100%" }}>
           <h2 style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 800, marginBottom: 14, color: "#00d9ff" }}>
-            <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> Eindstand
+            <span style={{ fontSize: "2.2rem", lineHeight: 1 }}>🏆</span> {vrij ? "Eindstand" : "Wachten op de uitslag"}
           </h2>
           {!vrij ? (
             <div style={{
@@ -234,19 +250,8 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto = null, ro
 
         {/* Live-indicator */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: "0.75rem" }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: "var(--green, #16A34A)",
-            display: "inline-block",
-            animation: "puls-dot 1.5s ease-in-out infinite",
-          }} />
+          <span className="finish-live-stip" />
           {vrij ? "Eindstand wordt live bijgewerkt" : "Deze pagina ververst vanzelf"}
-          <style>{`
-            @keyframes puls-dot {
-              0%, 100% { opacity: 1; }
-              50%       { opacity: 0.3; }
-            }
-          `}</style>
         </div>
 
         {/* Ko-fi */}

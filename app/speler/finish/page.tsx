@@ -7,6 +7,7 @@ import { huisLogoUrl } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 import { teamFotos } from "@/lib/teamfoto";
+import { huidigFinishThema } from "@/lib/finish-thema";
 
 export default async function FinishPage() {
   const user = await haalGebruiker();
@@ -131,6 +132,7 @@ export default async function FinishPage() {
 
   return (
     <FinishScherm
+      themaSleutel={huidigFinishThema()}
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
       teamFoto={fotos.get(sessie.id) ?? null}

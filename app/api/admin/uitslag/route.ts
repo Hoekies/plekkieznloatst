@@ -13,23 +13,25 @@ export async function POST(request: NextRequest) {
 
   const { vrij } = await request.json();
   const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("routes")
-    .update({ uitslag_vrijgegeven: !!vrij })
-    .eq("is_active", true)
-    .select("id")
-    .maybeSingle();
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
-  if (!data) return NextResponse.json({ fout: "Er is geen actieve route" }, { status: 400 });
+  const { data: route, error: leesFout } = await admin.from("routes").select("id").eq("is_active", true).maybeSingle();
+  if (leesFout) return NextResponse.json({ fout: leesFout.message }, { status: 500 });
+  if (!route) return NextResponse.json({ fout: "Er is geen actieve route" }, { status: 400 });
 
-  // Uitslag vrij: gefinishte teams kunnen niets meer inzetten, overgebleven items vervallen
+  // Uitslag vrij: eerst alles afrekenen, pas daarna zichtbaar maken. Anders zagen teams even een eindstand
+  // zonder stem- en puzzelpunten. Gefinishte teams kunnen daarna niets meer inzetten, overgebleven items vervallen.
   if (vrij) {
-    // 🗳️ Open stemvragen sluiten: wie met de meerderheid meestemde krijgt de punten (vóór de stand zichtbaar wordt)
-    await sluitStemmingen(admin, data.id);
-    // 🧩 Puzzelwoord: punten per gevonden letter en de bonus, ook voor teams die het finishscherm niet openden
-    await rekenPuzzelsAf(admin, data.id);
-    const { data: klaar } = await admin.from("player_sessions").select("id").eq("route_id", data.id).eq("status", "voltooid");
-    await laatItemsVervallen(admin, (klaar ?? []).map((s) => s.id));
+    try {
+      // 🗳️ Open stemvragen sluiten: wie met de meerderheid meestemde krijgt de punten
+      await sluitStemmingen(admin, route.id);
+      // 🧩 Puzzelwoord: punten per gevonden letter en de bonus, ook voor teams die het finishscherm niet openden
+      await rekenPuzzelsAf(admin, route.id);
+      const { data: klaar } = await admin.from("player_sessions").select("id").eq("route_id", route.id).eq("status", "voltooid");
+      await laatItemsVervallen(admin, (klaar ?? []).map((s) => s.id));
+    } catch (e) {
+      return NextResponse.json({ fout: `Afrekenen lukte niet: ${(e as Error).message}. De uitslag is nog niet vrijgegeven.` }, { status: 500 });
+    }
   }
+  const { error } = await admin.from("routes").update({ uitslag_vrijgegeven: !!vrij }).eq("id", route.id);
+  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, vrij: !!vrij });
 }

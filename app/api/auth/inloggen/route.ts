@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(`/login?fout=${geblokkeerd ? "uitgeschakeld" : "ongeldig"}`, request.url), { status: 303 });
   }
 
-  // Een verse, geldige login mag nooit meteen gekelderd worden door een oude uitlog-vlag
+  // Een oude uitlog-vlag (force_logout_at) blijft staan: deze verse login is nieuwer en mag gewoon verder
+  // (lib/inlog-moment.ts), terwijl oude toestellen van dit team er nog steeds uit gaan.
   const admin = createAdminClient();
-  await admin.from("players").update({ force_logout_at: null }).eq("auth_user_id", data.user.id);
   // Met wachtwoord ingelogd: een eventuele tijdslimiet van een inloglink vervalt
   await admin.from("players").update({ toegang_tot: null }).eq("auth_user_id", data.user.id);
 

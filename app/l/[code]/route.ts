@@ -36,9 +36,10 @@ export async function GET(request: NextRequest, { params }: { params: { code: st
   const { error } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: magic.properties.hashed_token });
   if (error) return naar("/login?fout=link-verlopen");
 
-  // Toegang tot het einde van de link; een oude uitlog-vlag mag een verse login niet kelderen
+  // Toegang tot het einde van de link. Een oude uitlog-vlag blijft staan: deze verse login is nieuwer en mag
+  // verder (lib/inlog-moment.ts), oude toestellen niet.
   await Promise.all([
-    admin.from("players").update({ toegang_tot: link.geldig_tot, force_logout_at: null }).eq("id", speler.id),
+    admin.from("players").update({ toegang_tot: link.geldig_tot }).eq("id", speler.id),
     admin.from("inlog_links").update({ laatst_gebruikt: new Date().toISOString() }).eq("id", link.id),
   ]);
 

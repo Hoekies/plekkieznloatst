@@ -49,6 +49,7 @@ export async function GET() {
     .eq("target_session_id", eigenSessie.id)
     .eq("effect_type", "radar")
     .gt("expires_at", new Date().toISOString())
+    .limit(1)  // twee radars tegelijk: anders geeft maybeSingle() een fout en lijkt er geen radar
     .maybeSingle();
 
   let locaties: SpelerLocatie[];

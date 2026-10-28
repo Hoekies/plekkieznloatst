@@ -743,10 +743,11 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     }
   }
 
-  // Plek van het team nu, meegestuurd bij oppakken/inzetten (voor het verslag en de routekaart)
+  // Plek van het team nu, meegestuurd bij bereiken/oppakken/inzetten (voor het verslag en de routekaart, en
+  // de server controleert ermee of het team echt bij het punt of item is)
   function huidigePlek() {
     const p = positieRef.current;
-    return p ? { latitude: p.latitude, longitude: p.longitude } : {};
+    return p ? { latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy } : {};
   }
 
   async function claimSpeciaalItem(item: SpeciaalItem) {
@@ -881,7 +882,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     if (bezigRef.current) return;
     bezigRef.current = true;
     try {
-      const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id });
+      const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id, ...huidigePlek() });
       if (r.status === "fout" && r.res.status === 423) { bezigRef.current = false; return; }
       if (r.status !== "fout") {
         // Zonder bereik: alvast zo in de app, de server krijgt het later uit de wachtrij
@@ -932,7 +933,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
     try {
       for (let i = verwerktIds.size; i < tot; i++) {
         const punt = punten[i];
-        const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id });
+        const r = await stuur("/api/speler/voortgang/bereik", { route_point_id: punt.id, ...huidigePlek() });
         // 409 = al bereikt (bijv. na herladen): dan alleen nog verwerken
         if (r.status === "fout" && r.res.status !== 409) return;
         if (r.status !== "fout") {

@@ -34,31 +34,50 @@ export async function POST() {
 
   const admin = createAdminClient();
 
-  // Startitems horen bij een sessie en verdwijnen; overige items terug naar onopgehaalde staat.
-  // Dit gebeurt vóór het verwijderen van de sessies, die anders via claimed_by_session_id vastzitten.
-  await admin.from("special_items").delete().eq("is_startitem", true);
-  await admin.from("special_items").update({
-    claimed: false,
-    claimed_by_session_id: null,
-    claimed_at: null,
-    used_at: null,
-  }).not("id", "is", null);
+  // Elke stap wordt gecontroleerd: mislukt er een, dan stopt het opruimen en zegt de melding welke stap.
+  // (Supabase gooit geen fout bij een mislukte opdracht; die staat in `error`.) De foto's uit de opslag gaan
+  // pas als laatste weg, als de database al gelukt is: anders bleven gegevens zonder foto achter.
+  const stap = async (naam: string, opdracht: PromiseLike<{ error: { message: string } | null }>) => {
+    const { error } = await opdracht;
+    if (error) throw new Error(`${naam}: ${error.message}`);
+  };
 
-  // 📊 Eerst per vraag optellen hoe vaak die goed ging (blijft bewaard bij de route, migratie 022)
-  await bewaarVraagStatistiek(admin);
+  let fotosVerwijderd = 0;
+  try {
+    // Startitems horen bij een sessie en verdwijnen; overige items terug naar onopgehaalde staat.
+    // Dit gebeurt vóór het verwijderen van de sessies, die anders via claimed_by_session_id vastzitten.
+    await stap("Startitems weghalen", admin.from("special_items").delete().eq("is_startitem", true));
+    await stap("Items terugleggen", admin.from("special_items").update({
+      claimed: false,
+      claimed_by_session_id: null,
+      claimed_at: null,
+      used_at: null,
+    }).not("id", "is", null));
 
-  // Verwijder in de juiste volgorde (FK constraints)
-  await admin.from("player_point_progress").delete().not("id", "is", null);
-  await admin.from("location_updates").delete().not("id", "is", null);
-  await admin.from("special_item_effects").delete().not("id", "is", null);
-  await admin.from("foto_inzendingen").delete().not("id", "is", null);
-  // De foto's zelf ook uit de opslag, zodat die niet volloopt
-  const fotosVerwijderd = await leegFotoOpslag(admin);
-  // session_point_order cascadet mee via ON DELETE CASCADE
-  await admin.from("player_sessions").delete().not("id", "is", null);
+    // 📊 Eerst per vraag optellen hoe vaak die goed ging (blijft bewaard bij de route, migratie 022)
+    await bewaarVraagStatistiek(admin);
 
-  // Handmatige tussenstand-trigger leegmaken zodat 'ie niet doorspookt in de nieuwe game
-  await admin.from("routes").update({ tussenstand_trigger_at: null, uitslag_vrijgegeven: false }).not("id", "is", null);
+    // Verwijder in de juiste volgorde (FK constraints)
+    await stap("Antwoorden wissen", admin.from("player_point_progress").delete().not("id", "is", null));
+    await stap("Gelopen routes wissen", admin.from("location_updates").delete().not("id", "is", null));
+    await stap("Itemeffecten wissen", admin.from("special_item_effects").delete().not("id", "is", null));
+    await stap("Foto-inzendingen wissen", admin.from("foto_inzendingen").delete().not("id", "is", null));
+    // session_point_order cascadet mee via ON DELETE CASCADE
+    await stap("Spellen wissen", admin.from("player_sessions").delete().not("id", "is", null));
+
+    // Alles wat bij een speelronde hoort terug naar het begin: tussenstand, uitslag, eindtijd en pauze.
+    // Anders kon een verstreken eindtijd de volgende groep meteen tegenhouden ("Het spel is afgelopen").
+    await stap("Route terugzetten", admin.from("routes")
+      .update({ tussenstand_trigger_at: null, uitslag_vrijgegeven: false, eindtijd: null, gepauzeerd_sinds: null })
+      .not("id", "is", null));
+    // Stemvragen weer open (de stemmen zelf zijn al gewist)
+    await stap("Stemvragen openen", admin.from("questions").update({ stem_gesloten: false }).eq("type", "stemvraag"));
+
+    // De foto's zelf ook uit de opslag, zodat die niet volloopt
+    fotosVerwijderd = await leegFotoOpslag(admin);
+  } catch (e) {
+    return NextResponse.json({ fout: `Opruimen is halverwege gestopt. ${(e as Error).message}. Probeer het opnieuw.` }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true, fotos_verwijderd: fotosVerwijderd });
 }

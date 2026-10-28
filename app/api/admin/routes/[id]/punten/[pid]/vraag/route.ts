@@ -8,15 +8,19 @@ export async function GET(_: NextRequest, { params }: Params) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   const admin = createAdminClient();
-  const { data: vraag } = await admin
+  const { data: vraag, error } = await admin
     .from("questions")
     .select("*, answer_options(*)")
     .eq("route_point_id", params.pid)
     .order("order_index", { referencedTable: "answer_options" })
     .maybeSingle();
+  // Een leesfout is niet hetzelfde als "nog geen vraag": anders opende de editor een leeg formulier
+  if (error) return NextResponse.json({ fout: "De vraag kon niet worden geladen" }, { status: 500 });
 
   return NextResponse.json(vraag ?? null);
 }
+
+type Antwoord = { color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; punten?: number | null; uitleg?: string | null };
 
 // PUT = aanmaken of volledig vervangen
 export async function PUT(request: NextRequest, { params }: Params) {
@@ -24,6 +28,20 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
   const body = await request.json();
   const admin = createAdminClient();
+
+  // ── Controleren vóór er iets wordt opgeslagen (zelfde eisen als de editor) ──
+  const vraagTekst = typeof body.question_text === "string" ? body.question_text.trim() : "";
+  if (!vraagTekst && body.type !== "foto_opdracht") return NextResponse.json({ fout: "Vul de vraag in" }, { status: 400 });
+  const punten = Number(body.points ?? 0);
+  if (!Number.isFinite(punten) || Math.abs(punten) > 10000) return NextResponse.json({ fout: "Ongeldig aantal punten" }, { status: 400 });
+  if (body.type === "open") {
+    const getal = body.numeric_answer;
+    const metGetal = getal !== null && getal !== undefined;
+    if (metGetal && !Number.isFinite(Number(getal))) return NextResponse.json({ fout: "Het goede getal is ongeldig" }, { status: 400 });
+    if (metGetal && body.numeric_tolerance != null && !(Number(body.numeric_tolerance) >= 0)) return NextResponse.json({ fout: "De marge moet 0 of meer zijn" }, { status: 400 });
+    const teksten = (body.correct_text_answers ?? []).filter((t: unknown) => typeof t === "string" && t.trim());
+    if (!metGetal && !teksten.length) return NextResponse.json({ fout: "Vul minstens één goed antwoord in" }, { status: 400 });
+  }
 
   // 🗳️ Stemvraag: 2 tot 4 keuzes, geen goed antwoord (de meerderheid wint)
   if (body.type === "stemvraag") {
@@ -45,8 +63,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
   }
 
-  // 💬 Uitleg per antwoord: kan pas na migratie 023. Eerst controleren, want de antwoorden worden hieronder
-  // eerst gewist en dan opnieuw ingevoegd (een mislukte invoeging zou ze kwijtmaken)
+  // 💬 Uitleg per antwoord: kan pas na migratie 023
   const metUitleg = (body.antwoorden ?? []).some((a: { uitleg?: string | null }) => typeof a.uitleg === "string" && a.uitleg.trim());
   if (metUitleg) {
     const { error } = await admin.from("answer_options").select("uitleg").limit(1);
@@ -54,75 +71,97 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 
   // Bestaande vraag opzoeken
-  const { data: bestaand } = await admin
+  const { data: bestaand, error: leesFout } = await admin
     .from("questions")
-    .select("id")
+    .select("*, answer_options(id, order_index)")
     .eq("route_point_id", params.pid)
     .maybeSingle();
+  if (leesFout) return NextResponse.json({ fout: "De bestaande vraag kon niet worden gelezen; er is niets veranderd" }, { status: 500 });
+
+  const velden = {
+    type: body.type,
+    question_text: body.question_text,
+    question_image_path: body.question_image_path ?? null,
+    points: Math.round(punten),
+    correct_text_answers: body.correct_text_answers ?? null,
+    numeric_answer: body.numeric_answer ?? null,
+    numeric_tolerance: body.numeric_tolerance ?? null,
+  };
+  const typeFout = (m: string) => /type_check/.test(m) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : m;
 
   let vraagId: string;
+  const metOpties = body.type !== "open" && body.type !== "foto_opdracht";
+  const nieuweOpties = (metOpties ? (body.antwoorden ?? []) : []) as Antwoord[];
+  const optieRij = (a: Antwoord, i: number) => ({
+    order_index: i + 1,
+    color: a.color,
+    answer_type: a.answer_type,
+    text: a.text ?? null,
+    image_path: a.image_path ?? null,
+    is_correct: a.is_correct,
+    punten: typeof a.punten === "number" && Number.isFinite(a.punten) ? Math.round(a.punten) : null,
+    ...(metUitleg ? { uitleg: a.uitleg?.trim().slice(0, 200) || null } : {}),
+  });
 
   if (bestaand) {
-    // Updaten
-    const { error: updateFout } = await admin.from("questions").update({
-      type: body.type,
-      question_text: body.question_text,
-      question_image_path: body.question_image_path ?? null,
-      points: body.points ?? 0,
-      correct_text_answers: body.correct_text_answers ?? null,
-      numeric_answer: body.numeric_answer ?? null,
-      numeric_tolerance: body.numeric_tolerance ?? null,
-    }).eq("id", bestaand.id);
-    if (updateFout) return NextResponse.json({ fout: /type_check/.test(updateFout.message) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : updateFout.message }, { status: 500 });
     vraagId = bestaand.id;
-
-    // Antwoorden vervangen
-    const { error: deleteFout } = await admin.from("answer_options").delete().eq("question_id", vraagId);
-    if (deleteFout) return NextResponse.json({ fout: `Antwoorden verwijderen mislukt: ${deleteFout.message}` }, { status: 500 });
+    // De antwoorden worden op hun plek bijgewerkt in plaats van gewist en opnieuw gemaakt: ze houden hun id,
+    // zodat al gegeven antwoorden van teams blijven kloppen en een mislukte stap de oude vraag niet leeg
+    // achterlaat. Eerst de antwoorden, dan de vraag zelf, en pas aan het eind overtollige antwoorden weg.
+    const oud = ((bestaand.answer_options ?? []) as { id: string; order_index: number }[]).sort((a, b) => a.order_index - b.order_index);
+    // Eerst de antwoorden die er nog niet waren: mislukt dat, dan is er nog niets aan de oude vraag veranderd
+    const erbij = nieuweOpties.map((a, i) => ({ a, i })).filter(({ i }) => !oud[i]);
+    if (erbij.length) {
+      // Eén opdracht: de database voegt ze allemaal of geen enkele in
+      const { error } = await admin.from("answer_options")
+        .insert(erbij.map(({ a, i }) => ({ question_id: vraagId, ...optieRij(a, i) })));
+      if (error) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${error.message}. De vraag is niet veranderd.` }, { status: 500 });
+    }
+    for (let i = 0; i < Math.min(oud.length, nieuweOpties.length); i++) {
+      const { error } = await admin.from("answer_options").update(optieRij(nieuweOpties[i], i)).eq("id", oud[i].id);
+      if (error) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${error.message}` }, { status: 500 });
+    }
+    const { error: updateFout } = await admin.from("questions").update(velden).eq("id", vraagId);
+    if (updateFout) return NextResponse.json({ fout: typeFout(updateFout.message) }, { status: 500 });
+    const over = oud.slice(nieuweOpties.length).map((o) => o.id);
+    if (over.length) {
+      const { error: deleteFout } = await admin.from("answer_options").delete().in("id", over);
+      // Een team koos al eens zo'n antwoord: dan blijft het bestaan (verborgen achter de nieuwe vraag)
+      if (deleteFout && !/foreign key|23503/i.test(deleteFout.message + (deleteFout.code ?? ""))) {
+        return NextResponse.json({ fout: `Oude antwoorden opruimen mislukt: ${deleteFout.message}` }, { status: 500 });
+      }
+    }
   } else {
     // Aanmaken
-    const { data: nieuw, error } = await admin.from("questions").insert({
-      route_point_id: params.pid,
-      type: body.type,
-      question_text: body.question_text,
-      question_image_path: body.question_image_path ?? null,
-      points: body.points ?? 0,
-      correct_text_answers: body.correct_text_answers ?? null,
-      numeric_answer: body.numeric_answer ?? null,
-      numeric_tolerance: body.numeric_tolerance ?? null,
-    }).select().single();
-    if (error || !nieuw) return NextResponse.json({ fout: error && /type_check/.test(error.message) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : error?.message }, { status: 500 });
+    const { data: nieuw, error } = await admin.from("questions").insert({ route_point_id: params.pid, ...velden }).select().single();
+    if (error || !nieuw) {
+      // Net tegelijk aangemaakt (unieke regel uit migratie 002): dan opnieuw opslaan als wijziging
+      if (error?.code === "23505") return NextResponse.json({ fout: "Deze vraag werd net al aangemaakt: sla nog een keer op" }, { status: 409 });
+      return NextResponse.json({ fout: typeFout(error?.message ?? "Vraag aanmaken mislukt") }, { status: 500 });
+    }
     vraagId = nieuw.id;
-  }
-
-  // Antwoorden invoegen (alleen bij meerkeuzevragen)
-  if (body.type !== "open" && body.type !== "foto_opdracht" && body.antwoorden?.length) {
-    const { error: insertFout } = await admin.from("answer_options").insert(
-      body.antwoorden.map((a: { color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; punten?: number | null; uitleg?: string | null }, i: number) => ({
-        question_id: vraagId,
-        order_index: i + 1,
-        color: a.color,
-        answer_type: a.answer_type,
-        text: a.text ?? null,
-        image_path: a.image_path ?? null,
-        is_correct: a.is_correct,
-        punten: typeof a.punten === "number" && Number.isFinite(a.punten) ? Math.round(a.punten) : null,
-        ...(metUitleg ? { uitleg: a.uitleg?.trim().slice(0, 200) || null } : {}),
-      }))
-    );
-    if (insertFout) return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${insertFout.message}` }, { status: 500 });
+    if (nieuweOpties.length) {
+      const { error: insertFout } = await admin.from("answer_options").insert(nieuweOpties.map((a, i) => ({ question_id: vraagId, ...optieRij(a, i) })));
+      if (insertFout) {
+        // Geen halve vraag achterlaten
+        await admin.from("questions").delete().eq("id", vraagId);
+        return NextResponse.json({ fout: `Antwoorden opslaan mislukt: ${insertFout.message}` }, { status: 500 });
+      }
+    }
   }
 
   // Per vraag: husselen, geluid en tijdslimiet (migratie 014). Los opgeslagen, zodat een vraag zonder deze
   // opties ook werkt als de migratie nog niet gedraaid is.
   const limiet = Number(body.tijdslimiet_seconden);
-  // 🔀 Husselen geldt voor de hele route (⚙️ Instellingen → 🎮 Spel): overnemen van de andere vragen van de route
+  // 🔀 Husselen geldt voor de hele route (⚙️ Instellingen → 🎮 Spel): overnemen van de andere vragen van de route.
+  // Is dit de enige vraag, dan de eigen instelling houden.
   const { data: anderePunten } = await admin.from("route_points").select("id").eq("route_id", params.id).neq("id", params.pid);
-  const { count: metHusselen } = anderePunten?.length
-    ? await admin.from("questions").select("id", { count: "exact", head: true }).in("route_point_id", anderePunten.map((p) => p.id)).eq("antwoorden_husselen", true)
-    : { count: 0 };
+  const { data: andereVragen } = anderePunten?.length
+    ? await admin.from("questions").select("antwoorden_husselen").in("route_point_id", anderePunten.map((p) => p.id))
+    : { data: [] as { antwoorden_husselen: boolean | null }[] };
+  const eigenHusselen = !!(bestaand as { antwoorden_husselen?: boolean | null } | null)?.antwoorden_husselen;
   const extra = {
-    antwoorden_husselen: (metHusselen ?? 0) > 0,
+    antwoorden_husselen: andereVragen?.length ? andereVragen.some((v) => v.antwoorden_husselen) : eigenHusselen,
     geluid_pad: typeof body.geluid_pad === "string" && body.geluid_pad ? body.geluid_pad : null,
     tijdslimiet_seconden: Number.isFinite(limiet) && limiet >= 10 ? Math.min(600, Math.round(limiet)) : null,
   };
@@ -145,6 +184,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 export async function DELETE(_: NextRequest, { params }: Params) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
-  await admin.from("questions").delete().eq("route_point_id", params.pid);
+  const { error } = await admin.from("questions").delete().eq("route_point_id", params.pid);
+  if (error) return NextResponse.json({ fout: `Vraag verwijderen lukte niet: ${error.message}` }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

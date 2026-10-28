@@ -32,11 +32,16 @@ export async function sluitStemmingen(admin: AdminClient, routeId: string, puntI
     const { data: rijen } = await admin.from("player_point_progress").select("id, session_id, selected_answer_id, points_awarded")
       .eq("route_point_id", v.route_point_id).not("answered_at", "is", null);
     for (const r of rijen ?? []) {
-      const goed = !!r.selected_answer_id && winnaars.includes(r.selected_answer_id);
+      // Een stem die na het sluiten kwam, is al beoordeeld en telt niet mee (keuze niet bewaard): laten staan
+      if (!r.selected_answer_id) continue;
+      const goed = winnaars.includes(r.selected_answer_id);
       const punten = goed ? v.points : 0;
       const verschil = punten - (r.points_awarded ?? 0);
-      await admin.from("player_point_progress").update({ is_correct: goed, points_awarded: punten }).eq("id", r.id);
-      if (verschil) await telBijScore(admin, r.session_id, verschil);
+      // Alleen als de punten nog zo staan als net gelezen: twee keer tegelijk sluiten geeft geen dubbele punten
+      let q = admin.from("player_point_progress").update({ is_correct: goed, points_awarded: punten }).eq("id", r.id);
+      q = r.points_awarded === null ? q.is("points_awarded", null) : q.eq("points_awarded", r.points_awarded);
+      const { data: bijgewerkt } = await q.select("id");
+      if (verschil && bijgewerkt?.length) await telBijScore(admin, r.session_id, verschil).catch(() => undefined);
     }
     await admin.from("questions").update({ stem_gesloten: true }).eq("id", v.id);
     gesloten++;

@@ -104,7 +104,7 @@ De aantallen en tijden hangen af van de instellingen van de route; de app toont 
 | Item | Naam | Wat doet het voor jou? |
 |---|---|---|
 | ⭐ | Ster | Je krijgt meteen extra punten cadeau (standaard 50). |
-| 🔴 | Verdubbeling | Je volgende vraag waarmee je punten verdient, telt dubbel. |
+| 🔴 | Verdubbeling | Je volgende vraag waarmee je punten verdient, telt dubbel (niet bij een foto-opdracht of stemvraag). |
 | 📡 | Radar | Je ziet 2 minuten lang precies waar alle tegenstanders lopen. |
 | 💣 | Bom | Gooi hem naar een tegenstander: die verliest punten (standaard 30). |
 | 👻 | Spook | Stuur een spook naar een tegenstander: hun volgende punt verdwijnt een tijdje van de kaart (standaard 10 minuten) en is zolang niet te halen. |

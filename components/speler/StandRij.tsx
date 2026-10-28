@@ -13,15 +13,15 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
   const medaille = MEDAILLE[entry.rank - 1];
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 12,
+      display: "flex", alignItems: "center", gap: "clamp(6px, 2.5vw, 12px)",
       padding: "10px 14px 10px 10px", borderRadius: 14,
       background: isEigen ? "rgba(0,217,255,0.14)" : "rgba(255,255,255,0.06)",
       border: `2px solid ${isEigen ? "#00d9ff" : "rgba(255,255,255,0.1)"}`,
     }}>
       {/* Plaats */}
-      {!compact && <div style={{ width: 46, flexShrink: 0, display: "flex", justifyContent: "center" }}>
+      {!compact && <div style={{ width: "min(46px, 10vw)", flexShrink: 0, display: "flex", justifyContent: "center" }}>
         {medaille ? (
-          <span style={{ fontSize: "2.5rem", lineHeight: 1, filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.45))" }}>{medaille}</span>
+          <span style={{ fontSize: "clamp(1.6rem, 7.5vw, 2.5rem)", lineHeight: 1, filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.45))" }}>{medaille}</span>
         ) : (
           <span style={{
             width: 38, height: 38, borderRadius: "50%",
@@ -32,27 +32,30 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
         )}
       </div>}
 
-      {/* Teamicoon */}
+      {/* Teamfoto (goedgekeurde finishfoto) of anders het teamicoon */}
       <div style={{
-        width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+        width: "min(44px, 11vw)", height: "min(44px, 11vw)", borderRadius: "50%", flexShrink: 0, overflow: "hidden",
         display: "flex", alignItems: "center", justifyContent: "center",
         background: isEigen ? "rgba(0,217,255,0.2)" : "rgba(255,255,255,0.08)",
         fontSize: "1.6rem", lineHeight: 1,
       }}>
-        {entry.icon ?? "👥"}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {entry.foto ? <img src={entry.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : entry.icon ?? "👥"}
       </div>
 
       {/* Naam + tijd/afstand */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.08rem",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        {/* Naam op maximaal twee regels (lange namen bleven anders onherkenbaar); "jij" los ervan */}
+        <div title={entry.display_name} style={{
+          fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem", lineHeight: 1.2,
+          overflow: "hidden", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
           color: isEigen ? "#00d9ff" : "#fff",
         }}>
-          {entry.display_name}{isEigen && " (jij)"}
+          {isEigen && <span style={{ fontSize: "0.7rem", padding: "1px 6px", marginRight: 6, borderRadius: 6, background: "#00d9ff", color: "#06243a", verticalAlign: "middle" }}>JIJ</span>}
+          {entry.display_name}
         </div>
         {!compact && (
-          <div style={{ fontSize: "0.8rem", color: "#9fb3d1", marginTop: 2, display: "flex", gap: 10, fontVariantNumeric: "tabular-nums" }}>
+          <div style={{ fontSize: "0.8rem", color: "#9fb3d1", marginTop: 2, display: "flex", flexWrap: "wrap", gap: "0 10px", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
             <span>⏱ {formateerTijd(entry.tijd_seconden)}</span>
             {entry.distance_meters > 0 && <span>📍 {afstandTekst(entry.distance_meters)}</span>}
           </div>
@@ -62,7 +65,7 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
       {/* Score */}
       <div style={{ flexShrink: 0, textAlign: "right", lineHeight: 1 }}>
         <div style={{
-          fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.7rem",
+          fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1.1rem, 5.5vw, 1.7rem)",
           color: isEigen ? "#00d9ff" : "#fff", fontVariantNumeric: "tabular-nums",
         }}>{entry.score}</div>
         {!compact && <div style={{ fontSize: "0.7rem", color: "#9fb3d1", marginTop: 3 }}>{eenheid}</div>}

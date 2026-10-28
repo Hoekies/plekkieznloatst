@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { middlewareMerk, MERK_HEADER } from "@/lib/middleware-merk";
+import { inlogMoment } from "@/lib/inlog-moment";
 
 // Helper van de spelleider: meekijken, foto's keuren en punten vrijgeven. Geen routes, spelers of reset.
 const HELPER_PAGINAS = ["/admin", "/admin/antwoorden", "/admin/live", "/admin/uitleg", "/admin/leaderboard"];
@@ -56,7 +57,8 @@ export async function middleware(request: NextRequest) {
   if (user && pad.startsWith("/admin")) {
     const rol = user.app_metadata?.rol;
     if (rol === "helper") {
-      if (!HELPER_PAGINAS.some((p) => pad === p || pad.startsWith(`${p}/`))) {
+      // "/admin" alleen precies (anders mocht een helper ook /admin/rapport enz. openen); de rest met subpagina's
+      if (!HELPER_PAGINAS.some((p) => pad === p || (p !== "/admin" && pad.startsWith(`${p}/`)))) {
         return NextResponse.redirect(new URL("/admin", request.url));
       }
     } else if (rol !== "admin") {
@@ -79,12 +81,20 @@ export async function middleware(request: NextRequest) {
   headers.delete("x-pr-user-id");
   headers.delete("x-pr-rol");
   headers.delete(MERK_HEADER);
+  headers.delete("x-pr-login");
   if (user) {
     // Geheim kenmerk: alleen hiermee vertrouwt de server de doorgegeven gebruiker
     headers.set(MERK_HEADER, await middlewareMerk());
     headers.set("x-pr-user-id", user.id);
     const rol = user.app_metadata?.rol;
     if (typeof rol === "string") headers.set("x-pr-rol", rol);
+    // Wanneer is déze sessie ingelogd? (spelers: om een team dat de beheerder uitlogde of een vorige groep
+    // te weigeren, terwijl een nieuwe login op hetzelfde account wel mag)
+    if (!rol) {
+      const { data: { session } } = await supabase.auth.getSession();
+      const login = inlogMoment(session?.access_token);
+      if (login) headers.set("x-pr-login", login);
+    }
   }
   const antwoord = NextResponse.next({ request: { headers } });
   supabaseResponse.cookies.getAll().forEach((c) => antwoord.cookies.set(c));

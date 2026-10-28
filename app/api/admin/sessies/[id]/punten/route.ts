@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { zetScore } from "@/lib/score";
+import { telBijScore } from "@/lib/score";
 
 // Punten handmatig aanpassen voor één team: bonus (+) of aftrek (−), met een reden.
 // De score mag onder 0 (migratie 021). Komt in de tijdlijn en het rapport (migratie 006); het team krijgt
@@ -23,12 +23,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   if (!sessie) return NextResponse.json({ fout: "Dit spel bestaat niet (meer)" }, { status: 404 });
 
   // Aftrek mag het team in de min brengen (migratie 021)
-  const { error: vastleggen } = await admin.from("score_correcties").insert({ session_id: sessie.id, delta, reden: reden || null });
+  const { data: correctie, error: vastleggen } = await admin.from("score_correcties").insert({ session_id: sessie.id, delta, reden: reden || null }).select("id").single();
   if (vastleggen) {
     const migratie = /score_correcties/.test(vastleggen.message);
     return NextResponse.json({ fout: migratie ? "Draai eerst SQL-bestand 006 in Supabase" : vastleggen.message }, { status: 500 });
   }
-  const nieuw = await zetScore(admin, sessie.id, (sessie.score ?? 0) + delta);
+  let nieuw: number;
+  try {
+    nieuw = await telBijScore(admin, sessie.id, delta);
+  } catch {
+    if (correctie?.id) await admin.from("score_correcties").delete().eq("id", correctie.id);
+    return NextResponse.json({ fout: "Punten aanpassen lukte niet, probeer het opnieuw" }, { status: 500 });
+  }
   // Het team ziet meteen een melding in beeld (zelfde weg als 📢 Bericht sturen, alleen aan dit team).
   // Vaste vorm "+10 punten · reden": de spelersapp herkent hem en toont de punten groot (zie PUNTEN_BERICHT)
   const tekst = `${delta > 0 ? "+" : ""}${delta} punten${reden ? ` · ${reden}` : ""}`;

@@ -62,10 +62,10 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
 
   return (
     <>
-      <button type="button" className="rl-knop rl-knop--cyan actie-knop" onClick={() => setOpen("afronden")}>
+      <button type="button" className="rl-knop rl-knop--cyan actie-knop spelleider-afrond" onClick={() => setOpen("afronden")}>
         <Icoon naam="vlag" /> Afronden
       </button>
-      <button type="button" className="rl-knop actie-knop" onClick={() => setOpen("opruimen")}>
+      <button type="button" className="rl-knop actie-knop spelleider-afrond" onClick={() => setOpen("opruimen")}>
         <Icoon naam="wissen" /> Opruimen
       </button>
       {open === "afronden" && (

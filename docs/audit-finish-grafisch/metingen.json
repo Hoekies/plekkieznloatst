@@ -1,0 +1,1484 @@
+[
+  {
+    "scenario": "normaal",
+    "breedte": 320,
+    "scroll": 320,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 75,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 75,
+        "scroll": 75,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 75,
+        "h": 17,
+        "x": 23,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 75,
+        "h": 28,
+        "x": 122,
+        "y": 468,
+        "client": 75,
+        "scroll": 91,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 75,
+        "h": 17,
+        "x": 122,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 75,
+        "h": 28,
+        "x": 222,
+        "y": 468,
+        "client": 75,
+        "scroll": 75,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 75,
+        "h": 17,
+        "x": 222,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 48,
+        "y": 324,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      },
+      {
+        "tekst": "Team Bliksem",
+        "b": 85,
+        "h": 20,
+        "x": -42,
+        "y": 861,
+        "client": 85,
+        "scroll": 85,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 162,
+        "h": 20,
+        "x": 51,
+        "y": 824,
+        "client": 162,
+        "scroll": 162,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De omwegkampioenen",
+        "b": 142,
+        "h": 20,
+        "x": 221,
+        "y": 886,
+        "client": 142,
+        "scroll": 142,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nTeam Bliksem\n340 pt\n🥈\n2\n🦊\nDe fanatieke buitenlopers\n390 pt\n🥇\n1\n🐻\nDe omwegkampioenen\n290 pt\n🥉\n3",
+      "b": 288,
+      "h": 230,
+      "x": 16,
+      "y": 770,
+      "client": 288,
+      "scroll": 346,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 288,
+      "h": 36,
+      "x": 16,
+      "y": 714,
+      "client": 288,
+      "scroll": 288,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 288,
+        "h": 52,
+        "x": 16,
+        "y": 548,
+        "client": 286,
+        "scroll": 286,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 139,
+        "h": 74,
+        "x": 16,
+        "y": 620,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 139,
+        "h": 74,
+        "x": 165,
+        "y": 620,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 288,
+        "h": 52,
+        "x": 16,
+        "y": 1024,
+        "client": 286,
+        "scroll": 286,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1845
+    }
+  },
+  {
+    "scenario": "normaal",
+    "breedte": 390,
+    "scroll": 390,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 99,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 99,
+        "h": 17,
+        "x": 23,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 99,
+        "h": 28,
+        "x": 146,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 99,
+        "h": 17,
+        "x": 146,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 99,
+        "h": 28,
+        "x": 268,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 99,
+        "h": 17,
+        "x": 268,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 83,
+        "y": 324,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      },
+      {
+        "tekst": "Team Bliksem",
+        "b": 85,
+        "h": 20,
+        "x": -7,
+        "y": 837,
+        "client": 85,
+        "scroll": 85,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 162,
+        "h": 20,
+        "x": 86,
+        "y": 800,
+        "client": 162,
+        "scroll": 162,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De omwegkampioenen",
+        "b": 142,
+        "h": 20,
+        "x": 256,
+        "y": 862,
+        "client": 142,
+        "scroll": 142,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nTeam Bliksem\n340 pt\n🥈\n2\n🦊\nDe fanatieke buitenlopers\n390 pt\n🥇\n1\n🐻\nDe omwegkampioenen\n290 pt\n🥉\n3",
+      "b": 358,
+      "h": 230,
+      "x": 16,
+      "y": 746,
+      "client": 358,
+      "scroll": 381,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 358,
+      "h": 36,
+      "x": 16,
+      "y": 690,
+      "client": 358,
+      "scroll": 358,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 358,
+        "h": 52,
+        "x": 16,
+        "y": 548,
+        "client": 356,
+        "scroll": 356,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 174,
+        "h": 50,
+        "x": 16,
+        "y": 620,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 174,
+        "h": 50,
+        "x": 200,
+        "y": 620,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 358,
+        "h": 52,
+        "x": 16,
+        "y": 1000,
+        "client": 356,
+        "scroll": 356,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1591
+    }
+  },
+  {
+    "scenario": "normaal",
+    "breedte": 1366,
+    "scroll": 1366,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 169,
+        "h": 28,
+        "x": 401,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 169,
+        "h": 17,
+        "x": 401,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 169,
+        "h": 28,
+        "x": 594,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 169,
+        "h": 17,
+        "x": 594,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 169,
+        "h": 28,
+        "x": 786,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 169,
+        "h": 17,
+        "x": 786,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 566,
+        "y": 365,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      },
+      {
+        "tekst": "Team Bliksem",
+        "b": 85,
+        "h": 20,
+        "x": 457,
+        "y": 878,
+        "client": 85,
+        "scroll": 85,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 162,
+        "h": 20,
+        "x": 597,
+        "y": 841,
+        "client": 162,
+        "scroll": 162,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De omwegkampioenen",
+        "b": 142,
+        "h": 20,
+        "x": 785,
+        "y": 903,
+        "client": 142,
+        "scroll": 142,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nTeam Bliksem\n340 pt\n🥈\n2\n🦊\nDe fanatieke buitenlopers\n390 pt\n🥇\n1\n🐻\nDe omwegkampioenen\n290 pt\n🥉\n3",
+      "b": 568,
+      "h": 230,
+      "x": 394,
+      "y": 787,
+      "client": 568,
+      "scroll": 568,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 568,
+      "h": 36,
+      "x": 394,
+      "y": 731,
+      "client": 568,
+      "scroll": 568,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 568,
+        "h": 52,
+        "x": 394,
+        "y": 589,
+        "client": 566,
+        "scroll": 566,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 279,
+        "h": 50,
+        "x": 394,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 279,
+        "h": 50,
+        "x": 683,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 568,
+        "h": 52,
+        "x": 394,
+        "y": 1041,
+        "client": 566,
+        "scroll": 566,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 697,
+      "scroll": 1591
+    }
+  },
+  {
+    "scenario": "wacht",
+    "breedte": 320,
+    "scroll": 320,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 75,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 75,
+        "scroll": 75,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten (voorlopig)",
+        "b": 75,
+        "h": 34,
+        "x": 23,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 75,
+        "h": 28,
+        "x": 122,
+        "y": 468,
+        "client": 75,
+        "scroll": 91,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 75,
+        "h": 17,
+        "x": 122,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 75,
+        "h": 28,
+        "x": 222,
+        "y": 468,
+        "client": 75,
+        "scroll": 75,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 75,
+        "h": 17,
+        "x": 222,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 48,
+        "y": 324,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      }
+    ],
+    "podium": null,
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 288,
+      "h": 36,
+      "x": 16,
+      "y": 731,
+      "client": 288,
+      "scroll": 288,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 288,
+        "h": 52,
+        "x": 16,
+        "y": 565,
+        "client": 286,
+        "scroll": 286,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 139,
+        "h": 74,
+        "x": 16,
+        "y": 637,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 139,
+        "h": 74,
+        "x": 165,
+        "y": 637,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1053
+    }
+  },
+  {
+    "scenario": "wacht",
+    "breedte": 390,
+    "scroll": 390,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 99,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten (voorlopig)",
+        "b": 99,
+        "h": 34,
+        "x": 23,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 99,
+        "h": 28,
+        "x": 146,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 99,
+        "h": 17,
+        "x": 146,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 99,
+        "h": 28,
+        "x": 268,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 99,
+        "h": 17,
+        "x": 268,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 83,
+        "y": 324,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      }
+    ],
+    "podium": null,
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 358,
+      "h": 36,
+      "x": 16,
+      "y": 707,
+      "client": 358,
+      "scroll": 358,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 358,
+        "h": 52,
+        "x": 16,
+        "y": 565,
+        "client": 356,
+        "scroll": 356,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 174,
+        "h": 50,
+        "x": 16,
+        "y": 637,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 174,
+        "h": 50,
+        "x": 200,
+        "y": 637,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1029
+    }
+  },
+  {
+    "scenario": "wacht",
+    "breedte": 1366,
+    "scroll": 1366,
+    "stat": [
+      {
+        "tekst": "390",
+        "b": 169,
+        "h": 28,
+        "x": 401,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten (voorlopig)",
+        "b": 169,
+        "h": 17,
+        "x": 401,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "1:00:00",
+        "b": 169,
+        "h": 28,
+        "x": 594,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 169,
+        "h": 17,
+        "x": 594,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 169,
+        "h": 28,
+        "x": 786,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 169,
+        "h": 17,
+        "x": 786,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De fanatieke buitenlopers",
+        "b": 224,
+        "h": 36,
+        "x": 566,
+        "y": 365,
+        "client": 222,
+        "scroll": 222,
+        "font": "16px"
+      }
+    ],
+    "podium": null,
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 568,
+      "h": 36,
+      "x": 394,
+      "y": 731,
+      "client": 568,
+      "scroll": 568,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 568,
+        "h": 52,
+        "x": 394,
+        "y": 589,
+        "client": 566,
+        "scroll": 566,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 279,
+        "h": 50,
+        "x": 394,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 279,
+        "h": 50,
+        "x": 683,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 697,
+      "scroll": 969
+    }
+  },
+  {
+    "scenario": "stress",
+    "breedte": 320,
+    "scroll": 320,
+    "stat": [
+      {
+        "tekst": "123456",
+        "b": 75,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 75,
+        "scroll": 80,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 75,
+        "h": 17,
+        "x": 23,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "10:00:00",
+        "b": 75,
+        "h": 28,
+        "x": 122,
+        "y": 468,
+        "client": 75,
+        "scroll": 106,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 75,
+        "h": 17,
+        "x": 122,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 75,
+        "h": 28,
+        "x": 222,
+        "y": 468,
+        "client": 75,
+        "scroll": 75,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 75,
+        "h": 17,
+        "x": 222,
+        "y": 499,
+        "client": 75,
+        "scroll": 75,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De razendsnelle dorpswandelaars van de noordelijke buitenwijk",
+        "b": 254,
+        "h": 36,
+        "x": 33,
+        "y": 324,
+        "client": 252,
+        "scroll": 499,
+        "font": "16px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 2",
+        "b": 170,
+        "h": 20,
+        "x": -103,
+        "y": 861,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 1",
+        "b": 170,
+        "h": 20,
+        "x": 75,
+        "y": 824,
+        "client": 170,
+        "scroll": 218,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 3",
+        "b": 170,
+        "h": 20,
+        "x": 253,
+        "y": 886,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nDe razendsnelle dorpswandelaars 2\n123455 pt\n🥈\n2\n🦊\nDe razendsnelle dorpswandelaars 1\n123456 pt\n🥇\n1\n🐻\nDe razendsnelle dorpswandelaars 3\n123454 pt\n🥉\n3",
+      "b": 288,
+      "h": 230,
+      "x": 16,
+      "y": 770,
+      "client": 288,
+      "scroll": 407,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 288,
+      "h": 36,
+      "x": 16,
+      "y": 714,
+      "client": 288,
+      "scroll": 288,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 288,
+        "h": 52,
+        "x": 16,
+        "y": 548,
+        "client": 286,
+        "scroll": 286,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 139,
+        "h": 74,
+        "x": 16,
+        "y": 620,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 139,
+        "h": 74,
+        "x": 165,
+        "y": 620,
+        "client": 137,
+        "scroll": 137,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 288,
+        "h": 52,
+        "x": 16,
+        "y": 1024,
+        "client": 286,
+        "scroll": 286,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1845
+    }
+  },
+  {
+    "scenario": "stress",
+    "breedte": 390,
+    "scroll": 390,
+    "stat": [
+      {
+        "tekst": "123456",
+        "b": 99,
+        "h": 28,
+        "x": 23,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 99,
+        "h": 17,
+        "x": 23,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "10:00:00",
+        "b": 99,
+        "h": 28,
+        "x": 146,
+        "y": 468,
+        "client": 99,
+        "scroll": 106,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 99,
+        "h": 17,
+        "x": 146,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 99,
+        "h": 28,
+        "x": 268,
+        "y": 468,
+        "client": 99,
+        "scroll": 99,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 99,
+        "h": 17,
+        "x": 268,
+        "y": 499,
+        "client": 99,
+        "scroll": 99,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De razendsnelle dorpswandelaars van de noordelijke buitenwijk",
+        "b": 324,
+        "h": 36,
+        "x": 33,
+        "y": 324,
+        "client": 322,
+        "scroll": 499,
+        "font": "16px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 2",
+        "b": 170,
+        "h": 20,
+        "x": -68,
+        "y": 837,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 1",
+        "b": 170,
+        "h": 20,
+        "x": 110,
+        "y": 800,
+        "client": 170,
+        "scroll": 218,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 3",
+        "b": 170,
+        "h": 20,
+        "x": 288,
+        "y": 862,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nDe razendsnelle dorpswandelaars 2\n123455 pt\n🥈\n2\n🦊\nDe razendsnelle dorpswandelaars 1\n123456 pt\n🥇\n1\n🐻\nDe razendsnelle dorpswandelaars 3\n123454 pt\n🥉\n3",
+      "b": 358,
+      "h": 230,
+      "x": 16,
+      "y": 746,
+      "client": 358,
+      "scroll": 442,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 358,
+      "h": 36,
+      "x": 16,
+      "y": 690,
+      "client": 358,
+      "scroll": 358,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 358,
+        "h": 52,
+        "x": 16,
+        "y": 548,
+        "client": 356,
+        "scroll": 356,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 174,
+        "h": 50,
+        "x": 16,
+        "y": 620,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 174,
+        "h": 50,
+        "x": 200,
+        "y": 620,
+        "client": 172,
+        "scroll": 172,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 358,
+        "h": 52,
+        "x": 16,
+        "y": 1000,
+        "client": 356,
+        "scroll": 356,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 738,
+      "scroll": 1706
+    }
+  },
+  {
+    "scenario": "stress",
+    "breedte": 1366,
+    "scroll": 1366,
+    "stat": [
+      {
+        "tekst": "123456",
+        "b": 169,
+        "h": 28,
+        "x": 401,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "punten",
+        "b": 169,
+        "h": 17,
+        "x": 401,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "10:00:00",
+        "b": 169,
+        "h": 28,
+        "x": 594,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "speeltijd",
+        "b": 169,
+        "h": 17,
+        "x": 594,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      },
+      {
+        "tekst": "3,1 km",
+        "b": 169,
+        "h": 28,
+        "x": 786,
+        "y": 509,
+        "client": 169,
+        "scroll": 169,
+        "font": "25.6px"
+      },
+      {
+        "tekst": "afstand",
+        "b": 169,
+        "h": 17,
+        "x": 786,
+        "y": 540,
+        "client": 169,
+        "scroll": 169,
+        "font": "11.2px"
+      }
+    ],
+    "namen": [
+      {
+        "tekst": "De razendsnelle dorpswandelaars van de noordelijke buitenwijk",
+        "b": 501,
+        "h": 36,
+        "x": 428,
+        "y": 365,
+        "client": 499,
+        "scroll": 499,
+        "font": "16px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 2",
+        "b": 170,
+        "h": 20,
+        "x": 415,
+        "y": 878,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 1",
+        "b": 170,
+        "h": 20,
+        "x": 593,
+        "y": 841,
+        "client": 170,
+        "scroll": 218,
+        "font": "13.6px"
+      },
+      {
+        "tekst": "De razendsnelle dorpswandelaars 3",
+        "b": 170,
+        "h": 20,
+        "x": 771,
+        "y": 903,
+        "client": 170,
+        "scroll": 220,
+        "font": "13.6px"
+      }
+    ],
+    "podium": {
+      "tekst": "⚡\nDe razendsnelle dorpswandelaars 2\n123455 pt\n🥈\n2\n🦊\nDe razendsnelle dorpswandelaars 1\n123456 pt\n🥇\n1\n🐻\nDe razendsnelle dorpswandelaars 3\n123454 pt\n🥉\n3",
+      "b": 568,
+      "h": 230,
+      "x": 394,
+      "y": 787,
+      "client": 568,
+      "scroll": 568,
+      "font": "16px"
+    },
+    "kop": {
+      "tekst": "🏆\nEindstand",
+      "b": 568,
+      "h": 36,
+      "x": 394,
+      "y": 731,
+      "client": 568,
+      "scroll": 568,
+      "font": "24px"
+    },
+    "knoppen": [
+      {
+        "tekst": "🏅 Oorkonde delen",
+        "b": 568,
+        "h": 52,
+        "x": 394,
+        "y": 589,
+        "client": 566,
+        "scroll": 566,
+        "font": "15.2px"
+      },
+      {
+        "tekst": "📖 Antwoorden & items",
+        "b": 279,
+        "h": 50,
+        "x": 394,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🗺️ Gelopen route",
+        "b": 279,
+        "h": 50,
+        "x": 683,
+        "y": 661,
+        "client": 277,
+        "scroll": 277,
+        "font": "14.4px"
+      },
+      {
+        "tekst": "🖼️ Uitslag delen",
+        "b": 568,
+        "h": 52,
+        "x": 394,
+        "y": 1041,
+        "client": 566,
+        "scroll": 566,
+        "font": "15.2px"
+      }
+    ],
+    "animaties": [
+      {
+        "naam": "puls-dot",
+        "iteraties": "oneindig"
+      }
+    ],
+    "main": {
+      "client": 697,
+      "scroll": 1591
+    }
+  }
+]

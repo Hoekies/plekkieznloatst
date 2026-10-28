@@ -1,0 +1,104 @@
+[
+  {
+    "breedte": 390,
+    "main": {
+      "x": 0,
+      "breedte": 390,
+      "scroll": 390,
+      "display": "flex",
+      "z": "auto"
+    },
+    "hulp": {
+      "x": 0,
+      "breedte": 0,
+      "scroll": 0,
+      "display": "none",
+      "z": "950"
+    },
+    "links": [
+      {
+        "tekst": "Het spel starten",
+        "href": "#het-spel-starten"
+      }
+    ],
+    "aanwijsbaarMetTab": 0
+  },
+  {
+    "breedte": 769,
+    "main": {
+      "x": 180,
+      "breedte": 229,
+      "scroll": 917,
+      "display": "flex",
+      "z": "auto"
+    },
+    "hulp": {
+      "x": 409,
+      "breedte": 360,
+      "scroll": 359,
+      "display": "flex",
+      "z": "950"
+    },
+    "links": [
+      {
+        "tekst": "Het spel starten",
+        "href": "#het-spel-starten"
+      }
+    ],
+    "aanwijsbaarMetTab": 0
+  },
+  {
+    "breedte": 1024,
+    "main": {
+      "x": 180,
+      "breedte": 484,
+      "scroll": 917,
+      "display": "flex",
+      "z": "auto"
+    },
+    "hulp": {
+      "x": 664,
+      "breedte": 360,
+      "scroll": 359,
+      "display": "flex",
+      "z": "950"
+    },
+    "links": [
+      {
+        "tekst": "Het spel starten",
+        "href": "#het-spel-starten"
+      }
+    ],
+    "aanwijsbaarMetTab": 0
+  },
+  {
+    "breedte": 1366,
+    "main": {
+      "x": 180,
+      "breedte": 826,
+      "scroll": 917,
+      "display": "flex",
+      "z": "auto"
+    },
+    "hulp": {
+      "x": 1006,
+      "breedte": 360,
+      "scroll": 359,
+      "display": "flex",
+      "z": "950"
+    },
+    "links": [
+      {
+        "tekst": "Het spel starten",
+        "href": "#het-spel-starten"
+      }
+    ],
+    "aanwijsbaarMetTab": 0,
+    "overlay": {
+      "bovensteElement": "vraagvenster"
+    },
+    "animaties": [
+      "hulp-puls"
+    ]
+  }
+]

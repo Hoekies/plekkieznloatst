@@ -3,6 +3,7 @@ import { haalGebruiker, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
+import { telBijScore } from "@/lib/score";
 
 export async function PATCH(
   request: NextRequest,
@@ -30,14 +31,19 @@ export async function PATCH(
   if (!inzending) return NextResponse.json({ fout: "Inzending niet gevonden" }, { status: 404 });
   if (inzending.status !== "wacht") return NextResponse.json({ fout: "Al beoordeeld" }, { status: 409 });
 
-  const puntentoekenend = status === "goedgekeurd" ? (Number(punten) || 0) : 0;
+  const puntentoekenend = status === "goedgekeurd" ? Math.round(Number(punten) || 0) : 0;
+  if (Math.abs(puntentoekenend) > 10000) return NextResponse.json({ fout: "Ongeldig aantal punten" }, { status: 400 });
 
-  // Update foto_inzendingen
-  await admin.from("foto_inzendingen").update({
+  // Keuren: alleen als de foto nog wacht. Twee keurders tegelijk geven zo nooit twee keer punten.
+  const { data: gekeurd, error: keurFout } = await admin.from("foto_inzendingen").update({
     status,
     punten_toegekend: puntentoekenend,
     beoordeeld_op: new Date().toISOString(),
-  }).eq("id", params.id);
+  }).eq("id", params.id).eq("status", "wacht").select("id");
+  if (keurFout) return NextResponse.json({ fout: "Keuren lukte niet, probeer het opnieuw" }, { status: 500 });
+  if (!gekeurd?.length) return NextResponse.json({ fout: "Al beoordeeld" }, { status: 409 });
+  // Mislukt hierna de score, dan de foto weer laten wachten zodat opnieuw keuren kan
+  const terugNaarWacht = () => admin.from("foto_inzendingen").update({ status: "wacht", punten_toegekend: null, beoordeeld_op: null }).eq("id", params.id);
 
   // 💬 Opmerking bij het keuren: komt meteen als bericht bij het team (zoals een teambericht)
   const tekst = typeof opmerking === "string" ? opmerking.trim().slice(0, 110) : "";
@@ -70,17 +76,14 @@ export async function PATCH(
     }).eq("id", rij.id);
   }
 
-  // Update sessie score
-  if (status === "goedgekeurd" && puntentoekenend > 0) {
-    const { data: sessie } = await admin
-      .from("player_sessions")
-      .select("score")
-      .eq("id", inzending.session_id)
-      .maybeSingle();
-    if (sessie) {
-      await admin.from("player_sessions")
-        .update({ score: sessie.score + puntentoekenend })
-        .eq("id", inzending.session_id);
+  // Score bijwerken, in één stap in de database (ook minpunten, net als bij gewone antwoorden)
+  if (puntentoekenend !== 0) {
+    try {
+      await telBijScore(admin, inzending.session_id, puntentoekenend);
+    } catch {
+      await terugNaarWacht();
+      if (rij) await admin.from("player_point_progress").update({ is_correct: null, points_awarded: 0 }).eq("id", rij.id);
+      return NextResponse.json({ fout: "Punten bijschrijven lukte niet, probeer het opnieuw" }, { status: 500 });
     }
   }
 

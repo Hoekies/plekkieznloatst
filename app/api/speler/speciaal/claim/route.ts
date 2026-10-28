@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logItem } from "@/lib/item-log";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
+import { nietDichtbij } from "@/lib/dichtbij";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -27,6 +28,17 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (blokkade) return NextResponse.json({ status: "geblokkeerd" });
 
+  // Het team moet echt bij het item zijn (de app ziet dat aan de GPS; de server controleert het ook)
+  const { data: plekItem } = await admin
+    .from("special_items")
+    .select("latitude, longitude, radius_meters")
+    .eq("id", special_item_id)
+    .eq("route_id", sessie.route_id)
+    .maybeSingle();
+  if (!plekItem) return NextResponse.json({ status: "al_geclaimd" });
+  const teVer = nietDichtbij(plekItem, body);
+  if (teVer) return NextResponse.json({ fout: teVer }, { status: 400 });
+
   // Plek zooi wordt niet opgepakt: de val blijft liggen voor de volgende teams.
   // Elk team kan hem één keer raken (UNIQUE special_item_id + target_session_id).
   const { data: val } = await admin
@@ -49,7 +61,12 @@ export async function POST(request: NextRequest) {
       expires_at: expiresAt,
       notification: null,
     });
-    if (effectFout) return NextResponse.json({ status: "al_gehad" });
+    // Alleen het unieke-regelconflict betekent "dit team liep er al eens in"; een andere fout is tijdelijk:
+    // dan een fout teruggeven, zodat de app het later opnieuw probeert
+    if (effectFout) {
+      if (effectFout.code === "23505") return NextResponse.json({ status: "al_gehad" });
+      return NextResponse.json({ fout: "Even geen verbinding met de database" }, { status: 503 });
+    }
     await logItem(admin, { gebruiker: null, doel: sessie.id, type: "plekzooi", omschrijving: null, plek });
     return NextResponse.json({ status: "plekzooi", expires_at: expiresAt });
   }

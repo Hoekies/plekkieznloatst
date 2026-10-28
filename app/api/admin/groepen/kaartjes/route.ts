@@ -27,7 +27,17 @@ export async function POST(request: NextRequest) {
   const nieuweGroep = body?.nieuweGroep === true;
   for (const p of (data ?? []) as Rij[]) {
     if (nieuweGroep) {
-      await admin.from("players").update({ nickname: null, icon: null, telefoon: null, active_device_id: null }).eq("id", p.id);
+      // De oude QR-kaartjes (inloglinks) eerst intrekken: die werken los van het wachtwoord, dus anders kon
+      // iemand van de vorige groep er nog mee in het account van de nieuwe groep. De vorige groep wordt ook
+      // uitgelogd: elk toestel dat vóór nu inlogde, wordt geweigerd (lib/inlog-moment.ts); de nieuwe groep
+      // logt daarna gewoon in. Icoon terug naar het standaardicoon (de kolom mag niet leeg zijn).
+      const [{ error: intrekFout }, { error: profielFout }] = await Promise.all([
+        admin.from("inlog_links").update({ ingetrokken: true }).eq("player_id", p.id).eq("ingetrokken", false),
+        admin.from("players").update({ nickname: null, icon: "🦊", telefoon: null, active_device_id: null, toegang_tot: null, force_logout_at: new Date().toISOString() }).eq("id", p.id),
+      ]);
+      if (intrekFout || profielFout) {
+        return NextResponse.json({ fout: `Nieuwe groep voorbereiden lukte niet bij ${p.nickname ?? p.login_name}: ${(intrekFout ?? profielFout)!.message}` }, { status: 500 });
+      }
       p.nickname = null; p.telefoon = null;
     }
     let wachtwoord = nieuweGroep ? null : ontsleutel(p.wachtwoord_versleuteld);

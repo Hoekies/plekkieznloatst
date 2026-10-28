@@ -27,7 +27,22 @@ export async function keurAntwoordGoed(admin: AdminClient, voortgangId: string):
   const nieuwePunten = (typeof juiste?.punten === "number" ? juiste.punten : null) ?? vraag.points;
   const verschil = nieuwePunten - (rij.points_awarded ?? 0);
 
-  await admin.from("player_point_progress").update({ is_correct: true, points_awarded: nieuwePunten }).eq("id", rij.id);
-  if (verschil !== 0) await telBijScore(admin, rij.session_id, verschil);
+  // Alleen als het antwoord nog precies zo staat als net gelezen: twee keer tegelijk goedkeuren geeft zo
+  // nooit twee keer het verschil
+  let q = admin.from("player_point_progress").update({ is_correct: true, points_awarded: nieuwePunten }).eq("id", rij.id);
+  q = rij.is_correct === null ? q.is("is_correct", null) : q.eq("is_correct", false);
+  q = rij.points_awarded === null ? q.is("points_awarded", null) : q.eq("points_awarded", rij.points_awarded);
+  const { data: gekeurd, error } = await q.select("id");
+  if (error) return { fout: "Goedkeuren lukte niet, probeer het opnieuw", status: 500 };
+  if (!gekeurd?.length) return { fout: "Dit antwoord is net al aangepast", status: 409 };
+  if (verschil !== 0) {
+    try {
+      await telBijScore(admin, rij.session_id, verschil);
+    } catch {
+      // Punten bijschrijven mislukt: het antwoord terugzetten, zodat opnieuw goedkeuren kan
+      await admin.from("player_point_progress").update({ is_correct: rij.is_correct, points_awarded: rij.points_awarded }).eq("id", rij.id);
+      return { fout: "Punten bijschrijven lukte niet, probeer het opnieuw", status: 500 };
+    }
+  }
   return { ok: true, punten: nieuwePunten, verschil };
 }

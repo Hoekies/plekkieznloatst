@@ -279,7 +279,7 @@ De spelers zien deze uitleg in de app onder de **i**-knop (💡 Zo werkt het), i
 | Item | Naam | Effect |
 |---|---|---|
 | ⭐ | Ster | Het team krijgt meteen de sterwaarde aan punten (⚙️ Item-waarden, standaard 50) |
-| 🔴 | Verdubbeling | De volgende vraag waarmee het team punten verdient, telt dubbel (minpunten nooit) |
+| 🔴 | Verdubbeling | De volgende vraag waarmee het team punten verdient, telt dubbel (minpunten nooit). Geldt niet voor foto-opdrachten, stemvragen en punten zonder vraag: die laten de verdubbeling staan |
 | 📡 | Radar | Het team ziet 2 minuten lang precies waar alle tegenstanders lopen |
 | 💣 | Bom | Een tegenstander verliest de bomwaarde aan punten (standaard 30), ook als hij daardoor in de min komt |
 | 👻 | Spook | Het volgende punt van een tegenstander verdwijnt van de kaart (standaard 10 minuten); zij zien zolang een groot spook met aftelklok |
@@ -528,7 +528,9 @@ Stap 1 van **🧹 Opruimen** (naast **🏁 Afronden** in het Spelleider-blok) is
 - Alle locatiegeschiedenis (gelopen routes), voortgang, antwoorden en scores
 - Alle ingestuurde foto's, ook uit de opslag van Supabase
 - Alle opgepakte items (die liggen weer op de kaart), startitems, effecten en het itemlogboek
-- De uitslag gaat weer op verborgen
+- De uitslag gaat weer op verborgen, de eindtijd en een pauze gaan eraf en stemvragen gaan weer open (stel de eindtijd voor de volgende groep opnieuw in)
+
+Lukt een stap niet, dan stopt het opruimen en zegt de melding welke stap; probeer het dan opnieuw.
 
 Gedeelde kaart-links werken daarna niet meer; maak dus eerst het rapport als je dat wilt bewaren. Routes, routepunten, vragen en teams blijven bewaard en de actieve route blijft actief. Gebruik dit om opnieuw te beginnen met dezelfde opzet.
 
@@ -556,7 +558,7 @@ Onder **📝 Antwoorden** in de zijbalk zie je per team elke beantwoorde vraag i
 - **📄 Rapport (PDF)** — opent een spelrapport in de stijl van de app, met het logo: eerst de winnaar groot in beeld en de eindstand, daarna per team op een eigen pagina de vragen met antwoorden (en foto's), de ingezette en ontvangen items (tegen wie, van wie) en een kaart met de gelopen route. Klik op **📄 PDF maken (hele rapport)** en daarna op **📲 Versturen**: het deelmenu van je telefoon of computer opent, kies WhatsApp en de groepsapp of persoon. Met **👫 PDF per team** maak je per team een eigen PDF (eindstand, hun eigen verslag met kaart en het dankwoord) en verstuur je die los. **⬇️ Opslaan** bewaart de PDF; **🖨️ Afdrukken** werkt zoals vroeger. Heeft je browser geen deelmenu met bestanden (bijvoorbeeld Firefox), dan wordt de PDF gedownload en opent WhatsApp, zodat je hem als bijlage toevoegt. Is de stand nog niet definitief, dan staat dat er bovenaan bij. Het rapport sluit af met een dankwoord van de organisatie.
 - **📸 Fotoalbum** (bij Rapport delen) — alle foto's van de foto-opdrachten op één pagina, met teamnaam en punt; tik op een foto om hem groot te zien en door te bladeren. Met **📲 Delen** stuur je de link (bijvoorbeeld in de groepsapp); openen kan zonder inloggen. Afgekeurde foto's staan er niet in.
 
-> In het Spelleider-blok op het dashboard staan twee knoppen, elk met een venster in stappen; een gedane stap krijgt een vinkje. **🏁 Afronden**: (1) **Iedereen stoppen** als er nog teams onderweg zijn, (2) **🏆 Vrijgeven** van de uitslag, (3) het **📄 Rapport** en bij Antwoorden de Excel, PDF per team en het fotoalbum. **🧹 Opruimen**: (1) **🧹 Opruimen** voor een nieuw spel, en (2, als je wilt) **🔑 Nieuwe groep**: dezelfde logins, maar iedereen krijgt een nieuw wachtwoord en teamnaam, icoon en telefoon gaan eraf; de nieuwe kaartjes openen meteen om te printen. Een stap overslaan mag (bijv. alleen opruimen na een testspel). De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
+> In het Spelleider-blok op het dashboard staan twee knoppen, elk met een venster in stappen; een gedane stap krijgt een vinkje. **🏁 Afronden**: (1) **Iedereen stoppen** als er nog teams onderweg zijn, (2) **🏆 Vrijgeven** van de uitslag, (3) het **📄 Rapport** en bij Antwoorden de Excel, PDF per team en het fotoalbum. **🧹 Opruimen**: (1) **🧹 Opruimen** voor een nieuw spel, en (2, als je wilt) **🔑 Nieuwe groep**: dezelfde logins, maar iedereen krijgt een nieuw wachtwoord, de vorige groep wordt uitgelogd en hun QR-kaartjes werken niet meer, en teamnaam, icoon en telefoon gaan eraf; de nieuwe kaartjes openen meteen om te printen. Een stap overslaan mag (bijv. alleen opruimen na een testspel). De route blijft actief, zodat teams de uitslag op hun finishscherm kunnen zien; stop de route daarna zelf.
 
 Bij het starten van een route en bij **🧹 Nieuw spel voorbereiden** gaat de uitslag automatisch weer dicht. De finish, het terugkijken en de gelopen route blijven voor de teams te zien tot je de route stopt.
 
@@ -580,6 +582,8 @@ De stand staat op het **Dashboard** bij *Spelende spelers*: op score, en bij gel
 - **Speltype ligt vast**: het speltype kies je bij het aanmaken van een route en is daarna niet meer te wijzigen. Twijfel je, maak dan twee routes aan.
 
 ## 🩺 Systeemcheck
+
+> **Nieuwe migratie 002** (`supabase/migrations/002_atomaire_acties.sql`): punten, wissel, dief en banaan in één stap in de database, zodat twee dingen tegelijk elkaar niet meer overschrijven. De Systeemcheck meldt het als die nog niet gedraaid is; tot dan werkt alles op de oude manier.
 
 In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. (Alle migraties staan in één bestand, `supabase/migrations/001_schema.sql`, elk onder een kopje met hun nummer: mist er een, dan draai je dat deel in Supabase → SQL Editor.) Vindt die iets (bijv. een migratie die nog moet), dan staat er een rood bolletje met het aantal bij ⚙️ Instellingen en bij Systeemcheck. Die laat in één overzicht zien of alles klopt:
 

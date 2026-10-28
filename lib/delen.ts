@@ -7,8 +7,9 @@ export function bestandsnaamDeel(tekst: string): string {
 
 // Een HTML-element als PNG-bestand. Wacht eerst op de lettertypen en de afbeeldingen erin.
 // Afbeeldingen van een ander adres (teamfoto's en logo's uit Supabase) eerst zelf ophalen en tijdelijk als
-// blob-link in het element zetten: staat dezelfde foto al ergens op de pagina (zonder crossOrigin), dan geeft
-// de browser anders de bewaarde versie terug en laat html2canvas de foto stil weg (lege cirkel).
+// data-link in het element zetten: staat dezelfde foto al ergens op de pagina (zonder crossOrigin), dan geeft
+// de browser anders de bewaarde versie terug en laat html2canvas de foto stil weg (lege cirkel). Een data-link
+// (geen blob-link) werkt ook in Safari binnen de kopie die html2canvas maakt.
 export async function elementNaarPng(el: HTMLElement, naam: string, schaal = 2): Promise<File | null> {
   const { default: html2canvas } = await import("html2canvas-pro");
   await document.fonts?.ready;
@@ -19,9 +20,16 @@ export async function elementNaarPng(el: HTMLElement, naam: string, schaal = 2):
       try {
         const res = await fetch(src, { cache: "no-store" });
         if (res.ok) {
-          const blobUrl = URL.createObjectURL(await res.blob());
-          img.src = blobUrl;
-          terug.push(() => { img.src = src; URL.revokeObjectURL(blobUrl); });
+          const blob = await res.blob();
+          const dataUrl = await new Promise<string>((ok, nee) => {
+            const lezer = new FileReader();
+            lezer.onload = () => ok(String(lezer.result));
+            lezer.onerror = () => nee(lezer.error);
+            lezer.readAsDataURL(blob);
+          });
+          img.removeAttribute("crossorigin");
+          img.src = dataUrl;
+          terug.push(() => { img.crossOrigin = "anonymous"; img.src = src; });
         }
       } catch { /* dan de gewone link */ }
     }

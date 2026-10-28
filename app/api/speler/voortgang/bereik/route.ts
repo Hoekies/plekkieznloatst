@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
+import { nietDichtbij } from "@/lib/dichtbij";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
   // Controleer of punt bij de route hoort
   const { data: punt } = await admin
     .from("route_points")
-    .select("id, route_id, order_index, qr_unlock_enabled, qr_secret")
+    .select("id, route_id, order_index, qr_unlock_enabled, qr_secret, type, latitude, longitude, radius_meters")
     .eq("id", route_point_id)
     .eq("route_id", sessie.route_id)
     .maybeSingle();
@@ -60,16 +61,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Volgorde niet correct" }, { status: 400 });
   }
 
-  // Ghost check: is het actieve punt geblokkeerd door een spook-effect?
-  const { data: ghostEffect } = await admin
+  // Spook of plek zooi actief? Dan is het punt even geblokkeerd. limit(1): met twee spoken tegelijk gaf
+  // maybeSingle() anders een fout, en die telde als "geen spook".
+  const { data: blokkade, error: blokFout } = await admin
     .from("special_item_effects")
     .select("id")
     .eq("target_session_id", sessie.id)
-    .eq("effect_type", "ghost")
+    .in("effect_type", ["ghost", "plekzooi"])
     .gt("expires_at", new Date().toISOString())
+    .limit(1)
     .maybeSingle();
 
-  if (ghostEffect) {
+  if (blokFout) return NextResponse.json({ fout: "Even geen verbinding met de database, probeer het opnieuw" }, { status: 503 });
+  if (blokkade) {
     return NextResponse.json({ fout: "Punt tijdelijk geblokkeerd" }, { status: 423 });
   }
 
@@ -78,6 +82,11 @@ export async function POST(request: NextRequest) {
     if (!punt.qr_unlock_enabled || punt.qr_secret !== qr_secret) {
       return NextResponse.json({ fout: "Ongeldige QR-code voor dit punt" }, { status: 403 });
     }
+  } else if (punt.type !== "doorlooppunt") {
+    // Zonder QR: het team moet echt in de buurt zijn. Een doorlooppunt (stil punt) niet: dat wordt ook
+    // afgerond als het team er al voorbij is.
+    const teVer = nietDichtbij(punt, body);
+    if (teVer) return NextResponse.json({ fout: teVer }, { status: 400 });
   }
 
   // Voortgang invoegen

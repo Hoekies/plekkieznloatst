@@ -1,5 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { normaliseerPuzzel, lettersVoor, RAAD_SECONDEN } from "@/lib/puzzel";
+import { telBijScore } from "@/lib/score";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -33,10 +34,19 @@ export async function gevondenLetters(admin: AdminClient, sessieId: string, rege
   return Math.min(regels.woord.length, (metVraag ?? []).reduce((n, v) => n + lettersVoor(regels.verdeling, v.route_point_id), 0));
 }
 
-async function geefPunten(admin: AdminClient, sessieId: string, delta: number, reden: string, extra: Record<string, unknown> = {}) {
-  const { data: s } = await admin.from("player_sessions").select("score").eq("id", sessieId).maybeSingle();
-  if (delta) await admin.from("score_correcties").insert({ session_id: sessieId, delta, reden });
-  await admin.from("player_sessions").update({ score: (s?.score ?? 0) + delta, ...extra }).eq("id", sessieId);
+// De punten in één stap in de database (lib/score.ts), zodat een gelijktijdige bom of foto niet verloren gaat.
+// voorwaarde: de kolom moet nog deze waarde hebben (false telt ook als leeg). Alleen het verzoek dat de kolom
+// zelf omzet, geeft de punten: twee keer tegelijk afrekenen geeft zo nooit dubbele punten.
+async function geefPunten(admin: AdminClient, sessieId: string, delta: number, reden: string, extra: Record<string, unknown>,
+  voorwaarde: [kolom: string, waarde: number | boolean]) {
+  const [kolom, waarde] = voorwaarde;
+  let q = admin.from("player_sessions").update(extra).eq("id", sessieId);
+  q = waarde === false ? q.or(`${kolom}.is.null,${kolom}.eq.false`) : q.eq(kolom, waarde);
+  const { data, error } = await q.select("id");
+  if (error) throw new Error(error.message);
+  if (!data?.length || !delta) return;
+  await telBijScore(admin, sessieId, delta);
+  await admin.from("score_correcties").insert({ session_id: sessieId, delta, reden });
 }
 
 // Bij de finish (en daarna opnieuw, als er nog letters bijkomen): punten per gevonden letter,
@@ -50,10 +60,11 @@ export async function rekenPuzzelAf(admin: AdminClient, sessieId: string, route:
   const gevonden = await gevondenLetters(admin, sessieId, regels);
   const nieuw = gevonden - s.puzzel_letters_betaald;
   if (nieuw > 0) {
-    await geefPunten(admin, sessieId, nieuw * regels.letterPunten, `🧩 ${nieuw} ${nieuw === 1 ? "letter" : "letters"} gevonden`, { puzzel_letters_betaald: gevonden });
+    await geefPunten(admin, sessieId, nieuw * regels.letterPunten, `🧩 ${nieuw} ${nieuw === 1 ? "letter" : "letters"} gevonden`,
+      { puzzel_letters_betaald: gevonden }, ["puzzel_letters_betaald", s.puzzel_letters_betaald]);
   }
   if (gevonden >= regels.woord.length && !s.puzzel_opgelost) {
-    await geefPunten(admin, sessieId, regels.alleBonus, "🧩 Alle letters gevonden", { puzzel_opgelost: true });
+    await geefPunten(admin, sessieId, regels.alleBonus, "🧩 Alle letters gevonden", { puzzel_opgelost: true }, ["puzzel_opgelost", false]);
   }
 }
 
@@ -98,7 +109,12 @@ export async function raadPuzzel(admin: AdminClient, sessieId: string, regels: P
   if (!venster.gestart) return { fout: "Tik eerst op Start", status: 400 };
   if (venster.voorbij) return { fout: "De tijd om te raden is voorbij", status: 409 };
   const goed = normaliseerPuzzel(gok) === regels.woord;
-  await admin.from("player_sessions").update({ puzzel_gok: gok.trim().toUpperCase().slice(0, 40), puzzel_gok_goed: goed, puzzel_gok_op: new Date().toISOString() }).eq("id", sessieId);
-  if (goed) await geefPunten(admin, sessieId, regels.raadBonus, "🧩 Woord afgemaakt", { puzzel_opgelost: true });
+  // Eén poging: alleen het verzoek dat de gok zelf vastlegt telt (dubbel tikken geeft geen tweede poging)
+  const { data: vastgelegd, error } = await admin.from("player_sessions")
+    .update({ puzzel_gok: gok.trim().toUpperCase().slice(0, 40), puzzel_gok_goed: goed, puzzel_gok_op: new Date().toISOString() })
+    .eq("id", sessieId).is("puzzel_gok_op", null).select("id");
+  if (error) return { fout: "Opslaan lukte niet, probeer het opnieuw", status: 500 };
+  if (!vastgelegd?.length) return { fout: "Je hebt al geraden", status: 409 };
+  if (goed) await geefPunten(admin, sessieId, regels.raadBonus, "🧩 Woord afgemaakt", { puzzel_opgelost: true }, ["puzzel_opgelost", false]);
   return { goed };
 }
