@@ -32,6 +32,11 @@ export const THEMAS: Thema[] = [
   { sleutel: "winter", naam: "Winter", emoji: "❄️", feestdag: false, periode: (j) => [d(j, 12, 21), d(j + 1, 3, 20)] },
 ];
 
+// 📌 Vastgezet thema: een regel met deze sleutel in seizoen_achtergronden, met in "pad" de themasleutel
+// (bijv. "kerst"). Dan geldt dat thema overal, wat de datum ook is (geen migratie nodig).
+export const VAST_SLEUTEL = "_vast";
+export const bestaandThema = (s: unknown): s is string => typeof s === "string" && THEMAS.some((t) => t.sleutel === s);
+
 // Wat er per thema kan worden geüpload, en in welke kolom van seizoen_achtergronden het staat
 export const SEIZOEN_KOLOM = { achtergrond: "pad", logo: "logo_pad", logo_breed: "logo_breed_pad" } as const;
 export type SeizoenSoort = keyof typeof SEIZOEN_KOLOM;

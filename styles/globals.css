@@ -2016,8 +2016,12 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .link-inloggen-knop { display: block; width: 100%; margin-top: 14px; padding: 10px; cursor: pointer; border-radius: 12px;
   background: rgba(255,255,255,0.06); border: 1.5px dashed rgba(255,255,255,0.3); color: #fff; font: inherit; font-weight: 700; font-size: 0.9rem; }
 .link-inloggen-knop:hover { background: rgba(255,255,255,0.12); }
-.link-inloggen-rij { display: flex; gap: 8px; }
-.link-inloggen-rij > .link-inloggen-knop { flex: 1; }
+.link-inloggen-rij { display: flex; flex-direction: column; gap: 0; }
+/* 📷 Scannen: grote knop met een flinke camera boven de tekst */
+.link-inloggen-knop.link-inloggen-scan { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 10px 10px;
+  background: linear-gradient(180deg, rgba(0,217,255,0.22), rgba(0,217,255,0.08)); border: 2px solid rgba(0,217,255,0.6); font-size: 1rem; }
+.link-inloggen-knop.link-inloggen-scan:hover { background: linear-gradient(180deg, rgba(0,217,255,0.32), rgba(0,217,255,0.14)); }
+.link-inloggen-camera { font-size: 2.6rem; line-height: 1; }
 /* 📷 QR-scanner: klein venster, vierkant camerabeeld met richtkader */
 .qr-scan-achter { position: fixed; inset: 0; z-index: 3000; background: rgba(12,3,34,0.8); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .qr-scan { width: 100%; max-width: 320px; border-radius: 20px; padding: 12px; background: #2a1566; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px; }
@@ -2038,6 +2042,9 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .login-scherm .pr-field-input2 { padding: 10px 14px; margin-bottom: 12px; font-size: 0.92rem; }
 .login-scherm .btn-premium--compact { padding: 10px 0; }
 .login-scherm .link-inloggen-knop { margin-top: 10px; padding: 8px; font-size: 0.84rem; }
+.login-scherm .link-inloggen-knop.link-inloggen-scan { margin-top: 12px; padding: 12px 10px 10px; font-size: 1rem; }
+/* Link plakken: klein en rustig onder de scanknop */
+.login-scherm .link-inloggen-scan + .link-inloggen-knop { margin-top: 8px; padding: 6px; border: none; background: none; text-decoration: underline; font-weight: 600; color: rgba(255,255,255,0.75); }
 
 /* Spelerkaart dashboard: voortgangsbalk over de volle breedte */
 .sk-lijf > .pr-xp-bar { max-width: none; }
@@ -3297,6 +3304,12 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-naam { font-size: 0.74rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; }
 .seizoen-nu { padding: 0 5px; border-radius: 5px; background: #FFD93B; color: #3a1f80; font-size: 0.62rem; font-weight: 800; }
 .seizoen-periode { font-size: 0.66rem; color: var(--muted); }
+/* 📌 Thema vastzetten: links boven in het vak; vast = goud */
+.seizoen-pin { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); font-size: 0.7rem; cursor: pointer; opacity: 0.75; }
+.seizoen-pin:hover { opacity: 1; }
+.seizoen-pin[aria-pressed="true"] { opacity: 1; background: #FFD93B; box-shadow: 0 0 0 2px rgba(255,217,59,0.4); }
+.seizoen-vast { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--muted); }
+.seizoen-vast strong { color: #FFD93B; }
 .seizoen-weg { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #F87171; font-size: 0.75rem; cursor: pointer; }
 /* Achtergrond van een venster (components/shared/Venster.tsx): over alles heen, paneel in het midden */
 .venster-achter { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: center; justify-content: center; }

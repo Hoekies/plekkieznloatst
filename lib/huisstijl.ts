@@ -1,5 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
-import { huidigThema, SEIZOEN_KOLOM, type SeizoenSoort } from "@/lib/seizoenen";
+import { huidigThema, SEIZOEN_KOLOM, VAST_SLEUTEL, bestaandThema, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -31,10 +31,22 @@ export async function haalHuisstijl(admin: AdminClient): Promise<Huisstijl> {
 
 // 🗓️ De seizoensafbeelding van dit moment (achtergrond of spellogo; migratie 019/020), of null.
 // Feestdag gaat voor seizoen; alleen thema's waarvoor deze soort is geüpload tellen mee.
+// 📌 Is een thema vastgezet, dan altijd dat thema; heeft het deze soort niet, dan het gewone (null),
+// zodat achtergrond en logo's nooit uit verschillende thema's komen.
 export async function seizoenPad(admin: AdminClient, soort: SeizoenSoort): Promise<string | null> {
   const kolom = SEIZOEN_KOLOM[soort];
-  const { data } = await admin.from("seizoen_achtergronden").select(`thema, ${kolom}`).not(kolom, "is", null);
-  const rijen = (data ?? []) as unknown as Record<string, string>[];
-  const thema = huidigThema(new Date(), new Set(rijen.map((r) => r.thema)));
-  return thema ? rijen.find((r) => r.thema === thema.sleutel)?.[kolom] ?? null : null;
+  // "*": zonder migratie 020 ontbreken de logokolommen; dan is er gewoon geen seizoenslogo
+  const { data } = await admin.from("seizoen_achtergronden").select("*");
+  const rijen = (data ?? []) as unknown as Record<string, string | null>[];
+  const vast = rijen.find((r) => r.thema === VAST_SLEUTEL)?.pad;
+  const metBeeld = rijen.filter((r) => r.thema !== VAST_SLEUTEL && r[kolom]);
+  const sleutel = bestaandThema(vast) ? vast : huidigThema(new Date(), new Set(metBeeld.map((r) => r.thema as string)))?.sleutel;
+  return sleutel ? metBeeld.find((r) => r.thema === sleutel)?.[kolom] ?? null : null;
+}
+
+// 📌 Het vastgezette thema (beheer → Seizoenen), of null = automatisch op datum
+export async function vastThema(admin: AdminClient): Promise<string | null> {
+  const { data } = await admin.from("seizoen_achtergronden").select("pad").eq("thema", VAST_SLEUTEL).maybeSingle();
+  const pad = (data as { pad?: string | null } | null)?.pad;
+  return bestaandThema(pad) ? pad : null;
 }

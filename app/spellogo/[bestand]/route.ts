@@ -12,8 +12,8 @@ const LOGOS: Record<string, { soort: "logo" | "logo_breed"; standaard: string }>
   "breed.webp": { soort: "logo_breed", standaard: "/logo-breed-strak.webp" },
   "breed.png": { soort: "logo_breed", standaard: "/logo-breed.png" },   // breed met meer ruimte (kaartje, vraag)
 };
-// Browser 10 minuten, server-cache een uur: een nieuw seizoen of nieuw logo is er dus binnen een uur
-const CACHE = "public, max-age=600, s-maxage=3600, stale-while-revalidate=86400";
+// Browser en server-cache 5 minuten: een nieuw seizoen, nieuw logo of vastgezet thema is er dus snel
+const CACHE = "public, max-age=300, s-maxage=300, stale-while-revalidate=600";
 
 export async function GET(request: Request, { params }: { params: { bestand: string } }) {
   const logo = LOGOS[params.bestand];

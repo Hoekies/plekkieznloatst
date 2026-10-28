@@ -19,7 +19,9 @@ export const FINISH_THEMAS = {
 export type FinishThemaSleutel = keyof typeof FINISH_THEMAS;
 
 // Ook rond middernacht op een UTC-server de Nederlandse kalenderdag gebruiken.
-export function huidigFinishThema(datum = new Date()): FinishThemaSleutel {
+// 📌 Een vastgezet thema (beheer → Seizoenen) gaat voor de datum.
+export function huidigFinishThema(datum = new Date(), vast: string | null = null): FinishThemaSleutel {
+  if (vast && vast in FINISH_THEMAS) return vast as FinishThemaSleutel;
   const delen = new Intl.DateTimeFormat("en", { timeZone: "Europe/Amsterdam", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(datum);
   const getal = (soort: string) => Number(delen.find((d) => d.type === soort)?.value);
   const dag = new Date(getal("year"), getal("month") - 1, getal("day"));

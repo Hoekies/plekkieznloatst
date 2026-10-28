@@ -30,11 +30,14 @@ export default function LinkInloggen() {
   }
 
   if (!open) {
-    // Twee kleine knoppen naast elkaar: scannen (kaartje) of een link uit WhatsApp plakken
+    // Scannen is de snelste weg: een grote knop met een flinke camera. Een link uit WhatsApp plakken klein eronder
     return (
       <>
         <div className="link-inloggen-rij">
-          <button type="button" className="link-inloggen-knop" onClick={() => setScan(true)}>📷 Scan je kaartje</button>
+          <button type="button" className="link-inloggen-knop link-inloggen-scan" onClick={() => setScan(true)}>
+            <span className="link-inloggen-camera" aria-hidden>📷</span>
+            <span>Scan je kaartje</span>
+          </button>
           <button type="button" className="link-inloggen-knop" onClick={start}>🔗 Link plakken</button>
         </div>
         {scan && <QrScanner onSluit={() => setScan(false)} />}

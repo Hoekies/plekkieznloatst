@@ -5,7 +5,8 @@ import { hashLinkCode } from "@/lib/inlog-link";
 
 // Inloglink: /l/<code>. Klopt de code en is hij nog geldig, dan wordt het team ingelogd zonder
 // loginnaam en wachtwoord, tot de geldigheid om is (daarna logt de app het team uit).
-// De link mag binnen die tijd vaker gebruikt worden; één telefoon per team blijft gelden.
+// De link mag binnen die tijd vaker gebruikt worden; één telefoon per team blijft gelden: de laatste telefoon
+// die de link gebruikt, is de teamtelefoon.
 export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
   const naar = (pad: string) => NextResponse.redirect(new URL(pad, request.url), { status: 303 });
   if (!/^[A-Za-z0-9_-]{20,80}$/.test(params.code)) return naar("/login?fout=link-verlopen");
@@ -27,6 +28,14 @@ export async function GET(request: NextRequest, { params }: { params: { code: st
   const { data: magic, error: magicFout } = await admin.auth.admin.generateLink({ type: "magiclink", email });
   if (magicFout || !magic?.properties?.hashed_token) return naar("/login?fout=link-verlopen");
 
+  // Een inloglink (of de QR van de beheerder) neemt het team over: deze telefoon wordt de teamtelefoon en een
+  // eerdere telefoon gaat eruit. Anders stuurde de app de nieuwe telefoon meteen terug naar de inlog ("al actief
+  // op een ander apparaat"), ook als dat andere toestel alleen Safari naast de app was. De uitlogtijd ligt
+  // 5 seconden vóór het inloggen: het inlogmoment van de nieuwe sessie is in hele seconden (klok van Supabase,
+  // die iets kan afwijken) en moet er altijd na vallen. Pas na een gelukte login vastgelegd, zodat een mislukte
+  // poging de oude telefoon niet uitlogt.
+  const uitlogTot = new Date(Math.floor(Date.now() / 1000) * 1000 - 5000).toISOString();
+
   const cookiesOpzij: Array<{ name: string; value: string; options: Record<string, unknown> }> = [];
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,10 +45,10 @@ export async function GET(request: NextRequest, { params }: { params: { code: st
   const { error } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: magic.properties.hashed_token });
   if (error) return naar("/login?fout=link-verlopen");
 
-  // Toegang tot het einde van de link. Een oude uitlog-vlag blijft staan: deze verse login is nieuwer en mag
-  // verder (lib/inlog-moment.ts), oude toestellen niet.
+  // Toegang tot het einde van de link. De uitlog-vlag van hierboven blijft staan: deze verse login is nieuwer
+  // en mag verder (lib/inlog-moment.ts), oude toestellen niet.
   await Promise.all([
-    admin.from("players").update({ toegang_tot: link.geldig_tot }).eq("id", speler.id),
+    admin.from("players").update({ toegang_tot: link.geldig_tot, active_device_id: null, force_logout_at: uitlogTot }).eq("id", speler.id),
     admin.from("inlog_links").update({ laatst_gebruikt: new Date().toISOString() }).eq("id", link.id),
   ]);
 

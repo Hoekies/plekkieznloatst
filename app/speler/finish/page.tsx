@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import FinishScherm from "@/components/speler/FinishScherm";
-import { huisLogoUrl } from "@/lib/huisstijl";
+import { huisLogoUrl, vastThema } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 import { teamFotos } from "@/lib/teamfoto";
@@ -132,7 +132,7 @@ export default async function FinishPage() {
 
   return (
     <FinishScherm
-      themaSleutel={huidigFinishThema()}
+      themaSleutel={huidigFinishThema(new Date(), await vastThema(admin).catch(() => null))}
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
       teamFoto={fotos.get(sessie.id) ?? null}

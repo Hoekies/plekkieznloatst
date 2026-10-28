@@ -39,8 +39,21 @@ export default function SeizoenAfbeeldingen() {
     if (!res?.ok) { setFout(d.fout ?? "Laden lukte niet"); setPaden({ achtergrond: {}, logo: {}, logo_breed: {} }); return; }
     setPaden(d.paden);
     setLogosKlaar(d.logosKlaar !== false);
+    setVast(d.vast ?? null);
   }
   useEffect(() => { laad(); }, []);
+
+  // 📌 Eén thema overal vastzetten (achtergrond, beide logo's en de finish), wat de datum ook is; null = weer op datum
+  const [vast, setVast] = useState<string | null>(null);
+  async function zetVast(sleutel: string | null) {
+    const oud = vast;
+    setVast(sleutel);
+    const res = await fetch("/api/admin/achtergronden", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vast: sleutel }) }).catch(() => null);
+    const r = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { setVast(oud); toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
+    const t = THEMAS.find((x) => x.sleutel === sleutel);
+    toonMelding(t ? `${t.emoji} ${t.naam} staat nu overal vast (binnen 5 minuten op alle telefoons)` : "Weer automatisch op datum");
+  }
 
   // Achtergrond als jpg; logo eerst uitknippen (achtergrond doorzichtig, lege randen eraf), dan als webp
   async function upload(thema: string, bestand: File | undefined) {
@@ -72,7 +85,9 @@ export default function SeizoenAfbeeldingen() {
 
   const nu = new Date();
   const huidig = paden?.[soort] ?? {};
-  const actief = paden ? huidigThema(nu, new Set(Object.keys(huidig))) : null;
+  const vastThema = THEMAS.find((t) => t.sleutel === vast) ?? null;
+  // Vast: altijd dat thema (zonder afbeelding van deze soort: de gewone); anders op datum
+  const actief = vastThema ? (huidig[vastThema.sleutel] ? vastThema : null) : paden ? huidigThema(nu, new Set(Object.keys(huidig))) : null;
   const info = SOORTEN.find((s) => s.soort === soort)!;
   const logo = soort !== "achtergrond";
   // Door het jaar heen: op begindatum dit jaar (januari → december)
@@ -99,8 +114,18 @@ export default function SeizoenAfbeeldingen() {
               <button type="button" role="radio" className={`rl-knop${volgorde === "periode" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}><Icoon naam="kalender" /> Periode</button>
             </span>
           </div>
+          <div className="seizoen-vast">
+            {vastThema ? (
+              <>
+                <span>📌 Vast: <strong>{vastThema.emoji} {vastThema.naam}</strong>, overal (ook de finish), wat de datum ook is.</span>
+                <button type="button" className="rl-knop" onClick={() => zetVast(null)}>↺ Weer automatisch</button>
+              </>
+            ) : (
+              <span>Automatisch op datum. Tik op 📌 bij een thema om dat overal vast te zetten.</span>
+            )}
+          </div>
           <span className="inst-uitleg">
-            {info.uitleg}{actief ? <> Nu: <strong>{actief.emoji} {actief.naam}</strong>.</> : logo ? " Nu: het gewone logo." : null}
+            {info.uitleg}{actief ? <> Nu: <strong>{actief.emoji} {actief.naam}</strong>.</> : logo ? " Nu: het gewone logo." : vastThema ? " Nu: de gewone achtergrond." : null}
           </span>
           {logo && !logosKlaar ? (
             <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ Draai eerst migratie 020 (seizoenslogo&apos;s) in Supabase.</span>
@@ -117,8 +142,12 @@ export default function SeizoenAfbeeldingen() {
                       style={pad ? { backgroundImage: `url(${OPSLAG + pad})` } : undefined}>
                       {bezig === t.sleutel ? <Icoon naam="laden" /> : pad ? "" : "+"}
                     </button>
-                    <span className="seizoen-naam">{t.emoji} {t.naam}{isNu && <span className="seizoen-nu">nu</span>}</span>
+                    <span className="seizoen-naam">{t.emoji} {t.naam}{isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}</span>
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}</span>
+                    <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
+                      onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
+                      title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${t.naam} overal vastzetten`}
+                      aria-label={vast === t.sleutel ? `${t.naam} losmaken` : `${t.naam} vastzetten`}>📌</button>
                     {pad && <button type="button" className="seizoen-weg" onClick={() => weg(t.sleutel)} title="Weghalen" aria-label={`${info.label} ${t.naam} weghalen`}>✕</button>}
                   </div>
                 );
