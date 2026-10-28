@@ -3308,6 +3308,13 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-pin { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); font-size: 0.7rem; cursor: pointer; opacity: 0.75; }
 .seizoen-pin:hover { opacity: 1; }
 .seizoen-pin[aria-pressed="true"] { opacity: 1; background: #FFD93B; box-shadow: 0 0 0 2px rgba(255,217,59,0.4); }
+/* ✏️ Vrij thema: naam en emoji wijzigen */
+.seizoen-naam-wijzig { margin-left: auto; padding: 0 2px; border: none; background: none; cursor: pointer; font-size: 0.7rem; opacity: 0.7; }
+.seizoen-naam-wijzig:hover { opacity: 1; }
+.seizoen-bewerk { display: flex; gap: 3px; }
+.seizoen-bewerk input { min-width: 0; flex: 1; padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.25); color: #fff; font: inherit; font-size: 0.72rem; }
+.seizoen-bewerk .seizoen-bewerk-emoji { flex: 0 0 2.2em; text-align: center; }
+.seizoen-bewerk-ok { border: none; border-radius: 6px; background: #22C55E; color: #fff; font-weight: 800; font-size: 0.72rem; cursor: pointer; padding: 0 6px; }
 .seizoen-vast { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--muted); }
 .seizoen-vast strong { color: #FFD93B; }
 .seizoen-weg { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #F87171; font-size: 0.75rem; cursor: pointer; }

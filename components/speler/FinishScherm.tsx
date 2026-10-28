@@ -37,12 +37,17 @@ interface Props {
   huisLogo?: string | null;
   // 🎃 Seizoen of feestdag van vandaag (door de server gekozen, zodat server en browser hetzelfde tonen)
   themaSleutel?: FinishThemaSleutel;
+  // Eigen emoji van een vrij thema (beheer → Seizoenen): komt in de vlaggetjes
+  themaEmoji?: string | null;
 }
 
 const POLL_INTERVAL_MS = 10000;
 
-export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos: beginWacht, itemsNaFinish, waarden, huisLogo = null, themaSleutel }: Props) {
-  const thema = FINISH_THEMAS[themaSleutel ?? huidigFinishThema()];
+export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos: beginWacht, itemsNaFinish, waarden, huisLogo = null, themaSleutel, themaEmoji = null }: Props) {
+  const basisThema = FINISH_THEMAS[themaSleutel ?? huidigFinishThema()];
+  const thema = themaEmoji
+    ? { ...basisThema, versiering: [themaEmoji, themaEmoji, basisThema.versiering[2], basisThema.versiering[3]] as const }
+    : basisThema;
   const router = useRouter();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(initLeaderboard);
   const [vrij, setVrij] = useState(uitslagVrij);

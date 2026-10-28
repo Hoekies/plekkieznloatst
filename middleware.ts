@@ -91,8 +91,10 @@ export async function middleware(request: NextRequest) {
     const rol = user.app_metadata?.rol;
     if (typeof rol === "string") headers.set("x-pr-rol", rol);
     // Wanneer is déze sessie ingelogd? (spelers: om een team dat de beheerder uitlogde of een vorige groep
-    // te weigeren, terwijl een nieuwe login op hetzelfde account wel mag)
-    if (!rol) {
+    // te weigeren, terwijl een nieuwe login op hetzelfde account wel mag). Spelers hebben rol "speler":
+    // eerder stond hier alleen "geen rol", waardoor het moment ontbrak en elke speler na een uitlog
+    // (ook na een verse login) als uitgelogd gold.
+    if (rol !== "admin" && rol !== "helper") {
       const { data: { session } } = await supabase.auth.getSession();
       const login = inlogMoment(session?.access_token);
       if (login) headers.set("x-pr-login", login);

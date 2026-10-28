@@ -57,6 +57,8 @@ test("seizoensachtergrond op datum", () => {
   assert.equal(huidigThema(new Date(2026, 10, 8), alle)?.sleutel, "herfst");
   assert.equal(huidigThema(new Date(2027, 0, 3), alle)?.sleutel, "oudnieuw");
   assert.equal(huidigThema(new Date(2026, 9, 24), new Set(["herfst"]))?.sleutel, "herfst");
+  // Vrije thema's hebben geen datum: alleen met 📌, nooit vanzelf
+  for (let dag = 0; dag < 366; dag += 1) assert.equal(huidigThema(new Date(2026, 0, 1 + dag), new Set(["eigen1", "eigen2"])), null);
 });
 
 // 👆 De hulpkolom wijst knoppen aan op hun naam: elke vetgedrukte knopnaam in de handleiding (met een emoji

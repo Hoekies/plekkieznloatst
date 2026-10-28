@@ -1,8 +1,10 @@
 // 🗓️ Seizoenen en feestdagen voor de achtergrond van het welkomstscherm. De app kiest op datum;
 // feestdagen gaan voor seizoenen. Vaste data als [maand, dag]; Carnaval en Pasen rekent de app elk jaar uit.
-type Thema = { sleutel: string; naam: string; emoji: string; feestdag: boolean; periode: (jaar: number) => [Date, Date] };
+export type Thema = { sleutel: string; naam: string; emoji: string; feestdag: boolean; periode: (jaar: number) => [Date, Date]; eigen?: boolean };
 
 const d = (jaar: number, maand: number, dag: number) => new Date(jaar, maand - 1, dag);
+// Vrije thema's hebben geen datum: begin na eind, dus de datum valt er nooit in
+const nooit = (jaar: number): [Date, Date] => [d(jaar, 1, 2), d(jaar, 1, 1)];
 const plus = (datum: Date, dagen: number) => new Date(datum.getFullYear(), datum.getMonth(), datum.getDate() + dagen);
 
 // Paaszondag (gregoriaanse kalender, rekenregel van Meeus/Jones/Butcher)
@@ -30,12 +32,41 @@ export const THEMAS: Thema[] = [
   { sleutel: "zomer", naam: "Zomer", emoji: "☀️", feestdag: false, periode: (j) => [d(j, 6, 21), d(j, 9, 22)] },
   { sleutel: "herfst", naam: "Herfst", emoji: "🍂", feestdag: false, periode: (j) => [d(j, 9, 23), d(j, 12, 20)] },
   { sleutel: "winter", naam: "Winter", emoji: "❄️", feestdag: false, periode: (j) => [d(j, 12, 21), d(j + 1, 3, 20)] },
+  // Vrije thema's (bijv. een bedrijfsuitje of verjaardag): geen datum, alleen te gebruiken door ze vast te zetten (📌).
+  // Naam en emoji stelt de beheerder zelf in (regel "_namen", zie leesNamen).
+  { sleutel: "eigen1", naam: "Eigen 1", emoji: "⭐", feestdag: false, eigen: true, periode: nooit },
+  { sleutel: "eigen2", naam: "Eigen 2", emoji: "🎈", feestdag: false, eigen: true, periode: nooit },
 ];
 
 // 📌 Vastgezet thema: een regel met deze sleutel in seizoen_achtergronden, met in "pad" de themasleutel
 // (bijv. "kerst"). Dan geldt dat thema overal, wat de datum ook is (geen migratie nodig).
 export const VAST_SLEUTEL = "_vast";
 export const bestaandThema = (s: unknown): s is string => typeof s === "string" && THEMAS.some((t) => t.sleutel === s);
+// Instellingsregels in dezelfde tabel ("_vast", "_namen") beginnen met een liggend streepje: geen afbeeldingen
+export const isInstelRij = (thema: unknown) => typeof thema === "string" && thema.startsWith("_");
+
+// ✏️ Eigen naam en emoji van de vrije thema's: regel "_namen", met in "pad" een JSON-tekst
+export const NAMEN_SLEUTEL = "_namen";
+export type EigenNamen = Record<string, { naam: string; emoji: string }>;
+export const MAX_NAAM = 30, MAX_EMOJI = 8;
+export function leesNamen(tekst: string | null | undefined): EigenNamen {
+  try {
+    const ruw = JSON.parse(tekst ?? "{}") as Record<string, { naam?: unknown; emoji?: unknown }>;
+    const uit: EigenNamen = {};
+    for (const t of THEMAS.filter((x) => x.eigen)) {
+      const r = ruw?.[t.sleutel];
+      const naam = typeof r?.naam === "string" ? r.naam.trim().slice(0, MAX_NAAM) : "";
+      const emoji = typeof r?.emoji === "string" ? r.emoji.trim().slice(0, MAX_EMOJI) : "";
+      if (naam || emoji) uit[t.sleutel] = { naam, emoji };
+    }
+    return uit;
+  } catch {
+    return {};
+  }
+}
+// Naam en emoji zoals de beheerder ze ziet (eigen naam als die is ingesteld)
+export const themaNaam = (t: Thema, namen: EigenNamen) => namen[t.sleutel]?.naam || t.naam;
+export const themaEmoji = (t: Thema, namen: EigenNamen) => namen[t.sleutel]?.emoji || t.emoji;
 
 // Wat er per thema kan worden geüpload, en in welke kolom van seizoen_achtergronden het staat
 export const SEIZOEN_KOLOM = { achtergrond: "pad", logo: "logo_pad", logo_breed: "logo_breed_pad" } as const;
@@ -56,6 +87,7 @@ export function huidigThema(datum: Date, beschikbaar: Set<string>): Thema | null
 
 // Periode als tekst, bijv. "24 okt – 7 nov" (voor het beheer)
 export function periodeTekst(t: Thema, jaar: number): string {
+  if (t.eigen) return "alleen met 📌";
   const f = (x: Date) => x.toLocaleDateString("nl-NL", { day: "numeric", month: "short" }).replace(".", "");
   const [van, tot] = t.periode(jaar);
   return `${f(van)} – ${f(tot)}`;

@@ -14,6 +14,9 @@ export const FINISH_THEMAS = {
   carnaval: { naam: "Carnaval", emoji: "🎭", kleuren: ["#FDE047", "#86EFAC", "#FCA5A5"], basis: "#44216A", versiering: ["🎭", "🎊", "🎉", "✨"], tekst: "De finish is binnen, tijd voor een feestje!" },
   pasen: { naam: "Pasen", emoji: "🐣", kleuren: ["#FDE68A", "#C4B5FD", "#86EFAC"], basis: "#38432A", versiering: ["🐣", "🥚", "🌷", "🐰"], tekst: "Een eitje? Jullie hebben het gedaan!" },
   koningsdag: { naam: "Koningsdag", emoji: "👑", kleuren: ["#FDBA74", "#FDE68A", "#FB923C"], basis: "#593020", versiering: ["👑", "🧡", "🇳🇱", "🎉"], tekst: "Een koninklijke prestatie, goed gedaan!" },
+  // Vrije thema's: feestelijk en neutraal; de eigen emoji van de beheerder komt in de vlaggetjes (FinishScherm)
+  eigen1: { naam: "Eigen 1", emoji: "⭐", kleuren: ["#FDE68A", "#67E8F9", "#F0ABFC"], basis: "#2E2366", versiering: ["⭐", "⭐", "✨", "🎊"], tekst: "Goed gedaan, jullie zijn binnen!" },
+  eigen2: { naam: "Eigen 2", emoji: "🎈", kleuren: ["#FCA5A5", "#FDE68A", "#86EFAC"], basis: "#3B2058", versiering: ["🎈", "🎈", "✨", "🎉"], tekst: "Wat een feest, jullie zijn binnen!" },
 } as const;
 
 export type FinishThemaSleutel = keyof typeof FINISH_THEMAS;

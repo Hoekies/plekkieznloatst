@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { THEMAS, SEIZOEN_KOLOM, VAST_SLEUTEL, bestaandThema, type SeizoenSoort } from "@/lib/seizoenen";
+import { THEMAS, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, MAX_NAAM, MAX_EMOJI, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 // 🗓️ Seizoensachtergronden (migratie 019) en -logo's (migratie 020).
 // GET = welke er zijn per soort (en welk thema vastgezet is), POST { thema, soort, pad } = instellen,
@@ -22,19 +22,33 @@ export async function GET() {
   // 📌 De regel van het vastgezette thema is geen afbeelding
   const vastRij = data.find((r) => r.thema === VAST_SLEUTEL);
   const vast = bestaandThema(vastRij?.pad) ? vastRij!.pad : null;
-  const beelden = data.filter((r) => r.thema !== VAST_SLEUTEL);
+  const namen = leesNamen(data.find((r) => r.thema === NAMEN_SLEUTEL)?.pad);
+  const beelden = data.filter((r) => !isInstelRij(r.thema));
   const paden = Object.fromEntries((Object.keys(SEIZOEN_KOLOM) as SeizoenSoort[]).map((soort) => [soort,
     Object.fromEntries(beelden.filter((r) => r[SEIZOEN_KOLOM[soort]]).map((r) => [r.thema, r[SEIZOEN_KOLOM[soort]]]))]));
   // Zonder migratie 020 ontbreken de logokolommen: achtergronden werken, logo's nog niet
   const logosKlaar = data.length === 0 || "logo_pad" in data[0];
-  return NextResponse.json({ paden, logosKlaar, vast });
+  return NextResponse.json({ paden, logosKlaar, vast, namen });
 }
 
 // 📌 PUT { vast: "kerst" } = dit thema overal vastzetten (achtergrond, logo's, finish); { vast: null } = weer op datum
+// ✏️ PUT { eigen: "eigen1", naam, emoji } = naam en emoji van een vrij thema
 export async function PUT(request: NextRequest) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
   const admin = createAdminClient();
+  if (body && "eigen" in body) {
+    if (!THEMAS.some((t) => t.eigen && t.sleutel === body.eigen) || typeof body.naam !== "string" || typeof body.emoji !== "string") {
+      return NextResponse.json({ fout: "Onbekend thema" }, { status: 400 });
+    }
+    const { data: rij } = await admin.from("seizoen_achtergronden").select("pad").eq("thema", NAMEN_SLEUTEL).maybeSingle();
+    const namen = leesNamen(rij?.pad);
+    namen[body.eigen] = { naam: body.naam.trim().slice(0, MAX_NAAM), emoji: body.emoji.trim().slice(0, MAX_EMOJI) };
+    const { error } = await admin.from("seizoen_achtergronden")
+      .upsert({ thema: NAMEN_SLEUTEL, pad: JSON.stringify(namen), updated_at: new Date().toISOString() }, { onConflict: "thema" });
+    if (error) return NextResponse.json({ fout: uitleg(error.message) }, { status: 500 });
+    return NextResponse.json({ ok: true, namen: leesNamen(JSON.stringify(namen)) });
+  }
   if (body?.vast === null) {
     const { error } = await admin.from("seizoen_achtergronden").delete().eq("thema", VAST_SLEUTEL);
     if (error) return NextResponse.json({ fout: uitleg(error.message) }, { status: 500 });

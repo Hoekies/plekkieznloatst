@@ -24,7 +24,14 @@ export async function haalGebruiker(): Promise<Gebruiker | null> {
   const h = headers();
   const id = h.get("x-pr-user-id");
   if (id && h.get(MERK_HEADER) === await middlewareMerk()) {
-    return { id, app_metadata: { rol: h.get("x-pr-rol") ?? undefined }, login: h.get("x-pr-login") };
+    // Inlogmoment ontbreekt (zou niet moeten): zelf uit de sessie halen, anders telt een verse login als uitgelogd
+    let login = h.get("x-pr-login");
+    if (!login) {
+      const supabase = await createServerSupabaseClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      login = inlogMoment(session?.access_token);
+    }
+    return { id, app_metadata: { rol: h.get("x-pr-rol") ?? undefined }, login };
   }
   // Zonder (geldige) gegevens van de middleware: zelf bij Supabase controleren
   const supabase = await createServerSupabaseClient();

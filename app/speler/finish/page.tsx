@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { redirect } from "next/navigation";
 import { haversine } from "@/lib/geo";
 import FinishScherm from "@/components/speler/FinishScherm";
-import { huisLogoUrl, vastThema } from "@/lib/huisstijl";
+import { huisLogoUrl, vastThema, eigenEmoji } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 import { teamFotos } from "@/lib/teamfoto";
@@ -130,9 +130,13 @@ export default async function FinishPage() {
   const eigenAfstand = afstandMap.get(sessie.id) ?? 0;
   const displayNaam = speler.nickname ?? speler.login_name;
 
+  // 📌 Vastgezet thema (beheer → Seizoenen) gaat voor de datum
+  const vast = await vastThema(admin).catch(() => null);
+
   return (
     <FinishScherm
-      themaSleutel={huidigFinishThema(new Date(), await vastThema(admin).catch(() => null))}
+      themaSleutel={huidigFinishThema(new Date(), vast)}
+      themaEmoji={await eigenEmoji(admin, vast).catch(() => null)}
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
       teamFoto={fotos.get(sessie.id) ?? null}

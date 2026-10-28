@@ -1,5 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
-import { huidigThema, SEIZOEN_KOLOM, VAST_SLEUTEL, bestaandThema, type SeizoenSoort } from "@/lib/seizoenen";
+import { huidigThema, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -39,7 +39,7 @@ export async function seizoenPad(admin: AdminClient, soort: SeizoenSoort): Promi
   const { data } = await admin.from("seizoen_achtergronden").select("*");
   const rijen = (data ?? []) as unknown as Record<string, string | null>[];
   const vast = rijen.find((r) => r.thema === VAST_SLEUTEL)?.pad;
-  const metBeeld = rijen.filter((r) => r.thema !== VAST_SLEUTEL && r[kolom]);
+  const metBeeld = rijen.filter((r) => !isInstelRij(r.thema) && r[kolom]);
   const sleutel = bestaandThema(vast) ? vast : huidigThema(new Date(), new Set(metBeeld.map((r) => r.thema as string)))?.sleutel;
   return sleutel ? metBeeld.find((r) => r.thema === sleutel)?.[kolom] ?? null : null;
 }
@@ -49,4 +49,11 @@ export async function vastThema(admin: AdminClient): Promise<string | null> {
   const { data } = await admin.from("seizoen_achtergronden").select("pad").eq("thema", VAST_SLEUTEL).maybeSingle();
   const pad = (data as { pad?: string | null } | null)?.pad;
   return bestaandThema(pad) ? pad : null;
+}
+
+// ✏️ Het emoji van een vrij thema zoals de beheerder het instelde (of null), bijv. voor de versiering van de finish
+export async function eigenEmoji(admin: AdminClient, sleutel: string | null): Promise<string | null> {
+  if (!sleutel || !THEMAS.some((t) => t.eigen && t.sleutel === sleutel)) return null;
+  const { data } = await admin.from("seizoen_achtergronden").select("pad").eq("thema", NAMEN_SLEUTEL).maybeSingle();
+  return leesNamen((data as { pad?: string | null } | null)?.pad)[sleutel]?.emoji || null;
 }

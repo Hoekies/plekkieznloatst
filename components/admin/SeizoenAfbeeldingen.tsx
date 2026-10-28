@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
-import { THEMAS, huidigThema, periodeTekst, type SeizoenSoort } from "@/lib/seizoenen";
+import { THEMAS, huidigThema, periodeTekst, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 import Icoon from "@/components/admin/Icoon";
@@ -40,6 +40,7 @@ export default function SeizoenAfbeeldingen() {
     setPaden(d.paden);
     setLogosKlaar(d.logosKlaar !== false);
     setVast(d.vast ?? null);
+    setNamen(d.namen ?? {});
   }
   useEffect(() => { laad(); }, []);
 
@@ -52,7 +53,19 @@ export default function SeizoenAfbeeldingen() {
     const r = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) { setVast(oud); toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
     const t = THEMAS.find((x) => x.sleutel === sleutel);
-    toonMelding(t ? `${t.emoji} ${t.naam} staat nu overal vast (binnen 5 minuten op alle telefoons)` : "Weer automatisch op datum");
+    toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (binnen 5 minuten op alle telefoons)` : "Weer automatisch op datum");
+  }
+
+  // ✏️ Vrije thema's (Eigen 1 en 2): zelf een naam en emoji geven
+  const [namen, setNamen] = useState<EigenNamen>({});
+  const [bewerk, setBewerk] = useState<{ sleutel: string; naam: string; emoji: string } | null>(null);
+  async function bewaarNaam() {
+    if (!bewerk) return;
+    const res = await fetch("/api/admin/achtergronden", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eigen: bewerk.sleutel, naam: bewerk.naam, emoji: bewerk.emoji }) }).catch(() => null);
+    const r = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
+    setNamen(r.namen ?? {});
+    setBewerk(null);
   }
 
   // Achtergrond als jpg; logo eerst uitknippen (achtergrond doorzichtig, lege randen eraf), dan als webp
@@ -92,7 +105,8 @@ export default function SeizoenAfbeeldingen() {
   const logo = soort !== "achtergrond";
   // Door het jaar heen: op begindatum dit jaar (januari → december)
   const begin = (t: (typeof THEMAS)[number]) => { const [van] = t.periode(nu.getFullYear()); return van.getMonth() * 100 + van.getDate(); };
-  const themas = [...THEMAS].sort((a, b) => volgorde === "periode" ? begin(a) - begin(b) : a.naam.localeCompare(b.naam, "nl"));
+  // Vrije thema's altijd achteraan
+  const themas = [...THEMAS].sort((a, b) => Number(!!a.eigen) - Number(!!b.eigen) || (a.eigen ? 0 : volgorde === "periode" ? begin(a) - begin(b) : a.naam.localeCompare(b.naam, "nl")));
 
   return (
     <div className="form-group seizoen">
@@ -117,7 +131,7 @@ export default function SeizoenAfbeeldingen() {
           <div className="seizoen-vast">
             {vastThema ? (
               <>
-                <span>📌 Vast: <strong>{vastThema.emoji} {vastThema.naam}</strong>, overal (ook de finish), wat de datum ook is.</span>
+                <span>📌 Vast: <strong>{themaEmoji(vastThema, namen)} {themaNaam(vastThema, namen)}</strong>, overal (ook de finish), wat de datum ook is.</span>
                 <button type="button" className="rl-knop" onClick={() => zetVast(null)}>↺ Weer automatisch</button>
               </>
             ) : (
@@ -125,7 +139,7 @@ export default function SeizoenAfbeeldingen() {
             )}
           </div>
           <span className="inst-uitleg">
-            {info.uitleg}{actief ? <> Nu: <strong>{actief.emoji} {actief.naam}</strong>.</> : logo ? " Nu: het gewone logo." : vastThema ? " Nu: de gewone achtergrond." : null}
+            {info.uitleg}{actief ? <> Nu: <strong>{themaEmoji(actief, namen)} {themaNaam(actief, namen)}</strong>.</> : logo ? " Nu: het gewone logo." : vastThema ? " Nu: de gewone achtergrond." : null}
           </span>
           {logo && !logosKlaar ? (
             <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ Draai eerst migratie 020 (seizoenslogo&apos;s) in Supabase.</span>
@@ -142,7 +156,19 @@ export default function SeizoenAfbeeldingen() {
                       style={pad ? { backgroundImage: `url(${OPSLAG + pad})` } : undefined}>
                       {bezig === t.sleutel ? <Icoon naam="laden" /> : pad ? "" : "+"}
                     </button>
-                    <span className="seizoen-naam">{t.emoji} {t.naam}{isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}</span>
+                    {bewerk?.sleutel === t.sleutel ? (
+                      // ✏️ Naam en emoji van een vrij thema
+                      <form className="seizoen-bewerk" onSubmit={(e) => { e.preventDefault(); bewaarNaam(); }}>
+                        <input value={bewerk.emoji} onChange={(e) => setBewerk({ ...bewerk, emoji: e.target.value })} maxLength={MAX_EMOJI} aria-label="Emoji" className="seizoen-bewerk-emoji" />
+                        <input value={bewerk.naam} onChange={(e) => setBewerk({ ...bewerk, naam: e.target.value })} maxLength={MAX_NAAM} aria-label="Naam" placeholder={t.naam} autoFocus />
+                        <button type="submit" className="seizoen-bewerk-ok" aria-label="Bewaren">✓</button>
+                      </form>
+                    ) : (
+                      <span className="seizoen-naam">{themaEmoji(t, namen)} {themaNaam(t, namen)}{isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}
+                        {t.eigen && <button type="button" className="seizoen-naam-wijzig" title="Naam en emoji wijzigen" aria-label={`${themaNaam(t, namen)}: naam en emoji wijzigen`}
+                          onClick={() => setBewerk({ sleutel: t.sleutel, naam: namen[t.sleutel]?.naam ?? "", emoji: themaEmoji(t, namen) })}>✏️</button>}
+                      </span>
+                    )}
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}</span>
                     <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
                       onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
