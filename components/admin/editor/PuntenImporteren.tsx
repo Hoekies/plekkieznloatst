@@ -6,7 +6,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { leesPunten, coordsUitLink, IMPORT_INFO_TEKST, IMPORT_START_NAAM, type ImportPunt, type ImportResultaat } from "@/lib/punten-import";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { afstandTekst } from "@/lib/geo";
-import { useSluitMetEsc } from "@/components/shared/Venster";
+import { useSluitMetEsc, vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 
 // "📥 Importeren" (alleen bij een route op volgorde): punten uit een GPX/KML-bestand, of een lijst
@@ -99,7 +99,7 @@ export default function PuntenImporteren({ routeId, straal, heeftFinish, leeg, o
       </button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 520, maxHeight: "88vh", display: "flex" }}>
+          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 520, maxHeight: vensterHoogte(88), display: "flex" }}>
             <div className="pr-gem-panel-inner import-venster">
               <div className="import-kop">
                 <span className="import-titel">📥 Punten importeren</span>

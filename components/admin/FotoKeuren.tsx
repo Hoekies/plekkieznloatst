@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
-import Venster, { VensterKop } from "@/components/shared/Venster";
+import Venster, { VensterKop, vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 import { verversBeheerStatus } from "@/components/admin/useBeheerStatus";
 
@@ -89,7 +89,7 @@ export default function FotoKeurVenster() {
   if (!open) return null;
   return (
     <Venster onSluit={() => setOpen(false)} breedte={560} maxHoogte={96} donker={0.85} rand={12}>
-      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "16px 16px 14px" }}>
+      <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: vensterHoogte(96, 6), overflowY: "auto", padding: "16px 16px 14px" }}>
         <VensterKop label={<>📸 Foto&apos;s keuren{inzendingen?.length ? ` · nog ${inzendingen.length}` : ""}</>} titel={inz ? inz.teamnaam : inzendingen ? "Alles gekeurd" : "…"} onSluit={() => setOpen(false)} />
 
         {inzendingen === null ? (
@@ -141,7 +141,7 @@ function FotoViewer({ pad }: { pad: string }) {
     <div className="keur-foto">
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: "55vh", objectFit: "contain", display: "block" }} />
+        <img src={src} alt="Ingediende foto" style={{ width: "100%", maxHeight: vensterHoogte(55), objectFit: "contain", display: "block" }} />
       ) : (
         <div style={{ width: "100%" }}><LaadBlokjes aantal={1} hoogte={260} /></div>
       )}

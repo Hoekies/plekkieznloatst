@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import type { LeaderboardEntry } from "@/lib/types";
+import { vensterHoogte } from "@/components/shared/Venster";
 import StandRij from "./StandRij";
 
 interface Props {
@@ -32,7 +33,7 @@ export default function TussenstandPopup({ tussenstand, resterendeSeconden, onSl
         maxWidth: "440px",
         width: "100%",
         boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
-        maxHeight: "90vh",
+        maxHeight: vensterHoogte(90),
         overflowY: "auto",
       }}>
         {/* Header */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { geluidAan, zetGeluid } from "@/lib/sounds";
+import { vensterHoogte } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 
 // Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
@@ -104,7 +105,7 @@ export default function SpeciaalItemLegende({ onSluit, itemTypen, modus, waarden
         maxWidth: "420px",
         width: "100%",
         boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
-        maxHeight: "90vh",
+        maxHeight: vensterHoogte(90),
         overflowY: "auto",
       }}>
         {/* Header */}

@@ -29,7 +29,7 @@ import HuisstijlInstellingen from "./editor/HuisstijlInstellingen";
 import PuzzelInstellingen from "./editor/PuzzelInstellingen";
 import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
-import { useSluitMetEsc, VensterMetKop } from "@/components/shared/Venster";
+import { useSluitMetEsc, VensterMetKop, vensterHoogte } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
@@ -2126,7 +2126,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div style={{
               background: "#2a1566", color: "#e8f0ff",
               borderRadius: 18, padding: "16px 18px 20px",
-              maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: "90vh", overflowY: "auto", overflowX: "hidden",
+              maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: vensterHoogte(90), overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
             }} onClick={(e) => e.stopPropagation()}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>

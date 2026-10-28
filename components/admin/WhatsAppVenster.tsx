@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SITE } from "@/lib/qr-inlog";
 import WhatsAppLogo from "@/components/admin/WhatsAppLogo";
-import Venster, { VensterKop } from "@/components/shared/Venster";
+import Venster, { VensterKop, vensterHoogte } from "@/components/shared/Venster";
 import { metVersie } from "@/lib/versie";
 import Icoon from "@/components/admin/Icoon";
 
@@ -102,7 +102,7 @@ export default function WhatsAppVenster({ onSluit }: { onSluit: () => void }) {
 
   return (
     <Venster onSluit={onSluit} breedte={560} maxHoogte={92}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(92vh - 6px)", overflowY: "auto", padding: "18px 18px 16px" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: vensterHoogte(92, 6), overflowY: "auto", padding: "18px 18px 16px" }}>
           <VensterKop label="💬 Versturen via WhatsApp" titel="Wat verstuur je?" onSluit={onSluit} />
 
           {/* Tekst */}

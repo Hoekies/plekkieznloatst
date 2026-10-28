@@ -1,7 +1,7 @@
 "use client";
 
 import type { ControleRegel } from "@/lib/route-controle";
-import { VensterKop } from "@/components/shared/Venster";
+import { VensterKop, vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 
 // "Klaar om te spelen?": de controle vóór het activeren van een route.
@@ -23,8 +23,8 @@ export default function ControleVenster({ controle, status, actief, onSluit, onA
 
   return (
     <div onClick={() => onSluit()} style={{ position: "fixed", inset: 0, zIndex: 1900, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 440, maxHeight: "90vh" }}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(90vh - 6px)", overflowY: "auto", padding: "18px 18px 16px" }}>
+      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 440, maxHeight: vensterHoogte(90) }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: vensterHoogte(90, 6), overflowY: "auto", padding: "18px 18px 16px" }}>
           <VensterKop label="🩺 Route controleren" titel="Klaar om te spelen?" onSluit={() => onSluit()} />
 
           <div className={`controle-samenvatting${fouten ? " controle-samenvatting--fout" : controle.length ? " controle-samenvatting--letop" : ""}`}>

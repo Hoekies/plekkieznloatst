@@ -7,7 +7,7 @@ import { sessietijd } from "@/lib/admin-live";
 import type { RouteVerslag } from "@/lib/team-verslag";
 import { formateerTijd } from "@/lib/geo";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
-import Venster from "@/components/shared/Venster";
+import Venster, { vensterHoogte } from "@/components/shared/Venster";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 
 const GelopenRouteKaart = dynamic(() => import("@/components/speler/GelopenRouteKaart"), { ssr: false });
@@ -39,7 +39,7 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
 
   return (
     <Venster onSluit={onSluit} breedte={640} maxHoogte={94} rand={12}>
-        <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(94vh - 6px)", overflowY: "auto", padding: "14px 16px 16px" }}>
+        <div className="pr-gem-panel-inner detail-venster" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: vensterHoogte(94, 6), overflowY: "auto", padding: "14px 16px 16px" }}>
           {/* Kop: wie, plek en score */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span className="pr-gem-avatar speler-ring" style={{ width: 46, height: 46, fontSize: "1.6rem", ["--speler-kleur" as string]: kleur }}>{s.icon ?? "👫"}</span>

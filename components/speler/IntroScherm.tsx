@@ -228,7 +228,8 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
               />
 
               <label className="pr-field-label2" style={{ marginTop: 4 }}>Kies een icoon</label>
-              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 14 }}>
+              {/* Vast raster van 4 bij 4 (15 iconen + 🔀), op elke telefoon hetzelfde */}
+              <div className="icoon-raster">
                 {inBeeld.map((icoon) => {
                   const inGebruik = gebruikteIconen.includes(icoon) && icoon !== gekozenIcono;
                   const geselecteerd = gekozenIcono === icoon;

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { uploadAfbeelding, valideerAfbeelding } from "@/lib/upload";
+import { vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 
 interface Props {
@@ -177,7 +178,7 @@ export default function AfbeeldingUpload({ huidigPad, bucket, onUpload, onVerwij
       <button type="button" className="editor-paneel-sluit venster-sluit" onClick={annuleren} disabled={laden} title="Annuleren" aria-label="Annuleren">✕</button>
       <div className="pr-gem-panel-inner" style={{
         display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px",
-        maxHeight: "90vh", overflow: "auto",
+        maxHeight: vensterHoogte(90), overflow: "auto",
       }}>
         <div>
           <div className="pr-gem-label">🖼️ Afbeelding</div>

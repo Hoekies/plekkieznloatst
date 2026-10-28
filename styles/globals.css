@@ -4125,3 +4125,4 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* 🔀 Andere iconen laten zien (IntroScherm) */
 .pr-icon-chip--schud { border-style: dashed; opacity: 0.85; }
+.icoon-raster { display: grid; grid-template-columns: repeat(4, 46px); gap: 8px; justify-content: center; margin-bottom: 14px; }

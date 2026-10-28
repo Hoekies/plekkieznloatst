@@ -13,6 +13,12 @@ export function useSluitMetEsc(onSluit: () => void, actief = true) {
   }, [onSluit, actief]);
 }
 
+// Maximale hoogte van een venster: procent van het ZICHTBARE scherm (dvh; vh is op de iPhone hoger dan wat je
+// ziet) en nooit onder de statusbalk/notch of de thuisbalk. aftrek = px eraf (rand van het paneel).
+export function vensterHoogte(procent: number, aftrek = 0): string {
+  return `min(calc(${procent}dvh - ${aftrek}px), calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - ${24 + aftrek}px))`;
+}
+
 // Venster in de stijl van de app: donkere achtergrond (tik ernaast = sluiten), paneel in het midden, Esc sluit.
 // De inhoud (meestal een .pr-gem-panel-inner of een formulier) geeft de aanroeper zelf mee.
 export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, rand = 16, relatief = false, children }: {
@@ -27,9 +33,11 @@ export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, ra
   useSluitMetEsc(onSluit);
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div onClick={onSluit} className="venster-achter" style={{ background: `rgba(12,3,34,${donker})`, padding: rand }}>
+    // Rand rondom, maar boven en onder minstens vrij van de statusbalk en de thuisbalk (iPhone)
+    <div onClick={onSluit} className="venster-achter" style={{ background: `rgba(12,3,34,${donker})`,
+      padding: `max(${rand}px, calc(env(safe-area-inset-top) + 8px)) ${rand}px max(${rand}px, calc(env(safe-area-inset-bottom) + 8px))` }}>
       <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel"
-        style={{ flex: "none", width: "100%", maxWidth: breedte, ...(maxHoogte ? { maxHeight: `${maxHoogte}vh` } : {}), ...(relatief ? { position: "relative" } : {}) }}>
+        style={{ flex: "none", width: "100%", maxWidth: breedte, ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte) } : {}), ...(relatief ? { position: "relative" } : {}) }}>
         {children}
       </div>
     </div>,
@@ -61,7 +69,7 @@ export function VensterMetKop({ icoon, label, titel, onSluit, breedte, maxHoogte
   return (
     <Venster onSluit={onSluit} breedte={breedte} maxHoogte={maxHoogte}>
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px",
-        ...(maxHoogte ? { maxHeight: `calc(${maxHoogte}vh - 6px)`, overflowY: "auto" } : {}) }}>
+        ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte, 6), overflowY: "auto" } : {}) }}>
         <VensterKop icoon={icoon} label={label} titel={titel} onSluit={onSluit} />
         {children}
       </div>

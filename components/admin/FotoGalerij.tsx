@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { TeamAntwoorden, AntwoordRij } from "@/lib/admin-antwoorden";
 import LeegScherm from "@/components/admin/LeegScherm";
-import Venster, { VensterKop } from "@/components/shared/Venster";
+import Venster, { VensterKop, vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 
 // Foto's staan in een afgeschermde opslag: een tijdelijke link via de admin-API (onthouden per pad)
@@ -78,7 +78,7 @@ function FotoGroot({ foto: f, nr, totaal, bezig, onVorige, onVolgende, onSluit, 
   const wacht = f.foto_status === "wacht";
   return (
     <Venster onSluit={onSluit} breedte={640} maxHoogte={96} donker={0.88} rand={12}>
-        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: "calc(96vh - 6px)", overflowY: "auto", padding: "14px 14px 12px" }}>
+        <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: vensterHoogte(96, 6), overflowY: "auto", padding: "14px 14px 12px" }}>
           <VensterKop label={<>📸 {nr} van {totaal} · {f.punt_naam}</>} titel={<>{f.icon ?? "👫"} {f.team}</>} onSluit={onSluit} />
           {f.vraag_tekst && <div style={{ fontSize: "0.84rem", color: "var(--text)" }}>{f.vraag_tekst}</div>}
           <div className="foto-groot">
