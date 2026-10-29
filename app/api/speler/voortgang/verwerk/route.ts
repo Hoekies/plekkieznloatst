@@ -6,6 +6,8 @@ import { stemWinnaars } from "@/lib/stemmen";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
 import { telBijScore } from "@/lib/score";
+import { goudenNu } from "@/lib/spelplezier";
+import { naAntwoord } from "@/lib/spelplezier-server";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -34,10 +36,12 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (!punt) return NextResponse.json({ fout: "Ongeldig punt" }, { status: 400 });
+  // "*": de 🎉 spelplezier-instellingen (migratie 007) mogen ontbreken
+  const { data: route } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
 
   const { data: bestaand } = await admin
     .from("player_point_progress")
-    .select("id, answered_at")
+    .select("id, answered_at, reached_at")
     .eq("session_id", sessie.id)
     .eq("route_point_id", route_point_id)
     .maybeSingle();
@@ -192,6 +196,10 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // ⏰ Gouden kwartier van de spelleider: een goede gewone vraag telt dubbel (na een eventuele verdubbeling)
+  const gouden = puntWaarde > 0 && metVraag && !isStem && goudenNu(route);
+  if (gouden) puntWaarde *= 2;
+
   // Diefstal check: actief effect op eigen sessie? (alleen voor vraagpunten)
   // Alleen nog voor dieven die vóór de wijziging zijn ingezet: een nieuwe dief steelt meteen bij het inzetten.
   if (punt.type === "vraagpunt" && puntWaarde > 0) {
@@ -285,14 +293,18 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // 🔥 Reeks en 🎖️ badges: alleen bij een gewone vraag met een uitslag (geen stemvraag)
+  const extra = metVraag && !isStem && isCorrect !== null
+    ? await naAntwoord(admin, { sessie, route, goed: isCorrect, reachedAt: bestaand.reached_at, gouden }).catch(() => ({ reeks: null, reeks_item: null }))
+    : { reeks: null, reeks_item: null };
+
   // Eindpunt → sessie sluiten
   if (punt.type === "eindpunt") {
     await admin
       .from("player_sessions")
       .update({ status: "voltooid", finished_at: new Date().toISOString() })
       .eq("id", sessie.id);
-    const { data: finishRoute } = await admin.from("routes").select("*").eq("id", sessie.route_id).maybeSingle();
-    await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(finishRoute) });
+    await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(route) });
   }
 
   return NextResponse.json({
@@ -306,5 +318,8 @@ export async function POST(request: NextRequest) {
     numeric_answer: numericAnswer,
     numeric_tolerance: numericTolerance,
     stem: isStem,
+    gouden,
+    reeks: extra.reeks,
+    reeks_item: extra.reeks_item,
   });
 }

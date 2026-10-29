@@ -6,6 +6,7 @@ import { maakKleurMap } from "@/lib/speler-kleur";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { herstelTeamVolgorde } from "@/lib/route-sessies";
 import { startitemsMeter, startitemsVan } from "@/lib/startitems";
+import { spelplezierAan } from "@/lib/spelplezier";
 
 export default async function SpelerKaartPage() {
   const user = await haalGebruiker();
@@ -112,6 +113,7 @@ export default async function SpelerKaartPage() {
       startitemsNaMeter={startitemsMeter(route)}
       itemTypen={itemTypen}
       puzzel={puzzelRegels(route)}
+      valAan={spelplezierAan(route).val}
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}
       heleRoute={route.modus !== "verspreid" && (route as { alle_punten_zichtbaar?: boolean }).alle_punten_zichtbaar === true}

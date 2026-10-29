@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spelGepauzeerd, PAUZE_FOUT, rondAfAlsTijdVoorbij, eindtijdVoorbij } from "@/lib/eindtijd";
 import { logItem } from "@/lib/item-log";
+import { naGeraakt } from "@/lib/spelplezier-server";
 import { haalItemSessie, doelwitNaFinishVan } from "@/lib/item-sessie";
 import { haalSpeler } from "@/lib/speler-sessie";
 import { voerItemUit, TYPES_MET_DOEL } from "@/lib/item-uitvoeren";
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
   const eigenNotificatie = uitkomst.eigenNotificatie;
 
   await logItem(admin, { gebruiker: eigenSessie.id, doel: doelSessie?.id ?? null, type: item.type, omschrijving: eigenNotificatie ?? null, plek });
+  if (doelSessie) await naGeraakt(admin, doelSessie.id).catch(() => undefined);
 
   return NextResponse.json({ ok: true, eigen_notificatie: eigenNotificatie });
 }

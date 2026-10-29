@@ -38,6 +38,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   // ⚔️ Duel (migratie 006)
   if (typeof body.duel_aan === "boolean") toegestaan.duel_aan = body.duel_aan;
   if (typeof body.duel_punten === "number" && body.duel_punten > 0) toegestaan.duel_punten = Math.min(500, Math.round(body.duel_punten));
+  // 🎉 Spelplezier aan/uit (migratie 007)
+  for (const veld of ["val_aan", "reeks_aan", "badges_aan", "fotobattle_aan", "schat_aan", "rad_aan"]) {
+    if (typeof body[veld] === "boolean") toegestaan[veld] = body[veld];
+  }
   if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
   if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
   if (typeof body.puzzel_bonus === "number" && body.puzzel_bonus >= 0) toegestaan.puzzel_bonus = Math.min(10000, Math.round(body.puzzel_bonus));

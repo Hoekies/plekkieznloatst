@@ -16,6 +16,7 @@ import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import BonusVraag from "./BonusVraag";
 import DuelVraag from "./DuelVraag";
+import Spelplezier, { type KaartMarker } from "./Spelplezier";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
 import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 import { puzzelUitleg } from "@/lib/puzzel";
@@ -66,6 +67,8 @@ interface Props {
   teamKleur?: string | null;
   // 🧩 Puzzelwoord van de route (punten), of null: dan geen uitleg erover bij de start
   puzzel?: { letterPunten: number; alleBonus: number; raadBonus: number } | null;
+  // 🪤 Bommen mogen als val neergelegd worden (route-instelling, migratie 007)
+  valAan?: boolean;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -74,7 +77,7 @@ const GPS_TIMEOUT_MS = 12000;
 
 // Het emoji waarmee een aanvalsmelding begint → item-icoon in /items
 const MELDING_ITEM_TYPE: Record<string, string> = {
-  "👻": "spook", "💣": "bom", "🔄": "wissel", "🦹": "dief", "🍌": "banaan", "❓": "vraagteken",
+  "👻": "spook", "💣": "bom", "🪤": "bom", "🔄": "wissel", "🦹": "dief", "🍌": "banaan", "❓": "vraagteken",
 };
 // Bericht van ± Punten (app/api/admin/sessies/[id]/punten): "+10 punten · reden" → aantal en reden apart
 const PUNTEN_BERICHT = /^([+-]\d+) punten(?: · ([\s\S]+))?$/;
@@ -105,11 +108,13 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen, valAan = false }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
   const [positie, setPositie] = useState<GeolocationCoordinates | null>(null);
+  // 🎉 Vliegende schat en eigen val op de kaart
+  const [extraMarkers, setExtraMarkers] = useState<KaartMarker[]>([]);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("laden");
   const [popupPunt, setPopupPunt] = useState<RoutePunt | null>(null);
   // Startvraag: afgelegde meters op het moment dat het team "Op pad!" tikte (null = niet aan het wachten)
@@ -1262,6 +1267,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           specialeItems={specialeItems.filter((i) => i.type !== "plekzooi")}
           ghostedPuntId={ghostTot ? activePunt?.id ?? null : null}
           richtingNaar={wachtOpStartVraag && richtingTelt ? richtPunt : null}
+          extraMarkers={extraMarkers}
         />
 
         {/* Na het welkomstscherm: eerst 25 meter de goede kant op lopen voor de startvraag */}
@@ -1361,6 +1367,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <BonusVraag />
         {/* ⚔️ Duel als er een ander team vlak bij is (als de route dat aan heeft) */}
         <DuelVraag />
+        {/* 🎉 Gouden kwartier, badges, rad van fortuin, vliegende schat en vallen (per route aan of uit) */}
+        <Spelplezier sessieId={sessie.id} positie={positie} onMarkers={setExtraMarkers} />
       </div>
 
       {/* Punt bereikt → vraag/info popup */}
@@ -1384,6 +1392,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             .map((s) => ({ session_id: s.session_id, teamnaam: s.teamnaam, icon: s.icon ?? null, gefinisht: s.gefinisht }))}
           waarden={waarden}
           plek={positie ? { lat: positie.latitude, lng: positie.longitude } : null}
+          valMag={valAan}
           onVerwerkt={inventarisItemGebruikt}
           onSluit={bewaarItemVoorLater}
         />

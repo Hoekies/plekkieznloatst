@@ -33,7 +33,7 @@ export async function GET(_: NextRequest, { params }: { params: { sleutel: strin
   const spelers = beamerSpelers(data.spelers);
   const fotos = await teamFotos(admin, data.route.id, spelers.map((s) => s.sessie_id).filter((id): id is string => !!id));
   const uit: BeamerData = {
-    route: { naam: data.route.name, modus: data.route.modus, huis_logo: data.route.huis_logo ?? null },
+    route: { naam: data.route.name, modus: data.route.modus, huis_logo: data.route.huis_logo ?? null, uitslag_vrij: !!data.route.uitslag_vrijgegeven, gouden_tot: data.route.gouden_tot ?? null },
     route_punten: data.route_punten,
     // Plek zooi is een verborgen val: nooit op het scherm dat de spelers zien
     speciale_items: data.speciale_items.filter((i) => i.type !== "plekzooi"),

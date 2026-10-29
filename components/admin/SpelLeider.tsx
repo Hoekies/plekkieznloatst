@@ -5,6 +5,7 @@ import type { SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
+import GoudenKnop from "@/components/admin/GoudenKnop";
 import TussenstandKnop from "@/components/admin/TussenstandKnop";
 import SpelAfronden from "@/components/admin/SpelAfronden";
 import BonusKnop from "@/components/admin/BonusKnop";
@@ -39,7 +40,7 @@ export async function stuurPauze(aan: boolean): Promise<string | null | undefine
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
@@ -52,6 +53,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   // Hulp (helper): geen eindtijd en niet afronden
   beperkt?: boolean;
   onGewijzigd: () => void;
+  // ⏰ Gouden kwartier loopt tot (migratie 007)
+  gouden?: string | null;
 }) {
   // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
   const [nu, setNu] = useState(() => Date.now());
@@ -211,12 +214,16 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               )}
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
+              {/* ⏰ Gouden kwartier: 15 minuten dubbele punten */}
+              {!gepauzeerd && !uitslagVrij && <GoudenKnop gouden={gouden} onGewijzigd={onGewijzigd} />}
               {/* ⚡ Bonusvraag: klaarzetten, nu sturen en foto's keuren */}
               <BonusKnop />
               {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
               <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
             </div>
           )}
+          {/* Helper: alleen de bonusvraag bekijken en de bonusfoto's keuren */}
+          {beperkt && <div className="spelleider-knoppen"><BonusKnop beperkt /></div>}
         </div>
 
         {gepauzeerd && (

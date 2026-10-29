@@ -74,7 +74,13 @@ export default function TestteamKnop({ onGewijzigd }: { onGewijzigd: () => void 
                 </div>
               </div>
               <div className="test-stap">
-                <strong>3. Opnieuw beginnen</strong>
+                <strong>3. Duel testen</strong>
+                <span>De testtegenstander daagt je uit en antwoordt zelf (soms goed, soms fout). Staat het duel aan bij de route, dan ook vanzelf.</span>
+                <button type="button" className="rl-knop" disabled={!stand.speelt || bezig}
+                  onClick={() => actie({ actie: "duel" }, "⚔️ Duel gestart: kijk op de telefoon")}>⚔️ Duel nu</button>
+              </div>
+              <div className="test-stap">
+                <strong>4. Opnieuw beginnen</strong>
                 <span>Wist alleen de test; echte teams blijven staan.</span>
                 <BevestigKnop venster icoon="↺" titel="Test opnieuw?" vraag="Het testrondje (antwoorden, plekken, items) wordt gewist. Echte teams blijven staan."
                   ja="Ja, opnieuw" onBevestig={() => actie({ actie: "opnieuw" }, "Test gewist: je kunt opnieuw beginnen")} className="rl-knop rl-knop--rood" disabled={bezig}>

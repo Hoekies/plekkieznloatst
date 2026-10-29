@@ -27,9 +27,11 @@ interface Props {
   onWisselLaag?: (laag: "sporen" | "items") => void;
   // Tik op een teammarker: het venster van dat team (vrijgeven, bellen, bericht)
   onKiesSpeler?: (playerId: string) => void;
+  // 🎬 Replay (beamer): één keer op deze plekken inzoomen en dan stil blijven staan (niet meebewegen)
+  vastBeeld?: [number, number][] | null;
 }
 
-export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen, lagen: lagenVanBuiten, onWisselLaag, onKiesSpeler }: Props) {
+export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items = [], modus = null, kleuren, sporen = {}, volgId = null, onStopVolgen, lagen: lagenVanBuiten, onWisselLaag, onKiesSpeler, vastBeeld = null }: Props) {
   const kiesRef = useRef(onKiesSpeler);
   kiesRef.current = onKiesSpeler;
   const sporenLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
@@ -231,6 +233,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     const gevolgde = volgId ? spelers.find((s) => s.player_id === volgId && s.laatste_lat !== null) : undefined;
     if (gevolgde) {
       map.setView([gevolgde.laatste_lat!, gevolgde.laatste_lng!], Math.max(map.getZoom(), 17), { animate: true });
+    } else if (vastBeeld) {
+      // Replay: het beeld staat vast (zie hieronder)
     } else if (volgen && nieuwePosities.length > 0) {
       // Spelers volgen: bij elke update alle teams in beeld houden
       map.fitBounds(L.latLngBounds(nieuwePosities), { padding: [60, 60], maxZoom: 17, animate: true });
@@ -239,7 +243,14 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
       routeGetoondRef.current = true;
       map.fitBounds(L.latLngBounds(route_punten.map((p): [number, number] => [p.latitude, p.longitude])), { padding: [40, 40] });
     }
-  }, [spelers, route_punten, volgen, kaartKlaar, kleuren, volgId]);
+  }, [spelers, route_punten, volgen, kaartKlaar, kleuren, volgId, vastBeeld]);
+
+  // 🎬 Replay: één keer alles in beeld wat de teams gelopen hebben
+  useEffect(() => {
+    const L = LRef.current, map = mapRef.current;
+    if (!L || !map || !vastBeeld?.length) return;
+    map.fitBounds(L.latLngBounds(vastBeeld), { padding: [50, 50], maxZoom: 17 });
+  }, [vastBeeld, kaartKlaar]);
 
   // Stippellijn van elk team naar het punt waar het nu heen loopt, in de teamkleur
   const doelLaagRef = useRef<import("leaflet").LayerGroup | null>(null);

@@ -4,10 +4,11 @@ import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
 import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
-import { TEST_LOGIN, TEGENSTANDER_LOGIN, TEGENSTANDER_NAAM, testRol, gooiOpTestteam, wisTest } from "@/lib/testteam";
+import { TEST_LOGIN, TEGENSTANDER_LOGIN, TEGENSTANDER_NAAM, testRol, gooiOpTestteam, testDuel, wisTest } from "@/lib/testteam";
 
 // 🧪 Testteam (migratie 005). GET = staat het er, en speelt het? POST { actie: "maak" } = testteam en
-// testtegenstander aanmaken · { actie: "gooi", type? } = de tegenstander gooit nu een item · { actie: "opnieuw" } = test wissen
+// testtegenstander aanmaken · { actie: "gooi", type? } = de tegenstander gooit nu een item · { actie: "duel" } = de
+// tegenstander daagt nu uit voor een duel · { actie: "opnieuw" } = test wissen
 const MIGRATIE = "Draai eerst migratie 005 (testteam) in Supabase";
 
 async function stand(admin: ReturnType<typeof createAdminClient>) {
@@ -66,6 +67,11 @@ export async function POST(request: NextRequest) {
     if (!nu.sessie) return NextResponse.json({ fout: "Het testteam speelt nu niet: start eerst een rondje met het testteam" }, { status: 409 });
     const uit = await gooiOpTestteam(admin, nu.sessie, body.type);
     return uit.ok ? NextResponse.json({ ok: true, type: uit.type }) : NextResponse.json({ fout: uit.fout }, { status: 400 });
+  }
+  if (body.actie === "duel") {
+    if (!nu.sessie) return NextResponse.json({ fout: "Het testteam speelt nu niet: start eerst een rondje met het testteam" }, { status: 409 });
+    const uit = await testDuel(admin, nu.sessie);
+    return uit.ok ? NextResponse.json({ ok: true }) : NextResponse.json({ fout: uit.fout }, { status: 409 });
   }
   if (body.actie === "opnieuw") {
     const aantal = await wisTest(admin);

@@ -59,6 +59,15 @@ Staat het duel aan en kom je vlak bij een ander team (binnen 25 meter), dan krij
 **😤 Iets terugsturen**
 Gooit een ander team een item op jullie, dan kun je in de melding met één tik een emoji terugsturen (😤 🤣 👀 🙈 💪). Dat kost niets en levert niets op; het is gewoon leuk.
 
+**🎉 Extra's** (als de organisatie ze aanzet)
+- **🪤 Val:** heb je een bom, dan kun je hem ook als verborgen val op je plek leggen. Loopt een ander team erlangs, dan verliest het punten.
+- **🔥 Reeks:** 3 goede antwoorden op rij geven een bonus-item.
+- **🎖️ Badges:** kleine prijzen tijdens het spel, zoals *Pionier* of *On fire*. Ze komen op je oorkonde.
+- **📦 Vliegende schat:** een schat op de kaart die elke 10 minuten verhuist. Wie er het eerst is, krijgt een item.
+- **🎰 Rad van fortuin:** halverwege draai je één keer: punten, een item of pech.
+- **⏰ Gouden kwartier:** zie je bovenin een gouden balk, dan tellen goede antwoorden dubbel.
+- **📸 Fotobattle:** na de finish stem je op de mooiste finishfoto van een ander team.
+
 **🏆 Prijzen**
 Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.
 
@@ -72,7 +81,7 @@ Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste tea
 Zodra de organisatie de uitslag vrijgeeft, zie je meteen jullie plaats over het hele scherm: de winnaar krijgt confetti en een fanfare, de andere teams een knipoog. Daarna staat de eindstand bovenaan het scherm, met de nummers 3, 2 en 1 op het podium; de oorkonde, de antwoorden en de gelopen route staan eronder bij *Delen en terugkijken*. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
 
 **Puzzelwoord en tijdslimiet**
-Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes. Tik op 🧩 voor de uitleg en de punten; de uitleg staat ook in het welkomstscherm bij de start. Elke goed beantwoorde vraag geeft een letter (punten per letter). Alle letters gevonden? Dan krijg je een bonus. Mis je letters? Raad het woord dan bij de finish voor extra punten: tik op **Start** en je hebt 1 minuut, met één poging. Ingestuurde foto's: zolang ze op keuring wachten, zie je dat onder de puntenbalk; de punten komen erbij zodra de foto is goedgekeurd. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
+Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes. Tik op 🧩 voor de uitleg en de punten; de uitleg staat ook in het welkomstscherm bij de start. Elke goed beantwoorde vraag geeft een letter (punten per letter). Alle letters gevonden? Dan krijg je een bonus. Mis je letters? Raad het woord dan bij de finish voor extra punten: tik op **Start** en je hebt 1 minuut, met één poging. Ingestuurde foto's: zolang ze op keuring wachten, zie je dat onder de puntenbalk; de punten komen erbij zodra de foto is goedgekeurd. De selfie bij de finish hoeft niet gekeurd te worden: die staat meteen in de uitslag en op je oorkonde. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
 
 **Verboden gebied**
 Rode vlakken op de kaart zijn verboden gebieden (bijvoorbeeld een drukke weg). Loop je erin, dan trilt je telefoon en krijg je een melding: loop terug.

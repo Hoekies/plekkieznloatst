@@ -7,7 +7,8 @@ import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
-import { testRol } from "../lib/testteam";
+import { testRol } from "../lib/test-rol";
+import { RAD_VAKKEN, radHalverwege, spelplezierAan, goudenNu, BADGES, schatSlot } from "../lib/spelplezier";
 import { deelPrijzenUit } from "../lib/prijzen";
 import { DUEL_VRAGEN } from "../lib/duel-vragen";
 
@@ -82,6 +83,33 @@ test("prijzen: elk team één titel, niemand dubbel", () => {
   assert.equal(p.size, 4);
   assert.equal(new Set([...p.values()].map((x) => x.titel)).size, 4);
   assert.equal(deelPrijzenUit([]).size, 0);
+});
+
+test("spelplezier: rad, halverwege, aan/uit, gouden kwartier en badges", () => {
+  assert.equal(RAD_VAKKEN.length, 8);
+  assert.equal(new Set(RAD_VAKKEN.map((v) => v.id)).size, 8);
+  assert.equal(radHalverwege(2, 5), false);
+  assert.equal(radHalverwege(3, 5), true);
+  assert.equal(radHalverwege(1, 1), false);
+  assert.deepEqual(spelplezierAan({}), { val: false, reeks: false, badges: false, fotobattle: false, schat: false, rad: false });
+  assert.equal(spelplezierAan({ val_aan: true, rad_aan: true }).val, true);
+  const nu = Date.parse("2026-10-29T12:00:00Z");
+  assert.equal(goudenNu({ gouden_tot: "2026-10-29T12:05:00Z" }, nu), true);
+  assert.equal(goudenNu({ gouden_tot: "2026-10-29T11:55:00Z" }, nu), false);
+  assert.equal(goudenNu(null, nu), false);
+  for (const b of Object.values(BADGES)) assert.ok(b.emoji && b.naam && b.uitleg);
+  assert.equal(schatSlot(0), 0);
+  assert.equal(schatSlot(10 * 60_000 - 1), 0);
+  assert.equal(schatSlot(10 * 60_000), 1);
+});
+
+test("fotobattle: meeste stemmen krijgt de prijs, gelijkspel niet", () => {
+  const basis = { tijd: 100, afstand: 0, goed: 0, items: {}, geraakt: 0 };
+  const uit = deelPrijzenUit([{ ...basis, id: "a", stemmen: 3 }, { ...basis, id: "b", stemmen: 1 }]);
+  assert.equal(uit.get("a")?.titel, "Mooiste foto");
+  const gelijk = deelPrijzenUit([{ ...basis, id: "a", stemmen: 2 }, { ...basis, id: "b", stemmen: 2 }]);
+  assert.notEqual(gelijk.get("a")?.titel, "Mooiste foto");
+  assert.notEqual(gelijk.get("b")?.titel, "Mooiste foto");
 });
 
 test("duelvragen: vier keuzes en een geldig goed antwoord", () => {

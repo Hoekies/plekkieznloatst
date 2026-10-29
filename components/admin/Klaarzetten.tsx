@@ -24,8 +24,8 @@ export function wisKlaarzetten() {
 // Stappenplan "Spel klaarzetten": wat kan, controleert de app zelf; de rest vink je af.
 // Afgevinkte stappen worden per route onthouden (in deze browser), tot een reset.
 export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { id: string; name: string; modus?: string; verwacht_aantal_teams?: number; eindtijd?: string | null } | null; spelers: SpelerOverzicht[] }) {
-  // Uitgeschakelde spelers doen niet mee
-  const spelers = alleSpelers.filter((s) => !s.uitgeschakeld);
+  // Uitgeschakelde spelers en het 🧪 testteam doen niet mee
+  const spelers = alleSpelers.filter((s) => !s.uitgeschakeld && !s.test);
   // Verspreide route: klopt het aantal teams waarvoor de startplekken zijn verdeeld?
   const verwacht = route?.modus === "verspreid" ? route.verwacht_aantal_teams ?? null : null;
   const aantalWijkt = verwacht !== null && spelers.length > 0 && spelers.length !== verwacht;

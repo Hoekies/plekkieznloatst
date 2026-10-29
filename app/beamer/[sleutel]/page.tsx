@@ -4,10 +4,14 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { maakKleurMap } from "@/lib/speler-kleur";
 import type { BeamerData } from "@/lib/beamer";
+import type { ReplayData } from "@/lib/beamer-replay";
 
 const AdminLiveLeaflet = dynamic(() => import("@/components/admin/AdminLiveLeaflet"), { ssr: false });
 
 const VERVERS_MS = 5000;
+// 🎬 Replay: het hele spel in zoveel tijd, daarna even stilstaan op het eindbeeld, en dan opnieuw
+const REPLAY_MS = 40_000;
+const REPLAY_PAUZE_MS = 8_000;
 
 // Hoe lang geleden, kort: "nu", "3 min", "1 u"
 function geleden(iso: string) {
@@ -41,6 +45,42 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
   const spelers = useMemo(() => data?.spelers ?? [], [data]);
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
   const stand = [...spelers].sort((a, b) => b.score - a.score);
+
+  // 🎬 Na het vrijgeven van de uitslag: de kaart speelt de gelopen routes van alle teams versneld af, in een lus
+  const uitslagVrij = !!data?.route.uitslag_vrij;
+  const [replay, setReplay] = useState<ReplayData | null>(null);
+  useEffect(() => {
+    if (!uitslagVrij) { setReplay(null); return; }
+    fetch(`/api/beamer/${params.sleutel}/replay`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
+      .then((d: ReplayData | null) => { if (d && d.duur > 0) setReplay(d); }).catch(() => undefined);
+  }, [uitslagVrij, params.sleutel]);
+  const [replayDeel, setReplayDeel] = useState(0);
+  useEffect(() => {
+    if (!replay) return;
+    const begin = performance.now();
+    const t = setInterval(() => setReplayDeel(Math.min(1, ((performance.now() - begin) % (REPLAY_MS + REPLAY_PAUZE_MS)) / REPLAY_MS)), 250);
+    return () => clearInterval(t);
+  }, [replay]);
+  const replayBeeld = useMemo(() => {
+    if (!replay) return null;
+    const tijd = replayDeel * replay.duur;
+    const sporen: Record<string, [number, number][]> = {};
+    for (const [id, spoor] of Object.entries(replay.sporen)) {
+      const tot = spoor.filter((p) => p[2] <= tijd).map((p): [number, number] => [p[0], p[1]]);
+      if (tot.length) sporen[id] = tot;
+    }
+    return { tijd, sporen };
+  }, [replay, replayDeel]);
+  const replayPlekken = useMemo(() => replay ? Object.values(replay.sporen).flat().map((p): [number, number] => [p[0], p[1]]) : null, [replay]);
+  // Tijdens de replay staan de teams op hun plek van dat moment (en tellen als onderweg, zodat het spoor zichtbaar is)
+  const kaartSpelers = useMemo(() => {
+    if (!replayBeeld) return spelers;
+    return spelers.flatMap((s) => {
+      const spoor = replayBeeld.sporen[s.player_id];
+      const plek = spoor?.[spoor.length - 1];
+      return plek ? [{ ...s, sessie_status: "actief" as const, laatste_lat: plek[0], laatste_lng: plek[1], volgend_punt: null }] : [];
+    });
+  }, [spelers, replayBeeld]);
 
   // 📣 Sportverslag: een nieuwe gebeurtenis met een item of finish, of een nieuwe koploper, komt even groot in beeld
   const [knaller, setKnaller] = useState<{ id: string; icoon: string; item: string | null; tekst: string } | null>(null);
@@ -95,8 +135,20 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
   return (
     <div className="beamer">
       <div className="beamer-kaart">
-        <AdminLiveLeaflet spelers={spelers} route_punten={data.route_punten} speciale_items={data.speciale_items}
-          modus={data.route.modus} kleuren={kleuren} />
+        <AdminLiveLeaflet spelers={kaartSpelers} route_punten={data.route_punten} speciale_items={replayBeeld ? [] : data.speciale_items}
+          modus={data.route.modus} kleuren={kleuren} sporen={replayBeeld?.sporen} vastBeeld={replayPlekken} />
+        {/* 🎬 Replay: hoe ver in het spel, met een balk */}
+        {replayBeeld && (
+          <div className="beamer-replay">
+            <span>🎬 Replay</span>
+            <span className="beamer-replay-klok">{Math.floor(replayBeeld.tijd / 3_600_000)}:{String(Math.floor(replayBeeld.tijd / 60_000) % 60).padStart(2, "0")}</span>
+            <span className="beamer-replay-balk"><i style={{ width: `${Math.round(replayDeel * 100)}%` }} /></span>
+          </div>
+        )}
+        {/* ⏰ Gouden kwartier: dubbele punten */}
+        {data.route.gouden_tot && Date.parse(data.route.gouden_tot) > Date.now() && (
+          <div className="beamer-gouden">⏰ GOUDEN KWARTIER · dubbele punten tot {new Date(data.route.gouden_tot).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</div>
+        )}
         {/* ⚡ Bonusvraag die nu loopt */}
         {data.bonus && (
           <div className="beamer-bonus">

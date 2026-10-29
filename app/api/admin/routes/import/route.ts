@@ -40,7 +40,9 @@ const INSTELLINGEN = [
 // Nieuwere instellingen (migratie 012 en 014): los bijgewerkt, zodat importeren ook zonder die migraties lukt
 // (puzzel_verdeling niet: die verwijst naar de punten van de oude route)
 const EXTRA_INSTELLINGEN = ["alle_punten_zichtbaar", "puzzelwoord", "puzzel_bonus", "puzzel_omschrijving", "verboden_gebieden", "puzzel_aan", "puzzel_letter_punten", "puzzel_raad_bonus", "puzzel_volgorde",
-  "huisstijl_kleur", "huisstijl_logo_pad", "welkom_foto_pad", "geluid_set"];
+  "huisstijl_kleur", "huisstijl_logo_pad", "welkom_foto_pad", "geluid_set",
+  // ⚔️ Duel (migratie 006) en 🎉 spelplezier (migratie 007)
+  "duel_aan", "duel_punten", "val_aan", "reeks_aan", "badges_aan", "fotobattle_aan", "schat_aan", "rad_aan"];
 const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken"];
 
 export async function POST(request: Request) {

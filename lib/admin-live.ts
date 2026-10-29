@@ -5,6 +5,7 @@ import { huisLogoUrl } from "@/lib/huisstijl";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
 import { testRol } from "@/lib/testteam";
+import { goudenNu } from "@/lib/spelplezier";
 import { raadVenster, RAAD_WACHT_MIN } from "@/lib/puzzel-server";
 
 export type SpelerOverzicht = {
@@ -21,6 +22,8 @@ export type SpelerOverzicht = {
   ingelogd: boolean;
   // Uitgeschakeld door de beheerder: kan niet inloggen en telt niet mee in het stappenplan
   uitgeschakeld?: boolean;
+  // 🧪 Testteam (migratie 005): telt niet mee in het stappenplan
+  test?: boolean;
   sessie_id: string | null;
   sessie_status: "geen_sessie" | "actief" | "voltooid" | "vervallen";
   started_at: string | null;
@@ -59,7 +62,7 @@ export type RoutePuntKort = {
 
 export type LiveData = {
   // huis_logo: eigen logo van de organisatie (huisstijl van de route)
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null; gouden_tot?: string | null } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -93,6 +96,8 @@ export async function haalLiveData(): Promise<LiveData> {
   const routeInfo = route ? {
     id: route.id, name: route.name, modus: route.modus, uitslag_vrijgegeven: route.uitslag_vrijgegeven, verwacht_aantal_teams: route.verwacht_aantal_teams,
     eindtijd: tijd?.eindtijd ?? null, gepauzeerd_sinds: tijd?.pauze ?? null, huis_logo: huisLogoUrl(route),
+    // ⏰ Gouden kwartier (migratie 007): alleen als het nog loopt
+    gouden_tot: goudenNu(route) ? (route as { gouden_tot?: string }).gouden_tot ?? null : null,
   } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
@@ -269,6 +274,7 @@ export async function haalLiveData(): Promise<LiveData> {
       telefoon: (player as { telefoon?: string | null }).telefoon ?? null,
       ingelogd: !!player.active_device_id,
       uitgeschakeld: !!player.is_uitgeschakeld,
+      test: !!testRol(player),
       sessie_id: sessie?.id ?? null,
       sessie_status: sessie ? (sessie.status as SpelerOverzicht["sessie_status"]) : "geen_sessie",
       started_at: sessie?.started_at ?? null,

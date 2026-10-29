@@ -27,6 +27,14 @@ export interface Route {
   // ⚔️ Duel aan/uit en punten per duel (migratie 006)
   duel_aan?: boolean;
   duel_punten?: number;
+  // 🎉 Spelplezier aan/uit en het ⏰ gouden kwartier (migratie 007)
+  val_aan?: boolean;
+  reeks_aan?: boolean;
+  badges_aan?: boolean;
+  fotobattle_aan?: boolean;
+  schat_aan?: boolean;
+  rad_aan?: boolean;
+  gouden_tot?: string | null;
   // 🧩 Puzzelwoord (leeg = uit) en de bonus bij goed raden; verboden gebieden op de kaart (migratie 014)
   puzzelwoord?: string | null;
   puzzel_bonus?: number;

@@ -1,13 +1,18 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { telBijScore } from "@/lib/score";
 import { bonusPunten, bonusOpen, bonusStartMoment, type BonusAntwoord, type BonusVraag } from "@/lib/bonus";
+import { testRol } from "@/lib/testteam";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-// Teams die meedoen (bezig of gefinisht) op deze route; hun aantal bepaalt de punten per plek
-async function spellen(admin: AdminClient, routeId: string) {
-  const { data } = await admin.from("player_sessions").select("id, started_at").eq("route_id", routeId).in("status", ["actief", "voltooid"]);
-  return data ?? [];
+// Teams die meedoen (bezig of gefinisht) op deze route; hun aantal bepaalt de punten per plek. Het 🧪 testteam
+// telt niet mee, behalve als er alleen getest wordt (dan kun je de bonusvraag ook in je eentje proberen).
+// De testtegenstander telt nooit mee.
+export async function bonusSpellen(admin: AdminClient, routeId: string): Promise<{ id: string; started_at: string | null }[]> {
+  const { data } = await admin.from("player_sessions").select("id, started_at, players(*)").eq("route_id", routeId).in("status", ["actief", "voltooid"]);
+  const alle = (data ?? []).filter((s) => testRol(s.players) !== "tegenstander");
+  const echt = alle.filter((s) => !testRol(s.players));
+  return (echt.length ? echt : alle).map((s) => ({ id: s.id, started_at: s.started_at }));
 }
 
 // ⚡ Bonusvragen die nu moeten starten (na X minuten speeltijd sinds het eerste team begon): starten voor
@@ -17,7 +22,7 @@ export async function startDueBonus(admin: AdminClient, routeId: string, uitslag
   if (uitslagVrij) return;
   const { data: wachtend } = await admin.from("bonus_vragen").select("*").eq("route_id", routeId).is("gestart_op", null).not("na_minuten", "is", null);
   if (!wachtend?.length) return;
-  const lijst = await spellen(admin, routeId);
+  const lijst = await bonusSpellen(admin, routeId);
   const eerste = lijst.map((s) => s.started_at).filter((t): t is string => !!t).sort()[0] ?? null;
   for (const v of wachtend as BonusVraag[]) {
     const moment = bonusStartMoment(v, eerste);
@@ -29,7 +34,7 @@ export async function startDueBonus(admin: AdminClient, routeId: string, uitslag
 
 // Nu starten (knop "Nu sturen" in het beheer)
 export async function startBonusNu(admin: AdminClient, bonusId: string, routeId: string): Promise<boolean> {
-  const lijst = await spellen(admin, routeId);
+  const lijst = await bonusSpellen(admin, routeId);
   const { data } = await admin.from("bonus_vragen").update({ gestart_op: new Date().toISOString(), aantal_teams: lijst.length })
     .eq("id", bonusId).is("gestart_op", null).select("id");
   return !!data?.length;

@@ -129,7 +129,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > **📄 Voorproefje**: één A4 om te laten zien wat een route inhoudt, zonder iets te verraden. Op het vel staan het speelgebied (een zone op de kaart, zonder route en zonder punten; de items staan er verschoven op), het aantal punten en vragen per soort, een schatting van afstand en speelduur, drie voorbeeldvragen zónder de goede antwoorden (je kiest zelf welke, of 🔀 voor andere) en de items in het spel. Met **📄 PDF maken** en daarna **📲 Versturen** deel je het via WhatsApp. Antwoorden, puntnamen en coördinaten komen niet eens in de browser.
 
-> Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd. Ook de finish kan een vraag of opdracht hebben, bijvoorbeeld **maak een selfie**: het team krijgt die eerst te zien. Bij een foto-opdracht is het team gefinisht zodra de foto is ingestuurd; de punten komen erbij als jij de foto goedkeurt bij **Antwoorden**.
+> Het eindpunt (goud/vlag-icoon) is het laatste punt van de route. Zodra een team het eindpunt bereikt wordt hun tijd vastgelegd. Ook de finish kan een vraag of opdracht hebben, bijvoorbeeld **maak een selfie**: het team krijgt die eerst te zien. Bij een foto-opdracht is het team gefinisht zodra de foto is ingestuurd; de punten komen erbij als jij de foto goedkeurt bij **Antwoorden**. Een finishfoto zonder punten (de selfie) is meteen goedgekeurd.
 
 ---
 
@@ -420,7 +420,7 @@ Wil je hulp bij het spelleiden, kies dan bovenaan de Spelers-pagina **🦺 Helpe
 
 Met de **schakelaar** (groen/rood) rechts op de helperkaart zet je een helper aan of uit, net als bij de spelers. Uit = de helper kan niet meer inloggen, wordt meteen uitgelogd (binnen een paar seconden, bij de volgende actie) en krijgt geen meldingen meer; op de kaart staat **⏸ Uit**. Zet je hem weer aan, dan kan hij met hetzelfde wachtwoord inloggen; meldingen (🔔) moet hij dan opnieuw aanzetten.
 
-Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren**, antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Helpers staan op dezelfde soort kaarten als de spelers. Met de **🔑** maak je een nieuw wachtwoord en verstuur je het kaartje; met de rode **🗑️** kan de helper niet meer inloggen.
+Een helper kan **meekijken** (dashboard, tijdlijn, live kaart, details per team), **foto's keuren** (ook die van de bonusvraag), antwoorden alsnog goedkeuren en **punten vrijgeven** bij een hulpvraag. Een helper kan géén routes of spelers beheren, geen bericht sturen, geen spel stoppen of resetten, geen punten aanpassen, geen eindtijd zetten en de uitslag niet vrijgeven. Meldingen op de telefoon (🔔) kan een helper wel aanzetten. Helpers staan op dezelfde soort kaarten als de spelers. Met de **🔑** maak je een nieuw wachtwoord en verstuur je het kaartje; met de rode **🗑️** kan de helper niet meer inloggen.
 
 ---
 
@@ -519,6 +519,8 @@ Het beamerscherm laat naast de kaart, de stand en de gebeurtenissen ook groot ov
 - elk ingezet item en elke finish, een paar seconden lang;
 - een nieuwe koploper.
 
+Na het vrijgeven van de uitslag speelt de kaart een 🎬 *replay* af: de gelopen routes van alle teams tegelijk, het hele spel in 40 seconden, met een klok en een balk. Daarna blijft het eindbeeld even staan en begint hij opnieuw.
+
 ### 🧪 Testteam
 
 Zelf een rondje lopen om de route te testen, zonder dat het ergens meetelt. Bij 👫 Spelers → **Testteam**. Nodig: migratie 005 (`supabase/migrations/005_testteam.sql`).
@@ -526,15 +528,31 @@ Zelf een rondje lopen om de route te testen, zonder dat het ergens meetelt. Bij 
 1. **Testteam aanmaken**: een team met loginnaam *test*, plus een *Testtegenstander* (die staat niet in de lijst met spelers).
 2. Tik op **QR** en scan hem met je telefoon: je bent ingelogd als het testteam. Speel het rondje zoals een echt team.
 3. De testtegenstander speelt mee. Na 3 minuten gooit hij vanzelf elke 4 minuten een willekeurig item op je (bom, spook, banaan, dief of wissel), met dezelfde meldingen en geluiden als in een echt spel. Met de knoppen 💣 👻 🍌 🦹 🔄 🎲 gooit hij er meteen een. Jouw eigen items kun je op de testtegenstander gooien.
-4. **↺ Test opnieuw** wist alleen het testrondje; echte teams blijven staan.
+4. Met **⚔️ Duel nu** daagt de testtegenstander je meteen uit voor een duel, ook als het duel bij de route nog uit staat. Hij antwoordt zelf, na 10 tot 40 seconden, ongeveer de helft van de keren goed. Staat het duel aan bij de route, dan daagt hij je na 5 minuten spelen ook vanzelf uit (daarna steeds na de gewone duelpauze).
+5. **↺ Test opnieuw** wist alleen het testrondje; echte teams blijven staan.
 
-Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het rapport, en testteams en echte teams zien en raken elkaar niet. Op het dashboard zie je het testteam gewoon meelopen.
+Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het rapport, en testteams en echte teams zien en raken elkaar niet. Op het dashboard zie je het testteam gewoon meelopen, maar het telt niet mee bij *Spelers ingelogd* in het stappenplan. Bij een bonusvraag telt het testteam alleen mee als er verder niemand speelt; zo kun je ook de bonusvraag in je eentje proberen.
 
 ### ⚔️ Duel
 
 Zet het aan in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *⚔️ Duel* (**Aan** of **Uit**, en 10, 25 of 50 punten). Nodig: migratie 006 (`supabase/migrations/006_duel.sql`).
 
 Komen twee teams die nog spelen binnen 25 meter van elkaar, dan krijgen ze allebei tegelijk dezelfde snelle meerkeuzevraag, met een eigen geluid. Het is een algemene vraag, nooit een vraag uit de route. Wie het eerst goed antwoordt, pakt de punten van de ander. Elk team heeft één poging en 60 seconden. Hebben ze het allebei fout, dan krijgt niemand punten. Dezelfde twee teams krijgen pas na 10 minuten weer een duel.
+
+### 🎉 Spelplezier
+
+Zet elk onderdeel los aan of uit in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *🎉 Spelplezier* (**Aan** of **Uit**). Bij een kopie, export en import gaan de instellingen mee. Nodig: migratie 007 (`supabase/migrations/007_spelplezier.sql`).
+
+- **🪤 Val:** een team met een bom kan die ook *als val neerleggen* op zijn eigen plek. Alleen dat team ziet de val op de kaart. Loopt een ander team binnen 15 meter langs, dan verliest dat team de bompunten en krijgt het een melding; het team dat de val zette ook. Eén val per team tegelijk, 20 minuten lang, en minstens 30 meter van een routepunt. Op de beamer staat wie in wiens val liep.
+- **🔥 Reeks:** elke 3 goede antwoorden op rij geven een bonus-item (ster, verdubbeling of radar). Een fout antwoord zet de reeks op 0. Foto's en stemvragen tellen niet mee.
+- **🎖️ Badges:** kleine prijzen tijdens het spel. 🚩 *Pionier* (als eerste bij een punt), ⚡ *Bliksemsnel* (goed binnen 15 seconden), 🔥 *On fire* (5 goed op rij), 🛡️ *Taaie rakkers* (3 keer geraakt), 📦 *Schatzoekers*, 🪤 *Sluw* (iemand in je val), ⚔️ *Duelkampioen*, 🍀 *Geluksvogels* (hoofdprijs van het rad) en ⏰ *Goudzoekers* (goed in het gouden kwartier). Het team ziet een melding; de badges staan bij de finish en op de oorkonde.
+- **📸 Fotobattle:** na de finish ziet een team de finishfoto's van de andere teams en stemt het op de mooiste (aanpassen mag tot de uitslag). Het team met de meeste stemmen krijgt de prijs 📸 *Mooiste foto*. Bij een gelijkspel krijgt niemand die prijs.
+- **📦 Vliegende schat:** elke 10 minuten ligt er een schat op een nieuwe plek, 30 tot 90 meter van een routepunt (nooit in een verboden gebied). Alle teams zien hem op de kaart. Wie er het eerst binnen 20 meter is, krijgt een willekeurig item. Daarna komt de volgende pas in het volgende blok van 10 minuten.
+- **🎰 Rad van fortuin:** heeft een team de helft van de punten gehad, dan verschijnt de knop *Draai aan het rad!*. Eén keer draaien: +25, +50 of +100 punten, een item, −25 of niets.
+
+### ⏰ Gouden kwartier
+
+Met **⏰ Gouden kwartier** in het Spelleider-blok tellen 15 minuten lang alle goede vragen dubbel, bij alle teams. Ze zien bovenin een gouden balk met de klok, en de beamer laat het groot zien. Op de knop staat de resterende tijd; tik erop om het eerder te stoppen. Nodig: migratie 007.
 
 ### 👉 Wat nu?
 
@@ -545,11 +563,12 @@ Bovenaan het dashboard staat in één regel wat je nu moet doen, met de knop erb
 Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen geluid: ook bij teams die al gefinisht zijn (tot de uitslag vrij is). Zet hem klaar in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *⚡ Bonusvragen* (ook voor een route die nog niet actief is; de lijst staat op volgorde van het spel), of tijdens het spel met **⚡ Bonusvraag** in het Spelleider-blok (of vooraf bij *Spel klaarzetten*). Bij *Kopie maken*, exporteren en importeren van een route gaan de bonusvragen mee. Nodig: migratie 004 (`supabase/migrations/004_bonusvragen.sql`).
 
 - **Soort:** 🔘 *Meerkeuze* (2 tot 4 keuzes; tik ✓ bij het goede antwoord) of 📸 *Foto-opdracht* ("maak een foto van …").
+- **Uit de vragenbank:** bovenin het formulier staat *Vragenbank*. Kies een meerkeuze- of foto-vraag uit een van je routes: de vraag, de keuzes en het goede antwoord worden ingevuld. Daarna stel je de punten en het moment in.
 - **Punten:** de eerste goede krijgt alles, de volgende steeds minder. Bij 3 teams en 90 punten: 90 · 60 · 30. Het venster laat de verdeling voor het huidige aantal teams zien.
 - **Wanneer:** *na 15/30/45/60 min* speeltijd (gerekend vanaf de start van het eerste team), of *Met de knop*. Met **▶ Nu sturen** stuur je hem meteen.
 - **Hoe lang open:** 1, 2, 5 of 10 minuten; daarna sluit hij. Teams kunnen hem met *Later* even wegtikken; bovenin blijft dan een knopje met de resterende tijd.
 - **Eén poging** per team: fout is 0 punten.
-- **Foto's** keur je in hetzelfde venster met **Goed** of **Af**. De punten tellen op volgorde van *insturen*, niet van keuren: wie het eerst een goede foto stuurde, krijgt de meeste punten. Je krijgt een pushmelding bij elke bonusfoto.
+- **Foto's** keur je in hetzelfde venster met **Goed** of **Af**. Een helper kan dat ook: die ziet in het Spelleider-blok alleen de knop *Bonusvraag* om te kijken en foto's te keuren, niet om vragen klaar te zetten of te sturen. De punten tellen op volgorde van *insturen*, niet van keuren: wie het eerst een goede foto stuurde, krijgt de meeste punten. Je krijgt een pushmelding bij elke bonusfoto.
 - Een gestarte bonusvraag kun je niet meer aanpassen. Weghalen kan altijd; al gegeven punten gaan er dan weer af. Bij **🧹 Opruimen** gaan de antwoorden weg en staan de vragen weer klaar voor het volgende spel.
 
 ### Tussenstand tonen
@@ -569,7 +588,7 @@ Met **⏹ Deactiveren** bij de route (Routes of de editor) haal je de route uit 
 
 ### Spel resetten
 
-**📸 Teamfoto in de uitslag:** een nieuwe finish krijgt standaard de foto-opdracht *"Maak een groepsfoto of selfie met het hele team"* (0 punten; aanpassen of weghalen in de vraag-editor van de finish). Is de foto van een team **goedgekeurd**, dan staat die foto in plaats van het icoon op het podium, de oorkonde, de uitslag-afbeelding om te delen, het beamerscherm en bij het team in het PDF-rapport. Dat werkt ook bij bestaande routes waar al een foto-opdracht bij de finish staat. Zonder (goedgekeurde) foto blijft het icoon.
+**📸 Teamfoto in de uitslag:** een nieuwe finish krijgt standaard de foto-opdracht *"Maak een groepsfoto of selfie met het hele team"* (0 punten; aanpassen of weghalen in de vraag-editor van de finish). Staat de finishopdracht op 0 punten (de selfie), dan hoef je niets te keuren: de foto is meteen goedgekeurd. Geef je de finishopdracht punten, dan keur je hem zoals elke andere foto. Is de foto van een team goedgekeurd, dan staat die foto in plaats van het icoon op het podium, de oorkonde, de uitslag-afbeelding om te delen, het beamerscherm en bij het team in het PDF-rapport. Dat werkt ook bij bestaande routes waar al een foto-opdracht bij de finish staat. Zonder (goedgekeurde) foto blijft het icoon.
 
 Stap 1 van **🧹 Opruimen** (naast **🏁 Afronden** in het Spelleider-blok) is *Nieuw spel voorbereiden*: tik op **🧹 Opruimen** (met bevestiging; maak eerst het rapport en het fotoalbum als je die wilt bewaren). Dit is de enige plek om alles op te ruimen. Dit wist:
 

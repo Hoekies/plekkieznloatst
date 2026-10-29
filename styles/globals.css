@@ -4189,3 +4189,64 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .duel-kaart { border-color: #F97316; box-shadow: 0 0 0 4px rgba(249,115,22,0.2), 0 0 50px rgba(249,115,22,0.45); }
 .duel-titel { color: #FB923C; }
 .duel-achter { background: radial-gradient(circle at 50% 30%, rgba(249,115,22,0.35), rgba(10,4,30,0.92) 70%); }
+
+/* 📚 Bonusvraag uit de vragenbank (BonusKnop.tsx) */
+.bonus-form-bank { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+/* 🎬 Replay op de beamer (na de uitslag): klok en voortgang over de kaart */
+.beamer-replay { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 1000; display: flex; align-items: center; gap: 14px;
+  padding: 10px 20px; border-radius: 999px; background: rgba(12,3,34,0.85); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.3rem;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.45); pointer-events: none; }
+.beamer-replay-klok { font-variant-numeric: tabular-nums; color: #FFD93B; min-width: 3.2em; text-align: center; }
+.beamer-replay-balk { width: 220px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.18); overflow: hidden; }
+.beamer-replay-balk i { display: block; height: 100%; background: linear-gradient(90deg, #00D9FF, #FFD93B); transition: width 0.25s linear; }
+
+/* 🎉 Spelplezier (migratie 007) */
+.gouden-balk { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 1200; padding: 6px 14px; border-radius: 999px;
+  background: linear-gradient(90deg, #F59E0B, #FFD93B); color: #3A1F00; font-weight: 800; font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px rgba(245,158,11,0.55);
+  animation: gouden-glans 2s ease-in-out infinite; pointer-events: none; }
+@keyframes gouden-glans { 50% { box-shadow: 0 4px 26px rgba(255,217,59,0.95); } }
+.rad-knop { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom)); z-index: 1100; padding: 12px 22px; border-radius: 999px; border: 0;
+  background: linear-gradient(135deg, #A78BFA, #EC4899); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; box-shadow: 0 6px 22px rgba(236,72,153,0.55);
+  animation: rad-wip 1.4s ease-in-out infinite; cursor: pointer; }
+@keyframes rad-wip { 50% { transform: translateX(-50%) scale(1.06); } }
+.rad-achter { position: fixed; inset: 0; z-index: 2400; background: rgba(12,3,34,0.82); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.rad-paneel { max-width: 360px; width: 100%; }
+.rad-inhoud { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding-top: 20px; }
+.rad-titel { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: #FDE68A; }
+.rad-uitleg { margin: 0; font-size: 0.86rem; color: rgba(255,255,255,0.78); }
+.rad-houder { position: relative; width: min(260px, 70vw); aspect-ratio: 1; margin: 6px 0; }
+.rad-pijl { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 2; font-size: 1.6rem; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+.rad { position: absolute; inset: 0; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 6px 24px rgba(0,0,0,0.5); transition: transform 4s cubic-bezier(.17,.67,.21,1); }
+.rad-label { position: absolute; inset: 0; display: flex; justify-content: center; padding-top: 10%; font-weight: 900; font-size: 1.05rem; color: #1E0B4B; }
+.rad-uitslag { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: #86EFAC; }
+.rad-fout { margin: 0; color: #FCA5A5; font-weight: 700; }
+.plezier-toasts { position: fixed; top: calc(46px + env(safe-area-inset-top)); left: 12px; right: 12px; z-index: 2300; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.plezier-toast { pointer-events: auto; max-width: 380px; width: 100%; display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 16px;
+  background: rgba(30,11,75,0.95); border: 1px solid rgba(255,217,59,0.6); color: #fff; font-size: 0.88rem; line-height: 1.35; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  animation: plezier-in 0.35s cubic-bezier(.2,.8,.2,1.3); cursor: pointer; }
+.plezier-toast-emoji { font-size: 1.9rem; line-height: 1; }
+@keyframes plezier-in { from { transform: translateY(-16px) scale(0.9); opacity: 0; } }
+.kaart-extra { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 32px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55)); animation: pr-vraagteken-puls 1.6s ease-in-out infinite; }
+.item-val { border-color: #F87171 !important; }
+.feedback-extra { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.45); color: #FDE68A; font-size: 0.9rem; font-weight: 700; }
+.badge-rij { width: 100%; border-radius: 16px; padding: 12px 14px; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.45); }
+.badge-rij-kop { font-family: var(--font-display); font-weight: 800; color: #C4B5FD; margin-bottom: 8px; }
+.badge-rij-lijst { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.82rem; font-weight: 700; }
+.oorkonde-badges { font-size: 1.4rem; letter-spacing: 2px; margin-top: 4px; }
+.fotobattle { width: 100%; border-radius: 16px; padding: 14px 16px; background: rgba(236,72,153,0.08); border: 1px solid rgba(236,72,153,0.45); }
+.fotobattle-kop { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: #F9A8D4; }
+.fotobattle-uitleg { margin: 4px 0 10px; font-size: 0.85rem; color: var(--text); line-height: 1.45; }
+.fotobattle-leeg { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.fotobattle-raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.fotobattle-foto { display: flex; flex-direction: column; gap: 4px; padding: 4px; border-radius: 12px; border: 2px solid transparent; background: rgba(255,255,255,0.06); color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; text-align: center; }
+.fotobattle-foto img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 9px; display: block; }
+.fotobattle-foto--gekozen { border-color: #EC4899; box-shadow: 0 0 0 3px rgba(236,72,153,0.35); }
+.fotobattle-fout { margin: 8px 0 0; color: #FCA5A5; font-weight: 700; font-size: 0.85rem; }
+.plezier-lijst { display: flex; flex-direction: column; gap: 8px; }
+.plezier-rij { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.plezier-tekst { display: flex; flex-direction: column; min-width: 0; }
+.beamer-gouden { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 1000; padding: 10px 22px; border-radius: 999px;
+  background: linear-gradient(90deg, #F59E0B, #FFD93B); color: #3A1F00; font-family: var(--font-display); font-weight: 900; font-size: 1.5rem; box-shadow: 0 6px 26px rgba(245,158,11,0.6);
+  animation: gouden-glans 2s ease-in-out infinite; white-space: nowrap; }

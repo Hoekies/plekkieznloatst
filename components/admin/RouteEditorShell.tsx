@@ -33,6 +33,7 @@ import { useSluitMetEsc, VensterMetKop, vensterHoogte } from "@/components/share
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import { DUEL_PUNTEN_KEUZES } from "@/lib/duel-vragen";
 import { BonusLijst } from "@/components/admin/BonusKnop";
+import SpelplezierInstellingen, { type PlezierVeld } from "@/components/admin/SpelplezierInstellingen";
 import Icoon from "@/components/admin/Icoon";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
@@ -159,6 +160,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
     if (res.ok) setRoute((r) => ({ ...r, ...velden }));
     else toonMelding((await res.json().catch(() => ({}))).fout?.includes("duel") ? "Draai eerst migratie 006 (duel) in Supabase" : "Opslaan lukte niet", "fout");
+  }
+  // 🎉 Spelplezier aan/uit (migratie 007)
+  async function slaPlezierOp(veld: PlezierVeld, aan: boolean) {
+    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [veld]: aan }) });
+    if (res.ok) setRoute((r) => ({ ...r, [veld]: aan }));
+    else toonMelding((await res.json().catch(() => ({}))).fout?.includes(veld) ? "Draai eerst migratie 007 (spelplezier) in Supabase" : "Opslaan lukte niet", "fout");
   }
   // 🔧 Instellingen: eenvoudig (de belangrijkste) of alles; onthouden op dit toestel
   const [instAlles, setInstAlles] = useState(false);
@@ -2231,6 +2238,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     )}
                   </div>
                 </div>
+
+                {/* 🎉 Spelplezier: val, reeks, badges, fotobattle, vliegende schat en rad (migratie 007) */}
+                <SpelplezierInstellingen waarden={route} onZet={slaPlezierOp} />
 
                 {/* ⚡ Bonusvragen van deze route (ook als hij nog niet actief is); op volgorde van het spel */}
                 <div className="form-group">

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { bewaarVraagStatistiek } from "@/lib/vraag-statistiek";
+import { ruimSpelplezierOp } from "@/lib/spelplezier-server";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -67,6 +68,8 @@ export async function POST() {
     await admin.from("bonus_vragen").update({ gestart_op: null, aantal_teams: null }).not("id", "is", null).then(() => undefined, () => undefined);
     // session_point_order cascadet mee via ON DELETE CASCADE
     await stap("Spellen wissen", admin.from("player_sessions").delete().not("id", "is", null));
+    // 🎉 Vliegende schatten en het gouden kwartier weg (vallen, badges en fotostemmen gingen met de spellen mee)
+    await ruimSpelplezierOp(admin);
 
     // Alles wat bij een speelronde hoort terug naar het begin: tussenstand, uitslag, eindtijd en pauze.
     // Anders kon een verstreken eindtijd de volgende groep meteen tegenhouden ("Het spel is afgelopen").

@@ -201,8 +201,20 @@ Ouder dan 30 dagen: elke nacht verwijderd (pg_cron-job `pointrush-opruimen`, mig
 #### `bonus_vragen` en `bonus_antwoorden` (nieuwe migratie 004)
 ⚡ Bonusvraag per route: vraag, soort (`meerkeuze` | `foto`), keuzes (jsonb) en `goed_index`, punten, `na_minuten` (null = alleen met de knop), `duur_seconden`, `gestart_op` en `aantal_teams` (vastgelegd bij de start). Antwoorden: één per team (`UNIQUE (bonus_id, session_id)`), met keuze of `foto_pad` (opslag `foto-inzendingen`, map van de sessie) en `foto_status`. Punten: `lib/bonus.ts` (`bonusPunten`: max × (n − plek + 1) / n). Starten: de spelers-app vraagt elke 6 s `GET /api/speler/bonus`; die start vragen waarvan de tijd om is (voorwaardelijke update op `gestart_op IS NULL`). Foto's: na elke keuring herrekent `herrekenFotoBonus` alle goedgekeurde foto's op volgorde van insturen en boekt alleen het verschil. Alleen de service role (RLS aan, GRANT aan `service_role`).
 
+#### 🎉 Spelplezier (nieuwe migratie 007)
+Routes: `val_aan`, `reeks_aan`, `badges_aan`, `fotobattle_aan`, `schat_aan`, `rad_aan`, `gouden_tot`. Sessies: `reeks`, `rad_gedraaid_op`, `rad_uitkomst`. Tabellen `vallen`, `badges` (uniek per sessie en soort), `fotobattle_stemmen` (uniek per kiezer) en `schatten` (uniek per route, blok van 10 min en test/echt). Regels in `lib/spelplezier.ts`, serverlogica in `lib/spelplezier-server.ts`.
+- De app vraagt elke 5 s `/api/speler/spelplezier?lat&lng&acc` (15 s als val, schat en rad uit staan). De server controleert daar of het team in een val liep en of de schat binnen bereik is; de app krijgt nooit vallen van anderen te zien. Alles met voorwaardelijke updates (`geraakt_op IS NULL`, `gepakt_door IS NULL`, `rad_gedraaid_op IS NULL`).
+- Reeks, ⏰ dubbele punten en de antwoordbadges in `/api/speler/voortgang/verwerk` (`naAntwoord`); 🚩 pionier in `bereik`; 🛡️ taai na een item (`naGeraakt`); ⚔️ in `beantwoordDuel`.
+- Val zetten: `/api/speler/val`; rad: `/api/speler/rad`; fotobattle: `/api/speler/fotobattle` (prijs via `stemmen` in `lib/prijzen.ts`); gouden kwartier: `/api/admin/gouden`.
+
 #### `duels` en `routes.duel_aan` / `duel_punten` (nieuwe migratie 006)
 ⚔️ Duel: `sessie_a` < `sessie_b`, `vraag_nr` (uit `lib/duel-vragen.ts`), `antwoord_a/b`, `winnaar`, `buit`, `afgerond_op`. Unieke index op het tweetal zolang het duel open is. Gestart vanuit `/api/speler/locaties` als een ander team binnen 25 m is (`startDuels`, `lib/duel.ts`); de speler vraagt `/api/speler/duel`. Winnen: voorwaardelijke update op `winnaar IS NULL`, daarna `boekScoreOver`.
+
+#### 🎬 Replay op de beamer
+`/api/beamer/[sleutel]/replay` (alleen na `uitslag_vrijgegeven`) geeft per team het gefilterde GPS-spoor met tijden (`lib/beamer-replay.ts`, max. 400 punten per team, per 1000 rijen opgehaald). De beamerpagina speelt het in 40 s af via `AdminLiveLeaflet` (`sporen` + `vastBeeld`).
+
+#### 🤳 Selfie bij de finish
+`/api/speler/foto`: een foto-opdracht op een eindpunt met 0 punten wordt meteen `goedgekeurd` (geen pushmelding, geen keuring); met punten blijft hij `wacht`.
 
 #### `players.test_rol` (nieuwe migratie 005)
 🧪 Testteam: `team` (loginnaam *test*) of `tegenstander` (*Testtegenstander*, zonder lopen). `lib/testteam.ts`: `zorgTegenstander` (eigen sessie op de route), `gooiOpTestteam` (maakt een geclaimd startitem voor de tegenstander en voert het uit met `voerItemUit` uit `lib/item-uitvoeren.ts`, dezelfde code als de spelersapp), `testAutoWorp` (via `/api/speler/status` → `/api/speler/testteam`) en `wisTest`. Gefilterd in `/api/speler/locaties`, `maakStand`, de vraagstatistiek, het rapport (`haalAntwoorden(..., { zonderTest })`), het dashboard en de spelerslijst (zonder tegenstander). Het inzetten van items controleert dat aanvaller en doel allebei test of allebei echt zijn.

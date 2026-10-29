@@ -6,6 +6,7 @@ import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import Icoon from "@/components/admin/Icoon";
+import Vragenbank, { type BankVraag } from "@/components/admin/editor/Vragenbank";
 import { BONUS_DUUR_KEUZES, bonusPunten, type BonusAntwoord, type BonusVraag } from "@/lib/bonus";
 
 // ⚡ Bonusvraag (migratie 004): de spelleider zet een extra vraag klaar (meerkeuze of een foto-opdracht) die na
@@ -181,8 +182,18 @@ function BonusFormulier({ concept: c, teams, bezig, onWijzig, onBewaar, onTerug 
   const n = Math.max(2, teams || 3);
   // Voorbeeld van de verdeling, bijv. 100 · 67 · 33
   const verdeling = Array.from({ length: Math.min(n, 5) }, (_, i) => bonusPunten(c.punten, n, i + 1)).join(" · ");
+  // 📚 Een vraag uit een route overnemen: meerkeuze (de teksten van de keuzes) of een foto-opdracht
+  function uitBank(v: BankVraag) {
+    if (v.type === "foto_opdracht") { zet({ soort: "foto", vraag: v.question_text.slice(0, 300) }); return; }
+    const keuzes = v.answer_options.map((o) => (o.text ?? "").slice(0, 80));
+    zet({ soort: "meerkeuze", vraag: v.question_text.slice(0, 300), keuzes: [...keuzes, "", "", "", ""].slice(0, 4), goed_index: Math.max(0, v.answer_options.findIndex((o) => o.is_correct)) });
+  }
   return (
     <div className="bonus-form">
+      <div className="bonus-form-bank">
+        <span className="bonus-hint">Of neem een vraag over uit een route:</span>
+        <Vragenbank soorten={["meerkeuze_tekst", "foto_opdracht"]} onKies={uitBank} metTekst />
+      </div>
       <div className="segment" role="radiogroup" aria-label="Soort">
         <button type="button" role="radio" aria-checked={c.soort === "meerkeuze"} className={c.soort === "meerkeuze" ? "aan" : ""} onClick={() => zet({ soort: "meerkeuze" })}>🔘 Meerkeuze</button>
         <button type="button" role="radio" aria-checked={c.soort === "foto"} className={c.soort === "foto" ? "aan" : ""} onClick={() => zet({ soort: "foto" })}>📸 Foto-opdracht</button>

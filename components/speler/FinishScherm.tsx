@@ -14,6 +14,8 @@ import { strooiConfetti } from "@/lib/confetti";
 import Podium from "./Podium";
 import UitslagOnthulling from "./UitslagOnthulling";
 import BonusVraag from "./BonusVraag";
+import { BadgeRij, FotoBattle, useBadges } from "./FinishPlezier";
+import { BADGES } from "@/lib/spelplezier";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
@@ -46,6 +48,8 @@ interface Props {
 const POLL_INTERVAL_MS = 10000;
 
 export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto = null, routeNaam, score: initScore, tijdSeconden, distanceMeters, initLeaderboard, uitslagVrij, wachtendeFotos: beginWacht, itemsNaFinish, waarden, huisLogo = null, themaSleutel, themaEmoji = null }: Props) {
+  // 🎖️ Badges van dit team (spelplezier, migratie 007)
+  const badges = useBadges();
   const basisThema = FINISH_THEMAS[themaSleutel ?? huidigFinishThema()];
   const thema = themaEmoji
     ? { ...basisThema, versiering: [themaEmoji, themaEmoji, basisThema.versiering[2], basisThema.versiering[3]] as const }
@@ -177,6 +181,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
 
         {/* Oorkonde, antwoorden en gelopen route pas als de spelleider de uitslag vrijgeeft: anders kan een team de
             antwoorden doorgeven aan teams die nog spelen. Tot dan een korte uitleg. */}
+        {/* 🎖️ Verdiende badges (route-instelling) */}
+        <BadgeRij badges={badges} />
+
         {!vrij && (
           <div className="finish-na-uitslag">
             🔒 Na de uitslag: je <strong>oorkonde</strong>, alle <strong>antwoorden &amp; items</strong> en je <strong>gelopen route</strong>.
@@ -237,6 +244,8 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
 
         {/* ⚡ Bonusvraag: ook gefinishte teams doen mee, tot de uitslag vrij is */}
         {!vrij && <BonusVraag />}
+        {/* 📸 Fotobattle: stemmen op de mooiste finishfoto (route-instelling), tot de uitslag */}
+        {!vrij && <FotoBattle />}
 
         {onthulling && <UitslagOnthulling plaats={onthulling.plaats} aantal={onthulling.aantal} prijs={onthulling.prijs} kleuren={[...thema.kleuren]}
           onSluit={() => { setOnthulling(null); document.getElementById("eindstand")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />}
@@ -283,7 +292,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         <div className="finish-delen-kop">📤 Delen en terugkijken</div>
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
           plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false}
-          prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} />
+          prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} badges={badges.map((b) => BADGES[b].emoji)} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>

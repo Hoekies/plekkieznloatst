@@ -34,7 +34,8 @@ type Filter = { soort: "alle" } | { soort: "favoriet" } | { soort: "verwijderd" 
 // "📚 Vragenbank": een vraag uit een andere route overnemen. Vult alleen het formulier;
 // pas na Opslaan staat de vraag op dit punt. Met ☆ markeer je favorieten, met 🗑️ haal je een
 // vraag uit de bank (de vraag blijft gewoon in zijn eigen route staan).
-export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies: (v: BankVraag) => void }) {
+// soorten: alleen deze soorten vragen tonen (bijv. bij de ⚡ bonusvraag: meerkeuze en foto); puntId leeg = alles.
+export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }: { puntId?: string; onKies: (v: BankVraag) => void; soorten?: string[]; metTekst?: boolean }) {
   const [open, setOpen] = useState(false);
   const [vragen, setVragen] = useState<BankVraag[] | null>(null);
   const [zoek, setZoek] = useState("");
@@ -43,7 +44,8 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
   useEffect(() => {
     if (!open) return;
     if (vragen === null) {
-      fetch(`/api/admin/vragenbank?zonder=${puntId}`).then((r) => r.ok ? r.json() : { vragen: [] }).then((d) => setVragen(d.vragen ?? []));
+      fetch(`/api/admin/vragenbank${puntId ? `?zonder=${puntId}` : ""}`).then((r) => r.ok ? r.json() : { vragen: [] })
+        .then((d: { vragen?: BankVraag[] }) => setVragen(d.vragen ?? []));
     }
   }, [open, vragen, puntId]);
   useSluitMetEsc(() => setOpen(false), open);
@@ -63,7 +65,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
     if (wijziging.verborgen === false) toonMelding("Terug in de vragenbank", "ok");
   }
 
-  const alle = vragen ?? [];
+  const alle = (vragen ?? []).filter((v) => !soorten || soorten.includes(v.type));
   const zichtbaar = alle.filter((v) => !v.verborgen);
   const z = zoek.trim().toLowerCase();
   const gevonden = (filter.soort === "verwijderd" ? alle.filter((v) => v.verborgen) : zichtbaar)
@@ -87,7 +89,7 @@ export default function Vragenbank({ puntId, onKies }: { puntId: string; onKies:
   return (
     <>
       <button type="button" className="btn btn-outline" style={{ fontSize: "0.82rem", flexShrink: 0 }} onClick={() => setOpen(true)}
-        title="Een vraag uit een andere route overnemen"><Icoon naam="vragenbank" /> <span className="alleen-pc">Vragenbank</span></button>
+        title="Een vraag uit een andere route overnemen"><Icoon naam="vragenbank" /> <span className={metTekst ? undefined : "alleen-pc"}>Vragenbank</span></button>
       {open && createPortal(
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 2600, background: "rgba(12,3,34,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 580, maxHeight: vensterHoogte(85), display: "flex" }}>

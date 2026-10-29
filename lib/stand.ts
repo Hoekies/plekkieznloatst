@@ -77,10 +77,12 @@ export async function maakStand(admin: AdminClient, routeId: string, eigenSpeler
 async function prijzenVoor(admin: AdminClient, sessies: RawSessie[], afstand: Map<string, number>, nu: number): Promise<Map<string, Prijs>> {
   const ids = sessies.map((s) => s.id);
   if (!ids.length) return new Map();
-  const [{ data: goed }, { data: gebruikt }, { data: geraakt }] = await Promise.all([
+  const [{ data: goed }, { data: gebruikt }, { data: geraakt }, { data: stemmen }] = await Promise.all([
     admin.from("player_point_progress").select("session_id").in("session_id", ids).eq("is_correct", true),
     admin.from("item_log").select("gebruiker_session_id, item_type").in("gebruiker_session_id", ids),
     admin.from("item_log").select("doel_session_id, gebruiker_session_id").in("doel_session_id", ids),
+    // 📸 Fotobattle (migratie 007; zonder tabel gewoon geen stemmen)
+    admin.from("fotobattle_stemmen").select("foto_sessie").in("foto_sessie", ids),
   ]);
   const cijfers: TeamCijfers[] = sessies.map((s) => {
     const items: Record<string, number> = {};
@@ -92,6 +94,7 @@ async function prijzenVoor(admin: AdminClient, sessies: RawSessie[], afstand: Ma
       goed: (goed ?? []).filter((r) => r.session_id === s.id).length,
       items,
       geraakt: (geraakt ?? []).filter((r) => r.doel_session_id === s.id && r.gebruiker_session_id && r.gebruiker_session_id !== s.id).length,
+      stemmen: (stemmen ?? []).filter((r) => r.foto_sessie === s.id).length,
     };
   });
   return deelPrijzenUit(cijfers);

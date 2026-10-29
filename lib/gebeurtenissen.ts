@@ -48,7 +48,7 @@ export async function haalGebeurtenissen(admin: AdminClient, { zonderHulp = fals
       .select("id, session_id, created_at, status, route_points(name)")
       .in("session_id", sessieIds).order("created_at", { ascending: false }).limit(MAX),
     admin.from("item_log")
-      .select("id, gebruiker_session_id, doel_session_id, item_type, created_at")
+      .select("id, gebruiker_session_id, doel_session_id, item_type, omschrijving, created_at")
       .or(`gebruiker_session_id.in.(${lijst}),doel_session_id.in.(${lijst})`)
       .order("created_at", { ascending: false }).limit(MAX),
     admin.from("hulpverzoeken")
@@ -92,12 +92,15 @@ export async function haalGebeurtenissen(admin: AdminClient, { zonderHulp = fals
     uit.push({ id: `foto-${f.id}`, tijd: f.created_at, speler_id: speler.get(f.session_id) ?? null, icoon: "📸", item: null, tekst: `${naam.get(f.session_id) ?? "Een speler"} stuurde een foto in bij ${puntNaam(f.route_points)}` });
   }
 
-  type LogRij = { id: string; gebruiker_session_id: string | null; doel_session_id: string | null; item_type: string; created_at: string };
+  type LogRij = { id: string; gebruiker_session_id: string | null; doel_session_id: string | null; item_type: string; omschrijving?: string | null; created_at: string };
   for (const l of (logboek ?? []) as LogRij[]) {
     const item = ITEM_NAAM[l.item_type] ?? l.item_type;
     const van = l.gebruiker_session_id ? naam.get(l.gebruiker_session_id) : null;
     const op = l.doel_session_id ? naam.get(l.doel_session_id) : null;
-    const tekst = !van && op ? `${op} liep in ${item}`
+    // 🪤 Val en 📦 schat (migratie 007) hebben een eigen zin
+    const tekst = l.omschrijving?.startsWith("val:") && van && op ? `🪤 ${op} liep in de val van ${van}`
+      : l.omschrijving === "schat" ? `📦 ${van ?? "Een team"} pakte de vliegende schat`
+      : !van && op ? `${op} liep in ${item}`
       : van && op ? `${van} zette ${item} in op ${op}`
       : `${van ?? "Een speler"} zette ${item} in`;
     uit.push({ id: `item-${l.id}`, tijd: l.created_at, speler_id: speler.get(l.gebruiker_session_id ?? l.doel_session_id ?? "") ?? null, icoon: "", item: l.item_type, tekst });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { startBonusNu, herrekenFotoBonus } from "@/lib/bonus-server";
+import { startBonusNu, herrekenFotoBonus, bonusSpellen } from "@/lib/bonus-server";
 import { telBijScore } from "@/lib/score";
 import { bonusOpen, bonusRestSeconden, bonusStartMoment, bonusVelden as velden, type BonusAntwoord, type BonusVraag } from "@/lib/bonus";
 
@@ -26,15 +26,16 @@ export async function GET(request: NextRequest) {
   const { data: vragen, error } = await admin.from("bonus_vragen").select("*").eq("route_id", route.id).order("created_at");
   if (error) return NextResponse.json({ fout: uitleg(error.message) }, { status: 500 });
   const ids = (vragen ?? []).map((v) => v.id);
-  const [{ data: antwoorden }, { data: spellen }] = await Promise.all([
+  const [{ data: antwoorden }, { data: spellen }, meetellend] = await Promise.all([
     ids.length ? admin.from("bonus_antwoorden").select("*").in("bonus_id", ids).order("beantwoord_op") : Promise.resolve({ data: [] as BonusAntwoord[] }),
     admin.from("player_sessions").select("id, started_at, player_id, players(nickname, login_name, icon)").eq("route_id", route.id).in("status", ["actief", "voltooid"]),
+    bonusSpellen(admin, route.id),
   ]);
   const teams = new Map((spellen ?? []).map((s) => {
     const p = s.players as unknown as { nickname: string | null; login_name: string; icon: string | null } | null;
     return [s.id, { naam: p?.nickname ?? p?.login_name ?? "Team", icon: p?.icon ?? null }];
   }));
-  const eersteStart = (spellen ?? []).map((s) => s.started_at).filter((t): t is string => !!t).sort()[0] ?? null;
+  const eersteStart = meetellend.map((s) => s.started_at).filter((t): t is string => !!t).sort()[0] ?? null;
   // Foto's: tijdelijke links (de opslag is afgeschermd)
   const metFoto = ((antwoorden ?? []) as BonusAntwoord[]).filter((a) => a.foto_pad);
   const links = new Map<string, string>();
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
   }));
   return NextResponse.json({
     route,
-    teams_nu: (spellen ?? []).length,
+    teams_nu: meetellend.length,
     vragen: ((vragen ?? []) as BonusVraag[]).map((v) => ({
       ...v,
       open: bonusOpen(v),

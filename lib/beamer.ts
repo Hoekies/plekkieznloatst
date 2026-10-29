@@ -26,7 +26,8 @@ export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
 }
 
 export type BeamerData = {
-  route: { naam: string; modus: string; huis_logo?: string | null };
+  // uitslag_vrij: dan speelt de kaart de 🎬 replay af
+  route: { naam: string; modus: string; huis_logo?: string | null; uitslag_vrij?: boolean; gouden_tot?: string | null };
   route_punten: LiveData["route_punten"];
   speciale_items: LiveData["speciale_items"];
   // foto: groepsfoto bij de finish (goedgekeurd), alleen in de stand

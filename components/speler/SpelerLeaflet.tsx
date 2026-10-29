@@ -41,12 +41,14 @@ interface Props {
   ghostedPuntId: string | null;
   // Eerste meters na de start: welke kant op (het volgende punt); er komt een korte stippellijn die kant op
   richtingNaar?: { latitude: number; longitude: number } | null;
+  // 🎉 Spelplezier: de vliegende schat en de eigen val (components/speler/Spelplezier.tsx)
+  extraMarkers?: { id: string; lat: number; lng: number; emoji: string; titel: string }[];
 }
 
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0 }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -332,6 +334,22 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       specialeItemMarkersRef.current.set(item.id, marker);
     });
   }, [specialeItems, kaartKlaar]);
+
+  // 🎉 Schat en eigen val: een groot emoji dat zachtjes pulseert
+  const extraLaagRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const extraSleutel = extraMarkers.map((m) => `${m.id}:${m.lat}:${m.lng}`).join("|");
+  useEffect(() => {
+    const L = LRef.current, map = mapRef.current;
+    if (!L || !map) return;
+    extraLaagRef.current ??= L.layerGroup().addTo(map);
+    const laag = extraLaagRef.current;
+    laag.clearLayers();
+    for (const m of extraMarkers) {
+      const icon = L.divIcon({ className: "", html: `<div class="kaart-extra" title="${m.titel}">${m.emoji}</div>`, iconSize: [44, 44], iconAnchor: [22, 22] });
+      L.marker([m.lat, m.lng], { icon, interactive: false, zIndexOffset: 900 }).addTo(laag);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extraSleutel, kaartKlaar]);
 
   // Andere spelers bijwerken
   useEffect(() => {

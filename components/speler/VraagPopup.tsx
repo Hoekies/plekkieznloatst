@@ -64,9 +64,16 @@ export type Feedback = {
   correct_text_answers: string[] | null;
   numeric_answer: number | null;
   numeric_tolerance: number | null;
+  // 🎉 Spelplezier (migratie 007): dubbel door het gouden kwartier, goede antwoorden op rij en het bonus-item
+  gouden?: boolean;
+  reeks?: number | null;
+  reeks_item?: string | null;
 };
 
 // geen_bereik: de vraag kon niet geladen worden; bewaard: antwoord bewaard, gaat mee zodra er bereik is
+// 🔥 Naam van het bonus-item na een reeks
+const REEKS_ITEM_NAAM: Record<string, string> = { ster: "⭐ Ster", verdubbeling: "✖️2 Verdubbeling", radar: "📡 Radar" };
+
 type PopupFase = "laden" | "start" | "informatie" | "vraag" | "foto_ingestuurd" | "feedback" | "geen_bereik" | "bewaard";
 
 // Punt afgerond zonder bereik: alvast zo in de app, de server krijgt het later uit de wachtrij
@@ -93,6 +100,8 @@ interface Props {
 
 export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onStartVraagLater, proef }: Props) {
   const [popupFase, setPopupFase] = useState<PopupFase>("laden");
+  // 🤳 Selfie bij de finish: meteen goedgekeurd (geen keuring)
+  const [fotoMeteenGoed, setFotoMeteenGoed] = useState(false);
   const [vraag, setVraag] = useState<VraagData | null>(null);
   const [gekozenId, setGekozenId] = useState<string | null>(null);
   const [openAntwoord, setOpenAntwoord] = useState("");
@@ -217,6 +226,9 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         correct_text_answers: data.correct_text_answers ?? null,
         numeric_answer: data.numeric_answer ?? null,
         numeric_tolerance: data.numeric_tolerance ?? null,
+        gouden: data.gouden === true,
+        reeks: typeof data.reeks === "number" ? data.reeks : null,
+        reeks_item: data.reeks_item ?? null,
       });
       setPopupFase("feedback");
     } finally {
@@ -266,6 +278,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       // Niet wachten op de keuring: het punt is afgerond, de punten komen na de keuring
       const data = await res.json();
       voortgangRef.current = data.voortgang ?? null;
+      setFotoMeteenGoed(data.goedgekeurd === true);
       setPopupFase("foto_ingestuurd");
     } finally {
       setBezig(false);
@@ -559,7 +572,9 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
           <div style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(134,239,172,0.5)", borderRadius: 14, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>📸 Foto ingestuurd!</div>
             <div style={{ fontSize: "0.92rem", color: "#BBF7D0", lineHeight: 1.5 }}>
-              Je kunt meteen door. De organisatie keurt de foto&apos;s na afloop; de punten komen er dan bij, vóór de uitslag bekend wordt.
+              {fotoMeteenGoed
+                ? "Mooi! Jullie foto staat meteen in de uitslag en op de oorkonde."
+                : <>Je kunt meteen door. De organisatie keurt de foto&apos;s na afloop; de punten komen er dan bij, vóór de uitslag bekend wordt.</>}
             </div>
           </div>
         )}
@@ -574,6 +589,15 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             vraag={vraag}
             gekozenId={gekozenId}
           />
+        )}
+        {/* ⏰ Gouden kwartier en 🔥 reeks */}
+        {popupFase === "feedback" && feedback && (feedback.gouden || (feedback.reeks ?? 0) >= 2 || feedback.reeks_item) && (
+          <div className="feedback-extra">
+            {feedback.gouden && <span>⏰ Dubbele punten door het gouden kwartier!</span>}
+            {feedback.reeks_item
+              ? <span>🔥 {feedback.reeks} goed op rij! Bonus-item in jullie balk: <strong>{REEKS_ITEM_NAAM[feedback.reeks_item] ?? feedback.reeks_item}</strong></span>
+              : (feedback.reeks ?? 0) >= 2 && <span>🔥 {feedback.reeks} goed op rij{(feedback.reeks ?? 0) % 3 === 2 ? ": nog één voor een bonus-item!" : ""}</span>}
+          </div>
         )}
 
       </div>

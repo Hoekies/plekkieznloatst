@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { boekScoreOver } from "@/lib/score";
 import { DUEL_VRAGEN, DUEL_SECONDEN, DUEL_PAUZE_MIN } from "@/lib/duel-vragen";
+import { geefBadge } from "@/lib/spelplezier-server";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -24,18 +25,24 @@ export async function startDuels(admin: AdminClient, route: { id: string; duel_a
     const { data: bezig } = await admin.from("duels").select("id, sessie_a, sessie_b, gestart_op, afgerond_op")
       .or(`sessie_a.in.(${a},${b}),sessie_b.in.(${a},${b})`).or(`afgerond_op.is.null,gestart_op.gt.${sinds}`);
     if ((bezig ?? []).some((d) => !d.afgerond_op || (d.sessie_a === a && d.sessie_b === b))) continue;
-    // Een vraag die geen van beide teams al had
-    const { data: gehad } = await admin.from("duels").select("vraag_nr").or(`sessie_a.in.(${a},${b}),sessie_b.in.(${a},${b})`);
-    const gebruikt = new Set((gehad ?? []).map((d) => d.vraag_nr));
-    const vrij = DUEL_VRAGEN.map((_, i) => i).filter((i) => !gebruikt.has(i));
-    const pool = vrij.length ? vrij : DUEL_VRAGEN.map((_, i) => i);
-    // De unieke index laat maar één open duel per tweetal toe: tegelijk starten gaat dus nooit dubbel
-    await admin.from("duels").insert({
-      route_id: route.id, sessie_a: a, sessie_b: b, vraag_nr: pool[Math.floor(Math.random() * pool.length)],
-      punten: Math.max(1, Math.min(500, route.duel_punten ?? 25)),
-    }).then(() => undefined, () => undefined);
+    await maakDuel(admin, route, a, b);
     return; // één duel tegelijk
   }
+}
+
+// Een duel tussen deze twee spellen starten, met een vraag die geen van beide al had. De unieke index laat maar
+// één open duel per tweetal toe: tegelijk starten gaat dus nooit dubbel. Geeft terug of het gelukt is.
+export async function maakDuel(admin: AdminClient, route: { id: string; duel_punten?: number | null }, x: string, y: string): Promise<boolean> {
+  const [a, b] = x < y ? [x, y] : [y, x];
+  const { data: gehad } = await admin.from("duels").select("vraag_nr").or(`sessie_a.in.(${a},${b}),sessie_b.in.(${a},${b})`);
+  const gebruikt = new Set((gehad ?? []).map((d) => d.vraag_nr));
+  const vrij = DUEL_VRAGEN.map((_, i) => i).filter((i) => !gebruikt.has(i));
+  const pool = vrij.length ? vrij : DUEL_VRAGEN.map((_, i) => i);
+  const { error } = await admin.from("duels").insert({
+    route_id: route.id, sessie_a: a, sessie_b: b, vraag_nr: pool[Math.floor(Math.random() * pool.length)],
+    punten: Math.max(1, Math.min(500, route.duel_punten ?? 25)),
+  });
+  return !error;
 }
 
 // Het duel van dit team: open, of net afgelopen (om de uitslag te laten zien). Verlopen duels worden afgesloten.
@@ -70,6 +77,7 @@ export async function beantwoordDuel(admin: AdminClient, d: Duel, sessieId: stri
       const ander = d.sessie_a === sessieId ? d.sessie_b : d.sessie_a;
       const buit = await boekScoreOver(admin, ander, sessieId, d.punten).catch(() => 0);
       await admin.from("duels").update({ buit }).eq("id", d.id);
+      await geefBadge(admin, sessieId, "duel").catch(() => undefined);
       return { ok: true, goed, gewonnen: true, buit };
     }
     return { ok: true, goed, gewonnen: false, buit: 0 };

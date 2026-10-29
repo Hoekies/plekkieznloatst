@@ -80,6 +80,9 @@ export async function GET() {
   // Migratie 006: ⚔️ duel
   const { error: duelFout } = await admin.from("duels").select("id").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 006: ⚔️ duel", ok: !duelFout, uitleg: duelFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/006_duel.sql." : undefined });
+  // Migratie 007: 🎉 spelplezier
+  const { error: plezierFout } = await admin.from("schatten").select("id").limit(1);
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 007: 🎉 spelplezier", ok: !plezierFout, uitleg: plezierFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/007_spelplezier.sql." : undefined });
   // Migratie 005: 🧪 testteam
   const { error: testFout } = await admin.from("players").select("test_rol").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 005: 🧪 testteam", ok: !testFout, uitleg: testFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/005_testteam.sql." : undefined });

@@ -2,17 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
 import { mijnDuel, beantwoordDuel } from "@/lib/duel";
 import { DUEL_VRAGEN, DUEL_SECONDEN } from "@/lib/duel-vragen";
+import { testRol, testBotAntwoord } from "@/lib/testteam";
 
 // ⚔️ Duel voor de speler (migratie 006). GET: het open (of net afgelopen) duel van dit team. POST { duel_id, keuze }.
 export async function GET() {
   const ctx = await haalSpelerSessie();
   if (!ctx?.sessie) return NextResponse.json({ duel: null });
   try {
-    const d = await mijnDuel(ctx.admin, ctx.sessie.id);
+    let d = await mijnDuel(ctx.admin, ctx.sessie.id);
     if (!d) return NextResponse.json({ duel: null });
     const ander = d.sessie_a === ctx.sessie.id ? d.sessie_b : d.sessie_a;
-    const { data: s } = await ctx.admin.from("player_sessions").select("players!inner(nickname, login_name, icon)").eq("id", ander).maybeSingle();
+    const { data: s } = await ctx.admin.from("player_sessions").select("players!inner(*)").eq("id", ander).maybeSingle();
     const p = s?.players as unknown as { nickname: string | null; login_name: string; icon: string | null } | undefined;
+    // 🧪 Tegen de testtegenstander: die antwoordt zelf
+    if (testRol(p) === "tegenstander" && await testBotAntwoord(ctx.admin, d, ander)) d = (await mijnDuel(ctx.admin, ctx.sessie.id)) ?? d;
     const v = DUEL_VRAGEN[d.vraag_nr];
     const mijn = d.sessie_a === ctx.sessie.id ? d.antwoord_a : d.antwoord_b;
     const rest = Math.max(0, Math.ceil((Date.parse(d.gestart_op) + DUEL_SECONDEN * 1000 - Date.now()) / 1000));

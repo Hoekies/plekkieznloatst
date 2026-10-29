@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
 import { nietDichtbij } from "@/lib/dichtbij";
+import { naBereikt } from "@/lib/spelplezier-server";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
   // Haal route-modus op
   const { data: route } = await admin
     .from("routes")
-    .select("modus")
+    .select("*")
     .eq("id", sessie.route_id)
     .maybeSingle();
 
@@ -107,6 +108,8 @@ export async function POST(request: NextRequest) {
 
   // Huidige punt bijwerken in sessie
   await admin.from("player_sessions").update({ current_point_id: route_point_id }).eq("id", sessie.id);
+  // 🎖️ Als eerste bij dit punt
+  if (punt.type === "vraagpunt") await naBereikt(admin, sessie, route_point_id, route).catch(() => undefined);
 
   return NextResponse.json(voortgang);
 }

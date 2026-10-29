@@ -16,9 +16,9 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   // Spelstand en tijdstempels horen bij het origineel, niet bij de kopie
   const {
     id: _id, created_at: _c, updated_at: _u, is_active: _a, status: _s,
-    uitslag_vrijgegeven: _v, tussenstand_trigger_at: _t, items_last_rotated_at: _r, ...instellingen
+    uitslag_vrijgegeven: _v, tussenstand_trigger_at: _t, items_last_rotated_at: _r, gouden_tot: _g, ...instellingen
   } = bron;
-  void [_id, _c, _u, _a, _s, _v, _t, _r];
+  void [_id, _c, _u, _a, _s, _v, _t, _r, _g];
   const { data: kopie, error } = await admin
     .from("routes")
     .insert({ ...instellingen, name: `${bron.name} (kopie)`, status: "concept", is_active: false })

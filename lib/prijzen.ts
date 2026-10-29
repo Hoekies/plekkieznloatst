@@ -9,12 +9,14 @@ export type TeamCijfers = {
   goed: number;                    // goede antwoorden
   items: Record<string, number>;   // ingezette items per soort
   geraakt: number;                 // zo vaak raakte een ander team hen met een item
+  stemmen?: number;                // 📸 stemmen in de fotobattle (migratie 007)
 };
 
 type Kandidaat = Prijs & { score: (t: TeamCijfers) => number; minimaal?: number };
 
 // Op volgorde van belangrijkheid: de eerste titels worden het eerst uitgedeeld
 const TITELS: Kandidaat[] = [
+  { emoji: "📸", titel: "Mooiste foto", uitleg: "de meeste stemmen in de fotobattle", score: (t) => t.stemmen ?? 0, minimaal: 1 },
   { emoji: "🧠", titel: "Slimste team", uitleg: "de meeste goede antwoorden", score: (t) => t.goed, minimaal: 1 },
   { emoji: "🏃", titel: "Snelste team", uitleg: "het snelst over de finish", score: (t) => -t.tijd },
   { emoji: "🦹", titel: "Meesterdief", uitleg: "de meeste dieven ingezet", score: (t) => t.items.dief ?? 0, minimaal: 1 },

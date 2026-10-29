@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   if (!punt) return NextResponse.json({ fout: "Ongeldig punt" }, { status: 400 });
 
   // Alleen bij een echte foto-opdracht: anders kon een meerkeuzevraag met een foto worden "beantwoord"
-  const { data: vraag, error: vraagFout } = await admin.from("questions").select("type").eq("route_point_id", routePointId).maybeSingle();
+  const { data: vraag, error: vraagFout } = await admin.from("questions").select("type, points").eq("route_point_id", routePointId).maybeSingle();
   if (vraagFout) return NextResponse.json({ fout: "De vraag kon niet worden geladen, probeer het opnieuw" }, { status: 503 });
   if (vraag?.type !== "foto_opdracht") return NextResponse.json({ fout: "Bij dit punt hoort geen foto-opdracht" }, { status: 400 });
 
@@ -99,6 +99,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Foto uploaden lukte niet, probeer het opnieuw" }, { status: 500 });
   }
 
+  // 🤳 Selfie bij de finish (eindpunt, 0 punten): geen opdracht om te beoordelen, dus meteen goedgekeurd en
+  // meteen de teamfoto. Een finishopdracht met punten wacht wel op de keuring.
+  const meteenGoed = punt.type === "eindpunt" && (vraag.points ?? 0) === 0;
+
   // Foto-inzending aanmaken
   const { data: inzending, error: inzendingFout } = await admin
     .from("foto_inzendingen")
@@ -106,8 +110,9 @@ export async function POST(request: NextRequest) {
       session_id: sessie.id,
       route_point_id: routePointId,
       foto_pad: pad,
-      status: "wacht",
+      status: meteenGoed ? "goedgekeurd" : "wacht",
       punten_toegekend: 0,
+      ...(meteenGoed ? { beoordeeld_op: new Date().toISOString() } : {}),
     })
     .select()
     .single();
@@ -120,6 +125,7 @@ export async function POST(request: NextRequest) {
 
   // Sessie bijwerken
   await admin.from("player_sessions").update({ current_point_id: routePointId }).eq("id", sessie.id);
+  if (meteenGoed) await admin.from("player_point_progress").update({ is_correct: true }).eq("id", voortgangRij.id);
 
   // Foto-opdracht bij de finish (bijv. een selfie): na het insturen is het team gefinisht.
   // De eindtijd ligt vast; de punten volgen na de keuring.
@@ -132,7 +138,8 @@ export async function POST(request: NextRequest) {
     await laatItemsVervallen(admin, [sessie.id], { naFinishTypes: itemsNaFinishVan(finishRoute) });
   }
 
-  // Pushmelding naar de beheerder: er is een foto om te keuren
+  // Pushmelding naar de beheerder: er is een foto om te keuren (niet bij een selfie die al goed is)
+  if (meteenGoed) return NextResponse.json({ foto_id: inzending.id, voortgang, goedgekeurd: true });
   const { data: team } = await admin.from("players").select("nickname, login_name").eq("id", ctx.spelerId).maybeSingle();
   await stuurPushNaarBeheer({
     titel: `📸 Nieuwe foto van ${team?.nickname ?? team?.login_name ?? "een team"}`,

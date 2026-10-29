@@ -21,6 +21,8 @@ interface Props {
   andereSessies: AndereSpeler[];
   onVerwerkt: (itemId: string, eigenNotificatie?: string) => void;
   onSluit?: () => void;
+  // 🪤 Een bom mag ook als verborgen val op de eigen plek (route-instelling, migratie 007)
+  valMag?: boolean;
 }
 
 // Naam en een heldere accentkleur per item (goed leesbaar op de donkere achtergrond)
@@ -68,7 +70,7 @@ function gelukt(type: string) {
     : "Raak!";
 }
 
-export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, onVerwerkt, onSluit }: Props) {
+export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, onVerwerkt, onSluit, valMag = false }: Props) {
   const startFase: Fase = TYPES_ZONDER_DOEL.has(item.type) ? "bevestig" : "kies_team";
   const [fase, setFase] = useState<Fase>(startFase);
   const [foutMelding, setFoutMelding] = useState("");
@@ -76,6 +78,22 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
   const info = ITEM_INFO[item.type] ?? { kleur: "#FFFFFF", label: item.type };
   const beschrijving = kortUitleg(item.type, waarden) || (UITLEG[item.type]?.beschrijving(waarden) ?? "");
   const later = () => (onSluit ? onSluit() : onVerwerkt(item.id));
+  const [valGezet, setValGezet] = useState(false);
+
+  // 🪤 De bom als val op deze plek: alleen jullie zien hem, wie er binnen 15 meter langs loopt verliest punten
+  async function legVal() {
+    if (!plek) { setFoutMelding("Je locatie ontbreekt: zet je locatie aan"); setFase("fout"); return; }
+    setFase("bezig");
+    const res = await fetch("/api/speler/val", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ special_item_id: item.id, latitude: plek.lat, longitude: plek.lng }),
+    }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { setFoutMelding(data.fout ?? "Geen verbinding. Probeer het opnieuw."); setFase("fout"); return; }
+    setValGezet(true);
+    setFase("bevestigd");
+    setTimeout(() => onVerwerkt(item.id), 3000);
+  }
 
   async function pasEffectToe(targetSessionId?: string) {
     setFase("bezig");
@@ -140,6 +158,12 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
                   <span>{s.teamnaam}{s.gefinisht && " 🏁"}</span>
                 </button>
               ))}
+              {valMag && item.type === "bom" && (
+                <button type="button" className="item-team item-val" onClick={legVal}>
+                  <span aria-hidden style={{ fontSize: "1.6rem", lineHeight: 1 }}>🪤</span>
+                  <span>Hier neerleggen als val</span>
+                </button>
+              )}
               <button type="button" className="item-later" onClick={later}>Later</button>
             </div>
           )}
@@ -149,7 +173,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
           {fase === "bevestigd" && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <div style={{ fontSize: "2.4rem", lineHeight: 1 }}>✅</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>{gelukt(item.type)}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>{valGezet ? "Val gezet! 🪤 20 minuten scherp" : gelukt(item.type)}</div>
             </div>
           )}
 
