@@ -7,6 +7,8 @@ import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "./fin
 const KLEUREN = ["#F59E0B", "#00D9FF", "#EF4444", "#10B981", "#A78BFA", "#F97316", "#FFE680", "#F472B6"];
 // Zoveel van de snippers zijn een emoji van het seizoen
 const EMOJI_DEEL = 0.3;
+// Alle confetti blijft zoveel keer langer in beeld dan de duur die de aanroeper vraagt
+const DUUR_FACTOR = 1.8;
 
 // Het thema voor de confetti: gezet door de spelersapp (app/speler/layout.tsx, met het vastgezette thema), anders de datum
 let gekozenThema: FinishThemaSleutel | null = null;
@@ -39,32 +41,51 @@ export function strooiConfetti({ aantal = 120, duurMs = 2600, knal = false, kleu
   ctx.scale(dpr, dpr);
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
 
-  // Knal: vanuit het midden onderaan omhoog; anders een regen van boven
-  const snippers: Snipper[] = Array.from({ length: aantal }, () => {
-    const hoek = -Math.PI / 2 + (Math.random() - 0.5) * 1.3;
-    const kracht = 9 + Math.random() * 9;
+  // Groter scherm (PC, tablet, beamer): meer snippers, grotere snippers en emoji, en een knal uit meerdere plekken,
+  // zodat het hele scherm vol komt. Op de telefoon blijft het zoals het was.
+  const schaal = Math.min(2.2, Math.max(1, Math.min(w, h) / 450));
+  const breed = Math.min(4, Math.max(1, w / 420));
+  const totaal = Math.min(700, Math.round(aantal * breed));
+  // Breed scherm en een knal: een deel komt ook als regen van boven, zodat het hele scherm meedoet
+  const regenDeel = knal && w > 800 ? 0.35 : 0;
+  const bronnen = knal && w > 800 ? 3 : 1;
+  const duur = duurMs * DUUR_FACTOR;
+
+  // Knal: vanuit onderaan omhoog (op een breed scherm uit drie plekken); anders een regen van boven
+  const snippers: Snipper[] = Array.from({ length: totaal }, (_, i) => {
+    const omhoog = knal && Math.random() >= regenDeel;
+    const hoek = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+    // Naar de schermhoogte, met veel verschil: sommige snippers blijven laag, andere komen tot bovenin
+    const kracht = h * (0.012 + Math.random() * 0.02);
+    const bronX = (w * ((i % bronnen) + 1)) / (bronnen + 1);
     const emoji = thema?.emoji.length && Math.random() < EMOJI_DEEL ? thema.emoji[Math.floor(Math.random() * thema.emoji.length)] : null;
     return {
-      x: knal ? w / 2 + (Math.random() - 0.5) * 60 : Math.random() * w,
-      y: knal ? h * 0.75 : -20 - Math.random() * h * 0.4,
-      vx: knal ? Math.cos(hoek) * kracht : (Math.random() - 0.5) * 2,
-      vy: knal ? Math.sin(hoek) * kracht : 2 + Math.random() * 3,
+      x: omhoog ? bronX + (Math.random() - 0.5) * 60 * schaal : Math.random() * w,
+      y: omhoog ? h * 0.85 : -20 - Math.random() * h * 0.7,
+      vx: omhoog ? Math.cos(hoek) * kracht : (Math.random() - 0.5) * 2,
+      vy: omhoog ? Math.sin(hoek) * kracht : 1 + Math.random() * 3,
       rot: Math.random() * Math.PI * 2, vrot: (Math.random() - 0.5) * (emoji ? 0.08 : 0.3),
-      b: emoji ? 24 + Math.random() * 14 : 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      b: (emoji ? 24 + Math.random() * 14 : 6 + Math.random() * 6) * schaal, h: (8 + Math.random() * 8) * schaal,
       kleur: palet[Math.floor(Math.random() * palet.length)], rond: Math.random() < 0.25, emoji,
     };
   });
 
   const start = performance.now();
+  let vorige = start;
   const stap = (nu: number) => {
     const verstreken = nu - start;
+    // Even snel op elk scherm (60 of 120 beelden per seconde)
+    const dt = Math.min(3, (nu - vorige) / (1000 / 60));
+    vorige = nu;
     ctx.clearRect(0, 0, w, h);
-    const vervaag = Math.max(0, Math.min(1, (duurMs - verstreken) / 600));
-    ctx.globalAlpha = vervaag;
+    ctx.globalAlpha = Math.max(0, Math.min(1, (duur - verstreken) / 900));
     for (const s of snippers) {
-      // Emoji zijn "lichter": ze dwarrelen langzamer en wiegen meer (blaadjes, sneeuw, hartjes)
-      s.vy += s.emoji ? 0.14 : 0.25; s.vx *= 0.99; s.vy *= s.emoji ? 0.975 : 0.99;
-      s.x += s.vx + Math.sin((nu + s.b * 100) / (s.emoji ? 500 : 300)) * (s.emoji ? 1.1 : 0.6); s.y += s.vy; s.rot += s.vrot;
+      // Luchtweerstand: snippers dwarrelen (blijven langer in beeld); emoji zijn nog lichter en wiegen meer
+      // (blaadjes, sneeuw, hartjes)
+      const zwaarte = s.emoji ? 0.07 : 0.1, rem = Math.pow(s.emoji ? 0.978 : 0.98, dt);
+      s.vy = (s.vy + zwaarte * dt) * rem; s.vx *= Math.pow(0.99, dt);
+      s.x += (s.vx + Math.sin((nu + s.b * 100) / (s.emoji ? 500 : 300)) * (s.emoji ? 1.1 : 0.7) * schaal) * dt; s.y += s.vy * dt; s.rot += s.vrot * dt;
+      if (s.y > h + 60) continue;
       ctx.save();
       ctx.translate(s.x, s.y); ctx.rotate(s.rot);
       if (s.emoji) {
@@ -77,7 +98,7 @@ export function strooiConfetti({ aantal = 120, duurMs = 2600, knal = false, kleu
       }
       ctx.restore();
     }
-    if (verstreken < duurMs) requestAnimationFrame(stap);
+    if (verstreken < duur) requestAnimationFrame(stap);
     else doek.remove();
   };
   requestAnimationFrame(stap);
