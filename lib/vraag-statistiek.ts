@@ -1,4 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
+import { testSessieIds } from "@/lib/testteam";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 // Per punt: hoe vaak beantwoord (n) en hoe vaak goed
@@ -10,11 +11,13 @@ export type Telling = Record<string, { n: number; goed: number }>;
 
 // De antwoorden die nu in de database staan, per route en per punt (alleen nagekeken antwoorden)
 export async function telHuidig(admin: AdminClient, routeId?: string): Promise<Record<string, Telling>> {
-  let q = admin.from("player_point_progress").select("route_point_id, is_correct, player_sessions!inner(route_id)").not("is_correct", "is", null);
+  let q = admin.from("player_point_progress").select("route_point_id, is_correct, session_id, player_sessions!inner(route_id)").not("is_correct", "is", null);
   if (routeId) q = q.eq("player_sessions.route_id", routeId);
-  const { data } = await q.range(0, 19999);
+  const [{ data }, test] = await Promise.all([q.range(0, 19999), testSessieIds(admin)]);
   const uit: Record<string, Telling> = {};
-  for (const r of (data ?? []) as unknown as { route_point_id: string; is_correct: boolean; player_sessions: { route_id: string } | { route_id: string }[] }[]) {
+  for (const r of (data ?? []) as unknown as { route_point_id: string; is_correct: boolean; session_id: string; player_sessions: { route_id: string } | { route_id: string }[] }[]) {
+    // 🧪 Een testrondje telt niet mee
+    if (test.has(r.session_id)) continue;
     const sessie = Array.isArray(r.player_sessions) ? r.player_sessions[0] : r.player_sessions;
     if (!sessie) continue;
     const t = ((uit[sessie.route_id] ??= {})[r.route_point_id] ??= { n: 0, goed: 0 });

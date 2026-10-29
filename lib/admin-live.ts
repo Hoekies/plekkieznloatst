@@ -4,6 +4,7 @@ import { rondAfAlsTijdVoorbij } from "@/lib/eindtijd";
 import { huisLogoUrl } from "@/lib/huisstijl";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
+import { testRol } from "@/lib/testteam";
 import { raadVenster, RAAD_WACHT_MIN } from "@/lib/puzzel-server";
 
 export type SpelerOverzicht = {
@@ -77,12 +78,15 @@ export function sessietijd(s: SpelerOverzicht): number {
 export async function haalLiveData(): Promise<LiveData> {
   const admin = createAdminClient();
 
-  const [{ data: route }, { data: allePlayers }] = await Promise.all([
+  const [{ data: route }, { data: alleSpelersRuw }] = await Promise.all([
     // "*": ook het logo (migratie 016), zonder dat een ontbrekende kolom het dashboard leeg maakt
     admin.from("routes").select("*").eq("is_active", true).maybeSingle(),
     // "*": een kolom uit een nog niet gedraaide migratie (zoals telefoon) mag het dashboard niet leeg maken
     admin.from("players").select("*").order("login_name"),
   ]);
+
+  // 🧪 De testtegenstander is geen echt team: niet op het dashboard
+  const allePlayers = (alleSpelersRuw ?? []).filter((p) => testRol(p) !== "tegenstander");
 
   // Eindtijd voorbij? Dan eerst de lopende spellen afsluiten, zodat het dashboard meteen de eindstand toont
   const tijd = route ? await rondAfAlsTijdVoorbij(admin, route.id) : null;

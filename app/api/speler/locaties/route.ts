@@ -3,6 +3,7 @@ import { doelwitNaFinishVan } from "@/lib/item-sessie";
 import { haalSpeler } from "@/lib/speler-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
+import { isTestSpeler, testRol } from "@/lib/testteam";
 import { haversine } from "@/lib/geo";
 
 // Zonder radar zie je een ander team alleen als het dichtbij is (en de plekken vers zijn): dan staan icoon en
@@ -27,15 +28,18 @@ export async function GET(request: NextRequest) {
   if (!eigenSessie) return NextResponse.json({ locaties: [] });
 
   // Andere sessies op dezelfde route (actief of zojuist gefinisht)
-  type SessieRij = { id: string; status: string; players: { login_name: string; nickname: string | null; icon: string | null } };
+  type SessieRij = { id: string; status: string; players: { login_name: string; nickname: string | null; icon: string | null; test_rol?: string | null } };
+  // "*": ook test_rol (migratie 005) als die er is
   const { data: andereSessies } = await admin
     .from("player_sessions")
-    .select("id, status, players!inner(login_name, nickname, icon)")
+    .select("id, status, players!inner(*)")
     .eq("route_id", eigenSessie.route_id)
     .in("status", ["actief", "voltooid"])
     .neq("id", eigenSessie.id);
 
-  const rijen = (andereSessies ?? []) as unknown as SessieRij[];
+  // 🧪 Testteams en echte teams zien elkaar niet (en kunnen dus ook geen items op elkaar gooien)
+  const ikTest = await isTestSpeler(admin, spelerId);
+  const rijen = ((andereSessies ?? []) as unknown as SessieRij[]).filter((r) => !!testRol(r.players) === ikTest);
   if (rijen.length === 0) return NextResponse.json({ locaties: [] });
 
   const sessieIds = rijen.map((s) => s.id);

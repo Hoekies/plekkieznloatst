@@ -4128,3 +4128,11 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* 📤 Na de uitslag: kopje boven oorkonde en terugkijken (onder de eindstand) */
 .finish-delen-kop { align-self: flex-start; margin-top: 4px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #67E8F9; }
+
+/* 🧪 Testteam-venster (TestteamKnop.tsx) */
+.test-blok { display: flex; flex-direction: column; gap: 10px; }
+.test-stap { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.test-stap > span { font-size: 0.8rem; color: var(--muted); }
+.test-stap > .rl-knop, .test-stap > button { align-self: flex-start; }
+.test-gooi { display: flex; flex-wrap: wrap; gap: 6px; }
+.test-gooi .rl-knop { font-size: 1.2rem; min-width: 44px; justify-content: center; }

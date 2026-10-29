@@ -201,6 +201,9 @@ Ouder dan 30 dagen: elke nacht verwijderd (pg_cron-job `pointrush-opruimen`, mig
 #### `bonus_vragen` en `bonus_antwoorden` (nieuwe migratie 004)
 ⚡ Bonusvraag per route: vraag, soort (`meerkeuze` | `foto`), keuzes (jsonb) en `goed_index`, punten, `na_minuten` (null = alleen met de knop), `duur_seconden`, `gestart_op` en `aantal_teams` (vastgelegd bij de start). Antwoorden: één per team (`UNIQUE (bonus_id, session_id)`), met keuze of `foto_pad` (opslag `foto-inzendingen`, map van de sessie) en `foto_status`. Punten: `lib/bonus.ts` (`bonusPunten`: max × (n − plek + 1) / n). Starten: de spelers-app vraagt elke 6 s `GET /api/speler/bonus`; die start vragen waarvan de tijd om is (voorwaardelijke update op `gestart_op IS NULL`). Foto's: na elke keuring herrekent `herrekenFotoBonus` alle goedgekeurde foto's op volgorde van insturen en boekt alleen het verschil. Alleen de service role (RLS aan, GRANT aan `service_role`).
 
+#### `players.test_rol` (nieuwe migratie 005)
+🧪 Testteam: `team` (loginnaam *test*) of `tegenstander` (*Testtegenstander*, zonder lopen). `lib/testteam.ts`: `zorgTegenstander` (eigen sessie op de route), `gooiOpTestteam` (maakt een geclaimd startitem voor de tegenstander en voert het uit met `voerItemUit` uit `lib/item-uitvoeren.ts`, dezelfde code als de spelersapp), `testAutoWorp` (via `/api/speler/status` → `/api/speler/testteam`) en `wisTest`. Gefilterd in `/api/speler/locaties`, `maakStand`, de vraagstatistiek, het rapport (`haalAntwoorden(..., { zonderTest })`), het dashboard en de spelerslijst (zonder tegenstander). Het inzetten van items controleert dat aanvaller en doel allebei test of allebei echt zijn.
+
 #### `client_fouten` (migratie 015)
 Fouten van het foutscherm (`components/shared/FoutScherm.tsx` → `POST /api/fout`): rol, wie, pad, bericht, details (stack), browser. Alleen de service role (RLS aan, geen policies); getoond in de Systeemcheck via `/api/admin/fouten`. Ook na 30 dagen weg.
 

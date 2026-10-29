@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { loginNaarEmail } from "@/lib/login-naam";
+import { testRol } from "@/lib/testteam";
 import { bewaarWachtwoord } from "@/lib/wachtwoord-kluis";
 
 // GET — alle groepen ophalen
@@ -23,7 +24,8 @@ export async function GET() {
   // Gefinisht (en niet opnieuw bezig): voor de status-stip
   const klaar = new Set((lopend ?? []).filter((s) => s.status === "voltooid").map((s) => s.player_id));
   // De versleutelde wachtwoordkopie gaat niet mee naar de browser
-  return NextResponse.json((data ?? []).map(({ wachtwoord_versleuteld: _ww, ...g }) => ({ ...g, heeft_spel: metSpel.has(g.id), gefinisht: !metSpel.has(g.id) && klaar.has(g.id) })));
+  // 🧪 De testtegenstander is geen echt team: niet in de lijst
+  return NextResponse.json((data ?? []).filter((g) => testRol(g) !== "tegenstander").map(({ wachtwoord_versleuteld: _ww, ...g }) => ({ ...g, heeft_spel: metSpel.has(g.id), gefinisht: !metSpel.has(g.id) && klaar.has(g.id) })));
 }
 
 // POST — nieuwe groep aanmaken

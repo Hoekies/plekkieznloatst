@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { haversine } from "@/lib/geo";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
+import { isTestSpeler, zorgTegenstander } from "@/lib/testteam";
 import { haalSpeler } from "@/lib/speler-sessie";
 
 export async function GET() {
@@ -79,6 +80,8 @@ export async function POST() {
   if (error || !sessie) {
     return NextResponse.json({ fout: error?.message ?? "Sessie aanmaken mislukt" }, { status: 500 });
   }
+  // 🧪 Testteam: de testtegenstander speelt mee (om items op te gooien, en die zelf items gooit)
+  if (await isTestSpeler(admin, spelerId)) await zorgTegenstander(admin, route.id).catch(() => undefined);
 
   // Voor verspreid-modus: vul session_point_order met hub-start, geroteerde middenpunten, hub-eind
   if (route.modus === "verspreid") {

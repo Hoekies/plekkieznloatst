@@ -47,6 +47,7 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - Bericht aan één team, telefoonnummer per team (bellen en WhatsApp direct naar de juiste chat)
 - Replay op de live kaart: het hele spel versneld afspelen
 - Spel pauzeren voor alle teams (eindtijd schuift mee)
+- 🧪 Testteam: zelf een rondje lopen met een testtegenstander die items op je gooit; telt nergens mee
 - ⚡ Bonusvraag (meerkeuze of foto) die na een ingestelde speeltijd bij alle teams tegelijk verschijnt; de eerste goede krijgt de meeste punten
 - Helpers: een tweede, beperkte inlog die alleen meekijkt, foto's keurt en punten vrijgeeft
 - Statistiek per vraag: hoeveel teams een vraag goed hadden en welke foute antwoorden vaak voorkwamen

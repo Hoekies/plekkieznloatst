@@ -7,7 +7,8 @@ import { deelUrl, albumUrl } from "@/lib/deel-link";
 // Printbaar rapport (opslaan als PDF): eindstand, en per team de vragen, items en gelopen route
 export default async function RapportPagina() {
   const admin = createAdminClient();
-  const data = await haalAntwoorden(admin);
+  // 🧪 Een testrondje hoort niet in het rapport
+  const data = await haalAntwoorden(admin, { zonderTest: true });
 
   const verslagen: Record<string, RouteVerslag> = {};
   const fotoUrls: Record<string, string> = {};

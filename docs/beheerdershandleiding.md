@@ -508,6 +508,17 @@ Kan een team zijn volgende punt echt niet bereiken (afgesloten weg, bouwhek, onv
 
 Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken. Het team ziet dan eerst *"📨 Punt vrijgegeven — de organisatie heeft dit punt voor jullie vrijgegeven"* en daarna de vraag. Dat werkt ook op de start: de vraag van het startpunt komt dan meteen, zonder eerst 25 meter te lopen. Na het antwoord ziet het team het volgende punt.
 
+### 🧪 Testteam
+
+Zelf een rondje lopen om de route te testen, zonder dat het ergens meetelt. Bij 👫 Spelers → **Testteam**. Nodig: migratie 005 (`supabase/migrations/005_testteam.sql`).
+
+1. **Testteam aanmaken**: een team met loginnaam *test*, plus een *Testtegenstander* (die staat niet in de lijst met spelers).
+2. Tik op **QR** en scan hem met je telefoon: je bent ingelogd als het testteam. Speel het rondje zoals een echt team.
+3. De testtegenstander speelt mee. Na 3 minuten gooit hij vanzelf elke 4 minuten een willekeurig item op je (bom, spook, banaan, dief of wissel), met dezelfde meldingen en geluiden als in een echt spel. Met de knoppen 💣 👻 🍌 🦹 🔄 🎲 gooit hij er meteen een. Jouw eigen items kun je op de testtegenstander gooien.
+4. **↺ Test opnieuw** wist alleen het testrondje; echte teams blijven staan.
+
+Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het rapport, en testteams en echte teams zien en raken elkaar niet. Op het dashboard zie je het testteam gewoon meelopen.
+
 ### ⚡ Bonusvraag
 
 Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen geluid: ook bij teams die al gefinisht zijn (tot de uitslag vrij is). Zet hem klaar met **⚡ Bonusvraag** in het Spelleider-blok (of vooraf bij *Spel klaarzetten*). Nodig: migratie 004 (`supabase/migrations/004_bonusvragen.sql`).

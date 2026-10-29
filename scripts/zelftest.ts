@@ -7,6 +7,7 @@ import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
+import { testRol } from "../lib/testteam";
 
 let goed = 0;
 function test(naam: string, f: () => void) {
@@ -61,6 +62,14 @@ test("bonusvraag: eerste alles, daarna steeds minder", () => {
   assert.equal(bonusOpen({ gestart_op: new Date(nu - 30_000).toISOString(), duur_seconden: 60 }, nu), true);
   assert.equal(bonusOpen({ gestart_op: new Date(nu - 61_000).toISOString(), duur_seconden: 60 }, nu), false);
   assert.equal(bonusOpen({ gestart_op: null, duur_seconden: 60 }, nu), false);
+});
+
+test("testteam: alleen bekende rollen, zonder kolom een echt team", () => {
+  assert.equal(testRol({ test_rol: "team" }), "team");
+  assert.equal(testRol({ test_rol: "tegenstander" }), "tegenstander");
+  assert.equal(testRol({ test_rol: "iets" }), null);
+  assert.equal(testRol({}), null);
+  assert.equal(testRol(null), null);
 });
 
 test("seizoensachtergrond op datum", () => {

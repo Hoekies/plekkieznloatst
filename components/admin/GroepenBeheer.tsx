@@ -21,6 +21,7 @@ import Venster, { VensterKop, VensterMetKop } from "@/components/shared/Venster"
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import QrInlogVenster from "@/components/admin/QrInlogVenster";
+import TestteamKnop from "@/components/admin/TestteamKnop";
 
 
 // heeft_spel: komt mee uit /api/admin/groepen (lopende sessie ja/nee)
@@ -240,6 +241,8 @@ export default function GroepenBeheer() {
           <MeerdereSpelersKnop onKlaar={laadGroepen} onZelf={() => setToonFormulier(true)} hoofd />
           {/* 📤 Uitdelen: kaartjes printen en WhatsApp, in één venster */}
           <UitdeelKnop heeftSpelers={groepen.some((g) => !g.is_uitgeschakeld)} />
+          {/* 🧪 In je eentje een rondje testen */}
+          <TestteamKnop onGewijzigd={laadGroepen} />
       </div>
 
 

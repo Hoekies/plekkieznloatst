@@ -1,13 +1,14 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { haversine } from "@/lib/geo";
 import type { LeaderboardEntry } from "@/lib/types";
+import { isTestSpeler, testRol } from "@/lib/testteam";
 import { teamFotos } from "@/lib/teamfoto";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 type RawSessie = {
   id: string; player_id: string; score: number; started_at: string; finished_at: string | null;
-  players: { login_name: string; nickname: string | null; icon: string | null };
+  players: { login_name: string; nickname: string | null; icon: string | null; test_rol?: string | null };
 };
 
 // Gelopen afstand per sessie, uit de opgeslagen GPS-plekken
@@ -40,11 +41,13 @@ export async function routeVanSpel(admin: AdminClient, sessie: { route_id: strin
 
 export async function maakStand(admin: AdminClient, routeId: string, eigenSpelerId: string, alleenGefinisht: boolean): Promise<LeaderboardEntry[]> {
   let query = admin.from("player_sessions")
-    .select("id, player_id, score, started_at, finished_at, players!inner(login_name, nickname, icon)")
+    .select("id, player_id, score, started_at, finished_at, players!inner(*)")
     .eq("route_id", routeId);
   query = alleenGefinisht ? query.eq("status", "voltooid").not("finished_at", "is", null) : query.in("status", ["actief", "voltooid"]);
   const { data } = await query;
-  const sessies = (data ?? []) as unknown as RawSessie[];
+  // 🧪 Een testteam ziet alleen de test (met de testtegenstander), echte teams nooit een test
+  const ikTest = eigenSpelerId ? await isTestSpeler(admin, eigenSpelerId) : false;
+  const sessies = ((data ?? []) as unknown as RawSessie[]).filter((s) => !!testRol(s.players) === ikTest);
   const afstand = await afstandPerSessie(admin, sessies.map((s) => s.id));
   // Eindstand: de groepsfoto bij de finish als teamfoto
   const fotos = alleenGefinisht ? await teamFotos(admin, routeId, sessies.map((s) => s.id)) : new Map<string, string>();

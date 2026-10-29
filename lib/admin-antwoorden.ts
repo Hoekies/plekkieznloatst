@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { tekstAfstand, normaliseerAntwoord } from "@/lib/geo";
 import { huisLogoUrl } from "@/lib/huisstijl";
+import { testRol } from "@/lib/testteam";
 import { teamFotos } from "@/lib/teamfoto";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -52,17 +53,19 @@ export type AntwoordenData = {
 
 // Alle beantwoorde vragen per team van de actieve route, in de volgorde waarin ze gelopen zijn.
 // Gebruikt door de pagina "Antwoorden" en het rapport.
-export async function haalAntwoorden(admin: AdminClient): Promise<AntwoordenData> {
+// zonderTest: het 🧪 testteam weglaten (rapport); de testtegenstander staat er nooit in
+export async function haalAntwoorden(admin: AdminClient, { zonderTest = false }: { zonderTest?: boolean } = {}): Promise<AntwoordenData> {
   const { data: route } = await admin.from("routes").select("*").eq("is_active", true).maybeSingle();
   if (!route) return { route: null, uitslag_vrijgegeven: false, teams: [], wachtende_fotos: 0 };
 
   type SessieRij = { id: string; status: string; score: number; started_at: string | null; finished_at: string | null; players: { login_name: string; nickname: string | null; icon: string | null } };
   const { data: sessiesRaw } = await admin
     .from("player_sessions")
-    .select("id, status, score, started_at, finished_at, players!inner(login_name, nickname, icon)")
+    .select("id, status, score, started_at, finished_at, players!inner(*)")
     .eq("route_id", route.id)
     .in("status", ["actief", "voltooid"]);
-  const sessies = (sessiesRaw ?? []) as unknown as SessieRij[];
+  const sessies = ((sessiesRaw ?? []) as unknown as SessieRij[])
+    .filter((s) => { const rol = testRol(s.players); return rol !== "tegenstander" && !(zonderTest && rol); });
   const sessieIds = sessies.map((s) => s.id);
 
   const { data: punten } = await admin.from("route_points").select("id, name, points, order_index").eq("route_id", route.id);
