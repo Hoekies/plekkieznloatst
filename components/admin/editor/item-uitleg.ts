@@ -10,4 +10,5 @@ export const ITEM_UITLEG: Record<string, string> = {
   wissel: "Wissel: het team ruilt zijn score met een tegenstander.",
   vraagteken: "Vraagteken: meteen gespeeld bij oppakken. Een gok, van jackpot tot punten kwijt.",
   plekzooi: "Plek zooi: onzichtbare val; wie erin loopt, staat even stil.",
+  schaduw: "Schaduw: het team is een paar minuten onzichtbaar voor radar en duels.",
 };

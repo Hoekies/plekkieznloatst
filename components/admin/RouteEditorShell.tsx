@@ -559,7 +559,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     const lusPad = lus.flatMap((p, i) => wegen.lijn(p, lus[(i + 1) % lus.length]).slice(0, -1));
     // Zelf meer of minder gekozen: aanvullen met een rondgang langs de soorten, of inkorten
     if (itemDoel !== null) {
-      const rond = ["ster", "bom", "verdubbeling", "spook", "radar", "banaan", "vraagteken", "dief", "wissel", "plekzooi"];
+      const rond = ["ster", "bom", "verdubbeling", "spook", "radar", "banaan", "vraagteken", "dief", "wissel", "schaduw", "plekzooi"];
       for (let k = 0; tekortTypes.length < itemDoel; k++) tekortTypes.push(rond[k % rond.length]);
       tekortTypes.length = Math.min(tekortTypes.length, itemDoel);
     }
@@ -2008,7 +2008,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             {/* Snel plaatsen: item aanklikken, daarna op de kaart klikken (zo vaak als je wilt) */}
             {actieveTab === "items" && (
               <div style={{ margin: "0 10px 8px", display: "flex", flexWrap: "wrap", gap: 4 }}>
-                {(route.modus === "sequentieel" ? ["plekzooi"] : ["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+                {(route.modus === "sequentieel" ? ["plekzooi"] : ["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "schaduw", "plekzooi"] as SpeciaalItemType[]).map((t) => {
                   const actief = plaatsType === t;
                   return (
                     <button key={t} type="button" onClick={() => { setPlaatsType(actief ? null : t as SpeciaalItemType); setGeselecteerdSpeciaal(null); setGeselecteerd(null); }}

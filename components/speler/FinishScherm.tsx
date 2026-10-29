@@ -15,6 +15,7 @@ import Podium from "./Podium";
 import UitslagOnthulling from "./UitslagOnthulling";
 import BonusVraag from "./BonusVraag";
 import { BadgeRij, FotoBattle, useBadges } from "./FinishPlezier";
+import SpelStatistieken from "./SpelStatistieken";
 import { BADGES } from "@/lib/spelplezier";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import UitslagDelen from "@/components/shared/UitslagDelen";
@@ -293,6 +294,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
           plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false}
           prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} badges={badges.map((b) => BADGES[b].emoji)} />
+
+        {/* 📊 Spelstatistieken (als de route dat aan heeft) */}
+        <SpelStatistieken />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>

@@ -43,14 +43,29 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (!metGetal && !teksten.length) return NextResponse.json({ fout: "Vul minstens één goed antwoord in" }, { status: 400 });
   }
 
+  // 🔤 Anagram: het woord (de spelers zien de letters door elkaar)
+  if (body.type === "anagram") {
+    const woord = (body.correct_text_answers ?? []).find((t: unknown) => typeof t === "string" && t.trim());
+    if (!woord || woord.replace(/\s+/g, "").length < 3) return NextResponse.json({ fout: "Vul het woord in (minstens 3 letters)" }, { status: 400 });
+  }
+  // 🗺️ Kaartvraag: de goede plek en de straal
+  if (body.type === "kaartvraag") {
+    if (!Number.isFinite(Number(body.kaart_lat)) || !Number.isFinite(Number(body.kaart_lng))) return NextResponse.json({ fout: "Tik op de kaart waar het goede antwoord ligt" }, { status: 400 });
+  }
+  // 🔀 Volgorde: 3 of 4 items, in de goede volgorde
+  if (body.type === "volgorde") {
+    const n = (body.antwoorden ?? []).length;
+    if (n < 3 || n > 4) return NextResponse.json({ fout: "Een volgordevraag heeft 3 of 4 items" }, { status: 400 });
+    body.antwoorden = body.antwoorden.map((a: { is_correct: boolean }) => ({ ...a, is_correct: false, punten: null }));
+  }
   // 🗳️ Stemvraag: 2 tot 4 keuzes, geen goed antwoord (de meerderheid wint)
-  if (body.type === "stemvraag") {
+  else if (body.type === "stemvraag") {
     const n = (body.antwoorden ?? []).length;
     if (n < 2 || n > 4) return NextResponse.json({ fout: "Een stemvraag heeft 2 tot 4 keuzes" }, { status: 400 });
     body.antwoorden = body.antwoorden.map((a: { is_correct: boolean }) => ({ ...a, is_correct: false, punten: null }));
   }
   // Meerkeuze: minstens één goed antwoord (meer mag; niet allemaal, anders is er niets te raden)
-  else if (body.type !== "open" && body.type !== "foto_opdracht") {
+  else if (body.type !== "open" && body.type !== "foto_opdracht" && body.type !== "anagram" && body.type !== "kaartvraag") {
     const aantalCorrect = (body.antwoorden ?? []).filter((a: { is_correct: boolean }) => a.is_correct).length;
     if (aantalCorrect < 1) {
       return NextResponse.json({ fout: "Maak minstens één antwoord goed (tik op het rondje)" }, { status: 400 });
@@ -86,11 +101,18 @@ export async function PUT(request: NextRequest, { params }: Params) {
     correct_text_answers: body.correct_text_answers ?? null,
     numeric_answer: body.numeric_answer ?? null,
     numeric_tolerance: body.numeric_tolerance ?? null,
+    // 🗺️ Kaartvraag (migratie 009): alleen meesturen als het er een is, zodat de rest ook zonder die migratie werkt
+    ...(body.type === "kaartvraag" ? {
+      kaart_lat: Number(body.kaart_lat), kaart_lng: Number(body.kaart_lng),
+      kaart_straal: Math.min(2000, Math.max(5, Math.round(Number(body.kaart_straal) || 50))),
+    } : {}),
   };
-  const typeFout = (m: string) => /type_check/.test(m) ? "Draai eerst migratie 016 (stemvraag) in Supabase" : m;
+  const typeFout = (m: string) => /type_check|kaart_/.test(m)
+    ? ["anagram", "volgorde", "kaartvraag"].includes(body.type) ? "Draai eerst migratie 009 (spelplezier deel 2) in Supabase" : "Draai eerst migratie 016 (stemvraag) in Supabase"
+    : m;
 
   let vraagId: string;
-  const metOpties = body.type !== "open" && body.type !== "foto_opdracht";
+  const metOpties = body.type !== "open" && body.type !== "foto_opdracht" && body.type !== "anagram" && body.type !== "kaartvraag";
   const nieuweOpties = (metOpties ? (body.antwoorden ?? []) : []) as Antwoord[];
   const optieRij = (a: Antwoord, i: number) => ({
     order_index: i + 1,

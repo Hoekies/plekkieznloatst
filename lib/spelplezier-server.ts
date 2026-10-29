@@ -6,7 +6,7 @@ import { testRol } from "@/lib/test-rol";
 import { teamFotos } from "@/lib/teamfoto";
 import {
   spelplezierAan, plezierInstellingen, BADGES, BLIKSEM_SEC, ONFIRE_REEKS, TAAI_GERAAKT, VAL_AFSTAND_PUNT,
-  schatSlot, radVakken, RAD_ITEMS, radHalverwege, goudenStatus, type BadgeSoort,
+  schatSlot, radVakken, RAD_ITEMS, radHalverwege, goudenStatus, metSchaduw, type BadgeSoort,
 } from "@/lib/spelplezier";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -94,7 +94,9 @@ export async function naAntwoord(admin: AdminClient, p: { sessie: Sessie; route:
           await telBijScore(admin, p.sessie.id, inst.punten).catch(() => undefined);
           reeksPunten = inst.punten;
         } else {
-          const type = willekeurig(inst.items);
+          // 🥷 Schaduw alleen als die bij de route aan staat
+          const pool = metSchaduw(inst.items, plezierInstellingen(p.route));
+          const type = willekeurig(pool.length ? pool : ["ster"]);
           if (await geefItem(admin, p.sessie, type)) reeksItem = type;
         }
       }
@@ -224,7 +226,8 @@ export async function draaiRad(admin: AdminClient, sessie: Sessie & { rad_gedraa
     tekst = v.punten > 0 ? `${v.punten} punten erbij!` : `Pech: ${-v.punten} punten eraf`;
     if (v.punten >= inst.hoofdprijs) await geefBadge(admin, sessie.id, "geluk", route);
   } else if (v.item) {
-    item = willekeurig(RAD_ITEMS);
+    const radPool = metSchaduw([...RAD_ITEMS, "schaduw"], plezierInstellingen(route));
+    item = willekeurig(radPool);
     if (await geefItem(admin, sessie, item)) tekst = "Een item voor in de balk!";
     else item = null;
   }
@@ -299,10 +302,19 @@ export async function spelplezierVoorSpeler(admin: AdminClient, sessie: Sessie &
     rad: false, rad_vakken: radVakken(inst.rad), rad_moment: inst.rad.moment,
     schat: null as { id: string; lat: number; lng: number; tot: string } | null, schat_gepakt: null as { item: string | null; punten: number } | null,
     vallen: [] as { lat: number; lng: number; tot: string }[], val_geraakt: [] as { id: string; door: string; punten: number }[],
+    // 🥷 Tot wanneer dit team onzichtbaar is (schaduw-item)
+    schaduw_tot: null as string | null,
+    // 📏 Net beloonde kilometer(s): voor de melding
+    km_beloning: null as { km: number; punten: number; items: string[] } | null,
+    // 🐣 🏅 Score, voor mascotte en levels
+    score: sessie.score ?? 0,
   };
   if (!route) return leeg;
   const gouden = goudenStatus(route);
   const uit = { ...leeg, gouden_tot: gouden?.tot ?? null };
+  const { data: schaduw } = await admin.from("special_item_effects").select("expires_at").eq("target_session_id", sessie.id)
+    .eq("effect_type", "schaduw").gt("expires_at", new Date().toISOString()).order("expires_at", { ascending: false }).limit(1).maybeSingle();
+  uit.schaduw_tot = schaduw?.expires_at ?? null;
   const speelt = sessie.status === "actief" && !route.gepauzeerd_sinds && !route.uitslag_vrijgegeven;
 
   if (aan.val && speelt && plek) await checkVallen(admin, sessie, plek.lat, plek.lng, route).catch(() => undefined);
@@ -314,7 +326,8 @@ export async function spelplezierVoorSpeler(admin: AdminClient, sessie: Sessie &
       // Binnen bereik: meteen pakken (alleen het eerste verzoek krijgt hem)
       if (plek && haversine(plek.lat, plek.lng, s.latitude, s.longitude) <= inst.schat.meter + Math.min(plek.nauwkeurig, 20)) {
         const metItem = inst.schat.beloning !== "punten", metPunten = inst.schat.beloning !== "item";
-        const type = metItem ? willekeurig(inst.schat.items) : null;
+        const pool = metSchaduw(inst.schat.items, inst);
+        const type = metItem ? willekeurig(pool.length ? pool : ["ster"]) : null;
         const { data: gepakt } = await admin.from("schatten").update({ gepakt_door: sessie.id, gepakt_op: new Date().toISOString(), item_type: type })
           .eq("id", s.id).is("gepakt_door", null).select("id");
         if (gepakt?.length) {
@@ -326,6 +339,30 @@ export async function spelplezierVoorSpeler(admin: AdminClient, sessie: Sessie &
         }
       } else {
         uit.schat = { id: s.id, lat: s.latitude, lng: s.longitude, tot: new Date((schatSlot(Date.now(), inst.schat.minuten) + 1) * inst.schat.minuten * 60_000).toISOString() };
+      }
+    }
+  }
+
+  // 📏 Kilometerbonus: per hele gelopen kilometer (afstand_m, bijgehouden door de app) één keer de beloning.
+  // Voorwaardelijke update op het oude aantal: twee verzoeken tegelijk belonen nooit dubbel.
+  if (inst.km.aan && speelt) {
+    const s = sessie as Sessie & { afstand_m?: number | null; km_beloond?: number | null };
+    const km = Math.floor((s.afstand_m ?? 0) / 1000), al = s.km_beloond ?? 0;
+    if (km > al) {
+      const { data: gezet } = await admin.from("player_sessions").update({ km_beloond: km }).eq("id", sessie.id).eq("km_beloond", al).select("id");
+      if (gezet?.length) {
+        const aantal = Math.min(3, km - al);
+        let punten = 0; const items: string[] = [];
+        for (let i = 0; i < aantal; i++) {
+          if (inst.km.beloning === "punten") punten += inst.km.punten;
+          else {
+            const pool = metSchaduw(inst.km.items, inst);
+            const type = willekeurig(pool.length ? pool : ["ster"]);
+            if (await geefItem(admin, sessie, type)) items.push(type);
+          }
+        }
+        if (punten) await telBijScore(admin, sessie.id, punten).catch(() => undefined);
+        uit.km_beloning = { km, punten, items };
       }
     }
   }

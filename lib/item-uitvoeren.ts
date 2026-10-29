@@ -1,5 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { telBijScore, wisselScores, boekScoreOver, ruilPunten } from "@/lib/score";
+import { plezierInstellingen } from "@/lib/spelplezier";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -64,6 +65,11 @@ export async function voerItemUit(admin: AdminClient, p: {
     } else if (item.type === "radar") {
       const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
       await zetEffect({ target_session_id: eigenSessie.id, effect_type: "radar", expires_at: expiresAt, notification: null });
+
+    } else if (item.type === "schaduw") {
+      // 🥷 Een paar minuten onzichtbaar voor radar en duels (migratie 009; duur uit de route-instellingen)
+      const minuten = plezierInstellingen(p.routeWaarden).schaduw.minuten;
+      await zetEffect({ target_session_id: eigenSessie.id, effect_type: "schaduw", expires_at: new Date(Date.now() + minuten * 60_000).toISOString(), notification: null });
 
     } else if (item.type === "spook") {
       const duurSeconden = routeWaarden?.spook_duur_seconden ?? 600;

@@ -562,6 +562,20 @@ Hierboven staan de standaardwaarden. Met de ⚙️ naast elk onderdeel stel je z
 | 🎰 Rad van fortuin | draaien *na een derde*, *halverwege* of *na twee derde*; hoofdprijs *+100/+200*; pechvak −25 *ja* of *nee* (dan +10) |
 | ⏰ Gouden kwartier | **Aan** of **Uit** per route (uit = geen knop in het Spelleider-blok en geen vaste tijd); duur *5/10/15/30 min*; punten *×2* of *×3*; starten *alleen met de knop* of *vanzelf op een tijdstip* (elke dag, Nederlandse tijd) |
 
+### 🎉 Spelplezier deel 2
+
+Ook in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *🎉 Spelplezier*, nu in groepen (op de kaart, bij de vragen, belonen en beleven, na de finish, contact). Nodig: migratie 009 (`supabase/migrations/009_spelplezier_2.sql`), na 007 en 008.
+
+- **🥷 Schaduw-item:** een nieuw item. Het team is een paar minuten (*3/5/10 min*) onzichtbaar voor andere teams, ook voor hun radar, en krijgt geen duel. Leg het op de kaart of geef het als startitem. Staat het onderdeel aan, dan kan het ook uit de schat, het rad, de reeks en de kilometerbonus komen. Het team ziet bovenin hoe lang het nog onzichtbaar is.
+- **📏 Kilometerbonus:** elke gelopen kilometer geeft *punten (+10/+25/+50)* of *een item* (je kiest welke). Het team krijgt een melding.
+- **🃏 Jokers:** per team *0 tot 3* 50/50-jokers (twee foute antwoorden weg bij meerkeuze) en *0 tot 3* overslaan-jokers (de vraag zonder punten overslaan; de reeks loopt door). Niet bij de finish of een stemvraag.
+- **🧑‍⚖️ Bezwaar:** bij een fout gerekend antwoord kan het team *1 tot 3* keer bezwaar maken, eventueel met een toelichting. Jij (of een helper) ziet het bovenaan het Spelleider-blok, met het gegeven antwoord, en kiest **+punten** (toekennen) of **Af**. Het team krijgt een bericht.
+- **🐣 Mascotte** en **🏅 Levels:** naast de score in de balk van het team. De mascotte groeit mee (🥚 → 🐣 100 → 🦉 300 → 🦅 600 punten), het level ook (🌱 Rookie → 🔎 Speurder 100 → 🧭 Kenner 250 → 🎓 Meester 500 → 👑 Legende 1000). Een nieuwe stap geeft confetti. Tik erop voor alle stappen.
+- **📊 Spelstatistieken:** na de uitslag ziet elk team zijn cijfers (goed, fout, snelste antwoord, gemiddelde nadenktijd, langste stuk lopen, kilometers, items) en de records van het spel.
+- **💬 Chat met de spelleider:** een 💬-knop op de kaart van het team. Nieuwe berichten staan bovenaan het Spelleider-blok (tik om te antwoorden) en bij het team onder *💬 Chat*. Je krijgt ook een pushmelding.
+
+**📚 Vragenpakketten:** in de *Vragenbank* staat nu *📦 Pakketten*: kant-en-klare meerkeuzevragen (Algemene kennis, Nederland, Kinderen, Dieren en natuur, Feestdagen). Overnemen vult het formulier; pas na opslaan staat de vraag in de route. Ook bij de bonusvraag te gebruiken.
+
 ### ⏰ Gouden kwartier
 
 Zet het eerst aan bij de route (🎉 Spelplezier → ⏰ Gouden kwartier → **Aan**); anders staat de knop niet in het Spelleider-blok. Met **⏰ Gouden kwartier** in het Spelleider-blok tellen een tijd lang alle goede vragen dubbel (standaard 15 minuten ×2; anders in te stellen bij de route, 🎉 Spelplezier → ⏰), bij alle teams. Staat er een tijdstip ingesteld, dan begint het daar vanzelf; met de knop stop je ook dat. Ze zien bovenin een gouden balk met de klok, en de beamer laat het groot zien. Op de knop staat de resterende tijd; tik erop om het eerder te stoppen. Nodig: migratie 007.

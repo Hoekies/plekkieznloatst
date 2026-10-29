@@ -1,7 +1,7 @@
 export type RouteStatus = "concept" | "gepubliceerd";
 // doorlooppunt: de speler krijgt geen scherm, het punt telt vanzelf als gepasseerd (migratie 013)
 export type RoutePointType = "vraagpunt" | "informatiepunt" | "eindpunt" | "doorlooppunt";
-export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht" | "stemvraag";
+export type VraagType = "meerkeuze_tekst" | "meerkeuze_afbeelding" | "open" | "foto_opdracht" | "stemvraag" | "anagram" | "volgorde" | "kaartvraag";
 export type AntwoordKleur = "geel" | "blauw" | "rood" | "groen";
 export type AntwoordType = "tekst" | "afbeelding";
 export type SessieStatus = "actief" | "voltooid" | "vervallen";
@@ -118,6 +118,10 @@ export interface Vraag {
   tijdslimiet_seconden?: number | null;  // null = geen tijdslimiet
   // 🗳️ Stemvraag: stemming gesloten en punten uitgedeeld (migratie 016)
   stem_gesloten?: boolean;
+  // 🗺️ Kaartvraag: de goede plek en binnen hoeveel meter het helemaal goed is (migratie 009)
+  kaart_lat?: number | null;
+  kaart_lng?: number | null;
+  kaart_straal?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -178,7 +182,7 @@ export interface SpelerPuntVoortgang {
   points_awarded: number;
 }
 
-export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar" | "banaan" | "plekzooi" | "vraagteken";
+export type SpeciaalItemType = "spook" | "bom" | "ster" | "verdubbeling" | "wissel" | "dief" | "radar" | "banaan" | "plekzooi" | "vraagteken" | "schaduw";
 
 export interface SpeciaalItem {
   id: string;

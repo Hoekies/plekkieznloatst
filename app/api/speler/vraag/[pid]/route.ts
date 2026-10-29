@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
+import { husselLetters } from "@/lib/vraag-soorten";
 
 // Geeft vraag terug ZONDER is_correct op antwoordopties — nooit onthullen aan client vóór beantwoording
 export async function GET(_: NextRequest, { params }: { params: { pid: string } }) {
@@ -23,5 +24,15 @@ export async function GET(_: NextRequest, { params }: { params: { pid: string } 
   if (!vraag) return NextResponse.json(null);
   // Per vraag: husselen, geluid en tijdslimiet (migratie 014). Los opgehaald: zonder die migratie werkt de vraag gewoon
   const { data: extra } = await admin.from("questions").select("antwoorden_husselen, geluid_pad, tijdslimiet_seconden").eq("id", vraag.id).maybeSingle();
+  // 🔤 Anagram: alleen de letters door elkaar, nooit het woord
+  if (vraag.type === "anagram") {
+    const { data: w } = await admin.from("questions").select("correct_text_answers").eq("id", vraag.id).maybeSingle();
+    return NextResponse.json({ ...vraag, ...(extra ?? {}), letters: husselLetters(w?.correct_text_answers?.[0] ?? "") });
+  }
+  // 🔀 Volgorde: de items door elkaar en zonder hun plek (anders verraadt order_index het antwoord)
+  if (vraag.type === "volgorde") {
+    const opties = [...(vraag.answer_options ?? [])].sort(() => Math.random() - 0.5).map((o, i) => ({ ...o, order_index: i + 1 }));
+    return NextResponse.json({ ...vraag, ...(extra ?? {}), antwoorden_husselen: false, answer_options: opties });
+  }
   return NextResponse.json({ ...vraag, ...(extra ?? {}) });
 }

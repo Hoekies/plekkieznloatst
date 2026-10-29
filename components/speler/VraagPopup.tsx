@@ -7,6 +7,8 @@ import { strooiConfetti } from "@/lib/confetti";
 import { tril, TRIL } from "@/lib/tril";
 import { stuur } from "@/lib/wachtrij";
 import { haalVraag, wisVraagCache } from "@/lib/vraag-cache";
+import JokerBalk from "./JokerBalk";
+import BezwaarKnop from "./BezwaarKnop";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
@@ -105,7 +107,11 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
   const [popupFase, setPopupFase] = useState<PopupFase>("laden");
   // 🤳 Selfie bij de finish: meteen goedgekeurd (geen keuring)
   const [fotoMeteenGoed, setFotoMeteenGoed] = useState(false);
+  // 🃏 50/50-joker: deze antwoorden zijn weggestreept
+  const [weg, setWeg] = useState<string[]>([]);
   const [vraag, setVraag] = useState<VraagData | null>(null);
+  // 🃏 Zonder de antwoorden die de 50/50-joker wegstreepte
+  const zichtbareOpties = (vraag?.answer_options ?? []).filter((o) => !weg.includes(o.id));
   const [gekozenId, setGekozenId] = useState<string | null>(null);
   const [openAntwoord, setOpenAntwoord] = useState("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -379,6 +385,12 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             <h2 style={{ margin: 0, fontSize: "1.25rem", lineHeight: 1.4, fontWeight: 700, whiteSpace: "pre-wrap", color: "#fff" }}>
               {vraag.question_text}
             </h2>
+            {/* 🃏 Jokers (als de route dat aan heeft): 50/50 bij meerkeuze, overslaan; niet bij de finish of een stemvraag */}
+            {!proef && punt.type !== "eindpunt" && vraag.type !== "stemvraag" && (
+              <JokerBalk puntId={punt.id} meerkeuze={vraag.type === "meerkeuze_tekst" || vraag.type === "meerkeuze_afbeelding"}
+                onWeg={(ids) => { setWeg(ids); if (gekozenId && ids.includes(gekozenId)) setGekozenId(null); }}
+                onOver={(v) => onVerwerkt(v)} />
+            )}
 
             {/* 🔊 Geluidsfragment bij de vraag */}
             {vraag.geluid_pad && (
@@ -403,7 +415,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             {vraag.type === "meerkeuze_afbeelding" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 {/* Elk antwoord met een letter (A, B, C, D); het gekozen antwoord springt eruit, de rest wordt zachter */}
-                {(vraag.answer_options ?? []).map((optie, i) => {
+                {zichtbareOpties.map((optie, i) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -460,7 +472,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                   <p style={{ color: "#FCA5A5", fontSize: "0.85rem", margin: 0 }}>⚠ Geen antwoordopties ingesteld voor deze vraag.</p>
                 )}
                 {/* Elk antwoord met een letter (A, B, C, D); het gekozen antwoord springt eruit, de rest wordt zachter */}
-                {(vraag.answer_options ?? []).map((optie, i) => {
+                {zichtbareOpties.map((optie, i) => {
                   const isGekozen = gekozenId === optie.id;
                   return (
                     <button
@@ -596,6 +608,8 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
             gekozenId={gekozenId}
           />
         )}
+        {/* 🧑‍⚖️ Bezwaar tegen een fout gerekend antwoord (als de route dat aan heeft) */}
+        {popupFase === "feedback" && feedback?.is_correct === false && !feedback.stem && !proef && <BezwaarKnop puntId={punt.id} />}
         {/* ⏰ Gouden kwartier en 🔥 reeks */}
         {popupFase === "feedback" && feedback && (feedback.gouden || (feedback.reeks ?? 0) >= 2 || feedback.reeks_item || feedback.reeks_punten) && (
           <div className="feedback-extra">

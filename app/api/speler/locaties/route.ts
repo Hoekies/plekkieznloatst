@@ -58,6 +58,11 @@ export async function GET(request: NextRequest) {
     .limit(1)  // twee radars tegelijk: anders geeft maybeSingle() een fout en lijkt er geen radar
     .maybeSingle();
 
+  // 🥷 Teams met een schaduw-effect: onzichtbaar, ook voor radar, en geen duel (migratie 009)
+  const { data: schaduwRijen } = await admin.from("special_item_effects").select("target_session_id")
+    .in("target_session_id", [...sessieIds, eigenSessie.id]).eq("effect_type", "schaduw").gt("expires_at", new Date().toISOString());
+  const inSchaduw = new Set((schaduwRijen ?? []).map((r) => r.target_session_id as string));
+
   let locaties: SpelerLocatie[];
 
   // Laatste plek van elk team apart opvragen. Eén gezamenlijke "nieuwste N" miste juist het team dat stilstond:
@@ -85,8 +90,8 @@ export async function GET(request: NextRequest) {
     const plek = laatste.get(r.id);
     const dichtbij = !!plek && !!eigen && recent(plek.created_at) && recent(eigen.created_at)
       && haversine(eigen.latitude, eigen.longitude, plek.latitude, plek.longitude) <= DICHTBIJ_METER;
-    const zichtbaar = !!plek && (!!radarEffect || dichtbij);
-    if (dichtbij && !gefinisht.has(r.id)) dichtbijIds.push(r.id);
+    const zichtbaar = !!plek && (!!radarEffect || dichtbij) && !inSchaduw.has(r.id);
+    if (dichtbij && !gefinisht.has(r.id) && !inSchaduw.has(r.id)) dichtbijIds.push(r.id);
     return {
       session_id: r.id,
       teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend",
@@ -101,6 +106,6 @@ export async function GET(request: NextRequest) {
   // Welke items gefinishte teams nog mogen raken (instelling "items na de finish")
   const { data: routeInst } = await admin.from("routes").select("*").eq("id", eigenSessie.route_id).maybeSingle();
   // ⚔️ Duel: dichtbij een ander team dat nog speelt (route-instelling, migratie 006)
-  if (routeInst && dichtbijIds.length) await startDuels(admin, routeInst, eigenSessie.id, dichtbijIds).catch(() => undefined);
+  if (routeInst && dichtbijIds.length && !inSchaduw.has(eigenSessie.id)) await startDuels(admin, routeInst, eigenSessie.id, dichtbijIds).catch(() => undefined);
   return NextResponse.json({ locaties, doelNaFinish: doelwitNaFinishVan(routeInst) });
 }

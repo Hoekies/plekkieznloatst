@@ -190,13 +190,14 @@ function BonusFormulier({ concept: c, teams, bezig, onWijzig, onBewaar, onTerug 
   }
   return (
     <div className="bonus-form">
-      <div className="bonus-form-bank">
-        <span className="bonus-hint">Of neem een vraag over uit een route:</span>
-        <Vragenbank soorten={["meerkeuze_tekst", "foto_opdracht"]} onKies={uitBank} metTekst />
-      </div>
       <div className="segment" role="radiogroup" aria-label="Soort">
         <button type="button" role="radio" aria-checked={c.soort === "meerkeuze"} className={c.soort === "meerkeuze" ? "aan" : ""} onClick={() => zet({ soort: "meerkeuze" })}>🔘 Meerkeuze</button>
         <button type="button" role="radio" aria-checked={c.soort === "foto"} className={c.soort === "foto" ? "aan" : ""} onClick={() => zet({ soort: "foto" })}>📸 Foto-opdracht</button>
+      </div>
+      {/* 📚 Of een vraag overnemen uit een route: één compacte regel */}
+      <div className="bonus-form-bank">
+        <span className="bonus-hint">Of neem een vraag over uit een route</span>
+        <Vragenbank soorten={["meerkeuze_tekst", "foto_opdracht"]} onKies={uitBank} metTekst />
       </div>
       <label className="form-label">{c.soort === "foto" ? "Opdracht" : "Vraag"}</label>
       <textarea className="form-input" rows={2} maxLength={300} value={c.vraag} onChange={(e) => zet({ vraag: e.target.value })}
@@ -217,10 +218,10 @@ function BonusFormulier({ concept: c, teams, bezig, onWijzig, onBewaar, onTerug 
       <div className="punten-snel">
         {[50, 100, 150, 200].map((p) => <button key={p} type="button" className={`rl-knop${c.punten === p ? " rl-knop--cyan" : ""}`} onClick={() => zet({ punten: p })}>{p}</button>)}
       </div>
-      <label className="form-label">Wanneer</label>
+      <label className="form-label">Wanneer <span className="bonus-hint">(na zoveel minuten speeltijd, of met de knop)</span></label>
       <div className="punten-snel">
-        <button type="button" className={`rl-knop${c.na_minuten === null ? " rl-knop--cyan" : ""}`} onClick={() => zet({ na_minuten: null })}>Met de knop</button>
-        {[15, 30, 45, 60].map((m) => <button key={m} type="button" className={`rl-knop${c.na_minuten === m ? " rl-knop--cyan" : ""}`} onClick={() => zet({ na_minuten: m })}>na {m} min</button>)}
+        <button type="button" className={`rl-knop${c.na_minuten === null ? " rl-knop--cyan" : ""}`} onClick={() => zet({ na_minuten: null })}>Knop</button>
+        {[15, 30, 45, 60].map((m) => <button key={m} type="button" className={`rl-knop${c.na_minuten === m ? " rl-knop--cyan" : ""}`} onClick={() => zet({ na_minuten: m })}>{m} min</button>)}
       </div>
       <label className="form-label">Hoe lang open</label>
       <div className="punten-snel">

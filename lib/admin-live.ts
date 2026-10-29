@@ -41,6 +41,8 @@ export type SpelerOverzicht = {
   items: { in_balk: string[]; ingezet: string[] };
   // Plek van het punt waar het team nu heen loopt (voor de lijn op de live kaart)
   volgend_punt?: { lat: number; lng: number } | null;
+  // 💬 Ongelezen chatberichten van dit team (migratie 009)
+  chat_ongelezen?: number;
   volgend_punt_id?: string | null;
   // Punten die het team al heeft afgerond (de kaart kleurt ze groen)
   bezochte_ids?: string[];
@@ -62,12 +64,14 @@ export type RoutePuntKort = {
 
 export type LiveData = {
   // huis_logo: eigen logo van de organisatie (huisstijl van de route)
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null; gouden_tot?: string | null; gouden_aan?: boolean } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null; gouden_tot?: string | null; gouden_aan?: boolean; chat_aan?: boolean } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
   // Ingestuurde foto's die nog gekeurd moeten worden (voor "vraagt je aandacht" op het dashboard)
   wachtende_fotos?: number;
+  // 🧑‍⚖️ Open bezwaren (migratie 009)
+  bezwaren?: { id: string; sessie_id: string; player_id: string; team: string; punt: string; vraag: string; antwoord: string | null; punten: number; toelichting: string | null }[];
   // Gezet als de sessies niet opgehaald konden worden (bv. een migratie die nog niet gedraaid is)
   fout?: string;
 };
@@ -99,6 +103,7 @@ export async function haalLiveData(): Promise<LiveData> {
     // ⏰ Gouden kwartier (migratie 007): alleen als het nog loopt
     gouden_tot: goudenStatus(route)?.tot ?? null,
     gouden_aan: plezierInstellingen(route).gouden.aan,
+    chat_aan: plezierInstellingen(route).chat.aan,
   } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)
@@ -301,5 +306,24 @@ export async function haalLiveData(): Promise<LiveData> {
     };
   });
 
-  return { route: routeInfo, route_punten: routePunten, spelers, speciale_items: specialeItems, wachtende_fotos: fotoRes.count ?? 0, fout };
+  // 🧑‍⚖️ Open bezwaren en 💬 ongelezen chats (migratie 009; zonder die tabellen gewoon leeg)
+  const [{ data: bezwaarRijen }, { data: chatRijen }] = sessieIds.length ? await Promise.all([
+    admin.from("bezwaren").select("id, sessie_id, route_point_id, toelichting, route_points(name, questions(question_text, points, type, answer_options(id, text)))")
+      .in("sessie_id", sessieIds).eq("status", "open").order("created_at"),
+    admin.from("chat_berichten").select("sessie_id").in("sessie_id", sessieIds).eq("van", "team").is("gelezen_op", null),
+  ]) : [{ data: null }, { data: null }];
+  const ongelezen = new Map<string, number>();
+  for (const c of chatRijen ?? []) ongelezen.set(c.sessie_id, (ongelezen.get(c.sessie_id) ?? 0) + 1);
+  for (const sp of spelers) if (sp.sessie_id) sp.chat_ongelezen = ongelezen.get(sp.sessie_id) ?? 0;
+  const bezwaren: NonNullable<LiveData["bezwaren"]> = [];
+  for (const b of bezwaarRijen ?? []) {
+    const sp = spelers.find((x) => x.sessie_id === b.sessie_id);
+    const p = b.route_points as unknown as { name: string; questions: { question_text: string; points: number; type: string; answer_options: { id: string; text: string | null }[] }[] | null } | null;
+    const vraag = Array.isArray(p?.questions) ? p?.questions[0] : (p?.questions as unknown as { question_text: string; points: number; answer_options: { id: string; text: string | null }[] } | null);
+    const { data: v } = await admin.from("player_point_progress").select("selected_answer_id, open_answer_text").eq("session_id", b.sessie_id).eq("route_point_id", b.route_point_id).maybeSingle();
+    const antwoord = v?.open_answer_text ?? vraag?.answer_options?.find((o) => o.id === v?.selected_answer_id)?.text ?? null;
+    bezwaren.push({ id: b.id, sessie_id: b.sessie_id, player_id: sp?.player_id ?? "", team: sp?.display_name ?? "Team", punt: p?.name ?? "punt", vraag: vraag?.question_text ?? "", antwoord, punten: vraag?.points ?? 0, toelichting: b.toelichting });
+  }
+
+  return { route: routeInfo, route_punten: routePunten, spelers, speciale_items: specialeItems, wachtende_fotos: fotoRes.count ?? 0, bezwaren, fout };
 }

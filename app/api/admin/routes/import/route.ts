@@ -43,7 +43,7 @@ const EXTRA_INSTELLINGEN = ["alle_punten_zichtbaar", "puzzelwoord", "puzzel_bonu
   "huisstijl_kleur", "huisstijl_logo_pad", "welkom_foto_pad", "geluid_set",
   // ⚔️ Duel (migratie 006) en 🎉 spelplezier (migratie 007)
   "duel_aan", "duel_punten", "val_aan", "reeks_aan", "badges_aan", "fotobattle_aan", "schat_aan", "rad_aan", "spelplezier"];
-const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken"];
+const ITEM_TYPES = ["spook", "bom", "ster", "verdubbeling", "wissel", "dief", "radar", "banaan", "plekzooi", "vraagteken", "schaduw"];
 
 export async function POST(request: Request) {
   const user = await haalGebruiker();

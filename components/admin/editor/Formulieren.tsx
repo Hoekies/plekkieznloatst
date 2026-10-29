@@ -35,7 +35,7 @@ export function SpeciaalItemForm({ item, alleenPlekzooi, onOpslaan, onVerwijder,
 
       <label className="form-label" style={{ margin: 0 }}>Soort item</label>
       <div className="segment segment--raster">
-        {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+        {(["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "schaduw", "plekzooi"] as SpeciaalItemType[]).map((t) => {
           const gekozen = type === t;
           const uit = alleenPlekzooi && t !== "plekzooi";
           return (

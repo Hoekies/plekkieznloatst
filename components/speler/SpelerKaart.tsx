@@ -17,6 +17,9 @@ import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import BonusVraag from "./BonusVraag";
 import DuelVraag from "./DuelVraag";
 import Spelplezier, { type KaartMarker } from "./Spelplezier";
+import MascotteLevel from "./MascotteLevel";
+import ChatKnop from "./ChatKnop";
+import type { PlezierInstellingen } from "@/lib/spelplezier";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
 import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 import { puzzelUitleg } from "@/lib/puzzel";
@@ -69,6 +72,8 @@ interface Props {
   puzzel?: { letterPunten: number; alleBonus: number; raadBonus: number } | null;
   // 🪤 Bommen mogen als val neergelegd worden (route-instelling, migratie 007)
   valAan?: boolean;
+  // 🎉 Instellingen van het spelplezier (mascotte, levels, jokers, bezwaar, chat …)
+  plezier?: PlezierInstellingen | null;
 }
 
 type GpsStatus = "laden" | "ok" | "zwak" | "weg";
@@ -108,7 +113,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen, valAan = false }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen, valAan = false, plezier = null }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -1038,6 +1043,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           {/* Groot midden in beeld, daarna zweeft hij omhoog naar de score (via een portal: los van de kop) */}
           {sprong && createPortal(<span key={sprong.id} className={`score-sprong${sprong.verschil < 0 ? " score-sprong--min" : ""}`} aria-hidden>{sprong.verschil > 0 ? "+" : "−"}{Math.abs(sprong.verschil)}</span>, document.body)}
         </div>
+        {/* 🐣 Mascotte en 🏅 level (als de route dat aan heeft) */}
+        <MascotteLevel score={score} mascotte={!!plezier?.mascotte.aan} levels={!!plezier?.levels.aan} />
         {eindtijd && <EindtijdTeller eindtijd={eindtijd} sessieId={sessie.id} onVoorbij={haalScoreOp} pauze={pauze} />}
         <button
           onClick={() => setLegendeOpen(true)}
@@ -1369,6 +1376,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <DuelVraag />
         {/* 🎉 Gouden kwartier, badges, rad van fortuin, vliegende schat en vallen (per route aan of uit) */}
         <Spelplezier sessieId={sessie.id} positie={positie} onMarkers={setExtraMarkers} />
+        {/* 💬 Chat met de spelleider (als de route dat aan heeft) */}
+        {plezier?.chat.aan && <ChatKnop />}
       </div>
 
       {/* Punt bereikt → vraag/info popup */}

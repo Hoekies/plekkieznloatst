@@ -34,6 +34,7 @@ export const ITEM_INFO: Record<string, ItemInfo> = {
   wissel:       { emoji: "🔄", naam: "Wissel",       beschrijving: () => "Jullie ruilen je score met een ander team. Weet jij wie meer punten heeft? 😳" },
   vraagteken:   { emoji: "❓", naam: "Vraagteken",   beschrijving: (w) => `Werkt meteen als je hem pakt. Een gok: je kunt ${w.ster * 2} of zelfs ${w.ster * 5} punten winnen, maar ook punten kwijtraken.` },
   plekzooi:     { emoji: "⛔", naam: "Plek zooi",    beschrijving: (w) => `Een onzichtbare val. Loop je erin, dan sta je ${duur(w.plekzooiSec)} stil.` },
+  schaduw:      { emoji: "🥷", naam: "Schaduw",      beschrijving: () => "Jullie zijn een paar minuten onzichtbaar: andere teams zien jullie niet, ook niet met radar, en er komt geen duel." },
 };
 
 // Naam en emoji van een itemtype (onbekend: het type zelf)

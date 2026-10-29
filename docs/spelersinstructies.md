@@ -68,6 +68,15 @@ Gooit een ander team een item op jullie, dan kun je in de melding met één tik 
 - **⏰ Gouden kwartier:** zie je bovenin een gouden balk, dan tellen goede antwoorden dubbel (of zelfs driedubbel).
 - **📸 Fotobattle:** na de finish stem je op de mooiste finishfoto van een ander team. Bij de foto's staat wat de winnaar krijgt.
 
+**🎉 Nog meer extra's** (als de organisatie ze aanzet)
+- **🥷 Schaduw:** een item dat jullie een paar minuten onzichtbaar maakt, ook voor radar en duels.
+- **📏 Kilometerbonus:** elke gelopen kilometer geeft punten of een item.
+- **🃏 Jokers:** bij een vraag *50/50* (twee foute antwoorden weg) of *Overslaan* (geen punten, wel door).
+- **🧑‍⚖️ Bezwaar:** vinden jullie een antwoord ten onrechte fout? Maak bezwaar; de spelleider beslist.
+- **🐣 Mascotte en 🏅 level:** naast je score; ze groeien mee met je punten.
+- **💬 Chat:** met de 💬-knop stuur je de spelleider een bericht.
+- **📊 Statistieken:** na de uitslag zie je jullie spel in cijfers en de records.
+
 **🏆 Prijzen**
 Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.
 

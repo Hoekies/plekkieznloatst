@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { SpelerOverzicht } from "@/lib/admin-live";
+import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import EindtijdKnop, { resterend } from "@/components/admin/EindtijdKnop";
@@ -14,6 +14,7 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import { duurKort } from "@/lib/tijd";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
+import ChatVenster from "@/components/admin/ChatVenster";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 const NIET_GEZIEN_MIN = 5;
@@ -40,7 +41,7 @@ export async function stuurPauze(aan: boolean): Promise<string | null | undefine
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null, goudenAan = false }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null, goudenAan = false, bezwaren = [], chatAan = false }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
@@ -56,7 +57,11 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   // ⏰ Gouden kwartier loopt tot (migratie 007), en of het bij deze route aan staat (route-editor, 🎉 Spelplezier)
   gouden?: string | null;
   goudenAan?: boolean;
+  // 🧑‍⚖️ Open bezwaren en 💬 chat (spelplezier deel 2, migratie 009)
+  bezwaren?: NonNullable<LiveData["bezwaren"]>;
+  chatAan?: boolean;
 }) {
+  const [chatMet, setChatMet] = useState<SpelerOverzicht | null>(null);
   // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
   const [nu, setNu] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNu(Date.now()), 30000); return () => clearInterval(t); }, []);
@@ -76,6 +81,31 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   }
   // Iedereen binnen en de uitslag nog dicht: de foto's staan dan al in de regel "Iedereen is binnen" (hieronder)
   if (wachtendeFotos > 0 && !(onderweg === 0 && spelend.length > 0 && !uitslagVrij && !beperkt)) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, klik: openFotoKeuren });
+  // 🧑‍⚖️ Bezwaren: jij beslist meteen (een helper ook)
+  for (const b of bezwaren) {
+    aandacht.unshift({
+      id: `bezwaar-${b.id}`, kleur: "#F472B6",
+      tekst: `🧑‍⚖️ ${b.team} maakt bezwaar bij ${b.punt}${b.antwoord ? `: "${b.antwoord}"` : ""}${b.toelichting ? ` (${b.toelichting})` : ""}`,
+      actie: (
+        <span style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+          <button type="button" className="rl-knop rl-knop--groen" onClick={() => beslisBezwaar(b.id, "toekennen")}><Icoon naam="goed" /> +{b.punten}</button>
+          <button type="button" className="rl-knop rl-knop--rood" onClick={() => beslisBezwaar(b.id, "afwijzen")}><Icoon naam="fout" /> Af</button>
+        </span>
+      ),
+    });
+  }
+  // 💬 Nieuwe chatberichten
+  if (chatAan) for (const s of spelend) {
+    if (s.chat_ongelezen) aandacht.unshift({ id: `chat-${s.player_id}`, kleur: "#22D3EE", tekst: `💬 ${s.display_name}: ${s.chat_ongelezen} nieuw bericht${s.chat_ongelezen > 1 ? "en" : ""}`, klik: () => setChatMet(s) });
+  }
+  async function beslisBezwaar(id: string, besluit: "toekennen" | "afwijzen") {
+    const res = await fetch("/api/admin/bezwaar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, besluit }) }).catch(() => null);
+    const d = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { toonMelding(d.fout ?? "Beslissen lukte niet", "fout"); return; }
+    toonMelding(besluit === "toekennen" ? `Bezwaar toegekend: +${d.punten ?? 0} punten` : "Bezwaar afgewezen", "ok");
+    onGewijzigd();
+  }
+
   // 🧹 Vergeten spellen (uren niets): eigen melding met afsluiten, niet ook nog bij "niet gezien"
   const vergeten = spelend.filter((s) => (minutenNietGezien(s, nu) ?? 0) >= VERGETEN_MIN);
   if (vergeten.length && !beperkt) {
@@ -240,6 +270,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
           if (a.actie) return <div key={a.id} className="spelleider-regel" style={{ ...stijl, display: "flex", alignItems: "center", gap: 12 }}><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span>{a.actie}</div>;
           return <button key={a.id} type="button" className="spelleider-regel spelleider-regel--knop" style={stijl} onClick={() => a.klik ? a.klik() : a.speler && onKies(a.speler)}>{inhoud}</button>;
         })}
+        {chatMet?.sessie_id && <ChatVenster sessieId={chatMet.sessie_id} naam={chatMet.display_name} icoon={chatMet.icon} onSluit={() => { setChatMet(null); onGewijzigd(); }} />}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { ITEMS_NA_FINISH } from "@/lib/item-sessie";
 import { ITEM_UITLEG } from "@/components/admin/editor/item-uitleg";
 
 // Korte namen bij de itemplaatjes (zodat je niet hoeft te raden wat een plaatje is)
-const NAAM: Record<string, string> = { banaan: "Banaan", bom: "Bom", spook: "Spook", dief: "Dief", wissel: "Wissel", verdubbeling: "Dubbel", radar: "Radar" };
+const NAAM: Record<string, string> = { banaan: "Banaan", bom: "Bom", spook: "Spook", dief: "Dief", wissel: "Wissel", verdubbeling: "Dubbel", radar: "Radar", schaduw: "Schaduw" };
 
 // 🎒 Startitems kiezen: tik = er één bij, het rode − haalt er één af
 export function StartitemsKiezer({ waarde, onWijzig }: { waarde: Record<string, number>; onWijzig: (nieuw: Record<string, number>) => void }) {

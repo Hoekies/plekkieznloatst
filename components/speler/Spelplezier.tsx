@@ -20,6 +20,8 @@ type Data = {
   schat?: { id: string; lat: number; lng: number; tot: string } | null;
   schat_gepakt?: { item: string | null; punten: number } | null;
   vallen?: { lat: number; lng: number; tot: string }[];
+  schaduw_tot?: string | null;
+  km_beloning?: { km: number; punten: number; items: string[] } | null;
   val_geraakt?: { id: string; door: string; punten: number }[];
 };
 type Toast = { id: string; emoji: string; titel: string; tekst: string };
@@ -27,7 +29,7 @@ type Toast = { id: string; emoji: string; titel: string; tekst: string };
 // Vaak als de plek telt (val, schat) of het rad kan komen; anders rustig (alleen gouden kwartier en badges)
 const POLL_MS = 5000;
 const POLL_RUSTIG_MS = 15000;
-const ITEM_NAAM: Record<string, string> = { ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook", banaan: "Banaan" };
+const ITEM_NAAM: Record<string, string> = { ster: "Ster", verdubbeling: "Verdubbeling", radar: "Radar", bom: "Bom", spook: "Spook", banaan: "Banaan", schaduw: "Schaduw" };
 
 // Wat de speler al gezien heeft (per spel), zodat een badge of melding maar één keer komt
 function gezien(sessieId: string): Set<string> {
@@ -94,6 +96,12 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
         toon({ id: `schat-${Date.now()}`, emoji: "📦", titel: "Schat gepakt!", tekst });
         speelBonus();
       }
+      if (d.km_beloning) {
+        const { km, punten, items } = d.km_beloning;
+        const wat = [punten ? `+${punten} punten` : "", ...items.map((i) => ITEM_NAAM[i] ?? i)].filter(Boolean).join(" en ");
+        toon({ id: `km-${km}`, emoji: "📏", titel: `${km} km gelopen!`, tekst: wat ? `Bonus: ${wat}` : "Goed bezig!" });
+        speelBonus();
+      }
       bewaarGezien(sessieId, al);
       const m: KaartMarker[] = [];
       if (d.schat) m.push({ id: `schat-${d.schat.id}`, lat: d.schat.lat, lng: d.schat.lng, emoji: "📦", titel: "Vliegende schat" });
@@ -112,6 +120,14 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
     return () => clearInterval(t);
   }, [gouden]);
   const goudenRest = gouden ? Math.max(0, Math.ceil((gouden - nu) / 1000)) : 0;
+  const schaduw = data?.schaduw_tot ? Date.parse(data.schaduw_tot) : 0;
+  useEffect(() => {
+    if (!schaduw) return;
+    const t = setInterval(() => setNu(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [schaduw]);
+  const schaduwRest = schaduw ? Math.max(0, Math.ceil((schaduw - nu) / 1000)) : 0;
+  const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
     <>
@@ -119,6 +135,9 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
         <div className="gouden-balk" role="status">
           ⏰ <strong>Gouden kwartier</strong> · {(data?.gouden_factor ?? 2) === 3 ? "driedubbele" : "dubbele"} punten · {Math.floor(goudenRest / 60)}:{String(goudenRest % 60).padStart(2, "0")}
         </div>
+      )}
+      {schaduwRest > 0 && (
+        <div className={`schaduw-balk${goudenRest > 0 ? " schaduw-balk--laag" : ""}`} role="status">🥷 <strong>Onzichtbaar</strong> · {mmss(schaduwRest)}</div>
       )}
       {data?.rad && !radOpen && (
         <button type="button" className="rad-knop" onClick={() => setRadOpen(true)}>🎰 Draai aan het rad!</button>

@@ -19,6 +19,7 @@ const ITEMS: [string, string, string][] = [
   ["wissel", "Wissel", "ruil je score met een ander team"],
   ["vraagteken", "Vraagteken", "een gok: punten erbij of eraf"],
   ["plekzooi", "Plek zooi", "onzichtbare val op de kaart: even stilstaan"],
+  ["schaduw", "Schaduw", "een paar minuten onzichtbaar voor radar en duels"],
 ];
 
 export default function Spelregels() {

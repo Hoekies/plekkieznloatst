@@ -29,6 +29,7 @@ import dynamic from "next/dynamic";
 import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
 import WatNu from "@/components/admin/WatNu";
+import ChatVenster from "@/components/admin/ChatVenster";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
 const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
@@ -194,7 +195,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             ? !beperkt && <Klaarzetten route={route} spelers={spelers} />
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
                 uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
-                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} gouden={route?.gouden_tot ?? null} goudenAan={!!route?.gouden_aan} />}
+                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} gouden={route?.gouden_tot ?? null} goudenAan={!!route?.gouden_aan}
+                bezwaren={data.bezwaren ?? []} chatAan={!!route?.chat_aan} />}
         </div>
 
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
@@ -273,7 +275,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         {detail && (
           <SpelerDetailVenster speler={detail} rang={spelend.indexOf(detail) + 1} kleur={kleuren.get(detail.player_id) ?? "#A78BFA"}
             totaalPunten={totaalPunten} onSluit={() => setDetailId(null)}
-            acties={<SpelerActies s={detail} kanVrijgeven beperkt={beperkt}
+            acties={<SpelerActies s={detail} kanVrijgeven beperkt={beperkt} chatAan={!!route?.chat_aan}
               onVrijgeven={() => geefPuntVrij(detail)} onStop={() => { stopSpel(detail); setDetailId(null); }}
               onNegeer={negeerHulp} onGewijzigd={ververs} />} />
         )}
@@ -378,10 +380,13 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
 
 // Knoppen bij een speler: punt vrijgeven, punten, bericht en stoppen (gefinisht: alleen punten).
 // Op de spelerskaart én in het venster met alle details. Op de telefoon korte teksten.
-export function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer, onGewijzigd }: {
+export function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, onNegeer, onGewijzigd, chatAan = false }: {
   s: SpelerOverzicht; kanVrijgeven: boolean; beperkt: boolean;
   onVrijgeven: () => void; onStop: () => void; onNegeer: (hulpId: string) => void; onGewijzigd: () => void;
+  // 💬 Chat met dit team (spelplezier deel 2)
+  chatAan?: boolean;
 }) {
+  const [chat, setChat] = useState(false);
   const speelt = s.sessie_status === "actief";
   if (!speelt) {
     if (beperkt || !s.sessie_id) return null;
@@ -405,6 +410,12 @@ export function SpelerActies({ s, kanVrijgeven, beperkt, onVrijgeven, onStop, on
       )}
       {!beperkt && s.sessie_id && <PuntenAanpassen sessieId={s.sessie_id} naam={s.display_name} onKlaar={onGewijzigd} />}
       {!beperkt && <ContactKnop team={{ id: s.player_id, naam: s.display_name, telefoon: s.telefoon }} />}
+      {chatAan && s.sessie_id && (
+        <button type="button" className={`rl-knop${s.chat_ongelezen ? " rl-knop--cyan" : ""}`} onClick={() => setChat(true)}>
+          💬 <span className="alleen-pc">Chat</span>{s.chat_ongelezen ? <span className="antw-tab-teller">{s.chat_ongelezen}</span> : null}
+        </button>
+      )}
+      {chat && s.sessie_id && <ChatVenster sessieId={s.sessie_id} naam={s.display_name} icoon={s.icon} onSluit={() => { setChat(false); onGewijzigd(); }} />}
       {!beperkt && (
         <BevestigKnop venster icoon="⏹️" titel={`Spel van ${s.display_name} stoppen?`}
           vraag="" ja="Ja, stoppen" onBevestig={onStop} className="rl-knop rl-knop--rood">

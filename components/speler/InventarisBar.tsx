@@ -17,6 +17,7 @@ const ITEM_STIJL: Record<string, { kleur: string; emoji: string; label: string }
   radar:        { kleur: "#0369A1", emoji: "📡", label: "Radar" },
   banaan:       { kleur: "#CA8A04", emoji: "🍌", label: "Banaan" },
   vraagteken:   { kleur: "#7C3AED", emoji: "❓", label: "Vraagteken" },
+  schaduw:      { kleur: "#334155", emoji: "🥷", label: "Schaduw" },
 };
 
 export default function InventarisBar({ inventaris, onGebruik }: Props) {

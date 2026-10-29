@@ -17,6 +17,8 @@ import Venster from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import PuzzelLetterKeuze, { type PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
+import KaartPrikker from "@/components/shared/KaartPrikker";
+import { KAART_STRALEN } from "@/lib/vraag-soorten";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
 
@@ -39,12 +41,18 @@ const KLEUR_ZACHT: Record<string, string> = {
 };
 const KLEUR_NAAM = (c: string) => c.charAt(0).toUpperCase() + c.slice(1);
 
+// 🚧 Nieuwe vraagsoorten nog niet kiezen: de spelersapp kan ze nog niet tonen
+const NIEUWE_SOORTEN_AAN = false;
+
 const TYPE_LABEL: Record<VraagType, string> = {
   meerkeuze_tekst: "📝 Meerkeuze",
   meerkeuze_afbeelding: "🖼️ Meerkeuze met plaatjes",
   open: "✍️ Open vraag",
   foto_opdracht: "📷 Foto-opdracht",
   stemvraag: "🗳️ Stemvraag",
+  anagram: "🔤 Anagram",
+  volgorde: "🔀 Volgorde",
+  kaartvraag: "🗺️ Kaartvraag",
 };
 
 // "Wijzigingen niet opgeslagen?": zelfde opbouw als de andere bevestigingen (icoon, titel, één knop, ✕)
@@ -130,6 +138,10 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [vraagAfbeelding, setVraagAfbeelding] = useState<string | null>(bestaandeVraag?.question_image_path ?? null);
   // Nieuwe vraag: standaard 65 punten
   const [punten, setPunten] = useState(bestaandeVraag?.points ?? standaardPunten);
+  // 🗺️ Kaartvraag (migratie 009): de goede plek en de straal waarbinnen het helemaal goed is
+  const [kaartPlek, setKaartPlek] = useState<{ lat: number; lng: number } | null>(
+    typeof bestaandeVraag?.kaart_lat === "number" && typeof bestaandeVraag?.kaart_lng === "number" ? { lat: bestaandeVraag.kaart_lat, lng: bestaandeVraag.kaart_lng } : null);
+  const [kaartStraal, setKaartStraal] = useState<number>(bestaandeVraag?.kaart_straal ?? 50);
   // Per vraag aan of uit: een geluidsfragment en een tijdslimiet (migratie 014); husselen staat bij de route
   const [geluidPad, setGeluidPad] = useState<string | null>(bestaandeVraag?.geluid_pad ?? null);
   const [tijdslimiet, setTijdslimiet] = useState<number | null>(bestaandeVraag?.tijdslimiet_seconden ?? null);
@@ -209,7 +221,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
   // Niet-opgeslagen wijzigingen: vergelijken met hoe de vraag binnenkwam
   // (ook geluid en tijdslimiet: die gaan pas mee bij Opslaan)
-  const huidig = JSON.stringify({ type, tekst, vraagAfbeelding, punten, antwoorden, openAntwoorden, numeriekeWaarde, tolerantie, isNumeriek, naam: naam.trim(), geluidPad, tijdslimiet });
+  const huidig = JSON.stringify({ type, tekst, vraagAfbeelding, punten, antwoorden, openAntwoorden, numeriekeWaarde, tolerantie, isNumeriek, naam: naam.trim(), geluidPad, tijdslimiet, kaartPlek, kaartStraal });
   const beginRef = useRef<string | null>(null);
   if (beginRef.current === null) beginRef.current = huidig;
   const gewijzigd = huidig !== beginRef.current;
@@ -314,6 +326,20 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         if (!regels.length) { setFout("Er staat nog geen goed antwoord. Vul er minstens één in (één per regel)."); setOpslaan(false); return; }
         body.correct_text_answers = regels;
       }
+    } else if (type === "anagram") {
+      // 🔤 Het woord; de spelers zien de letters door elkaar
+      const woord = openAntwoorden.split("\n")[0]?.trim() ?? "";
+      if (woord.replace(/\s+/g, "").length < 3) { setFout("Vul het woord in (minstens 3 letters)."); setOpslaan(false); return; }
+      body.correct_text_answers = [woord];
+    } else if (type === "volgorde") {
+      // 🔀 De items in de goede volgorde (van boven naar beneden); 3 of 4
+      const gevuld = antwoorden.filter((a) => a.text.trim());
+      if (gevuld.length < 3) return antwoordFout(antwoorden.findIndex((a) => !a.text.trim()), "Een volgordevraag heeft minstens 3 items. Vul er nog een in.");
+      body.antwoorden = gevuld.map((a) => ({ color: a.color, answer_type: "tekst", text: a.text.trim(), image_path: null, is_correct: false, punten: null }));
+    } else if (type === "kaartvraag") {
+      // 🗺️ De goede plek op de kaart
+      if (!kaartPlek) { setFout("Tik op de kaart waar het goede antwoord ligt."); setOpslaan(false); return; }
+      body.kaart_lat = kaartPlek.lat; body.kaart_lng = kaartPlek.lng; body.kaart_straal = kaartStraal;
     } else if (type === "stemvraag") {
       // Lege keuzes vallen weg; minstens twee nodig
       const gevuld = antwoorden.filter((a) => a.text.trim());
@@ -472,7 +498,8 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             <div className="form-group">
               <label className="form-label">Soort vraag</label>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht", "stemvraag"] as VraagType[]).map((t) => (
+                {/* 🔤 🔀 🗺️ Anagram, volgorde en kaartvraag komen erbij zodra de spelersapp ze kan tonen (in de maak) */}
+                {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht", "stemvraag", ...(NIEUWE_SOORTEN_AAN ? ["anagram", "volgorde", "kaartvraag"] : [])] as VraagType[]).map((t) => (
                   <button key={t} type="button"
                     className={`rl-knop${type === t ? " rl-knop--cyan" : ""}`}
                     style={{ height: 34, fontSize: "0.8rem" }}
@@ -528,6 +555,52 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               </div>
             </div>
             {puzzel && <PuzzelLetterKeuze puzzel={puzzel} puntId={punt.id} />}
+
+            {/* 🔤 Anagram: het woord */}
+            {type === "anagram" && (
+              <div className="form-group">
+                <label className="form-label">Het woord <span className="vraag-hint">· de spelers zien de letters door elkaar</span></label>
+                <input className="form-input" value={openAntwoorden.split("\n")[0] ?? ""} maxLength={30} placeholder="vuurtoren"
+                  onChange={(e) => setOpenAntwoorden(e.target.value)} />
+                {(openAntwoorden.split("\n")[0] ?? "").trim().length >= 3 && (
+                  <div className="anagram-letters anagram-letters--klein" aria-hidden>
+                    {(openAntwoorden.split("\n")[0] ?? "").replace(/\s+/g, "").toUpperCase().split("").sort().map((l, i) => <span key={i}>{l}</span>)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 🔀 Volgorde: de items in de goede volgorde */}
+            {type === "volgorde" && (
+              <div className="form-group">
+                <label className="form-label">Items in de goede volgorde <span className="vraag-hint">· van boven (1) naar beneden; 3 of 4</span></label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {antwoorden.map((ant, i) => (
+                    <div key={ant.color} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="volgorde-nummer">{i + 1}</span>
+                      <input ref={(el) => { antwoordRefs.current[i] = el; }} className="form-input" style={{ flex: 1, margin: 0 }} maxLength={80}
+                        value={ant.text} placeholder={i === 3 ? "Item 4 (mag leeg)" : `Item ${i + 1}`}
+                        onChange={(e) => setAntwoorden((a) => a.map((x, j) => j === i ? { ...x, text: e.target.value } : x))} />
+                    </div>
+                  ))}
+                </div>
+                <span className="vraag-hint">Spelers krijgen punten naar het aantal items op de goede plek.</span>
+              </div>
+            )}
+
+            {/* 🗺️ Kaartvraag: tik de goede plek aan */}
+            {type === "kaartvraag" && (
+              <div className="form-group">
+                <label className="form-label">Goede plek <span className="vraag-hint">· tik op de kaart</span></label>
+                <KaartPrikker centrum={kaartPlek ?? { lat: punt.latitude, lng: punt.longitude }} speld={null}
+                  doel={kaartPlek ? { ...kaartPlek, straal: kaartStraal } : null} onKies={(lat, lng) => setKaartPlek({ lat, lng })} hoogte={240} />
+                <label className="form-label" style={{ marginTop: 8 }}>Helemaal goed binnen</label>
+                <div className="punten-snel">
+                  {KAART_STRALEN.map((m) => <button key={m} type="button" className={`rl-knop${kaartStraal === m ? " rl-knop--cyan" : ""}`} onClick={() => setKaartStraal(m)}>{m} m</button>)}
+                </div>
+                <span className="vraag-hint">Verder weg: steeds minder punten, tot 0 op vijf keer die afstand.</span>
+              </div>
+            )}
 
             {stem && (
               <div className="form-group">

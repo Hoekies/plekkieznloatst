@@ -8,6 +8,7 @@ import { haalSpelerSessie } from "@/lib/speler-sessie";
 import { telBijScore } from "@/lib/score";
 import { goudenStatus } from "@/lib/spelplezier";
 import { naAntwoord } from "@/lib/spelplezier-server";
+import { scoorAnagram, scoorVolgorde, scoorKaart } from "@/lib/vraag-soorten";
 
 export async function POST(request: NextRequest) {
   const ctx = await haalSpelerSessie();
@@ -65,6 +66,13 @@ export async function POST(request: NextRequest) {
   let lateStem = false;
   // Hing er een vraag aan het punt? (verdubbeling geldt alleen voor een beantwoorde vraag)
   let metVraag = false;
+  // 🔀 🗺️ Nieuwe vraagsoorten (migratie 009): de goede volgorde, de goede plek, en wat we als antwoord bewaren
+  let volgordeGoed: string[] | null = null;
+  let kaartUit: { lat: number; lng: number; straal: number; afstand: number | null } | null = null;
+  let bewaarTekst: string | null = null;
+  let antwoordExtra: Record<string, unknown> | null = null;
+  const kaartDoel = (v: { kaart_lat?: number | null; kaart_lng?: number | null; kaart_straal?: number | null }) =>
+    typeof v.kaart_lat === "number" && typeof v.kaart_lng === "number" ? { lat: v.kaart_lat, lng: v.kaart_lng, straal: v.kaart_straal ?? 50 } : null;
 
   // Hangt er een vraag aan het punt (ook aan een informatiepunt, zoals het startpunt), dan
   // moet die beantwoord worden: zonder antwoord wordt het punt niet verwerkt.
@@ -90,7 +98,10 @@ export async function POST(request: NextRequest) {
       isCorrect = false;
       puntWaarde = 0;
       // Toch laten zien wat het goede antwoord was (niet bij een stemvraag: daar is er geen)
-      if (vraag.type !== "stemvraag") {
+      if (vraag.type === "anagram") correctTextAnswers = vraag.correct_text_answers ?? [];
+      else if (vraag.type === "volgorde") volgordeGoed = scoorVolgorde([], vraag.answer_options ?? [], 0).juist;
+      else if (vraag.type === "kaartvraag") { const d = kaartDoel(vraag); if (d) kaartUit = { ...d, afstand: null }; }
+      else if (vraag.type !== "stemvraag") {
         correctAnswerIds = (vraag.answer_options ?? []).filter((a: { is_correct: boolean }) => a.is_correct).map((a: { id: string }) => a.id);
         correctAnswerId = correctAnswerIds[0] ?? null;
         if (vraag.type === "open") {
@@ -148,6 +159,32 @@ export async function POST(request: NextRequest) {
         correctTextAnswers = vraag.correct_text_answers ?? [];
       }
       puntWaarde = isCorrect ? vraag.points : 0;
+    } else if (vraag.type === "anagram") {
+      // 🔤 Het woord uit de door elkaar gehusselde letters
+      if (typeof open_answer_text !== "string" || !open_answer_text.trim()) return NextResponse.json({ fout: "Vul eerst een antwoord in" }, { status: 400 });
+      const s = scoorAnagram(open_answer_text, vraag.correct_text_answers ?? [], vraag.points);
+      isCorrect = s.goed; puntWaarde = s.punten;
+      correctTextAnswers = vraag.correct_text_answers ?? [];
+    } else if (vraag.type === "volgorde") {
+      // 🔀 Punten naar het aantal items op de goede plek
+      const opties = (vraag.answer_options ?? []) as { id: string; order_index: number; text: string | null }[];
+      const gekozen = Array.isArray(body.volgorde) ? (body.volgorde as unknown[]).filter((x): x is string => typeof x === "string") : [];
+      if (gekozen.length !== opties.length || !gekozen.every((id) => opties.some((o) => o.id === id))) return NextResponse.json({ fout: "Zet eerst alles in een volgorde" }, { status: 400 });
+      const s = scoorVolgorde(gekozen, opties, vraag.points);
+      isCorrect = s.goed; puntWaarde = s.punten; volgordeGoed = s.juist;
+      bewaarTekst = `🔀 ${gekozen.map((id) => opties.find((o) => o.id === id)?.text ?? "?").join(" → ")}`.slice(0, 300);
+      antwoordExtra = { volgorde: gekozen, goed: s.goedePlekken };
+    } else if (vraag.type === "kaartvraag") {
+      // 🗺️ Hoe dichter bij de goede plek, hoe meer punten
+      const k = body.kaart as { lat?: unknown; lng?: unknown } | undefined;
+      const doel = kaartDoel(vraag);
+      if (typeof k?.lat !== "number" || typeof k?.lng !== "number") return NextResponse.json({ fout: "Tik eerst op de kaart" }, { status: 400 });
+      if (!doel) return NextResponse.json({ fout: "Bij deze vraag staat nog geen plek ingesteld" }, { status: 503 });
+      const s = scoorKaart(k.lat, k.lng, doel, vraag.points);
+      isCorrect = s.goed; puntWaarde = s.punten;
+      kaartUit = { ...doel, afstand: s.afstand };
+      bewaarTekst = `📍 ${s.afstand} m ernaast`;
+      antwoordExtra = { lat: k.lat, lng: k.lng, afstand: s.afstand };
     } else if (vraag.type === "foto_opdracht") {
       // Een foto-opdracht wordt verwerkt via het insturen van de foto (/api/speler/foto)
       return NextResponse.json({ fout: "Stuur eerst een foto in" }, { status: 400 });
@@ -159,8 +196,9 @@ export async function POST(request: NextRequest) {
   // tegelijk (dubbel tikken, de vraagtimer en een antwoord, de wachtrij) geven zo nooit twee keer punten.
   const antwoordVelden = {
     selected_answer_id: lateStem ? null : selected_answer_id ?? null,
-    open_answer_text: open_answer_text ?? null,
+    open_answer_text: bewaarTekst ?? open_answer_text ?? null,
     is_correct: isCorrect,
+    ...(antwoordExtra ? { antwoord_extra: antwoordExtra } : {}),
   };
   const { data: geclaimd, error: claimFout } = await admin
     .from("player_point_progress")
@@ -325,5 +363,7 @@ export async function POST(request: NextRequest) {
     reeks_item: extra?.reeks_item ?? null,
     reeks_punten: extra?.reeks_punten ?? null,
     reeks_lengte: extra?.reeks_lengte ?? null,
+    volgorde_goed: volgordeGoed,
+    kaart: kaartUit,
   });
 }

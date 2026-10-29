@@ -37,9 +37,10 @@ const ITEM_INFO: Record<string, { kleur: string; label: string }> = {
   banaan:       { kleur: "#FDE68A", label: "Banaan" },
   plekzooi:     { kleur: "#FCA5A5", label: "Plek zooi" },
   vraagteken:   { kleur: "#C4B5FD", label: "Vraagteken" },
+  schaduw:      { kleur: "#CBD5E1", label: "Schaduw" },
 };
 
-const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar", "vraagteken"]);
+const TYPES_ZONDER_DOEL = new Set(["ster", "verdubbeling", "radar", "vraagteken", "schaduw"]);
 
 // Korte uitleg in het venster (de lange staat bij de i-knop)
 function minuten(sec: number) {
@@ -57,6 +58,7 @@ function kortUitleg(type: string, w: RouteWaarden): string {
     case "banaan": return "Hun volgende twee punten ruilen van plek.";
     case "wissel": return "Ruil jullie score met een ander team.";
     case "vraagteken": return "Een gok: punten erbij of eraf.";
+    case "schaduw": return "Even onzichtbaar voor radar en duels.";
     default: return "";
   }
 }
@@ -67,6 +69,7 @@ function gelukt(type: string) {
     : type === "verdubbeling" ? "Verdubbeling actief!"
     : type === "radar" ? "Radar 2 minuten aan!"
     : type === "vraagteken" ? "Het lot heeft gesproken! 🎲"
+    : type === "schaduw" ? "Jullie zijn onzichtbaar 🥷"
     : "Raak!";
 }
 

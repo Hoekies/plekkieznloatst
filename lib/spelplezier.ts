@@ -33,9 +33,9 @@ export const isBadge = (s: string): s is BadgeSoort => s in BADGES;
 
 // ── ⚙️ Instellingen per onderdeel ───────────────────────────────────────────
 
-export const BONUS_ITEMS = ["ster", "verdubbeling", "radar", "bom", "spook", "banaan"] as const;
+export const BONUS_ITEMS = ["ster", "verdubbeling", "radar", "bom", "spook", "banaan", "schaduw"] as const;
 export type BonusItem = (typeof BONUS_ITEMS)[number];
-export const ITEM_LABEL: Record<BonusItem, string> = { ster: "⭐ Ster", verdubbeling: "✖️2 Verdubbeling", radar: "📡 Radar", bom: "💣 Bom", spook: "👻 Spook", banaan: "🍌 Banaan" };
+export const ITEM_LABEL: Record<BonusItem, string> = { ster: "⭐ Ster", verdubbeling: "✖️2 Verdubbeling", radar: "📡 Radar", bom: "💣 Bom", spook: "👻 Spook", banaan: "🍌 Banaan", schaduw: "🥷 Schaduw" };
 
 export type PlezierInstellingen = {
   // 🪤 punten: null = de bomwaarde van de route; zetterKrijgt: het team dat de val zette krijgt die punten
@@ -53,6 +53,24 @@ export type PlezierInstellingen = {
   // ⏰ aan: bij deze route te gebruiken (knop in het Spelleider-blok en het tijdstip); duur en vermenigvuldiger;
   // om: elke dag vanzelf op dit tijdstip ("14:30", Nederlandse tijd), of null
   gouden: { aan: boolean; minuten: number; factor: number; om: string | null };
+  // ── Deel 2 (migratie 009): elk onderdeel met aan/uit in de instellingen zelf ──
+  // 🥷 schaduw-item: zoveel minuten onzichtbaar voor radar en duels; aan = ook bij de schat, het rad en de reeks
+  schaduw: { aan: boolean; minuten: number };
+  // 🃏 jokers per team: 50/50 (twee foute antwoorden weg) en overslaan (vraag zonder punten verder)
+  jokers: { aan: boolean; vijftig: number; over: number };
+  // 📏 per gelopen kilometer: punten of een item
+  km: { aan: boolean; beloning: "punten" | "item"; punten: number; items: BonusItem[] };
+  // 🐣 mascotte en 🏅 levels: groeien mee met de score
+  mascotte: { aan: boolean };
+  levels: { aan: boolean };
+  // 🧑‍⚖️ bezwaar tegen een fout gerekend antwoord: zo vaak per team
+  bezwaar: { aan: boolean; max: number };
+  // 💬 chat met de spelleider, 📊 spelstatistieken na de uitslag, 🗝️ sleutelpunten (per punt in de editor)
+  chat: { aan: boolean };
+  statistieken: { aan: boolean };
+  sleutel: { aan: boolean };
+  // 🧩 fotopuzzel: de foto (opslag route-afbeeldingen), de goede antwoorden en de punten bij goed raden
+  fotopuzzel: { aan: boolean; pad: string | null; antwoorden: string[]; punten: number };
 };
 
 export const STANDAARD: PlezierInstellingen = {
@@ -63,6 +81,16 @@ export const STANDAARD: PlezierInstellingen = {
   schat: { minuten: 10, meter: 20, beloning: "item", punten: 25, items: [...BONUS_ITEMS] },
   rad: { moment: 0.5, zonderMin: false, hoofdprijs: 100 },
   gouden: { aan: false, minuten: 15, factor: 2, om: null },
+  schaduw: { aan: false, minuten: 5 },
+  jokers: { aan: false, vijftig: 1, over: 1 },
+  km: { aan: false, beloning: "punten", punten: 25, items: ["ster", "radar"] },
+  mascotte: { aan: false },
+  levels: { aan: false },
+  bezwaar: { aan: false, max: 1 },
+  chat: { aan: false },
+  statistieken: { aan: false },
+  sleutel: { aan: false },
+  fotopuzzel: { aan: false, pad: null, antwoorden: [], punten: 100 },
 };
 
 // De keuzes in het beheer (alleen knoppen); de server accepteert ook alleen deze waarden
@@ -74,6 +102,7 @@ export const KEUZES = {
   schatMinuten: [5, 10, 15], schatMeter: [15, 20, 30], schatPunten: [25, 50],
   radMoment: [1 / 3, 0.5, 2 / 3], radHoofdprijs: [100, 200],
   goudenMinuten: [5, 10, 15, 30], goudenFactor: [2, 3],
+  schaduwMinuten: [3, 5, 10], jokerAantal: [0, 1, 2, 3], kmPunten: [10, 25, 50], bezwaarMax: [1, 2, 3], puzzelfotoPunten: [50, 100, 200],
 } as const;
 
 const kies = <T,>(waarde: unknown, toegestaan: readonly T[], standaard: T): T => (toegestaan as readonly unknown[]).includes(waarde) ? (waarde as T) : standaard;
@@ -89,6 +118,11 @@ const naderBij = (waarde: unknown, opties: readonly number[], standaard: number)
 export function normaliseerPlezier(ruw: unknown): PlezierInstellingen {
   const r = (ruw && typeof ruw === "object" ? ruw : {}) as Record<string, Record<string, unknown> | undefined>;
   const v = r.val ?? {}, re = r.reeks ?? {}, b = r.badges ?? {}, f = r.fotobattle ?? {}, s = r.schat ?? {}, ra = r.rad ?? {}, g = r.gouden ?? {};
+  const sc = r.schaduw ?? {}, j = r.jokers ?? {}, k = r.km ?? {}, bz = r.bezwaar ?? {}, fp = r.fotopuzzel ?? {};
+  const aan = (x: Record<string, unknown> | undefined) => x?.aan === true;
+  const kmItems = lijst(k.items, BONUS_ITEMS, STANDAARD.km.items);
+  const puzzelAntwoorden = Array.isArray(fp.antwoorden)
+    ? [...new Set(fp.antwoorden.filter((x): x is string => typeof x === "string").map((x) => x.trim().slice(0, 40)).filter(Boolean))].slice(0, 10) : [];
   const S = STANDAARD;
   const reeksItems = lijst(re.items, BONUS_ITEMS, S.reeks.items);
   const schatItems = lijst(s.items, BONUS_ITEMS, S.schat.items);
@@ -112,6 +146,19 @@ export function normaliseerPlezier(ruw: unknown): PlezierInstellingen {
     },
     rad: { moment: naderBij(ra.moment, KEUZES.radMoment, S.rad.moment), zonderMin: ra.zonderMin === true, hoofdprijs: kies(ra.hoofdprijs, KEUZES.radHoofdprijs, S.rad.hoofdprijs) },
     gouden: { aan: g.aan === true, minuten: kies(g.minuten, KEUZES.goudenMinuten, S.gouden.minuten), factor: kies(g.factor, KEUZES.goudenFactor, S.gouden.factor), om },
+    schaduw: { aan: aan(sc), minuten: kies(sc.minuten, KEUZES.schaduwMinuten, S.schaduw.minuten) },
+    jokers: { aan: aan(j), vijftig: kies(j.vijftig, KEUZES.jokerAantal, S.jokers.vijftig), over: kies(j.over, KEUZES.jokerAantal, S.jokers.over) },
+    km: { aan: aan(k), beloning: kies(k.beloning, ["punten", "item"] as const, S.km.beloning), punten: kies(k.punten, KEUZES.kmPunten, S.km.punten), items: kmItems.length ? kmItems : S.km.items },
+    mascotte: { aan: aan(r.mascotte) },
+    levels: { aan: aan(r.levels) },
+    bezwaar: { aan: aan(bz), max: kies(bz.max, KEUZES.bezwaarMax, S.bezwaar.max) },
+    chat: { aan: aan(r.chat) },
+    statistieken: { aan: aan(r.statistieken) },
+    sleutel: { aan: aan(r.sleutel) },
+    fotopuzzel: {
+      aan: aan(fp), pad: typeof fp.pad === "string" && /^[\w./-]{1,200}$/.test(fp.pad) && !fp.pad.includes("..") ? fp.pad : null,
+      antwoorden: puzzelAntwoorden, punten: kies(fp.punten, KEUZES.puzzelfotoPunten, S.fotopuzzel.punten),
+    },
   };
 }
 export const plezierInstellingen = (route: unknown) => normaliseerPlezier((route as { spelplezier?: unknown } | null)?.spelplezier);
@@ -178,3 +225,37 @@ export const RAD_ITEMS = ["ster", "verdubbeling", "radar", "bom", "spook"] as co
 // Na dit deel van de route (standaard de helft) mag het team één keer draaien
 export const radHalverwege = (afgerond: number, totaal: number, deel = STANDAARD.rad.moment) => totaal > 1 && afgerond >= Math.ceil(totaal * deel - 1e-9);
 export const radMomentTekst = (deel: number) => (deel < 0.4 ? "na een derde" : deel > 0.6 ? "na twee derde" : "halverwege");
+
+// ── 🐣 Mascotte en 🏅 levels (groeien mee met de score) ─────────────────────
+export const MASCOTTE = [
+  { min: 0, emoji: "🥚", naam: "Ei" },
+  { min: 100, emoji: "🐣", naam: "Kuiken" },
+  { min: 300, emoji: "🦉", naam: "Uil" },
+  { min: 600, emoji: "🦅", naam: "Adelaar" },
+] as const;
+export const LEVELS = [
+  { min: 0, emoji: "🌱", naam: "Rookie" },
+  { min: 100, emoji: "🔎", naam: "Speurder" },
+  { min: 250, emoji: "🧭", naam: "Kenner" },
+  { min: 500, emoji: "🎓", naam: "Meester" },
+  { min: 1000, emoji: "👑", naam: "Legende" },
+] as const;
+const trede = <T extends { min: number }>(lijst: readonly T[], score: number): T => [...lijst].reverse().find((t) => score >= t.min) ?? lijst[0];
+export const mascotteVoor = (score: number) => trede(MASCOTTE, score);
+export const levelVoor = (score: number) => trede(LEVELS, score);
+// Hoeveel nog tot de volgende stap (null = de hoogste)
+export function volgendeTrede<T extends { min: number }>(lijst: readonly T[], score: number): { trede: T; nog: number } | null {
+  const v = lijst.find((t) => t.min > score);
+  return v ? { trede: v, nog: v.min - score } : null;
+}
+
+// 🥷 Het schaduw-item komt alleen in de schat, het rad en de reeks als het bij de route aan staat
+export const metSchaduw = <T extends string>(items: readonly T[], inst: PlezierInstellingen): T[] =>
+  items.filter((i) => i !== "schaduw" || inst.schaduw.aan);
+
+// 🧩 Fotopuzzel: zoveel van de 16 stukjes zijn open bij zoveel goede antwoorden van zoveel vragen
+export const PUZZEL_STUKJES = 16;
+export function puzzelStukjesOpen(goed: number, vragen: number): number {
+  if (vragen <= 0) return 0;
+  return Math.min(PUZZEL_STUKJES, Math.round((goed / vragen) * PUZZEL_STUKJES));
+}

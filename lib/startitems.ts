@@ -1,6 +1,6 @@
 // Items die een beheerder als startitem kan geven. Niet: plek zooi (een val), vraagteken
 // (wordt meteen gespeeld) en ster (punten worden meteen bijgeschreven): die komen nooit in de balk
-export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "verdubbeling", "radar"] as const;
+export const STARTITEM_TYPES = ["banaan", "bom", "spook", "dief", "wissel", "verdubbeling", "radar", "schaduw"] as const;
 export const MAX_PER_STARTITEM = 5;
 
 // 🎒 Na hoeveel meter lopen een team de startitems krijgt; 0 = meteen bij het begin. Staat in dezelfde

@@ -14,7 +14,7 @@ type Gebeurtenis = {
 
 const ITEM_NAAM: Record<string, string> = {
   ster: "een ster", verdubbeling: "een verdubbeling", radar: "de radar", bom: "een bom", spook: "een spook",
-  dief: "de dief", banaan: "een banaan", wissel: "een wissel", vraagteken: "een vraagteken", plekzooi: "plek zooi",
+  dief: "de dief", banaan: "een banaan", wissel: "een wissel", vraagteken: "een vraagteken", plekzooi: "plek zooi", schaduw: "de schaduw",
 };
 
 const MAX = 40;

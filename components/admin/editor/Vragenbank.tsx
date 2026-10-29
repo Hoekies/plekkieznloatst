@@ -7,6 +7,7 @@ import { foutUitleg } from "@/lib/fout-uitleg";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import { useSluitMetEsc, vensterHoogte } from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
+import { PAKKET_VRAGEN } from "@/lib/vragenpakketten";
 
 export type BankVraag = {
   id: string; type: string; question_text: string; question_image_path: string | null; points: number;
@@ -29,7 +30,8 @@ const TYPES: { type: string; naam: string }[] = [
 const typeVolgorde = (t: string) => { const i = TYPES.findIndex((x) => x.type === t); return i < 0 ? TYPES.length : i; };
 
 // Filter: alle, favorieten, één soort, of de vragen die uit de bank gehaald zijn
-type Filter = { soort: "alle" } | { soort: "favoriet" } | { soort: "verwijderd" } | { soort: "type"; type: string };
+// 📦 pakket: de kant-en-klare vragenpakketten (lib/vragenpakketten.ts)
+type Filter = { soort: "alle" } | { soort: "favoriet" } | { soort: "verwijderd" } | { soort: "type"; type: string } | { soort: "pakket" };
 
 // "📚 Vragenbank": een vraag uit een andere route overnemen. Vult alleen het formulier;
 // pas na Opslaan staat de vraag op dit punt. Met ☆ markeer je favorieten, met 🗑️ haal je een
@@ -68,7 +70,9 @@ export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }
   const alle = (vragen ?? []).filter((v) => !soorten || soorten.includes(v.type));
   const zichtbaar = alle.filter((v) => !v.verborgen);
   const z = zoek.trim().toLowerCase();
-  const gevonden = (filter.soort === "verwijderd" ? alle.filter((v) => v.verborgen) : zichtbaar)
+  const pakket = filter.soort === "pakket";
+  const pakketVragen = PAKKET_VRAGEN.filter((v) => !soorten || soorten.includes(v.type));
+  const gevonden = (pakket ? pakketVragen : filter.soort === "verwijderd" ? alle.filter((v) => v.verborgen) : zichtbaar)
     .filter((v) => filter.soort !== "favoriet" || v.favoriet)
     .filter((v) => filter.soort !== "type" || v.type === filter.type)
     .filter((v) => !z
@@ -76,7 +80,7 @@ export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }
       || v.answer_options.some((o) => o.text?.toLowerCase().includes(z)))
     // Op soort vraag, favorieten bovenaan, daarna zoals de server ze gaf (route en volgorde)
     .map((v, i) => ({ v, i }))
-    .sort((a, b) => typeVolgorde(a.v.type) - typeVolgorde(b.v.type) || Number(b.v.favoriet) - Number(a.v.favoriet) || a.i - b.i)
+    .sort((a, b) => pakket ? a.i - b.i : typeVolgorde(a.v.type) - typeVolgorde(b.v.type) || Number(b.v.favoriet) - Number(a.v.favoriet) || a.i - b.i)
     .map(({ v }) => v);
   const metKopjes = filter.soort !== "type";
   const aantalFav = zichtbaar.filter((v) => v.favoriet).length;
@@ -108,6 +112,7 @@ export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }
                     {filterKnop({ soort: "type", type: t.type }, <>{TYPE_ICOON[t.type]} <span className="alleen-pc">{t.naam} </span>{zichtbaar.filter((v) => v.type === t.type).length}</>, t.naam)}
                   </span>
                 ))}
+                {pakketVragen.length > 0 && filterKnop({ soort: "pakket" }, <>📦 <span className="alleen-pc">Pakketten </span>{pakketVragen.length}</>, "Kant-en-klare vragenpakketten")}
                 {aantalWeg > 0 && filterKnop({ soort: "verwijderd" }, <>🗑️ <span className="alleen-pc">Verwijderd </span>{aantalWeg}</>, "Uit de bank gehaald")}
               </div>
               <div style={{ overflowY: "auto", minHeight: 0, flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -118,10 +123,11 @@ export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }
                       ? (v.numeric_answer != null ? String(v.numeric_answer) : (v.correct_text_answers ?? []).join(" / "))
                       : v.answer_options.filter((o) => o.is_correct).map((o) => o.text ?? "").filter(Boolean).join(" / ");
                     // Kopje bij elke nieuwe soort
-                    const kop = metKopjes && (i === 0 || gevonden[i - 1].type !== v.type);
+                    // Kopje bij elke nieuwe soort, of (pakketten) bij elk nieuw pakket
+                    const kop = metKopjes && (i === 0 || (pakket ? gevonden[i - 1].route_naam !== v.route_naam : gevonden[i - 1].type !== v.type));
                     return (
                       <div key={v.id} style={{ display: "contents" }}>
-                        {kop && <div className="bank-kop">{TYPE_ICOON[v.type] ?? "❓"} {TYPES.find((t) => t.type === v.type)?.naam ?? "Overig"}</div>}
+                        {kop && <div className="bank-kop">{pakket ? v.route_naam : <>{TYPE_ICOON[v.type] ?? "❓"} {TYPES.find((t) => t.type === v.type)?.naam ?? "Overig"}</>}</div>}
                         <div className={`vragenbank-regel${v.favoriet ? " vragenbank-regel--favoriet" : ""}`}>
                           <button type="button" className="vragenbank-kies" disabled={v.verborgen} onClick={() => { onKies(v); setOpen(false); }}
                             title={v.verborgen ? "Zet hem eerst terug" : "Deze vraag overnemen"}>
@@ -129,11 +135,11 @@ export default function Vragenbank({ puntId, onKies, soorten, metTekst = false }
                             <span style={{ flex: 1, minWidth: 0 }}>
                               <span style={{ display: "block", fontWeight: 700, color: "#fff" }}>{v.question_text || "(vraag met afbeelding)"}</span>
                               <span style={{ display: "block", fontSize: "0.74rem", color: "var(--muted)" }}>
-                                {v.route_naam} · {v.punt_naam}{goed ? ` · goed: ${goed}` : ""} · {v.points} pt
+                                {[v.route_naam, v.punt_naam].filter(Boolean).join(" · ")}{goed ? ` · goed: ${goed}` : ""} · {v.points} pt
                               </span>
                             </span>
                           </button>
-                          {v.verborgen ? (
+                          {pakket ? null : v.verborgen ? (
                             <button type="button" className="rl-knop" onClick={() => markeer(v, { verborgen: false })} title="Terug in de vragenbank"><Icoon naam="terug" /> Terug</button>
                           ) : (
                             <>
