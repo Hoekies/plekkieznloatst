@@ -5,7 +5,7 @@ import { huisLogoUrl } from "@/lib/huisstijl";
 import { puzzelRegels } from "@/lib/puzzel-server";
 import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
 import { testRol } from "@/lib/testteam";
-import { goudenStatus } from "@/lib/spelplezier";
+import { goudenStatus, plezierInstellingen } from "@/lib/spelplezier";
 import { raadVenster, RAAD_WACHT_MIN } from "@/lib/puzzel-server";
 
 export type SpelerOverzicht = {
@@ -62,7 +62,7 @@ export type RoutePuntKort = {
 
 export type LiveData = {
   // huis_logo: eigen logo van de organisatie (huisstijl van de route)
-  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null; gouden_tot?: string | null } | null;
+  route: { id: string; name: string; modus: string; uitslag_vrijgegeven?: boolean; verwacht_aantal_teams?: number; eindtijd?: string | null; gepauzeerd_sinds?: string | null; huis_logo?: string | null; gouden_tot?: string | null; gouden_aan?: boolean } | null;
   route_punten: RoutePuntKort[];
   spelers: SpelerOverzicht[];
   speciale_items: SpeciaalItem[];
@@ -98,6 +98,7 @@ export async function haalLiveData(): Promise<LiveData> {
     eindtijd: tijd?.eindtijd ?? null, gepauzeerd_sinds: tijd?.pauze ?? null, huis_logo: huisLogoUrl(route),
     // ⏰ Gouden kwartier (migratie 007): alleen als het nog loopt
     gouden_tot: goudenStatus(route)?.tot ?? null,
+    gouden_aan: plezierInstellingen(route).gouden.aan,
   } : null;
 
   // Alles wat alleen van de route afhangt tegelijk ophalen (scheelt rondjes naar de database)

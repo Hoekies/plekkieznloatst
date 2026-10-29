@@ -40,7 +40,7 @@ export async function stuurPauze(aan: boolean): Promise<string | null | undefine
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null, goudenAan = false }: {
   spelend: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
@@ -53,8 +53,9 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   // Hulp (helper): geen eindtijd en niet afronden
   beperkt?: boolean;
   onGewijzigd: () => void;
-  // ⏰ Gouden kwartier loopt tot (migratie 007)
+  // ⏰ Gouden kwartier loopt tot (migratie 007), en of het bij deze route aan staat (route-editor, 🎉 Spelplezier)
   gouden?: string | null;
+  goudenAan?: boolean;
 }) {
   // Elke halve minuut opnieuw tekenen, zodat "speelt sinds" en "niet gezien" meelopen
   const [nu, setNu] = useState(() => Date.now());
@@ -215,7 +216,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               {!gepauzeerd && <TussenstandKnop />}
               {routeId && <EindtijdKnop routeId={routeId} eindtijd={eindtijd} />}
               {/* ⏰ Gouden kwartier: 15 minuten dubbele punten */}
-              {!gepauzeerd && !uitslagVrij && <GoudenKnop gouden={gouden} onGewijzigd={onGewijzigd} />}
+              {goudenAan && !gepauzeerd && !uitslagVrij && <GoudenKnop gouden={gouden} onGewijzigd={onGewijzigd} />}
               {/* ⚡ Bonusvraag: klaarzetten, nu sturen en foto's keuren */}
               <BonusKnop />
               {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}

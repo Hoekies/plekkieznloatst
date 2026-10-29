@@ -560,11 +560,11 @@ Hierboven staan de standaardwaarden. Met de ⚙️ naast elk onderdeel stel je z
 | 📸 Fotobattle | *0/25/50/100* punten voor de winnaar (komen erbij bij het vrijgeven van de uitslag, één keer per spel) en een fysieke prijs als tekst, bijv. "🍰 taart". Beide staan bij de fotobattle op het finishscherm en bij de winnaar in de uitslag en op de oorkonde |
 | 📦 Vliegende schat | nieuwe plek elke *5/10/15 min*; gepakt binnen *15/20/30 m*; beloning *item*, *punten (+25/+50)* of *allebei*; welke items |
 | 🎰 Rad van fortuin | draaien *na een derde*, *halverwege* of *na twee derde*; hoofdprijs *+100/+200*; pechvak −25 *ja* of *nee* (dan +10) |
-| ⏰ Gouden kwartier | duur *10/15/30 min*; punten *×2* of *×3*; starten *alleen met de knop* of *vanzelf op een tijdstip* (elke dag, Nederlandse tijd) |
+| ⏰ Gouden kwartier | **Aan** of **Uit** per route (uit = geen knop in het Spelleider-blok en geen vaste tijd); duur *5/10/15/30 min*; punten *×2* of *×3*; starten *alleen met de knop* of *vanzelf op een tijdstip* (elke dag, Nederlandse tijd) |
 
 ### ⏰ Gouden kwartier
 
-Met **⏰ Gouden kwartier** in het Spelleider-blok tellen een tijd lang alle goede vragen dubbel (standaard 15 minuten ×2; anders in te stellen bij de route, 🎉 Spelplezier → ⏰), bij alle teams. Staat er een tijdstip ingesteld, dan begint het daar vanzelf; met de knop stop je ook dat. Ze zien bovenin een gouden balk met de klok, en de beamer laat het groot zien. Op de knop staat de resterende tijd; tik erop om het eerder te stoppen. Nodig: migratie 007.
+Zet het eerst aan bij de route (🎉 Spelplezier → ⏰ Gouden kwartier → **Aan**); anders staat de knop niet in het Spelleider-blok. Met **⏰ Gouden kwartier** in het Spelleider-blok tellen een tijd lang alle goede vragen dubbel (standaard 15 minuten ×2; anders in te stellen bij de route, 🎉 Spelplezier → ⏰), bij alle teams. Staat er een tijdstip ingesteld, dan begint het daar vanzelf; met de knop stop je ook dat. Ze zien bovenin een gouden balk met de klok, en de beamer laat het groot zien. Op de knop staat de resterende tijd; tik erop om het eerder te stoppen. Nodig: migratie 007.
 
 ### 👉 Wat nu?
 

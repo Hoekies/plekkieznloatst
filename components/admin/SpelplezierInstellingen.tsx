@@ -20,7 +20,7 @@ const ONDERDELEN: { veld: PlezierVeld | null; sleutel: Sleutel; naam: string; ui
   { veld: "fotobattle_aan", sleutel: "fotobattle", naam: "📸 Fotobattle", uitleg: "Na de finish stemmen de teams op de mooiste finishfoto. De winnaar krijgt een prijs bij de uitslag." },
   { veld: "schat_aan", sleutel: "schat", naam: "📦 Vliegende schat", uitleg: "Een schat op de kaart die steeds verhuist. Wie er het eerst bij is, krijgt de beloning." },
   { veld: "rad_aan", sleutel: "rad", naam: "🎰 Rad van fortuin", uitleg: "Onderweg draait elk team één keer: punten, een item of pech." },
-  { veld: null, sleutel: "gouden", naam: "⏰ Gouden kwartier", uitleg: "Zet je aan met de knop in het Spelleider-blok, of laat het vanzelf op een tijdstip beginnen." },
+  { veld: null, sleutel: "gouden", naam: "⏰ Gouden kwartier", uitleg: "Staat het aan, dan start je het met de knop in het Spelleider-blok, of het begint vanzelf op een tijdstip." },
 ];
 
 export default function SpelplezierInstellingen({ waarden, onZet, onInstellingen }: {
@@ -37,25 +37,28 @@ export default function SpelplezierInstellingen({ waarden, onZet, onInstellingen
     <div className="form-group">
       <label className="form-label">🎉 Spelplezier</label>
       <div className="plezier-lijst">
-        {ONDERDELEN.map((o) => (
-          <div key={o.sleutel} className={`plezier-rij${o.veld && !waarden[o.veld] ? " plezier-rij--uit" : ""}`} title={o.uitleg}>
+        {ONDERDELEN.map((o) => {
+          // Aan of uit: een kolom van de route, of (gouden kwartier) in de instellingen zelf
+          const isAan = o.veld ? !!waarden[o.veld] : inst.gouden.aan;
+          const zetAan = (aan: boolean) => (o.veld ? onZet(o.veld, aan) : zet("gouden", { aan }));
+          return (
+          <div key={o.sleutel} className={`plezier-rij${isAan ? "" : " plezier-rij--uit"}`} title={o.uitleg}>
             <div className="plezier-tekst">
               <strong>{o.naam}</strong>
               <span className="plezier-samenvatting">{samenvatting(o.sleutel, inst)}</span>
             </div>
             <div className="plezier-knoppen">
               <button type="button" className="rl-knop plezier-tandwiel" onClick={() => setOpen(o.sleutel)} title={`Instellingen ${o.naam}`} aria-label={`Instellingen ${o.naam}`}>⚙️</button>
-              {o.veld && (
-                <div className="segment" role="radiogroup" aria-label={`${o.naam} aan of uit`}>
-                  {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
-                    <button key={tekst} type="button" role="radio" aria-checked={!!waarden[o.veld!] === aan} className={!!waarden[o.veld!] === aan ? "aan" : ""}
-                      onClick={() => onZet(o.veld!, aan)}>{tekst}</button>
-                  ))}
-                </div>
-              )}
+              <div className="segment" role="radiogroup" aria-label={`${o.naam} aan of uit`}>
+                {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
+                  <button key={tekst} type="button" role="radio" aria-checked={isAan === aan} className={isAan === aan ? "aan" : ""}
+                    onClick={() => zetAan(aan)}>{tekst}</button>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {onderdeel && (

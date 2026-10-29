@@ -194,7 +194,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             ? !beperkt && <Klaarzetten route={route} spelers={spelers} />
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
                 uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
-                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} gouden={route?.gouden_tot ?? null} />}
+                routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} gouden={route?.gouden_tot ?? null} goudenAan={!!route?.gouden_aan} />}
         </div>
 
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>

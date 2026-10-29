@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: route } = await admin.from("routes").select("*").eq("is_active", true).maybeSingle();
   if (!route) return NextResponse.json({ fout: "Er is geen actieve route" }, { status: 400 });
+  if (body.aan && !plezierInstellingen(route).gouden.aan) return NextResponse.json({ fout: "Het gouden kwartier staat uit bij deze route (route-editor → 🎉 Spelplezier)" }, { status: 400 });
   const tot = new Date(Date.now() + (body.aan ? plezierInstellingen(route).gouden.minuten * 60_000 : 0)).toISOString();
   const { data, error } = await admin.from("routes").update({ gouden_tot: tot }).eq("id", route.id).select("id");
   if (error) return NextResponse.json({ fout: /gouden_tot/.test(error.message) ? "Draai eerst migratie 007 (spelplezier) in Supabase" : error.message }, { status: 500 });

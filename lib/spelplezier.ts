@@ -50,8 +50,9 @@ export type PlezierInstellingen = {
   schat: { minuten: number; meter: number; beloning: "item" | "punten" | "allebei"; punten: number; items: BonusItem[] };
   // 🎰 moment: na dit deel van de route; zonderMin: geen −25-vak; hoofdprijs: het grootste vak
   rad: { moment: number; zonderMin: boolean; hoofdprijs: number };
-  // ⏰ duur en vermenigvuldiger; om: elke dag vanzelf op dit tijdstip ("14:30", Nederlandse tijd), of null
-  gouden: { minuten: number; factor: number; om: string | null };
+  // ⏰ aan: bij deze route te gebruiken (knop in het Spelleider-blok en het tijdstip); duur en vermenigvuldiger;
+  // om: elke dag vanzelf op dit tijdstip ("14:30", Nederlandse tijd), of null
+  gouden: { aan: boolean; minuten: number; factor: number; om: string | null };
 };
 
 export const STANDAARD: PlezierInstellingen = {
@@ -61,7 +62,7 @@ export const STANDAARD: PlezierInstellingen = {
   fotobattle: { punten: 0, prijs: "" },
   schat: { minuten: 10, meter: 20, beloning: "item", punten: 25, items: [...BONUS_ITEMS] },
   rad: { moment: 0.5, zonderMin: false, hoofdprijs: 100 },
-  gouden: { minuten: 15, factor: 2, om: null },
+  gouden: { aan: false, minuten: 15, factor: 2, om: null },
 };
 
 // De keuzes in het beheer (alleen knoppen); de server accepteert ook alleen deze waarden
@@ -72,7 +73,7 @@ export const KEUZES = {
   fotoPunten: [0, 25, 50, 100],
   schatMinuten: [5, 10, 15], schatMeter: [15, 20, 30], schatPunten: [25, 50],
   radMoment: [1 / 3, 0.5, 2 / 3], radHoofdprijs: [100, 200],
-  goudenMinuten: [10, 15, 30], goudenFactor: [2, 3],
+  goudenMinuten: [5, 10, 15, 30], goudenFactor: [2, 3],
 } as const;
 
 const kies = <T,>(waarde: unknown, toegestaan: readonly T[], standaard: T): T => (toegestaan as readonly unknown[]).includes(waarde) ? (waarde as T) : standaard;
@@ -110,7 +111,7 @@ export function normaliseerPlezier(ruw: unknown): PlezierInstellingen {
       items: schatItems.length ? schatItems : S.schat.items,
     },
     rad: { moment: naderBij(ra.moment, KEUZES.radMoment, S.rad.moment), zonderMin: ra.zonderMin === true, hoofdprijs: kies(ra.hoofdprijs, KEUZES.radHoofdprijs, S.rad.hoofdprijs) },
-    gouden: { minuten: kies(g.minuten, KEUZES.goudenMinuten, S.gouden.minuten), factor: kies(g.factor, KEUZES.goudenFactor, S.gouden.factor), om },
+    gouden: { aan: g.aan === true, minuten: kies(g.minuten, KEUZES.goudenMinuten, S.gouden.minuten), factor: kies(g.factor, KEUZES.goudenFactor, S.gouden.factor), om },
   };
 }
 export const plezierInstellingen = (route: unknown) => normaliseerPlezier((route as { spelplezier?: unknown } | null)?.spelplezier);
@@ -132,6 +133,7 @@ function minuutVanDag(nu: number): number {
 export function goudenStatus(route: unknown, nu = Date.now()): { tot: string; factor: number } | null {
   const r = route as { gouden_tot?: string | null } | null;
   const inst = plezierInstellingen(route);
+  if (!inst.gouden.aan) return null;
   const knop = r?.gouden_tot ? Date.parse(r.gouden_tot) : 0;
   if (knop > nu) return { tot: new Date(knop).toISOString(), factor: inst.gouden.factor };
   if (inst.gouden.om) {

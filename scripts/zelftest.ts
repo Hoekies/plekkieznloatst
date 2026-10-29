@@ -94,7 +94,8 @@ test("spelplezier: rad, halverwege, aan/uit, gouden kwartier en badges", () => {
   assert.deepEqual(spelplezierAan({}), { val: false, reeks: false, badges: false, fotobattle: false, schat: false, rad: false });
   assert.equal(spelplezierAan({ val_aan: true, rad_aan: true }).val, true);
   const nu = Date.parse("2026-10-29T12:00:00Z");
-  assert.equal(goudenNu({ gouden_tot: "2026-10-29T12:05:00Z" }, nu), true);
+  assert.equal(goudenNu({ gouden_tot: "2026-10-29T12:05:00Z", spelplezier: { gouden: { aan: true } } }, nu), true);
+  assert.equal(goudenNu({ gouden_tot: "2026-10-29T12:05:00Z" }, nu), false);
   assert.equal(goudenNu({ gouden_tot: "2026-10-29T11:55:00Z" }, nu), false);
   assert.equal(goudenNu(null, nu), false);
   for (const b of Object.values(BADGES)) assert.ok(b.emoji && b.naam && b.uitleg);
@@ -119,7 +120,9 @@ test("spelplezier-instellingen: standaard, alleen geldige keuzes, rad en gouden 
   assert.equal(radHalverwege(2, 6, 1 / 3), true);
   assert.equal(radHalverwege(3, 6, 2 / 3), false);
   // Vanzelf om 14:00 (Nederlandse tijd, wintertijd = UTC+1), 15 minuten, ×3
-  const route = { spelplezier: { gouden: { om: "14:00", minuten: 15, factor: 3 } } };
+  const route = { spelplezier: { gouden: { aan: true, om: "14:00", minuten: 15, factor: 3 } } };
+  assert.equal(goudenStatus({ spelplezier: { gouden: { aan: false, om: "14:00" } }, gouden_tot: "2026-11-10T14:00:00Z" }, Date.parse("2026-11-10T13:05:00Z")), null);
+  assert.equal(normaliseerPlezier({ gouden: { minuten: 5 } }).gouden.minuten, 5);
   assert.equal(goudenStatus(route, Date.parse("2026-11-10T13:05:00Z"))?.factor, 3);
   assert.equal(goudenStatus(route, Date.parse("2026-11-10T13:20:00Z")), null);
   // Gestopt met de knop binnen het venster: blijft uit
