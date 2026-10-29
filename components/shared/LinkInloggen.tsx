@@ -10,15 +10,12 @@ const QrScanner = dynamic(() => import("@/components/shared/QrScanner"), { ssr: 
 // plakken kan niet meer (overbodig: scannen neemt het team meteen over, ook in de geïnstalleerde app).
 export default function LinkInloggen() {
   const [scan, setScan] = useState(false);
-  // Eén brede knop: links een echte camera, rechts de tekst
+  // Eén strakke knop: de camera links, de tekst ernaast, samen in het midden
   return (
     <>
       <button type="button" className="qr-knop" onClick={() => setScan(true)}>
         <span className="qr-knop-camera" aria-hidden>📷</span>
-        <span className="qr-knop-tekst">
-          <strong>QR-code scannen</strong>
-          <span>van je kaartje of van de spelleider</span>
-        </span>
+        <span className="qr-knop-tekst">QR-code scannen</span>
       </button>
       {scan && <QrScanner onSluit={() => setScan(false)} />}
     </>

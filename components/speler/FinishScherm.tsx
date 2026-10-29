@@ -137,6 +137,9 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
       {/* Inhoud */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, padding: "18px 16px 48px", width: "100%", maxWidth: 600 }}>
 
+        {/* Twee schermen: vóór de uitslag het finishscherm (kop, cijfers, puzzelwoord, items, bonusvraag) en
+            "wachten op de uitslag"; na het vrijgeven alleen de eindstand, met delen en terugkijken eronder */}
+        {!vrij && <>
         {/* 🎉 Feestelijke kop in de stijl van het seizoen of de feestdag (lib/finish-thema.ts): stralen,
             geblokte finishrand, versiering van het thema, teamfoto of icoon in een gouden ring */}
         <div className="finish-held" style={{ "--thema-1": thema.kleuren[0], "--thema-2": thema.kleuren[1], "--thema-3": thema.kleuren[2], "--thema-basis": thema.basis } as React.CSSProperties}>
@@ -170,6 +173,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
 
         {/* 🧩 Puzzelwoord raden voor bonuspunten (als de route er een heeft) */}
         <PuzzelWoord raden />
+        </>}
 
         {/* Oorkonde, antwoorden en gelopen route pas als de spelleider de uitslag vrijgeeft: anders kan een team de
             antwoorden doorgeven aan teams die nog spelen. Tot dan een korte uitleg. */}
@@ -178,26 +182,6 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
             🔒 Na de uitslag: je <strong>oorkonde</strong>, alle <strong>antwoorden &amp; items</strong> en je <strong>gelopen route</strong>.
           </div>
         )}
-        {vrij && <>
-        <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
-          plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false} />
-
-        {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
-        <div style={{ display: "flex", gap: 10, width: "100%" }}>
-          <button
-            className="btn btn-ghost"
-            onClick={() => router.push("/speler/terugkijk")}
-            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
-            📖 Antwoorden &amp; items
-          </button>
-          <button
-            className="btn btn-ghost"
-            onClick={() => router.push("/speler/terugkijk/route")}
-            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
-            🗺️ Gelopen route
-          </button>
-        </div>
-        </>}
 
         {/* Items na de finish: nog inzetten op teams die onderweg zijn, tot de uitslag vrij is */}
         {itemsNaFinish && !vrij && items.length > 0 && (
@@ -293,6 +277,29 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
             </div>
           )}
         </div>
+
+        {vrij && <>
+        {/* 📤 Onder de stand: de oorkonde delen en terugkijken */}
+        <div className="finish-delen-kop">📤 Delen en terugkijken</div>
+        <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
+          plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false} />
+
+        {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push("/speler/terugkijk")}
+            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
+            📖 Antwoorden &amp; items
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push("/speler/terugkijk/route")}
+            style={{ flex: 1, fontSize: "0.9rem", padding: "12px 6px", borderRadius: 14 }}>
+            🗺️ Gelopen route
+          </button>
+        </div>
+        </>}
 
         {/* Live-indicator */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)", fontSize: "0.75rem" }}>

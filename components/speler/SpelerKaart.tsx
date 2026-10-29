@@ -337,6 +337,9 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   // en pas bij meer dan 3 soorten (dan raken ze de hoekknoppen) helemaal boven de itemknoppen
   const soortenItems = new Set(inventaris.map((i) => i.type)).size;
   const knoepBottomOffset = soortenItems > 3 ? 70 : soortenItems > 0 ? 38 : 28;
+  // De itembalk loopt door tot onder de thuisbalk van de iPhone (safe area); de hoekknoppen dus ook zoveel hoger,
+  // anders vielen 🎯 en ☀️ over de items heen
+  const knopBodem = (px: number) => `calc(${px}px + env(safe-area-inset-bottom, 0px))`;
 
   useEffect(() => {
     if (bereiktIds.size > 0 && activePunt && bereiktIds.has(activePunt.id) && !popupPunt) {
@@ -1220,7 +1223,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           centreerVerzoek={centreerVerzoek}
           // Licht/donker/luchtfoto links, op dezelfde hoogte direct naast 🎯 (16 + 30 breed + 8 ruimte), niet meer
           // rechts boven "Niet bereikbaar?"; zonder 🎯 op de plek van 🎯
-          stijlOnder={knoepBottomOffset}
+          stijlOnder={knopBodem(knoepBottomOffset)}
           stijlLinks={positie && !popupPunt ? 54 : 16}
           positie={positie}
           punten={punten}
@@ -1293,7 +1296,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         {positie && !popupPunt && (
           <button onClick={() => setCentreerVerzoek((n) => n + 1)} title="Kaart op mijn plek zetten" aria-label="Kaart op mijn plek zetten"
             className="pr-loc-btn"
-            style={{ bottom: knoepBottomOffset, left: 16, zIndex: 1000 }}>
+            style={{ bottom: knopBodem(knoepBottomOffset), left: 16, zIndex: 1000 }}>
             🎯
           </button>
         )}
@@ -1307,7 +1310,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
             title="Meld dat jullie het volgende punt niet kunnen bereiken"
             className={hulpOpvallend ? undefined : "hulp-knop-rustig"}
             style={{
-              position: "absolute", bottom: knoepBottomOffset, right: 16, zIndex: 1000,
+              position: "absolute", bottom: knopBodem(knoepBottomOffset), right: 16, zIndex: 1000,
               padding: "7px 12px", borderRadius: 99,
               background: hulpOpen ? "rgba(15,23,42,0.85)" : hulpOpvallend ? "rgba(255,138,0,0.92)" : "rgba(15,23,42,0.6)",
               border: "2px solid #fff", color: "#fff",
@@ -1322,7 +1325,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         {/* Inventaris balk onderin de kaart */}
         {/* Eerste keer een item van deze soort: kort wat het doet */}
         {eersteItem && ITEM_INFO[eersteItem] && (
-          <div className="eerste-item" role="status" style={{ bottom: knoepBottomOffset + 52 }} onClick={() => setEersteItem(null)}>
+          <div className="eerste-item" role="status" style={{ bottom: knopBodem(knoepBottomOffset + 52) }} onClick={() => setEersteItem(null)}>
             <span className="eerste-item-emoji" aria-hidden>{ITEM_INFO[eersteItem].emoji}</span>
             <span><strong>Je hebt een {ITEM_INFO[eersteItem].naam.toLowerCase()}!</strong> {ITEM_INFO[eersteItem].beschrijving(waarden)} Tik onderin op het item om het te gebruiken.</span>
             <button type="button" className="eerste-item-sluit" aria-label="Sluiten">✕</button>

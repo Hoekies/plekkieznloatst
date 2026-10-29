@@ -35,7 +35,7 @@ interface Props {
   // Elke keer dat dit getal verandert: de kaart centreren op de eigen plek (knop 🎯)
   centreerVerzoek?: number;
   // Hoogte (px) waarboven de knoppen voor licht/donker/luchtfoto staan (boven de itembalk)
-  stijlOnder?: number;
+  stijlOnder?: number | string;
   // Links in plaats van rechts (px van de linkerkant): op de spelerskaart naast 🎯
   stijlLinks?: number;
   ghostedPuntId: string | null;

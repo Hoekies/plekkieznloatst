@@ -4039,16 +4039,15 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 @keyframes login-zweef { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-12px) rotate(8deg); } }
 @media (prefers-reduced-motion: reduce) { .login-route-pin { display: none; } }
 
-/* 📷 Scanknop op het inlogscherm: links een echte camera in een wit vlak, rechts de tekst */
-.qr-knop { display: flex; align-items: center; gap: 12px; width: 100%; margin: 2px 0 0; padding: 10px 14px 10px 10px; border-radius: 16px; cursor: pointer; font: inherit; color: #fff; text-align: left;
-  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.22); transition: transform 0.15s, background 0.15s; }
-.qr-knop:hover { background: rgba(255,255,255,0.13); }
+/* 📷 Scanknop op het inlogscherm: camera (zonder vlak) en tekst samen in het midden, cyaan rand met zachte gloed */
+.qr-knop { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 58px; margin: 2px 0 0; padding: 8px 16px; border-radius: 16px;
+  cursor: pointer; font: inherit; color: #fff;
+  background: linear-gradient(180deg, rgba(34,211,238,0.24), rgba(14,116,144,0.18)); border: 1.5px solid rgba(34,211,238,0.6);
+  box-shadow: 0 0 18px rgba(34,211,238,0.18), inset 0 1px 0 rgba(255,255,255,0.15); transition: transform 0.15s, box-shadow 0.15s; }
+.qr-knop:hover { box-shadow: 0 0 24px rgba(34,211,238,0.3), inset 0 1px 0 rgba(255,255,255,0.15); }
 .qr-knop:active { transform: scale(0.98); }
-.qr-knop-camera { flex-shrink: 0; width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; line-height: 1;
-  background: linear-gradient(180deg, #ffffff, #e5e7eb); box-shadow: 0 3px 0 rgba(0,0,0,0.25), 0 6px 14px rgba(0,0,0,0.3); }
-.qr-knop-tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.qr-knop-tekst strong { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; }
-.qr-knop-tekst span { font-size: 0.76rem; color: rgba(255,255,255,0.7); }
+.qr-knop-camera { font-size: 2.2rem; line-height: 1; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.45)); }
+.qr-knop-tekst { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; letter-spacing: 0.01em; }
 /* "of" tussen scannen en typen */
 .login-of { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; font-size: 0.72rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; }
 .login-of::before, .login-of::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
@@ -4126,3 +4125,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 /* 🔀 Andere iconen laten zien (IntroScherm) */
 .pr-icon-chip--schud { border-style: dashed; opacity: 0.85; }
 .icoon-raster { display: grid; grid-template-columns: repeat(4, 46px); gap: 8px; justify-content: center; margin-bottom: 14px; }
+
+/* 📤 Na de uitslag: kopje boven oorkonde en terugkijken (onder de eindstand) */
+.finish-delen-kop { align-self: flex-start; margin-top: 4px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #67E8F9; }
