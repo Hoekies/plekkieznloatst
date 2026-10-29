@@ -36,7 +36,7 @@ type Foto = { sessie_id: string; naam: string; icon: string | null; url: string 
 
 // 📸 Fotobattle: stem op de mooiste finishfoto van een ander team (aanpassen mag tot de uitslag)
 export function FotoBattle() {
-  const [data, setData] = useState<{ aan: boolean; fotos?: Foto[]; mijn_stem?: string | null } | null>(null);
+  const [data, setData] = useState<{ aan: boolean; fotos?: Foto[]; mijn_stem?: string | null; punten?: number; prijs?: string | null } | null>(null);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
 
@@ -61,10 +61,12 @@ export function FotoBattle() {
 
   if (!data?.aan) return null;
   const fotos = data.fotos ?? [];
+  const winst = [data.punten ? `+${data.punten} punten` : "", data.prijs ?? ""].filter(Boolean).join(" · ");
   return (
     <div className="fotobattle">
       <div className="fotobattle-kop">📸 Fotobattle</div>
       <p className="fotobattle-uitleg">Stem op de mooiste finishfoto van een ander team. De winnaar krijgt een prijs bij de uitslag. Je kunt je stem aanpassen tot de uitslag bekend is.</p>
+      {winst && <div className="fotobattle-prijs">🏆 De winnaar krijgt: <strong>{winst}</strong></div>}
       {fotos.length === 0 ? (
         <p className="fotobattle-leeg">Nog geen foto&apos;s van andere teams. Ze verschijnen hier zodra die teams binnen zijn.</p>
       ) : (

@@ -35,6 +35,9 @@ export interface Route {
   schat_aan?: boolean;
   rad_aan?: boolean;
   gouden_tot?: string | null;
+  // ⚙️ Instellingen van het spelplezier (migratie 008), zie lib/spelplezier.ts
+  spelplezier?: unknown;
+  fotobattle_uitgekeerd_op?: string | null;
   // 🧩 Puzzelwoord (leeg = uit) en de bonus bij goed raden; verboden gebieden op de kaart (migratie 014)
   puzzelwoord?: string | null;
   puzzel_bonus?: number;

@@ -4,6 +4,7 @@ import type { LeaderboardEntry } from "@/lib/types";
 import { isTestSpeler, testRol } from "@/lib/testteam";
 import { deelPrijzenUit, type Prijs, type TeamCijfers } from "@/lib/prijzen";
 import { teamFotos } from "@/lib/teamfoto";
+import { plezierInstellingen } from "@/lib/spelplezier";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -54,7 +55,7 @@ export async function maakStand(admin: AdminClient, routeId: string, eigenSpeler
   const fotos = alleenGefinisht ? await teamFotos(admin, routeId, sessies.map((s) => s.id)) : new Map<string, string>();
   const nu = Date.now();
   // 🏆 Eindstand: elk team een titel (snelste, meesterdief, …)
-  const prijzen = alleenGefinisht ? await prijzenVoor(admin, sessies, afstand, nu) : new Map<string, Prijs>();
+  const prijzen = alleenGefinisht ? await prijzenVoor(admin, routeId, sessies, afstand, nu) : new Map<string, Prijs>();
   return sessies
     .map((s) => ({
       player_id: s.player_id,
@@ -74,7 +75,7 @@ export async function maakStand(admin: AdminClient, routeId: string, eigenSpeler
 }
 
 // Cijfers per team voor de prijzen: goede antwoorden, ingezette items en hoe vaak ze geraakt werden
-async function prijzenVoor(admin: AdminClient, sessies: RawSessie[], afstand: Map<string, number>, nu: number): Promise<Map<string, Prijs>> {
+async function prijzenVoor(admin: AdminClient, routeId: string, sessies: RawSessie[], afstand: Map<string, number>, nu: number): Promise<Map<string, Prijs>> {
   const ids = sessies.map((s) => s.id);
   if (!ids.length) return new Map();
   const [{ data: goed }, { data: gebruikt }, { data: geraakt }, { data: stemmen }] = await Promise.all([
@@ -97,5 +98,11 @@ async function prijzenVoor(admin: AdminClient, sessies: RawSessie[], afstand: Ma
       stemmen: (stemmen ?? []).filter((r) => r.foto_sessie === s.id).length,
     };
   });
-  return deelPrijzenUit(cijfers);
+  const prijzen = deelPrijzenUit(cijfers);
+  // 📸 Fotobattle: wat de winnaar krijgt (instellingen van de route, migratie 008)
+  const { data: route } = await admin.from("routes").select("*").eq("id", routeId).maybeSingle();
+  const foto = plezierInstellingen(route).fotobattle;
+  const extra = [foto.punten > 0 ? `+${foto.punten} punten` : "", foto.prijs].filter(Boolean).join(" · ");
+  if (extra) for (const [id, p] of prijzen) if (p.titel === "Mooiste foto") prijzen.set(id, { ...p, uitleg: `${p.uitleg} · ${extra}` });
+  return prijzen;
 }

@@ -3,6 +3,7 @@ import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { schoonStartitems } from "@/lib/startitems";
 import { ITEMS_NA_FINISH } from "@/lib/item-sessie";
+import { normaliseerPlezier } from "@/lib/spelplezier";
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
@@ -38,6 +39,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   // ⚔️ Duel (migratie 006)
   if (typeof body.duel_aan === "boolean") toegestaan.duel_aan = body.duel_aan;
   if (typeof body.duel_punten === "number" && body.duel_punten > 0) toegestaan.duel_punten = Math.min(500, Math.round(body.duel_punten));
+  // ⚙️ Instellingen van het spelplezier (migratie 008): alleen geldige waarden
+  if (body.spelplezier && typeof body.spelplezier === "object") toegestaan.spelplezier = normaliseerPlezier(body.spelplezier);
   // 🎉 Spelplezier aan/uit (migratie 007)
   for (const veld of ["val_aan", "reeks_aan", "badges_aan", "fotobattle_aan", "schat_aan", "rad_aan"]) {
     if (typeof body[veld] === "boolean") toegestaan[veld] = body[veld];

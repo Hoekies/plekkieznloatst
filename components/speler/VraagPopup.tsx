@@ -66,13 +66,16 @@ export type Feedback = {
   numeric_tolerance: number | null;
   // 🎉 Spelplezier (migratie 007): dubbel door het gouden kwartier, goede antwoorden op rij en het bonus-item
   gouden?: boolean;
+  gouden_factor?: number | null;
   reeks?: number | null;
   reeks_item?: string | null;
+  reeks_punten?: number | null;
+  reeks_lengte?: number | null;
 };
 
 // geen_bereik: de vraag kon niet geladen worden; bewaard: antwoord bewaard, gaat mee zodra er bereik is
 // 🔥 Naam van het bonus-item na een reeks
-const REEKS_ITEM_NAAM: Record<string, string> = { ster: "⭐ Ster", verdubbeling: "✖️2 Verdubbeling", radar: "📡 Radar" };
+const REEKS_ITEM_NAAM: Record<string, string> = { ster: "⭐ Ster", verdubbeling: "✖️2 Verdubbeling", radar: "📡 Radar", bom: "💣 Bom", spook: "👻 Spook", banaan: "🍌 Banaan" };
 
 type PopupFase = "laden" | "start" | "informatie" | "vraag" | "foto_ingestuurd" | "feedback" | "geen_bereik" | "bewaard";
 
@@ -227,8 +230,11 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
         numeric_answer: data.numeric_answer ?? null,
         numeric_tolerance: data.numeric_tolerance ?? null,
         gouden: data.gouden === true,
+        gouden_factor: data.gouden_factor ?? null,
         reeks: typeof data.reeks === "number" ? data.reeks : null,
         reeks_item: data.reeks_item ?? null,
+        reeks_punten: data.reeks_punten ?? null,
+        reeks_lengte: data.reeks_lengte ?? null,
       });
       setPopupFase("feedback");
     } finally {
@@ -591,12 +597,14 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
           />
         )}
         {/* ⏰ Gouden kwartier en 🔥 reeks */}
-        {popupFase === "feedback" && feedback && (feedback.gouden || (feedback.reeks ?? 0) >= 2 || feedback.reeks_item) && (
+        {popupFase === "feedback" && feedback && (feedback.gouden || (feedback.reeks ?? 0) >= 2 || feedback.reeks_item || feedback.reeks_punten) && (
           <div className="feedback-extra">
-            {feedback.gouden && <span>⏰ Dubbele punten door het gouden kwartier!</span>}
+            {feedback.gouden && <span>⏰ {(feedback.gouden_factor ?? 2) === 3 ? "Driedubbele" : "Dubbele"} punten door het gouden kwartier!</span>}
             {feedback.reeks_item
               ? <span>🔥 {feedback.reeks} goed op rij! Bonus-item in jullie balk: <strong>{REEKS_ITEM_NAAM[feedback.reeks_item] ?? feedback.reeks_item}</strong></span>
-              : (feedback.reeks ?? 0) >= 2 && <span>🔥 {feedback.reeks} goed op rij{(feedback.reeks ?? 0) % 3 === 2 ? ": nog één voor een bonus-item!" : ""}</span>}
+              : feedback.reeks_punten
+                ? <span>🔥 {feedback.reeks} goed op rij! <strong>+{feedback.reeks_punten} bonuspunten</strong></span>
+                : (feedback.reeks ?? 0) >= 2 && <span>🔥 {feedback.reeks} goed op rij{(feedback.reeks ?? 0) % (feedback.reeks_lengte ?? 3) === (feedback.reeks_lengte ?? 3) - 1 ? ": nog één voor een bonus!" : ""}</span>}
           </div>
         )}
 

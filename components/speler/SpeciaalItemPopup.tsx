@@ -78,7 +78,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
   const info = ITEM_INFO[item.type] ?? { kleur: "#FFFFFF", label: item.type };
   const beschrijving = kortUitleg(item.type, waarden) || (UITLEG[item.type]?.beschrijving(waarden) ?? "");
   const later = () => (onSluit ? onSluit() : onVerwerkt(item.id));
-  const [valGezet, setValGezet] = useState(false);
+  const [valGezet, setValGezet] = useState<number | null>(null);
 
   // 🪤 De bom als val op deze plek: alleen jullie zien hem, wie er binnen 15 meter langs loopt verliest punten
   async function legVal() {
@@ -90,7 +90,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) { setFoutMelding(data.fout ?? "Geen verbinding. Probeer het opnieuw."); setFase("fout"); return; }
-    setValGezet(true);
+    setValGezet(typeof data.minuten === "number" ? data.minuten : 20);
     setFase("bevestigd");
     setTimeout(() => onVerwerkt(item.id), 3000);
   }
@@ -173,7 +173,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
           {fase === "bevestigd" && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <div style={{ fontSize: "2.4rem", lineHeight: 1 }}>✅</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>{valGezet ? "Val gezet! 🪤 20 minuten scherp" : gelukt(item.type)}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.15rem", color: "#86EFAC" }}>{valGezet !== null ? `Val gezet! 🪤 ${valGezet} minuten scherp` : gelukt(item.type)}</div>
             </div>
           )}
 

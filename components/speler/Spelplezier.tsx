@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BADGES, RAD_VAKKEN, isBadge, type SpelplezierAan } from "@/lib/spelplezier";
+import { BADGES, RAD_VAKKEN, isBadge, radMomentTekst, type RadVak, type SpelplezierAan } from "@/lib/spelplezier";
 import { speelBonus, speelOverwinning } from "@/lib/sounds";
 
 // 🎉 Spelplezier op de kaart (migratie 007): vraagt elke 5 seconden (met de eigen plek) wat er speelt:
@@ -12,11 +12,14 @@ export type KaartMarker = { id: string; lat: number; lng: number; emoji: string;
 type Data = {
   aan: SpelplezierAan | null;
   gouden_tot?: string | null;
+  gouden_factor?: number;
   badges?: { soort: string; created_at: string }[];
   rad?: boolean;
+  rad_vakken?: RadVak[];
+  rad_moment?: number;
   schat?: { id: string; lat: number; lng: number; tot: string } | null;
-  schat_gepakt?: string | null;
-  val?: { lat: number; lng: number; tot: string } | null;
+  schat_gepakt?: { item: string | null; punten: number } | null;
+  vallen?: { lat: number; lng: number; tot: string }[];
   val_geraakt?: { id: string; door: string; punten: number }[];
 };
 type Toast = { id: string; emoji: string; titel: string; tekst: string };
@@ -86,13 +89,15 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
         toon({ id: sleutel, emoji: "🪤", titel: "Raak!", tekst: `${v.door} liep in jullie val (−${v.punten} bij hen)` });
       }
       if (d.schat_gepakt) {
-        toon({ id: `schat-${Date.now()}`, emoji: "📦", titel: "Schat gepakt!", tekst: `${ITEM_NAAM[d.schat_gepakt] ?? d.schat_gepakt} in jullie balk` });
+        const { item, punten } = d.schat_gepakt;
+        const tekst = [item ? `${ITEM_NAAM[item] ?? item} in jullie balk` : "", punten ? `+${punten} punten` : ""].filter(Boolean).join(" en ");
+        toon({ id: `schat-${Date.now()}`, emoji: "📦", titel: "Schat gepakt!", tekst });
         speelBonus();
       }
       bewaarGezien(sessieId, al);
       const m: KaartMarker[] = [];
       if (d.schat) m.push({ id: `schat-${d.schat.id}`, lat: d.schat.lat, lng: d.schat.lng, emoji: "📦", titel: "Vliegende schat" });
-      if (d.val) m.push({ id: "val", lat: d.val.lat, lng: d.val.lng, emoji: "🪤", titel: "Jullie val" });
+      (d.vallen ?? []).forEach((v, i) => m.push({ id: `val-${i}`, lat: v.lat, lng: v.lng, emoji: "🪤", titel: "Jullie val" }));
       markersRef.current(m);
     };
     haal();
@@ -112,13 +117,13 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
     <>
       {goudenRest > 0 && (
         <div className="gouden-balk" role="status">
-          ⏰ <strong>Gouden kwartier</strong> · dubbele punten · {Math.floor(goudenRest / 60)}:{String(goudenRest % 60).padStart(2, "0")}
+          ⏰ <strong>Gouden kwartier</strong> · {(data?.gouden_factor ?? 2) === 3 ? "driedubbele" : "dubbele"} punten · {Math.floor(goudenRest / 60)}:{String(goudenRest % 60).padStart(2, "0")}
         </div>
       )}
       {data?.rad && !radOpen && (
         <button type="button" className="rad-knop" onClick={() => setRadOpen(true)}>🎰 Draai aan het rad!</button>
       )}
-      {radOpen && <RadVanFortuin onKlaar={(t) => { setRadOpen(false); if (t) { setData((d) => d && { ...d, rad: false }); toon(t); } }} />}
+      {radOpen && <RadVanFortuin vakken={data?.rad_vakken?.length ? data.rad_vakken : RAD_VAKKEN} moment={data?.rad_moment ?? 0.5} onKlaar={(t) => { setRadOpen(false); if (t) { setData((d) => d && { ...d, rad: false }); toon(t); } }} />}
       {toasts.length > 0 && (
         <div className="plezier-toasts">
           {toasts.map((t) => (
@@ -134,12 +139,12 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
 }
 
 // 🎰 Het rad: de server kiest het vak, het rad draait er in een paar seconden naartoe
-function RadVanFortuin({ onKlaar }: { onKlaar: (t: Toast | null) => void }) {
+function RadVanFortuin({ vakken, moment, onKlaar }: { vakken: RadVak[]; moment: number; onKlaar: (t: Toast | null) => void }) {
   const [hoek, setHoek] = useState(0);
   const [uitslag, setUitslag] = useState<{ tekst: string; vak: number } | null>(null);
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
-  const n = RAD_VAKKEN.length, vakGraden = 360 / n;
+  const n = vakken.length, vakGraden = 360 / n;
 
   async function draai() {
     setBezig(true); setFout("");
@@ -150,28 +155,28 @@ function RadVanFortuin({ onKlaar }: { onKlaar: (t: Toast | null) => void }) {
     setHoek(5 * 360 + (360 - (d.vak * vakGraden + vakGraden / 2)));
     window.setTimeout(() => {
       setUitslag({ tekst: d.tekst, vak: d.vak });
-      if ((RAD_VAKKEN[d.vak]?.punten ?? 0) >= 100) speelOverwinning(); else speelBonus();
+      if (d.vak === 0) speelOverwinning(); else speelBonus();
     }, 4200);
   }
 
-  const verloop = RAD_VAKKEN.map((v, i) => `${v.kleur} ${i * vakGraden}deg ${(i + 1) * vakGraden}deg`).join(", ");
+  const verloop = vakken.map((v, i) => `${v.kleur} ${i * vakGraden}deg ${(i + 1) * vakGraden}deg`).join(", ");
   return (
     <div className="rad-achter">
       <div className="pr-panel rad-paneel">
         <div className="pr-panel-inner rad-inhoud">
           <div className="rad-titel">🎰 Rad van fortuin</div>
-          <p className="rad-uitleg">Halverwege! Eén keer draaien: punten, een item… of pech.</p>
+          <p className="rad-uitleg">{radMomentTekst(moment).replace(/^./, (c) => c.toUpperCase())}! Eén keer draaien: punten, een item… of pech.</p>
           <div className="rad-houder">
             <span className="rad-pijl" aria-hidden>▼</span>
             <div className="rad" style={{ background: `conic-gradient(${verloop})`, transform: `rotate(${hoek}deg)` }}>
-              {RAD_VAKKEN.map((v, i) => (
+              {vakken.map((v, i) => (
                 <span key={v.id} className="rad-label" style={{ transform: `rotate(${i * vakGraden + vakGraden / 2}deg)` }}>{v.label}</span>
               ))}
             </div>
           </div>
           {uitslag ? (
             <>
-              <div className="rad-uitslag">{RAD_VAKKEN[uitslag.vak]?.label} · {uitslag.tekst}</div>
+              <div className="rad-uitslag">{vakken[uitslag.vak]?.label} · {uitslag.tekst}</div>
               <button type="button" className="btn-premium--compact" onClick={() => onKlaar({ id: `rad-${Date.now()}`, emoji: "🎰", titel: "Rad van fortuin", tekst: uitslag.tekst })}>Verder spelen</button>
             </>
           ) : (

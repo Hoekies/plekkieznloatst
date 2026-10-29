@@ -11,5 +11,5 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({})) as { special_item_id?: string; latitude?: number; longitude?: number };
   if (typeof body.latitude !== "number" || typeof body.longitude !== "number") return NextResponse.json({ fout: "Je locatie ontbreekt: zet je locatie aan" }, { status: 400 });
   const uit = await plaatsVal(ctx.admin, ctx.sessie, String(body.special_item_id ?? ""), body.latitude, body.longitude);
-  return uit.ok ? NextResponse.json({ ok: true }) : NextResponse.json({ fout: uit.fout }, { status: uit.status });
+  return uit.ok ? NextResponse.json({ ok: true, minuten: uit.minuten }) : NextResponse.json({ fout: uit.fout }, { status: uit.status });
 }

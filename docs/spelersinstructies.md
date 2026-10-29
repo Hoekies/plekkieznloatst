@@ -61,12 +61,12 @@ Gooit een ander team een item op jullie, dan kun je in de melding met één tik 
 
 **🎉 Extra's** (als de organisatie ze aanzet)
 - **🪤 Val:** heb je een bom, dan kun je hem ook als verborgen val op je plek leggen. Loopt een ander team erlangs, dan verliest het punten.
-- **🔥 Reeks:** 3 goede antwoorden op rij geven een bonus-item.
+- **🔥 Reeks:** een paar goede antwoorden op rij (meestal 3) geven een bonus-item of bonuspunten.
 - **🎖️ Badges:** kleine prijzen tijdens het spel, zoals *Pionier* of *On fire*. Ze komen op je oorkonde.
 - **📦 Vliegende schat:** een schat op de kaart die elke 10 minuten verhuist. Wie er het eerst is, krijgt een item.
 - **🎰 Rad van fortuin:** halverwege draai je één keer: punten, een item of pech.
-- **⏰ Gouden kwartier:** zie je bovenin een gouden balk, dan tellen goede antwoorden dubbel.
-- **📸 Fotobattle:** na de finish stem je op de mooiste finishfoto van een ander team.
+- **⏰ Gouden kwartier:** zie je bovenin een gouden balk, dan tellen goede antwoorden dubbel (of zelfs driedubbel).
+- **📸 Fotobattle:** na de finish stem je op de mooiste finishfoto van een ander team. Bij de foto's staat wat de winnaar krijgt.
 
 **🏆 Prijzen**
 Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.

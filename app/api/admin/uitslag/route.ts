@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { laatItemsVervallen } from "@/lib/items-vervallen";
 import { sluitStemmingen } from "@/lib/stemmen";
 import { rekenPuzzelsAf } from "@/lib/puzzel-server";
+import { keerFotobattleUit } from "@/lib/spelplezier-server";
 
 // Uitslag van de actieve route vrijgeven (of weer verbergen). Spelers op het finishscherm
 // zien de eindstand binnen ~10 seconden verschijnen.
@@ -25,6 +26,8 @@ export async function POST(request: NextRequest) {
       await sluitStemmingen(admin, route.id);
       // 🧩 Puzzelwoord: punten per gevonden letter en de bonus, ook voor teams die het finishscherm niet openden
       await rekenPuzzelsAf(admin, route.id);
+      // 📸 Fotobattle: de punten voor de winnaar (één keer per spel; zonder migratie 008 niets)
+      await keerFotobattleUit(admin, route.id).catch(() => undefined);
       const { data: klaar } = await admin.from("player_sessions").select("id").eq("route_id", route.id).eq("status", "voltooid");
       await laatItemsVervallen(admin, (klaar ?? []).map((s) => s.id));
     } catch (e) {

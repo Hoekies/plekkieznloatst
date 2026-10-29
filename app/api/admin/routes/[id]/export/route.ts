@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 
 // Instellingen die bij het spelen horen en niet mee gaan naar een nieuwe route
 const NIET_MEE = new Set(["id", "name", "status", "is_active", "created_at", "updated_at", "uitslag_vrijgegeven",
-  "tussenstand_trigger_at", "items_last_rotated_at", "instappunten", "gouden_tot"]);
+  "tussenstand_trigger_at", "items_last_rotated_at", "instappunten", "gouden_tot", "fotobattle_uitgekeerd_op"]);
 
 type Optie = { order_index: number; color: string; answer_type: string; text: string | null; image_path: string | null; is_correct: boolean; uitleg?: string | null; punten?: number | null };
 type Vraag = {

@@ -83,6 +83,9 @@ export async function GET() {
   // Migratie 007: 🎉 spelplezier
   const { error: plezierFout } = await admin.from("schatten").select("id").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 007: 🎉 spelplezier", ok: !plezierFout, uitleg: plezierFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/007_spelplezier.sql." : undefined });
+  // Migratie 008: ⚙️ instellingen spelplezier
+  const { error: instFout } = await admin.from("routes").select("spelplezier, fotobattle_uitgekeerd_op").limit(1);
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 008: ⚙️ instellingen spelplezier", ok: !instFout, uitleg: instFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/008_spelplezier_instellingen.sql." : undefined });
   // Migratie 005: 🧪 testteam
   const { error: testFout } = await admin.from("players").select("test_rol").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 005: 🧪 testteam", ok: !testFout, uitleg: testFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/005_testteam.sql." : undefined });

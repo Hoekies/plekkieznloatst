@@ -8,7 +8,9 @@ import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import SpelerUitlog from "@/components/speler/SpelerUitlog";
 import GeluidSetKiezen from "@/components/speler/GeluidSetKiezen";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { haalHuisstijl } from "@/lib/huisstijl";
+import { haalHuisstijl, vastThema, eigenEmoji } from "@/lib/huisstijl";
+import { huidigFinishThema } from "@/lib/finish-thema";
+import ConfettiThema from "@/components/speler/ConfettiThema";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -16,7 +18,12 @@ export default async function SpelerLayout({ children }: { children: React.React
   if (user.app_metadata?.rol === "admin" || user.app_metadata?.rol === "helper") redirect("/admin");
 
   // 🎨 Huisstijl van de route: eigen accentkleur en logo in de bovenbalk
-  const huisstijl = await haalHuisstijl(createAdminClient());
+  const admin = createAdminClient();
+  const huisstijl = await haalHuisstijl(admin);
+  // 🗓️ Confetti in het thema van het seizoen (of het vastgezette thema uit het beheer)
+  const vast = await vastThema(admin).catch(() => null);
+  const confettiSleutel = huidigFinishThema(new Date(), vast);
+  const confettiEmoji = await eigenEmoji(admin, vast).catch(() => null);
   const kleurVars = huisstijl.kleur
     ? ({ "--pr-orange": huisstijl.kleur, "--huis-kleur": huisstijl.kleur } as React.CSSProperties)
     : undefined;
@@ -24,6 +31,7 @@ export default async function SpelerLayout({ children }: { children: React.React
   return (
     <div className={`speler-shell${huisstijl.kleur ? " speler-shell--huisstijl" : ""}${huisstijl.logo ? " speler-shell--logo" : ""}`} style={kleurVars}>
       <GeluidSetKiezen set={huisstijl.geluidSet} />
+      <ConfettiThema sleutel={confettiSleutel} emoji={confettiEmoji} />
       <AudioUnlock />
       <IOSFixes />
       <DeviceGuard />

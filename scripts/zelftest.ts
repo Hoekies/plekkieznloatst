@@ -8,7 +8,7 @@ import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/test-rol";
-import { RAD_VAKKEN, radHalverwege, spelplezierAan, goudenNu, BADGES, schatSlot } from "../lib/spelplezier";
+import { RAD_VAKKEN, radHalverwege, spelplezierAan, goudenNu, goudenStatus, BADGES, schatSlot, normaliseerPlezier, radVakken, STANDAARD } from "../lib/spelplezier";
 import { deelPrijzenUit } from "../lib/prijzen";
 import { DUEL_VRAGEN } from "../lib/duel-vragen";
 
@@ -101,6 +101,29 @@ test("spelplezier: rad, halverwege, aan/uit, gouden kwartier en badges", () => {
   assert.equal(schatSlot(0), 0);
   assert.equal(schatSlot(10 * 60_000 - 1), 0);
   assert.equal(schatSlot(10 * 60_000), 1);
+});
+
+test("spelplezier-instellingen: standaard, alleen geldige keuzes, rad en gouden kwartier", () => {
+  assert.deepEqual(normaliseerPlezier(null), STANDAARD);
+  const i = normaliseerPlezier({ val: { meter: 99, punten: 25, zetterKrijgt: true }, reeks: { lengte: 4, items: ["ster", "hack"] }, fotobattle: { punten: 50, prijs: "  🍰 taart  " }, gouden: { om: "25:00" } });
+  assert.equal(i.val.meter, STANDAARD.val.meter);
+  assert.equal(i.val.punten, 25);
+  assert.equal(i.val.zetterKrijgt, true);
+  assert.equal(i.reeks.lengte, 4);
+  assert.deepEqual(i.reeks.items, ["ster"]);
+  assert.equal(i.fotobattle.prijs, "🍰 taart");
+  assert.equal(i.gouden.om, null);
+  assert.equal(normaliseerPlezier({ rad: { moment: 0.34 } }).rad.moment, 1 / 3);
+  assert.ok(radVakken({ moment: 0.5, zonderMin: true, hoofdprijs: 200 }).every((v) => (v.punten ?? 0) >= 0));
+  assert.equal(radVakken({ moment: 0.5, zonderMin: false, hoofdprijs: 200 })[0].punten, 200);
+  assert.equal(radHalverwege(2, 6, 1 / 3), true);
+  assert.equal(radHalverwege(3, 6, 2 / 3), false);
+  // Vanzelf om 14:00 (Nederlandse tijd, wintertijd = UTC+1), 15 minuten, ×3
+  const route = { spelplezier: { gouden: { om: "14:00", minuten: 15, factor: 3 } } };
+  assert.equal(goudenStatus(route, Date.parse("2026-11-10T13:05:00Z"))?.factor, 3);
+  assert.equal(goudenStatus(route, Date.parse("2026-11-10T13:20:00Z")), null);
+  // Gestopt met de knop binnen het venster: blijft uit
+  assert.equal(goudenStatus({ ...route, gouden_tot: "2026-11-10T13:03:00Z" }, Date.parse("2026-11-10T13:05:00Z")), null);
 });
 
 test("fotobattle: meeste stemmen krijgt de prijs, gelijkspel niet", () => {

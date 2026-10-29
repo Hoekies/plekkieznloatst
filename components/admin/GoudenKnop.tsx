@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
-import { GOUDEN_MIN } from "@/lib/spelplezier";
 
-// ⏰ Gouden kwartier (migratie 007): de spelleider zet met één knop 15 minuten dubbele punten aan voor alle teams.
+// ⏰ Gouden kwartier (migratie 007): de spelleider zet met één knop dubbele punten aan voor alle teams (duur en
+// ×2/×3 per route in 🎉 Spelplezier → ⏰, migratie 008).
 // Loopt het, dan staat de resterende tijd op de knop en stop je het met een tik.
 export default function GoudenKnop({ gouden, onGewijzigd }: { gouden: string | null; onGewijzigd: () => void }) {
   const [nu, setNu] = useState(() => Date.now());
@@ -22,7 +22,8 @@ export default function GoudenKnop({ gouden, onGewijzigd }: { gouden: string | n
     const res = await fetch("/api/admin/gouden", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aan }) }).catch(() => null);
     const d = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) { toonMelding(uitlegBijStatus(res?.status ?? 0, "Gouden kwartier", d.fout), "fout"); return; }
-    toonMelding(aan ? `⏰ Gouden kwartier: ${GOUDEN_MIN} minuten dubbele punten` : "Gouden kwartier gestopt", "ok");
+    const tot = typeof d.gouden_tot === "string" ? new Date(d.gouden_tot).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) : null;
+    toonMelding(aan ? `⏰ Gouden kwartier loopt${tot ? ` tot ${tot}` : ""}` : "Gouden kwartier gestopt", "ok");
     onGewijzigd();
   }
 
@@ -35,8 +36,8 @@ export default function GoudenKnop({ gouden, onGewijzigd }: { gouden: string | n
   }
   return (
     <BevestigKnop venster gevaarlijk={false} icoon="⏰" titel="Gouden kwartier starten?" ja="Ja, starten" onBevestig={() => zet(true)}
-      vraag={`${GOUDEN_MIN} minuten lang telt elke goede vraag dubbel, bij alle teams. Ze zien het bovenin hun scherm en op de beamer.`}
-      className="rl-knop actie-knop" title="Gouden kwartier: 15 minuten dubbele punten">
+      vraag="Een tijd lang telt elke goede vraag extra, bij alle teams (duur en ×2 of ×3 stel je in bij de route: 🎉 Spelplezier → ⏰). Ze zien het bovenin hun scherm en op de beamer."
+      className="rl-knop actie-knop" title="Gouden kwartier: een tijd lang extra punten">
       ⏰ Gouden kwartier
     </BevestigKnop>
   );

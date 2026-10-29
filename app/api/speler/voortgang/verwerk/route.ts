@@ -6,7 +6,7 @@ import { stemWinnaars } from "@/lib/stemmen";
 import { rondAfAlsTijdVoorbij, eindtijdVoorbij, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
 import { telBijScore } from "@/lib/score";
-import { goudenNu } from "@/lib/spelplezier";
+import { goudenStatus } from "@/lib/spelplezier";
 import { naAntwoord } from "@/lib/spelplezier-server";
 
 export async function POST(request: NextRequest) {
@@ -197,8 +197,9 @@ export async function POST(request: NextRequest) {
   }
 
   // ⏰ Gouden kwartier van de spelleider: een goede gewone vraag telt dubbel (na een eventuele verdubbeling)
-  const gouden = puntWaarde > 0 && metVraag && !isStem && goudenNu(route);
-  if (gouden) puntWaarde *= 2;
+  const goudenNu = puntWaarde > 0 && metVraag && !isStem ? goudenStatus(route) : null;
+  const gouden = !!goudenNu;
+  if (goudenNu) puntWaarde *= goudenNu.factor;
 
   // Diefstal check: actief effect op eigen sessie? (alleen voor vraagpunten)
   // Alleen nog voor dieven die vóór de wijziging zijn ingezet: een nieuwe dief steelt meteen bij het inzetten.
@@ -295,8 +296,8 @@ export async function POST(request: NextRequest) {
 
   // 🔥 Reeks en 🎖️ badges: alleen bij een gewone vraag met een uitslag (geen stemvraag)
   const extra = metVraag && !isStem && isCorrect !== null
-    ? await naAntwoord(admin, { sessie, route, goed: isCorrect, reachedAt: bestaand.reached_at, gouden }).catch(() => ({ reeks: null, reeks_item: null }))
-    : { reeks: null, reeks_item: null };
+    ? await naAntwoord(admin, { sessie, route, goed: isCorrect, reachedAt: bestaand.reached_at, gouden }).catch(() => null)
+    : null;
 
   // Eindpunt → sessie sluiten
   if (punt.type === "eindpunt") {
@@ -319,7 +320,10 @@ export async function POST(request: NextRequest) {
     numeric_tolerance: numericTolerance,
     stem: isStem,
     gouden,
-    reeks: extra.reeks,
-    reeks_item: extra.reeks_item,
+    gouden_factor: goudenNu?.factor ?? null,
+    reeks: extra?.reeks ?? null,
+    reeks_item: extra?.reeks_item ?? null,
+    reeks_punten: extra?.reeks_punten ?? null,
+    reeks_lengte: extra?.reeks_lengte ?? null,
   });
 }
