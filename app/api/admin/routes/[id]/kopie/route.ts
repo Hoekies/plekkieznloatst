@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { bonusVelden } from "@/lib/bonus";
 
 // Volledige kopie van een route als basis voor een nieuwe: alle instellingen, punten,
 // vragen met antwoorden en de items op de kaart. De kopie is altijd een concept en niet actief.
@@ -57,6 +58,11 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
       radius_meters: i.radius_meters, points_effect: i.points_effect,
     })));
   }
+
+  // ⚡ Bonusvragen (migratie 004) gaan mee, weer klaar om te starten; zonder migratie: overslaan
+  const { data: bonus } = await admin.from("bonus_vragen").select("*").eq("route_id", params.id);
+  const bonusRijen = (bonus ?? []).map((b) => bonusVelden(b)).filter((b): b is NonNullable<typeof b> => !!b);
+  if (bonusRijen.length) await admin.from("bonus_vragen").insert(bonusRijen.map((b) => ({ ...b, route_id: kopie.id })));
 
   return NextResponse.json({ id: kopie.id });
 }

@@ -20,19 +20,14 @@ const LEEG: Concept = { id: null, vraag: "", soort: "meerkeuze", keuzes: ["", ""
 const uurMin = (t: number) => new Date(t).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
+// De knop op het dashboard (actieve route): laat zien of er een vraag loopt of foto's wachten, en opent de lijst
 export default function BonusKnop({ beperkt = false }: { beperkt?: boolean }) {
   const [open, setOpen] = useState(false);
   const [vragen, setVragen] = useState<Rij[] | null>(null);
-  const [teamsNu, setTeamsNu] = useState(0);
-  const [fout, setFout] = useState("");
-  const [concept, setConcept] = useState<Concept | null>(null);
-  const [bezig, setBezig] = useState(false);
-
   const laad = useCallback(async () => {
     const res = await fetch("/api/admin/bonus").catch(() => null);
-    const d = res ? await res.json().catch(() => ({})) : {};
-    if (!res?.ok) { setFout(d.fout ?? "Laden lukte niet"); setVragen([]); return; }
-    setFout(""); setVragen(d.vragen ?? []); setTeamsNu(d.teams_nu ?? 0);
+    const d = res?.ok ? await res.json().catch(() => ({})) : {};
+    setVragen(d.vragen ?? []);
   }, []);
   // Ook dicht af en toe laden: de knop laat zien of er een vraag loopt of foto's wachten
   useEffect(() => { laad(); const t = setInterval(laad, open ? 4000 : 15000); return () => clearInterval(t); }, [laad, open]);
@@ -40,6 +35,45 @@ export default function BonusKnop({ beperkt = false }: { beperkt?: boolean }) {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("bonus")) { setOpen(true); window.history.replaceState(null, "", window.location.pathname); }
   }, []);
+
+  const loopt = vragen?.find((v) => v.open);
+  const wachtFotos = (vragen ?? []).reduce((n, v) => n + v.antwoorden.filter((a) => a.foto_status === "wacht").length, 0);
+  const gepland = (vragen ?? []).filter((v) => !v.gestart_op).length;
+
+  return (
+    <>
+      <button type="button" className={`rl-knop actie-knop${loopt ? " rl-knop--goud" : wachtFotos ? " rl-knop--groen" : ""}`} onClick={() => setOpen(true)}
+        title="Bonusvraag: een extra vraag die bij alle teams tegelijk in beeld komt">
+        <Icoon naam="bezig" /> {loopt ? `Bonus · ${mmss(loopt.rest)}` : "Bonusvraag"}
+        {wachtFotos > 0 ? <span className="antw-tab-teller">{wachtFotos}</span> : gepland > 0 && !loopt ? <span className="antw-tab-teller antw-tab-teller--rustig">{gepland}</span> : null}
+      </button>
+      {open && (
+        <VensterMetKop icoon="⚡" label="Bonusvraag" titel="Bij alle teams tegelijk" onSluit={() => { setOpen(false); laad(); }} breedte={560} maxHoogte={92}>
+          <BonusLijst beperkt={beperkt} />
+        </VensterMetKop>
+      )}
+    </>
+  );
+}
+
+// ⚡ De lijst met bonusvragen en het formulier: op het dashboard (actieve route, met ▶ Nu sturen en foto's keuren)
+// en in de route-editor (routeId: klaarzetten voor deze route, ook als hij nog niet actief is)
+export function BonusLijst({ routeId, inEditor = false, beperkt = false }: { routeId?: string; inEditor?: boolean; beperkt?: boolean }) {
+  const [vragen, setVragen] = useState<Rij[] | null>(null);
+  const [teamsNu, setTeamsNu] = useState(0);
+  const [fout, setFout] = useState("");
+  const [concept, setConcept] = useState<Concept | null>(null);
+  const [bezig, setBezig] = useState(false);
+  const adres = routeId ? `/api/admin/bonus?route_id=${routeId}` : "/api/admin/bonus";
+
+  const laad = useCallback(async () => {
+    const res = await fetch(adres).catch(() => null);
+    const d = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { setFout(d.fout ?? "Laden lukte niet"); setVragen([]); return; }
+    setFout(""); setVragen(d.vragen ?? []); setTeamsNu(d.teams_nu ?? 0);
+  }, [adres]);
+  // In de editor hoeft het niet live; op het dashboard wel (antwoorden en foto's komen binnen)
+  useEffect(() => { laad(); if (inEditor) return; const t = setInterval(laad, 4000); return () => clearInterval(t); }, [laad, inEditor]);
 
   async function stuur(method: string, body: object, gelukt: string) {
     setBezig(true);
@@ -54,54 +88,38 @@ export default function BonusKnop({ beperkt = false }: { beperkt?: boolean }) {
 
   async function bewaar() {
     if (!concept) return;
-    const body = { ...concept, keuzes: concept.keuzes.filter((k) => k.trim()) };
+    const body = { ...concept, keuzes: concept.keuzes.filter((k) => k.trim()), ...(routeId ? { route_id: routeId } : {}) };
     const ok = concept.id ? await stuur("PATCH", body, "Bonusvraag aangepast") : await stuur("POST", body, "Bonusvraag klaargezet");
     if (ok) setConcept(null);
   }
 
-  const loopt = vragen?.find((v) => v.open);
-  const wachtFotos = (vragen ?? []).reduce((n, v) => n + v.antwoorden.filter((a) => a.foto_status === "wacht").length, 0);
-  const gepland = (vragen ?? []).filter((v) => !v.gestart_op).length;
+  // 🕒 Op volgorde van het spel: eerst wat vanzelf komt (na X min), dan wat met de knop gaat
+  const lijst = [...(vragen ?? [])].sort((a, b) => (a.na_minuten ?? 9999) - (b.na_minuten ?? 9999));
 
+  if (concept) return <BonusFormulier concept={concept} teams={teamsNu} bezig={bezig} onWijzig={setConcept} onBewaar={bewaar} onTerug={() => setConcept(null)} />;
   return (
-    <>
-      <button type="button" className={`rl-knop actie-knop${loopt ? " rl-knop--goud" : wachtFotos ? " rl-knop--groen" : ""}`} onClick={() => setOpen(true)}
-        title="Bonusvraag: een extra vraag die bij alle teams tegelijk in beeld komt">
-        <Icoon naam="bezig" /> {loopt ? `Bonus · ${mmss(loopt.rest)}` : "Bonusvraag"}
-        {wachtFotos > 0 ? <span className="antw-tab-teller">{wachtFotos}</span> : gepland > 0 && !loopt ? <span className="antw-tab-teller antw-tab-teller--rustig">{gepland}</span> : null}
-      </button>
-      {open && (
-        <VensterMetKop icoon="⚡" label="Bonusvraag" titel={concept ? (concept.id ? "Aanpassen" : "Nieuwe bonusvraag") : "Bij alle teams tegelijk"}
-          onSluit={() => { setOpen(false); setConcept(null); }} breedte={560} maxHoogte={92}>
-          {fout && <div className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</div>}
-          {concept ? (
-            <BonusFormulier concept={concept} teams={teamsNu} bezig={bezig} onWijzig={setConcept} onBewaar={bewaar} onTerug={() => setConcept(null)} />
-          ) : (
-            <div className="bonus-lijst">
-              <p className="inst-uitleg">Komt na de ingestelde speeltijd (of met <strong>▶ Nu sturen</strong>) bij alle teams tegelijk in beeld, met een eigen geluid. Eén poging per team: de eerste goede krijgt alle punten, de volgende steeds minder.</p>
-              {(vragen ?? []).length === 0 && !fout && <div className="bonus-leeg">Nog geen bonusvraag klaargezet.</div>}
-              {(vragen ?? []).map((v) => (
-                <BonusRij key={v.id} v={v} beperkt={beperkt} bezig={bezig}
-                  onStart={() => stuur("PATCH", { id: v.id, actie: "start" }, "Bonusvraag verstuurd naar alle teams")}
-                  onBewerk={() => setConcept({ id: v.id, vraag: v.vraag, soort: v.soort, keuzes: [...(v.keuzes ?? []), "", "", "", ""].slice(0, 4), goed_index: v.goed_index ?? 0, punten: v.punten, na_minuten: v.na_minuten, duur_seconden: v.duur_seconden })}
-                  onWeg={() => stuur("DELETE", { id: v.id }, "Bonusvraag weggehaald")}
-                  onKeur={(antwoordId, goed) => stuur("PATCH", { id: v.id, actie: "keur", antwoord_id: antwoordId, goed }, goed ? "Foto goedgekeurd: punten toegekend" : "Foto afgekeurd")} />
-              ))}
-              {!beperkt && (
-                <button type="button" className="rl-knop rl-knop--cyan bonus-nieuw" onClick={() => setConcept({ ...LEEG })}>
-                  <Icoon naam="plus" /> Nieuwe bonusvraag
-                </button>
-              )}
-            </div>
-          )}
-        </VensterMetKop>
+    <div className="bonus-lijst">
+      {fout && <div className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</div>}
+      <p className="inst-uitleg">Komt na de ingestelde speeltijd (of met <strong>▶ Nu sturen</strong> op het dashboard) bij alle teams tegelijk in beeld, met een eigen geluid. Eén poging per team: de eerste goede krijgt alle punten, de volgende steeds minder.</p>
+      {lijst.length === 0 && !fout && <div className="bonus-leeg">Nog geen bonusvraag klaargezet.</div>}
+      {lijst.map((v) => (
+        <BonusRij key={v.id} v={v} beperkt={beperkt} inEditor={inEditor} bezig={bezig}
+          onStart={() => stuur("PATCH", { id: v.id, actie: "start" }, "Bonusvraag verstuurd naar alle teams")}
+          onBewerk={() => setConcept({ id: v.id, vraag: v.vraag, soort: v.soort, keuzes: [...(v.keuzes ?? []), "", "", "", ""].slice(0, 4), goed_index: v.goed_index ?? 0, punten: v.punten, na_minuten: v.na_minuten, duur_seconden: v.duur_seconden })}
+          onWeg={() => stuur("DELETE", { id: v.id }, "Bonusvraag weggehaald")}
+          onKeur={(antwoordId, goed) => stuur("PATCH", { id: v.id, actie: "keur", antwoord_id: antwoordId, goed }, goed ? "Foto goedgekeurd: punten toegekend" : "Foto afgekeurd")} />
+      ))}
+      {!beperkt && (
+        <button type="button" className="rl-knop rl-knop--cyan bonus-nieuw" onClick={() => setConcept({ ...LEEG })}>
+          <Icoon naam="plus" /> Nieuwe bonusvraag
+        </button>
       )}
-    </>
+    </div>
   );
 }
 
-function BonusRij({ v, beperkt, bezig, onStart, onBewerk, onWeg, onKeur }: {
-  v: Rij; beperkt: boolean; bezig: boolean; onStart: () => void; onBewerk: () => void; onWeg: () => void; onKeur: (antwoordId: string, goed: boolean) => void;
+function BonusRij({ v, beperkt, inEditor, bezig, onStart, onBewerk, onWeg, onKeur }: {
+  v: Rij; beperkt: boolean; inEditor: boolean; bezig: boolean; onStart: () => void; onBewerk: () => void; onWeg: () => void; onKeur: (antwoordId: string, goed: boolean) => void;
 }) {
   const status = v.open ? <span className="bonus-status bonus-status--loopt">● Loopt nog {mmss(v.rest)}</span>
     : v.gestart_op ? <span className="bonus-status">✓ Afgelopen</span>
@@ -120,10 +138,10 @@ function BonusRij({ v, beperkt, bezig, onStart, onBewerk, onWeg, onKeur }: {
       </div>
       {!beperkt && !v.gestart_op && (
         <div className="bonus-rij-knoppen">
-          <BevestigKnop venster gevaarlijk={false} icoon="⚡" titel="Bonusvraag nu sturen?" ja="Ja, nu sturen" onBevestig={onStart}
+          {!inEditor && <BevestigKnop venster gevaarlijk={false} icoon="⚡" titel="Bonusvraag nu sturen?" ja="Ja, nu sturen" onBevestig={onStart}
             vraag={`Alle teams krijgen hem nu tegelijk, ${Math.round(v.duur_seconden / 60 * 10) / 10} minuten lang.`} className="rl-knop rl-knop--goud" disabled={bezig}>
             <Icoon naam="verder" /> Nu sturen
-          </BevestigKnop>
+          </BevestigKnop>}
           <button type="button" className="rl-knop" onClick={onBewerk} disabled={bezig}><Icoon naam="bewerken" /> Aanpassen</button>
           <BevestigKnop venster icoon="🗑️" titel="Bonusvraag weghalen?" vraag="" ja="Ja, weghalen" onBevestig={onWeg} className="rl-knop rl-knop--rood" disabled={bezig}>
             <Icoon naam="wissen" />

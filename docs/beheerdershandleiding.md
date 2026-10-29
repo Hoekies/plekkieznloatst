@@ -521,7 +521,7 @@ Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het ra
 
 ### ⚡ Bonusvraag
 
-Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen geluid: ook bij teams die al gefinisht zijn (tot de uitslag vrij is). Zet hem klaar met **⚡ Bonusvraag** in het Spelleider-blok (of vooraf bij *Spel klaarzetten*). Nodig: migratie 004 (`supabase/migrations/004_bonusvragen.sql`).
+Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen geluid: ook bij teams die al gefinisht zijn (tot de uitslag vrij is). Zet hem klaar in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *⚡ Bonusvragen* (ook voor een route die nog niet actief is; de lijst staat op volgorde van het spel), of tijdens het spel met **⚡ Bonusvraag** in het Spelleider-blok (of vooraf bij *Spel klaarzetten*). Bij *Kopie maken*, exporteren en importeren van een route gaan de bonusvragen mee. Nodig: migratie 004 (`supabase/migrations/004_bonusvragen.sql`).
 
 - **Soort:** 🔘 *Meerkeuze* (2 tot 4 keuzes; tik ✓ bij het goede antwoord) of 📸 *Foto-opdracht* ("maak een foto van …").
 - **Punten:** de eerste goede krijgt alles, de volgende steeds minder. Bij 3 teams en 90 punten: 90 · 60 · 30. Het venster laat de verdeling voor het huidige aantal teams zien.

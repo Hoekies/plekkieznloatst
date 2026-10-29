@@ -31,6 +31,7 @@ import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc, VensterMetKop, vensterHoogte } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import { BonusLijst } from "@/components/admin/BonusKnop";
 import Icoon from "@/components/admin/Icoon";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
@@ -2189,6 +2190,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {/* 🔀 Antwoorden husselen: voor de hele route, niet per vraag */}
                 <HusselInstelling routeId={route.id} />
+
+                {/* ⚡ Bonusvragen van deze route (ook als hij nog niet actief is); op volgorde van het spel */}
+                <div className="form-group">
+                  <label className="form-label">⚡ Bonusvragen</label>
+                  <BonusLijst routeId={route.id} inEditor />
+                </div>
 
                   </>
                 )}

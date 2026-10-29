@@ -30,12 +30,14 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   const { data: route } = await admin.from("routes").select("*").eq("id", params.id).maybeSingle();
   if (!route) return NextResponse.json({ fout: "Route niet gevonden" }, { status: 404 });
 
-  const [{ data: punten }, { data: items }] = await Promise.all([
+  const [{ data: punten }, { data: items }, { data: bonus }] = await Promise.all([
     admin.from("route_points")
       .select(`id, order_index, type, name, description, latitude, longitude, radius_meters, points, image_path, sound_path, qr_unlock_enabled,
         questions(*, answer_options(*))`)
       .eq("route_id", params.id).order("order_index"),
     admin.from("special_items").select("type, name, latitude, longitude, radius_meters, points_effect").eq("route_id", params.id).eq("is_startitem", false),
+    // ⚡ Bonusvragen (migratie 004); zonder migratie gewoon geen
+    admin.from("bonus_vragen").select("vraag, soort, keuzes, goed_index, punten, na_minuten, duur_seconden").eq("route_id", params.id),
   ]);
   const lijst = (punten ?? []) as unknown as Punt[];
 
@@ -81,6 +83,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
       };
     }),
     items: items ?? [],
+    bonusvragen: bonus ?? [],
     // "bucket/pad"; de browser vult hier per afbeelding { type, data (base64) } in
     afbeeldingen_lijst: [...afbeeldingen],
   };

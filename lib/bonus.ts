@@ -29,6 +29,25 @@ export type BonusAntwoord = {
 
 export const BONUS_DUUR_KEUZES = [60, 120, 300, 600] as const;
 
+// De instelbare velden van een bonusvraag, gecontroleerd (beheer, kopie en import); null = ongeldig
+export type BonusVelden = Pick<BonusVraag, "vraag" | "soort" | "keuzes" | "goed_index" | "punten" | "duur_seconden" | "na_minuten">;
+export function bonusVelden(b: Record<string, unknown>): BonusVelden | null {
+  const vraag = typeof b.vraag === "string" ? b.vraag.trim().slice(0, 300) : "";
+  const soort = b.soort === "foto" ? "foto" : b.soort === "meerkeuze" ? "meerkeuze" : null;
+  const punten = Number(b.punten), duur = Number(b.duur_seconden);
+  const na = b.na_minuten === null || b.na_minuten === undefined || b.na_minuten === "" ? null : Number(b.na_minuten);
+  if (!vraag || !soort || !Number.isInteger(punten) || punten < 1 || punten > 1000) return null;
+  if (!Number.isInteger(duur) || duur < 30 || duur > 3600) return null;
+  if (na !== null && (!Number.isInteger(na) || na < 0 || na > 600)) return null;
+  let keuzes: string[] | null = null, goed: number | null = null;
+  if (soort === "meerkeuze") {
+    keuzes = (Array.isArray(b.keuzes) ? b.keuzes : []).map((k) => String(k ?? "").trim().slice(0, 80)).filter(Boolean).slice(0, 4);
+    goed = Number(b.goed_index);
+    if (keuzes.length < 2 || !Number.isInteger(goed) || goed < 0 || goed >= keuzes.length) return null;
+  }
+  return { vraag, soort, keuzes, goed_index: goed, punten, duur_seconden: duur, na_minuten: na };
+}
+
 // Punten voor de zoveelste goede (1 = eerste): bij n teams krijgt de eerste alles, de tweede (n-1)/n, enz.
 // Minstens 1 punt zolang je goed bent; na de n-de (meer goede antwoorden dan teams kan niet) ook 1.
 export function bonusPunten(max: number, aantalTeams: number, plek: number): number {

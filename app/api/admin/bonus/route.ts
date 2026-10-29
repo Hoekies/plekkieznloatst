@@ -3,42 +3,25 @@ import { haalGebruiker, isAdmin, isBeheer } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { startBonusNu, herrekenFotoBonus } from "@/lib/bonus-server";
 import { telBijScore } from "@/lib/score";
-import { bonusOpen, bonusRestSeconden, bonusStartMoment, type BonusAntwoord, type BonusVraag } from "@/lib/bonus";
+import { bonusOpen, bonusRestSeconden, bonusStartMoment, bonusVelden as velden, type BonusAntwoord, type BonusVraag } from "@/lib/bonus";
 
-// ⚡ Bonusvragen van de actieve route (migratie 004).
+// ⚡ Bonusvragen van een route (migratie 004): ?route_id= of route_id in de body (route-editor), anders de actieve route.
 // GET = lijst met status en antwoorden · POST = nieuwe vraag · PATCH { id, … } = aanpassen (alleen vóór de start),
 // { id, actie: "start" } = nu sturen, { id, actie: "keur", antwoord_id, goed } = foto keuren · DELETE { id }
 const MIGRATIE = "Draai eerst migratie 004 (bonusvragen) in Supabase";
 const uitleg = (bericht: string) => /bonus_/.test(bericht) ? MIGRATIE : bericht;
 
-async function actieveRoute(admin: ReturnType<typeof createAdminClient>) {
-  const { data } = await admin.from("routes").select("id, name").eq("is_active", true).maybeSingle();
+async function actieveRoute(admin: ReturnType<typeof createAdminClient>, routeId?: string | null) {
+  const q = admin.from("routes").select("id, name");
+  const { data } = await (routeId ? q.eq("id", routeId) : q.eq("is_active", true)).maybeSingle();
   return data;
 }
 
-// Alleen bekende velden, gecontroleerd; null = ongeldig
-function velden(b: Record<string, unknown>): Partial<BonusVraag> | null {
-  const vraag = typeof b.vraag === "string" ? b.vraag.trim().slice(0, 300) : "";
-  const soort = b.soort === "foto" ? "foto" : b.soort === "meerkeuze" ? "meerkeuze" : null;
-  const punten = Number(b.punten), duur = Number(b.duur_seconden);
-  const na = b.na_minuten === null || b.na_minuten === "" ? null : Number(b.na_minuten);
-  if (!vraag || !soort || !Number.isInteger(punten) || punten < 1 || punten > 1000) return null;
-  if (!Number.isInteger(duur) || duur < 30 || duur > 3600) return null;
-  if (na !== null && (!Number.isInteger(na) || na < 0 || na > 600)) return null;
-  let keuzes: string[] | null = null, goed: number | null = null;
-  if (soort === "meerkeuze") {
-    keuzes = (Array.isArray(b.keuzes) ? b.keuzes : []).map((k) => String(k ?? "").trim().slice(0, 80)).filter(Boolean).slice(0, 4);
-    goed = Number(b.goed_index);
-    if (keuzes.length < 2 || !Number.isInteger(goed) || goed < 0 || goed >= keuzes.length) return null;
-  }
-  return { vraag, soort, keuzes, goed_index: goed, punten, duur_seconden: duur, na_minuten: na };
-}
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   const gebruiker = await haalGebruiker();
   if (!isBeheer(gebruiker)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
-  const route = await actieveRoute(admin);
+  const route = await actieveRoute(admin, request.nextUrl.searchParams.get("route_id"));
   if (!route) return NextResponse.json({ vragen: [], route: null });
   const { data: vragen, error } = await admin.from("bonus_vragen").select("*").eq("route_id", route.id).order("created_at");
   if (error) return NextResponse.json({ fout: uitleg(error.message) }, { status: 500 });
@@ -76,9 +59,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const admin = createAdminClient();
-  const route = await actieveRoute(admin);
+  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const route = await actieveRoute(admin, typeof body.route_id === "string" ? body.route_id : null);
   if (!route) return NextResponse.json({ fout: "Er is geen actieve route" }, { status: 400 });
-  const v = velden(await request.json().catch(() => ({})));
+  const v = velden(body);
   if (!v) return NextResponse.json({ fout: "Vul de vraag, de punten, de tijd en (bij meerkeuze) minstens twee keuzes met het goede antwoord in" }, { status: 400 });
   const { data, error } = await admin.from("bonus_vragen").insert({ ...v, route_id: route.id }).select().single();
   if (error) return NextResponse.json({ fout: uitleg(error.message) }, { status: 500 });

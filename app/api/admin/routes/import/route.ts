@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
+import { bonusVelden } from "@/lib/bonus";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 // Route importeren uit een exportbestand. Versie 2 bevat ook het speltype, alle instellingen en de
@@ -27,6 +28,7 @@ type RouteExport = {
   route: { name: string; status: string; instellingen?: Record<string, unknown>; instappunten_volgorde?: Record<string, number> };
   route_punten: PuntImport[];
   items?: ItemImport[];
+  bonusvragen?: Record<string, unknown>[];
 };
 
 // Alleen bekende instellingen overnemen
@@ -159,6 +161,10 @@ export async function POST(request: Request) {
       radius_meters: i.radius_meters ?? 15, points_effect: i.points_effect ?? 0,
     })));
   }
+
+  // ⚡ Bonusvragen (migratie 004); zonder migratie: overslaan
+  const bonus = (body.bonusvragen ?? []).map((b) => bonusVelden(b)).filter((b): b is NonNullable<typeof b> => !!b);
+  if (bonus.length) await admin.from("bonus_vragen").insert(bonus.map((b) => ({ ...b, route_id: nieuweRoute.id }))).then(() => undefined, () => undefined);
 
   return NextResponse.json({ id: nieuweRoute.id });
 }
