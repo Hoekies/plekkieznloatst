@@ -125,6 +125,9 @@ function LoginForm() {
             <label htmlFor="naam" className="pr-field-label2">
               Naam
             </label>
+            {/* Velden met een icoon ervoor (👫 naam, 🔒 wachtwoord) */}
+            <div className="login-veld">
+            <span className="login-veld-icoon" aria-hidden>👫</span>
             <input
               id="naam"
               name="naam"
@@ -139,17 +142,19 @@ function LoginForm() {
               autoCorrect="off"
               spellCheck={false}
             />
+            </div>
 
             <label htmlFor="wachtwoord" className="pr-field-label2">
               Wachtwoord
             </label>
-            <div style={{ position: "relative", marginBottom: 14 }}>
+            <div className="login-veld login-veld--wachtwoord">
+              <span className="login-veld-icoon" aria-hidden>🔒</span>
               <input
                 id="wachtwoord"
                 name="wachtwoord"
                 className="pr-field-input2"
                 type={toonWachtwoord ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Wachtwoord van je kaartje"
                 autoFocus={alleenWachtwoord}
                 required
                 autoComplete="current-password"
@@ -157,7 +162,7 @@ function LoginForm() {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
-                style={{ paddingRight: "44px", marginBottom: 0 }}
+                style={{ paddingRight: "48px", marginBottom: 0 }}
               />
               <button
                 type="button"
@@ -165,7 +170,7 @@ function LoginForm() {
                 style={{
                   position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
                   background: "none", border: "none", cursor: "pointer",
-                  color: "rgba(255,255,255,0.45)", fontSize: "1.1rem", lineHeight: 1, padding: 0,
+                  color: "rgba(255,255,255,0.8)", fontSize: "1.1rem", lineHeight: 1, padding: 0, opacity: 0.85,
                 }}
                 className="wachtwoord-oog" aria-label={toonWachtwoord ? "Verberg wachtwoord" : "Toon wachtwoord"}
               >
