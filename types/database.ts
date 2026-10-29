@@ -24,6 +24,9 @@ export interface Route {
   item_respawn: boolean;
   // Op volgorde: spelers zien meteen alle punten en de lijn ertussen (migratie 012)
   alle_punten_zichtbaar?: boolean;
+  // ⚔️ Duel aan/uit en punten per duel (migratie 006)
+  duel_aan?: boolean;
+  duel_punten?: number;
   // 🧩 Puzzelwoord (leeg = uit) en de bonus bij goed raden; verboden gebieden op de kaart (migratie 014)
   puzzelwoord?: string | null;
   puzzel_bonus?: number;

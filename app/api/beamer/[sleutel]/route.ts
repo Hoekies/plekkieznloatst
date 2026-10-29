@@ -4,6 +4,22 @@ import { haalLiveData } from "@/lib/admin-live";
 import { haalGebeurtenissen } from "@/lib/gebeurtenissen";
 import { beamerSleutel, beamerSpelers, type BeamerData } from "@/lib/beamer";
 import { teamFotos } from "@/lib/teamfoto";
+import { openBonus } from "@/lib/bonus-server";
+import { bonusRestSeconden } from "@/lib/bonus";
+
+// ⚡ De bonusvraag die nu loopt, met wie hem het eerst goed had (zonder migratie 004: geen)
+async function beamerBonus(admin: ReturnType<typeof createAdminClient>, routeId: string) {
+  const v = await openBonus(admin, routeId);
+  if (!v) return null;
+  const { data: goed } = await admin.from("bonus_antwoorden").select("session_id, beantwoord_op").eq("bonus_id", v.id).eq("is_correct", true).order("beantwoord_op");
+  let eerste: string | null = null;
+  if (goed?.[0]) {
+    const { data: s } = await admin.from("player_sessions").select("players!inner(nickname, login_name)").eq("id", goed[0].session_id).maybeSingle();
+    const p = s?.players as unknown as { nickname: string | null; login_name: string } | undefined;
+    eerste = p ? p.nickname ?? p.login_name : null;
+  }
+  return { vraag: v.vraag, rest: bonusRestSeconden(v), eerste, goed: goed?.length ?? 0 };
+}
 
 // Gegevens voor het beamerscherm (zonder inloggen): alleen met de juiste sleutel van de actieve route
 export async function GET(_: NextRequest, { params }: { params: { sleutel: string } }) {
@@ -23,6 +39,7 @@ export async function GET(_: NextRequest, { params }: { params: { sleutel: strin
     speciale_items: data.speciale_items.filter((i) => i.type !== "plekzooi"),
     spelers: spelers.map((s) => ({ ...s, foto: s.sessie_id ? fotos.get(s.sessie_id) ?? null : null })),
     gebeurtenissen: gebeurtenissen.slice(0, 12),
+    bonus: await beamerBonus(admin, data.route.id).catch(() => null),
   };
   return NextResponse.json(uit, { headers: { "Cache-Control": "no-store" } });
 }

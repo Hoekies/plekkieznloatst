@@ -32,4 +32,6 @@ export type BeamerData = {
   // foto: groepsfoto bij de finish (goedgekeurd), alleen in de stand
   spelers: (SpelerOverzicht & { foto?: string | null })[];
   gebeurtenissen: { id: string; tijd: string; speler_id: string | null; icoon: string; item: string | null; tekst: string }[];
+  // ⚡ Bonusvraag die nu loopt (sportverslag): vraag, resterende tijd en wie hem het eerst goed had
+  bonus?: { vraag: string; rest: number; eerste: string | null; goed: number } | null;
 };

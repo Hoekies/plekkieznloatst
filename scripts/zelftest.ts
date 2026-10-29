@@ -8,6 +8,8 @@ import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/testteam";
+import { deelPrijzenUit } from "../lib/prijzen";
+import { DUEL_VRAGEN } from "../lib/duel-vragen";
 
 let goed = 0;
 function test(naam: string, f: () => void) {
@@ -70,6 +72,24 @@ test("testteam: alleen bekende rollen, zonder kolom een echt team", () => {
   assert.equal(testRol({ test_rol: "iets" }), null);
   assert.equal(testRol({}), null);
   assert.equal(testRol(null), null);
+});
+
+test("prijzen: elk team één titel, niemand dubbel", () => {
+  const t = (id: string, tijd: number, goed: number, items: Record<string, number> = {}) => ({ id, tijd, afstand: 1000, goed, items, geraakt: 0 });
+  const p = deelPrijzenUit([t("a", 3000, 5), t("b", 2000, 3, { dief: 2 }), t("c", 4000, 1), t("d", 5000, 1)]);
+  assert.equal(p.get("a")?.titel, "Slimste team");
+  assert.equal(p.get("b")?.titel, "Snelste team");
+  assert.equal(p.size, 4);
+  assert.equal(new Set([...p.values()].map((x) => x.titel)).size, 4);
+  assert.equal(deelPrijzenUit([]).size, 0);
+});
+
+test("duelvragen: vier keuzes en een geldig goed antwoord", () => {
+  assert.ok(DUEL_VRAGEN.length >= 20);
+  for (const v of DUEL_VRAGEN) {
+    assert.equal(v.keuzes.length, 4, v.vraag);
+    assert.ok(v.goed >= 0 && v.goed < 4, v.vraag);
+  }
 });
 
 test("seizoensachtergrond op datum", () => {

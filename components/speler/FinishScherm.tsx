@@ -88,14 +88,14 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
 
   // 🏆 Zodra de uitslag vrij is (ook als die binnenkomt terwijl de pagina open staat): één keer per toestel de
   // eigen plaats over het hele scherm, met confetti en fanfare voor de winnaar en een knipoog voor de rest
-  const [onthulling, setOnthulling] = useState<{ plaats: number; aantal: number } | null>(null);
+  const [onthulling, setOnthulling] = useState<{ plaats: number; aantal: number; prijs: LeaderboardEntry["prijs"] } | null>(null);
   useEffect(() => {
     if (!vrij || !leaderboard.length) return;
     const eigen = leaderboard.find((e) => e.is_eigen_team);
     if (!eigen) return;
     const sleutel = `pr_uitslag_gezien_${routeNaam ?? ""}_${groepNaam}_${tijdSeconden}`;
     try { if (localStorage.getItem(sleutel)) return; localStorage.setItem(sleutel, "1"); } catch { /* geen opslag: gewoon tonen */ }
-    setOnthulling({ plaats: eigen.rank, aantal: leaderboard.length });
+    setOnthulling({ plaats: eigen.rank, aantal: leaderboard.length, prijs: eigen.prijs ?? null });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vrij, leaderboard]);
 
@@ -238,7 +238,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         {/* ⚡ Bonusvraag: ook gefinishte teams doen mee, tot de uitslag vrij is */}
         {!vrij && <BonusVraag />}
 
-        {onthulling && <UitslagOnthulling plaats={onthulling.plaats} aantal={onthulling.aantal} kleuren={[...thema.kleuren]}
+        {onthulling && <UitslagOnthulling plaats={onthulling.plaats} aantal={onthulling.aantal} prijs={onthulling.prijs} kleuren={[...thema.kleuren]}
           onSluit={() => { setOnthulling(null); document.getElementById("eindstand")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />}
 
         {/* Leaderboard; na het vrijgeven feestelijk: gouden lijst, stralen erachter, podium en de rijen schuiven binnen */}
@@ -282,7 +282,8 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         {/* 📤 Onder de stand: de oorkonde delen en terugkijken */}
         <div className="finish-delen-kop">📤 Delen en terugkijken</div>
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
-          plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false} />
+          plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false}
+          prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} />
 
         {/* Direct onder de eindscore: antwoorden & items, en de gelopen route */}
         <div style={{ display: "flex", gap: 10, width: "100%" }}>

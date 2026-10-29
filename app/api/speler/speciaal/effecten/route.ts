@@ -53,7 +53,7 @@ export async function GET() {
     .maybeSingle();
 
   // Wie zette het in? Naam en icoon van dat team, om groot in de melding te tonen
-  let van: { naam: string; icon: string | null } | null = null;
+  let van: { naam: string; icon: string | null; sessie: string } | null = null;
   if (latestNotification) {
     const { data: item } = latestNotification.special_item_id
       ? await admin.from("special_items").select("claimed_by_session_id").eq("id", latestNotification.special_item_id).maybeSingle()
@@ -70,7 +70,7 @@ export async function GET() {
     if (aanvallerSessie) {
       const { data: a } = await admin.from("player_sessions").select("players!inner(login_name, nickname, icon)").eq("id", aanvallerSessie).maybeSingle();
       const p = a?.players as unknown as { login_name: string; nickname: string | null; icon: string | null } | undefined;
-      if (p) van = { naam: p.nickname ?? p.login_name, icon: p.icon };
+      if (p) van = { naam: p.nickname ?? p.login_name, icon: p.icon, sessie: aanvallerSessie };
     }
   }
 
@@ -87,5 +87,7 @@ export async function GET() {
     notification: latestNotification?.notification ?? null,
     notification_at: latestNotification?.applied_at ?? null,
     notification_van: van,
+    // 😤 Voor de wraakknoppen: welk item raakte ons
+    notification_item: latestNotification?.special_item_id ?? null,
   });
 }

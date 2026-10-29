@@ -28,8 +28,8 @@ const TROOST: Record<"twee" | "drie" | "midden" | "laatst", string[]> = {
   ],
 };
 
-export default function UitslagOnthulling({ plaats, aantal, kleuren, onSluit }: {
-  plaats: number; aantal: number; kleuren: string[]; onSluit: () => void;
+export default function UitslagOnthulling({ plaats, aantal, kleuren, prijs = null, onSluit }: {
+  plaats: number; aantal: number; kleuren: string[]; prijs?: { emoji: string; titel: string; uitleg: string } | null; onSluit: () => void;
 }) {
   const winnaar = plaats === 1;
   const soort = plaats === 2 ? "twee" : plaats === 3 ? "drie" : aantal > 1 && plaats === aantal ? "laatst" : "midden";
@@ -61,6 +61,8 @@ export default function UitslagOnthulling({ plaats, aantal, kleuren, onSluit }: 
           {winnaar ? "Kampioenen! Het goud is van jullie. Laat de groepsapp maar ontploffen. 🎉" : troost}
         </p>
         {!winnaar && <p className="onthulling-klein">Leuk gespeeld! 💪</p>}
+        {/* 🏆 Iedereen wint iets: de titel van dit team */}
+        {prijs && <div className="onthulling-prijs">Jullie prijs: <strong>{prijs.emoji} {prijs.titel}</strong><span>{prijs.uitleg}</span></div>}
         <button type="button" className="onthulling-knop" onClick={onSluit}>🏆 Bekijk de eindstand</button>
       </div>
     </div>,

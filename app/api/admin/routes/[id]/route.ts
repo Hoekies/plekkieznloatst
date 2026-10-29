@@ -35,6 +35,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.vraag_punten === "number" && body.vraag_punten >= 0) toegestaan.vraag_punten = Math.round(body.vraag_punten);
   if (typeof body.startvraag_meter === "number" && body.startvraag_meter >= 0) toegestaan.startvraag_meter = Math.min(500, Math.round(body.startvraag_meter));
   if (typeof body.alle_punten_zichtbaar === "boolean") toegestaan.alle_punten_zichtbaar = body.alle_punten_zichtbaar;
+  // ⚔️ Duel (migratie 006)
+  if (typeof body.duel_aan === "boolean") toegestaan.duel_aan = body.duel_aan;
+  if (typeof body.duel_punten === "number" && body.duel_punten > 0) toegestaan.duel_punten = Math.min(500, Math.round(body.duel_punten));
   if ("puzzelwoord" in body) toegestaan.puzzelwoord = typeof body.puzzelwoord === "string" && body.puzzelwoord.trim() ? body.puzzelwoord.trim().slice(0, 30) : null;
   if ("puzzel_omschrijving" in body) toegestaan.puzzel_omschrijving = typeof body.puzzel_omschrijving === "string" && body.puzzel_omschrijving.trim() ? body.puzzel_omschrijving.trim().slice(0, 120) : null;
   if (typeof body.puzzel_bonus === "number" && body.puzzel_bonus >= 0) toegestaan.puzzel_bonus = Math.min(10000, Math.round(body.puzzel_bonus));

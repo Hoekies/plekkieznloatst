@@ -508,6 +508,17 @@ Kan een team zijn volgende punt echt niet bereiken (afgesloten weg, bouwhek, onv
 
 Ook zonder melding kun je bij elk spelend team op **⏭️ Volgend punt vrijgeven** drukken. Het team ziet dan eerst *"📨 Punt vrijgegeven — de organisatie heeft dit punt voor jullie vrijgegeven"* en daarna de vraag. Dat werkt ook op de start: de vraag van het startpunt komt dan meteen, zonder eerst 25 meter te lopen. Na het antwoord ziet het team het volgende punt.
 
+### 🏆 Prijzen bij de finish
+
+Bij de eindstand krijgt elk team een grappige titel, zodat iedereen iets wint. Voorbeelden: 🧠 *Slimste team*, 🏃 *Snelste team*, 🦹 *Meesterdief*, 🍌 *Bananenkoning*, 💣 *Bommenlegger*, 🧭 *Omloper van de dag*, 🎯 *Schietschijf* en 🎁 *Itemverzamelaar*. Wie nergens de beste in was, krijgt een troostprijs, zoals 🌸 *Genieters van het uitzicht*. Bij een gelijkspel gaat een titel naar niemand. De titel staat in de stand, in de onthulling en op de oorkonde.
+
+### 📺 Beamer als sportverslag
+
+Het beamerscherm laat naast de kaart, de stand en de gebeurtenissen ook groot over de kaart zien:
+- een lopende bonusvraag, met de klok en wie hem het eerst goed had;
+- elk ingezet item en elke finish, een paar seconden lang;
+- een nieuwe koploper.
+
 ### 🧪 Testteam
 
 Zelf een rondje lopen om de route te testen, zonder dat het ergens meetelt. Bij 👫 Spelers → **Testteam**. Nodig: migratie 005 (`supabase/migrations/005_testteam.sql`).
@@ -518,6 +529,16 @@ Zelf een rondje lopen om de route te testen, zonder dat het ergens meetelt. Bij 
 4. **↺ Test opnieuw** wist alleen het testrondje; echte teams blijven staan.
 
 Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het rapport, en testteams en echte teams zien en raken elkaar niet. Op het dashboard zie je het testteam gewoon meelopen.
+
+### ⚔️ Duel
+
+Zet het aan in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *⚔️ Duel* (**Aan** of **Uit**, en 10, 25 of 50 punten). Nodig: migratie 006 (`supabase/migrations/006_duel.sql`).
+
+Komen twee teams die nog spelen binnen 25 meter van elkaar, dan krijgen ze allebei tegelijk dezelfde snelle meerkeuzevraag, met een eigen geluid. Het is een algemene vraag, nooit een vraag uit de route. Wie het eerst goed antwoordt, pakt de punten van de ander. Elk team heeft één poging en 60 seconden. Hebben ze het allebei fout, dan krijgt niemand punten. Dezelfde twee teams krijgen pas na 10 minuten weer een duel.
+
+### 👉 Wat nu?
+
+Bovenaan het dashboard staat in één regel wat je nu moet doen, met de knop erbij: een route activeren, teams aanmaken, de inlog uitdelen, een team met een hulpvraag helpen, foto's keuren, de uitslag vrijgeven of het rapport bewaren. Is er niets te doen, dan staat er dat het spel loopt.
 
 ### ⚡ Bonusvraag
 
@@ -645,6 +666,8 @@ Nodig: migratie 014 (zie 🩺 Systeemcheck).
 **🗳️ Stemvraag** (vraag-editor → Soort vraag): 2 tot 4 keuzes, zonder goed antwoord. Elk team stemt; de teams die de meest gekozen keuze kozen, krijgen de punten (bij gelijkspel alle koplopers). De stemming sluit vanzelf bij **🏆 Uitslag vrijgeven** of **🏁 Spel afronden**, of eerder met **🗳️ Stemming sluiten** bij Antwoorden → 📊 Per vraag (daar zie je ook de stemmen per keuze). Nodig: migratie 016.
 
 **🎨 Huisstijl** (⚙️ Instellingen → 🎨 Uiterlijk): een eigen **kleur** (knoppen en accenten in de spelersapp), een **logo**, bijvoorbeeld van het bedrijf. Dat komt in de spelersapp (bovenbalk en welkomstscherm), op de oorkonde, de uitslag-afbeelding, het PDF-rapport, het voorproefje, de inlogkaartjes, het beamerscherm, de gedeelde kaart en het fotoalbum, en in het beheer op het dashboard, in het menu, op de live kaart en bij de route in het overzicht (zolang die route actief is) en een **welkomstfoto** (achtergrond van het welkomstscherm). Handig bij een bedrijfsuitje. **PR** = de gewone PointRush-kleuren. Nodig: migratie 016.
+
+**🔧 Eenvoudig of alles** (route-editor → ⚙️ Instellingen): in de stand *Eenvoudig* zie je alleen de belangrijkste keuzes. *Alles* laat ook de fijnafstelling zien: verboden gebieden, de afstand tot de eerste vraag, de radius van punten en items, de waarden en duur van items, items na de finish, respawn en het husselen van antwoorden. Je keuze wordt op dit toestel onthouden.
 
 **🗓️ Seizoenen en feestdagen: achtergrond en logo** (menu → ⚙️ Instellingen → 🗓️ Seizoenen, geldt voor alle routes): kies met de knoppen 🖼️ Achtergrond, 🔲 Logo of ▭ Logo breed en upload per thema een afbeelding. Met **🔤 Alfabet** of **📅 Periode** zet je de thema's op naam of door het jaar heen (onthouden op dit toestel). De achtergrond is voor het welkomstscherm; het logo vervangt het gewone spellogo overal in de app (inlogscherm, bovenbalk, oorkonde, uitslag, rapport, beamer, inlogkaartje). Een logo wordt automatisch uitgeknipt (witte achtergrond doorzichtig). Zonder seizoenslogo blijft het gewone logo staan; een nieuw logo is er binnen 5 minuten. De app kiest vanzelf op datum, feestdag voor seizoen: Halloween (24 okt – 7 nov), Sinterklaas (13 nov – 6 dec), Kerst (7–27 dec), Oud & nieuw (28 dec – 6 jan), Valentijn (7–21 feb), Carnaval en Pasen (elk jaar uitgerekend), Koningsdag (20 apr – 4 mei), en daarbuiten lente, zomer, herfst of winter. Wil je een ander thema dan de datum aangeeft, tik dan op 📌 links boven in het vak van dat thema: dan geldt dat thema overal (achtergrond, beide logo's en de finish), wat de datum ook is. Heeft het vastgezette thema geen afbeelding van een soort, dan staat daar het gewone logo of de gewone achtergrond. Met **↺ Weer automatisch** (of nog eens op 📌) kiest de app weer zelf op datum. Achteraan staan twee vrije thema's, *Eigen 1* en *Eigen 2*, zonder datum: bijvoorbeeld voor een bedrijfsuitje of verjaardag. Geef ze met ✏️ een eigen naam en emoji (het emoji komt ook in de vlaggetjes van de finish), upload er afbeeldingen bij en zet ze met 📌 vast; vanzelf worden ze nooit gekozen. Een eigen welkomstfoto van de route gaat altijd voor. Nodig: migratie 019 (achtergronden) en migratie 020 (logo's).
 

@@ -53,6 +53,15 @@ Zodra de organisatie de uitslag vrijgeeft, staat bij de finish **🏅 Oorkonde d
 **Geluid**
 In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i**-knop (**🔊 Geluid**). Trillen blijft werken.
 
+**⚔️ Duel**
+Staat het duel aan en kom je vlak bij een ander team (binnen 25 meter), dan krijgen jullie allebei dezelfde snelle vraag. Wie het eerst goed antwoordt, pakt punten van de ander. Je hebt één poging en een minuut.
+
+**😤 Iets terugsturen**
+Gooit een ander team een item op jullie, dan kun je in de melding met één tik een emoji terugsturen (😤 🤣 👀 🙈 💪). Dat kost niets en levert niets op; het is gewoon leuk.
+
+**🏆 Prijzen**
+Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.
+
 **⚡ Bonusvraag**
 Soms komt er onverwacht een bonusvraag in beeld, met een eigen geluidje: bij alle teams tegelijk. Snel zijn loont: het eerste team met het goede antwoord krijgt de meeste punten, de volgende steeds minder. Je hebt één poging, en de klok loopt. Bij een foto-opdracht maak je een foto; de punten komen erbij als de organisatie hem heeft goedgekeurd. Even geen tijd? Tik op *Later*: bovenin blijft een knopje staan zolang de vraag open is.
 

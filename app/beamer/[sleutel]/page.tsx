@@ -42,6 +42,32 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
   const stand = [...spelers].sort((a, b) => b.score - a.score);
 
+  // 📣 Sportverslag: een nieuwe gebeurtenis met een item of finish, of een nieuwe koploper, komt even groot in beeld
+  const [knaller, setKnaller] = useState<{ id: string; icoon: string; item: string | null; tekst: string } | null>(null);
+  const gezienRef = useRef<Set<string> | null>(null);
+  const leiderRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!data) return;
+    const toon = (k: { id: string; icoon: string; item: string | null; tekst: string }) => {
+      setKnaller(k);
+      window.setTimeout(() => setKnaller((nu) => (nu?.id === k.id ? null : nu)), 6000);
+    };
+    // De eerste keer alleen onthouden (niet alles van voor het openen tonen)
+    if (!gezienRef.current) { gezienRef.current = new Set(data.gebeurtenissen.map((g) => g.id)); }
+    else {
+      const nieuw = data.gebeurtenissen.filter((g) => !gezienRef.current!.has(g.id));
+      nieuw.forEach((g) => gezienRef.current!.add(g.id));
+      const groot = nieuw.find((g) => g.item || g.icoon === "🏁");
+      if (groot) toon({ id: groot.id, icoon: groot.icoon, item: groot.item, tekst: groot.tekst });
+    }
+    const leider = stand[0] && stand[0].score > 0 ? stand[0] : null;
+    if (leider && leiderRef.current && leiderRef.current !== leider.player_id) {
+      toon({ id: `leider-${leider.player_id}-${leider.score}`, icoon: "👑", item: null, tekst: `Nieuwe koploper: ${leider.display_name}!` });
+    }
+    leiderRef.current = leider?.player_id ?? leiderRef.current;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   // Stand verandert: rijen schuiven zichtbaar naar hun nieuwe plek, en een veranderde score licht even op
   const rijen = useRef(new Map<string, HTMLDivElement>());
   const vorige = useRef(new Map<string, { top: number; score: number }>());
@@ -71,6 +97,25 @@ export default function BeamerPagina({ params }: { params: { sleutel: string } }
       <div className="beamer-kaart">
         <AdminLiveLeaflet spelers={spelers} route_punten={data.route_punten} speciale_items={data.speciale_items}
           modus={data.route.modus} kleuren={kleuren} />
+        {/* ⚡ Bonusvraag die nu loopt */}
+        {data.bonus && (
+          <div className="beamer-bonus">
+            <span className="beamer-bonus-titel">⚡ BONUSVRAAG</span>
+            <span className="beamer-bonus-vraag">{data.bonus.vraag}</span>
+            <span className="beamer-bonus-tijd">⏱ {Math.floor(data.bonus.rest / 60)}:{String(data.bonus.rest % 60).padStart(2, "0")}</span>
+            <span className="beamer-bonus-eerste">{data.bonus.eerste ? <>🥇 Eerst goed: <strong>{data.bonus.eerste}</strong>{data.bonus.goed > 1 ? ` (+${data.bonus.goed - 1})` : ""}</> : "Wie is het eerst?"}</span>
+          </div>
+        )}
+        {/* 📣 Net gebeurd, groot over de kaart */}
+        {knaller && (
+          <div key={knaller.id} className="beamer-knaller">
+            {knaller.item
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={`/items/${knaller.item}.webp`} alt="" />
+              : <span className="beamer-knaller-icoon">{knaller.icoon}</span>}
+            <span>{knaller.tekst}</span>
+          </div>
+        )}
       </div>
       <aside className="beamer-zij">
         {/* eslint-disable-next-line @next/next/no-img-element */}

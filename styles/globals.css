@@ -4136,3 +4136,56 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .test-stap > .rl-knop, .test-stap > button { align-self: flex-start; }
 .test-gooi { display: flex; flex-wrap: wrap; gap: 6px; }
 .test-gooi .rl-knop { font-size: 1.2rem; min-width: 44px; justify-content: center; }
+
+/* 🏆 Prijzen bij de finish (lib/prijzen.ts) */
+.stand-prijs { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; color: #FFE680;
+  background: rgba(255,217,59,0.12); border: 1px solid rgba(255,217,59,0.35); }
+.oorkonde-prijs { margin-top: 6px; font-weight: 800; font-size: 1.05rem; color: #B8860B; }
+.oorkonde-prijs span { font-weight: 500; font-size: 0.85rem; color: #6b5a2e; }
+.onthulling-prijs { position: relative; margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,217,59,0.14); border: 1px solid rgba(255,217,59,0.45);
+  display: flex; flex-direction: column; gap: 2px; font-size: 0.9rem; color: #e8f0ff; }
+.onthulling-prijs strong { font-size: 1.15rem; color: #FFE680; }
+.onthulling-prijs span { font-size: 0.78rem; color: var(--muted); }
+
+/* 😤 Wraak: emoji terugsturen in de melding van een item */
+.wraak { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.wraak-label { font-size: 0.78rem; color: var(--muted); }
+.wraak-knoppen { display: flex; gap: 8px; }
+.wraak-knop { width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); font-size: 1.5rem; cursor: pointer; }
+.wraak-knop:active { transform: scale(0.9); background: rgba(255,217,59,0.25); }
+.wraak-klaar { font-size: 0.85rem; font-weight: 700; color: #BBF7D0; }
+
+/* 👉 Wat nu? (WatNu.tsx): één regel met de volgende stap */
+.wat-nu { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; padding: 10px 14px; border-radius: 14px;
+  background: rgba(0,217,255,0.1); border: 1.5px solid rgba(0,217,255,0.45); }
+.wat-nu--rustig { background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.35); }
+.wat-nu--klaar { background: rgba(255,217,59,0.1); border-color: rgba(255,217,59,0.4); }
+.wat-nu-label { font-family: var(--font-display); font-weight: 900; color: #67E8F9; white-space: nowrap; }
+.wat-nu--rustig .wat-nu-label { color: #86EFAC; }
+.wat-nu--klaar .wat-nu-label { color: #FFE680; }
+.wat-nu-tekst { flex: 1; min-width: 180px; font-weight: 600; color: #fff; }
+
+/* 🔧 Route-instellingen: in de stand Eenvoudig alleen de belangrijkste keuzes */
+.inst-eenvoudig .inst-geavanceerd { display: none !important; }
+.inst-niveau { align-self: flex-end; margin-top: -8px; }
+.inst-niveau button { font-size: 0.74rem; padding: 3px 10px; }
+
+/* 📺 Beamer als sportverslag: bonusvraag en "net gebeurd" groot over de kaart */
+.beamer-kaart { position: relative; }
+.beamer-bonus { position: absolute; z-index: 900; top: 16px; left: 16px; right: 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 14px 20px; border-radius: 18px;
+  background: linear-gradient(180deg, #3b1d8f, #22105a); border: 3px solid #FFD93B; box-shadow: 0 0 40px rgba(255,217,59,0.45); color: #fff; }
+.beamer-bonus-titel { font-family: var(--font-display); font-weight: 900; font-size: 1.4rem; color: #FFD93B; letter-spacing: 0.06em; }
+.beamer-bonus-vraag { flex: 1; min-width: 240px; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; }
+.beamer-bonus-tijd { font-weight: 900; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.beamer-bonus-eerste { font-size: 1.15rem; color: #FFE680; }
+.beamer-knaller { position: absolute; z-index: 950; left: 50%; bottom: 40px; transform: translateX(-50%); display: flex; align-items: center; gap: 18px; max-width: 86%;
+  padding: 18px 28px; border-radius: 22px; background: rgba(20,8,60,0.92); border: 3px solid #00d9ff; box-shadow: 0 0 50px rgba(0,217,255,0.45);
+  color: #fff; font-family: var(--font-display); font-weight: 900; font-size: 2rem; line-height: 1.2; animation: beamer-knal 6s ease forwards; }
+.beamer-knaller img { width: 84px; height: 84px; flex-shrink: 0; }
+.beamer-knaller-icoon { font-size: 4rem; line-height: 1; }
+@keyframes beamer-knal { 0% { opacity: 0; transform: translateX(-50%) scale(0.6); } 8% { opacity: 1; transform: translateX(-50%) scale(1.08); } 14% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ⚔️ Duel (DuelVraag.tsx): zelfde opbouw als de bonusvraag, maar rood-oranje */
+.duel-kaart { border-color: #F97316; box-shadow: 0 0 0 4px rgba(249,115,22,0.2), 0 0 50px rgba(249,115,22,0.45); }
+.duel-titel { color: #FB923C; }
+.duel-achter { background: radial-gradient(circle at 50% 30%, rgba(249,115,22,0.35), rgba(10,4,30,0.92) 70%); }

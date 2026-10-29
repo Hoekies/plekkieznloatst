@@ -4,6 +4,7 @@ import { haalSpeler } from "@/lib/speler-sessie";
 
 import type { SpelerLocatie } from "@/lib/types";
 import { isTestSpeler, testRol } from "@/lib/testteam";
+import { startDuels } from "@/lib/duel";
 import { haversine } from "@/lib/geo";
 
 // Zonder radar zie je een ander team alleen als het dichtbij is (en de plekken vers zijn): dan staan icoon en
@@ -79,11 +80,13 @@ export async function GET(request: NextRequest) {
 
   // Zichtbaar op de kaart: iedereen met een actieve radar (2 minuten), en anders alleen teams die
   // nu binnen 25 meter van jou zijn. De rest alleen bij naam (voor het kiezen van een tegenstander).
+  const dichtbijIds: string[] = [];
   locaties = rijen.map((r) => {
     const plek = laatste.get(r.id);
     const dichtbij = !!plek && !!eigen && recent(plek.created_at) && recent(eigen.created_at)
       && haversine(eigen.latitude, eigen.longitude, plek.latitude, plek.longitude) <= DICHTBIJ_METER;
     const zichtbaar = !!plek && (!!radarEffect || dichtbij);
+    if (dichtbij && !gefinisht.has(r.id)) dichtbijIds.push(r.id);
     return {
       session_id: r.id,
       teamnaam: sessieNaarGroep.get(r.id) ?? "Onbekend",
@@ -97,5 +100,7 @@ export async function GET(request: NextRequest) {
 
   // Welke items gefinishte teams nog mogen raken (instelling "items na de finish")
   const { data: routeInst } = await admin.from("routes").select("*").eq("id", eigenSessie.route_id).maybeSingle();
+  // ⚔️ Duel: dichtbij een ander team dat nog speelt (route-instelling, migratie 006)
+  if (routeInst && dichtbijIds.length) await startDuels(admin, routeInst, eigenSessie.id, dichtbijIds).catch(() => undefined);
   return NextResponse.json({ locaties, doelNaFinish: doelwitNaFinishVan(routeInst) });
 }

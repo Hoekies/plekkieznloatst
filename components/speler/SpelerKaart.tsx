@@ -15,6 +15,7 @@ import EindtijdTeller from "@/components/speler/EindtijdTeller";
 import VraagPopup from "./VraagPopup";
 import SpeciaalItemPopup from "./SpeciaalItemPopup";
 import BonusVraag from "./BonusVraag";
+import DuelVraag from "./DuelVraag";
 import SpeciaalItemLegende, { ITEM_INFO, SPELUITLEG, START_AFSLUITING, type RouteWaarden } from "./SpeciaalItemLegende";
 import { VRIJGAVE_BERICHT } from "@/lib/vrijgave";
 import { puzzelUitleg } from "@/lib/puzzel";
@@ -29,6 +30,7 @@ import PuzzelWoord from "./PuzzelWoord";
 import TussenstandPopup from "./TussenstandPopup";
 import type { SpelerLocatie, LeaderboardEntry } from "@/lib/types";
 import type { RoutePunt, SpelerSessie, SpelerPuntVoortgang, SpeciaalItem } from "@/types/database";
+import { WRAAK_EMOJI } from "@/lib/wraak";
 import { bewaarKaartGebied } from "@/lib/kaart-offline";
 
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), {
@@ -171,7 +173,15 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
   const [activeSpeciaalItem, setActiveSpeciaalItem] = useState<SpeciaalItem | null>(null);
   const [effectNotificatie, setEffectNotificatie] = useState<string | null>(null);
   // Wie het item op ons inzette (naam en icoon), groot bovenin de melding
-  const [effectVan, setEffectVan] = useState<{ naam: string; icon: string | null } | null>(null);
+  const [effectVan, setEffectVan] = useState<{ naam: string; icon: string | null; sessie?: string } | null>(null);
+  // 😤 Welk item ons raakte (voor de wraakknoppen), en of we al iets terugstuurden
+  const [effectItem, setEffectItem] = useState<string | null>(null);
+  const [wraakVerstuurd, setWraakVerstuurd] = useState<string | null>(null);
+  async function stuurWraak(emoji: string) {
+    if (!effectItem) return;
+    const res = await fetch("/api/speler/wraak", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ special_item_id: effectItem, emoji }) }).catch(() => null);
+    setWraakVerstuurd(res?.ok ? emoji : "✗");
+  }
   const [opgehaaldToast, setOpgehaaldToast] = useState<string | null>(null);
   const [legendeOpen, setLegendeOpen] = useState(false);
   const [score, setScore] = useState(sessie.score);
@@ -726,6 +736,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       if (effectNotificatieTimerRef.current) clearTimeout(effectNotificatieTimerRef.current);
       setEffectNotificatie(data.notification);
       setEffectVan(data.notification_van ?? null);
+      setEffectItem(data.notification_item ?? null);
+      setWraakVerstuurd(null);
       speelDong();
       navigator.vibrate?.([300, 120, 300, 120, 300]);
       haalScoreOp();
@@ -1205,7 +1217,20 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                     {tekst}
                   </p>
                 )}
-                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => { setEffectNotificatie(null); setEffectVan(null); }}>
+                {/* 😤 Iets terugsturen naar het team dat dit deed (één keer, alleen een melding) */}
+                {itemType && effectVan?.sessie && effectItem && (
+                  wraakVerstuurd ? (
+                    <div className="wraak-klaar">{wraakVerstuurd === "✗" ? "Terugsturen lukte niet" : <>{wraakVerstuurd} teruggestuurd naar {effectVan.naam}!</>}</div>
+                  ) : (
+                    <div className="wraak">
+                      <span className="wraak-label">Stuur iets terug:</span>
+                      <div className="wraak-knoppen">
+                        {WRAAK_EMOJI.map((e) => <button key={e} type="button" className="wraak-knop" onClick={() => stuurWraak(e)} aria-label={`${e} terugsturen`}>{e}</button>)}
+                      </div>
+                    </div>
+                  )
+                )}
+                <button className="btn-premium--compact" style={{ marginTop: 4 }} onClick={() => { setEffectNotificatie(null); setEffectVan(null); setEffectItem(null); }}>
                   OK, BEGREPEN
                 </button>
               </div>
@@ -1334,6 +1359,8 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <InventarisBar inventaris={inventaris} onGebruik={(item) => { setEersteItem(null); setActiveSpeciaalItem(item); }} />
         {/* ⚡ Bonusvraag van de spelleider: bij iedereen tegelijk in beeld */}
         <BonusVraag />
+        {/* ⚔️ Duel als er een ander team vlak bij is (als de route dat aan heeft) */}
+        <DuelVraag />
       </div>
 
       {/* Punt bereikt → vraag/info popup */}

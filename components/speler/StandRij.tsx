@@ -60,6 +60,8 @@ export default function StandRij({ entry, eenheid = "punten", compact = false }:
             {entry.distance_meters > 0 && <span>📍 {afstandTekst(entry.distance_meters)}</span>}
           </div>
         )}
+        {/* 🏆 De titel van dit team (eindstand) */}
+        {!compact && entry.prijs && <div className="stand-prijs" title={entry.prijs.uitleg}>{entry.prijs.emoji} {entry.prijs.titel}</div>}
       </div>
 
       {/* Score */}

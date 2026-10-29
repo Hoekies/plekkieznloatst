@@ -9,6 +9,8 @@ export type LeaderboardEntry = {
   is_eigen_team: boolean;
   // 📸 Goedgekeurde groepsfoto/selfie bij de finish (tijdelijke link); anders het icoon
   foto?: string | null;
+  // 🏆 Grappige titel bij de eindstand (lib/prijzen.ts), bijv. 🦹 Meesterdief
+  prijs?: { emoji: string; titel: string; uitleg: string } | null;
 };
 
 export type SpelerLocatie = {

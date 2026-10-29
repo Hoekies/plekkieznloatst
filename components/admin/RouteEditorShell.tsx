@@ -31,6 +31,7 @@ import ItemLijst from "./editor/ItemLijst";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import { useSluitMetEsc, VensterMetKop, vensterHoogte } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import { DUEL_PUNTEN_KEUZES } from "@/lib/duel-vragen";
 import { BonusLijst } from "@/components/admin/BonusKnop";
 import Icoon from "@/components/admin/Icoon";
 import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
@@ -153,6 +154,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   const [gekozenIds, setGekozenIds] = useState<Set<string>>(new Set());
   const [namenBezig, setNamenBezig] = useState<string | null>(null);
   const [instellingenOpen, setInstellingenOpen] = useState(false);
+  // ⚔️ Duel aan/uit en punten (migratie 006)
+  async function slaDuelOp(velden: { duel_aan?: boolean; duel_punten?: number }) {
+    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
+    if (res.ok) setRoute((r) => ({ ...r, ...velden }));
+    else toonMelding((await res.json().catch(() => ({}))).fout?.includes("duel") ? "Draai eerst migratie 006 (duel) in Supabase" : "Opslaan lukte niet", "fout");
+  }
+  // 🔧 Instellingen: eenvoudig (de belangrijkste) of alles; onthouden op dit toestel
+  const [instAlles, setInstAlles] = useState(false);
+  useEffect(() => { try { setInstAlles(localStorage.getItem("pr_inst_alles") === "1"); } catch { /* geen opslag */ } }, []);
+  function kiesInstAlles(alles: boolean) {
+    setInstAlles(alles);
+    try { localStorage.setItem("pr_inst_alles", alles ? "1" : "0"); } catch { /* geen opslag */ }
+  }
   // Instellingen die bijna niemand aanpast staan achter "⚙️ Meer instellingen"
   const [meerInstellingen, setMeerInstellingen] = useState(false);
   // 🧩 Puzzelwoord: instellingen opslaan (zie editor/PuzzelInstellingen)
@@ -2136,13 +2150,18 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               </div>
 
               {/* inst-inhoud: elke instelling als één regel (naam en korte uitleg links, de keuze rechts) */}
-              <div className="inst-inhoud" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className={`inst-inhoud${instAlles ? "" : " inst-eenvoudig"}`} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
                 {/* Onderwerpen als knoppen */}
                 <div className="segment" role="tablist" aria-label="Onderwerp">
                   {([["spel", "🎮 Spel"], ["punten", "📍 Punten"], ["items", "🎁 Items"], ["uiterlijk", "🎨 Uiterlijk"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
                     <button key={t} type="button" role="tab" aria-selected={instellingenTab === t} className={instellingenTab === t ? "aan" : ""} onClick={() => setInstellingenTab(t)}>{label}</button>
                   ))}
+                </div>
+                {/* 🔧 Eenvoudig: alleen de belangrijkste keuzes; Alles: ook de fijnafstelling (onthouden op dit toestel) */}
+                <div className="segment inst-niveau" role="radiogroup" aria-label="Hoeveel instellingen">
+                  <button type="button" role="radio" aria-checked={!instAlles} className={instAlles ? "" : "aan"} onClick={() => kiesInstAlles(false)}>Eenvoudig</button>
+                  <button type="button" role="radio" aria-checked={instAlles} className={instAlles ? "aan" : ""} onClick={() => kiesInstAlles(true)}>Alles</button>
                 </div>
                 {/* 9. Eén zin: wat stel je hier in? */}
                 <span className="inst-uitleg inst-tab-uitleg">{{
@@ -2189,7 +2208,29 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </div>
 
                 {/* 🔀 Antwoorden husselen: voor de hele route, niet per vraag */}
-                <HusselInstelling routeId={route.id} />
+                <div className="inst-geavanceerd"><HusselInstelling routeId={route.id} /></div>
+
+                {/* ⚔️ Duel: twee teams vlak bij elkaar krijgen dezelfde snelle vraag (migratie 006) */}
+                <div className="form-group">
+                  <label className="form-label">⚔️ Duel</label>
+                  <span className="inst-uitleg">Komen twee teams binnen 25 meter van elkaar, dan krijgen ze allebei dezelfde snelle vraag. Wie het eerst goed is, pakt punten van de ander.</span>
+                  <div className="inst-rij">
+                    <div className="segment" role="radiogroup" aria-label="Duel aan of uit">
+                      {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
+                        <button key={tekst} type="button" role="radio" aria-checked={!!route.duel_aan === aan} className={!!route.duel_aan === aan ? "aan" : ""}
+                          onClick={() => slaDuelOp({ duel_aan: aan })}>{tekst}</button>
+                      ))}
+                    </div>
+                    {route.duel_aan && (
+                      <div className="segment" role="radiogroup" aria-label="Punten per duel">
+                        {DUEL_PUNTEN_KEUZES.map((p) => (
+                          <button key={p} type="button" role="radio" aria-checked={(route.duel_punten ?? 25) === p} className={(route.duel_punten ?? 25) === p ? "aan" : ""}
+                            onClick={() => slaDuelOp({ duel_punten: p })}>{p} pt</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 {/* ⚡ Bonusvragen van deze route (ook als hij nog niet actief is); op volgorde van het spel */}
                 <div className="form-group">
@@ -2214,7 +2255,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 {instellingenTab === "punten" && (
                   <>
                     {/* ⛔ Verboden gebieden: overzicht, verwijderen */}
-                    <div className="form-group">
+                    <div className="form-group inst-geavanceerd">
                       <label className="form-label">⛔ Verboden gebieden</label>
                       {gebieden.map((g, i) => (
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem" }}>
@@ -2251,7 +2292,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 )}
 
                     {route.modus === "verspreid" && (
-                      <div className="form-group">
+                      <div className="form-group inst-geavanceerd">
                         <label className="form-label">🚶 Eerste vraag na</label>
                         <span className="inst-uitleg">Meters lopen vanaf de start (0 = meteen).</span>
                         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -2274,7 +2315,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                           onBevestig={zetAlleVraagPunten} className="rl-knop">Op alle vragen toepassen</BevestigKnop>
                       </div>
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inst-geavanceerd">
                       <label className="form-label">📏 Radius van de punten (m)</label>
                       <input className="form-input" type="number" min={3} value={puntRadius}
                         onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
@@ -2284,7 +2325,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
                       <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
                     </button>
-                    {meerInstellingen && <div className="form-group">
+                    {meerInstellingen && <div className="form-group inst-geavanceerd">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
                       <input className="form-input" type="number" min={0} value={puntPunten}
                         onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
@@ -2310,7 +2351,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {instellingenTab === "items" && (
                   <>
-                    <div className="form-group">
+                    <div className="form-group inst-geavanceerd">
                       <label className="form-label">📏 Radius van de items (m)</label>
                       <input className="form-input" type="number" min={3} value={itemRadius}
                         onChange={(e) => setItemRadius(Math.max(3, Number(e.target.value)))}
@@ -2319,7 +2360,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                 {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
                 {meerInstellingen && route.modus === "verspreid" && (
-                  <div className="form-group">
+                  <div className="form-group inst-geavanceerd">
                     <label className="form-label">⭐ Item-waarden</label>
                     <div style={{ display: "flex", gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -2346,7 +2387,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {/* Duur van spook en plekzooi */}
                 {meerInstellingen && (
-                  <div className="form-group">
+                  <div className="form-group inst-geavanceerd">
                     <label className="form-label">⏱️ Duur van effecten (minuten)</label>
                     <div style={{ display: "flex", gap: 8 }}>
                       {route.modus === "verspreid" && <div style={{ flex: 1, minWidth: 0 }}>
@@ -2430,7 +2471,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {/* Items na de finish */}
                 {(
-                  <div className="form-group">
+                  <div className="form-group inst-geavanceerd">
                     <label className="form-label">🎁 Items inzetten na de finish</label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                       {ITEMS_NA_FINISH.map((type) => {
@@ -2460,7 +2501,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
                 {/* Respawn */}
                 {meerInstellingen && route.modus === "verspreid" && (
-                  <div className="form-group">
+                  <div className="form-group inst-geavanceerd">
                     <label className="form-label">🔄 Respawn (bij een Rondje)</label>
                     <span className="inst-uitleg">Een opgepakt item komt na een tijdje terug op dezelfde plek.</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

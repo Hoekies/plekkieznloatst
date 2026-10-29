@@ -77,6 +77,9 @@ export async function GET() {
   // Migratie 004: ⚡ bonusvragen
   const { error: bonusFout } = await admin.from("bonus_antwoorden").select("id").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 004: ⚡ bonusvragen", ok: !bonusFout, uitleg: bonusFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/004_bonusvragen.sql." : undefined });
+  // Migratie 006: ⚔️ duel
+  const { error: duelFout } = await admin.from("duels").select("id").limit(1);
+  checks.push({ groep: "Database", naam: "Nieuwe migratie 006: ⚔️ duel", ok: !duelFout, uitleg: duelFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/006_duel.sql." : undefined });
   // Migratie 005: 🧪 testteam
   const { error: testFout } = await admin.from("players").select("test_rol").limit(1);
   checks.push({ groep: "Database", naam: "Nieuwe migratie 005: 🧪 testteam", ok: !testFout, uitleg: testFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/005_testteam.sql." : undefined });

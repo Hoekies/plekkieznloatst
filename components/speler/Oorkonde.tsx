@@ -6,7 +6,7 @@ import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 
 // 🏅 Oorkonde bij de finish: een afbeelding met teamnaam, plaats, punten, tijd en afstand, om te delen
 // in de groepsapp. Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje.
-export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null, voorlopig = false }: {
+export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null, voorlopig = false, prijs = null }: {
   teamNaam: string; icoon: string | null; routeNaam: string | null;
   // 📸 Groepsfoto bij de finish (goedgekeurd); anders het icoon
   foto?: string | null; punten: number; seconden: number; meters: number;
@@ -16,6 +16,8 @@ export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punt
   huisLogo?: string | null;
   // Uitslag nog niet vrij: dan staat "voorlopige score" op het kaartje (er kunnen nog punten bijkomen)
   voorlopig?: boolean;
+  // 🏆 De titel van het team (bijv. 🦹 Meesterdief)
+  prijs?: { emoji: string; titel: string; uitleg: string } | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bezig, setBezig] = useState(false);
@@ -55,6 +57,7 @@ export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punt
           {plaats !== null && (
             <div className="oorkonde-plaats">{medaille} {plaats}e plaats <span>van {aantalTeams} teams</span></div>
           )}
+          {prijs && <div className="oorkonde-prijs">{prijs.emoji} {prijs.titel} <span>· {prijs.uitleg}</span></div>}
           <div className="oorkonde-cijfers">
             <div><strong>{punten}</strong><span>{voorlopig ? "punten (voorlopig)" : "punten"}</span></div>
             <div><strong>{formateerTijd(seconden)}</strong><span>tijd</span></div>

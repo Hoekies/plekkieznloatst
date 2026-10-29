@@ -28,6 +28,7 @@ import StatStrook from "@/components/admin/StatStrook";
 import dynamic from "next/dynamic";
 import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
+import WatNu from "@/components/admin/WatNu";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
 const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
@@ -171,6 +172,9 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             ⚠️ Het dashboard is onvolledig: {data.fout}. Waarschijnlijk is er een database-migratie nog niet uitgevoerd.
           </div>
         )}
+
+        {/* 👉 Wat nu? De volgende stap in één zin, met de knop erbij (niet voor helpers) */}
+        {!beperkt && <WatNu data={data} spelend={spelend} />}
 
         {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
         <div style={{ marginBottom: 16 }}>

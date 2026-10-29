@@ -96,6 +96,13 @@ export function speelBonus() {
   setTimeout(() => speel([523, 659, 784, 1047, 1319, 1568, 2093], 0.55, "triangle", 0.25), 420);
 }
 
+// ⚔️ Duel: twee korte "zwaardslagen" en een spannende stijgende toon
+export function speelDuel() {
+  speel([1760, 1175], 0.18, "sawtooth", 0.1);
+  setTimeout(() => speel([1760, 1175], 0.18, "sawtooth", 0.1), 220);
+  setTimeout(() => speel([392, 466, 523, 622], 0.6, "square", 0.1), 480);
+}
+
 // 🏆 Uitslag: de winnaar krijgt een fanfare (ta-ta-ta-taaa, twee keer, de tweede hoger)
 export function speelOverwinning() {
   speel([523, 523, 523, 698], 0.7, "triangle", 0.28);
