@@ -3810,9 +3810,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .start-uitleg-eerst { padding: 12px 14px; border-radius: 14px; background: rgba(0,217,255,0.12); border: 1px solid rgba(0,217,255,0.45); color: #CFFAFE; font-size: 0.92rem; line-height: 1.45; }
 .hulp-knop-rustig { opacity: 0.75; font-size: 0.7rem !important; border-color: rgba(255,255,255,0.5) !important; }
 .puzzel-start { width: 100%; margin-top: 4px; }
-.werkbalk-max { display: inline-flex; align-items: center; height: 32px; padding: 0 10px; border-radius: 9px; font-size: 0.78rem; font-weight: 800; color: #FFE680;
-  background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.35); white-space: nowrap; cursor: default; }
-@media (max-width: 768px) { .werkbalk-max { display: none; } }
 /* 📁 Routes: filter op map als één segmentbalk (op de telefoon horizontaal te schuiven) */
 .rl-mapfilter { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 auto; }
 .rl-mapfilter-label { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
@@ -4418,24 +4415,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .deelkaart-award-titel { font-family: var(--font-display); font-size: 1.05rem; color: #FFE680; line-height: 1.2; }
 .deelkaart-award-uitleg { font-size: 0.75rem; color: #d6cdf2; line-height: 1.25; }
 .deelkaart-award-team { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 800; font-size: 0.9rem; }
-.deelkaart-tegels { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
-.deelkaart-tegel { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; border-radius: 18px; background: rgba(255,255,255,0.1); }
-.deelkaart-tegel--groot { grid-column: span 2; background: linear-gradient(135deg, rgba(0,217,255,0.3), rgba(167,139,250,0.25)); }
-.deelkaart-tegel span { font-size: 1.6rem; }
-.deelkaart-tegel strong { font-family: var(--font-display); font-size: 2rem; color: #fff; line-height: 1.1; }
-.deelkaart-tegel--groot strong { font-size: 3rem; }
-.deelkaart-tegel small { font-size: 0.8rem; color: #d6cdf2; }
-.deelkaart-balk { display: block; width: 80%; height: 8px; border-radius: 4px; background: rgba(0,0,0,0.3); margin-top: 6px; overflow: hidden; }
-.deelkaart-balk b { display: block; height: 100%; background: linear-gradient(90deg, #4ADE80, #FFD93B); }
-.deelkaart-items { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.deelkaart-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 14px; background: rgba(0,0,0,0.2); }
-.deelkaart-item img { width: 42px; height: 42px; }
-.deelkaart-item strong { font-size: 1.1rem; }
-.deelkaart-item small { font-size: 0.7rem; color: #d6cdf2; }
-.deelkaart-moeilijk { width: 100%; padding: 12px 14px; border-radius: 16px; background: rgba(248,113,113,0.16); border: 1px solid rgba(248,113,113,0.5); display: flex; flex-direction: column; gap: 4px; }
-.deelkaart-moeilijk span { font-weight: 800; color: #FCA5A5; }
-.deelkaart-moeilijk strong { font-size: 1rem; line-height: 1.3; }
-.deelkaart-moeilijk em { font-style: normal; color: #FDE68A; font-weight: 700; }
 .deelkaart-rival-label { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 2px; padding: 2px 7px 2px 3px; border-radius: 999px; background: rgba(var(--o1),0.9); border: 1px solid rgba(255,255,255,0.3); font-size: 0.85rem; font-weight: 800; }
 .deelkaart-rival-label img { width: 24px; height: 24px; }
 .deelkaart-rival-team { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; width: 110px; text-align: center; }
@@ -4514,11 +4493,14 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .zp-team { border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 6px 8px 8px; display: flex; flex-direction: column; gap: 6px; background: rgba(255,255,255,0.03); }
 .zp-team--open { background: rgba(255,255,255,0.07); }
 .zp-team-kop { display: flex; align-items: center; gap: 8px; border: none; background: none; padding: 0; color: var(--text); font: inherit; font-size: 0.84rem; cursor: pointer; text-align: left; }
-.zp-team-vlag { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+.zp-team-vlag { width: 26px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); border: 1.5px solid #fff; flex-shrink: 0; }
 .zp-team-info { color: var(--muted); font-size: 0.74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .zp-team-knoppen { display: flex; flex-wrap: wrap; gap: 6px; }
 .zp-team-knoppen { flex-wrap: nowrap; }
-.zp-team-knoppen .rl-knop { flex: 1 1 0; min-width: 0; height: 30px; padding: 0 6px; font-size: 0.72rem; justify-content: center; white-space: nowrap; }
+.zp-team-knoppen .rl-knop { flex: 1 1 0; min-width: 0; height: 32px; padding: 0 6px; font-size: 0.74rem; justify-content: center; white-space: nowrap; overflow: hidden; }
+.zp-team-auto { align-self: flex-start; border: none; background: none; padding: 0; font: inherit; font-size: 0.72rem; color: var(--muted); cursor: pointer; }
+.zp-team-auto u { color: var(--cyan); text-underline-offset: 2px; }
+.zp-team-auto:hover u { color: #fff; }
 /* Teamvlag op de kaart: paaltje met vlag in de teamkleur */
 .team-vlag { position: relative; width: 34px; height: 40px; cursor: pointer; }
 .team-vlag::before { content: ""; position: absolute; left: 3px; top: 2px; width: 3px; height: 38px; border-radius: 2px; background: #fff; box-shadow: 0 0 3px rgba(0,0,0,0.6); }
@@ -4562,3 +4544,15 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .thema-staal { width: 26px; height: 26px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.6); flex-shrink: 0; }
 .huisstijl-thema { width: 32px; height: 32px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.35); cursor: pointer; padding: 0; }
 .huisstijl-thema.aan { border-color: #fff; box-shadow: 0 0 0 2px var(--cyan); }
+
+/* Route-editor werkbalk op de pc: grotere, losse knoppen zonder scheidingsstreep */
+@media (min-width: 769px) {
+  .route-editor-topbar .editor-balk { gap: 10px; }
+  .route-editor-topbar .editor-balk .editor-balk-scheiding { display: none; }
+  .route-editor-topbar .editor-balk .rl-knop {
+    height: 40px; padding: 0 16px; font-size: 0.88rem; font-weight: 700; gap: 8px; border-radius: 11px; }
+  .route-editor-topbar .editor-balk .rl-knop .knop-svg svg { width: 18px; height: 18px; }
+  /* Gereedschap (verboden gebied, op de weg): losse knoppen, niet aan elkaar vast */
+  .route-editor-topbar .editor-balk .editor-groep { gap: 10px; }
+  .route-editor-topbar .editor-balk .editor-groep .rl-knop { border-radius: 11px !important; border-left-width: 1px !important; padding: 0 16px; }
+}

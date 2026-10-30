@@ -12,7 +12,7 @@ import { plezierInstellingen } from "@/lib/spelplezier";
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 // 🖼️ Gegevens voor de deelplaatjes na afloop (alleen plaatjes, geen losse tekst):
-// - groep (de spelleider): uitslag en cijfers, routeposter, prijzenuitreiking, infographic, rivaliteitenkaart;
+// - groep (de spelleider): uitslag en cijfers, routeposter, prijzenuitreiking, rivaliteitenkaart;
 // - team (de speler, na de uitslag): teamkaart en "ons rondje".
 // Alleen echte teams (geen 🧪 test).
 
@@ -26,10 +26,7 @@ export type GroepPlaatjes = {
   teams: GroepTeam[];
   punten: { lat: number; lng: number; type: string }[];
   records: Record_[];
-  items: Record<string, number>;                                   // ingezette items per soort
   rivaliteit: { van: string; naar: string; aantal: number; item: string }[];   // sessie-id's; item = het meest gebruikte
-  totaal: { km: number; vragen: number; goedPct: number; minuten: number; teams: number };
-  moeilijkste: { vraag: string; goedPct: number } | null;
 };
 
 const datumNu = () => new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Amsterdam" });
@@ -62,12 +59,10 @@ export async function groepPlaatjes(admin: AdminClient, routeId: string): Promis
     };
   }).sort((a, b) => a.rank - b.rank);
 
-  // Items en rivaliteit (wie gooide wat op wie)
+  // Rivaliteit (wie gooide wat op wie)
   const { data: log } = ids.length ? await admin.from("item_log").select("gebruiker_session_id, doel_session_id, item_type").in("gebruiker_session_id", ids) : { data: [] };
-  const items: Record<string, number> = {};
   const paren = new Map<string, Record<string, number>>();
   for (const l of log ?? []) {
-    items[l.item_type] = (items[l.item_type] ?? 0) + 1;
     if (!l.doel_session_id || !ids.includes(l.doel_session_id) || l.doel_session_id === l.gebruiker_session_id) continue;
     const sleutel = `${l.gebruiker_session_id}|${l.doel_session_id}`;
     const m = paren.get(sleutel) ?? {};
@@ -80,35 +75,10 @@ export async function groepPlaatjes(admin: AdminClient, routeId: string): Promis
     return { van, naar, aantal: Object.values(m).reduce((a, b) => a + b, 0), item };
   }).sort((a, b) => b.aantal - a.aantal).slice(0, 12);
 
-  // Totalen en de moeilijkste vraag (laagste percentage goed, minstens twee antwoorden)
-  const { data: antw } = ids.length ? await admin.from("player_point_progress").select("route_point_id, is_correct, route_points(questions(question_text, type))")
-    .in("session_id", ids).not("is_correct", "is", null) : { data: [] };
-  const perVraag = new Map<string, { tekst: string; goed: number; n: number }>();
-  for (const a of antw ?? []) {
-    const q = (a.route_points as unknown as { questions: { question_text: string; type: string }[] | { question_text: string; type: string } | null } | null)?.questions;
-    const v = Array.isArray(q) ? q[0] : q;
-    if (!v || v.type === "foto_opdracht" || v.type === "stemvraag") continue;
-    const r = perVraag.get(a.route_point_id) ?? { tekst: v.question_text, goed: 0, n: 0 };
-    r.n++; if (a.is_correct) r.goed++;
-    perVraag.set(a.route_point_id, r);
-  }
-  const vragen = [...perVraag.values()];
-  const totaalAntw = vragen.reduce((a, v) => a + v.n, 0), totaalGoed = vragen.reduce((a, v) => a + v.goed, 0);
-  const moeilijk = vragen.filter((v) => v.n >= 2).sort((a, b) => a.goed / a.n - b.goed / b.n)[0];
-  const starts = echt.map((s) => Date.parse(s.started_at)).filter(Number.isFinite);
-  const eindes = echt.map((s) => (s.finished_at ? Date.parse(s.finished_at) : NaN)).filter(Number.isFinite);
-
   return {
     route: (route?.name as string | undefined) ?? "PointRush", huis_logo: huisLogoUrl(route), datum: datumNu(),
-    teams, records: stats.records, items, rivaliteit,
+    teams, records: stats.records, rivaliteit,
     punten: (punten ?? []).map((p) => ({ lat: p.latitude, lng: p.longitude, type: p.type })),
-    totaal: {
-      km: Math.round(echt.reduce((a, s) => a + ((s.afstand_m as number | null) ?? 0), 0) / 100) / 10,
-      vragen: totaalAntw, goedPct: totaalAntw ? Math.round((100 * totaalGoed) / totaalAntw) : 0,
-      minuten: starts.length && eindes.length ? Math.round((Math.max(...eindes) - Math.min(...starts)) / 60000) : 0,
-      teams: echt.length,
-    },
-    moeilijkste: moeilijk ? { vraag: moeilijk.tekst, goedPct: Math.round((100 * moeilijk.goed) / moeilijk.n) } : null,
   };
 }
 

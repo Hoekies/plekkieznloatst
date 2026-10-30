@@ -5,10 +5,10 @@ import { VensterMetKop } from "@/components/shared/Venster";
 import { toonMelding } from "@/components/admin/Melding";
 import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
 import type { GroepPlaatjes as Data } from "@/lib/deel-plaatjes";
-import { UitslagCijfersKaart, RoutePosterKaart, PrijzenKaart, InfographicKaart, RivaliteitenKaart } from "@/components/shared/Deelkaarten";
+import { UitslagCijfersKaart, RoutePosterKaart, PrijzenKaart, RivaliteitenKaart } from "@/components/shared/Deelkaarten";
 
 // 🖼️ Plaatjes voor de groepsapp (alleen de spelleider; spelers delen de uitslag niet): uitslag en cijfers, routeposter,
-// prijzenuitreiking, infographic en rivalen. Alleen plaatjes, geen losse tekst. Bij het openen worden ze gemaakt;
+// prijzenuitreiking en rivalen. Alleen plaatjes, geen losse tekst. Bij het openen worden ze gemaakt;
 // daarna deel je elk plaatje met één tik (deelmenu, of downloaden op een computer zonder deelmenu).
 type Plaatje = { sleutel: string; naam: string; bestand: File; url: string };
 
@@ -32,7 +32,6 @@ export default function GroepPlaatjes({ knopClass = "rl-knop rl-knop--cyan" }: {
     { sleutel: "uitslag", naam: "🏆 Uitslag en cijfers", kaart: <UitslagCijfersKaart d={data} /> },
     ...(data.teams.some((t) => t.spoor.length > 1) ? [{ sleutel: "routes", naam: "🗺️ Routeposter", kaart: <RoutePosterKaart d={data} /> }] : []),
     ...(data.teams.some((t) => t.prijs) ? [{ sleutel: "prijzen", naam: "🎖️ Prijzenuitreiking", kaart: <PrijzenKaart d={data} /> }] : []),
-    { sleutel: "cijfers", naam: "📊 Infographic", kaart: <InfographicKaart d={data} /> },
     ...(data.rivaliteit.length ? [{ sleutel: "rivalen", naam: "⚔️ Rivalen", kaart: <RivaliteitenKaart d={data} /> }] : []),
   ] : [];
 

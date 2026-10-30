@@ -8,7 +8,6 @@ import { BADGES, isBadge, mascotteVoor, levelVoor } from "@/lib/spelplezier";
 // andere site kunnen niet in een plaatje.
 
 const getal = (x: number) => x.toString().replace(".", ",");
-const ITEM_NAAM: Record<string, string> = { ster: "Ster", bom: "Bom", spook: "Spook", dief: "Dief", banaan: "Banaan", wissel: "Wissel", verdubbeling: "Verdubbeling", radar: "Radar", vraagteken: "Vraagteken", plekzooi: "Plek zooi", schaduw: "Schaduw" };
 const medaille = (r: number) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}.`);
 
 // Kop en voet die alle kaartjes delen
@@ -158,42 +157,7 @@ export function PrijzenKaart({ d }: { d: GroepPlaatjes }) {
   );
 }
 
-// ── 4. Infographic: het spel in grote getallen ───────────────────────────────
-export function InfographicKaart({ d }: { d: GroepPlaatjes }) {
-  const items = Object.entries(d.items).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const uren = Math.floor(d.totaal.minuten / 60), min = d.totaal.minuten % 60;
-  return (
-    <Kader titel="In cijfers" route={d.route} logo={d.huis_logo} datum={d.datum}>
-      <div className="deelkaart-tegels">
-        <div className="deelkaart-tegel deelkaart-tegel--groot"><span>👟</span><strong>{getal(d.totaal.km)}</strong><small>km samen gelopen</small></div>
-        <div className="deelkaart-tegel"><span>👫</span><strong>{d.totaal.teams}</strong><small>teams</small></div>
-        <div className="deelkaart-tegel"><span>⏱️</span><strong>{uren ? `${uren}:${String(min).padStart(2, "0")}` : `${min}`}</strong><small>{uren ? "uur gespeeld" : "minuten gespeeld"}</small></div>
-        <div className="deelkaart-tegel"><span>❓</span><strong>{d.totaal.vragen}</strong><small>vragen beantwoord</small></div>
-        <div className="deelkaart-tegel"><span>✅</span><strong>{d.totaal.goedPct}%</strong><small>goed</small><i className="deelkaart-balk"><b style={{ width: `${d.totaal.goedPct}%` }} /></i></div>
-      </div>
-      {items.length > 0 && (
-        <div className="deelkaart-items">
-          {items.map(([type, n]) => (
-            <div key={type} className="deelkaart-item">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/items/${type}.webp`} alt="" />
-              <strong>{n}×</strong><small>{ITEM_NAAM[type] ?? type}</small>
-            </div>
-          ))}
-        </div>
-      )}
-      {d.moeilijkste && (
-        <div className="deelkaart-moeilijk">
-          <span>🤯 Moeilijkste vraag</span>
-          <strong>{d.moeilijkste.vraag}</strong>
-          <em>maar {d.moeilijkste.goedPct}% had hem goed</em>
-        </div>
-      )}
-    </Kader>
-  );
-}
-
-// ── 5. Rivaliteiten: wie gooide wat op wie (pijlen tussen de teams) ──────────
+// ── 4. Rivaliteiten: wie gooide wat op wie (pijlen tussen de teams) ──────────
 export function RivaliteitenKaart({ d }: { d: GroepPlaatjes }) {
   const b = 476, h = 476, cx = b / 2, cy = h / 2, r = 175;
   const teams = d.teams.filter((t) => d.rivaliteit.some((x) => x.van === t.sessie || x.naar === t.sessie));

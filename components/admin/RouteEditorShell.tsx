@@ -1081,12 +1081,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (!route.is_active) return { tekst: "test de route met Testen en activeer hem daarna.", actie: () => setControleOpen(true) };
     return { tekst: "de route is actief. Wijzigingen stuur je met Naar spelers sturen.", klaar: true };
   })();
-  // 🏆 Maximaal te halen voor één team: alle vragen (hoogste punten per vraag), punten zonder vraag, en de bonussen
-  // van het puzzelwoord (alle letters). Items tellen niet mee: die verschillen per spel.
-  const maxVragen = vraagpunten.reduce((som, p) => som + (vraagMaxPunten.get(p.id) ?? 0), 0);
-  const maxOverig = punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "doorlooppunt").reduce((som, p) => som + (p.points ?? 0), 0);
-  const maxPuzzel = route.puzzel_aan && route.puzzelwoord ? normaliseerPuzzel(route.puzzelwoord).length * (route.puzzel_letter_punten ?? 10) + (route.puzzel_bonus ?? 100) : 0;
-  const maxTotaal = maxVragen + maxOverig + maxPuzzel;
   // Vraagpunten zonder vraag (oranje stip op de kaart); alleen een nieuwe Set als de lijst echt verandert
   const zonderVraagSleutel = vraagpunten.filter((p) => !vraagPuntIds.has(p.id)).map((p) => p.id).join(",");
   const zonderVraag = useMemo(() => new Set(zonderVraagSleutel ? zonderVraagSleutel.split(",") : []), [zonderVraagSleutel]);
@@ -1630,12 +1624,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {wegen.bezig ? <Icoon naam="laden" /> : <Icoon naam="lopen" />}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
           </span>
-          {/* 🏆 Maximaal te halen (uitleg bij aanwijzen) */}
-          {punten.length > 0 && (
-            <span className="werkbalk-max" title={`Maximaal te halen voor één team: vragen ${maxVragen}${maxOverig ? ` + punten zonder vraag ${maxOverig}` : ""}${maxPuzzel ? ` + puzzelwoord ${maxPuzzel}` : ""}. Items tellen niet mee.`}>
-              🏆 max {maxTotaal.toLocaleString("nl-NL")} pt
-            </span>
-          )}
           <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
             onClick={() => { if (proef || testOpen) { setProef(null); setTestOpen(false); } else setTestKeuze(true); setGeselecteerd(null); }}
             title={proef || testOpen ? "Testen stoppen" : "Testen: lopen als team, of alle vragen doorlopen"}>
@@ -2349,9 +2337,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                       return (
                         <div key={t.teamIndex} className={`zp-team${open ? " zp-team--open" : ""}`} style={{ borderColor: open ? t.kleur : undefined }}>
                           <button type="button" className="zp-team-kop" onClick={() => setUitgelichtTeam(open ? null : t.teamIndex)}>
-                            <span className="zp-team-vlag" style={{ background: t.kleur }} aria-hidden>🚩</span>
+                            <span className="zp-team-vlag" style={{ background: t.kleur }} aria-hidden>T{t.teamIndex}</span>
                             <strong style={{ color: t.kleur }}>Team {t.teamIndex}</strong>
-                            <span className="zp-team-info">start {t.nummers[0]}{t.handmatig ? " 📌" : ""} · {andersom ? "↻ andersom" : "→ rechtsom"}</span>
+                            <span className="zp-team-info">start {t.nummers[0]} · {andersom ? "↻ andersom" : "→ rechtsom"}</span>
                           </button>
                           <div className="zp-team-knoppen">
                             <button type="button" className={`rl-knop${kiesInstapVoor === t.teamIndex ? " rl-knop--cyan" : ""}`}
@@ -2359,8 +2347,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                               title="Tik daarna op de kaart op het punt waar dit team begint">📍 Ander startpunt</button>
                             <button type="button" className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`} onClick={() => wisselAndersom(t.teamIndex)}
                               title="Dit team loopt het rondje in de andere richting">↻ Andersom lopen</button>
-                            {t.handmatig && <button type="button" className="rl-knop" onClick={() => zetInstappunt(t.teamIndex, null)} title="Terug naar het berekende startpunt">Automatisch</button>}
                           </div>
+                          {/* 📌 Zelf gekozen startpunt: klein terug naar het berekende */}
+                          {t.handmatig && (
+                            <button type="button" className="zp-team-auto" onClick={() => zetInstappunt(t.teamIndex, null)} title="Terug naar het berekende startpunt">
+                              📌 Zelf gekozen startpunt · <u>Automatisch</u>
+                            </button>
+                          )}
                         </div>
                       );
                     })}
