@@ -1,3 +1,4 @@
+import { isKleurThema } from "@/lib/kleurthema";
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
@@ -64,6 +65,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (veld in body) toegestaan[veld] = typeof body[veld] === "string" && /^[\w-]+\.(jpg|jpeg|png|webp)$/i.test(body[veld]) ? body[veld] : null;
   }
   if (["klassiek", "arcade", "zacht", "feest"].includes(body.geluid_set)) toegestaan.geluid_set = body.geluid_set;
+  // 🎨 Kleurthema van de spelersapp (migratie 011); paars = leeg
+  if ("huis_thema" in body) toegestaan.huis_thema = isKleurThema(body.huis_thema) && body.huis_thema !== "paars" ? body.huis_thema : null;
   if ("verboden_gebieden" in body) {
     // Alleen geldige vlakken: een naam en minstens 3 hoekpunten
     const lijst = Array.isArray(body.verboden_gebieden) ? body.verboden_gebieden : [];
@@ -112,6 +115,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
   if (error && /puzzel_aan|puzzel_verdeling|puzzel_letter_punten|puzzel_raad_bonus/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 017 (puzzelwoord per vraag) in Supabase" }, { status: 500 });
+  }
+  if (error && /huis_thema/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 011 (supabase/migrations/011_kleurthema.sql) in Supabase" }, { status: 500 });
   }
   if (error && /huisstijl|welkom_foto|geluid_set/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 016 (huisstijl, geluid en stemvraag) in Supabase" }, { status: 500 });

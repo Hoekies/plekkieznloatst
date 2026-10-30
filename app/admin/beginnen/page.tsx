@@ -69,12 +69,12 @@ export default function BeginnenPagina() {
         .sg-stap-inner { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
         @media (max-width: 860px) { .sg-stap-inner { grid-template-columns: 1fr; } }
         .sg-stap h2 { margin: 0 0 10px; display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.3rem; color: #fff; }
-        .sg-nr { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(180deg, #ffd93b, #f5a623); color: #3a1f80;
+        .sg-nr { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(180deg, #ffd93b, #f5a623); color: rgb(var(--o5));
           display: inline-flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; }
         .sg-stap ol, .sg-stap ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; line-height: 1.55; color: var(--text); }
         .sg-stap li strong { color: #fff; }
         .sg-tip { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.4); color: #FFE58A; font-size: 0.86rem; line-height: 1.5; }
-        .sg-scherm { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); background: #1c0c45; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        .sg-scherm { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); background: rgb(var(--o0)); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
         .sg-scherm-balk { display: flex; align-items: center; gap: 5px; padding: 7px 10px; background: rgba(255,255,255,0.08); font-size: 0.7rem; color: var(--muted); }
         .sg-scherm-balk i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); }
         .sg-scherm-balk span { margin-left: 6px; }
@@ -97,7 +97,7 @@ export default function BeginnenPagina() {
         .sg-veld { padding: 7px 10px; border-radius: 9px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem; color: #fff; }
         .sg-veld small { display: block; font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
         .sg-kaartje { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; border: 2px solid rgba(255,217,59,0.6);
-          background: linear-gradient(165deg, #5b34a8, #2a1566); }
+          background: linear-gradient(165deg, rgb(var(--o7)), rgb(var(--o3))); }
         .sg-qr { width: 54px; height: 54px; border-radius: 6px; background: #fff repeating-linear-gradient(45deg, #000 0 3px, #fff 3px 6px); flex-shrink: 0; }
         .sg-teamkaart { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); }
         .sg-teamkop { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #fff; font-size: 0.85rem; }

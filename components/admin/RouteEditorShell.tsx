@@ -2486,7 +2486,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             padding: "16px",
           }} onClick={() => setInstellingenOpen(false)}>
             <div style={{
-              background: "#2a1566", color: "#e8f0ff",
+              background: "rgb(var(--o3))", color: "#e8f0ff",
               borderRadius: 18, padding: "16px 18px 20px",
               maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: vensterHoogte(90), overflowY: "auto", overflowX: "hidden",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
@@ -2769,7 +2769,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
-            background: "rgba(42,21,102,0.95)", border: `1px solid ${TEAM_KLEUREN[(kiesInstapVoor - 1) % TEAM_KLEUREN.length]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(var(--o3),0.95)", border: `1px solid ${TEAM_KLEUREN[(kiesInstapVoor - 1) % TEAM_KLEUREN.length]}`, boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             📍 Klik op het punt waar Team {kiesInstapVoor} begint · Esc = stoppen
@@ -2782,7 +2782,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 8, padding: "6px 6px 6px 12px", borderRadius: 12,
-            background: "rgba(42,21,102,0.95)", border: "1px solid var(--cyan)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(var(--o3),0.95)", border: "1px solid var(--cyan)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2797,7 +2797,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           <div style={{
             position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 600,
             display: "flex", alignItems: "center", gap: 12, padding: "8px 8px 8px 14px", borderRadius: 12,
-            background: "rgba(42,21,102,0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            background: "rgba(var(--o3),0.95)", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             fontSize: "0.8rem", color: "var(--text)", whiteSpace: "nowrap",
           }}>
             🗑️ {herstelToast.charAt(0).toUpperCase() + herstelToast.slice(1)}
@@ -2818,7 +2818,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <div style={{
               // Rechtsonder, zodat het tijdenpaneel rechtsboven zichtbaar blijft
               position: "absolute", bottom: 28, right: 12, zIndex: 500, width: 260, maxHeight: "calc(100% - 24px)", overflowY: "auto",
-              background: "rgba(42,21,102,0.92)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+              background: "rgba(var(--o3),0.92)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
               border: `1px solid ${t.kleur}`, borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
               padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8, fontSize: "0.78rem", color: "var(--text)",
             }}>

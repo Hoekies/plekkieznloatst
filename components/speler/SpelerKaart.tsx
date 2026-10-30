@@ -1025,7 +1025,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
       {/* Statistiekenbalk, in de teamkleur getint */}
       <div style={{
         display: "flex", gap: 10, padding: "10px 14px", flexShrink: 0,
-        background: teamKleur ? `linear-gradient(90deg, ${teamKleur}55, rgba(42,21,102,0.45) 70%)` : "rgba(42,21,102, 0.45)",
+        background: teamKleur ? `linear-gradient(90deg, ${teamKleur}55, rgba(var(--o3),0.45) 70%)` : "rgba(var(--o3), 0.45)",
         boxShadow: teamKleur ? `inset 0 -3px 0 ${teamKleur}` : undefined,
         backdropFilter: "blur(14px) saturate(130%)",
         WebkitBackdropFilter: "blur(14px) saturate(130%)",
@@ -1161,7 +1161,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
                       <img src={`/items/${type}.webp`} alt={type} style={{ width: 64, height: 64, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.5))" }} />
                       {n > 1 && (
                         <span style={{ position: "absolute", top: -4, right: -6, minWidth: 22, height: 22, borderRadius: 11, padding: "0 5px",
-                          background: "var(--pr-gold)", color: "#2a1050", fontWeight: 800, fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          background: "var(--pr-gold)", color: "rgb(var(--o1))", fontWeight: 800, fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           {n}×
                         </span>
                       )}
@@ -1466,7 +1466,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
         <div style={{
           position: "fixed", inset: 0, zIndex: 1500, pointerEvents: "none",
           // Doorzichtig genoeg om de kaart eronder te blijven zien; tekst leesbaar door de schaduw
-          background: "radial-gradient(circle at 50% 45%, rgba(88,28,135,0.32) 0%, rgba(15,10,40,0.42) 70%)",
+          background: "radial-gradient(circle at 50% 45%, rgba(var(--o6),0.32) 0%, rgba(15,10,40,0.42) 70%)",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           color: "#fff", gap: 10, textAlign: "center", padding: "0 24px",
         }}>

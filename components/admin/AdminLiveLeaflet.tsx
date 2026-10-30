@@ -200,7 +200,7 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
           ${hulpRing}
           <div style="
             width:${maat}px;height:${maat}px;border-radius:50%;
-            background:#3a1f80;border:3px solid ${kleur};
+            background:rgb(var(--o5));border:3px solid ${kleur};
             box-shadow:0 0 0 2px #fff, 0 2px 10px rgba(0,0,0,0.45)${gevolgd ? `, 0 0 18px ${kleur}` : ""};
             display:flex;align-items:center;justify-content:center;
             font-size:${gevolgd ? 22 : 17}px;font-weight:700;color:#fff;

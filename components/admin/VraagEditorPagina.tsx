@@ -653,7 +653,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                           border: `2px solid ${LABEL_KLEUR[ant.color]}`,
                           background: ant.is_correct ? LABEL_KLEUR[ant.color] : "transparent",
                           cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                          color: "#1a0b3d", fontSize: "0.8rem", fontWeight: 900, lineHeight: 1, padding: 0,
+                          color: "rgb(var(--o0))", fontSize: "0.8rem", fontWeight: 900, lineHeight: 1, padding: 0,
                         }}>{ant.is_correct ? "✓" : ""}</button>
                       <span style={{
                         width: 46, fontSize: "0.75rem", fontWeight: 700,

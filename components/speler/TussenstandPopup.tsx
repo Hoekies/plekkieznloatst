@@ -26,7 +26,7 @@ export default function TussenstandPopup({ tussenstand, resterendeSeconden, onSl
       padding: "16px",
     }}>
       <div style={{
-        background: "#2a1566",
+        background: "rgb(var(--o3))",
         color: "#e8f0ff",
         borderRadius: "18px",
         padding: "20px 16px",

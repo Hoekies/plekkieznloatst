@@ -170,7 +170,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
         position: "absolute", inset: 0,
         // Met een eigen foto: bovenin helder, naar onderen in de paarse speltint, zodat het venster leesbaar blijft
         background: welkomFoto
-          ? "linear-gradient(to bottom, rgba(28,12,69,0) 0%, rgba(28,12,69,0.25) 30%, rgba(28,12,69,0.75) 58%, rgba(28,12,69,0.95) 100%)"
+          ? "linear-gradient(to bottom, rgba(var(--o0),0) 0%, rgba(var(--o0),0.25) 30%, rgba(var(--o0),0.75) 58%, rgba(var(--o0),0.95) 100%)"
           : "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.82) 100%)",
         pointerEvents: "none",
       }} />

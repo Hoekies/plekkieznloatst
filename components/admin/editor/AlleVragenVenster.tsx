@@ -52,7 +52,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
   return (
     <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex" }}>
       {/* Lijst met alle vraagpunten */}
-      <aside className="alle-vragen-lijst" style={{ width: 230, flexShrink: 0, borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column", background: "rgba(42,21,102,0.6)" }}>
+      <aside className="alle-vragen-lijst" style={{ width: 230, flexShrink: 0, borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column", background: "rgba(var(--o3),0.6)" }}>
         <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, color: "var(--ink)" }}>📝 Alle vragen</div>

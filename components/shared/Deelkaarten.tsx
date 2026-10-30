@@ -63,7 +63,7 @@ function SporenKaart({ sporen, punten, b = 476, h = 420, overlay }: {
         <defs>
           <pattern id="raster" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" /></pattern>
         </defs>
-        <rect width={b} height={h} rx="18" fill="#1e1150" />
+        <rect width={b} height={h} rx="18" style={{ fill: "rgb(var(--o1))" }} />
         <rect width={b} height={h} rx="18" fill="url(#raster)" />
         {sporen.map((s, i) => s.pts.length > 1 && (
           <g key={i}>
@@ -217,7 +217,7 @@ export function RivaliteitenKaart({ d }: { d: GroepPlaatjes }) {
     <Kader titel="Rivalen" route={d.route} logo={d.huis_logo} datum={d.datum}>
       <div className="deelkaart-kaart" style={{ width: b, height: h }}>
         <svg width={b} height={h}>
-          <rect width={b} height={h} rx="18" fill="#1e1150" />
+          <rect width={b} height={h} rx="18" style={{ fill: "rgb(var(--o1))" }} />
           {lijnen.map((l, i) => (
             <g key={i}>
               <path d={l.d} fill="none" stroke={l.kleur} strokeWidth={l.dik} strokeLinecap="round" opacity="0.9" />

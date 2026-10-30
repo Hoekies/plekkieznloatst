@@ -324,8 +324,15 @@ Gedeelde beheeronderdelen (vaste vorm overal)
   ├── <MenuGroep> ⚙️ Instellingen: paneel dat naar rechts uitklapt (portal, blijft gemount)
   ├── <FotoKeurVenster> één keurvenster in de layout; openFotoKeuren() vanaf elke pagina, sneltoetsen G/F/S
   ├── <SpelAfronden> 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (reset, volgende groep; enige plek voor de reset)
+  ├── <ThemaKiezer> 🎨 Kleur in het menu: kleurthema van het beheer per toestel (localStorage pr_beheer_thema)
   └── <SysteemTeller> rood bolletje bij ⚙️/Systeemcheck (check 1× per 10 min, sessionStorage)
 ```
+
+---
+
+### Kleurthema's
+
+Alle vlakkleuren staan als RGB-drietal in `--o0` (donkerst) t/m `--o7` (lichtst) op `:root` (paars). Gebruik `rgb(var(--o3))` of `rgba(var(--o3), 0.9)`, nooit een vaste paarse kleur. `:root[data-thema="blauw|groen|antraciet|bordeaux"]` overschrijft ze, plus `--text` en `--muted`. Het attribuut wordt vóór het tekenen gezet door `themaScript()` uit `lib/kleurthema.ts`: in het beheer uit localStorage, in de spelersapp uit `routes.huis_thema` (migratie 011, via `haalHuisstijl`). Canvas-tekeningen (replay, afbeelding verkleinen) houden vaste kleuren.
 
 ---
 

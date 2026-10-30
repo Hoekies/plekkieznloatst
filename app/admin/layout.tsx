@@ -22,6 +22,8 @@ import FotoKeurVenster from "@/components/admin/FotoKeuren";
 import SysteemTeller from "@/components/admin/SysteemTeller";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 import PaginaTitel from "@/components/admin/PaginaTitel";
+import ThemaKiezer from "@/components/admin/ThemaKiezer";
+import { themaScript } from "@/lib/kleurthema";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -34,6 +36,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="admin-shell">
+      {/* 🎨 Kleur van het beheer op dit toestel, vóór het tekenen (geen paarse flits) */}
+      <script dangerouslySetInnerHTML={{ __html: themaScript() }} />
       <div className="admin-mobile-topbar">
         <SidebarToggle />
         {/* Telefoon: de naam van de pagina in de bovenbalk (de eigen kopbalk met alleen een titel valt dan weg) */}
@@ -60,12 +64,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/live"><MenuIcoon naam="live" /> Live kaart</AdminNavLink>
           {!helper && <AdminNavLink href="/admin/routes"><MenuIcoon naam="routes" /> Routes</AdminNavLink>}
         </nav>
-        {/* ⚙️ Instellingen: seizoenen, systeemcheck en de meldingen op dit toestel (helpers: alleen meldingen) */}
+        {/* ⚙️ Instellingen: seizoenen, systeemcheck, en de meldingen en kleur op dit toestel (helpers: alleen meldingen en kleur) */}
         <div className="admin-menu-blok">
           <MenuGroep icoon={<MenuIcoon naam="instellingen" />} teller={helper ? undefined : <SysteemTeller />} titel="Instellingen" paden={["/admin/seizoenen", "/admin/systeem"]}>
             {!helper && <AdminNavLink href="/admin/seizoenen"><MenuIcoon naam="seizoenen" /> Seizoenen</AdminNavLink>}
             {!helper && <AdminNavLink href="/admin/systeem"><MenuIcoon naam="systeem" /> Systeemcheck<SysteemTeller /></AdminNavLink>}
             <PushMeldingenKnop />
+            <ThemaKiezer />
           </MenuGroep>
         </div>
         <div className="admin-menu-blok admin-menu-blok--info">

@@ -7,11 +7,12 @@ import { toonMelding } from "@/components/admin/Melding";
 import { GELUID_SETS, speelVoorbeeld, type GeluidSet } from "@/lib/sounds";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import Icoon from "@/components/admin/Icoon";
+import { KLEUR_THEMAS, BEHEER_THEMA_SLEUTEL, zetThema } from "@/lib/kleurthema";
 
 // Voorbeeldkleuren; met 🎨 kies je elke andere kleur
 const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2"];
 
-type Velden = { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string };
+type Velden = { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string; huis_thema?: string | null };
 
 // Foto verkleinen in de browser (de opslag neemt max 500 KB): logo's als webp (doorzichtig blijft doorzichtig), foto's als jpg
 export async function verklein(bestand: Blob, maxZijde: number, logo: boolean): Promise<Blob | null> {
@@ -25,6 +26,11 @@ export async function verklein(bestand: Blob, maxZijde: number, logo: boolean): 
   if (ctx && !logo) { ctx.fillStyle = "#1C0C45"; ctx.fillRect(0, 0, doek.width, doek.height); }
   ctx?.drawImage(beeld, 0, 0, doek.width, doek.height);
   return new Promise((r) => doek.toBlob(r, logo ? "image/webp" : "image/jpeg", logo ? 0.9 : 0.8));
+}
+
+// Aanwijzen van een achtergrond toont hem even in het beheer; daarna terug naar de kleur van dit toestel
+function huidigBeheer(): string | null {
+  try { return localStorage.getItem(BEHEER_THEMA_SLEUTEL); } catch { return null; }
 }
 
 // 🎨 Huisstijl (kleur, logo, welkomstfoto) en 🔔 geluiden voor de spelers van deze route
@@ -83,6 +89,18 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
         <label className={`huisstijl-kleur huisstijl-kleur--eigen${kleur && !KLEUREN.includes(kleur.toUpperCase()) ? " aan" : ""}`} title="Eigen kleur kiezen" style={kleur && !KLEUREN.includes(kleur.toUpperCase()) ? { background: kleur } : undefined}>
           <Icoon naam="palet" /><input type="color" value={kleur ?? "#FF8A00"} onChange={(e) => onOpslaan({ huisstijl_kleur: e.target.value.toUpperCase() })} />
         </label>
+      </>)}
+
+      {/* 🎨 Achtergrond: het kleurthema van de spelersapp (migratie 011); paars is de gewone stijl */}
+      {rij("Achtergrond", "Kleur van de vlakken in de spelersapp", <>
+        {KLEUR_THEMAS.map((t) => {
+          const aan = (route.huis_thema ?? "paars") === t.sleutel;
+          return (
+            <button key={t.sleutel} type="button" className={`huisstijl-thema${aan ? " aan" : ""}`} style={{ background: t.staal }}
+              onClick={() => onOpslaan({ huis_thema: t.sleutel === "paars" ? null : t.sleutel })} title={t.naam} aria-label={`Achtergrond ${t.naam}`} aria-pressed={aan}
+              onMouseEnter={() => zetThema(t.sleutel)} onMouseLeave={() => zetThema(huidigBeheer())} />
+          );
+        })}
       </>)}
 
       {/* Logo: bovenbalk, welkomstscherm, oorkonde, uitslag-afbeelding en rapport; wordt bij uploaden vanzelf uitgeknipt */}

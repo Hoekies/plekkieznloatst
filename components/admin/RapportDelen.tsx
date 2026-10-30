@@ -19,7 +19,7 @@ async function maakPdf(elementen: HTMLElement[]): Promise<Blob> {
   let eerste = true;
   for (const el of elementen) {
     const canvas = await html2canvas(el, {
-      scale: 2, useCORS: true, backgroundColor: "#3a1f80", logging: false,
+      scale: 2, useCORS: true, backgroundColor: "rgb(var(--o5))", logging: false,
       // Zoomknoppen van de kaart horen niet in de PDF
       ignoreElements: (n) => n.classList?.contains("leaflet-control-container") ?? false,
     });

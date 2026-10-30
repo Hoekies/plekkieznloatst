@@ -412,7 +412,7 @@ export default function LeafletKaart({
             background:rgba(255,255,255,0.15);border:2px dashed #fff;
             display:flex;align-items:center;justify-content:center;position:relative;">
             <img src="/items/${v.type}.webp" style="width:20px;height:20px" alt="">
-            <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:#3a1f80;font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
+            <span style="position:absolute;right:-5px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;color:rgb(var(--o5));font:900 12px/14px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.4)">+</span>
           </div>`,
           iconSize: [34, 34],
           iconAnchor: [17, 17],

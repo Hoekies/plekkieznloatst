@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { haalHuisstijl, vastThema, eigenEmoji } from "@/lib/huisstijl";
 import { huidigFinishThema } from "@/lib/finish-thema";
 import ConfettiThema from "@/components/speler/ConfettiThema";
+import { themaScript } from "@/lib/kleurthema";
 
 export default async function SpelerLayout({ children }: { children: React.ReactNode }) {
   const user = await haalGebruiker();
@@ -30,6 +31,8 @@ export default async function SpelerLayout({ children }: { children: React.React
 
   return (
     <div className={`speler-shell${huisstijl.kleur ? " speler-shell--huisstijl" : ""}${huisstijl.logo ? " speler-shell--logo" : ""}`} style={kleurVars}>
+      {/* 🎨 Kleurthema van de route (migratie 011), vóór het tekenen */}
+      <script dangerouslySetInnerHTML={{ __html: themaScript(huisstijl.thema) }} />
       <GeluidSetKiezen set={huisstijl.geluidSet} />
       <ConfettiThema sleutel={confettiSleutel} emoji={confettiEmoji} />
       <AudioUnlock />

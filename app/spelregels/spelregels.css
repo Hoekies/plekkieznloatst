@@ -1,7 +1,7 @@
 /* 📄 Spelregels voor spelers (app/spelregels): op het scherm in de spelstijl, groot en rustig leesbaar;
    geprint een lichte A5-versie (zwart op wit, geen grote gekleurde vlakken, spaart inkt). */
 .spelregels { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; color: #F3EEFF; font-size: 1.05rem; line-height: 1.6; }
-html:has(.spelregels), body:has(.spelregels) { background: #1c0c45; }
+html:has(.spelregels), body:has(.spelregels) { background: rgb(var(--o0)); }
 .sr-kop { text-align: center; margin-bottom: 14px; }
 .sr-logo { width: min(320px, 80%); height: auto; }
 .spelregels h1 { margin: 8px 0 4px; font-size: 1.8rem; color: #FFE680; }

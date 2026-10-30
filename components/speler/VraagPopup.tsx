@@ -326,7 +326,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       display: "flex", flexDirection: "column",
     }}>
       {/* Logo header */}
-      <div style={{ padding: "max(10px, calc(env(safe-area-inset-top) + 8px)) 16px 8px", borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(42,21,102,0.5)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ padding: "max(10px, calc(env(safe-area-inset-top) + 8px)) 16px 8px", borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(var(--o3),0.5)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/spellogo/breed.png" alt="PointRush" style={{ height: 96, width: "auto" }} />
       </div>
@@ -437,7 +437,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         position: "absolute", top: 6, left: 6, width: 28, height: 28, borderRadius: 9,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "0.9rem",
-                        background: isGekozen ? "#ffffff" : "rgba(0,0,0,0.55)", color: isGekozen ? "#1a0b3d" : "#ffffff",
+                        background: isGekozen ? "#ffffff" : "rgba(0,0,0,0.55)", color: isGekozen ? "rgb(var(--o0))" : "#ffffff",
                         border: "2px solid rgba(255,255,255,0.7)",
                       }}>{isGekozen ? "✓" : String.fromCharCode(65 + i)}</span>
                       {optie.image_path ? (
@@ -496,7 +496,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1rem",
                         background: isGekozen ? "#ffffff" : "rgba(0,0,0,0.22)",
-                        color: isGekozen ? "#1a0b3d" : "#ffffff",
+                        color: isGekozen ? "rgb(var(--o0))" : "#ffffff",
                         border: "2px solid rgba(255,255,255,0.7)",
                       }}>{isGekozen ? "✓" : String.fromCharCode(65 + i)}</span>
                       <span style={{ fontSize: "1rem", fontWeight: 700, color: KLEUR_TEKST[optie.color] ?? "#ffffff" }}>{optie.text}</span>
@@ -625,7 +625,7 @@ export default function VraagPopup({ punt, onVerwerkt, start, startUitleg, onSta
       </div>
 
       {/* Vaste knop onderaan */}
-      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid rgba(255,255,255,0.1)", background: "rgba(42,21,102,0.5)" }}>
+      <div style={{ padding: "12px 16px 28px", borderTop: "1px solid rgba(255,255,255,0.1)", background: "rgba(var(--o3),0.5)" }}>
         {popupFase === "start" && (
           <button
             className="btn btn-primary"

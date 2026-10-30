@@ -59,6 +59,8 @@ export interface Route {
   huisstijl_logo_pad?: string | null;
   welkom_foto_pad?: string | null;
   geluid_set?: string | null;
+  // 🎨 Kleurthema van de spelersapp (migratie 011); leeg = paars
+  huis_thema?: string | null;
   verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null;
   respawn_minuten: number;
   plekzooi_duur_seconden: number;

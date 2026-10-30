@@ -1,11 +1,13 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
+import { isKleurThema } from "@/lib/kleurthema";
 import { huidigThema, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 // 🎨 Huisstijl van de actieve route (migratie 016): eigen kleur, logo en welkomstfoto, plus de geluidset.
 // Zonder migratie of zonder actieve route: alles leeg = de gewone PointRush-stijl.
-type Huisstijl = { kleur: string | null; logo: string | null; welkomFoto: string | null; geluidSet: string };
+// thema: kleurthema van de spelersapp (migratie 011), null = paars
+type Huisstijl = { kleur: string | null; logo: string | null; welkomFoto: string | null; geluidSet: string; thema: string | null };
 
 // Openbare map met geüploade afbeeldingen (logo's, foto's, seizoensafbeeldingen)
 export const OPSLAG = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/route-afbeeldingen/`;
@@ -18,7 +20,7 @@ export function huisLogoUrl(route: unknown): string | null {
 
 export async function haalHuisstijl(admin: AdminClient): Promise<Huisstijl> {
   const { data } = await admin.from("routes").select("*").eq("is_active", true).maybeSingle();
-  const r = (data ?? {}) as { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string | null };
+  const r = (data ?? {}) as { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string | null; huis_thema?: string | null };
   // Geen eigen welkomstfoto: de achtergrond van het seizoen of de feestdag van nu (migratie 019)
   if (!r.welkom_foto_pad) r.welkom_foto_pad = await seizoenPad(admin, "achtergrond");
   return {
@@ -26,6 +28,7 @@ export async function haalHuisstijl(admin: AdminClient): Promise<Huisstijl> {
     logo: r.huisstijl_logo_pad ? OPSLAG + r.huisstijl_logo_pad : null,
     welkomFoto: r.welkom_foto_pad ? OPSLAG + r.welkom_foto_pad : null,
     geluidSet: r.geluid_set ?? "klassiek",
+    thema: isKleurThema(r.huis_thema) ? r.huis_thema : null,
   };
 }
 
