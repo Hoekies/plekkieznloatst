@@ -4,7 +4,7 @@ Prompt voor **Codex**: maakt de spelerskaart en vervangt `public/handleiding.jpg
 `public/kaarten/klein-spelers.webp`. Maak deze als eerste: de routekaarten
 ([sequentieel](afbeelding-prompt-sequentieel.md), [verspreid](afbeelding-prompt-verspreid.md)) nemen de stijl ervan over.
 
-Bijgewerkt op 28 oktober 2026 met de audit [audit-spelers-a5-2026-10-27.md](audit-spelers-a5-2026-10-27.md): echte
+Bijgewerkt op 28 oktober 2026 met een audit van de kaartteksten: echte
 A5-verhouding, kortere en preciezere teksten (items, puzzel, foto, start), hoe je wint en wat te doen als iets niet lukt.
 
 ```

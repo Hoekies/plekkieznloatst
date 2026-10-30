@@ -31,11 +31,3 @@ tsconfig.tsbuildinfo
 # Lokale bestanden (niet in git)
 extra info/
 
-# Uitvoer van de proeven en audits (wordt bij elke run opnieuw gemaakt; niet in git)
-docs/audit-*/resultaten.json
-docs/audit-*/*.png
-docs/audit-*/*.pdf
-docs/audit-*/metingen.json
-docs/audit-*/browsermetingen.json
-docs/audit-editor-help/editor-hulp.html
-docs/audit-spelers-a5/printvoorbeeld.html
