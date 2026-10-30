@@ -72,6 +72,10 @@ interface Props {
   // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
   uitgelichtTeam?: number | null;
   onItemVoorstelKlik?: (v: { lat: number; lng: number; type: string }) => void;
+  // Teamvlag aangetikt (startpunt van dat team)
+  onTeamKlik?: (team: number) => void;
+  // Rechtsklik of lang drukken op de kaart
+  onRechtsKlik?: (lat: number, lng: number) => void;
 }
 
 export default function LeafletKaart({
@@ -80,7 +84,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null,
+  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null, onTeamKlik, onRechtsKlik,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -113,6 +117,10 @@ export default function LeafletKaart({
   const [kaartKlaar, setKaartKlaar] = useState(false);
 
   onKlikRef.current = onKlik;
+  const onTeamKlikRef = useRef(onTeamKlik);
+  onTeamKlikRef.current = onTeamKlik;
+  const onRechtsKlikRef = useRef(onRechtsKlik);
+  onRechtsKlikRef.current = onRechtsKlik;
   onItemVoorstelKlikRef.current = onItemVoorstelKlik;
   onMarkerKlikRef.current = onMarkerKlik;
   onMarkerVerplaatsdRef.current = onMarkerVerplaatst;
@@ -136,6 +144,8 @@ export default function LeafletKaart({
       setStijl(begin);
       voegBasiskaartToe(L, kaart, begin).then((b) => { if (mounted) basiskaartRef.current = b; });
 
+      // Rechtsklik (computer) of lang drukken (telefoon): keuzemenu op die plek
+      kaart.on("contextmenu", (e) => { onRechtsKlikRef.current?.(e.latlng.lat, e.latlng.lng); });
       kaart.on("click", (e) => {
         onKlikRef.current(e.latlng.lat, e.latlng.lng);
       });
@@ -324,22 +334,34 @@ export default function LeafletKaart({
 
         const instap = t.coords[1];
         if (!instap) return;
+        // Looprichting vanaf het startpunt: een pijl in de teamkleur op het eerste stuk (uitgelicht: pijlen op elk stuk)
+        const eerste = stukLijnen[1];
+        if (!uitgelicht && eerste && eerste.length >= 2) {
+          const mid = Math.max(1, Math.floor(eerste.length / 2));
+          const [aLat, aLng] = eerste[mid - 1], [bLat, bLng] = eerste[mid];
+          const dx = (bLng - aLng) * Math.cos((aLat * Math.PI) / 180), dy = bLat - aLat;
+          if (dx !== 0 || dy !== 0) {
+            const hoek = (-Math.atan2(dy, dx) * 180) / Math.PI;
+            const pijl = L.divIcon({
+              className: "",
+              html: `<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;transform:rotate(${hoek}deg)">
+                <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:11px solid ${t.kleur};filter:drop-shadow(0 0 2px #000)"></div>
+              </div>`,
+              iconSize: [20, 20], iconAnchor: [10, 10],
+            });
+            startMarkersRef.current.push(L.marker([(aLat + bLat) / 2, (aLng + bLng) / 2], { icon: pijl, interactive: false, zIndexOffset: 250 }).addTo(kaartRef.current!));
+          }
+        }
+        // Teamvlag op het startpunt; aantikken = dit team bewerken (startpunt, richting)
         const icon = L.divIcon({
           className: "",
-          html: `<div style="
-            width:26px;height:26px;border-radius:50%;
-            background:${t.kleur};color:#fff;
-            font-size:0.68rem;font-weight:800;
-            display:flex;align-items:center;justify-content:center;
-            border:2px solid #fff;
-            text-shadow:0 1px 2px rgba(0,0,0,0.6);
-            box-shadow:0 0 8px ${t.kleur};
-          ">T${t.teamIndex}</div>`,
-          iconSize: [26, 26],
-          iconAnchor: [13, 34],
+          html: `<div class="team-vlag" style="--team:${t.kleur}"><span>T${t.teamIndex}</span></div>`,
+          iconSize: [34, 30],
+          iconAnchor: [4, 40],
         });
-        const marker = L.marker([instap.lat, instap.lng], { icon, interactive: false, zIndexOffset: 300 })
+        const marker = L.marker([instap.lat, instap.lng], { icon, interactive: !!onTeamKlikRef.current, zIndexOffset: 300, title: `Team ${t.teamIndex}: tik om startpunt of richting te wijzigen` })
           .addTo(kaartRef.current!);
+        marker.on("click", (e) => { L.DomEvent.stopPropagation(e); onTeamKlikRef.current?.(t.teamIndex); });
         startMarkersRef.current.push(marker);
       });
     });

@@ -15,8 +15,7 @@ import { duurKort } from "@/lib/tijd";
 import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import ChatVenster from "@/components/admin/ChatVenster";
-import UitslagWhatsApp from "@/components/admin/UitslagWhatsApp";
-import SpelInCijfersDelen from "@/components/admin/SpelInCijfersDelen";
+import GroepPlaatjes from "@/components/admin/GroepPlaatjes";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 const NIET_GEZIEN_MIN = 5;
@@ -159,9 +158,8 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         tekst: "✅ Uitslag vrijgegeven. Bewaar nu het rapport; daarna ruim je op met 🧹 Opruimen.",
         actie: (
           <span style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            {/* 💬 Alles in één bericht voor de groepsapp */}
-            <SpelInCijfersDelen />
-            <UitslagWhatsApp />
+            {/* 🖼️ Plaatjes voor de groepsapp: uitslag, routes, prijzen, cijfers, rivalen */}
+            <GroepPlaatjes />
             <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"><Icoon naam="rapport" /> Rapport</a>
           </span>
         ),
@@ -243,8 +241,13 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               {status}
             </div>
           </div>
+          {/* Knoppen in twee groepen: tijdens het spel (alleen zolang er teams onderweg zijn) en na het spel */}
           {!beperkt && (
-            <div className="spelleider-knoppen">
+            <div className="spelleider-groepen">
+              {(!iedereenBinnen || gepauzeerd) && (
+                <div className="spelleider-groep">
+                  <span className="spelleider-groep-naam">▶️ Tijdens het spel</span>
+                  <div className="spelleider-knoppen">
               {gepauzeerd ? (
                 <button type="button" className="rl-knop rl-knop--groen actie-knop" onClick={() => wisselPauze(false)} data-sneltoets="p" title="Verder (sneltoets P)"><Icoon naam="verder" /> Verder</button>
               ) : (
@@ -258,8 +261,16 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               {goudenAan && !gepauzeerd && !uitslagVrij && <GoudenKnop gouden={gouden} onGewijzigd={onGewijzigd} />}
               {/* ⚡ Bonusvraag: klaarzetten, nu sturen en foto's keuren */}
               <BonusKnop />
-              {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
-              <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
+                  </div>
+                </div>
+              )}
+              <div className="spelleider-groep">
+                <span className="spelleider-groep-naam">🏁 Na het spel</span>
+                <div className="spelleider-knoppen">
+                  {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
+                  <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
+                </div>
+              </div>
             </div>
           )}
           {/* Helper: alleen de bonusvraag bekijken en de bonusfoto's keuren */}
@@ -276,7 +287,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         ) : aandacht.map((a) => {
           const inhoud = <><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span><span aria-hidden style={{ color: "var(--muted)" }}>›</span></>;
           const stijl = { borderLeftColor: (a.speler && kleuren.get(a.speler.player_id)) || a.kleur || undefined };
-          if (a.actie) return <div key={a.id} className="spelleider-regel" style={{ ...stijl, display: "flex", alignItems: "center", gap: 12 }}><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span>{a.actie}</div>;
+          if (a.actie) return <div key={a.id} className="spelleider-regel spelleider-regel--actie" style={stijl}><span style={{ flex: 1, minWidth: 0 }}>{a.tekst}</span>{a.actie}</div>;
           return <button key={a.id} type="button" className="spelleider-regel spelleider-regel--knop" style={stijl} onClick={() => a.klik ? a.klik() : a.speler && onKies(a.speler)}>{inhoud}</button>;
         })}
         {chatMet?.sessie_id && <ChatVenster sessieId={chatMet.sessie_id} naam={chatMet.display_name} icoon={chatMet.icon} onSluit={() => { setChatMet(null); onGewijzigd(); }} />}

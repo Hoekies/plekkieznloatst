@@ -177,8 +177,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         {/* 👉 Wat nu? De volgende stap in één zin, met de knop erbij (niet voor helpers) */}
         {!beperkt && <WatNu data={data} spelend={spelend} />}
 
-        {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels */}
-        <div style={{ marginBottom: 16 }}>
+        {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels; pas zodra er gespeeld wordt */}
+        {spelend.length > 0 && <div style={{ marginBottom: 16 }}>
           {/* Wat er nu is én wat je kunt doen: hulp en foto's zijn aan te tikken */}
           <StatStrook vakken={[
             { icoon: "⚡", waarde: aantalActief, label: "onderweg" },
@@ -187,7 +187,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               onKlik: aantalHulp ? () => { setFilter("aandacht"); document.querySelector(".spelleider")?.scrollIntoView({ behavior: "smooth", block: "center" }); } : undefined },
             { icoon: "📸", waarde: data.wachtende_fotos ?? 0, label: "foto's te keuren", letOp: !!data.wachtende_fotos, onKlik: data.wachtende_fotos ? openFotoKeuren : undefined },
           ]} />
-        </div>
+        </div>}
 
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
         <div style={{ marginBottom: 24 }}>

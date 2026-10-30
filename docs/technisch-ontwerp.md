@@ -278,11 +278,15 @@ Fouten van het foutscherm (`components/shared/FoutScherm.tsx` → `POST /api/fou
 ## 7. Componentstructuur
 
 ```
-<RouteEditor>
-  └── Leaflet kaart
-      ├── Punten als markers (versleepbaar)
-      ├── Polyline tussen punten
-      └── Klik = nieuw punt
+<RouteEditorShell> (gemaakt voor de pc)
+  ├── Zijbalk: vijf hoofdknoppen (actieveTab: punten | vragen | items | teams | spel), elk met alle instellingen van dat onderdeel
+  ├── 💡 Wat nu?: volgende stap uit punten, vragen, items en routeControle(); tik = naar die stap
+  ├── <EditorRondleiding> 4 stappen, eerste keer vanzelf (localStorage pr_editor_rondleiding), opnieuw via 🧭
+  ├── ⚙️ Instellingen-venster: alleen 📍 Punten (fijnafstelling, leegmaken) en 🎨 Uiterlijk
+  └── <LeafletKaart>
+      ├── Punten als markers (versleepbaar), polyline tussen punten
+      ├── Teamvlaggen (T1, T2, …) met looprichting-pijl; tik = onTeamKlik → 👫 Teams
+      ├── Klik = keuzemenu (punt, item, verboden gebied); rechtsklik / lang drukken = onRechtsKlik, ook midden in een modus
 
 <PuntForm>
   ├── Naam, beschrijving, type, radius, points

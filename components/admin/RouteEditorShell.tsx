@@ -40,6 +40,7 @@ import { normaliseerPuzzel, lettersVoor } from "@/lib/puzzel";
 import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import HusselInstelling from "@/components/admin/editor/HusselInstelling";
 import SchuifTekst from "@/components/admin/SchuifTekst";
+import EditorRondleiding from "@/components/admin/EditorRondleiding";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -130,7 +131,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     fetch(`/api/admin/routes/${initRoute.id}/statistiek`).then((r) => (r.ok ? r.json() : {})).then(setStatistiek).catch(() => {});
   }, [initRoute.id]);
   const [geselecteerdSpeciaal, setGeselecteerdSpeciaal] = useState<SpeciaalItem | null>(null);
-  const [actieveTab, setActieveTab] = useState<"punten" | "items">("punten");
+  const [actieveTab, setActieveTab] = useState<"punten" | "vragen" | "items" | "teams" | "spel">("punten");
   // 🚶 Proeflopen: klik over de kaart en loop als testspeler mee (er wordt niets opgeslagen)
   const [proef, setProef] = useState<ProefStand | null>(null);
   // Er staat een venster open in de testtelefoon: dan loopt de testspeler niet verder
@@ -174,13 +175,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (res.ok) setRoute((r) => ({ ...r, spelplezier: nieuw }));
     else toonMelding((await res.json().catch(() => ({}))).fout?.includes("spelplezier") ? "Draai eerst migratie 008 (instellingen spelplezier) in Supabase" : "Opslaan lukte niet", "fout");
   }
-  // 🔧 Instellingen: eenvoudig (de belangrijkste) of alles; onthouden op dit toestel
-  const [instAlles, setInstAlles] = useState(false);
-  useEffect(() => { try { setInstAlles(localStorage.getItem("pr_inst_alles") === "1"); } catch { /* geen opslag */ } }, []);
-  function kiesInstAlles(alles: boolean) {
-    setInstAlles(alles);
-    try { localStorage.setItem("pr_inst_alles", alles ? "1" : "0"); } catch { /* geen opslag */ }
-  }
   // Instellingen die bijna niemand aanpast staan achter "⚙️ Meer instellingen"
   const [meerInstellingen, setMeerInstellingen] = useState(false);
   // 🧩 Puzzelwoord: instellingen opslaan (zie editor/PuzzelInstellingen)
@@ -213,7 +207,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   useSluitMetEsc(() => setKiesInstapVoor(null), kiesInstapVoor !== null);
   // Het opengeklapte team wordt op de kaart uitgelicht (dikke lijn met looprichting)
   const [uitgelichtTeam, setUitgelichtTeam] = useState<number | null>(null);
-  const [instellingenTab, setInstellingenTab] = useState<"spel" | "punten" | "items" | "uiterlijk">("spel");
+  const [instellingenTab, setInstellingenTab] = useState<"punten" | "uiterlijk">("punten");
   // ❓ Standaard punten per vraag (route) en in één keer op alle vragen zetten
   const [vraagPuntenStd, setVraagPuntenStd] = useState(initRoute.vraag_punten ?? 65);
   // 🚶 Rondje: meters lopen na het welkomstscherm voor de eerste vraag
@@ -455,7 +449,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Rondje-instellingen (teams, afstand, genereren): dicht zodra er punten staan
   const [rondjeOpen, setRondjeOpen] = useState(false);
   // Uitleg "tik op de kaart…" zit achter een ⓘ
-  const [tikUitlegOpen, setTikUitlegOpen] = useState(false);
   const [adviesOpen, setAdviesOpen] = useState(false);
 
   // Bewerkpaneel versleepbaar aan de kop; de plek wordt onthouden (alleen op een groot scherm)
@@ -1023,6 +1016,30 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setMobielTikPositie({ lat, lng });
   }
 
+  // Rechtsklik of lang drukken op de kaart: altijd het keuzemenu (punt, item, verboden gebied), ook midden in een modus
+  function kaartRechtsKlik(lat: number, lng: number) {
+    if (tekenGebied || proef || kiesInstapVoor !== null) return;
+    setPlaatsType(null); setAddModus(false); setAddSpeciaalModus(false); setCentrumModus(false);
+    setMobielTikPositie({ lat, lng });
+  }
+  // Hoofdknop kiezen: lopende plaats-modi stoppen en de zijbalk openen
+  function kiesTab(t: typeof actieveTab) {
+    setActieveTab(t);
+    if (t !== "items") { setAddSpeciaalModus(false); setPlaatsType(null); }
+    if (t !== "punten") setAddModus(false);
+    if (t !== "teams") setKiesInstapVoor(null);
+    if (lijstDicht) wisselLijst();
+  }
+  // 🧭 Rondleiding: de eerste keer vanzelf (onthouden op dit toestel), later via 🧭 bij "Wat nu?"
+  const [rondleidingOpen, setRondleidingOpen] = useState(false);
+  useEffect(() => {
+    try { if (!localStorage.getItem("pr_editor_rondleiding")) setRondleidingOpen(true); } catch { /* geen opslag */ }
+  }, []);
+  function sluitRondleiding() {
+    setRondleidingOpen(false);
+    try { localStorage.setItem("pr_editor_rondleiding", "1"); } catch { /* geen opslag */ }
+  }
+
   // Vraag bewerken in een venster boven de editor (geen herladen, alles blijft open)
   const [vraagVenster, setVraagVenster] = useState<{ punt: RoutePunt; vraag: VraagMetAntwoorden | null } | null>(null);
   // Alle vragen achter elkaar invullen (knop 📝 Alle vragen)
@@ -1041,6 +1058,29 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // 📝 Alle vragen: ook de verplichte startvraag (🏠 bij een rondje) en de finishopdracht, op routevolgorde
   const alleVragenPunten = punten.filter((p, i) => p.type === "vraagpunt" || p.type === "eindpunt"
     || (route.modus === "verspreid" && punten.length >= 3 && i === 0));
+  // Vijf hoofdknoppen bovenin de zijbalk (👫 Teams alleen bij een rondje: op volgorde lopen alle teams dezelfde route)
+  const hoofdKnoppen: { tab: typeof actieveTab; icoon: string; naam: string; telling: string | number | null; uitleg: string }[] = [
+    { tab: "punten", icoon: "📍", naam: "Punten", telling: punten.length, uitleg: "De punten van de route: plaatsen, volgorde en soort" },
+    { tab: "vragen", icoon: "❓", naam: "Vragen", telling: alleVragenPunten.length ? `${alleVragenPunten.filter((p) => vraagPuntIds.has(p.id)).length}/${alleVragenPunten.length}` : null, uitleg: "Alle vragen, het puzzelwoord en de bonusvragen" },
+    { tab: "items", icoon: "🎁", naam: "Items", telling: specialeItems.length, uitleg: "Items op de kaart, startitems en wat na de finish nog mag" },
+    ...(route.modus === "verspreid" ? [{ tab: "teams" as const, icoon: "👫", naam: "Teams", telling: verwachtTeams, uitleg: "Aantal teams, startpunt en looprichting per team" }] : []),
+    { tab: "spel", icoon: "🎉", naam: "Spel", telling: null, uitleg: "Tussenstand, duel en spelplezier" },
+  ];
+  // 💡 Wat nu?: de eerstvolgende stap, met een tik ernaartoe
+  const watNu: { tekst: string; actie?: () => void; klaar?: boolean } = (() => {
+    const zonder = alleVragenPunten.filter((p) => !vraagPuntIds.has(p.id));
+    const fout = controle.find((r) => r.niveau === "fout");
+    if (route.modus === "verspreid" && punten.length === 0) {
+      if (!centrumPunt) return { tekst: "tik op de kaart en kies Middelpunt.", actie: () => kiesTab("punten") };
+      return { tekst: "maak de punten met 🎲 Punten maken in de cirkel.", actie: () => { kiesTab("punten"); setRondjeOpen(true); } };
+    }
+    if (punten.length === 0) return { tekst: "tik op de kaart en kies Punt.", actie: () => kiesTab("punten") };
+    if (zonder.length) return { tekst: `vul de vragen in (nog ${zonder.length} open).`, actie: () => { kiesTab("vragen"); setAlleVragenOpen(true); } };
+    if (fout) return { tekst: fout.tekst, actie: () => setControleOpen(true) };
+    if (route.modus === "verspreid" && specialeItems.length === 0) return { tekst: "leg items neer, bijvoorbeeld met ✨ Items verdelen.", actie: () => kiesTab("items") };
+    if (!route.is_active) return { tekst: "test de route met Testen en activeer hem daarna.", actie: () => setControleOpen(true) };
+    return { tekst: "de route is actief. Wijzigingen stuur je met Naar spelers sturen.", klaar: true };
+  })();
   // 🏆 Maximaal te halen voor één team: alle vragen (hoogste punten per vraag), punten zonder vraag, en de bonussen
   // van het puzzelwoord (alle letters). Items tellen niet mee: die verschillen per spel.
   const maxVragen = vraagpunten.reduce((som, p) => som + (vraagMaxPunten.get(p.id) ?? 0), 0);
@@ -1590,29 +1630,12 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               {wegen.bezig ? <Icoon naam="laden" /> : <Icoon naam="lopen" />}<span className="alleen-pc"> Wegen</span><span className="schakel-bol" aria-hidden />
             </button>
           </span>
-          <button className="rl-knop" disabled={!alleVragenPunten.length}
-            onClick={() => setAlleVragenOpen(true)} title="Alle vragen achter elkaar invullen, ook de startvraag en de finishopdracht (zoveel punten hebben al een vraag)">
-            <Icoon naam="notitie" /><span className="alleen-pc"> Vragen</span> <span className="editor-telling">{alleVragenPunten.filter((p) => vraagPuntIds.has(p.id)).length}/{alleVragenPunten.length}</span>
-          </button>
           {/* 🏆 Maximaal te halen (uitleg bij aanwijzen) */}
           {punten.length > 0 && (
             <span className="werkbalk-max" title={`Maximaal te halen voor één team: vragen ${maxVragen}${maxOverig ? ` + punten zonder vraag ${maxOverig}` : ""}${maxPuzzel ? ` + puzzelwoord ${maxPuzzel}` : ""}. Items tellen niet mee.`}>
               🏆 max {maxTotaal.toLocaleString("nl-NL")} pt
             </span>
           )}
-          {/* 🧩 Puzzelwoord in de werkbalk: alleen als het aan staat; groen = het aantal letters klopt */}
-          {(() => {
-            const verschil = puzzelLetters - vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
-            return (
-              <button type="button" className={`rl-knop werkbalk-puzzel${!route.puzzel_aan ? " werkbalk-puzzel--uit" : puzzelLetters && verschil === 0 ? " werkbalk-puzzel--goed" : ""}`}
-                onClick={() => setPuzzelOpen(true)}
-                title={!route.puzzel_aan ? "Puzzelwoord staat uit: tik om het aan te zetten" : !puzzelLetters ? "Puzzelwoord staat aan, maar er is nog geen woord" : verschil === 0
-                  ? `Puzzelwoord ${normaliseerPuzzel(route.puzzelwoord)}: ${puzzelLetters} letters, klopt met de vragen`
-                  : `Puzzelwoord: ${verschil > 0 ? `${verschil} vragen te kort` : `${-verschil} vragen te veel`}`}>
-                <span aria-hidden>🧩</span> {!route.puzzel_aan ? <span className="alleen-pc">Uit</span> : !puzzelLetters ? "?" : verschil === 0 ? `${puzzelLetters} ✓` : `${puzzelLetters} ⚠️`}
-              </button>
-            );
-          })()}
           <button className={`rl-knop${proef || testOpen ? " rl-knop--cyan" : ""}`} disabled={!punten.length}
             onClick={() => { if (proef || testOpen) { setProef(null); setTestOpen(false); } else setTestKeuze(true); setGeselecteerd(null); }}
             title={proef || testOpen ? "Testen stoppen" : "Testen: lopen als team, of alle vragen doorlopen"}>
@@ -1666,15 +1689,34 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       {/* Hoofdindeling */}
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
         {/* Zijpaneel — op mobiel een overlay i.p.v. vaste kolom */}
-        <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}${lijstDicht ? " route-editor-zijpaneel--dicht" : ""}`}>
+        <div className={`route-editor-zijpaneel${mobielPaneelOpen ? " route-editor-zijpaneel--open" : ""}${lijstDicht ? " route-editor-zijpaneel--dicht" : ""}${actieveTab === "spel" || actieveTab === "items" ? " route-editor-zijpaneel--breed" : ""}`}>
           {/* Telefoon: kop met sluitknop (tikken naast het paneel sluit hem ook) */}
           <div className="zijpaneel-kop-mobiel">
-            <span>≡ Punten en items</span>
+            <span>≡ Route</span>
             <button type="button" className="editor-paneel-sluit" onClick={() => setMobielPaneelOpen(false)} title="Lijst sluiten" aria-label="Lijst sluiten">✕</button>
           </div>
 
+          {/* Vijf hoofdknoppen: elk onderdeel van de route op één plek; de kaart blijft in beeld */}
+          <div className="editor-hoofdknoppen" role="tablist" aria-label="Onderdeel van de route">
+            {hoofdKnoppen.map((k) => (
+              <button key={k.tab} type="button" role="tab" aria-selected={actieveTab === k.tab} className={actieveTab === k.tab ? "aan" : ""}
+                onClick={() => kiesTab(k.tab)} title={k.uitleg} data-rondleiding={k.tab === "punten" ? "knoppen" : undefined}>
+                <span className="editor-hoofdknop-icoon" aria-hidden>{k.icoon}</span>
+                <span className="editor-hoofdknop-naam">{k.naam}</span>
+                {k.telling !== null && <span className="editor-hoofdknop-tel">{k.telling}</span>}
+              </button>
+            ))}
+          </div>
+          {/* 💡 Wat nu?: steeds de volgende stap; tik = naar die stap */}
+          <div className="editor-watnu">
+            <button type="button" className={`editor-watnu-knop${watNu.klaar ? " editor-watnu-knop--klaar" : ""}`} onClick={watNu.actie} disabled={!watNu.actie}>
+              <span aria-hidden>{watNu.klaar ? "✅" : "💡"}</span><span><strong>Wat nu?</strong> {watNu.tekst}</span>
+            </button>
+            <button type="button" className="editor-watnu-rondleiding" onClick={() => setRondleidingOpen(true)} title="🧭 Rondleiding: zo werkt de route-editor" aria-label="Rondleiding">🧭</button>
+          </div>
+
           {/* Verspreid-instellingen / afstand */}
-          {(route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
+          {actieveTab === "punten" && (route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
             {route.modus === "verspreid" && (() => {
               const totaalM = punten.length >= 2 ? wegen.totaal(puntPlekken) : 0;
               const stapM = doelAfstandKm > 0 && punten.length > 0 ? doelAfstandKm * 1000 / punten.length : null;
@@ -1695,21 +1737,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   )}
                   {(rondjeOpen || punten.length === 0) && (
                     <>
-                  {/* Teams input */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal teams:</span>
-                    <input
-                      type="number" min={2} max={20} value={verwachtTeams}
-                      onChange={(e) => setVerwachtTeams(Math.max(2, Number(e.target.value)))}
-                      onBlur={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
-                      style={{
-                        width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
-                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
-                        borderRadius: 6, color: "var(--cyan)", outline: "none",
-                      }}
-                    />
-                  </div>
-
                   {/* Doelafstand + Aantal punten op één regel */}
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap" }}>
                     <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Afstand:</span>
@@ -1778,28 +1805,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </>
                   )}
 
-                  {/* Looproute per team, in dezelfde kleur als op de kaart (ingeklapt onder de Rondje-regel, zodat de
-                      lijst rustig begint; een uitgelicht team blijft zichtbaar) */}
-                  {teamRoutes.length > 0 && (rondjeOpen || uitgelichtTeam !== null) && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "0.7rem" }}>
-                      {teamRoutes.map((t) => {
-                        const open = uitgelichtTeam === t.teamIndex;
-                        return (
-                          // Kort: team en instappunt. Tik = venster op de kaart met de hele looproute
-                          <button key={t.teamIndex} type="button"
-                            onClick={() => setUitgelichtTeam(open ? null : t.teamIndex)}
-                            style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 4px", borderRadius: 6, border: "none", cursor: "pointer", color: "var(--text)", textAlign: "left",
-                              background: open ? "rgba(255,255,255,0.08)" : "none" }}>
-                            <UitklapPijl open={open} />
-                            <span style={{ width: 10, height: 10, borderRadius: 3, background: t.kleur, flexShrink: 0 }} />
-                            <span style={{ color: t.kleur, fontWeight: 700 }}>Team {t.teamIndex}</span>
-                            <span style={{ color: "var(--muted)" }}>start {t.nummers[0]}{t.handmatig ? " 📌" : ""}{omgekeerdeTeams.includes(t.teamIndex) ? " · ↺" : ""}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-
                   {/* Waarschuwing */}
                   {teWeinigPunten && (
                     <div style={{ fontSize: "0.68rem", color: "var(--gold)", background: "var(--gold-soft)", padding: "5px 8px", borderRadius: 6 }}>
@@ -1816,62 +1821,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               return <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Totale afstand: {(totaalM / 1000).toFixed(1)} km {wegen.compleet ? "🚶 langs wegen en voetpaden" : wegen.aan ? "📏 hemelsbreed (wegen laden…)" : "📏 hemelsbreed"}</span>;
             })()}
 
-            {/* 🧩 Puzzelwoord: in één oogopslag aan of uit, en of het aantal letters klopt; tik = instellingen */}
-            {(() => {
-              const teVerdienen = vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
-              const verschil = puzzelLetters - teVerdienen;
-              return (
-                <button type="button" className={`puzzel-chip${puzzelLetters ? "" : " puzzel-chip--uit"}`}
-                  onClick={() => setPuzzelOpen(true)} title="Puzzelwoord instellen">
-                  <span aria-hidden>🧩</span>
-                  {!route.puzzel_aan ? <span>Puzzelwoord uit</span>
-                    : !puzzelLetters ? <span>Puzzelwoord aan, nog geen woord</span>
-                    : <>
-                        <strong className="puzzel-chip-woord">{normaliseerPuzzel(route.puzzelwoord)}</strong>
-                        <span className={`puzzel-chip-stand${verschil === 0 ? " puzzel-chip-stand--goed" : ""}`}>
-                          {verschil === 0 ? `✓ ${puzzelLetters} letters` : verschil > 0 ? `⚠️ ${verschil} te kort` : `⚠️ ${-verschil} te veel`}
-                        </span>
-                      </>}
-                </button>
-              );
-            })()}
           </div>}
-
-          {/* Tabbladen */}
-          <div style={{ display: "flex", borderBottom: "1px solid var(--line)" }}>
-            <button
-              onClick={() => { setActieveTab("punten"); setAddSpeciaalModus(false); setPlaatsType(null); }}
-              style={{
-                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
-                background: "transparent", border: "none", cursor: "pointer",
-                borderBottom: actieveTab === "punten" ? "2px solid var(--cyan)" : "2px solid transparent",
-                color: actieveTab === "punten" ? "var(--cyan)" : "var(--muted)",
-              }}>
-              <Icoon naam="punt" /> Punten ({punten.length})
-            </button>
-            <button
-              onClick={() => { setActieveTab("items"); setAddModus(false); }}
-              style={{
-                flex: 1, padding: "10px 0", fontSize: "0.82rem", fontWeight: 700,
-                background: "transparent", border: "none", cursor: "pointer",
-                borderBottom: actieveTab === "items" ? "2px solid var(--cyan)" : "2px solid transparent",
-                color: actieveTab === "items" ? "var(--cyan)" : "var(--muted)",
-              }}>
-              <Icoon naam="items" /> Items ({specialeItems.length})
-            </button>
-            {/* Toevoegen gaat via de kaart: uitleg achter de ⓘ */}
-            <button type="button" onClick={() => setTikUitlegOpen((v) => !v)} title="Tik op de kaart om toe te voegen · sleep om te verplaatsen" aria-expanded={tikUitlegOpen}
-              style={{ alignSelf: "center", margin: "0 10px 0 4px", width: 22, height: 22, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
-                border: `1px solid ${tikUitlegOpen ? "#FFE680" : "rgba(255,255,255,0.25)"}`, background: tikUitlegOpen ? "rgba(255,217,59,0.15)" : "transparent",
-                color: tikUitlegOpen ? "#FFE680" : "var(--muted)", fontWeight: 800, fontSize: "0.75rem", fontStyle: "italic", fontFamily: "Georgia, serif" }}>
-              i
-            </button>
-          </div>
-          {tikUitlegOpen && (
-            <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: "0.74rem", color: "var(--muted)" }}>
-              👆 Tik op de kaart om toe te voegen · sleep om te verplaatsen
-            </div>
-          )}
 
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
@@ -2029,7 +1979,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
             {actieveTab === "items" && route.modus === "sequentieel" && (
               <p style={{ margin: "0 14px 8px", fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.45 }}>
-                🎒 Startitems stel je in bij ⚙️ Instellingen. Op de kaart alleen plek zooi.
+                  Op de kaart alleen plek zooi. De startitems staan hieronder.
               </p>
             )}
             {actieveTab === "items" && route.modus === "verspreid" && (() => {
@@ -2096,342 +2046,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </>
               );
             })()}
+            {/* 🎒 Startitems, na de finish en de fijnafstelling: alles van de items op één plek */}
             {actieveTab === "items" && (
-              specialeItems.length === 0 ? (
-                <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  👆 <strong>Klik op de kaart</strong> en kies 🎁 Item om een item te plaatsen.
-                </p>
-              ) : (
-                <>
-                  <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
-                </>
-              )
-            )}
-
-          </div>
-
-        </div>
-
-        {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
-        {mobielPaneelOpen && (
-          <div className="route-editor-paneel-backdrop" onClick={() => setMobielPaneelOpen(false)} />
-        )}
-
-        {/* Kies wat een "kale" tik op de kaart moet worden (geen modus vooraf geselecteerd) */}
-        {mobielTikPositie && (
-          <>
-            <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} />
-            <div className="route-editor-tik-kiezer">
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 4 }}>
-                <span style={{ flex: 1, fontSize: "0.8rem", fontWeight: 700 }}>Hier toevoegen:</span>
-                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setMobielTikPositie(null)} title="Sluiten" aria-label="Sluiten">✕</button>
-              </div>
-              {route.modus === "verspreid" && (
-                <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
-                  onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
-                  <Icoon naam="thuis" /> Middelpunt (start en finish)
-                </button>
-              )}
-              <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                <Icoon naam="punt" /> Punt
-              </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                {route.modus === "sequentieel" ? <><Icoon naam="verboden" />{" Plek zooi"}</> : <><Icoon naam="items" />{" Item"}</>}
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Instellingen-modal, geopend via het tandwiel in de header */}
-        {instellingenOpen && (
-          <div style={{
-            position: "fixed", inset: 0, zIndex: 800,
-            background: "rgba(0,0,0,0.75)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "16px",
-          }} onClick={() => setInstellingenOpen(false)}>
-            <div style={{
-              background: "#2a1566", color: "#e8f0ff",
-              borderRadius: 18, padding: "16px 18px 20px",
-              maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: vensterHoogte(90), overflowY: "auto", overflowX: "hidden",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
-            }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 800, color: "#fff" }}>⚙️ Instellingen</h2>
-                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setInstellingenOpen(false)} title="Sluiten" aria-label="Sluiten">✕</button>
-              </div>
-
-              {/* inst-inhoud: elke instelling als één regel (naam en korte uitleg links, de keuze rechts) */}
-              <div className={`inst-inhoud${instAlles ? "" : " inst-eenvoudig"}`} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                {/* Onderwerpen als knoppen */}
-                <div className="segment" role="tablist" aria-label="Onderwerp">
-                  {([["spel", "🎮 Spel"], ["punten", "📍 Punten"], ["items", "🎁 Items"], ["uiterlijk", "🎨 Uiterlijk"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
-                    <button key={t} type="button" role="tab" aria-selected={instellingenTab === t} className={instellingenTab === t ? "aan" : ""} onClick={() => setInstellingenTab(t)}>{label}</button>
-                  ))}
-                </div>
-                {/* 🔧 Eenvoudig: alleen de belangrijkste keuzes; Alles: ook de fijnafstelling (onthouden op dit toestel) */}
-                <div className="segment inst-niveau" role="radiogroup" aria-label="Hoeveel instellingen">
-                  <button type="button" role="radio" aria-checked={!instAlles} className={instAlles ? "" : "aan"} onClick={() => kiesInstAlles(false)}>Eenvoudig</button>
-                  <button type="button" role="radio" aria-checked={instAlles} className={instAlles ? "aan" : ""} onClick={() => kiesInstAlles(true)}>Alles</button>
-                </div>
-                {/* 9. Eén zin: wat stel je hier in? */}
-                <span className="inst-uitleg inst-tab-uitleg">{{
-                  spel: "Hoe het spel verloopt: de tussenstand op de telefoons en het husselen van de antwoorden.",
-                  punten: "Wat de spelers van de route zien en hoe dichtbij ze bij een punt moeten komen.",
-                  items: "De speciale items: wat ze doen, wat elk team bij de start krijgt en wat na de finish nog mag.",
-                  uiterlijk: "Hoe de spelersapp eruitziet en klinkt: kleur, logo, welkomstfoto en geluiden.",
-                }[instellingenTab]}</span>
-
-                {instellingenTab === "spel" && (
-                  <>
-                {/* Speltype (vastgezet bij aanmaken, niet meer te wijzigen) */}
-                <div className="inst-speltype" title={MODUS_INFO[route.modus].omschrijving}>
-                  <ModusTegel modus={route.modus} size={24} />
-                  <strong style={{ color: MODUS_INFO[route.modus].kleur }}>{MODUS_INFO[route.modus].label}</strong>
-                  <span>· kan niet meer veranderen</span>
-                </div>
-
-                {/* Tussenstand */}
-                <div className="form-group">
-                  <label className="form-label">🏆 Tussenstand op de telefoons</label>
-                  <span className="inst-uitleg">De spelers zien af en toe vanzelf de stand van alle teams.</span>
-                  <div className="inst-rij">
-                    <span className="inst-rij-label">Elke</span>
-                    <div className="segment" role="radiogroup" aria-label="Hoe vaak">
-                      {[0, 10, 15, 20, 30].map((m) => (
-                        <button key={m} type="button" role="radio" aria-checked={tussenstandInterval === m} className={tussenstandInterval === m ? "aan" : ""}
-                          onClick={() => { setTussenstandInterval(m); slaTussenstandIntervalOp(m); }}>{m ? `${m} min` : "Uit"}</button>
-                      ))}
-                    </div>
-                  </div>
-                  {tussenstandInterval > 0 && (
-                    <div className="inst-rij">
-                      <span className="inst-rij-label">Zichtbaar</span>
-                      <div className="segment" role="radiogroup" aria-label="Hoe lang zichtbaar">
-                        {[5, 10, 15, 20].map((s) => (
-                          <button key={s} type="button" role="radio" aria-checked={tussenstandDuur === s} className={tussenstandDuur === s ? "aan" : ""}
-                            onClick={() => { setTussenstandDuur(s); slaTussenstandDuurOp(s); }}>{s} s</button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {tussenstandInterval > 0 && ![10, 15, 20, 30].includes(tussenstandInterval) && <span className="inst-uitleg">Nu ingesteld: elke {tussenstandInterval} min.</span>}
-                </div>
-
-                {/* 🔀 Antwoorden husselen: voor de hele route, niet per vraag */}
-                <div className="inst-geavanceerd"><HusselInstelling routeId={route.id} /></div>
-
-                {/* ⚔️ Duel: twee teams vlak bij elkaar krijgen dezelfde snelle vraag (migratie 006) */}
-                <div className="form-group">
-                  <label className="form-label">⚔️ Duel</label>
-                  <span className="inst-uitleg">Komen twee teams binnen 25 meter van elkaar, dan krijgen ze allebei dezelfde snelle vraag. Wie het eerst goed is, pakt punten van de ander.</span>
-                  <div className="inst-rij">
-                    <div className="segment" role="radiogroup" aria-label="Duel aan of uit">
-                      {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
-                        <button key={tekst} type="button" role="radio" aria-checked={!!route.duel_aan === aan} className={!!route.duel_aan === aan ? "aan" : ""}
-                          onClick={() => slaDuelOp({ duel_aan: aan })}>{tekst}</button>
-                      ))}
-                    </div>
-                    {route.duel_aan && (
-                      <div className="segment" role="radiogroup" aria-label="Punten per duel">
-                        {DUEL_PUNTEN_KEUZES.map((p) => (
-                          <button key={p} type="button" role="radio" aria-checked={(route.duel_punten ?? 25) === p} className={(route.duel_punten ?? 25) === p ? "aan" : ""}
-                            onClick={() => slaDuelOp({ duel_punten: p })}>{p} pt</button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 🎉 Spelplezier: val, reeks, badges, fotobattle, vliegende schat en rad (migratie 007) */}
-                <SpelplezierInstellingen waarden={route} onZet={slaPlezierOp} onInstellingen={slaPlezierInstOp} />
-
-                {/* ⚡ Bonusvragen van deze route (ook als hij nog niet actief is); op volgorde van het spel */}
-                <div className="form-group">
-                  <label className="form-label">⚡ Bonusvragen</label>
-                  <BonusLijst routeId={route.id} inEditor />
-                </div>
-
-                  </>
-                )}
-
-                {/* 🧩 Puzzelwoord staat niet hier maar achter het 🧩-knopje in de werkbalk (eigen venster) */}
-
-                {/* 🎨 Huisstijl en 🔔 geluiden voor de spelers */}
-                {instellingenTab === "uiterlijk" && (
-                  <HuisstijlInstellingen route={route} onOpslaan={async (velden) => {
-                    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
-                    if (res.ok) setRoute((r) => ({ ...r, ...velden }));
-                    return res.ok;
-                  }} />
-                )}
-
-                {instellingenTab === "punten" && (
-                  <>
-                    {/* ⛔ Verboden gebieden: overzicht, verwijderen */}
-                    <div className="form-group inst-geavanceerd">
-                      <label className="form-label">⛔ Verboden gebieden</label>
-                      {gebieden.map((g, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem" }}>
-                          <span style={{ flex: 1 }}>{g.naam} <span style={{ color: "var(--muted)" }}>· {g.punten.length} hoeken</span></span>
-                          <button type="button" className="rl-knop" title="Verwijderen" onClick={() => slaGebiedenOp(gebieden.filter((_, j) => j !== i))}><Icoon naam="wissen" /></button>
-                        </div>
-                      ))}
-                      <button type="button" className="rl-knop" style={{ alignSelf: "flex-start" }}
-                        onClick={() => { setInstellingenOpen(false); setTekenGebied([]); setProef(null); setGeselecteerd(null); }}><Icoon naam="plus" /> Gebied tekenen</button>
-                      <span className="inst-uitleg">Bijv. een drukke weg of privéterrein. Teams zien het rood op hun kaart en krijgen een waarschuwing als ze erin lopen.</span>
-                    </div>
-                {/* Op volgorde: wat zien de spelers op de kaart */}
-                {route.modus === "sequentieel" && (
-                  <div className="form-group">
-                    <label className="form-label">🗺️ Wat zien de spelers?</label>
-                    <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
-                      {([[false, "📍 Alleen volgend punt"], [true, "🗺️ Hele route"]] as const).map(([waarde, tekst]) => (
-                        <button key={tekst} type="button" role="radio" aria-checked={!!route.alle_punten_zichtbaar === waarde}
-                          className={!!route.alle_punten_zichtbaar === waarde ? "aan" : ""}
-                          onClick={async () => {
-                            if (!!route.alle_punten_zichtbaar === waarde) return;
-                            const res = await api(`/api/admin/routes/${route.id}`, {
-                              method: "PATCH", headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ alle_punten_zichtbaar: waarde }),
-                            });
-                            if (res.ok) setRoute((r) => ({ ...r, alle_punten_zichtbaar: waarde }));
-                          }}>{tekst}</button>
-                      ))}
-                    </div>
-                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Per punt kies je ❓ Vraag, ℹ️ Info of 🚶 Door (geen scherm).
-                    </span>
-                  </div>
-                )}
-
-                    {route.modus === "verspreid" && (
-                      <div className="form-group inst-geavanceerd">
-                        <label className="form-label">🚶 Eerste vraag na</label>
-                        <span className="inst-uitleg">Meters lopen vanaf de start (0 = meteen).</span>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <input className="form-input" type="number" min={0} max={500} value={startMeter}
-                            onChange={(e) => setStartMeter(Math.max(0, Math.min(500, Number(e.target.value))))}
-                            onBlur={() => slaPuzzelOp({ startvraag_meter: startMeter })} style={{ width: 100 }} />
-                          <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>meter</span>
-                        </div>
-                      </div>
-                    )}
-                    <div className="form-group">
-                      <label className="form-label">❓ Punten per vraag</label>
-                      <span className="inst-uitleg">Wat een nieuwe vraag krijgt.</span>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                        <input className="form-input" type="number" min={0} value={vraagPuntenStd}
-                          onChange={(e) => setVraagPuntenStd(Math.max(0, Number(e.target.value)))}
-                          onBlur={() => slaPuzzelOp({ vraag_punten: vraagPuntenStd })} style={{ width: 100 }} />
-                        <BevestigKnop venster gevaarlijk={false} icoon="❓" titel={`Alle ${vraagpunten.length} vragen op ${vraagPuntenStd} punten zetten?`} vraag=""
-                          uitleg="Eigen punten per antwoord blijven staan." ja="Ja, toepassen" disabled={!vraagPuntIds.size}
-                          onBevestig={zetAlleVraagPunten} className="rl-knop">Op alle vragen toepassen</BevestigKnop>
-                      </div>
-                    </div>
-                    <div className="form-group inst-geavanceerd">
-                      <label className="form-label">📏 Radius van de punten (m)</label>
-                      <input className="form-input" type="number" min={3} value={puntRadius}
-                        onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
-                        onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
-                    </div>
-                    <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
-                    </button>
-                    {meerInstellingen && <div className="form-group inst-geavanceerd">
-                      <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
-                      <input className="form-input" type="number" min={0} value={puntPunten}
-                        onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
-                        onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
-                    </div>}
-                    {/* ⚠️ Gevaarlijk: niet in de werkbalk, zodat je het niet per ongeluk aantikt */}
-                    {!route.is_active && (
-                      <div className="inst-gevaarlijk">
-                        <div className="huisstijl-naam"><strong>Route leegmaken</strong><span>Alle punten, vragen en items weg; naam en instellingen blijven</span></div>
-                        <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
-                          vraag="" uitleg={punten.length || specialeItems.length
-                            ? `Alle ${punten.length} punten (met hun vragen), ${specialeItems.length} items en de gekozen start en finish gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`
-                            : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
-                          ja="Ja, alles weg" onBevestig={() => { setInstellingenOpen(false); return maakRouteLeeg(); }} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
-                          className="rl-knop rl-knop--rood">
-                          <Icoon naam="wissen" /> Leegmaken
-                        </BevestigKnop>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {instellingenTab === "items" && (
-                  <>
-                    <div className="form-group inst-geavanceerd">
-                      <label className="form-label">📏 Radius van de items (m)</label>
-                      <input className="form-input" type="number" min={3} value={itemRadius}
-                        onChange={(e) => setItemRadius(Math.max(3, Number(e.target.value)))}
-                        onBlur={() => pasAlleItemsAan(itemRadius)} style={{ width: 120 }} />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle items.</span>
-                    </div>
-                {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
-                {meerInstellingen && route.modus === "verspreid" && (
-                  <div className="form-group inst-geavanceerd">
-                    <label className="form-label">⭐ Item-waarden</label>
-                    <div style={{ display: "flex", gap: 12 }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
-                        <input
-                          className="form-input" type="number" min={1} value={sterWaarde}
-                          onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
-                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                          style={{ width: "100%", boxSizing: "border-box", color: "var(--gold)", fontWeight: 700 }}
-                        />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
-                        <input
-                          className="form-input" type="number" min={1} value={bomWaarde}
-                          onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
-                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
-                          style={{ width: "100%", boxSizing: "border-box", color: "var(--red)", fontWeight: 700 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Duur van spook en plekzooi */}
-                {meerInstellingen && (
-                  <div className="form-group inst-geavanceerd">
-                    <label className="form-label">⏱️ Duur van effecten (minuten)</label>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      {route.modus === "verspreid" && <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>👻 Spook</span>
-                        <input
-                          className="form-input" type="number" min={0.5} step={0.5} value={spookMinuten}
-                          onChange={(e) => setSpookMinuten(Math.max(0.5, Number(e.target.value)))}
-                          onBlur={() => slaItemDuurOp("spook_duur_seconden", spookMinuten)}
-                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
-                        />
-                      </div>}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>⛔ Plekzooi</span>
-                        <input
-                          className="form-input" type="number" min={0.5} step={0.5} value={plekzooiMinuten}
-                          onChange={(e) => setPlekzooiMinuten(Math.max(0.5, Number(e.target.value)))}
-                          onBlur={() => slaItemDuurOp("plekzooi_duur_seconden", plekzooiMinuten)}
-                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
-                        />
-                      </div>
-                    </div>
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
-                      {route.modus === "verspreid" && "Spook: punt onzichtbaar · "}Plek zooi: team staat stil
-                    </span>
-                  </div>
-                )}
-
+              <div className="zijpaneel-inst">
                 {/* Startitems */}
                 {(
                   <div className="form-group">
@@ -2516,6 +2133,75 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 )}
 
+                <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                  <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
+                </button>
+                {meerInstellingen && <>
+                    <div className="form-group inst-geavanceerd">
+                      <label className="form-label">📏 Radius van de items (m)</label>
+                      <input className="form-input" type="number" min={3} value={itemRadius}
+                        onChange={(e) => setItemRadius(Math.max(3, Number(e.target.value)))}
+                        onBlur={() => pasAlleItemsAan(itemRadius)} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle items.</span>
+                    </div>
+                </>}
+                {/* Item-waarden (sequentieel heeft geen sterren of bommen) */}
+                {meerInstellingen && route.modus === "verspreid" && (
+                  <div className="form-group inst-geavanceerd">
+                    <label className="form-label">⭐ Item-waarden</label>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Ster</span>
+                        <input
+                          className="form-input" type="number" min={1} value={sterWaarde}
+                          onChange={(e) => setSterWaarde(Math.max(1, Number(e.target.value)))}
+                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                          style={{ width: "100%", boxSizing: "border-box", color: "var(--gold)", fontWeight: 700 }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>Bom</span>
+                        <input
+                          className="form-input" type="number" min={1} value={bomWaarde}
+                          onChange={(e) => setBomWaarde(Math.max(1, Number(e.target.value)))}
+                          onBlur={() => slaItemWaardenOp(sterWaarde, bomWaarde)}
+                          style={{ width: "100%", boxSizing: "border-box", color: "var(--red)", fontWeight: 700 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Duur van spook en plekzooi */}
+                {meerInstellingen && (
+                  <div className="form-group inst-geavanceerd">
+                    <label className="form-label">⏱️ Duur van effecten (minuten)</label>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {route.modus === "verspreid" && <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>👻 Spook</span>
+                        <input
+                          className="form-input" type="number" min={0.5} step={0.5} value={spookMinuten}
+                          onChange={(e) => setSpookMinuten(Math.max(0.5, Number(e.target.value)))}
+                          onBlur={() => slaItemDuurOp("spook_duur_seconden", spookMinuten)}
+                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
+                        />
+                      </div>}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>⛔ Plekzooi</span>
+                        <input
+                          className="form-input" type="number" min={0.5} step={0.5} value={plekzooiMinuten}
+                          onChange={(e) => setPlekzooiMinuten(Math.max(0.5, Number(e.target.value)))}
+                          onBlur={() => slaItemDuurOp("plekzooi_duur_seconden", plekzooiMinuten)}
+                          style={{ width: "100%", boxSizing: "border-box", fontWeight: 700 }}
+                        />
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      {route.modus === "verspreid" && "Spook: punt onzichtbaar · "}Plek zooi: team staat stil
+                    </span>
+                  </div>
+                )}
+
                 {/* Respawn */}
                 {meerInstellingen && route.modus === "verspreid" && (
                   <div className="form-group inst-geavanceerd">
@@ -2553,9 +2239,371 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     </div>
                   </div>
                 )}
-                <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                  <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
+              </div>
+            )}
+            {actieveTab === "items" && <div className="zijpaneel-kopje">🗺️ Op de kaart ({specialeItems.length})</div>}
+            {actieveTab === "items" && (
+              specialeItems.length === 0 ? (
+                <p style={{ padding: "16px 14px", color: "var(--muted)", fontSize: "0.82rem" }}>
+                  👆 <strong>Klik op de kaart</strong> en kies 🎁 Item om een item te plaatsen.
+                </p>
+              ) : (
+                <>
+                  <ItemLijst items={specialeItems} gekozen={geselecteerdSpeciaal} onKies={setGeselecteerdSpeciaal} onVerwijder={verwijderSpeciaalItem} />
+                </>
+              )
+            )}
+
+            {/* ❓ Vragen: alle vragen op één plek, met het puzzelwoord en de bonusvragen */}
+            {actieveTab === "vragen" && (
+              <div className="zijpaneel-inst">
+                <button type="button" className="rl-knop rl-knop--cyan zp-grote-knop" disabled={!alleVragenPunten.length} onClick={() => setAlleVragenOpen(true)}
+                  title="Alle vragen achter elkaar invullen, ook de startvraag en de finishopdracht">
+                  📝 Alle vragen <span className="editor-telling">{alleVragenPunten.filter((p) => vraagPuntIds.has(p.id)).length}/{alleVragenPunten.length}</span>
                 </button>
+                {alleVragenPunten.length === 0 ? (
+                  <p className="zp-leeg">Nog geen vraagpunten. Zet eerst punten op de kaart met <em>Punten</em>.</p>
+                ) : (
+                  <div className="zp-vragen">
+                    {alleVragenPunten.map((p) => {
+                      const i = punten.findIndex((x) => x.id === p.id);
+                      const label = p.type === "eindpunt" && i === punten.length - 1 ? "🏁" : route.modus === "verspreid" && punten.length >= 3 && i === 0 ? "🏠" : kaartNummer(p);
+                      const heeft = vraagPuntIds.has(p.id);
+                      return (
+                        <button key={p.id} type="button" className={`zp-vraag${heeft ? "" : " zp-vraag--leeg"}`} onClick={() => openVraag(p)}
+                          title={heeft ? "Vraag ingevuld: tik om te bewerken" : "Nog geen vraag: tik om hem in te vullen"}>
+                          <span className="zp-vraag-nr">{label}</span>
+                          <span className="zp-vraag-naam">{p.name || "naamloos punt"}</span>
+                          <span aria-hidden>{heeft ? "✓" : "⚠️"}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+            {/* 🧩 Puzzelwoord: in één oogopslag aan of uit, en of het aantal letters klopt; tik = instellingen */}
+            {(() => {
+              const teVerdienen = vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
+              const verschil = puzzelLetters - teVerdienen;
+              return (
+                <button type="button" className={`puzzel-chip${puzzelLetters ? "" : " puzzel-chip--uit"}`}
+                  onClick={() => setPuzzelOpen(true)} title="Puzzelwoord instellen">
+                  <span aria-hidden>🧩</span>
+                  {!route.puzzel_aan ? <span>Puzzelwoord uit</span>
+                    : !puzzelLetters ? <span>Puzzelwoord aan, nog geen woord</span>
+                    : <>
+                        <strong className="puzzel-chip-woord">{normaliseerPuzzel(route.puzzelwoord)}</strong>
+                        <span className={`puzzel-chip-stand${verschil === 0 ? " puzzel-chip-stand--goed" : ""}`}>
+                          {verschil === 0 ? `✓ ${puzzelLetters} letters` : verschil > 0 ? `⚠️ ${verschil} te kort` : `⚠️ ${-verschil} te veel`}
+                        </span>
+                      </>}
+                </button>
+              );
+            })()}
+                    <div className="form-group">
+                      <label className="form-label">❓ Punten per vraag</label>
+                      <span className="inst-uitleg">Wat een nieuwe vraag krijgt.</span>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                        <input className="form-input" type="number" min={0} value={vraagPuntenStd}
+                          onChange={(e) => setVraagPuntenStd(Math.max(0, Number(e.target.value)))}
+                          onBlur={() => slaPuzzelOp({ vraag_punten: vraagPuntenStd })} style={{ width: 100 }} />
+                        <BevestigKnop venster gevaarlijk={false} icoon="❓" titel={`Alle ${vraagpunten.length} vragen op ${vraagPuntenStd} punten zetten?`} vraag=""
+                          uitleg="Eigen punten per antwoord blijven staan." ja="Ja, toepassen" disabled={!vraagPuntIds.size}
+                          onBevestig={zetAlleVraagPunten} className="rl-knop">Op alle vragen toepassen</BevestigKnop>
+                      </div>
+                    </div>
+                {/* ⚡ Bonusvragen van deze route (ook als hij nog niet actief is); op volgorde van het spel */}
+                <div className="form-group">
+                  <label className="form-label">⚡ Bonusvragen</label>
+                  <BonusLijst routeId={route.id} inEditor />
+                </div>
+
+              </div>
+            )}
+
+            {/* 👫 Teams: per team het startpunt en de looprichting; ook aan te tikken op de kaart */}
+            {actieveTab === "teams" && (
+              <div className="zijpaneel-inst">
+                  {/* Teams input */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "0.70rem", color: "var(--muted)", flexShrink: 0 }}>Aantal teams:</span>
+                    <input
+                      type="number" min={2} max={20} value={verwachtTeams}
+                      onChange={(e) => setVerwachtTeams(Math.max(2, Number(e.target.value)))}
+                      onBlur={() => slaVerspreideInstellingenOp(verwachtTeams, doelAfstandKm)}
+                      style={{
+                        width: 56, padding: "3px 7px", fontSize: "0.78rem", fontWeight: 700,
+                        background: "rgba(0,217,255,0.07)", border: "1px solid rgba(0,217,255,0.25)",
+                        borderRadius: 6, color: "var(--cyan)", outline: "none",
+                      }}
+                    />
+                  </div>
+
+                {teamRoutes.length === 0 ? (
+                  <p className="zp-leeg">Zet eerst de punten met <em>Punten</em>. Daarna zie je hier per team waar het begint.</p>
+                ) : (
+                  <>
+                    <span className="inst-uitleg">Tik op een team, of op zijn vlag op de kaart. Elk team begint ergens anders in het rondje.</span>
+                    {teamRoutes.map((t) => {
+                      const open = uitgelichtTeam === t.teamIndex;
+                      const andersom = omgekeerdeTeams.includes(t.teamIndex);
+                      return (
+                        <div key={t.teamIndex} className={`zp-team${open ? " zp-team--open" : ""}`} style={{ borderColor: open ? t.kleur : undefined }}>
+                          <button type="button" className="zp-team-kop" onClick={() => setUitgelichtTeam(open ? null : t.teamIndex)}>
+                            <span className="zp-team-vlag" style={{ background: t.kleur }} aria-hidden>🚩</span>
+                            <strong style={{ color: t.kleur }}>Team {t.teamIndex}</strong>
+                            <span className="zp-team-info">start {t.nummers[0]}{t.handmatig ? " 📌" : ""} · {andersom ? "↻ andersom" : "→ rechtsom"}</span>
+                          </button>
+                          <div className="zp-team-knoppen">
+                            <button type="button" className={`rl-knop${kiesInstapVoor === t.teamIndex ? " rl-knop--cyan" : ""}`}
+                              onClick={() => { setUitgelichtTeam(t.teamIndex); setKiesInstapVoor(kiesInstapVoor === t.teamIndex ? null : t.teamIndex); }}
+                              title="Tik daarna op de kaart op het punt waar dit team begint">📍 Ander startpunt</button>
+                            <button type="button" className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`} onClick={() => wisselAndersom(t.teamIndex)}
+                              title="Dit team loopt het rondje in de andere richting">↻ Andersom lopen</button>
+                            {t.handmatig && <button type="button" className="rl-knop" onClick={() => zetInstappunt(t.teamIndex, null)} title="Terug naar het berekende startpunt">Automatisch</button>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* 🎉 Spel: hoe het spel verloopt (tussenstand, duel, spelplezier) */}
+            {actieveTab === "spel" && (
+              <div className="zijpaneel-inst">
+                {/* Speltype (vastgezet bij aanmaken, niet meer te wijzigen) */}
+                <div className="inst-speltype" title={MODUS_INFO[route.modus].omschrijving}>
+                  <ModusTegel modus={route.modus} size={24} />
+                  <strong style={{ color: MODUS_INFO[route.modus].kleur }}>{MODUS_INFO[route.modus].label}</strong>
+                  <span>· kan niet meer veranderen</span>
+                </div>
+
+                {/* Tussenstand */}
+                <div className="form-group">
+                  <label className="form-label">🏆 Tussenstand op de telefoons</label>
+                  <span className="inst-uitleg">De spelers zien af en toe vanzelf de stand van alle teams.</span>
+                  <div className="inst-rij">
+                    <span className="inst-rij-label">Elke</span>
+                    <div className="segment" role="radiogroup" aria-label="Hoe vaak">
+                      {[0, 10, 15, 20, 30].map((m) => (
+                        <button key={m} type="button" role="radio" aria-checked={tussenstandInterval === m} className={tussenstandInterval === m ? "aan" : ""}
+                          onClick={() => { setTussenstandInterval(m); slaTussenstandIntervalOp(m); }}>{m ? `${m} min` : "Uit"}</button>
+                      ))}
+                    </div>
+                  </div>
+                  {tussenstandInterval > 0 && (
+                    <div className="inst-rij">
+                      <span className="inst-rij-label">Zichtbaar</span>
+                      <div className="segment" role="radiogroup" aria-label="Hoe lang zichtbaar">
+                        {[5, 10, 15, 20].map((s) => (
+                          <button key={s} type="button" role="radio" aria-checked={tussenstandDuur === s} className={tussenstandDuur === s ? "aan" : ""}
+                            onClick={() => { setTussenstandDuur(s); slaTussenstandDuurOp(s); }}>{s} s</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {tussenstandInterval > 0 && ![10, 15, 20, 30].includes(tussenstandInterval) && <span className="inst-uitleg">Nu ingesteld: elke {tussenstandInterval} min.</span>}
+                </div>
+
+                {/* 🔀 Antwoorden husselen: voor de hele route, niet per vraag */}
+                <div className="inst-geavanceerd"><HusselInstelling routeId={route.id} /></div>
+
+                {/* ⚔️ Duel: twee teams vlak bij elkaar krijgen dezelfde snelle vraag (migratie 006) */}
+                <div className="form-group">
+                  <label className="form-label">⚔️ Duel</label>
+                  <span className="inst-uitleg">Komen twee teams binnen 25 meter van elkaar, dan krijgen ze allebei dezelfde snelle vraag. Wie het eerst goed is, pakt punten van de ander.</span>
+                  <div className="inst-rij">
+                    <div className="segment" role="radiogroup" aria-label="Duel aan of uit">
+                      {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
+                        <button key={tekst} type="button" role="radio" aria-checked={!!route.duel_aan === aan} className={!!route.duel_aan === aan ? "aan" : ""}
+                          onClick={() => slaDuelOp({ duel_aan: aan })}>{tekst}</button>
+                      ))}
+                    </div>
+                    {route.duel_aan && (
+                      <div className="segment" role="radiogroup" aria-label="Punten per duel">
+                        {DUEL_PUNTEN_KEUZES.map((p) => (
+                          <button key={p} type="button" role="radio" aria-checked={(route.duel_punten ?? 25) === p} className={(route.duel_punten ?? 25) === p ? "aan" : ""}
+                            onClick={() => slaDuelOp({ duel_punten: p })}>{p} pt</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 🎉 Spelplezier: val, reeks, badges, fotobattle, vliegende schat en rad (migratie 007) */}
+                <SpelplezierInstellingen waarden={route} onZet={slaPlezierOp} onInstellingen={slaPlezierInstOp} />
+
+              </div>
+            )}
+
+          </div>
+
+        </div>
+
+        {/* Mobiel: donkere achtergrond achter het open overlay-paneel */}
+        {mobielPaneelOpen && (
+          <div className="route-editor-paneel-backdrop" onClick={() => setMobielPaneelOpen(false)} />
+        )}
+
+        {/* Kies wat een "kale" tik op de kaart moet worden (geen modus vooraf geselecteerd) */}
+        {mobielTikPositie && (
+          <>
+            <div className="route-editor-backdrop" onClick={() => setMobielTikPositie(null)} onContextMenu={(e) => { e.preventDefault(); setMobielTikPositie(null); }} />
+            <div className="route-editor-tik-kiezer">
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ flex: 1, fontSize: "0.8rem", fontWeight: 700 }}>Hier toevoegen:</span>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setMobielTikPositie(null)} title="Sluiten" aria-label="Sluiten">✕</button>
+              </div>
+              {route.modus === "verspreid" && (
+                <button className="btn btn-cyan" style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { setCentrumPunt({ lat: mobielTikPositie.lat, lng: mobielTikPositie.lng }); setMobielTikPositie(null); }}>
+                  <Icoon naam="thuis" /> Middelpunt (start en finish)
+                </button>
+              )}
+              <button className="btn btn-primary" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                <Icoon naam="punt" /> Punt
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
+                {route.modus === "sequentieel" ? <><Icoon naam="verboden" />{" Plek zooi"}</> : <><Icoon naam="items" />{" Item"}</>}
+              </button>
+              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                onClick={() => { setTekenGebied([[mobielTikPositie.lat, mobielTikPositie.lng]]); setProef(null); setGeselecteerd(null); setMobielTikPositie(null); }}>
+                <Icoon naam="verboden" /> Verboden gebied hier
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Instellingen-modal, geopend via het tandwiel in de header */}
+        {instellingenOpen && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 800,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "16px",
+          }} onClick={() => setInstellingenOpen(false)}>
+            <div style={{
+              background: "#2a1566", color: "#e8f0ff",
+              borderRadius: 18, padding: "16px 18px 20px",
+              maxWidth: 560, width: "100%", boxSizing: "border-box", maxHeight: vensterHoogte(90), overflowY: "auto", overflowX: "hidden",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,255,0.12)",
+            }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 800, color: "#fff" }}>⚙️ Instellingen</h2>
+                <button type="button" className="editor-paneel-sluit venster-sluit-klein" onClick={() => setInstellingenOpen(false)} title="Sluiten" aria-label="Sluiten">✕</button>
+              </div>
+
+              {/* inst-inhoud: elke instelling als één regel (naam en korte uitleg links, de keuze rechts) */}
+              <div className="inst-inhoud" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                {/* Onderwerpen als knoppen */}
+                <div className="segment" role="tablist" aria-label="Onderwerp">
+                  {([["punten", "📍 Punten"], ["uiterlijk", "🎨 Uiterlijk"]] as [typeof instellingenTab, string][]).map(([t, label]) => (
+                    <button key={t} type="button" role="tab" aria-selected={instellingenTab === t} className={instellingenTab === t ? "aan" : ""} onClick={() => setInstellingenTab(t)}>{label}</button>
+                  ))}
+                </div>
+                {/* 9. Eén zin: wat stel je hier in? */}
+                <span className="inst-uitleg inst-tab-uitleg">{{
+                  punten: "Wat de spelers van de route zien en hoe dichtbij ze bij een punt moeten komen.",
+                  uiterlijk: "Hoe de spelersapp eruitziet en klinkt: kleur, logo, welkomstfoto en geluiden.",
+                }[instellingenTab]} Spel, items, vragen en teams stel je in met de knoppen in de zijbalk.</span>
+
+                {/* 🎉 Spel, 🎁 Items, ❓ Vragen en 👫 Teams staan in de zijbalk (hoofdknoppen); hier alleen wat zelden verandert */}
+
+                {/* 🎨 Huisstijl en 🔔 geluiden voor de spelers */}
+                {instellingenTab === "uiterlijk" && (
+                  <HuisstijlInstellingen route={route} onOpslaan={async (velden) => {
+                    const res = await api(`/api/admin/routes/${route.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(velden) });
+                    if (res.ok) setRoute((r) => ({ ...r, ...velden }));
+                    return res.ok;
+                  }} />
+                )}
+
+                {instellingenTab === "punten" && (
+                  <>
+                    {/* ⛔ Verboden gebieden: overzicht, verwijderen */}
+                    <div className="form-group inst-geavanceerd">
+                      <label className="form-label">⛔ Verboden gebieden</label>
+                      {gebieden.map((g, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem" }}>
+                          <span style={{ flex: 1 }}>{g.naam} <span style={{ color: "var(--muted)" }}>· {g.punten.length} hoeken</span></span>
+                          <button type="button" className="rl-knop" title="Verwijderen" onClick={() => slaGebiedenOp(gebieden.filter((_, j) => j !== i))}><Icoon naam="wissen" /></button>
+                        </div>
+                      ))}
+                      <button type="button" className="rl-knop" style={{ alignSelf: "flex-start" }}
+                        onClick={() => { setInstellingenOpen(false); setTekenGebied([]); setProef(null); setGeselecteerd(null); }}><Icoon naam="plus" /> Gebied tekenen</button>
+                      <span className="inst-uitleg">Bijv. een drukke weg of privéterrein. Teams zien het rood op hun kaart en krijgen een waarschuwing als ze erin lopen.</span>
+                    </div>
+                {/* Op volgorde: wat zien de spelers op de kaart */}
+                {route.modus === "sequentieel" && (
+                  <div className="form-group">
+                    <label className="form-label">🗺️ Wat zien de spelers?</label>
+                    <div className="segment" role="radiogroup" aria-label="Wat zien de spelers">
+                      {([[false, "📍 Alleen volgend punt"], [true, "🗺️ Hele route"]] as const).map(([waarde, tekst]) => (
+                        <button key={tekst} type="button" role="radio" aria-checked={!!route.alle_punten_zichtbaar === waarde}
+                          className={!!route.alle_punten_zichtbaar === waarde ? "aan" : ""}
+                          onClick={async () => {
+                            if (!!route.alle_punten_zichtbaar === waarde) return;
+                            const res = await api(`/api/admin/routes/${route.id}`, {
+                              method: "PATCH", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ alle_punten_zichtbaar: waarde }),
+                            });
+                            if (res.ok) setRoute((r) => ({ ...r, alle_punten_zichtbaar: waarde }));
+                          }}>{tekst}</button>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                      {route.alle_punten_zichtbaar ? "Alle punten en de lijn ertussen staan meteen op de kaart; het volgende punt knippert." : "Pas na elk punt verschijnt het volgende."} Per punt kies je ❓ Vraag, ℹ️ Info of 🚶 Door (geen scherm).
+                    </span>
+                  </div>
+                )}
+
+                    {route.modus === "verspreid" && (
+                      <div className="form-group inst-geavanceerd">
+                        <label className="form-label">🚶 Eerste vraag na</label>
+                        <span className="inst-uitleg">Meters lopen vanaf de start (0 = meteen).</span>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <input className="form-input" type="number" min={0} max={500} value={startMeter}
+                            onChange={(e) => setStartMeter(Math.max(0, Math.min(500, Number(e.target.value))))}
+                            onBlur={() => slaPuzzelOp({ startvraag_meter: startMeter })} style={{ width: 100 }} />
+                          <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>meter</span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="form-group inst-geavanceerd">
+                      <label className="form-label">📏 Radius van de punten (m)</label>
+                      <input className="form-input" type="number" min={3} value={puntRadius}
+                        onChange={(e) => setPuntRadius(Math.max(3, Number(e.target.value)))}
+                        onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
+                    </div>
+                    <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
+                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
+                    </button>
+                    {meerInstellingen && <div className="form-group inst-geavanceerd">
+                      <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
+                      <input className="form-input" type="number" min={0} value={puntPunten}
+                        onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
+                        onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
+                    </div>}
+                    {/* ⚠️ Gevaarlijk: niet in de werkbalk, zodat je het niet per ongeluk aantikt */}
+                    {!route.is_active && (
+                      <div className="inst-gevaarlijk">
+                        <div className="huisstijl-naam"><strong>Route leegmaken</strong><span>Alle punten, vragen en items weg; naam en instellingen blijven</span></div>
+                        <BevestigKnop venster icoon="🗑️" titel="Route leegmaken?"
+                          vraag="" uitleg={punten.length || specialeItems.length
+                            ? `Alle ${punten.length} punten (met hun vragen), ${specialeItems.length} items en de gekozen start en finish gaan weg; naam en instellingen blijven. Dit kan niet ongedaan worden gemaakt.`
+                            : "Het gekozen startpunt, de finish en de cirkel gaan weg. Daarna begin je weer bij de eerste stap."}
+                          ja="Ja, alles weg" onBevestig={() => { setInstellingenOpen(false); return maakRouteLeeg(); }} disabled={!punten.length && !specialeItems.length && !centrumPunt && !finishPunt && !finishZelfde}
+                          className="rl-knop rl-knop--rood">
+                          <Icoon naam="wissen" /> Leegmaken
+                        </BevestigKnop>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -2570,6 +2618,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             ☰ Lijst
           </button>
         )}
+
+        {/* 🧭 Rondleiding voor wie de editor voor het eerst opent */}
+        {rondleidingOpen && !stappenOpen && <EditorRondleiding verspreid={route.modus === "verspreid"} onSluit={sluitRondleiding} />}
 
         {/* Klaar om te spelen? */}
         {controleOpen && (
@@ -2785,14 +2836,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 className={`rl-knop${andersom ? " rl-knop--cyan" : ""}`}
                 style={{ display: "flex", height: 28, fontSize: "0.72rem" }}
                 title="Dit team loopt het rondje in tegengestelde richting, vanaf hetzelfde instappunt">
-                ↺ Andersom lopen: {andersom ? "aan" : "uit"}
+                ↻ Andersom lopen: {andersom ? "aan" : "uit"}
               </button>
               <div style={{ display: "flex", gap: 6 }}>
                 <button type="button" onClick={() => setKiesInstapVoor(kiesInstapVoor === t.teamIndex ? null : t.teamIndex)}
                   className={`rl-knop${kiesInstapVoor === t.teamIndex ? " rl-knop--cyan" : ""}`}
                   style={{ flex: 1, height: 28, fontSize: "0.72rem" }}
                   title="Klik daarna op de kaart op het punt waar dit team het rondje begint">
-                  <Icoon naam="punt" /> Startpunt kiezen
+                  📍 Ander startpunt
                 </button>
                 {t.handmatig && (
                   <button type="button" onClick={() => zetInstappunt(t.teamIndex, null)} className="rl-knop"
@@ -2832,7 +2883,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               : null
           }
           hubModus={route.modus === "verspreid" && punten.length >= 3}
-          teamRoutes={lagen.routes ? teamRoutesKaart : []}
+          teamRoutes={lagen.routes || actieveTab === "teams" ? teamRoutesKaart : []}
+          onTeamKlik={(team) => { setActieveTab("teams"); setUitgelichtTeam(team); setMobielPaneelOpen(true); }}
+          onRechtsKlik={kaartRechtsKlik}
           hoofdStukken={hoofdStukken}
           centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
           finishPunt={route.modus === "verspreid" && punten.length === 0 ? (finishPunt ?? (finishZelfde ? centrumPunt : null)) : null}
