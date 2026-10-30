@@ -4372,3 +4372,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .volgorde-item button:disabled { opacity: 0.3; cursor: default; }
 .volgorde-item--goed { border-color: rgba(74,222,128,0.7); background: rgba(74,222,128,0.12); }
 .volgorde-item--fout { border-color: rgba(248,113,113,0.7); background: rgba(248,113,113,0.12); }
+
+.stats-deel { align-self: center; padding: 9px 18px; border-radius: 999px; border: 0; background: #25D366; color: #fff; font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(37,211,102,0.35); }
+.stats-gekopieerd { text-align: center; font-size: 0.75rem; color: var(--muted); }

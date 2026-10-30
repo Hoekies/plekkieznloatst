@@ -108,7 +108,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ fout: "Draai eerst migratie 012 (hele route zichtbaar) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel_volgorde/.test(error.message)) {
-    return NextResponse.json({ fout: "Draai eerst migratie 018 (puzzelwoord raden en volgorde) in Supabase" }, { status: 500 });
+    return NextResponse.json({ fout: "Draai eerst migratie 010 (supabase/migrations/010_puzzel_volgorde.sql) in Supabase" }, { status: 500 });
   }
   if (error && /puzzel_aan|puzzel_verdeling|puzzel_letter_punten|puzzel_raad_bonus/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 017 (puzzelwoord per vraag) in Supabase" }, { status: 500 });

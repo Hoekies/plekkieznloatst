@@ -571,7 +571,9 @@ Ook in de route-editor bij ⚙️ Instellingen → 🎮 Spel → *🎉 Spelplezi
 - **🃏 Jokers:** per team *0 tot 3* 50/50-jokers (twee foute antwoorden weg bij meerkeuze) en *0 tot 3* overslaan-jokers (de vraag zonder punten overslaan; de reeks loopt door). Niet bij de finish of een stemvraag.
 - **🧑‍⚖️ Bezwaar:** bij een fout gerekend antwoord kan het team *1 tot 3* keer bezwaar maken, eventueel met een toelichting. Jij (of een helper) ziet het bovenaan het Spelleider-blok, met het gegeven antwoord, en kiest **+punten** (toekennen) of **Af**. Het team krijgt een bericht.
 - **🐣 Mascotte** en **🏅 Levels:** naast de score in de balk van het team. De mascotte groeit mee (🥚 → 🐣 100 → 🦉 300 → 🦅 600 punten), het level ook (🌱 Rookie → 🔎 Speurder 100 → 🧭 Kenner 250 → 🎓 Meester 500 → 👑 Legende 1000). Een nieuwe stap geeft confetti. Tik erop voor alle stappen.
-- **📊 Spelstatistieken:** na de uitslag ziet elk team zijn cijfers (goed, fout, snelste antwoord, gemiddelde nadenktijd, langste stuk lopen, kilometers, items) en de records van het spel.
+- **📊 Spelstatistieken:** na de uitslag ziet elk team zijn cijfers (goed, fout, snelste antwoord, gemiddelde nadenktijd, langste stuk lopen, kilometers, items) en de records van het spel. Met *💬 Delen via WhatsApp* stuurt het team ze door.
+
+**💬 Uitslag via WhatsApp:** na het vrijgeven van de uitslag staat in het Spelleider-blok (bij *Uitslag vrijgegeven*) de knop **💬 Uitslag via WhatsApp**. Die maakt één bericht met de stand en de prijzen, per team de cijfers en de records, om in de groepsapp te delen. Op de computer staat de tekst ook op het klembord: staan er in WhatsApp vraagtekens in plaats van emoji, plak dan met Ctrl+V.
 - **💬 Chat met de spelleider:** een 💬-knop op de kaart van het team. Nieuwe berichten staan bovenaan het Spelleider-blok (tik om te antwoorden) en bij het team onder *💬 Chat*. Je krijgt ook een pushmelding.
 
 **📚 Vragenpakketten:** in de *Vragenbank* staat nu *📦 Pakketten*: kant-en-klare meerkeuzevragen (Algemene kennis, Nederland, Kinderen, Dieren en natuur, Feestdagen). Overnemen vult het formulier; pas na opslaan staat de vraag in de route. Ook bij de bonusvraag te gebruiken.

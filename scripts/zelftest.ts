@@ -8,6 +8,7 @@ import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/test-rol";
+import { cijferRegel } from "../lib/uitslag-tekst";
 import { RAD_VAKKEN, radHalverwege, spelplezierAan, goudenNu, goudenStatus, BADGES, schatSlot, normaliseerPlezier, radVakken, STANDAARD } from "../lib/spelplezier";
 import { deelPrijzenUit } from "../lib/prijzen";
 import { DUEL_VRAGEN } from "../lib/duel-vragen";
@@ -127,6 +128,11 @@ test("spelplezier-instellingen: standaard, alleen geldige keuzes, rad en gouden 
   assert.equal(goudenStatus(route, Date.parse("2026-11-10T13:20:00Z")), null);
   // Gestopt met de knop binnen het venster: blijft uit
   assert.equal(goudenStatus({ ...route, gouden_tot: "2026-11-10T13:03:00Z" }, Date.parse("2026-11-10T13:05:00Z")), null);
+});
+
+test("uitslag via WhatsApp: cijferregel per team", () => {
+  const s = { goed: 8, fout: 2, overgeslagen: 0, snelste: 4, traagste: 40, gemiddeld: 12, langsteStuk: 9, km: 3.2, itemsIngezet: 3, geraakt: 0 };
+  assert.equal(cijferRegel(s), "✅ 8 · ❌ 2 · ⚡ 4 s · 👟 3,2 km · 🎁 3");
 });
 
 test("fotobattle: meeste stemmen krijgt de prijs, gelijkspel niet", () => {

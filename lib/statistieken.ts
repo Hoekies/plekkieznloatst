@@ -16,13 +16,14 @@ export type Record_ = { titel: string; emoji: string; team: string; waarde: stri
 
 type Rij = { session_id: string; reached_at: string; answered_at: string | null; is_correct: boolean | null; open_answer_text: string | null; route_points: { questions: { type: string }[] | { type: string } | null } | null };
 
-export async function spelStatistieken(admin: AdminClient, routeId: string, eigenSessie: string): Promise<{ eigen: TeamStatistiek | null; records: Record_[] }> {
+// eigenSessie leeg (beheer): alle echte teams, en perTeam voor het uitslagbericht
+export async function spelStatistieken(admin: AdminClient, routeId: string, eigenSessie: string): Promise<{ eigen: TeamStatistiek | null; records: Record_[]; perTeam: { sessie: string; naam: string; stat: TeamStatistiek }[] }> {
   const { data: spellen } = await admin.from("player_sessions").select("id, started_at, afstand_m, players!inner(*)").eq("route_id", routeId).in("status", ["actief", "voltooid"]);
   const eigenTest = !!testRol((spellen ?? []).find((s) => s.id === eigenSessie)?.players);
   // Alleen teams van hetzelfde soort spel (🧪 test en echt apart)
   const teams = (spellen ?? []).filter((s) => !!testRol(s.players) === eigenTest);
   const ids = teams.map((t) => t.id);
-  if (!ids.length) return { eigen: null, records: [] };
+  if (!ids.length) return { eigen: null, records: [], perTeam: [] };
   const [{ data: voortgang }, { data: log }] = await Promise.all([
     admin.from("player_point_progress").select("session_id, reached_at, answered_at, is_correct, open_answer_text, route_points(questions(type))").in("session_id", ids).order("reached_at"),
     admin.from("item_log").select("gebruiker_session_id, doel_session_id").or(`gebruiker_session_id.in.(${ids.join(",")}),doel_session_id.in.(${ids.join(",")})`),
@@ -80,5 +81,5 @@ export async function spelStatistieken(admin: AdminClient, routeId: string, eige
   beste("Verste lopers", "👟", (s) => s.km, false, (v) => `${v.toString().replace(".", ",")} km`);
   beste("Meeste items ingezet", "🎁", (s) => s.itemsIngezet, false, (v) => `${v}×`);
   beste("Vaakst geraakt", "🎯", (s) => s.geraakt, false, (v) => `${v}×`);
-  return { eigen: perTeam.get(eigenSessie) ?? null, records };
+  return { eigen: perTeam.get(eigenSessie) ?? null, records, perTeam: [...perTeam].map(([sessie, stat]) => ({ sessie, naam: naam(sessie), stat })) };
 }

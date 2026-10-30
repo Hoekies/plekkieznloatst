@@ -75,7 +75,7 @@ Gooit een ander team een item op jullie, dan kun je in de melding met één tik 
 - **🧑‍⚖️ Bezwaar:** vinden jullie een antwoord ten onrechte fout? Maak bezwaar; de spelleider beslist.
 - **🐣 Mascotte en 🏅 level:** naast je score; ze groeien mee met je punten.
 - **💬 Chat:** met de 💬-knop stuur je de spelleider een bericht.
-- **📊 Statistieken:** na de uitslag zie je jullie spel in cijfers en de records.
+- **📊 Statistieken:** na de uitslag zie je jullie spel in cijfers en de records. Met *💬 Delen via WhatsApp* stuur je ze naar je groepsapp.
 
 **🏆 Prijzen**
 Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.
