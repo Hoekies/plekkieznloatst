@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { maakStand } from "@/lib/stand";
 import { spelStatistieken, type TeamStatistiek } from "@/lib/statistieken";
+import { huisLogoUrl } from "@/lib/huisstijl";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -19,8 +20,13 @@ export function cijferRegel(s: TeamStatistiek): string {
 }
 
 export async function uitslagTekst(admin: AdminClient, routeId: string): Promise<string> {
+  return (await uitslagGegevens(admin, routeId)).tekst;
+}
+
+// De tekst én de gegevens voor het plaatje (🖼️ Uitslag en cijfers delen, alleen de spelleider)
+export async function uitslagGegevens(admin: AdminClient, routeId: string) {
   const [{ data: route }, stand, stats] = await Promise.all([
-    admin.from("routes").select("name").eq("id", routeId).maybeSingle(),
+    admin.from("routes").select("*").eq("id", routeId).maybeSingle(),
     maakStand(admin, routeId, "", true),
     spelStatistieken(admin, routeId, ""),
   ]);
@@ -41,5 +47,12 @@ export async function uitslagTekst(admin: AdminClient, routeId: string): Promise
     for (const r of stats.records) regels.push(`${r.emoji} ${r.titel}: *${r.team}* (${r.waarde})`);
   }
   regels.push("", "Gespeeld met PointRush 🚀");
-  return regels.join("\n");
+  return {
+    tekst: regels.join("\n"),
+    route: (route?.name as string | undefined) ?? "PointRush",
+    huis_logo: huisLogoUrl(route),
+    stand: stand.map((e) => ({ rank: e.rank, display_name: e.display_name, icon: e.icon, foto: e.foto ?? null, score: e.score, prijs: e.prijs ? { emoji: e.prijs.emoji, titel: e.prijs.titel } : null })),
+    perTeam: stats.perTeam.map((t) => ({ naam: t.naam, stat: t.stat })),
+    records: stats.records,
+  };
 }

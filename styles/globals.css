@@ -4373,5 +4373,25 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .volgorde-item--goed { border-color: rgba(74,222,128,0.7); background: rgba(74,222,128,0.12); }
 .volgorde-item--fout { border-color: rgba(248,113,113,0.7); background: rgba(248,113,113,0.12); }
 
-.stats-deel { align-self: center; padding: 9px 18px; border-radius: 999px; border: 0; background: #25D366; color: #fff; font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(37,211,102,0.35); }
-.stats-gekopieerd { text-align: center; font-size: 0.75rem; color: var(--muted); }
+
+/* 🖼️ Uitslag en cijfers als plaatje voor de spelleider (SpelInCijfersDelen.tsx) */
+.cijfers-kaart { gap: 10px; }
+.cijfers-kaart-logo { width: 150px; }
+.cijfers-stand { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.cijfers-team { padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,0.1); text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.cijfers-team--1 { background: linear-gradient(90deg, rgba(250,204,21,0.35), rgba(255,255,255,0.08)); border: 2px solid rgba(250,204,21,0.7); }
+.cijfers-team--2 { background: linear-gradient(90deg, rgba(229,231,235,0.25), rgba(255,255,255,0.08)); }
+.cijfers-team--3 { background: linear-gradient(90deg, rgba(253,186,116,0.28), rgba(255,255,255,0.08)); }
+.cijfers-team-kop { display: flex; align-items: center; gap: 10px; }
+.cijfers-plek { width: 34px; text-align: center; font-size: 1.4rem; font-weight: 800; color: #d6cdf2; }
+.cijfers-icoon { font-size: 1.8rem; line-height: 1; }
+.cijfers-foto { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #FFD93B; }
+.cijfers-naam { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; display: flex; flex-direction: column; line-height: 1.2; }
+.cijfers-naam small { font-family: var(--font); font-weight: 600; font-size: 0.8rem; color: #FDE68A; }
+.cijfers-score { font-size: 1.15rem; color: #FFE680; white-space: nowrap; }
+.cijfers-chips { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 44px; }
+.cijfers-chips span { padding: 2px 7px; border-radius: 999px; background: rgba(0,0,0,0.25); font-size: 0.74rem; font-weight: 600; }
+.cijfers-records { width: 100%; margin-top: 6px; padding: 10px 12px; border-radius: 16px; background: rgba(0,217,255,0.12); border: 1px solid rgba(0,217,255,0.45); display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.cijfers-records-kop { font-family: var(--font-display); font-weight: 800; color: #67E8F9; margin-bottom: 2px; }
+.cijfers-records > div:not(.cijfers-records-kop) { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; font-size: 0.88rem; }
+.cijfers-records em { font-style: normal; color: #FDE68A; font-weight: 800; }

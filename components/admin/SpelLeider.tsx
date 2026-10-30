@@ -16,6 +16,7 @@ import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import ChatVenster from "@/components/admin/ChatVenster";
 import UitslagWhatsApp from "@/components/admin/UitslagWhatsApp";
+import SpelInCijfersDelen from "@/components/admin/SpelInCijfersDelen";
 
 // Na zoveel minuten zonder locatie-update vragen we aandacht voor een speler
 const NIET_GEZIEN_MIN = 5;
@@ -159,6 +160,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
         actie: (
           <span style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
             {/* 💬 Alles in één bericht voor de groepsapp */}
+            <SpelInCijfersDelen />
             <UitslagWhatsApp />
             <a className="rl-knop" href="/admin/rapport" target="_blank" rel="noopener noreferrer"><Icoon naam="rapport" /> Rapport</a>
           </span>

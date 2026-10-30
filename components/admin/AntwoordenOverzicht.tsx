@@ -14,6 +14,7 @@ import UitklapPijl from "@/components/shared/UitklapPijl";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 import Icoon from "@/components/admin/Icoon";
 import { openFotoKeuren } from "@/components/admin/FotoKeuren";
+import SpelInCijfersDelen from "@/components/admin/SpelInCijfersDelen";
 
 type Data = {
   route: { id: string; name: string; huis_logo?: string | null } | null;
@@ -160,6 +161,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
             <Icoon naam="uitslag" /> Uitslag vrijgeven
           </BevestigKnop>
         )}
+        {data.teams.length > 0 && data.uitslag_vrijgegeven && <SpelInCijfersDelen knopClass="rl-knop actie-knop" />}
         {data.teams.length > 0 && (
           <UitslagDelen routeNaam={data.route.name} huisLogo={data.route.huis_logo ?? null} knopClass="rl-knop actie-knop" stand={(() => {
             // Plaats: hoogste score eerst; bij gelijke score de snelste (zoals de stand)

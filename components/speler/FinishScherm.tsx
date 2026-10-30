@@ -18,7 +18,6 @@ import { BadgeRij, FotoBattle, useBadges } from "./FinishPlezier";
 import SpelStatistieken from "./SpelStatistieken";
 import { BADGES } from "@/lib/spelplezier";
 import KoFiKnop from "@/components/shared/KoFiKnop";
-import UitslagDelen from "@/components/shared/UitslagDelen";
 import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
 
 interface Props {
@@ -276,8 +275,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <Podium stand={leaderboard} />
-              <UitslagDelen routeNaam={routeNaam} huisLogo={huisLogo} knopStijl={{ width: "100%", fontSize: "0.95rem", padding: "13px 6px", borderRadius: 14, fontWeight: 800 }}
-                stand={leaderboard.map((e) => ({ naam: e.display_name, icon: e.icon, foto: e.foto ?? null, score: e.score, plaats: e.rank, eigen: e.is_eigen_team }))} />
+              {/* De uitslag delen kan alleen de spelleider (🖼️ Uitslag en cijfers delen in het beheer) */}
               {leaderboard.map((entry, i) => (
                 <div key={`${entry.rank}-${entry.display_name}`} className={`eindstand-rij${entry.rank <= 3 ? ` eindstand-rij--${entry.rank}` : ""}`}
                   style={{ animationDelay: `${2.2 + i * 0.15}s` }}>

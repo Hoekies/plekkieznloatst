@@ -75,7 +75,7 @@ Gooit een ander team een item op jullie, dan kun je in de melding met één tik 
 - **🧑‍⚖️ Bezwaar:** vinden jullie een antwoord ten onrechte fout? Maak bezwaar; de spelleider beslist.
 - **🐣 Mascotte en 🏅 level:** naast je score; ze groeien mee met je punten.
 - **💬 Chat:** met de 💬-knop stuur je de spelleider een bericht.
-- **📊 Statistieken:** na de uitslag zie je jullie spel in cijfers en de records. Met *💬 Delen via WhatsApp* stuur je ze naar je groepsapp.
+- **📊 Statistieken:** na de uitslag zie je jullie spel in cijfers en de records.
 
 **🏆 Prijzen**
 Bij de uitslag krijgt elk team een titel, bijvoorbeeld *Snelste team* of *Meesterdief*. Hij staat ook op je oorkonde.
@@ -87,7 +87,7 @@ Soms komt er onverwacht een bonusvraag in beeld, met een eigen geluidje: bij all
 Bij een stemvraag is er geen goed of fout: stem op wat volgens jou de meeste teams kiezen. Kozen jullie hetzelfde als de meerderheid, dan krijgen jullie de punten zodra de stemming sluit (uiterlijk bij de uitslag).
 
 **🏆 Uitslag**
-Zodra de organisatie de uitslag vrijgeeft, zie je meteen jullie plaats over het hele scherm: de winnaar krijgt confetti en een fanfare, de andere teams een knipoog. Daarna staat de eindstand bovenaan het scherm, met de nummers 3, 2 en 1 op het podium; de oorkonde, de antwoorden en de gelopen route staan eronder bij *Delen en terugkijken*. Met **🖼️ Uitslag delen** maak je er een afbeelding van voor de groepsapp; met **🏅 Oorkonde delen** een oorkonde van je eigen team.
+Zodra de organisatie de uitslag vrijgeeft, zie je meteen jullie plaats over het hele scherm: de winnaar krijgt confetti en een fanfare, de andere teams een knipoog. Daarna staat de eindstand bovenaan het scherm, met de nummers 3, 2 en 1 op het podium; de oorkonde, de antwoorden en de gelopen route staan eronder bij *Delen en terugkijken*. Met **🏅 Oorkonde delen** maak je een oorkonde van je eigen team. De hele uitslag deelt de organisatie.
 
 **Puzzelwoord en tijdslimiet**
 Heeft de organisatie een puzzelwoord ingesteld, dan zie je onder de puntenbalk lege tegeltjes. Tik op 🧩 voor de uitleg en de punten; de uitleg staat ook in het welkomstscherm bij de start. Elke goed beantwoorde vraag geeft een letter (punten per letter). Alle letters gevonden? Dan krijg je een bonus. Mis je letters? Raad het woord dan bij de finish voor extra punten: tik op **Start** en je hebt 1 minuut, met één poging. Ingestuurde foto's: zolang ze op keuring wachten, zie je dat onder de puntenbalk; de punten komen erbij zodra de foto is goedgekeurd. De selfie bij de finish hoeft niet gekeurd te worden: die staat meteen in de uitslag en op je oorkonde. Bij sommige vragen loopt een aftelklok ⏱️: is de tijd om, dan telt de vraag als fout. Soms hoort er een geluidsfragment 🔊 bij een vraag: druk op afspelen.
