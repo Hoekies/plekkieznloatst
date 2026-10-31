@@ -14,7 +14,6 @@ import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import dynamic from "next/dynamic";
 import type { KaartPunt } from "./PuntMiniKaart";
 import Venster from "@/components/shared/Venster";
-import UitklapPijl from "@/components/shared/UitklapPijl";
 import Icoon from "@/components/admin/Icoon";
 import PuzzelLetterKeuze, { type PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import KaartPrikker from "@/components/shared/KaartPrikker";
@@ -54,6 +53,14 @@ const TYPE_LABEL: Record<VraagType, string> = {
   volgorde: "🔀 Volgorde",
   kaartvraag: "🗺️ Kaartvraag",
 };
+
+// Korte namen voor de knoppen (de volledige naam staat in de tooltip)
+const TYPE_KORT: Record<VraagType, string> = {
+  meerkeuze_tekst: "📝 Meerkeuze", meerkeuze_afbeelding: "🖼️ Plaatjes", open: "✍️ Open", foto_opdracht: "📷 Foto", stemvraag: "🗳️ Stemmen",
+  anagram: "🔤 Anagram", volgorde: "🔀 Volgorde", kaartvraag: "🗺️ Kaart",
+};
+// Snelkeuze voor de punten
+const PUNTEN_SNEL = [25, 50, 65, 100];
 
 // "Wijzigingen niet opgeslagen?": zelfde opbouw als de andere bevestigingen (icoon, titel, één knop, ✕)
 export function NietOpgeslagenVenster({ onWeg, onSluit }: { onWeg: () => void; onSluit: () => void }) {
@@ -114,9 +121,12 @@ interface Props {
   puzzel?: PuzzelKoppeling;
   // ❓ Punten voor een nieuwe vraag (route-instelling); anders 65
   standaardPunten?: number;
+  // Opslaan en meteen de volgende vraag zonder vraag openen (route-editor); naam = welk punt dat is
+  onOpslaanVolgende?: (vraag: VraagMetAntwoorden) => void;
+  volgendeNaam?: string;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel, standaardPunten = 65 }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel, standaardPunten = 65, onOpslaanVolgende, volgendeNaam }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -230,8 +240,14 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
   const [verlaatNa, setVerlaatNa] = useState<(() => void) | null>(null);
   const verlaat = (doe: () => void) => { if (gewijzigd) setVerlaatNa(() => doe); else doe(); };
 
-  // Meer instellingen (naam van het punt, QR-code): dicht tot je ze nodig hebt
-  const [meerOpen, setMeerOpen] = useState(false);
+  // Instellingen als chips onder de vraag (geluid, tijdslimiet, QR-test): één tegelijk open
+  const [instelling, setInstelling] = useState<"geluid" | "tijd" | "qr" | null>(null);
+  const wisselInstelling = (i: "geluid" | "tijd" | "qr") => setInstelling((x) => (x === i ? null : i));
+  // 📱 Voorbeeld: het goede antwoord pas tonen als je dat wilt (zoals de speler het na het antwoorden ziet)
+  const [toonAntwoord, setToonAntwoord] = useState(false);
+  const [kaartGroot, setKaartGroot] = useState(false);
+  // Opslaan en meteen de volgende vraag (ook als eerst de naam van het punt gevraagd wordt)
+  const volgendeRef = useRef(false);
 
   // QR-unlock
   const [qrEnabled, setQrEnabled] = useState(punt.qr_unlock_enabled ?? false);
@@ -371,7 +387,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
     }
 
     // Naam van het punt alleen vragen als het nog een standaardnaam heeft (bijv. "Punt 3"); een bewust gekozen
-    // naam niet bij elke opslag opnieuw (hernoemen kan bij Meer instellingen)
+    // naam niet bij elke opslag opnieuw
     const standaardNaam = punt.type !== "eindpunt" && /^(punt \d+|startpunt|nieuw punt)?$/i.test(naam.trim());
     if (!naamGekozen && standaardNaam) { setOpslaan(false); setNaamVenster(true); return; }
     setNaamVenster(false);
@@ -392,6 +408,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
     if (!res?.ok) {
       setFout(await foutUitleg(res, "Opslaan"));
+    } else if (volgendeRef.current && onOpslaanVolgende) {
+      // Opslaan en volgende: meteen de volgende vraag zonder vraag
+      volgendeRef.current = false;
+      onOpslaanVolgende(await res.json());
+      return;
     } else if (onSluit) {
       // Als venster: na opslaan meteen terug naar de kaart
       onSluit(await res.json());
@@ -479,13 +500,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
         )}
         <span style={{ flex: 1 }} />
         <Vragenbank puntId={punt.id} onKies={neemOver} />
-        {bestaandeVraag && (
-          <BevestigKnop venster icoon="🗑️" titel="Vraag verwijderen?" vraag="" knopTekst="Ja, verwijderen"
-            uitleg="De vraag en de antwoorden gaan weg; het punt zelf blijft op de kaart staan."
-            className="rl-knop rl-knop--rood" style={{ height: 32, flexShrink: 0 }} onBevestig={verwijderVraag}>
-            <Icoon naam="wissen" /><span className="alleen-pc"> Vraag verwijderen</span>
-          </BevestigKnop>
-        )}
       </div>
 
       {/* Formulier links (opslaan altijd in beeld), rechts de spelersweergave met het kaartje eronder */}
@@ -493,19 +507,18 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
         {/* ── Formulier ── */}
         <div className="vraag-form-kolom">
-          <form id={`vraag-${punt.id}`} onSubmit={slaOp} className="vraag-form">
+          <form id={`vraag-${punt.id}`} onSubmit={(e) => { volgendeRef.current = false; slaOp(e); }} className="vraag-form">
 
             <div className="form-group">
               <label className="form-label">Soort vraag</label>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <div className="vraag-soorten">
                 {/* 🔤 🔀 🗺️ Anagram, volgorde en kaartvraag komen erbij zodra de spelersapp ze kan tonen (in de maak) */}
                 {(["meerkeuze_tekst", "meerkeuze_afbeelding", "open", "foto_opdracht", "stemvraag", ...(NIEUWE_SOORTEN_AAN ? ["anagram", "volgorde", "kaartvraag"] : [])] as VraagType[]).map((t) => (
                   <button key={t} type="button"
                     className={`rl-knop${type === t ? " rl-knop--cyan" : ""}`}
-                    style={{ height: 34, fontSize: "0.8rem" }}
-                    aria-pressed={type === t}
+                    aria-pressed={type === t} title={TYPE_LABEL[t]}
                     onClick={() => setType(t)}>
-                    {TYPE_LABEL[t]}
+                    {TYPE_KORT[t]}
                   </button>
                 ))}
               </div>
@@ -534,6 +547,67 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               )}
               <textarea className="form-textarea" spellCheck lang="nl" value={tekst} onChange={(e) => setTekst(e.target.value)}
                 placeholder={type === "foto_opdracht" ? "Bijv. Maak een groepsfoto bij de molen" : "Typ hier de vraag…"} style={{ minHeight: 70 }} />
+              {/* Instellingen van deze vraag als chips: tik = openen */}
+              <div className="vraag-chips">
+                <button type="button" className={`vraag-chip${instelling === "geluid" ? " aan" : ""}${geluidPad ? " gezet" : ""}`} onClick={() => wisselInstelling("geluid")} aria-expanded={instelling === "geluid"}>
+                  🔊 {geluidPad ? "Geluid" : "Geen geluid"}
+                </button>
+                {type !== "foto_opdracht" && (
+                  <button type="button" className={`vraag-chip${instelling === "tijd" ? " aan" : ""}${tijdslimiet ? " gezet" : ""}`} onClick={() => wisselInstelling("tijd")} aria-expanded={instelling === "tijd"}>
+                    ⏱️ {tijdslimiet ? `${tijdslimiet} s` : "Geen tijdslimiet"}
+                  </button>
+                )}
+                <button type="button" className={`vraag-chip${instelling === "qr" ? " aan" : ""}${qrEnabled ? " gezet" : ""}`} onClick={() => wisselInstelling("qr")} aria-expanded={instelling === "qr"}>
+                  🧪 {qrEnabled ? "QR-test aan" : "QR-test"}
+                </button>
+              </div>
+              {instelling && (
+                <div className="vraag-chip-paneel">
+                  {instelling === "geluid" && (
+                    <>
+                      {geluidPad ? (
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                          <audio controls src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${geluidPad}`} style={{ height: 34, maxWidth: "100%" }} />
+                          <button type="button" className="rl-knop" onClick={() => setGeluidPad(null)} title="Geluid weghalen"><Icoon naam="wissen" /></button>
+                        </div>
+                      ) : (
+                        <label className="rl-knop" style={{ alignSelf: "flex-start", cursor: "pointer", height: 32, fontSize: "0.8rem" }}>
+                          {geluidBezig ? "⏳ Uploaden…" : "🎵 Geluid kiezen (mp3, m4a, wav)"}
+                          <input type="file" accept="audio/*" onChange={kiesGeluid} style={{ display: "none" }} disabled={geluidBezig} />
+                        </label>
+                      )}
+                      <span className="vraag-hint">Bijvoorbeeld bij <em>welk lied is dit?</em> De spelers spelen het af bij de vraag. Maximaal 3 MB.</span>
+                    </>
+                  )}
+                  {instelling === "tijd" && (
+                    <>
+                      <div className="segment" role="radiogroup" aria-label="Tijdslimiet">
+                        {([[null, "Uit"], [30, "30 s"], [60, "1 min"], [90, "1½ min"], [120, "2 min"]] as const).map(([sec, label]) => (
+                          <button key={label} type="button" role="radio" aria-checked={tijdslimiet === sec} className={tijdslimiet === sec ? "aan" : ""} onClick={() => setTijdslimiet(sec)}>{label}</button>
+                        ))}
+                      </div>
+                      <span className="vraag-hint">De spelers zien een aftelklok; is de tijd om, dan telt de vraag als fout.</span>
+                    </>
+                  )}
+                  {instelling === "qr" && (
+                    <>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                        <button type="button" className={`rl-knop schakel${qrEnabled ? " schakel--aan" : ""}`} role="switch" aria-checked={qrEnabled}
+                          style={{ height: 32, fontSize: "0.8rem" }} disabled={qrOpslaan} onClick={() => toggleQr(!qrEnabled)}>
+                          <Icoon naam="testen" /> Openen met QR-code<span className="schakel-bol" aria-hidden />
+                        </button>
+                        {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}><Icoon naam="printen" /> QR-code printen</button>}
+                      </div>
+                      <span className="vraag-hint">Scan met je telefoon: je krijgt deze vraag als proef, precies zoals de speler (er wordt niets opgeslagen). Wordt meteen opgeslagen.</span>
+                      {qrEnabled && qrUrl && (
+                        <div id="qr-print-zone" style={{ marginTop: 4, padding: 12, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
+                          <QRCodeSVG value={qrUrl} size={140} />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Afbeelding en punten naast elkaar */}
@@ -548,10 +622,15 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   compact
                 />
               </div>
-              <div className="form-group" style={{ width: 110, flexShrink: 0 }}>
+              <div className="form-group vraag-punten">
                 <label className="form-label">Punten</label>
-                <input className="form-input" type="number" min={0} value={punten}
-                  onChange={(e) => setPunten(Number(e.target.value))} title="Zoveel punten krijgt een team voor het goede antwoord" />
+                <div className="vraag-punten-rij">
+                  {PUNTEN_SNEL.map((p) => (
+                    <button key={p} type="button" className={`rl-knop${punten === p ? " rl-knop--cyan" : ""}`} onClick={() => setPunten(p)} aria-pressed={punten === p}>{p}</button>
+                  ))}
+                  <input className="form-input" type="number" min={0} value={punten} aria-label="Eigen aantal punten"
+                    onChange={(e) => setPunten(Number(e.target.value))} title="Zoveel punten krijgt een team voor het goede antwoord" />
+                </div>
               </div>
             </div>
             {puzzel && <PuzzelLetterKeuze puzzel={puzzel} puntId={punt.id} />}
@@ -623,42 +702,16 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
             {meerkeuze && (
               <div className="form-group">
-                {/* Kop: uitleg links, rechts de schakelaar voor eigen punten per antwoord */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
-                  <label className="form-label" style={{ margin: 0, flex: 1, minWidth: 0 }}>Antwoorden <span style={{ fontWeight: 400, color: "var(--muted)", textTransform: "none", letterSpacing: 0 }}>· tik op het rondje bij elk goed antwoord (meer dan één mag)</span></label>
-                  <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
-                    style={{ height: 30, fontSize: "0.78rem" }} onClick={wisselPerAntwoord}
-                    title={`Uit: goed krijgt ${punten} punten, fout 0. Aan: elk antwoord eigen punten (ook negatief).`}>
-                    ± Punten per antwoord<span className="schakel-bol" aria-hidden />
-                  </button>
-                  <button type="button" className={`rl-knop schakel${perUitleg ? " schakel--aan" : ""}`} role="switch" aria-checked={perUitleg}
-                    style={{ height: 30, fontSize: "0.78rem" }} onClick={() => setPerUitleg((u) => !u)}
-                    title="Per antwoord een korte uitleg, bijv. waarom het niet goed is. De speler ziet die na het antwoorden.">
-                    💬 Uitleg per antwoord<span className="schakel-bol" aria-hidden />
-                  </button>
-                </div>
+                <label className="form-label" style={{ margin: 0 }}>Antwoorden</label>
+                <span className="vraag-hint" style={{ marginTop: -2 }}>Tik op <em>✗ fout</em> om een antwoord goed te maken; meer dan één goed mag.</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {antwoorden.map((ant, i) => (
-                    <div key={ant.color} style={{
-                      display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
-                      padding: "6px 10px", borderRadius: "var(--radius-md)",
-                      border: `2px solid ${ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)"}`,
-                      background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : "transparent",
+                    <div key={ant.color} className="antw-rij" style={{
+                      // Eerst de hele rand, dan links de kleur van het antwoord (andersom wist React de linkerkleur)
+                      borderColor: ant.is_correct ? LABEL_KLEUR[ant.color] : "var(--line)",
+                      borderLeftColor: LABEL_KLEUR[ant.color],
+                      background: ant.is_correct ? `${LABEL_KLEUR[ant.color]}1f` : undefined,
                     }}>
-                      <button type="button" className="antwoord-goed-rondje" onClick={() => setCorrect(i)}
-                        title={ant.is_correct ? "Goed antwoord: tik om fout te maken" : "Fout antwoord: tik om goed te maken"}
-                        aria-label={`Antwoord ${ant.color} is goed`} aria-pressed={ant.is_correct}
-                        style={{
-                          width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                          border: `2px solid ${LABEL_KLEUR[ant.color]}`,
-                          background: ant.is_correct ? LABEL_KLEUR[ant.color] : "transparent",
-                          cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                          color: "rgb(var(--o0))", fontSize: "0.8rem", fontWeight: 900, lineHeight: 1, padding: 0,
-                        }}>{ant.is_correct ? "✓" : ""}</button>
-                      <span style={{
-                        width: 46, fontSize: "0.75rem", fontWeight: 700,
-                        color: LABEL_KLEUR[ant.color], flexShrink: 0, textTransform: "capitalize",
-                      }}>{ant.color}</span>
                       {type === "meerkeuze_tekst" ? (
                         <input ref={(el) => { antwoordRefs.current[i] = el; }} className="form-input" spellCheck lang="nl" style={{ flex: 1, fontSize: "0.88rem" }}
                           value={ant.text}
@@ -673,8 +726,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                           compact
                         />
                       )}
-                      {/* Goed of fout duidelijk bij elk antwoord */}
-                      <span className={`antw-oordeel${ant.is_correct ? " antw-oordeel--goed" : ""}`}>{ant.is_correct ? "✓ goed" : "✗ fout"}</span>
+                      {/* Goed of fout: één knop (tik = wisselen) */}
+                      <button type="button" className={`antw-oordeel${ant.is_correct ? " antw-oordeel--goed" : ""}`} onClick={() => setCorrect(i)}
+                        aria-pressed={ant.is_correct} aria-label={`Antwoord ${ant.color}: ${ant.is_correct ? "goed" : "fout"} (tik om te wisselen)`}>
+                        {ant.is_correct ? "✓ goed" : "✗ fout"}
+                      </button>
                       {perAntwoord && (
                         <>
                           <input className="form-input" type="number" step={1}
@@ -698,6 +754,17 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   ))}
                 </div>
                 {perAntwoord && <span style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 6 }}>Vul per antwoord de punten in; leeg = standaard ({punten} voor goed, 0 voor fout). Negatief mag: dat gaat eraf.</span>}
+                {/* Extra's per antwoord: klein, onder de antwoorden */}
+                <div className="vraag-antw-opties">
+                  <button type="button" className={`rl-knop schakel${perAntwoord ? " schakel--aan" : ""}`} role="switch" aria-checked={perAntwoord}
+                    onClick={wisselPerAntwoord} title={`Uit: goed krijgt ${punten} punten, fout 0. Aan: elk antwoord eigen punten (ook negatief).`}>
+                    ± Punten per antwoord<span className="schakel-bol" aria-hidden />
+                  </button>
+                  <button type="button" className={`rl-knop schakel${perUitleg ? " schakel--aan" : ""}`} role="switch" aria-checked={perUitleg}
+                    onClick={() => setPerUitleg((u) => !u)} title="Per antwoord een korte uitleg, bijv. waarom het niet goed is. De speler ziet die na het antwoorden.">
+                    💬 Uitleg per antwoord<span className="schakel-bol" aria-hidden />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -735,80 +802,29 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               </div>
             )}
 
-            {/* Meer instellingen: dicht tot je ze nodig hebt */}
-            <div className="vraag-meer">
-              <button type="button" className="vraag-meer-kop" onClick={() => setMeerOpen((v) => !v)} aria-expanded={meerOpen}>
-                <UitklapPijl open={meerOpen} />
-                <span><Icoon naam="instellingen" /> Meer instellingen</span>
-                <span className="vraag-meer-samenvatting">
-                  {[geluidPad ? "🔊 geluid" : "", tijdslimiet && type !== "foto_opdracht" ? `⏱️ ${tijdslimiet} s` : "", qrEnabled ? "QR-test aan" : ""].filter(Boolean).join(" · ") || "geluid, tijdslimiet, QR-code om te testen"}
-                </span>
-              </button>
-              {meerOpen && (
-                <div className="vraag-meer-inhoud">
-                  {/* 🔀 Antwoorden husselen staat bij de route, niet per vraag */}
-                  {meerkeuze && (
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>🔀 Antwoorden husselen stel je in voor de hele route: ⚙️ Instellingen → 🎮 Spel.</span>
-                  )}
-
-                  {/* 🔊 Geluidsfragment bij de vraag, bijvoorbeeld "welk lied is dit?" */}
-                  <div className="form-group">
-                    <label className="form-label">🔊 Geluidsfragment</label>
-                    {geluidPad ? (
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                        <audio controls src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${geluidPad}`} style={{ height: 34, maxWidth: "100%" }} />
-                        <button type="button" className="rl-knop" onClick={() => setGeluidPad(null)} title="Geluid weghalen"><Icoon naam="wissen" /></button>
-                      </div>
-                    ) : (
-                      <label className="rl-knop" style={{ alignSelf: "flex-start", cursor: "pointer", height: 32, fontSize: "0.8rem" }}>
-                        {geluidBezig ? "⏳ Uploaden…" : "🎵 Geluid kiezen (mp3, m4a, wav)"}
-                        <input type="file" accept="audio/*" onChange={kiesGeluid} style={{ display: "none" }} disabled={geluidBezig} />
-                      </label>
-                    )}
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>De spelers kunnen het afspelen bij de vraag. Maximaal 3 MB, kort fragment is genoeg.</span>
-                  </div>
-
-                  {/* ⏱️ Tijdslimiet: daarna telt de vraag als fout */}
-                  {type !== "foto_opdracht" && (
-                    <div className="form-group">
-                      <label className="form-label">⏱️ Tijdslimiet</label>
-                      <div className="segment" role="radiogroup" aria-label="Tijdslimiet">
-                        {([[null, "Uit"], [30, "30 s"], [60, "1 min"], [90, "1½ min"], [120, "2 min"]] as const).map(([s, label]) => (
-                          <button key={label} type="button" role="radio" aria-checked={tijdslimiet === s} className={tijdslimiet === s ? "aan" : ""} onClick={() => setTijdslimiet(s)}>{label}</button>
-                        ))}
-                      </div>
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Aan: de spelers zien een aftelklok; is de tijd om, dan telt de vraag als fout.</span>
-                    </div>
-                  )}
-
-                  <div className="form-group">
-                    <label className="form-label">Testen</label>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <button type="button" className={`rl-knop schakel${qrEnabled ? " schakel--aan" : ""}`} role="switch" aria-checked={qrEnabled}
-                        style={{ height: 32, fontSize: "0.8rem" }} disabled={qrOpslaan} onClick={() => toggleQr(!qrEnabled)}>
-                        <Icoon naam="testen" /> Openen met QR-code<span className="schakel-bol" aria-hidden />
-                      </button>
-                      {qrEnabled && qrUrl && <button type="button" className="rl-knop" style={{ height: 32, fontSize: "0.8rem" }} onClick={printQr}><Icoon naam="printen" /> QR-code printen</button>}
-                    </div>
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Scan met je telefoon: je krijgt deze vraag als proef, precies zoals de speler (er wordt niets opgeslagen). Wordt meteen opgeslagen.</span>
-                    {qrEnabled && qrUrl && (
-                      <div id="qr-print-zone" style={{ marginTop: 8, padding: 12, background: "#fff", borderRadius: 10, alignSelf: "flex-start" }}>
-                        <QRCodeSVG value={qrUrl} size={140} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
           </form>
 
           {/* Opslaan: altijd in beeld, met de foutmelding erboven */}
           <div className="vraag-opslaanbalk">
             {fout && <div className="melding melding-fout" role="alert" style={{ margin: 0 }}><span>⚠️</span> {fout}</div>}
             {opgeslagen && <div className="melding melding-ok" style={{ margin: 0 }}>✅ Vraag opgeslagen</div>}
-            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              {gewijzigd && !opslaan && <span style={{ fontSize: "0.74rem", color: "var(--gold)" }}>● Niet opgeslagen wijzigingen</span>}
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+              {/* 🗑️ Verwijderen: klein en onderaan, zodat je hem niet per ongeluk aantikt */}
+              {bestaandeVraag && (
+                <BevestigKnop venster icoon="🗑️" titel="Vraag verwijderen?" vraag="" knopTekst="Ja, verwijderen"
+                  uitleg="De vraag en de antwoorden gaan weg; het punt zelf blijft op de kaart staan."
+                  className="vraag-verwijder" onBevestig={verwijderVraag}>
+                  <Icoon naam="wissen" /> Verwijderen
+                </BevestigKnop>
+              )}
+              {gewijzigd && !opslaan && <span style={{ fontSize: "0.74rem", color: "var(--gold)" }}>● Niet opgeslagen</span>}
               <span style={{ flex: 1 }} />
+              {onOpslaanVolgende && (
+                <button type="button" className="rl-knop" disabled={opslaan} onClick={() => { volgendeRef.current = true; slaOp(); }}
+                  style={{ height: 42, padding: "0 16px", fontWeight: 700 }} title={volgendeNaam ? `Daarna: ${volgendeNaam}` : undefined}>
+                  Opslaan en volgende ›
+                </button>
+              )}
               <button type="submit" form={`vraag-${punt.id}`} className="rl-knop hoofdknop" disabled={opslaan}
                 style={{ height: 42, padding: "0 22px", fontWeight: 800, fontSize: "0.9rem" }}>
                 {opslaan ? "Opslaan…" : <><Icoon naam="opslaan" />{` ${opslaanLabel ?? (bestaandeVraag ? "Vraag opslaan" : "Vraag toevoegen")}`}</>}
@@ -819,12 +835,19 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
         {/* ── Rechts: spelersweergave en kaartje ── */}
         <div className="vraag-preview-kolom" style={{
-          width: 320, flexShrink: 0,
+          width: 360, flexShrink: 0,
           borderLeft: "1px solid var(--line)",
           background: "var(--bg)",
           display: "flex", flexDirection: "column", minHeight: 0,
         }}>
-          <div className="vraag-kolom-kop" title="Alleen de inhoud. De echte weergave op de telefoon zie je met 🧪 Testen of de QR-code bij Meer instellingen">👁 Inhoudsvoorbeeld</div>
+          <div className="vraag-kolom-kop vraag-voorbeeld-kop" title="Bij benadering. De echte weergave op de telefoon zie je met 🧪 Testen of de 🧪 QR-test">
+            <span>📱 Zo ziet de speler het</span>
+            {(meerkeuze || type === "open") && (
+              <button type="button" className={`vraag-toon-antwoord${toonAntwoord ? " aan" : ""}`} onClick={() => setToonAntwoord((t) => !t)} aria-pressed={toonAntwoord}>
+                {toonAntwoord ? "✓ Antwoord" : "Toon antwoord"}
+              </button>
+            )}
+          </div>
 
           <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px", display: "flex", justifyContent: "center" }}>
             <div style={{
@@ -838,7 +861,7 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
                   background: "#DBEAFE", color: "#1E40AF",
                   padding: "3px 8px", borderRadius: 99, alignSelf: "flex-start",
-                }}>❓ VRAAG</span>
+                }}>❓ VRAAG · {punten} pt{tijdslimiet && type !== "foto_opdracht" ? ` · ⏱️ ${tijdslimiet} s` : ""}</span>
 
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.4, color: "#111", whiteSpace: "pre-wrap" }}>
                   {tekst || <span style={{ color: "#aaa", fontStyle: "italic" }}>De vraag verschijnt hier…</span>}
@@ -857,9 +880,9 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                     {antwoorden.map((ant) => (
                       <div key={ant.color} style={{
-                        border: `2px solid ${ant.is_correct ? KLEUR_STIJL[ant.color] : "#e5e7eb"}`,
-                        borderRadius: 10, overflow: "hidden",
-                        background: ant.is_correct ? KLEUR_ZACHT[ant.color] : "#f9fafb",
+                        border: `2px solid ${toonAntwoord && ant.is_correct ? "#16A34A" : "#e5e7eb"}`,
+                        borderRadius: 10, overflow: "hidden", opacity: toonAntwoord && !ant.is_correct ? 0.45 : 1,
+                        background: "#f9fafb",
                       }}>
                         {ant.image_path ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -884,24 +907,31 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
 
                 {(type === "meerkeuze_tekst" || stem) && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {antwoorden.filter((a) => !stem || a.text.trim()).map((ant) => (
-                      <div key={ant.color} style={{
-                        display: "flex", alignItems: "center", gap: 8,
-                        padding: "9px 10px", borderRadius: 10,
-                        border: `2px solid ${ant.is_correct ? "#ffffff" : "transparent"}`,
-                        background: KLEUR_STIJL[ant.color],
-                        boxShadow: ant.is_correct ? "0 0 0 2px rgba(0,0,0,0.25)" : "none",
-                      }}>
-                        <div style={{
-                          width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
-                          border: "2px solid rgba(255,255,255,0.7)",
-                          background: ant.is_correct ? "#ffffff" : "transparent",
-                        }} />
-                        <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ffffff" }}>
-                          {ant.text || <span style={{ color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{ant.color}</span>}
-                        </span>
-                      </div>
-                    ))}
+                    {antwoorden.filter((a) => !stem || a.text.trim()).map((ant) => {
+                      const goedZichtbaar = toonAntwoord && !stem && ant.is_correct;
+                      return (
+                        <div key={ant.color} style={{ display: "flex", flexDirection: "column", gap: 3, opacity: toonAntwoord && !stem && !ant.is_correct ? 0.5 : 1 }}>
+                          <div style={{
+                            display: "flex", alignItems: "center", gap: 8,
+                            padding: "9px 10px", borderRadius: 10,
+                            border: `2px solid ${goedZichtbaar ? "#ffffff" : "transparent"}`,
+                            background: KLEUR_STIJL[ant.color],
+                            boxShadow: goedZichtbaar ? "0 0 0 3px #16A34A" : "none",
+                          }}>
+                            <div style={{
+                              width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
+                              border: "2px solid rgba(255,255,255,0.7)",
+                              background: goedZichtbaar ? "#ffffff" : "transparent",
+                            }} />
+                            <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ffffff", flex: 1 }}>
+                              {ant.text || <span style={{ color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{ant.color}</span>}
+                            </span>
+                            {goedZichtbaar && <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#fff" }}>✓</span>}
+                          </div>
+                          {toonAntwoord && perUitleg && ant.uitleg.trim() && <span style={{ fontSize: "0.64rem", color: "#4B5563", padding: "0 4px" }}>💬 {ant.uitleg}</span>}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -912,6 +942,11 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                     background: "#f9fafb",
                   }}>
                     Typ hier je antwoord…
+                  </div>
+                )}
+                {type === "open" && toonAntwoord && (
+                  <div style={{ fontSize: "0.68rem", color: "#065F46", background: "#DCFCE7", borderRadius: 8, padding: "6px 8px" }}>
+                    ✓ Goed: {isNumeriek ? `${numeriekeWaarde || "?"}${Number(tolerantie) ? ` (± ${tolerantie})` : ""}` : (openAntwoorden.split("\n").map((r) => r.trim()).filter(Boolean).join(" / ") || "?")}
                   </div>
                 )}
 
@@ -942,16 +977,18 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             </div>
           </div>
 
-        </div>
-
-        {/* ── Waar ligt dit punt? (breed scherm) ── */}
-        <div className="vraag-kaart-rechts">
-          <div className="vraag-kolom-kop">📍 Op de kaart</div>
-          <div style={{ flex: 1, minHeight: 0, padding: 12 }}>
-            <PuntMiniKaart
-              punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
-              radius={punt.radius_meters ?? 10}
-              andere={kaartPunten} />
+          {/* 📍 Waar ligt dit punt: klein onder het voorbeeld, met ⤢ groter */}
+          <div className="vraag-preview-kaart">
+            <div className="vraag-kolom-kop vraag-voorbeeld-kop">
+              <span>📍 Op de kaart</span>
+              <button type="button" className="vraag-toon-antwoord" onClick={() => setKaartGroot((g) => !g)} aria-pressed={kaartGroot}>{kaartGroot ? "⤡ Kleiner" : "⤢ Groter"}</button>
+            </div>
+            <div style={{ height: kaartGroot ? 380 : 190, padding: "0 12px 12px" }}>
+              <PuntMiniKaart
+                punt={{ id: punt.id, lat: punt.latitude, lng: punt.longitude, label: kaartPunten?.find((p) => p.id === punt.id)?.label ?? "📍" }}
+                radius={punt.radius_meters ?? 10}
+                andere={kaartPunten} />
+            </div>
           </div>
         </div>
       </div>

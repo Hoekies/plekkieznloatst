@@ -4672,3 +4672,31 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .sim-kopje { font-size: 0.76rem; font-weight: 800; color: #FCA5A5; }
 .sim-loper { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; color: #fff; font-size: 0.66rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center; text-shadow: 0 1px 2px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.45); }
+
+/* ── Vraag-editor (audit): rustiger formulier, voorbeeld met kaartje eronder ── */
+.vraag-form-kolom { max-width: 980px; }
+.vraag-soorten { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 6px; }
+.vraag-soorten .rl-knop { height: 38px; justify-content: center; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+.vraag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.vraag-chip { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05);
+  color: var(--muted); font: inherit; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+.vraag-chip.gezet { color: #A5F3FC; border-color: rgba(0,217,255,0.45); }
+.vraag-chip.aan { border-color: var(--cyan); background: rgba(0,217,255,0.15); color: #fff; }
+.vraag-chip-paneel { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,217,255,0.3); background: rgba(0,217,255,0.06); }
+.vraag-punten { flex-shrink: 0; }
+.vraag-punten-rij { display: flex; gap: 4px; align-items: center; }
+.vraag-punten-rij .rl-knop { height: 38px; min-width: 44px; padding: 0 8px; justify-content: center; font-weight: 800; }
+.vraag-punten-rij .form-input { width: 72px; height: 38px; text-align: center; font-weight: 800; padding: 0 6px; }
+.antw-rij { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 6px 10px; border-radius: var(--radius-md); border: 2px solid var(--line); border-left-width: 6px; }
+.antw-rij > .form-input:first-child, .antw-rij > input:not(.antw-uitleg) { flex: 1; min-width: 0; }
+button.antw-oordeel { cursor: pointer; font-family: inherit; min-width: 70px; height: 30px; font-size: 0.76rem; }
+button.antw-oordeel:hover { border-color: rgba(255,255,255,0.5); }
+.vraag-antw-opties { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.vraag-antw-opties .rl-knop { height: 30px; font-size: 0.76rem; }
+.vraag-verwijder { display: inline-flex; align-items: center; gap: 5px; border: none; background: none; padding: 4px 2px; color: #F87171; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.vraag-verwijder:hover { text-decoration: underline; }
+.vraag-voorbeeld-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.vraag-toon-antwoord { height: 24px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
+  color: var(--muted); font: inherit; font-size: 0.68rem; font-weight: 800; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.vraag-toon-antwoord.aan { color: #86EFAC; border-color: rgba(74,222,128,0.5); background: rgba(74,222,128,0.12); }
+.vraag-preview-kaart { flex-shrink: 0; border-top: 1px solid var(--line); }

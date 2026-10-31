@@ -2848,7 +2848,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               onSluit={(vraag) => {
                 if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
                 setVraagVenster(null);
-              }} />
+              }}
+              // Opslaan en volgende: het eerstvolgende punt dat nog geen vraag heeft
+              {...(() => {
+                const lijst = alleVragenPunten, i = lijst.findIndex((p) => p.id === vraagVenster.punt.id);
+                const volgend = lijst.map((_, k) => lijst[(i + 1 + k) % lijst.length]).find((p) => p.id !== vraagVenster.punt.id && !vraagPuntIds.has(p.id));
+                return volgend ? {
+                  volgendeNaam: volgend.name,
+                  onOpslaanVolgende: (vraag: VraagMetAntwoorden) => { vraagBijgewerkt(vraagVenster.punt.id, vraag); setVraagVenster(null); openVraag(volgend); },
+                } : {};
+              })()} />
           </div>
         )}
 
@@ -2861,7 +2870,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             <button type="button" className="test-keuze" disabled={!vraagpunten.length} onClick={() => { setTestKeuze(false); setProef(null); setTestOpen(true); }}>
               <Icoon naam="klembord" /><span><strong>Alle vragen doorlopen</strong><span>Punt voor punt, zonder te lopen: de kaart vliegt mee, je ziet elke vraag zoals de speler</span></span>
             </button>
-            <span className="inst-uitleg">Een punt op straat openen zonder erheen te lopen: zet in de vraag-editor (⚙️ Meer instellingen) <em>Openen met QR-code</em> aan en print de code.</span>
+            <span className="inst-uitleg">Een punt op straat openen zonder erheen te lopen: tik in de vraag-editor op de chip <em>🧪 QR-test</em>, zet <em>Openen met QR-code</em> aan en print de code.</span>
           </VensterMetKop>
         )}
 
