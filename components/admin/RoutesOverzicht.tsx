@@ -91,6 +91,8 @@ export default function RoutesOverzicht() {
   // 📁 Mappen en 🔍 zoeken (migratie 022): filter op naam en op map ("" = zonder map)
   const [zoek, setZoek] = useState("");
   const [mapFilter, setMapFilter] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  function kiesMap(m: string | null) { setMapFilter(m); setFilterOpen(false); }
   const [mapVoor, setMapVoor] = useState<Route | null>(null);
   const [nieuweMap, setNieuweMap] = useState("");
   const mappen = [...new Set(routes.map((r) => r.map).filter((m): m is string => !!m))].sort((a, b) => a.localeCompare(b, "nl"));
@@ -506,21 +508,28 @@ export default function RoutesOverzicht() {
       {!laden && (routes.length > 4 || mappen.length > 0) && (
         <div className="rl-filter">
           <input className="form-input rl-zoek" value={zoek} onChange={(e) => setZoek(e.target.value)} placeholder="🔍 Zoek een route…" aria-label="Zoek een route" />
-          {/* 📁 Filter op map: één balk, één keuze tegelijk (Alle = geen filter) */}
+          {/* 📁 Filter op map: één knop met de gekozen map; tikken klapt de mappen open (één keuze, Alle = geen filter) */}
           {mappen.length > 0 && (
+            <button type="button" className={`rl-knop rl-filterknop${mapFilter !== null ? " rl-knop--cyan" : ""}`} aria-expanded={filterOpen}
+              onClick={() => setFilterOpen((o) => !o)} data-tip="Filter op map">
+              <Icoon naam="map" /> <span className="rl-filterknop-tekst">{mapFilter === null ? "Alle" : mapFilter === "" ? "Zonder map" : mapFilter}</span>
+              <span className="rl-mapfilter-telling">{gefilterd.length}</span>
+              <span className={`rl-filterknop-pijl${filterOpen ? " open" : ""}`} aria-hidden>›</span>
+            </button>
+          )}
+          {mappen.length > 0 && filterOpen && (
             <div className="rl-mapfilter" role="radiogroup" aria-label="Filter op map">
-              <span className="rl-mapfilter-label"><Icoon naam="map" /> Map</span>
               <div className="segment rl-mapfilter-keuzes">
-                <button type="button" role="radio" aria-checked={mapFilter === null} className={mapFilter === null ? "aan" : ""} onClick={() => setMapFilter(null)}>
+                <button type="button" role="radio" aria-checked={mapFilter === null} className={mapFilter === null ? "aan" : ""} onClick={() => kiesMap(null)}>
                   Alle <span className="rl-mapfilter-telling">{routes.length}</span>
                 </button>
                 {mappen.map((m) => (
-                  <button key={m} type="button" role="radio" aria-checked={mapFilter === m} className={mapFilter === m ? "aan" : ""} onClick={() => setMapFilter(mapFilter === m ? null : m)}>
+                  <button key={m} type="button" role="radio" aria-checked={mapFilter === m} className={mapFilter === m ? "aan" : ""} onClick={() => kiesMap(mapFilter === m ? null : m)}>
                     {m} <span className="rl-mapfilter-telling">{routes.filter((r) => r.map === m).length}</span>
                   </button>
                 ))}
                 {routes.some((r) => !r.map) && (
-                  <button type="button" role="radio" aria-checked={mapFilter === ""} className={mapFilter === "" ? "aan" : ""} onClick={() => setMapFilter(mapFilter === "" ? null : "")}>
+                  <button type="button" role="radio" aria-checked={mapFilter === ""} className={mapFilter === "" ? "aan" : ""} onClick={() => kiesMap(mapFilter === "" ? null : "")}>
                     Zonder map <span className="rl-mapfilter-telling">{routes.filter((r) => !r.map).length}</span>
                   </button>
                 )}

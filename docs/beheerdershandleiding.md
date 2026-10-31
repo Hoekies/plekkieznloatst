@@ -29,7 +29,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 ---
 
-**📁 Routes ordenen:** zet een route met de knop **📁 Map** in een map (bijv. *Bedrijfsuitjes*). Boven de lijst staat een filter: zoek op naam, of kies bij **Map** één map (met het aantal routes erachter), *Zonder map* of *Alle*. Nodig: migratie 022.
+**📁 Routes ordenen:** zet een route met de knop **📁 Map** in een map (bijv. *Bedrijfsuitjes*). Boven de lijst staat een zoekveld en een filterknop met de gekozen map (eerst *Alle*). Tik op de filterknop: de mappen klappen open (met het aantal routes erachter), plus *Zonder map* en *Alle*. Na een keuze klappen ze weer dicht. Nodig: migratie 022.
 
 **📊 Welke vragen gaan vaak fout?** In de puntenlijst van de route-editor staat bij elk punt met een vraag hoe vaak die goed ging, over alle gespeelde spellen samen (bijv. *✓ 62% · 13×*; rood onder 40%). Bij 🧹 Nieuw spel voorbereiden telt de app de antwoorden eerst op, zodat het bewaard blijft. Nodig: migratie 022.
 
