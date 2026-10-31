@@ -248,7 +248,8 @@ export default function LeafletKaart({
         if (punten.length === 1) {
           kaart.setView([punten[0].latitude, punten[0].longitude], 16);
         } else {
-          kaart.fitBounds(bounds, { padding: [40, 40], maxZoom: 17 });
+          // Tot zoom 19: ook een klein rondje (een paar honderd meter) staat dan groot in beeld
+          kaart.fitBounds(bounds, { padding: [50, 50], maxZoom: 19 });
         }
       }
     });

@@ -4798,3 +4798,18 @@ button.groep-plaatje:disabled { cursor: default; }
   border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: var(--text); font: inherit; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
 .route-editor-topbar .editor-kleur-chip:hover { border-color: var(--cyan); }
 .editor-kleur-stip { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); flex-shrink: 0; }
+
+/* ── Route-editor (audit 31 okt, ronde 2) ── */
+/* 8. Stapnummers op de hoofdknoppen beter leesbaar */
+.editor-hoofdknop-stap { top: 4px; left: 6px; font-size: 0.66rem; color: rgba(255,255,255,0.7); }
+/* 9. Vraag ingevuld: groen vinkje (was grijs en vaag); ontbreekt: oranje ⚠️ */
+.lijst-vraagknop:not(.lijst-vraagknop--leeg) { opacity: 1; filter: none; color: #4ADE80; }
+/* 7. Wat nu? als alles klaar is: één korte regel */
+.editor-watnu-knop--klaar { align-items: center; }
+/* 10. Overzicht onder de puntenlijst */
+.zp-samenvatting { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 12px 0; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1); font-size: 0.76rem; font-weight: 700; color: var(--text); }
+/* 11. Actieve route: gele balk bovenaan de kaart */
+.editor-actief-balk { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 550; max-width: calc(100% - 140px);
+  padding: 7px 14px; border-radius: 999px; background: rgba(251,191,36,0.95); color: #3B2300; font-size: 0.8rem; font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

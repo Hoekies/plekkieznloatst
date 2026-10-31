@@ -1139,6 +1139,11 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     if (!route.is_active) return { tekst: "test de route met Testen en activeer hem daarna.", actie: () => setControleOpen(true) };
     return { tekst: "de route is actief. Wijzigingen stuur je met Naar spelers sturen.", klaar: true };
   })();
+  // 🏆 Maximaal te halen voor één team (voor het overzicht onder de lijst): alle vragen, punten zonder vraag en
+  // het puzzelwoord. Items tellen niet mee: die verschillen per spel.
+  const maxTotaal = vraagpunten.reduce((som, p) => som + (vraagMaxPunten.get(p.id) ?? 0), 0)
+    + punten.filter((p) => !vraagPuntIds.has(p.id) && p.type !== "doorlooppunt").reduce((som, p) => som + (p.points ?? 0), 0)
+    + (route.puzzel_aan && route.puzzelwoord ? normaliseerPuzzel(route.puzzelwoord).length * (route.puzzel_letter_punten ?? 10) + (route.puzzel_bonus ?? 100) : 0);
   // Vraagpunten zonder vraag (oranje stip op de kaart); alleen een nieuwe Set als de lijst echt verandert
   const zonderVraagSleutel = vraagpunten.filter((p) => !vraagPuntIds.has(p.id)).map((p) => p.id).join(",");
   const zonderVraag = useMemo(() => new Set(zonderVraagSleutel ? zonderVraagSleutel.split(",") : []), [zonderVraagSleutel]);
@@ -1222,6 +1227,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }
   function onthoud(st: Stap, metToast = false) {
     setStappen((oud) => [...oud.slice(-29), st]);
+    if (route.is_active) setNietVerstuurd((n) => n + 1);
     if (!metToast) return;
     setHerstelToast(stapLabel(st));
     if (herstelToastTimerRef.current) clearTimeout(herstelToastTimerRef.current);
@@ -1403,7 +1409,20 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     await slaSpeciaalItemOp(id, { latitude: lat, longitude: lng });
   }
 
-  async function markerVerplaatst(id: string, lat: number, lng: number) {
+  // 🎮 Er wordt gespeeld: een punt verplaatsen of verwijderen pas na een bevestiging (teams lopen er misschien al naartoe)
+  const [nietVerstuurd, setNietVerstuurd] = useState(0);
+  const [bevestigActief, setBevestigActief] = useState<{ titel: string; uitleg: string; ja: string; doe: () => void; nee: () => void } | null>(null);
+  function markerVerplaatst(id: string, lat: number, lng: number) {
+    if (!route.is_active) return verplaatsPunt(id, lat, lng);
+    setBevestigActief({
+      titel: "Punt verplaatsen tijdens het spel?", ja: "Ja, verplaatsen",
+      uitleg: "Er wordt nu gespeeld. Teams die hier al naartoe lopen, zien de nieuwe plek pas na Naar spelers sturen.",
+      doe: () => verplaatsPunt(id, lat, lng),
+      // Niet verplaatsen: de marker terug op zijn plek (de kaart tekent de punten opnieuw)
+      nee: () => setPunten((p) => p.map((pt) => ({ ...pt }))),
+    });
+  }
+  async function verplaatsPunt(id: string, lat: number, lng: number) {
     const oud = punten.find((p) => p.id === id);
     if (oud) onthoud({ soort: "punt-gewijzigd", id, oud: { latitude: oud.latitude, longitude: oud.longitude } });
     await api(`/api/admin/routes/${route.id}/punten/${id}`, {
@@ -1414,7 +1433,15 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     setPunten((p) => p.map((pt) => pt.id === id ? { ...pt, latitude: lat, longitude: lng } : pt));
   }
 
-  async function verwijderPunt(id: string) {
+  function verwijderPunt(id: string) {
+    if (!route.is_active) return verwijderPuntNu(id);
+    setBevestigActief({
+      titel: "Punt verwijderen tijdens het spel?", ja: "Ja, verwijderen",
+      uitleg: "Er wordt nu gespeeld. Teams die dit punt nog moeten halen, slaan het over zodra je de wijziging naar de spelers stuurt.",
+      doe: () => { verwijderPuntNu(id); }, nee: () => {},
+    });
+  }
+  async function verwijderPuntNu(id: string) {
     // Eerst bewaren (met vraag en antwoorden), zodat "Ongedaan maken" alles terug kan zetten
     const plek = punten.findIndex((p) => p.id === id);
     const punt = punten[plek];
@@ -1617,12 +1644,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             )}
             {route.is_active && (
               <BevestigKnop venster gevaarlijk={false} icoon="📲" titel="Wijzigingen naar de spelers sturen?" vraag="" ja="Ja, versturen"
-                className="rl-knop rl-knop--cyan" tip="De apps van de spelers lezen de route opnieuw in" tipOnder
+                className={`rl-knop${nietVerstuurd ? " rl-knop--cyan" : ""}`}
+                tip={nietVerstuurd ? `${nietVerstuurd} ${nietVerstuurd === 1 ? "wijziging" : "wijzigingen"} nog niet bij de spelers` : "Alles is bij de spelers; de apps lezen de route opnieuw in"} tipOnder
                 onBevestig={async () => {
                   const res = await api(`/api/admin/routes/${route.id}/vernieuw`, { method: "POST" });
                   const data = await res.json().catch(() => ({}));
                   toonMelding(res.ok ? "Verstuurd: de spelers zien de wijzigingen binnen een paar seconden" : uitlegBijStatus(res.status, "Versturen", data.fout), res.ok ? "ok" : "fout");
-                }}><Icoon naam="delen" /><span className="alleen-pc"> Naar spelers sturen</span></BevestigKnop>
+                  if (res.ok) setNietVerstuurd(0);
+                }}><Icoon naam="delen" /><span className="alleen-pc"> Naar spelers sturen</span>{nietVerstuurd > 0 && <span className="editor-teller">{nietVerstuurd}</span>}</BevestigKnop>
             )}
             {route.is_active && (
               <BevestigKnop venster icoon="⏹️" titel="Route deactiveren?" vraag="" knopTekst="Ja, deactiveren"
@@ -1670,7 +1699,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
           {/* Computer: puntenlijst links in- en uitklappen */}
           <button type="button" className={`rl-knop alleen-pc-knop${lijstDicht ? "" : " rl-knop--cyan"}`} onClick={wisselLijst}
-            title={lijstDicht ? "Puntenlijst tonen" : "Puntenlijst verbergen (meer ruimte voor de kaart)"}><Icoon naam="lijst" /> Lijst</button>
+            title={lijstDicht ? "Zijbalk tonen" : "Zijbalk verbergen (meer ruimte voor de kaart)"}><Icoon naam="lijst" /> Zijbalk</button>
 
           {/* Wegen: aan/uit-schakelaar (op de telefoon niet: daar alleen de hoofdzaken) */}
           <span className="editor-groep alleen-pc-knop">
@@ -1681,7 +1710,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
             </button>
           </span>
           {/* 🚶 Verkennen: buiten met de telefoon punten op je eigen plek zetten */}
-          <button type="button" className={`rl-knop${verken ? " rl-knop--cyan" : ""}`}
+          <button type="button" className={`rl-knop alleen-mobiel-knop${verken ? " rl-knop--cyan" : ""}`}
             onClick={() => { setVerken((v) => (v ? null : { pos: null })); setProef(null); setTestOpen(false); setTekenGebied(null); }}
             title={verken ? "Verkennen stoppen" : "Verkennen: loop de route met je telefoon en zet punten op je eigen plek"}>
             <Icoon naam="kompas" /><span className="alleen-pc"> Verkennen</span>
@@ -1761,7 +1790,9 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* 💡 Wat nu?: steeds de volgende stap; tik = naar die stap */}
           <div className="editor-watnu">
             <button type="button" className={`editor-watnu-knop${watNu.klaar ? " editor-watnu-knop--klaar" : ""}`} onClick={watNu.actie} disabled={!watNu.actie}>
-              <span aria-hidden>{watNu.klaar ? "✅" : "💡"}</span><span><strong>Wat nu?</strong> {watNu.tekst}</span>
+              {watNu.klaar
+                ? <><span aria-hidden>✅</span><span title={watNu.tekst}><strong>Klaar</strong> · niets meer te doen</span></>
+                : <><span aria-hidden>💡</span><span><strong>Wat nu?</strong> {watNu.tekst}</span></>}
             </button>
             <button type="button" className="editor-watnu-rondleiding" onClick={() => setRondleidingOpen(true)} title="🧭 Rondleiding: zo werkt de route-editor" aria-label="Rondleiding">🧭</button>
           </div>
@@ -1993,6 +2024,16 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                   </div>
                 );
               })
+            )}
+
+            {/* 📊 Kort overzicht van de route onder de lijst */}
+            {actieveTab === "punten" && punten.length > 1 && !kiesModus && (
+              <div className="zp-samenvatting">
+                <span>📍 {punten.length} punten</span>
+                <span>🚶 {((route.modus === "verspreid" && lusMeterWeg > 0 ? lusMeterWeg : wegen.totaal(puntPlekken)) / 1000).toFixed(1).replace(".", ",")} km</span>
+                {teamSchattingen.length > 0 && <span>⏱️ ± {duurKort(Math.round(teamSchattingen.reduce((a, t) => a + t.totaalMin, 0) / teamSchattingen.length))}</span>}
+                <span>🏆 max {maxTotaal.toLocaleString("nl-NL")} pt</span>
+              </div>
             )}
 
             {/* 🛤️ Ondergrond: trap, onverhard of een drukke weg op de route (voor kinderwagen, rolstoel of kleine kinderen) */}
@@ -2766,6 +2807,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </VensterMetKop>
         )}
 
+        {/* 🎮 Er wordt gespeeld: wijzigingen gaan pas mee na Naar spelers sturen */}
+        {route.is_active && (
+          <div className="editor-actief-balk" role="status">
+            🎮 Er wordt gespeeld: wijzigingen gaan pas naar de teams met <strong>Naar spelers sturen</strong>
+            {nietVerstuurd > 0 && <span> · {nietVerstuurd} nog niet verstuurd</span>}
+          </div>
+        )}
+        {bevestigActief && (
+          <VensterMetKop icoon="🎮" label="Er wordt gespeeld" titel={bevestigActief.titel} breedte={400}
+            onSluit={() => { bevestigActief.nee(); setBevestigActief(null); }}>
+            <span className="inst-uitleg">{bevestigActief.uitleg}</span>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button type="button" className="rl-knop" onClick={() => { bevestigActief.nee(); setBevestigActief(null); }}>Annuleren</button>
+              <button type="button" className="rl-knop rl-knop--rood" onClick={() => { bevestigActief.doe(); setBevestigActief(null); }}>{bevestigActief.ja}</button>
+            </div>
+          </VensterMetKop>
+        )}
+
         {/* 🚶 Verkennen: GPS-plek, nauwkeurigheid en één grote knop */}
         {verken && (
           <div className="proefloop verken" role="status">
@@ -3046,8 +3105,8 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           hoofdStukken={hoofdStukken}
           centrumPunt={route.modus === "verspreid" ? centrumPunt : null}
           finishPunt={route.modus === "verspreid" && punten.length === 0 ? (finishPunt ?? (finishZelfde ? centrumPunt : null)) : null}
-          ghostPunten={lagen.cirkel ? ghostPunten : []}
-          ghostRadiusM={lagen.cirkel && doelAfstandKm > 0 ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
+          ghostPunten={lagen.cirkel && (punten.length === 0 || rondjeOpen) ? ghostPunten : []}
+          ghostRadiusM={lagen.cirkel && doelAfstandKm > 0 && (punten.length === 0 || rondjeOpen) ? (doelAfstandKm * 1000) / (2 * Math.PI) : 0}
           onCentrumVerplaatst={(lat, lng) => setCentrumPunt({ lat, lng })}
           onKlik={kaartKlik}
           onMarkerVerplaatst={markerVerplaatst}
