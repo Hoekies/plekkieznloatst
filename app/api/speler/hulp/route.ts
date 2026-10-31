@@ -48,13 +48,16 @@ export async function POST() {
   if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
 
   // Pushmelding naar de beheerder: dit team kan niet verder
-  const { data: team } = await admin.from("players").select("nickname, login_name").eq("id", sessie.player_id).maybeSingle();
+  // "*": zonder migratie 009 bestaat telefoon nog niet
+  const { data: team } = await admin.from("players").select("*").eq("id", sessie.player_id).maybeSingle();
   await stuurPushNaarBeheer({
     titel: `⚠️ ${team?.nickname ?? team?.login_name ?? "Een team"} kan een punt niet bereiken`,
     tekst: `"${punt.name}" is niet te bereiken. Tik om het punt vrij te geven.`,
     // Tik op de melding: het dashboard opent meteen met het venster van dit team (vrijgeven, bellen)
     url: `/admin?team=${sessie.player_id}`,
     tag: `hulp-${sessie.id}`,
+    // Knoppen in de melding: ⏭️ punt vrijgeven en 📞 bellen, zonder de app te openen
+    hulp: { sessieId: sessie.id, telefoon: (team as { telefoon?: string | null } | null)?.telefoon ?? null },
   });
 
   return NextResponse.json(data);

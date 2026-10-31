@@ -80,6 +80,10 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       aandacht.push({ id: `wacht-${s.player_id}`, kleur: "#A78BFA", tekst: `${s.wacht.soort === "spook" ? "👻" : "⛔"} ${s.display_name} moet wachten (${s.wacht.soort === "spook" ? "spook" : "plek zooi"}, nog ± ${min} min)`, speler: s });
     }
   }
+  // 🧍 Staat al een tijd stil, niet bij een punt: misschien verdwaald, of de telefoon ligt ergens
+  for (const s of spelend) {
+    if (s.stil) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#F59E0B", tekst: `🧍 ${s.display_name} staat al ${s.stil.minuten} min op dezelfde plek (niet bij een punt)`, speler: s });
+  }
   // Iedereen binnen en de uitslag nog dicht: de foto's staan dan al in de regel "Iedereen is binnen" (hieronder)
   if (wachtendeFotos > 0 && !(onderweg === 0 && spelend.length > 0 && !uitslagVrij && !beperkt)) aandacht.push({ id: "fotos", kleur: "#FBBF24", tekst: `📸 ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""} te keuren`, klik: openFotoKeuren });
   // 🧑‍⚖️ Bezwaren: jij beslist meteen (een helper ook)

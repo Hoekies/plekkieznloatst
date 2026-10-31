@@ -10,6 +10,8 @@ import { meldLiveData } from "@/components/admin/useBeheerStatus";
 export function useLiveData(initData: LiveData, pollMs: number, kanaal: string) {
   const [data, setData] = useState<LiveData>(initData);
   const [realtimeOk, setRealtimeOk] = useState(true);
+  // Wanneer de stand voor het laatst gelukt is (bij slecht bereik blijft de oude stand staan, met de leeftijd erbij)
+  const [bijgewerkt, setBijgewerkt] = useState(() => Date.now());
   // Elke aanvraag krijgt een nummer; een antwoord van een oudere aanvraag die later binnenkomt, mag een
   // nieuwere stand niet overschrijven. Komt er een aanvraag bij terwijl er al een loopt, dan één keer erna.
   const nummerRef = useRef(0);
@@ -27,6 +29,7 @@ export function useLiveData(initData: LiveData, pollMs: number, kanaal: string) 
       if (res.ok) {
         const d = await res.json();
         if (nr > getoondRef.current) { getoondRef.current = nr; setData(d); meldLiveData(d); }
+        setBijgewerkt(Date.now());
       }
     } catch { /* verbindingsfout */ }
     finally {
@@ -52,5 +55,5 @@ export function useLiveData(initData: LiveData, pollMs: number, kanaal: string) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollMs, kanaal]);
 
-  return { data, realtimeOk, ververs };
+  return { data, realtimeOk, ververs, bijgewerkt };
 }

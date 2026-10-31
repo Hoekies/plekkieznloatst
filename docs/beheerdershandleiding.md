@@ -79,7 +79,7 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 
 > **Overzicht in de editor (computer)**: de editor is gemaakt voor de pc; op de telefoon open je de zijbalk met ☰ Lijst.
 > - Bovenin staan twee lage regels: de **routekop** (terug, naam, de stappen, de volgende stap ▶ Starten, en rechts ✓ Opgeslagen, ↶ Ongedaan en ⚙️ Instellingen) en de **werkbalk** (◧ Lijst, 🚶 Wegen, 🧪 Testen, en het gereedschap 📥 Importeren, ⛔ Verboden gebied en 🧲 Op de weg, met tekst erbij). Op de kaart heeft een vraagpunt zonder vraag een **oranje stip**.
-> - **Vijf knoppen** bovenin de zijbalk links: *📍 Punten*, *❓ Vragen*, *🎁 Items*, *👫 Teams* (alleen bij een Rondje) en *🎉 Spel*. Elke knop opent alles van dat onderdeel in de zijbalk; de kaart blijft in beeld. Het getalletje op een knop is het aantal (bij Vragen: ingevuld/totaal).
+> - **Vijf knoppen** bovenin de zijbalk links, in de volgorde waarin je een route bouwt (met een stapnummer): *📍 Punten*, *👫 Teams* (alleen bij een Rondje), *❓ Vragen*, *🎁 Items* en *🎉 Spel*. Elke knop opent alles van dat onderdeel in de zijbalk; de kaart blijft in beeld. Het getalletje op een knop is het aantal (bij Vragen: ingevuld/totaal).
 >   - *📍 Punten*: het rondje (teams, afstand, middelpunt, punten maken) en de puntenlijst.
 >   - *❓ Vragen*: **📝 Alle vragen**, de lijst met alle vraagpunten (✓ ingevuld, ⚠️ nog niet; tik = vraag openen), het puzzelwoord, de punten per vraag en de bonusvragen.
 >   - *🎁 Items*: items op de kaart zetten (item aantikken, dan op de kaart), **✨ Items verdelen**, het advies, de startitems, items na de finish, onder *⚙️ Meer instellingen* de radius, waarden, duur en respawn, en onderaan de lijst van geplaatste items. Alles van de items staat hier, nergens anders.
@@ -90,9 +90,15 @@ Rechtsboven (op de telefoon in de bovenbalk) staan **📢 Bericht sturen** en **
 > - **Tik op de kaart** voor een keuzemenu: *Punt*, *Item hier* (kies meteen de soort), *Verboden gebied hier* (en bij een Rondje *Middelpunt*). **Rechtsklik** (pc) of **lang drukken** (telefoon) opent dat menu altijd, ook als je net een item aan het plaatsen bent.
 > - **🚶 Wegen** is een aan/uit-schakelaar: aan = lijnen en afstanden volgen wegen en voetpaden, uit = hemelsbreed. Lukt een stuk niet, dan probeert de app het vanzelf opnieuw.
 > - **◧ Lijst** klapt de puntenlijst links in, voor meer kaartruimte. Met **« Inklappen** onderaan het menu wordt het hoofdmenu een smalle balk met alleen icoontjes (**»** klapt hem weer uit). Beide worden onthouden.
-> - In de puntenlijst openen **❓** (gedempt: de vraag is er) en het oranje **⚠️** (nog geen vraag, valt op) meteen de vraag van dat punt. **▲ ▼ 🗑️** verschijnen op de pc pas als je een regel aanwijst of kiest. De greep **≡** achteraan laat zien dat je een punt kunt verslepen (start en finish liggen vast).
+> - In de puntenlijst openen **❓** (gedempt: de vraag is er) en het oranje **⚠️** (nog geen vraag, valt op) meteen de vraag van dat punt. **🗑️** verschijnt op de pc pas als je een regel aanwijst of kiest; de volgorde verander je daar door te slepen aan de greep **≡** (start en finish liggen vast). Op de telefoon werkt slepen niet: daar staan **▲ ▼** om een punt omhoog of omlaag te zetten.
 > - Klik je op een punt, dan opent het **puntpaneel**: bovenin kies je het soort punt (❓ Vraag · ℹ️ Info · 🏁 Eind), daaronder de naam. Je ziet ook de vraag (kort), welk team daar begint, welke items in de buurt liggen en de positie, met **🧲 Op de weg** voor dat ene punt. Verplaatsen doe je door het punt op de kaart te slepen; met **↶** zet je het terug.
 > - **Kaartpaneel** (linksonder; standaard ingeklapt tot één knop **🗺️ Kaart**, zodat het geen punten bedekt; open of dicht wordt onthouden op dit toestel): de rij **Lagen** zet **🧭 Routes**, **🎁 Items**, **✨ Voorstellen** en **⭕ Cirkel** los aan of uit (aan = cyaan), zodat de kaart rustiger wordt; de rij **Kaart** kiest ☀️ Licht, 🌙 Donker of 🛰️ Luchtfoto. Een **voorstel** is een doorzichtig item in een witte stippelrand met een ＋ (aanwijzen maakt het even goed zichtbaar en toont welk item; tik erop om het daar echt te plaatsen); geplaatste items zijn vol en zonder stippelrand. De **🛰️ luchtfoto** is in Nederland die van PDOK en daarbuiten automatisch die van Esri.
+
+> **🧭 Verkennen** (werkbalk, vooral op de telefoon): loop de route buiten en zet punten op je eigen plek. Je ziet je plek op de kaart en hoe nauwkeurig die is (± meters; boven 25 m staat er "wacht even"). Sta op de plek van een punt en tik op **📍 Punt op mijn plek**: het punt komt erbij en meteen opent de vraag-editor, waar je de foto maakt (camera) en de vraag typt. Stoppen met ✕.
+
+> **📄 Spiekbriefje** (knop *❓ Vragen* → *Spiekbriefje afdrukken*, of bij de route in het overzicht): alle punten met de vraag en het goede antwoord, met een overzichtskaartje van de punten. Alleen voor jou, om mee te nemen op de dag zelf. Met **Afdrukken of PDF** druk je het af of sla je het op als PDF.
+
+> **🛤️ Ondergrond controleren** (knop *📍 Punten*, onder de lijst): kijkt in OpenStreetMap of de route over een 🪜 trap, een 🟫 onverhard pad of langs een 🚗 drukke weg gaat. Handig met kinderwagens, rolstoelen of kleine kinderen. Elke melding staat in de lijst (tik = ernaartoe) en als geel bordje op de kaart. OpenStreetMap is niet overal compleet: kijk bij twijfel ter plekke.
 
 > **🧲 Op de weg** (werkbalk): opent een venster waarin je kiest wat er op de weg moet, **Punten** en/of **Items**, en dan **Op de weg leggen**. Alles schuift naar de dichtstbijzijnde weg of het dichtstbijzijnde voetpad (punten tot 200 m), zodat er niets midden in een weiland of tuin ligt. Onderin hetzelfde venster: **Nieuwe items vanzelf op de weg** (aan of uit, zie hieronder bij items). Bij een Rondje blijven start en finish staan. Met **↶ Ongedaan maken** zet je ze terug. Ook **punten automatisch genereren** in een cirkel zet elk punt meteen op de weg.
 
@@ -210,6 +216,8 @@ Met **↻ Andersom lopen** loopt dat team het rondje in **tegengestelde richting
 
 **Zelf het startpunt kiezen.** Begint een team te ver van de start? Klik bij het team op **📍 Ander startpunt** en daarna op de kaart op het punt waar dat team het rondje moet beginnen (een punt in het rondje, niet de start of finish). In het venster zie je de **aanloop** vanaf de start in meters. Een zelfgekozen startpunt herken je aan 📌; met **Automatisch** gaat het team terug naar het berekende startpunt. Geldt voor teams die daarna beginnen.
 #### Afstand en speeltijd per team
+
+**▶️ Simulatie** (knop *👫 Teams*, onderaan): zet hem aan en alle teams lopen tegelijk hun eigen rondje, als gekleurde stipjes op de kaart (4,5 km/u, 2 minuten per vraag). Met ▶ speel je het versneld af (1 seconde = 1 minuut), met de schuif ga je naar elk moment. **🔴 Drukte**: rode cirkels op de kaart waar twee of meer teams tegelijk binnen 40 meter van elkaar zijn (niet bij de start of finish), met in de lijst welke teams en rond welke minuut (tik = naar dat moment). Tegenkomen kan leuk zijn (duel), maar bij een punt betekent het wachten: verplaats dan een punt of laat een team andersom lopen.
 
 > 🚶 **Langs wegen en voetpaden.** De lijnen op de kaart en alle afstanden (gemeten afstand, aanloop, speeltijd, itemadvies) volgen de wegen en voetpaden, via de voetgangersrouting van OpenStreetMap. Na het verplaatsen van een punt duurt het even voor de nieuwe route er is; tot dan staat er *📏 hemelsbreed*. Lukt het ophalen niet, dan rekent de editor hemelsbreed verder.
 
@@ -464,6 +472,9 @@ Het **Dashboard** (ververst elke paar seconden vanzelf):
 
 - **Geen dubbele meldingen**: vóór het spel staat alles in *📋 Spel klaarzetten* (met de volgende stap bovenaan), tijdens en na het spel in het *🎯 Spelleider*-blok. De naam van de actieve route staat in de kopbalk, naast *Dashboard*. Foto's keuren kan ook altijd met de knop in de kopbalk.
 - **🎯 Spelleider**: één korte regel met hoe lang het spel loopt, hoeveel teams onderweg en binnen zijn en hoe lang het nog duurt, met daaronder alleen wat **je aandacht vraagt**: hulpvragen, foto's om te keuren, teams die 5 minuten **niet gezien** zijn (📵, bij meerdere teams samen op één regel), en teams die wachten door een spook of plek zooi. Tik op een regel voor de details. Niets aan de hand? Dan is het blok ingeklapt tot één regel (*"… onderweg · ✅ Alles loopt"*); tik erop voor de knoppen. Die staan in twee groepen: *▶️ Tijdens het spel* (pauze, tussenstand, eindtijd, gouden kwartier, bonusvraag) en *🏁 Na het spel* (afronden, opruimen). Is iedereen binnen, dan zie je alleen nog *Na het spel*. **🧹 Opruimen** staat er pas als iedereen binnen is, zodat je hem tijdens het spel niet per ongeluk aantikt. Het dashboard is gemaakt voor de telefoon: de knoppen staan daar twee naast elkaar. Vraagt iets je aandacht (een hulpvraag, foto's, pauze), dan staat het open en blijft het open tot het is opgelost, zodat een hulpvraag nooit verstopt zit. Op het dashboard komt er daarom ook geen extra hulp-popup; op de andere pagina's wel (dicht staat er *"⚠️ 2 meldingen"*). Komt er een nieuwe melding bij, dan klapt het weer open. Een spel waar al uren niets meer gebeurt (bijvoorbeeld een vergeten testspel) staat apart, als **🧹 Vergeten spel**, met een knop **🧹 Afsluiten**.
+- **🧍 Stilstaan**: staat een team al 8 minuten op dezelfde plek (binnen 30 m), niet bij een punt en zonder plek zooi, dan komt er een melding in het Spelleider-blok en op de teamkaart (*🧍 8 min stil*). Misschien zijn ze verdwaald of ligt de telefoon ergens. Tik op de melding voor het team.
+- **🌦️ Weer**: bovenaan de komende 8 uur bij het startpunt van de route: temperatuur en regenkans (blauw = 50% of meer, met het uur erbij). Van Open-Meteo; alleen de plek van het startpunt gaat daarheen.
+- **📡 Geen verbinding**: lukt het verversen even niet (slecht bereik), dan blijft de laatste stand staan met een gele regel *Dit is de stand van 3 min geleden*. Hij ververst vanzelf zodra er weer bereik is.
 - **🏆 Stand**: alle teams op volgorde van de stand (medailles voor de top 3, de koploper met een gouden rand). Elke kaart is compact, zodat meerdere teams tegelijk in beeld passen: naam, status (**Onderweg**, **Uitgelogd** of **Gefinisht**) en punten, met daaronder 📍 bezochte punten, 🚶 gelopen km, ⏱ speeltijd, ➡️ het volgende punt en een voortgangsbalk. Is een team een tijd niet gezien, dan staat dat er in rood bij (bijv. *📵 25 u 52 min niet gezien*). Tik op een kaart (de **›** rechts) voor de items (in de balk en ingezet) en de knoppen **⏭️ Volgend punt vrijgeven**, **± Punten**, **💬 Contact** (📢 bericht in de app, 📞 bellen of WhatsApp) en **⏹️ Spel stoppen** open.
 - **🧩 Puzzelwoord** (als de route er een heeft): op elke spelerkaart en in de lijst op de live kaart het hele woord, met de letters die het team al heeft in goud (bijv. 3/7). Op het beamerscherm zien de spelers alleen hóéveel letters elk team heeft (blokjes), niet welke.
 - **📈 Puntenverloop** (onder de spelende spelers, in- en uitklapbaar; op een breed scherm rechts als tabblad naast *📜 Wat gebeurt er*): per team een lijn van de stand door het spel heen, in de teamkleur. Wijs de grafiek aan voor de stand van alle teams op dat moment. Items (bom, wissel, dief) zitten in de laatste stap van de lijn.
@@ -494,6 +505,8 @@ Met **📢** rechtsboven (op de telefoon in de bovenbalk) stuur je een bericht n
 
 Met **🔔 Meldingen** in het menu (onder ⚙️ Instellingen) krijg je een **pushmelding** bij een nieuwe foto en bij een hulpvraag, ook als de app dicht is, en via je telefoon ook op je horloge. Zet het aan per toestel (de telefoon vraagt één keer toestemming) en probeer het met **📨 Test sturen**. Een groen bolletje achter *Meldingen* betekent aan. Op een iPhone werkt het alleen als PointRush op het beginscherm staat. Tik je op de melding van een hulpvraag, dan opent het dashboard meteen met het venster van dat team (punt vrijgeven, bellen).
 
+**Knoppen in de melding (Android)**: bij een hulpvraag staan in de pushmelding de knoppen **⏭️ Punt vrijgeven** (het team kan meteen verder; je krijgt *✓ Punt vrijgegeven* terug) en **📞 Bellen** (als het team een telefoonnummer heeft). Lukt vrijgeven niet, dan opent het dashboard. Op een iPhone zie je alleen de melding.
+
 **🎨 Kleur** (menu → ⚙️ Instellingen): de kleur van het beheer op **dit toestel**: *Paars* (standaard), *Nachtblauw*, *Bosgroen*, *Antraciet* of *Bordeaux*. Je telefoon en je pc kunnen dus een andere kleur hebben. De kleur van de spelersapp kies je per route bij 🎨 Uiterlijk → *Achtergrond*.
 
 ### Eindtijd van het spel
@@ -517,7 +530,7 @@ Met **⏸️ Pauze** in het Spelleider-blok (na bevestiging) staat het spel voor
 
 ### Punten aanpassen (bonus of aftrek)
 
-Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek), en zet er een reden bij, bijv. *mooiste foto*. Een aftrek kan een team in de min brengen. Speelt het team nog, dan ziet het meteen een melding in beeld: het aantal punten groot (goud, rood bij aftrek) met jouw reden eronder. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
+Met **± Punten** op een spelerskaart op het dashboard geef je een team punten erbij of eraf, ook als het team al gefinisht is. Kies **−20**, **−10**, **+10**, **+20** of **+50**, of vul zelf een aantal in (negatief = aftrek). Een **reden is verplicht**: typ hem, of tik op *Mooiste foto*, *Bonusopdracht*, *Hulp van de organisatie*, *Regel overtreden* of *Foutje rechtgezet*. Een aftrek kan een team in de min brengen. Speelt het team nog, dan ziet het meteen een melding in beeld: het aantal punten groot (goud, rood bij aftrek) met jouw reden eronder. De aanpassing staat in de tijdlijn (*"… kreeg +20 pt van de spelleider (mooiste foto)"*) en in het rapport bij het team onder **± Bonus en aftrek**. Hiervoor moet SQL-bestand 006 in Supabase gedraaid zijn.
 
 ### Punt vrijgeven voor een team
 
@@ -555,7 +568,7 @@ Een test telt niet mee in de vraagstatistiek, de stand van echte teams of het ra
 
 ### ⚔️ Duel
 
-Zet het aan in de route-editor bij de knop *🎉 Spel* → *⚔️ Duel* (**Aan** of **Uit**, en 10, 25 of 50 punten). Nodig: migratie 006 (`supabase/migrations/006_duel.sql`).
+Zet het aan in de route-editor bij de knop *🎉 Spel* → *⏱️ Spelverloop* → *⚔️ Duel*: de schakelaar zet hem aan of uit, met ⚙️ kies je 10, 25 of 50 punten per duel. Nodig: migratie 006 (`supabase/migrations/006_duel.sql`).
 
 Komen twee teams die nog spelen binnen 25 meter van elkaar, dan krijgen ze allebei tegelijk dezelfde snelle meerkeuzevraag, met een eigen geluid. Het is een algemene vraag, nooit een vraag uit de route. Wie het eerst goed antwoordt, pakt de punten van de ander. Elk team heeft één poging en 60 seconden. Hebben ze het allebei fout, dan krijgt niemand punten. Dezelfde twee teams krijgen pas na 10 minuten weer een duel.
 
@@ -630,7 +643,7 @@ Een extra vraag die bij **alle teams tegelijk** in beeld komt, met een eigen gel
 Je kunt tijdens het spel de stand bij alle teams tegelijk in beeld laten springen:
 
 - **Handmatig** — via **🏆 Tussenstand** bij de spelleider op het dashboard (naast Pauze en Eindtijd), na bevestiging.
-- **Automatisch** — via de knop *🎉 Spel* → "🏆 Tussenstand": stel een interval in hele minuten in (minimaal 1, 0 = uit) en hoe lang de stand zichtbaar blijft. Het interval telt vanaf de start van de eerste sessie.
+- **Automatisch** — via de knop *🎉 Spel* → *⏱️ Spelverloop* → *🏆 Tussenstand*: de schakelaar zet hem aan (elke 15 minuten) of uit; met ⚙️ kies je hoe vaak (10, 15, 20 of 30 min) en hoe lang de stand in beeld blijft. Het interval telt vanaf de start van de eerste sessie.
 
 De spelers zien dan elk team met zijn icoon, naam en puntenaantal, de meeste punten bovenaan. Plaatsnummers, tijd en afstand staan er bewust niet bij. Aan het eind zien ze de volledige **eindstand** met medailles, speeltijd en afstand.
 
@@ -726,7 +739,7 @@ Werkt iets niet zoals verwacht na een update, kijk dan eerst hier. Met **🔄 Op
 
 Nodig: migratie 014 (zie 🩺 Systeemcheck).
 
-**🔀 Antwoorden husselen** (meerkeuze): elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt. Dit stel je **voor de hele route** in, bij de knop *🎉 Spel* (**Uit** / **Aan**); het geldt voor alle vragen, ook voor vragen die je later toevoegt.
+**🔀 Antwoorden husselen** (meerkeuze): elk team ziet de antwoorden in een andere volgorde, zodat afkijken niet helpt. Dit stel je **voor de hele route** in, bij de knop *🎉 Spel* → *⏱️ Spelverloop* (schakelaar); het geldt voor alle vragen, ook voor vragen die je later toevoegt.
 
 **Per vraag** (vraag-editor → ⚙️ Meer instellingen), elk aan of uit:
 - **🔊 Geluidsfragment**: kies een mp3, m4a of wav (max 3 MB), bijvoorbeeld voor "welk lied is dit?". De spelers spelen het af bij de vraag.

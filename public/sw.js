@@ -16,7 +16,7 @@ button{margin-top:8px;padding:12px 22px;border:0;border-radius:12px;background:#
 
 // Pushmelding voor de beheerder (nieuwe foto, hulpvraag), ook als de app dicht is
 self.addEventListener("push", (event) => {
-  let bericht = { titel: "PointRush", tekst: "", url: "/admin", tag: undefined };
+  let bericht = { titel: "PointRush", tekst: "", url: "/admin", tag: undefined, hulp: undefined };
   try { bericht = { ...bericht, ...event.data.json() }; } catch { /* lege of onleesbare melding */ }
   event.waitUntil(self.registration.showNotification(bericht.titel, {
     body: bericht.tekst,
@@ -25,7 +25,12 @@ self.addEventListener("push", (event) => {
     tag: bericht.tag,
     renotify: !!bericht.tag,
     vibrate: [200, 100, 200],
-    data: { url: bericht.url },
+    data: { url: bericht.url, hulp: bericht.hulp },
+    // Hulpvraag: meteen het punt vrijgeven of het team bellen (Android; iPhone toont alleen de melding)
+    actions: bericht.hulp ? [
+      { action: "vrijgeven", title: "⏭️ Punt vrijgeven" },
+      ...(bericht.hulp.telefoon ? [{ action: "bellen", title: "📞 Bellen" }] : []),
+    ] : [],
   }));
 });
 
@@ -33,6 +38,21 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = new URL(event.notification.data?.url ?? "/admin", self.location.origin).href;
+  const hulp = event.notification.data?.hulp;
+  // ⏭️ Punt vrijgeven vanuit de melding: lukt het, dan een korte bevestiging; anders het dashboard openen
+  if (event.action === "vrijgeven" && hulp?.sessieId) {
+    event.waitUntil((async () => {
+      const res = await fetch(`/api/admin/sessies/${hulp.sessieId}/punt-vrijgeven`, { method: "POST", credentials: "include" }).catch(() => null);
+      if (res?.ok) await self.registration.showNotification("✓ Punt vrijgegeven", { body: "Het team kan verder.", icon: "/icon-192.png", badge: "/icon-192.png", tag: "vrijgegeven" });
+      else await self.clients.openWindow(url);
+    })());
+    return;
+  }
+  // 📞 Bellen: de telefoon-app opent met het nummer van het team
+  if (event.action === "bellen" && hulp?.telefoon) {
+    event.waitUntil(self.clients.openWindow(`tel:${hulp.telefoon}`).catch(() => self.clients.openWindow(url)));
+    return;
+  }
   event.waitUntil((async () => {
     const vensters = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const venster of vensters) {

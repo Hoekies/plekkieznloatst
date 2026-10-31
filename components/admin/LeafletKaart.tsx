@@ -67,6 +67,11 @@ interface Props {
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
   tekenGebied?: [number, number][] | null;
   loperSpoor?: [number, number][];
+  // 🛤️ Waarschuwingen op de route (trap, onverhard, drukke weg) als bordjes op de kaart
+  meldingPlekken?: { lat: number; lng: number; icoon: string; tekst: string }[];
+  // ▶️ Simulatie: de teams als gekleurde stipjes, en 🔴 plekken waar teams elkaar tegenkomen
+  simLopers?: { lat: number; lng: number; kleur: string; label: string }[];
+  drukPlekken?: { lat: number; lng: number; teams: number[]; minuut: number }[];
   // Verspreid: voorgestelde plekken voor extra items; klikken plaatst het item
   itemVoorstellen?: { lat: number; lng: number; type: string }[];
   // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
@@ -86,7 +91,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null, teamVlaggen = true, onTeamKlik, onRechtsKlik,
+  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, meldingPlekken = [], simLopers = [], drukPlekken = [], uitgelichtTeam = null, teamVlaggen = true, onTeamKlik, onRechtsKlik,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -107,6 +112,9 @@ export default function LeafletKaart({
   const centrumMarkerRef = useRef<import("leaflet").Marker | null>(null);
   const ghostMarkersRef = useRef<import("leaflet").Marker[]>([]);
   const voorstelMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const meldingMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const simMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const drukCirkelsRef = useRef<import("leaflet").Circle[]>([]);
   const onItemVoorstelKlikRef = useRef(onItemVoorstelKlik);
   const ghostCirkelRef = useRef<import("leaflet").Circle | null>(null);
   const onKlikRef = useRef(onKlik);
@@ -370,6 +378,41 @@ export default function LeafletKaart({
       });
     });
   }, [teamRoutes, kaartKlaar, uitgelichtTeam, teamVlaggen]);
+
+  // 🛤️ Ondergrond-meldingen: een geel bordje met het icoon; aanwijzen toont wat er is
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      meldingMarkersRef.current.forEach((m) => m.remove());
+      meldingMarkersRef.current = meldingPlekken.map((m) => L.marker([m.lat, m.lng], {
+        icon: L.divIcon({ className: "", html: `<div class="ondergrond-bord">${m.icoon}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
+        title: m.tekst, zIndexOffset: 400, keyboard: false,
+      }).addTo(kaartRef.current!));
+    });
+  }, [meldingPlekken, kaartKlaar]);
+
+  // ▶️ Simulatie: stipjes per team (verschuiven elke frame mee) en rode cirkels waar het druk wordt
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      const oud = simMarkersRef.current;
+      if (oud.length === simLopers.length) { simLopers.forEach((l, i) => oud[i].setLatLng([l.lat, l.lng])); return; }
+      oud.forEach((m) => m.remove());
+      simMarkersRef.current = simLopers.map((l) => L.marker([l.lat, l.lng], {
+        icon: L.divIcon({ className: "", html: `<div class="sim-loper" style="background:${l.kleur}">${l.label}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
+        interactive: false, zIndexOffset: 900,
+      }).addTo(kaartRef.current!));
+    });
+  }, [simLopers, kaartKlaar]);
+  useEffect(() => {
+    if (!kaartRef.current) return;
+    import("leaflet").then((L) => {
+      drukCirkelsRef.current.forEach((c) => c.remove());
+      drukCirkelsRef.current = drukPlekken.map((d) => L.circle([d.lat, d.lng], {
+        radius: 40, color: "#EF4444", weight: 2, fillColor: "#EF4444", fillOpacity: 0.22, interactive: true,
+      }).bindTooltip(`Team ${d.teams.join(", ")} tegelijk hier (rond minuut ${d.minuut})`).addTo(kaartRef.current!));
+    });
+  }, [drukPlekken, kaartKlaar]);
 
   // Aanbevolen-afstand cirkel bij geselecteerd punt
   useEffect(() => {

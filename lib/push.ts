@@ -23,6 +23,8 @@ type PushBericht = {
   tekst: string;
   url: string;      // pagina die opent bij een tik op de melding
   tag?: string;     // zelfde tag = de vorige melding wordt vervangen in plaats van opgestapeld
+  // Knoppen in de melding (Android): bij een hulpvraag het punt meteen vrijgeven of het team bellen
+  hulp?: { sessieId: string; telefoon?: string | null };
 };
 
 export async function stuurPushNaarBeheer(bericht: PushBericht): Promise<{ verstuurd: number; mislukt: number }> {

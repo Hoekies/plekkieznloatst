@@ -1,6 +1,6 @@
 {
   "name": "plekkie-zn-loatst",
-  "version": "0.17.5",
+  "version": "0.17.6",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "controle": "node scripts/controle.mjs",
-    "zelftest": "npx --yes tsx scripts/zelftest.ts"
+    "zelftest": "npx --yes tsx scripts/zelftest.ts",
+    "database": "node scripts/database-check.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",

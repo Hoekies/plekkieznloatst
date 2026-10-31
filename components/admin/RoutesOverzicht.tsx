@@ -618,6 +618,8 @@ export default function RoutesOverzicht() {
                   <div className="rl-icoonknoppen">
                   <button className="rl-knop rl-knop--icoon" data-tip="Voorproefje: één A4 om te delen, zonder antwoorden" aria-label="Voorproefje"
                     onClick={() => router.push(`/admin/routes/${r.id}/voorproefje`)}><Icoon naam="rapport" /><span className="rl-knop-label">Voorproefje</span></button>
+                  <button className="rl-knop rl-knop--icoon" data-tip="Spiekbriefje: alle punten met vraag en goed antwoord, om af te drukken (alleen voor jou)" aria-label="Spiekbriefje"
+                    onClick={() => router.push(`/admin/routes/${r.id}/spiekbriefje`)}><Icoon naam="klembord" /><span className="rl-knop-label">Spiekbriefje</span></button>
                   <BevestigKnop venster gevaarlijk={false} icoon="📋" titel="Route kopiëren?"
                     vraag="" uitleg="Met alle instellingen, punten, vragen en items. De kopie staat op Concept."
                     ja="Ja, kopiëren" onBevestig={() => kopieer(r.id, r.name)}

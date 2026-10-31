@@ -1,4 +1,5 @@
 // Controle vóór een push: types, lint, zelftest en een proefbouw. Stopt bij de eerste fout.
+// Daarna de database-check: staan alle migraties in Supabase? (alleen een waarschuwing)
 // De proefbouw gaat naar .next-controle, zodat een draaiende "npm run dev" er geen last van heeft.
 import { spawnSync } from "node:child_process";
 
@@ -19,4 +20,7 @@ for (const [naam, cmd, args, env] of stappen) {
   }
   console.log(`✓ ${naam} (${Math.round((Date.now() - start) / 1000)} s)`);
 }
+// 🗄️ Database (alleen lezen): waarschuwt bij een migratie die nog niet in Supabase staat, maar stopt de push niet
+process.stdout.write("▶ Database…\n");
+spawnSync("node scripts/database-check.mjs", { stdio: "inherit", shell: true });
 console.log("\n✅ Alles in orde");

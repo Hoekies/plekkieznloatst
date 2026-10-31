@@ -65,8 +65,8 @@ export default function SpelplezierInstellingen({ waarden, onZet, onInstellingen
   const zet = <K extends Sleutel>(k: K, deel: Partial<PlezierInstellingen[K]>) => onInstellingen({ ...inst, [k]: { ...inst[k], ...deel } });
 
   return (
-    <div className="form-group">
-      <label className="form-label">🎉 Spelplezier</label>
+    <div className="plezier-blok">
+      <div className="plezier-kop">🎉 Spelplezier</div>
       {GROEPEN.map((g) => (
       <div key={g.titel} className="plezier-groep">
       <div className="plezier-groep-titel">{g.titel}</div>

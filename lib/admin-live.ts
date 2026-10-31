@@ -7,6 +7,7 @@ import { puzzelVolgorde, lettersVoor } from "@/lib/puzzel";
 import { testRol } from "@/lib/testteam";
 import { goudenStatus, plezierInstellingen } from "@/lib/spelplezier";
 import { raadVenster, RAAD_WACHT_MIN } from "@/lib/puzzel-server";
+import { haversine } from "@/lib/geo";
 
 export type SpelerOverzicht = {
   player_id: string;
@@ -51,6 +52,8 @@ export type SpelerOverzicht = {
   puzzel?: { woord: string; open: boolean[]; opgelost: boolean; gok?: string | null; goed?: boolean | null; raad_tot?: string | null } | null;
   // Moet het team nu wachten? Spook (volgende punt verborgen) of plek zooi (staat stil), met eindtijd
   wacht: { effect_id: string; soort: "spook" | "plekzooi"; tot: string } | null;
+  // 🧍 Staat al een tijd op dezelfde plek, niet bij een punt (alleen onderweg, niet bij plek zooi of pauze)
+  stil?: { minuten: number } | null;
 };
 
 export type RoutePuntKort = {
@@ -75,6 +78,9 @@ export type LiveData = {
   // Gezet als de sessies niet opgehaald konden worden (bv. een migratie die nog niet gedraaid is)
   fout?: string;
 };
+
+// 🧍 Na zoveel minuten op dezelfde plek (niet bij een punt) vraagt een team aandacht op het dashboard
+export const STIL_MIN = 8;
 
 export function sessietijd(s: SpelerOverzicht): number {
   if (!s.started_at) return 0;
@@ -305,6 +311,31 @@ export async function haalLiveData(): Promise<LiveData> {
       })(),
     };
   });
+
+  // 🧍 Stilstaan: een team dat al STIL_MIN minuten binnen 30 meter blijft, niet bij een punt en zonder plek zooi.
+  // Uit de locaties van het laatste halfuur; de laatste locatie moet vers zijn (anders is het "niet gezien").
+  const actief = spelers.filter((sp) => sp.sessie_status === "actief" && sp.sessie_id && !sp.wacht);
+  if (actief.length && !tijd?.pauze) {
+    const sinds = new Date(Date.now() - 30 * 60000).toISOString();
+    const { data: recent } = await admin.from("location_updates").select("session_id, latitude, longitude, created_at")
+      .in("session_id", actief.map((sp) => sp.sessie_id!)).gte("created_at", sinds).order("created_at", { ascending: false }).limit(3000);
+    const perSessie = new Map<string, { latitude: number; longitude: number; created_at: string }[]>();
+    for (const r of recent ?? []) perSessie.set(r.session_id, [...(perSessie.get(r.session_id) ?? []), r]);
+    for (const sp of actief) {
+      const rij = perSessie.get(sp.sessie_id!) ?? [];
+      const laatste = rij[0];
+      if (!laatste || Date.now() - Date.parse(laatste.created_at) > 3 * 60000) continue;
+      // Bij een punt (vraag beantwoorden, foto maken) is stilstaan gewoon
+      if (routePunten.some((p) => haversine(p.latitude, p.longitude, laatste.latitude, laatste.longitude) < 35)) continue;
+      let vroegste = laatste.created_at;
+      for (const r of rij) {
+        if (haversine(r.latitude, r.longitude, laatste.latitude, laatste.longitude) > 30) break;
+        vroegste = r.created_at;
+      }
+      const minuten = Math.floor((Date.now() - Date.parse(vroegste)) / 60000);
+      if (minuten >= STIL_MIN) sp.stil = { minuten };
+    }
+  }
 
   // 🧑‍⚖️ Open bezwaren en 💬 ongelezen chats (migratie 009; zonder die tabellen gewoon leeg)
   const [{ data: bezwaarRijen }, { data: chatRijen }] = sessieIds.length ? await Promise.all([

@@ -17,6 +17,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   if (!Number.isFinite(delta) || delta === 0 || Math.abs(delta) > 10000) {
     return NextResponse.json({ fout: "Vul een aantal punten in (bijv. 20 of -10)" }, { status: 400 });
   }
+  // Reden verplicht: hij komt in de tijdlijn en het rapport, zodat later te zien is waarom
+  if (!reden) return NextResponse.json({ fout: "Vul een reden in (bijv. mooiste foto)" }, { status: 400 });
 
   const admin = createAdminClient();
   const { data: sessie } = await admin.from("player_sessions").select("id, score, player_id").eq("id", params.id).maybeSingle();

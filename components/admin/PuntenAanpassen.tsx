@@ -6,6 +6,9 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import Venster, { VensterKop } from "@/components/shared/Venster";
 
 // "± Punten": bonus of aftrek voor één team, met een reden (komt in de tijdlijn en het rapport)
+// Veelgebruikte redenen (zelf typen kan altijd)
+const REDENEN = ["Mooiste foto", "Bonusopdracht", "Hulp van de organisatie", "Regel overtreden", "Foutje rechtgezet"];
+
 export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId: string; naam: string; onKlaar: () => void }) {
   const [open, setOpen] = useState(false);
   const [delta, setDelta] = useState(10);
@@ -49,10 +52,16 @@ export default function PuntenAanpassen({ sessieId, naam, onKlaar }: { sessieId:
                 </div>
                 <div className="form-group" style={{ margin: 0, flex: 1 }}>
                   <label className="form-label">Reden</label>
-                  <input className="form-input" value={reden} onChange={(e) => setReden(e.target.value)} maxLength={120} placeholder="bijv. mooiste foto" />
+                  <input className="form-input" value={reden} onChange={(e) => setReden(e.target.value)} maxLength={120} placeholder="Waarom? (verplicht)" required />
                 </div>
               </div>
-              <button type="submit" className={`rl-knop ${delta < 0 ? "rl-knop--rood" : "rl-knop--groen"}`} style={{ height: 44, fontWeight: 800 }} disabled={bezig || !delta}>
+              {/* Reden is verplicht (komt in de tijdlijn en het rapport); veelgebruikte redenen met één tik */}
+              <div className="reden-snel">
+                {REDENEN.map((r) => (
+                  <button key={r} type="button" className={`plezier-chip${reden === r ? " plezier-chip--aan" : ""}`} onClick={() => setReden(r)}>{r}</button>
+                ))}
+              </div>
+              <button type="submit" className={`rl-knop ${delta < 0 ? "rl-knop--rood" : "rl-knop--groen"}`} style={{ height: 44, fontWeight: 800 }} disabled={bezig || !delta || !reden.trim()}>
                 {bezig ? "Bezig…" : delta < 0 ? `${delta} punten aftrekken` : `+${delta} punten geven`}
               </button>
             </form>

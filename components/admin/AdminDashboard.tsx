@@ -26,6 +26,7 @@ import { uitlegBijStatus } from "@/lib/fout-uitleg";
 import dynamic from "next/dynamic";
 import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
+import WeerBericht from "@/components/admin/WeerBericht";
 import ChatVenster from "@/components/admin/ChatVenster";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
@@ -43,7 +44,11 @@ interface Props {
 
 
 export default function AdminDashboard({ initData, beperkt = false }: Props) {
-  const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
+  const { data, realtimeOk, ververs, bijgewerkt } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
+  // 📡 Slecht bereik: de laatste stand blijft staan, met hoe oud hij is
+  const [nuTik, setNuTik] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNuTik(Date.now()), 10000); return () => clearInterval(t); }, []);
+  const oudMin = Math.floor((nuTik - bijgewerkt) / 60000);
   // Speler waarvan het detailvenster open staat
   const [detailId, setDetailId] = useState<string | null>(null);
   // Geopend vanuit een pushmelding (?team=…): meteen het venster van dat team
@@ -165,6 +170,12 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           </div>
         )}
 
+        {/* 📡 Geen verbinding: de stand hieronder is de laatst bekende */}
+        {nuTik - bijgewerkt > 30000 && (
+          <div className="dash-oud" role="status">📡 Geen verbinding. Dit is de stand van {oudMin < 1 ? "zojuist" : `${oudMin} min geleden`}; hij ververst vanzelf zodra er weer bereik is.</div>
+        )}
+        {/* 🌦️ Weer bij de start: de komende uren */}
+        {route_punten.length > 0 && <WeerBericht lat={route_punten[0].latitude} lng={route_punten[0].longitude} />}
         {/* Wat er nu moet gebeuren staat op één plek: vóór het spel in Spel klaarzetten, tijdens en na het spel
             in het Spelleider-blok (geen aparte Wat nu-regel en tellerstrook meer: dat stond er dubbel) */}
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
@@ -304,6 +315,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <span title="Gelopen">🚶 {(s.afstand_m / 1000).toFixed(2).replace(".", ",")} km</span>
               {s.started_at && <span title="Speeltijd">⏱ {duurKort(Math.floor(sessietijd(s) / 60))}</span>}
               {s.huidig_punt_naam && <span className="sk-volgend" title={`Op weg naar ${s.huidig_punt_naam}`}>➡️ {s.huidig_punt_naam}</span>}
+              {s.stil && <span className="sk-stil" title="Staat al een tijd op dezelfde plek, niet bij een punt">🧍 {s.stil.minuten} min stil</span>}
               {stil !== null && <span className="sk-stil" title="Al een tijd geen locatie ontvangen">📵 {duurKort(stil)} niet gezien{s.ingelogd ? "" : " · uitgelogd"}</span>}
             </div>
           </div>

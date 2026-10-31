@@ -65,6 +65,8 @@ PointRush is een GPS-gebaseerd buiten-spel voor teams. Teams lopen een route lan
 - 🩺 Systeemcheck (migraties, opslag, instellingen), 💾 back-up van alle routes, 📸 fotoalbum om te delen
 - Route-editor (voor de pc): vijf knoppen in de zijbalk (📍 Punten, ❓ Vragen, 🎁 Items, 👫 Teams, 🎉 Spel), 💡 Wat nu? met de volgende stap, 🧭 rondleiding, teamvlaggen op de kaart en een kaartmenu met rechtsklik of lang drukken
 - 🎨 Kleurthema's: paars, nachtblauw, bosgroen, antraciet of bordeaux; beheer per toestel, spelersapp per route (migratie 011)
+- Route-editor: 🧭 verkennen met de telefoon (punt op je GPS-plek, meteen foto en vraag), ▶️ simulatie met alle teams tegelijk en 🔴 drukteplekken, 🛤️ ondergrond-check (trap, onverhard, drukke weg; OpenStreetMap), 📄 spiekbriefje met antwoorden
+- Dashboard: 🌦️ weer bij de start, 🧍 stilstaan-melding, 📡 laatste stand bij slecht bereik, pushmelding met ⏭️ vrijgeven en 📞 bellen, ± punten altijd met reden
 - Dashboard (voor de telefoon): knoppen gegroepeerd in tijdens en na het spel, alleen wat nu nodig is
 - Route-editor: 🚶 proeflopen (als testspeler over de kaart klikken), meerdere punten tegelijk aanpassen, straatnamen, 💡 vraagideeën
 - Helpers aan- en uitzetten, net als spelers
@@ -153,7 +155,7 @@ De app draait op [http://localhost:3000](http://localhost:3000).
 npm run controle
 ```
 
-Types, lint, een zelftest van de spelregels (`scripts/zelftest.ts`) en een proefbouw (in `.next-controle`, zodat `npm run dev` gewoon door kan draaien). Na `git config core.hooksPath .githooks` gebeurt dit vanzelf bij elke `git push`; gaat iets mis, dan wordt er niet gepusht.
+Types, lint, een zelftest van de spelregels (`scripts/zelftest.ts`) en een proefbouw (in `.next-controle`, zodat `npm run dev` gewoon door kan draaien). Na `git config core.hooksPath .githooks` gebeurt dit vanzelf bij elke `git push`; gaat iets mis, dan wordt er niet gepusht. Daarna kijkt een **database-check** (alleen lezen) of alle migraties uit `supabase/migrations` in Supabase staan; mist er een, dan krijg je een waarschuwing met het bestand om te draaien (de push gaat wel door). Los: `npm run database`.
 
 ### Admin-account aanmaken
 

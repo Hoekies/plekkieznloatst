@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
 
-// 🔀 Antwoorden husselen, voor de hele route (route-instellingen → 🎮 Spel): elk team ziet de antwoorden van
+// 🔀 Antwoorden husselen, voor de hele route (route-editor → 🎉 Spel): elk team ziet de antwoorden van
 // een meerkeuzevraag in een andere volgorde, zodat afkijken niet helpt. Geldt voor alle vragen, ook nieuwe.
+// Eén regel met een schakelaar, net als de onderdelen van Spelplezier.
 export default function HusselInstelling({ routeId }: { routeId: string }) {
   const [aan, setAan] = useState<boolean | null>(null);
   useEffect(() => {
@@ -24,12 +25,14 @@ export default function HusselInstelling({ routeId }: { routeId: string }) {
   }
 
   return (
-    <div className="form-group">
-      <label className="form-label">🔀 Antwoorden husselen</label>
-      <span className="inst-uitleg">Elk team een andere volgorde: afkijken heeft geen zin.</span>
-      <div className="segment" role="radiogroup" aria-label="Antwoorden husselen" style={{ width: 150 }}>
-        <button type="button" role="radio" aria-checked={aan === false} className={aan === false ? "aan" : ""} disabled={aan === null} onClick={() => zet(false)}>Uit</button>
-        <button type="button" role="radio" aria-checked={aan === true} className={aan === true ? "aan" : ""} disabled={aan === null} onClick={() => zet(true)}>Aan</button>
+    <div className={`plezier-rij${aan ? "" : " plezier-rij--uit"}`}>
+      <div className="plezier-tekst">
+        <strong>🔀 Antwoorden husselen</strong>
+        <span className="plezier-samenvatting plezier-samenvatting--uitleg">Elk team een andere volgorde: afkijken heeft geen zin.</span>
+      </div>
+      <div className="plezier-knoppen">
+        <button type="button" className={`rl-knop schakel${aan ? " schakel--aan" : ""}`} role="switch" aria-checked={!!aan} disabled={aan === null}
+          aria-label="Antwoorden husselen aan of uit" onClick={() => zet(!aan)}>{aan ? "Aan" : "Uit"}<span className="schakel-bol" aria-hidden /></button>
       </div>
     </div>
   );

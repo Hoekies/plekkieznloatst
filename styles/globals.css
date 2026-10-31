@@ -4595,3 +4595,80 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   .route-editor-topbar .editor-kop .rl-knop, .route-editor-topbar .editor-kop .editor-terug { height: 40px; padding: 0 16px; font-size: 0.86rem; border-radius: 11px; }
   .spelleider-knoppen .rl-knop, .spelleider-knoppen > * { height: 40px; }
 }
+/* Puntenlijst: ▲▼ alleen op de telefoon (daar werkt slepen niet); op de pc sleep je aan de greep ≡ */
+@media (min-width: 769px) { .lijst-pijlen { display: none !important; } }
+/* Route-editor: stapnummer linksboven op de hoofdknoppen (bouwvolgorde) */
+.editor-hoofdknop-stap { position: absolute; top: 3px; left: 5px; font-size: 0.58rem; font-weight: 800; color: var(--muted); line-height: 1; }
+.editor-hoofdknoppen > button.aan .editor-hoofdknop-stap { color: var(--cyan); }
+
+/* 🎉 Spel (route-editor): Spelverloop en Spelplezier als rustige lijsten met schakelaars */
+.plezier-blok { display: flex; flex-direction: column; gap: 4px; }
+.plezier-kop { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 4px 2px 2px; }
+.zijpaneel-inst .plezier-groep { margin-bottom: 4px; }
+.zijpaneel-inst .plezier-rij .schakel { height: 32px; flex-shrink: 0; }
+.zijpaneel-inst .inst-speltype { padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.76rem; }
+
+/* 🌦️ Weer op het dashboard: de komende uren in één rij */
+.weer { margin-bottom: 12px; padding: 8px 10px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.weer-kop { font-size: 0.74rem; font-weight: 800; color: var(--muted); }
+.weer-let { color: #93C5FD; }
+.weer-uren { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+.weer-uur { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0; border-radius: 9px; font-size: 1rem; line-height: 1.15; }
+.weer-uur small { font-size: 0.62rem; color: var(--muted); }
+.weer-uur strong { font-size: 0.8rem; color: #fff; }
+.weer-uur .weer-regen { color: #93C5FD; }
+.weer-uur--nat { background: rgba(59,130,246,0.18); }
+/* 📡 Dashboard zonder verbinding: de laatst bekende stand */
+.dash-oud { margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.45); color: #FDE68A; font-size: 0.84rem; font-weight: 700; }
+/* ± Punten: redenen met één tik */
+.reden-snel { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
+
+/* 🚶 Verkennen met de telefoon */
+.verken-knop { height: 52px !important; justify-content: center; font-size: 1rem !important; font-weight: 800; }
+.verken-onnauwkeurig { color: #FCA5A5 !important; }
+
+/* 📄 Spiekbriefje: wit vel, ook zo afgedrukt */
+.spiek-knoppen { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.spiek-vel { background: #fff; color: #111; border-radius: 12px; padding: 22px 24px; max-width: 900px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+.spiek-kop h1 { margin: 0; color: #111; font-size: 1.4rem; }
+.spiek-kop span { font-size: 0.82rem; color: #555; }
+.spiek-kaart { width: 100%; max-height: 300px; margin: 12px 0; background: #f3f4f6; border-radius: 10px; }
+.spiek-tabel { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.spiek-tabel th { text-align: left; font-size: 0.72rem; text-transform: uppercase; color: #555; border-bottom: 2px solid #111; padding: 6px; }
+.spiek-tabel td { border-bottom: 1px solid #ddd; padding: 7px 6px; vertical-align: top; color: #111; }
+.spiek-nr { width: 34px; font-weight: 800; text-align: center; }
+.spiek-vraag { margin-top: 2px; color: #333; }
+.spiek-antwoord { width: 30%; font-weight: 700; color: #065f46 !important; }
+.spiek-pt { width: 36px; text-align: right; color: #555 !important; }
+.spiek-klein { font-size: 0.78rem; color: #777; }
+.spiek-door td { color: #888 !important; }
+@media print {
+  .spiek-geen-print, .admin-sidebar, .admin-mobile-topbar, .admin-uitlog-hoek, .spel-strook, .hulp-kolom { display: none !important; }
+  .admin-shell, .admin-main, .admin-content, body { background: #fff !important; padding: 0 !important; }
+  .spiek-vel { box-shadow: none; border-radius: 0; padding: 0; max-width: none; }
+  .spiek-tabel tr { break-inside: avoid; }
+}
+
+/* 🛤️ Ondergrond-check */
+.ondergrond { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--line); margin-top: 6px; }
+.ondergrond > .rl-knop { height: 34px; justify-content: center; font-size: 0.78rem; }
+.ondergrond-goed { margin: 0; font-size: 0.78rem; color: #86EFAC; }
+.ondergrond-lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.ondergrond-lijst button { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; padding: 5px 6px; border: none; border-radius: 8px;
+  background: rgba(251,191,36,0.1); color: var(--text); font: inherit; font-size: 0.76rem; cursor: pointer; }
+.ondergrond-lijst button:hover { background: rgba(251,191,36,0.2); }
+.ondergrond-bord { width: 28px; height: 28px; border-radius: 7px; background: #FBBF24; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.45); }
+
+/* ▶️ Simulatie met alle teams tegelijk (👫 Teams) */
+.sim { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+.sim-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sim-kop strong { font-size: 0.86rem; color: #fff; }
+.sim-kop .schakel { height: 32px; }
+.sim-balk { display: flex; align-items: center; gap: 8px; }
+.sim-balk .rl-knop { width: 38px; height: 34px; justify-content: center; padding: 0; flex-shrink: 0; }
+.sim-balk input[type=range] { flex: 1; min-width: 0; accent-color: var(--cyan); }
+.sim-tijd { font-size: 0.74rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sim-kopje { font-size: 0.76rem; font-weight: 800; color: #FCA5A5; }
+.sim-loper { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; color: #fff; font-size: 0.66rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; text-shadow: 0 1px 2px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.45); }

@@ -111,7 +111,7 @@ export default function RouteVoorproefje({ data }: { data: VoorproefData }) {
     try {
       await new Promise((r) => setTimeout(r, 400));  // kaart en afbeeldingen op ware grootte laten tekenen
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas-pro"), import("jspdf")]);
-      const canvas = await html2canvas(velRef.current, { scale: 2, useCORS: true, backgroundColor: "rgb(var(--o5))", logging: false });
+      const canvas = await html2canvas(velRef.current, { scale: 2, useCORS: true, backgroundColor: `rgb(${getComputedStyle(document.documentElement).getPropertyValue("--o5").trim() || "58, 31, 128"})` /* html2canvas kent geen CSS-variabelen: de kleur van het thema uitlezen */, logging: false });
       const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
       doc.setFillColor(28, 12, 69);
       doc.rect(0, 0, 210, 297, "F");

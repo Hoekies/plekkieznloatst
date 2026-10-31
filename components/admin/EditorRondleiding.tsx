@@ -9,7 +9,7 @@ export default function EditorRondleiding({ verspreid, onSluit }: { verspreid: b
   const [stap, setStap] = useState(0);
   const stappen = [
     { icoon: "🗺️", titel: "De kaart", tekst: "Tik op de kaart om iets neer te zetten: een punt, een item of een verboden gebied. Rechtsklik of lang drukken opent dat menu altijd. Slepen verplaatst." },
-    { icoon: "🧩", titel: "Vijf knoppen", tekst: `Links staan de knoppen 📍 Punten, ❓ Vragen, 🎁 Items${verspreid ? ", 👫 Teams" : ""} en 🎉 Spel. Elke knop opent alles van dat onderdeel; de kaart blijft in beeld.` },
+    { icoon: "🧩", titel: "Vijf knoppen", tekst: `Links staan de knoppen in bouwvolgorde, met een stapnummer: 📍 Punten${verspreid ? ", 👫 Teams" : ""}, ❓ Vragen, 🎁 Items en 🎉 Spel. Elke knop opent alles van dat onderdeel; de kaart blijft in beeld.` },
     { icoon: "💡", titel: "Wat nu?", tekst: "Onder de knoppen staat steeds de volgende stap. Tik erop en je gaat er meteen heen. Zo bouw je de route stap voor stap." },
     { icoon: "🧪", titel: "Testen en activeren", tekst: "Klaar? Loop de route na met Testen. Daarna activeer je hem rechtsboven. ⚙️ Instellingen is alleen voor wat zelden verandert, zoals de huisstijl." },
   ];

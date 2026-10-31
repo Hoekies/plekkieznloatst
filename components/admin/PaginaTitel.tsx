@@ -11,6 +11,7 @@ const TITELS: [RegExp, MenuIcoonNaam, string][] = [
   [/^\/admin\/antwoorden/, "antwoorden", "Antwoorden"],
   [/^\/admin\/live/, "live", "Live kaart"],
   [/^\/admin\/routes\/[^/]+\/voorproefje/, "voorproefje", "Voorproefje"],
+  [/^\/admin\/routes\/[^/]+\/spiekbriefje/, "voorproefje", "Spiekbriefje"],
   [/^\/admin\/routes\/[^/]+/, "routes", "Route"],
   [/^\/admin\/routes/, "routes", "Routes"],
   [/^\/admin\/seizoenen/, "seizoenen", "Seizoenen"],
