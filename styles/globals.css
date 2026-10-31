@@ -2462,15 +2462,20 @@ button.route-stap:hover { color: var(--ink); }
 .kaartje-logos { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .kaartje-logos:has(.kaartje-huislogo) .kaartje-logo { height: 52px; }
 .kaartje-huislogo { height: 52px; max-width: 150px; object-fit: contain; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.25); }
-/* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon klein onder de naam */
-.rl-huislogo { display: none; height: 22px; max-width: 70px; object-fit: contain; }
+/* Routeoverzicht: op de computer het logo groot tussen naam en knoppen; op de telefoon in het tegeltje links */
+.rl-tegel { display: contents; }
+.rl-tegel-logo { display: none; }
 .rl-logovak { flex: 1; display: flex; align-items: center; justify-content: flex-end; min-width: 0; padding-right: 24px; }
 /* Even hoog als het spelsoort-icoon links (56 px), zodat ze bij elkaar passen */
 .rl-logovak img { height: 56px; max-width: 200px; object-fit: contain; }
 .rl-titel:has(+ .rl-logovak) { flex: 0 1 auto; }
 @media (max-width: 768px) {
   .rl-logovak { display: none; }
-  .rl-huislogo { display: block; margin-top: 2px; }
+  .rl-tegel--logo { display: block; flex-shrink: 0; }
+  .rl-tegel--logo > div { display: none !important; }
+  .rl-tegel--logo .rl-tegel-logo { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; box-sizing: border-box; padding: 5px;
+    border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); }
+  .rl-tegel-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
 }
 .album-huislogo { display: block; height: 60px; max-width: 200px; object-fit: contain; margin: 8px auto 0; }
 /* 📍 Plaats van de route in het overzicht */

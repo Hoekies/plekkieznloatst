@@ -583,12 +583,15 @@ export default function RoutesOverzicht() {
                 {/* Kop: op de telefoon de knop om de kaart open en dicht te klappen */}
                 <div className="rl-kop" role="button" tabIndex={0} onClick={() => wisselOpen(r.id)}
                   onKeyDown={(e) => { if (e.key === "Enter") wisselOpen(r.id); }} aria-expanded={open.has(r.id)}>
-                  <ModusTegel modus={r.modus} size={56} />
+                  {/* Telefoon: een eigen logo (huisstijl) in het tegeltje in plaats van het spelsoort-icoon; de spelsoort
+                      staat ook in de regel eronder. Zo blijven alle kaarten even hoog. */}
+                  <span className={`rl-tegel${r.huisstijl_logo_pad ? " rl-tegel--logo" : ""}`}>
+                    <ModusTegel modus={r.modus} size={56} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {r.huisstijl_logo_pad && <span className="rl-tegel-logo"><img src={huisLogoUrl(r)!} alt="" /></span>}
+                  </span>
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
-                    {/* Eigen logo (huisstijl), op de telefoon klein onder de naam */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {r.huisstijl_logo_pad && <img src={huisLogoUrl(r)!} alt="" className="rl-huislogo" />}
                     {/* Telefoon: spelsoort en datum samen op één regel */}
                     <span className="rl-meta">
                       <span className="rl-modus" style={{ color: info.kleur }}>{info.label}</span>
