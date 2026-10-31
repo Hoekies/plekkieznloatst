@@ -4731,3 +4731,30 @@ button.antw-oordeel:hover { border-color: rgba(255,255,255,0.5); }
 .terug-open--juist { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.1); }
 .terug-open-label { flex-shrink: 0; font-size: 0.7rem; color: var(--muted); width: 84px; }
 .terug-open-tekst { flex: 1; min-width: 0; font-weight: 700; color: #fff; font-size: 0.9rem; }
+
+/* 📱 Voorbeeld in de vraag-editor: zelfde opbouw als de vraag op de telefoon, op ware grootte (390 px) verkleind */
+.voorbeeld-info { padding: 6px 14px 0; font-size: 0.72rem; color: var(--muted); text-align: center; }
+.voorbeeld-telefoon { align-self: flex-start; width: 312px; flex-shrink: 0; border-radius: 26px; padding: 7px; background: #0b0618; box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.12); }
+.voorbeeld-scherm { width: 390px; zoom: 0.763; border-radius: 26px; overflow: hidden; background: var(--game-gradient); color: #fff; display: flex; flex-direction: column; }
+.voorbeeld-logo { padding: 10px 16px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(var(--o3),0.5); display: flex; justify-content: center; }
+.voorbeeld-logo img { height: 72px; width: auto; }
+.voorbeeld-inhoud { padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 16px; }
+.voorbeeld-badge { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; background: rgba(59,130,246,0.22); color: #93C5FD; padding: 4px 12px; border-radius: 99px; align-self: flex-start; }
+.voorbeeld-vraag { margin: 0; font-size: 1.25rem; line-height: 1.4; font-weight: 700; white-space: pre-wrap; color: #fff; }
+.voorbeeld-afbeelding { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; align-self: center; }
+.voorbeeld-opties { display: flex; flex-direction: column; gap: 10px; }
+.voorbeeld-optie { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 14px; border: 2.5px solid transparent; font-size: 1rem; font-weight: 700; text-align: left; }
+.voorbeeld-letter { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 900; font-size: 1rem;
+  background: rgba(0,0,0,0.22); color: #fff; border: 2px solid rgba(255,255,255,0.7); }
+.voorbeeld-letter--goed { background: #22C55E; }
+.voorbeeld-letter--hoek { position: absolute; top: 6px; left: 6px; width: 28px; height: 28px; border-radius: 9px; font-size: 0.9rem; background: rgba(0,0,0,0.55); }
+.voorbeeld-uitleg { font-size: 0.85rem; color: rgba(255,255,255,0.85); padding: 0 6px; }
+.voorbeeld-plaatjes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.voorbeeld-plaatje { position: relative; border: 3px solid; border-radius: 16px; overflow: hidden; }
+.voorbeeld-plaatje img, .voorbeeld-plaatje-leeg { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: rgba(0,0,0,0.18); }
+.voorbeeld-stemtip { font-size: 0.85rem; font-weight: 700; color: #C4B5FD; margin-bottom: -2px; }
+.voorbeeld-invoer { font-size: 1rem; padding: 14px 16px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.25); border-radius: 12px; }
+.voorbeeld-goed { font-size: 0.9rem; color: #86EFAC; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); border-radius: 12px; padding: 10px 12px; }
+.voorbeeld-foto { border: 2.5px dashed rgba(255,255,255,0.3); border-radius: 16px; padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
+.voorbeeld-onder { padding: 10px 16px 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+.voorbeeld-knop { width: 100%; padding: 13px 0; font-size: 0.92rem; border-radius: 13px; text-align: center; }

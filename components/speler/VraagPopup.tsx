@@ -14,13 +14,14 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 // Kleuren van de antwoorden, met tekst die goed leesbaar is (contrast minstens 4,5:1): donkere tekst op geel,
 // witte tekst op iets donkerder rood en groen
-const KLEUR_RAND: Record<string, string> = {
+// Ook gebruikt door het voorbeeld in de vraag-editor (zelfde kleuren als op de telefoon)
+export const KLEUR_RAND: Record<string, string> = {
   geel: "#F59E0B",
   blauw: "#1E40AF",
   rood: "#DC2626",
   groen: "#15803D",
 };
-const KLEUR_TEKST: Record<string, string> = { geel: "#2A1600", blauw: "#ffffff", rood: "#ffffff", groen: "#ffffff" };
+export const KLEUR_TEKST: Record<string, string> = { geel: "#2A1600", blauw: "#ffffff", rood: "#ffffff", groen: "#ffffff" };
 // Vaste knop onderaan de popup — compact gehouden, was op mobiel onnodig log
 const KNOP_ONDERAAN_STIJL: CSSProperties = { width: "100%", padding: "13px 0", fontSize: "0.92rem", borderRadius: 13 };
 

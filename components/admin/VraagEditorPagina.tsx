@@ -17,6 +17,7 @@ import Venster from "@/components/shared/Venster";
 import Icoon from "@/components/admin/Icoon";
 import PuzzelLetterKeuze, { type PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import KaartPrikker from "@/components/shared/KaartPrikker";
+import { KLEUR_RAND, KLEUR_TEKST } from "@/components/speler/VraagPopup";
 import { KAART_STRALEN } from "@/lib/vraag-soorten";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
@@ -28,15 +29,9 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 export type VraagMetAntwoorden = Vraag & { answer_options: AntwoordOptie[] };
 
 const KLEUREN = ["geel", "blauw", "rood", "groen"] as const;
-const KLEUR_STIJL: Record<string, string> = {
-  geel: "#F59E0B", blauw: "#1E40AF", rood: "#EF4444", groen: "#16A34A",
-};
 // Lichtere varianten voor tekst en rondjes op de donkere admin-achtergrond (#1E40AF was onleesbaar)
 const LABEL_KLEUR: Record<string, string> = {
   geel: "#F59E0B", blauw: "#60A5FA", rood: "#F87171", groen: "#22C55E",
-};
-const KLEUR_ZACHT: Record<string, string> = {
-  geel: "#FEF9C3", blauw: "#DBEAFE", rood: "#FEE2E2", groen: "#DCFCE7",
 };
 const KLEUR_NAAM = (c: string) => c.charAt(0).toUpperCase() + c.slice(1);
 
@@ -849,131 +844,85 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
             )}
           </div>
 
-          <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px", display: "flex", justifyContent: "center" }}>
-            <div style={{
-              width: "100%", maxWidth: 290, alignSelf: "flex-start",
-              border: "2px solid #333", borderRadius: 18,
-              overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-              background: "#fff", display: "flex", flexDirection: "column",
-            }}>
-              <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 8px", display: "flex", flexDirection: "column", gap: 12 }}>
-                <span style={{
-                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
-                  background: "#DBEAFE", color: "#1E40AF",
-                  padding: "3px 8px", borderRadius: 99, alignSelf: "flex-start",
-                }}>❓ VRAAG · {punten} pt{tijdslimiet && type !== "foto_opdracht" ? ` · ⏱️ ${tijdslimiet} s` : ""}</span>
+          {/* Punten en tijd staan niet op de telefoon, wel handig hier */}
+          <div className="voorbeeld-info">{punten} punten{tijdslimiet && type !== "foto_opdracht" ? ` · ⏱️ ${tijdslimiet} s` : ""}</div>
+          <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "4px 14px 12px", display: "flex", justifyContent: "center" }}>
+            {/* 📱 Zelfde opbouw en stijl als de vraag op de telefoon (VraagPopup), op ware grootte en verkleind */}
+            <div className="voorbeeld-telefoon">
+              <div className="voorbeeld-scherm">
+                <div className="voorbeeld-logo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/spellogo/breed.png" alt="" />
+                </div>
+                <div className="voorbeeld-inhoud">
+                  <span className="voorbeeld-badge">❓ VRAAG</span>
+                  {tijdslimiet && type !== "foto_opdracht" && (
+                    <div className="vraag-klok">⏱️ {Math.floor(tijdslimiet / 60)}:{String(tijdslimiet % 60).padStart(2, "0")}</div>
+                  )}
+                  <h2 className="voorbeeld-vraag">{tekst || <span style={{ opacity: 0.5, fontStyle: "italic" }}>De vraag verschijnt hier…</span>}</h2>
+                  {geluidPad && <audio controls src={`${SUPABASE_URL}/storage/v1/object/public/vraag-geluid/${geluidPad}`} style={{ width: "100%" }} />}
+                  {vraagAfbeelding && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="voorbeeld-afbeelding" src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraagAfbeelding}`} alt="" />
+                  )}
 
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.4, color: "#111", whiteSpace: "pre-wrap" }}>
-                  {tekst || <span style={{ color: "#aaa", fontStyle: "italic" }}>De vraag verschijnt hier…</span>}
-                </p>
-
-                {vraagAfbeelding && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${vraagAfbeelding}`}
-                    alt=""
-                    style={{ width: "100%", borderRadius: 8, aspectRatio: "1/1", objectFit: "cover" }}
-                  />
-                )}
-
-                {type === "meerkeuze_afbeelding" && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                    {antwoorden.map((ant) => (
-                      <div key={ant.color} style={{
-                        border: `2px solid ${toonAntwoord && ant.is_correct ? "#16A34A" : "#e5e7eb"}`,
-                        borderRadius: 10, overflow: "hidden", opacity: toonAntwoord && !ant.is_correct ? 0.45 : 1,
-                        background: "#f9fafb",
-                      }}>
-                        {ant.image_path ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${ant.image_path}`}
-                            alt=""
-                            style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
-                          />
-                        ) : (
-                          <div style={{
-                            aspectRatio: "4/3", background: KLEUR_ZACHT[ant.color],
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: "0.6rem", color: KLEUR_STIJL[ant.color], fontWeight: 700,
+                  {type === "meerkeuze_afbeelding" && (
+                    <div className="voorbeeld-plaatjes">
+                      {antwoorden.map((ant, n) => {
+                        const goed = toonAntwoord && ant.is_correct;
+                        return (
+                          <div key={ant.color} className="voorbeeld-plaatje" style={{
+                            borderColor: goed ? "#ffffff" : KLEUR_RAND[ant.color], background: KLEUR_RAND[ant.color],
+                            opacity: toonAntwoord && !ant.is_correct ? 0.4 : 1, boxShadow: goed ? "0 0 0 3px #22C55E" : "none",
                           }}>
-                            {ant.color}
+                            <span className={`voorbeeld-letter voorbeeld-letter--hoek${goed ? " voorbeeld-letter--goed" : ""}`}>{goed ? "✓" : String.fromCharCode(65 + n)}</span>
+                            {ant.image_path
+                              // eslint-disable-next-line @next/next/no-img-element
+                              ? <img src={`${SUPABASE_URL}/storage/v1/object/public/vraag-afbeeldingen/${ant.image_path}`} alt="" />
+                              : <div className="voorbeeld-plaatje-leeg" />}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
 
-                {(type === "meerkeuze_tekst" || stem) && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {antwoorden.filter((a) => !stem || a.text.trim()).map((ant) => {
-                      const goedZichtbaar = toonAntwoord && !stem && ant.is_correct;
-                      return (
-                        <div key={ant.color} style={{ display: "flex", flexDirection: "column", gap: 3, opacity: toonAntwoord && !stem && !ant.is_correct ? 0.5 : 1 }}>
-                          <div style={{
-                            display: "flex", alignItems: "center", gap: 8,
-                            padding: "9px 10px", borderRadius: 10,
-                            border: `2px solid ${goedZichtbaar ? "#ffffff" : "transparent"}`,
-                            background: KLEUR_STIJL[ant.color],
-                            boxShadow: goedZichtbaar ? "0 0 0 3px #16A34A" : "none",
-                          }}>
-                            <div style={{
-                              width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
-                              border: "2px solid rgba(255,255,255,0.7)",
-                              background: goedZichtbaar ? "#ffffff" : "transparent",
-                            }} />
-                            <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ffffff", flex: 1 }}>
-                              {ant.text || <span style={{ color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{ant.color}</span>}
-                            </span>
-                            {goedZichtbaar && <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#fff" }}>✓</span>}
+                  {stem && <div className="voorbeeld-stemtip">🗳️ Stem! Kies je voor wat de meeste teams kiezen, dan krijg je de punten.</div>}
+                  {(type === "meerkeuze_tekst" || stem) && (
+                    <div className="voorbeeld-opties">
+                      {antwoorden.filter((x) => !stem || x.text.trim()).map((ant, n) => {
+                        const goed = toonAntwoord && !stem && ant.is_correct;
+                        return (
+                          <div key={ant.color} style={{ display: "flex", flexDirection: "column", gap: 4, opacity: toonAntwoord && !stem && !ant.is_correct ? 0.4 : 1 }}>
+                            <div className="voorbeeld-optie" style={{
+                              background: KLEUR_RAND[ant.color], borderColor: goed ? "#ffffff" : "transparent",
+                              boxShadow: goed ? "0 0 0 3px #22C55E" : "0 3px 0 rgba(0,0,0,0.25)",
+                            }}>
+                              <span className={`voorbeeld-letter${goed ? " voorbeeld-letter--goed" : ""}`}>{goed ? "✓" : String.fromCharCode(65 + n)}</span>
+                              <span style={{ color: KLEUR_TEKST[ant.color] ?? "#fff" }}>{ant.text || <em style={{ opacity: 0.6 }}>Antwoord {String.fromCharCode(65 + n)}</em>}</span>
+                            </div>
+                            {toonAntwoord && perUitleg && ant.uitleg.trim() && <span className="voorbeeld-uitleg">💬 {ant.uitleg}</span>}
                           </div>
-                          {toonAntwoord && perUitleg && ant.uitleg.trim() && <span style={{ fontSize: "0.64rem", color: "#4B5563", padding: "0 4px" }}>💬 {ant.uitleg}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
 
-                {type === "open" && (
-                  <div style={{
-                    border: "1.5px solid #e5e7eb", borderRadius: 8,
-                    padding: "8px 10px", fontSize: "0.72rem", color: "#aaa",
-                    background: "#f9fafb",
-                  }}>
-                    Typ hier je antwoord…
-                  </div>
-                )}
-                {type === "open" && toonAntwoord && (
-                  <div style={{ fontSize: "0.68rem", color: "#065F46", background: "#DCFCE7", borderRadius: 8, padding: "6px 8px" }}>
-                    ✓ Goed: {isNumeriek ? `${numeriekeWaarde || "?"}${Number(tolerantie) ? ` (± ${tolerantie})` : ""}` : (openAntwoorden.split("\n").map((r) => r.trim()).filter(Boolean).join(" / ") || "?")}
-                  </div>
-                )}
-
-                {type === "foto_opdracht" && (
-                  <div style={{
-                    border: "2px dashed #e5e7eb", borderRadius: 10,
-                    padding: "16px 12px", textAlign: "center",
-                    background: "#f9fafb",
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-                  }}>
-                    <span style={{ fontSize: "1.6rem" }}>📷</span>
-                    <span style={{ fontSize: "0.65rem", color: "#6B7280" }}>Maak een foto en upload hem</span>
+                  {type === "open" && <div className="voorbeeld-invoer">Typ hier je antwoord…</div>}
+                  {type === "open" && toonAntwoord && (
+                    <div className="voorbeeld-goed">
+                      ✓ Goed: {isNumeriek ? `${numeriekeWaarde || "?"}${Number(tolerantie) ? ` (± ${tolerantie})` : ""}` : (openAntwoorden.split("\n").map((r) => r.trim()).filter(Boolean).join(" / ") || "?")}
+                    </div>
+                  )}
+                  {type === "foto_opdracht" && (
+                    <div className="voorbeeld-foto"><span style={{ fontSize: "2.4rem" }}>📷</span><span>Tik om een foto te maken</span></div>
+                  )}
+                </div>
+                {(type === "open" || type === "foto_opdracht") && (
+                  <div className="voorbeeld-onder">
+                    <div className="btn btn-primary voorbeeld-knop">{type === "foto_opdracht" ? "📤 Foto insturen" : "Bevestig antwoord"}</div>
                   </div>
                 )}
               </div>
-
-              {(type === "open" || type === "foto_opdracht") && (
-                <div style={{ padding: "8px 12px 12px", borderTop: "1px solid #f3f4f6" }}>
-                  <div style={{
-                    background: "#1E40AF", color: "#fff",
-                    borderRadius: 10, padding: "9px 0",
-                    textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
-                  }}>
-                    {type === "foto_opdracht" ? "📤 Foto insturen" : "Bevestig antwoord"}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
