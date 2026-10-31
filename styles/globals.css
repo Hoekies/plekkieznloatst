@@ -4700,3 +4700,34 @@ button.antw-oordeel:hover { border-color: rgba(255,255,255,0.5); }
   color: var(--muted); font: inherit; font-size: 0.68rem; font-weight: 800; text-transform: none; letter-spacing: 0; cursor: pointer; }
 .vraag-toon-antwoord.aan { color: #86EFAC; border-color: rgba(74,222,128,0.5); background: rgba(74,222,128,0.12); }
 .vraag-preview-kaart { flex-shrink: 0; border-top: 1px solid var(--line); }
+
+/* ── Terugblik (spelers): de antwoorden zoals bij de vraag ── */
+.terug-punten { flex-shrink: 0; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 800; color: #FDE68A; background: rgba(251,191,36,0.14); border: 1px solid rgba(251,191,36,0.4); }
+.terug-punten--goed { color: #86EFAC; background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); }
+.terug-punten--fout { color: #FCA5A5; background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.45); }
+.terug-opties { display: flex; flex-direction: column; gap: 8px; }
+.terug-optie { display: flex; flex-direction: column; gap: 4px; opacity: 0.45; }
+.terug-optie--goed, .terug-optie--gekozen { opacity: 1; }
+.terug-optie-knop { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; line-height: 1.3;
+  border: 3px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.terug-optie--goed .terug-optie-knop { border-color: #fff; box-shadow: 0 0 0 3px #22C55E, 0 2px 8px rgba(0,0,0,0.25); }
+.terug-optie-tekst { flex: 1; min-width: 0; }
+.terug-optie-vink { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: #22C55E; color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+.terug-keuze { align-self: flex-start; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(255,255,255,0.14); }
+.terug-keuze--goed { background: rgba(34,197,94,0.25); color: #86EFAC; }
+.terug-keuze--fout { background: rgba(239,68,68,0.22); color: #FCA5A5; }
+.terug-uitleg { font-size: 0.8rem; color: rgba(255,255,255,0.8); line-height: 1.4; padding: 0 4px; }
+.terug-geen { font-size: 0.8rem; color: #FDE68A; }
+.terug-plaatjes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.terug-plaatje { position: relative; border: 3px solid; border-radius: 12px; overflow: hidden; opacity: 0.45; background: rgba(0,0,0,0.2); }
+.terug-plaatje.terug-optie--goed, .terug-plaatje.terug-optie--gekozen { opacity: 1; }
+.terug-plaatje.terug-optie--goed { box-shadow: 0 0 0 3px #22C55E; }
+.terug-plaatje img, .terug-plaatje-leeg { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.terug-optie-vink--hoek { position: absolute; top: 6px; right: 6px; }
+.terug-keuze--hoek { position: absolute; left: 6px; bottom: 6px; }
+.terug-open { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
+.terug-open--goed { border-color: rgba(34,197,94,0.5); }
+.terug-open--fout { border-color: rgba(239,68,68,0.45); }
+.terug-open--juist { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.1); }
+.terug-open-label { flex-shrink: 0; font-size: 0.7rem; color: var(--muted); width: 84px; }
+.terug-open-tekst { flex: 1; min-width: 0; font-weight: 700; color: #fff; font-size: 0.9rem; }

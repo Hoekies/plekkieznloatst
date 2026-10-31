@@ -17,6 +17,8 @@ export type TerugkijkItem = {
   gekozen_antwoord_afbeelding: string | null;
   juiste_antwoord_tekst: string | null;
   juiste_antwoord_afbeelding: string | null;
+  // Alle keuzes zoals bij de vraag (kleur, tekst of plaatje, goed, uitleg) en welke het team koos
+  opties: { id: string; kleur: string; tekst: string | null; afbeelding: string | null; goed: boolean; uitleg: string | null; gekozen: boolean }[];
   // Open
   open_antwoord: string | null;
   // Foto (tijdelijke link: de opslag is afgeschermd)
@@ -82,7 +84,8 @@ export default async function TerugkijkPage() {
   const { data: opties } = vraagIds.length
     ? await admin
         .from("answer_options")
-        .select("id, question_id, answer_type, text, image_path, is_correct")
+        // "*": de uitleg (migratie 023) mag ontbreken
+        .select("*")
         .in("question_id", vraagIds)
     : { data: null };
 
@@ -182,6 +185,12 @@ export default async function TerugkijkPage() {
       gekozen_antwoord_afbeelding: gekozenAfbeelding,
       juiste_antwoord_tekst: juisteTekst,
       juiste_antwoord_afbeelding: juisteAfbeelding,
+      opties: vraag ? [...(optiesPerVraag.get(vraag.id) ?? [])]
+        .sort((a, b) => ((a as { order_index?: number }).order_index ?? 0) - ((b as { order_index?: number }).order_index ?? 0))
+        .map((o) => ({
+          id: o.id, kleur: (o as { color?: string }).color ?? "geel", tekst: o.text, afbeelding: o.image_path,
+          goed: vraag.type !== "stemvraag" && !!o.is_correct, uitleg: (o as { uitleg?: string | null }).uitleg ?? null, gekozen: o.id === v.selected_answer_id,
+        })) : [],
       open_antwoord: v.open_answer_text,
       foto_pad: fotoUrls.get(v.route_point_id) ?? null,
       foto_status: (foto?.status as FotoStatus) ?? null,

@@ -10,13 +10,9 @@ function afbeeldingUrl(bucket: string, pad: string) {
   return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${pad}`;
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  meerkeuze_tekst: "Meerkeuze",
-  meerkeuze_afbeelding: "Meerkeuze afb.",
-  open: "Open vraag",
-  foto_opdracht: "Foto-opdracht",
-  stemvraag: "Stemvraag",
-};
+// Dezelfde kleuren als de knoppen bij de vraag (VraagPopup), zodat je de vraag terugherkent
+const KLEUR_KNOP: Record<string, string> = { geel: "#F59E0B", blauw: "#1E40AF", rood: "#DC2626", groen: "#15803D" };
+const KLEUR_TEKST: Record<string, string> = { geel: "#2A1600", blauw: "#ffffff", rood: "#ffffff", groen: "#ffffff" };
 
 export default function TerugkijkScherm({ items, gebeurtenissen }: { items: TerugkijkItem[]; gebeurtenissen: TerugkijkGebeurtenis[] }) {
   const router = useRouter();
@@ -27,6 +23,9 @@ export default function TerugkijkScherm({ items, gebeurtenissen }: { items: Teru
   ].sort((a, b) => new Date(a.tijd).getTime() - new Date(b.tijd).getTime());
   const totaalPunten = items.reduce((s, i) => s + i.punten_behaald, 0);
   const maxPunten = items.reduce((s, i) => s + i.max_punten, 0);
+  // Hoeveel vragen goed (alleen vragen met goed of fout; geen infopunten of stemvragen)
+  const metUitslag = items.filter((i) => i.vraag_type && i.vraag_type !== "stemvraag" && i.is_correct !== null);
+  const goedAantal = metUitslag.filter((i) => i.is_correct).length;
 
   return (
     <div style={{
@@ -52,7 +51,7 @@ export default function TerugkijkScherm({ items, gebeurtenissen }: { items: Teru
           </h1>
         </div>
         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", marginBottom: 24, marginTop: 0 }}>
-          {totaalPunten} van {maxPunten} punten uit de vragen (items tellen apart mee in je score)
+          <strong style={{ color: "#fff" }}>{goedAantal} van {metUitslag.length} vragen goed</strong> · {totaalPunten} van {maxPunten} punten uit de vragen (items tellen apart mee in je score)
         </p>
 
         {/* Punt-kaarten */}
@@ -84,8 +83,8 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
       background: "rgba(255,255,255,0.08)",
       backdropFilter: "blur(14px) saturate(120%)",
       WebkitBackdropFilter: "blur(14px) saturate(120%)",
-      border: `1.5px solid ${accentKleur}`,
-      borderRadius: 16, padding: "16px 18px",
+      border: "1px solid rgba(255,255,255,0.14)", borderLeft: `5px solid ${accentKleur}`,
+      borderRadius: 16, padding: "14px 16px",
       display: "flex", flexDirection: "column", gap: 10,
     }}>
       {/* Puntnaam + badge */}
@@ -99,20 +98,11 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
           <span style={{ fontWeight: 700, color: "#fff", fontSize: "0.95rem" }}>{item.punt_naam}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          {item.vraag_type && (
-            <span style={{
-              fontSize: "0.65rem", fontWeight: 700,
-              background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.55)",
-              borderRadius: 99, padding: "2px 8px",
-            }}>{TYPE_LABEL[item.vraag_type]}</span>
+          {!isInfo && (
+            <span className={`terug-punten${isCorrect ? " terug-punten--goed" : isCorrect === false ? " terug-punten--fout" : ""}`}>
+              {isCorrect === null ? "⏳" : isCorrect ? "✓" : "✗"} {item.punten_behaald} pt
+            </span>
           )}
-          <span style={{
-            fontSize: "0.82rem", fontWeight: 800,
-            color: isInfo ? "rgba(255,255,255,0.6)" : isCorrect ? "#4ade80" : isCorrect === false ? "#f87171" : "#fbbf24",
-          }}>
-            {isInfo ? "" : (isCorrect === null ? "⏳" : isCorrect ? "✓" : "✗")}
-            {" "}{item.punten_behaald}<span style={{ fontWeight: 400, fontSize: "0.68rem", color: "var(--muted)" }}>/{item.max_punten} pt</span>
-          </span>
         </div>
       </div>
 
@@ -132,42 +122,53 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
         />
       )}
 
-      {/* Meerkeuze antwoorden */}
-      {(item.vraag_type === "meerkeuze_tekst" || item.vraag_type === "meerkeuze_afbeelding" || item.vraag_type === "stemvraag") && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <AntwoordRij
-            label="Jouw antwoord"
-            tekst={item.gekozen_antwoord_tekst}
-            afbeelding={item.gekozen_antwoord_afbeelding}
-            goed={item.is_correct === true}
-            fout={item.is_correct === false}
-          />
-          {item.is_correct === false && item.vraag_type !== "stemvraag" && (
-            <AntwoordRij
-              label="Juiste antwoord"
-              tekst={item.juiste_antwoord_tekst}
-              afbeelding={item.juiste_antwoord_afbeelding}
-              goed
-            />
-          )}
+      {/* Meerkeuze en stemvraag: alle keuzes in hun kleur, zoals bij de vraag; ✓ = goed, label = jullie keuze */}
+      {(item.vraag_type === "meerkeuze_tekst" || item.vraag_type === "stemvraag") && item.opties.length > 0 && (
+        <div className="terug-opties">
+          {item.opties.filter((o) => o.tekst?.trim() || o.gekozen).map((o) => (
+            <div key={o.id} className={`terug-optie${o.goed ? " terug-optie--goed" : ""}${o.gekozen ? " terug-optie--gekozen" : ""}`}>
+              <div className="terug-optie-knop" style={{ background: KLEUR_KNOP[o.kleur] ?? "#555", color: KLEUR_TEKST[o.kleur] ?? "#fff" }}>
+                <span className="terug-optie-tekst">{o.tekst ?? "—"}</span>
+                {o.goed && <span className="terug-optie-vink" aria-label="goed antwoord">✓</span>}
+              </div>
+              {o.gekozen && <span className={`terug-keuze${item.vraag_type === "stemvraag" ? "" : o.goed ? " terug-keuze--goed" : " terug-keuze--fout"}`}>{item.vraag_type === "stemvraag" ? "🗳️ jullie stem" : o.goed ? "✓ jullie keuze" : "✗ jullie keuze"}</span>}
+              {o.uitleg && (o.gekozen || o.goed) && <span className="terug-uitleg">💬 {o.uitleg}</span>}
+            </div>
+          ))}
+          {!item.opties.some((o) => o.gekozen) && item.vraag_type !== "stemvraag" && <span className="terug-geen">⏱️ Geen antwoord gegeven (te laat)</span>}
+        </div>
+      )}
+      {/* Plaatjes: twee bij twee, met dezelfde markeringen */}
+      {item.vraag_type === "meerkeuze_afbeelding" && item.opties.length > 0 && (
+        <div className="terug-plaatjes">
+          {item.opties.map((o) => (
+            <div key={o.id} className={`terug-plaatje${o.goed ? " terug-optie--goed" : ""}${o.gekozen ? " terug-optie--gekozen" : ""}`} style={{ borderColor: KLEUR_KNOP[o.kleur] ?? "#555" }}>
+              {o.afbeelding
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={afbeeldingUrl("vraag-afbeeldingen", o.afbeelding)} alt="" />
+                : <div className="terug-plaatje-leeg" />}
+              {o.goed && <span className="terug-optie-vink terug-optie-vink--hoek" aria-label="goed antwoord">✓</span>}
+              {o.gekozen && <span className={`terug-keuze terug-keuze--hoek${o.goed ? " terug-keuze--goed" : " terug-keuze--fout"}`}>{o.goed ? "✓ jullie keuze" : "✗ jullie keuze"}</span>}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Open antwoord */}
-      {item.vraag_type === "open" && item.open_antwoord && (
-        <div style={{
-          background: "rgba(255,255,255,0.08)", borderRadius: 10,
-          padding: "8px 12px",
-          display: "flex", alignItems: "flex-start", gap: 8,
-        }}>
-          <span style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 2 }}>Jouw antwoord</span>
-          <span style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 600 }}>{item.open_antwoord}</span>
-          <span style={{ marginLeft: "auto", fontSize: "1rem" }}>{item.is_correct ? "✅" : "❌"}</span>
+      {/* Open vraag: jullie antwoord, en wat goed was */}
+      {item.vraag_type === "open" && (
+        <div className="terug-opties">
+          <div className={`terug-open${item.is_correct ? " terug-open--goed" : " terug-open--fout"}`}>
+            <span className="terug-open-label">Jullie antwoord</span>
+            <span className="terug-open-tekst">{item.open_antwoord || "— (geen antwoord)"}</span>
+            <span aria-hidden>{item.is_correct ? "✓" : "✗"}</span>
+          </div>
+          {item.juiste_antwoord_tekst && (
+            <div className="terug-open terug-open--juist">
+              <span className="terug-open-label">{item.is_correct ? "Goed was ook" : "Goed was"}</span>
+              <span className="terug-open-tekst">{item.juiste_antwoord_tekst}</span>
+            </div>
+          )}
         </div>
-      )}
-      {/* Open vraag fout (of te laat): wat goed was */}
-      {item.vraag_type === "open" && item.is_correct === false && item.juiste_antwoord_tekst && (
-        <AntwoordRij label="Juiste antwoord" tekst={item.juiste_antwoord_tekst} afbeelding={null} goed />
       )}
 
       {/* Foto-opdracht */}
@@ -188,36 +189,6 @@ function PuntKaart({ item, nr }: { item: TerugkijkItem; nr: number }) {
       {isFoto && !item.foto_pad && (
         <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.82rem" }}>Geen foto ingediend.</p>
       )}
-    </div>
-  );
-}
-
-function AntwoordRij({
-  label, tekst, afbeelding, goed, fout,
-}: {
-  label: string;
-  tekst: string | null;
-  afbeelding: string | null;
-  goed?: boolean;
-  fout?: boolean;
-}) {
-  const kleur = goed ? "#4ade80" : fout ? "#f87171" : "rgba(255,255,255,0.7)";
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 10,
-      background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 12px",
-    }}>
-      <span style={{ fontSize: "0.68rem", color: "var(--muted)", minWidth: 80 }}>{label}</span>
-      {afbeelding ? (
-        <img
-          src={afbeeldingUrl("vraag-afbeeldingen", afbeelding)}
-          alt=""
-          style={{ height: 48, width: 64, objectFit: "contain", borderRadius: 6, background: "rgba(0,0,0,0.2)" }}
-        />
-      ) : (
-        <span style={{ fontWeight: 600, fontSize: "0.88rem", color: kleur, flex: 1 }}>{tekst ?? "—"}</span>
-      )}
-      <span style={{ fontSize: "1rem", marginLeft: "auto" }}>{goed ? "✅" : fout ? "❌" : ""}</span>
     </div>
   );
 }
