@@ -73,6 +73,17 @@ export default function HulpKolom() {
     return () => document.documentElement.classList.remove("hulp-open");
   }, [open]);
 
+  // Escape sluit de hulp (tenzij er een venster open is: dat sluit eerst)
+  useEffect(() => {
+    if (!open) return;
+    const toets = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || document.querySelector("[data-vraagvenster], [role=dialog]")) return;
+      wissel();
+    };
+    window.addEventListener("keydown", toets);
+    return () => window.removeEventListener("keydown", toets);
+  }, [open]);
+
   // Welke vetgedrukte namen staan nu op het scherm? Die worden aanklikbaar. Opnieuw na laden en af en toe
   // (de pagina laadt soms later, of een venster gaat open).
   const tekstRef = useRef<HTMLDivElement>(null);

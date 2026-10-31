@@ -3428,8 +3428,11 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
   .hulp-knop-mobiel { display: inline-flex; position: fixed; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 1500;
     width: 44px; height: 44px; border-radius: 50%; align-items: center; justify-content: center; border: 1px solid rgba(255,217,59,0.6);
     background: rgba(var(--o3),0.92); color: #FFE680; font-size: 1.1rem; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
-  .hulp-kolom { width: 100%; max-width: 100%; }
-  .hulp-kolom-kop { min-height: 56px; }
+  /* Schermvullende app (viewport-fit: cover): de kop onder de statusbalk/notch, anders valt ✕ daaronder en is
+     de hulp niet meer te sluiten (de kolom bedekt ook de ?-knop in de topbalk) */
+  .hulp-kolom { width: 100%; max-width: 100%; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  .hulp-kolom-kop { min-height: 56px; padding-right: max(10px, env(safe-area-inset-right)); }
+  .hulp-kolom-kop .editor-paneel-sluit { width: 44px; height: 44px; font-size: 1.2rem; background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); }
 }
 /* Bovenaan de hulp: de uitleg bij het onderdeel waar je nu bent */
 .hulp-focus { margin-bottom: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(0,217,255,0.08); border: 1px solid rgba(0,217,255,0.35); }
