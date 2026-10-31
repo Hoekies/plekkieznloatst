@@ -4425,29 +4425,6 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .deelkaart-rondje-cijfers span { padding: 8px 4px; border-radius: 12px; background: rgba(255,255,255,0.1); font-size: 0.85rem; }
 .deelkaart-rondje-cijfers strong { font-size: 1.1rem; color: #FFE680; }
 /* 🃏 Teamkaart: een verzamelkaart met een glanzende rand */
-.teamkaart { width: 420px; padding: 8px; border-radius: 28px; background: linear-gradient(135deg, #FFD93B, #F472B6 30%, #22D3EE 60%, #A78BFA 85%, #FFD93B); font-family: var(--font); color: #fff; }
-.teamkaart-binnen { border-radius: 22px; padding: 16px; background: radial-gradient(circle at 50% 0%, #7c4dd8 0%, rgb(var(--o6)) 55%, rgb(var(--o3)) 100%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.teamkaart-kop { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.teamkaart-plaats { font-size: 2rem; line-height: 1; }
-.teamkaart-route { flex: 1; text-align: center; font-size: 0.85rem; color: #d6cdf2; }
-.teamkaart-score { font-family: var(--font-display); font-weight: 900; font-size: 1.7rem; color: #FFE680; }
-.teamkaart-score small { font-size: 0.8rem; margin-left: 2px; }
-.teamkaart-foto { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; border: 3px solid rgba(255,255,255,0.6); background: linear-gradient(135deg, rgb(var(--o5)), rgb(var(--o1))); display: flex; align-items: center; justify-content: center; }
-.teamkaart-foto img { width: 100%; height: 100%; object-fit: cover; }
-.teamkaart-foto > span { font-size: 7rem; line-height: 1; }
-.teamkaart-rang { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 6px; }
-.teamkaart-rang span { padding: 4px 10px; border-radius: 999px; background: rgba(var(--o1),0.85); font-weight: 800; font-size: 0.95rem; }
-.teamkaart-naam { font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; text-align: center; line-height: 1.15; }
-.teamkaart-prijs { padding: 4px 14px; border-radius: 999px; background: linear-gradient(90deg, #F59E0B, #FFD93B); color: #3A1F00; font-weight: 800; }
-.teamkaart-stats { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.teamkaart-stats div { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 12px; background: rgba(255,255,255,0.1); }
-.teamkaart-stats strong { font-family: var(--font-display); font-size: 1.3rem; }
-.teamkaart-stats strong small { font-size: 0.75rem; color: #d6cdf2; }
-.teamkaart-stats span { font-size: 0.72rem; color: #d6cdf2; }
-.teamkaart-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-size: 1.6rem; }
-.teamkaart-voet { font-size: 0.75rem; color: #d6cdf2; }
-.team-plaatjes { display: flex; gap: 10px; width: 100%; }
-.team-plaatjes .btn { flex: 1; font-size: 0.9rem; padding: 12px 6px; border-radius: 14px; }
 .groep-plaatjes { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
 .groep-plaatje { display: flex; flex-direction: column; gap: 6px; align-items: stretch; text-align: center; font-weight: 700; font-size: 0.85rem; }
 .groep-plaatje img, .groep-plaatje-wacht { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; border-radius: 12px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 2rem; }

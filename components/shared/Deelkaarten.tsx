@@ -1,7 +1,6 @@
 "use client";
 
-import type { GroepPlaatjes, TeamPlaatjes } from "@/lib/deel-plaatjes";
-import { BADGES, isBadge, mascotteVoor, levelVoor } from "@/lib/spelplezier";
+import type { GroepPlaatjes } from "@/lib/deel-plaatjes";
 
 // 🖼️ Deelplaatjes na afloop (alleen plaatjes, geen losse tekst). Elk kaartje is 540 px breed en wordt met
 // elementNaarPng een PNG. Routes worden als lijnen getekend (SVG) op een eigen achtergrond: kaarttegels van een
@@ -207,63 +206,6 @@ export function RivaliteitenKaart({ d }: { d: GroepPlaatjes }) {
         })}
       </div>
       {lijnen[0] && <div className="deelkaart-rival-top">🔥 Grootste rivaliteit: <strong>{teams.find((t) => t.sessie === lijnen[0].van)?.naam}</strong> → <strong>{teams.find((t) => t.sessie === lijnen[0].naar)?.naam}</strong> ({lijnen[0].aantal}×)</div>}
-    </Kader>
-  );
-}
-
-// ── 6. Teamkaart: de oorkonde als verzamelkaart ──────────────────────────────
-export function TeamKaart({ d }: { d: TeamPlaatjes }) {
-  const m = mascotteVoor(d.score), l = levelVoor(d.score);
-  const s = d.stat;
-  return (
-    <div className="teamkaart">
-      <div className="teamkaart-binnen">
-        <div className="teamkaart-kop">
-          <span className="teamkaart-plaats">{d.plaats ? medaille(d.plaats) : "🏅"}</span>
-          <span className="teamkaart-route">{d.route}</span>
-          <span className="teamkaart-score">{d.score}<small>pt</small></span>
-        </div>
-        <div className="teamkaart-foto">
-          {d.foto
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={d.foto} alt="" crossOrigin="anonymous" />
-            : <span>{d.icon ?? "👫"}</span>}
-          {(d.mascotte || d.levels) && (
-            <div className="teamkaart-rang">{d.mascotte && <span>{m.emoji}</span>}{d.levels && <span>{l.emoji} {l.naam}</span>}</div>
-          )}
-        </div>
-        <div className="teamkaart-naam">{d.naam}</div>
-        {d.prijs && <div className="teamkaart-prijs">{d.prijs.emoji} {d.prijs.titel}</div>}
-        <div className="teamkaart-stats">
-          <div><strong>{d.plaats ?? "–"}<small>/{d.aantal}</small></strong><span>plaats</span></div>
-          <div><strong>{getal(d.km)}</strong><span>km</span></div>
-          <div><strong>{d.minuten}</strong><span>minuten</span></div>
-          <div><strong>{s?.goed ?? 0}</strong><span>goed</span></div>
-          <div><strong>{s?.snelste !== null && s?.snelste !== undefined ? `${s.snelste}s` : "–"}</strong><span>snelste</span></div>
-          <div><strong>{s?.itemsIngezet ?? 0}</strong><span>items</span></div>
-        </div>
-        {d.badges.filter(isBadge).length > 0 && (
-          <div className="teamkaart-badges">{d.badges.filter(isBadge).map((b) => <span key={b} title={BADGES[b].naam}>{BADGES[b].emoji}</span>)}</div>
-        )}
-        <div className="teamkaart-voet">{d.datum} · PointRush</div>
-      </div>
-    </div>
-  );
-}
-
-// ── 7. Ons rondje: het eigen gelopen spoor met de punten ─────────────────────
-export function OnsRondjeKaart({ d }: { d: TeamPlaatjes }) {
-  const punten = d.punten.map((p, i) => ({ lat: p.lat, lng: p.lng, soort: (i === d.punten.length - 1 ? "finish" : i === 0 ? "start" : "punt") as "start" | "finish" | "punt", label: i === d.punten.length - 1 ? "🏁" : undefined }));
-  return (
-    <Kader titel="Ons rondje" route={d.route} logo={d.huis_logo} datum={d.datum}>
-      <div className="deelkaart-rondje-team"><Gezicht foto={d.foto} icon={d.icon} maat={44} /> <strong>{d.naam}</strong></div>
-      <SporenKaart sporen={[{ pts: d.spoor, kleur: "#22D3EE" }]} punten={punten} h={440} />
-      <div className="deelkaart-rondje-cijfers">
-        <span>👟 <strong>{getal(d.km)}</strong> km</span>
-        <span>⏱️ <strong>{d.minuten}</strong> min</span>
-        <span>📍 <strong>{d.punten.length}</strong> punten</span>
-        <span>⭐ <strong>{d.score}</strong> pt</span>
-      </div>
     </Kader>
   );
 }

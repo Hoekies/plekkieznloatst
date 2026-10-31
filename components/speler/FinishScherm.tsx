@@ -16,7 +16,6 @@ import UitslagOnthulling from "./UitslagOnthulling";
 import BonusVraag from "./BonusVraag";
 import { BadgeRij, FotoBattle, useBadges } from "./FinishPlezier";
 import SpelStatistieken from "./SpelStatistieken";
-import TeamPlaatjes from "./TeamPlaatjes";
 import { BADGES } from "@/lib/spelplezier";
 import KoFiKnop from "@/components/shared/KoFiKnop";
 import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
@@ -288,13 +287,11 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         </div>
 
         {vrij && <>
-        {/* 📤 Onder de stand: de oorkonde delen en terugkijken */}
+        {/* 📤 Onder de stand: de oorkonde delen en terugkijken (alleen de oorkonde: de uitslag deelt de organisatie) */}
         <div className="finish-delen-kop">📤 Delen en terugkijken</div>
         <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
           plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false}
           prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} badges={badges.map((b) => BADGES[b].emoji)} />
-        {/* 🃏 Teamkaart en 🗺️ ons rondje als plaatje */}
-        <TeamPlaatjes />
 
         {/* 📊 Spelstatistieken (als de route dat aan heeft) */}
         <SpelStatistieken />
