@@ -4770,3 +4770,35 @@ button.antw-oordeel:hover { border-color: rgba(255,255,255,0.5); }
 .antw-rij > .form-input, .antw-rij > input { height: 36px; padding-top: 0; padding-bottom: 0; }
 .puzzel-keuze { padding-top: 6px !important; padding-bottom: 6px !important; }
 .vraag-opslaanbalk { padding-top: 8px; padding-bottom: 8px; }
+
+/* 🏆 Podium in het rapport (vast, ook afgedrukt en als plaatje) */
+.rapport-podium-kader { margin-top: 24px; padding: 18px 14px 0; border-radius: 18px; text-align: center; overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, rgba(255,217,59,0.32), rgba(255,138,0,0.1) 60%, rgba(0,0,0,0.15)); border: 2px solid rgba(255,217,59,0.7); box-shadow: 0 0 30px rgba(255,217,59,0.22); }
+.rapport-podium-titel { font-family: var(--font-display); font-weight: 800; letter-spacing: 0.12em; color: #FFE680; font-size: 0.95rem; margin-bottom: 10px; }
+.rapport-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; }
+.rapport-podium-plek { flex: 1 1 0; min-width: 0; max-width: 200px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.rapport-podium-foto { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.8); }
+.rapport-podium-icoon { font-size: 2.6rem; line-height: 1.1; }
+.rapport-podium-plek--1 .rapport-podium-foto { width: 104px; height: 104px; border: 4px solid #FACC15; }
+.rapport-podium-plek--1 .rapport-podium-icoon { font-size: 3.6rem; }
+.rapport-podium-naam { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 1.05rem; line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; margin-top: 4px; }
+.rapport-podium-plek--1 .rapport-podium-naam { font-size: 1.5rem; text-shadow: 0 2px 0 rgba(0,0,0,0.35); }
+.rapport-podium-score { font-weight: 800; color: #00d9ff; font-size: 0.9rem; margin-bottom: 6px; }
+.rapport-podium-plek--1 .rapport-podium-score { font-size: 1.1rem; }
+.rapport-podium-vlak { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 8px; border-radius: 12px 12px 0 0;
+  font-family: var(--font-display); font-weight: 900; font-size: 1.9rem; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+.rapport-podium-vlak > span { font-size: 1.4rem; }
+.rapport-podium-plek--1 .rapport-podium-vlak { height: 136px; background: linear-gradient(180deg, #FACC15, #B45309); }
+.rapport-podium-plek--2 .rapport-podium-vlak { height: 108px; background: linear-gradient(180deg, #E5E7EB, #6B7280); }
+.rapport-podium-plek--3 .rapport-podium-vlak { height: 88px; background: linear-gradient(180deg, #FDBA74, #9A3412); }
+
+/* 🖼️ Plaatjes voor de groepsapp: kiezen welke mee gaan, en in één keer delen */
+button.groep-plaatje { border: none; background: none; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+button.groep-plaatje:disabled { cursor: default; }
+.groep-plaatje-beeld { position: relative; display: block; border-radius: 14px; outline: 3px solid transparent; outline-offset: 2px; transition: outline-color 0.15s, opacity 0.15s; opacity: 0.45; }
+.groep-plaatje--aan .groep-plaatje-beeld { outline-color: #22C55E; opacity: 1; }
+.groep-plaatje-vink { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; background: rgba(0,0,0,0.45);
+  color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.groep-plaatje--aan .groep-plaatje-vink { background: #22C55E; }
+.groep-plaatjes-onder { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+.groep-plaatjes-deel { height: 44px; padding: 0 22px; font-weight: 800; font-size: 0.95rem; }

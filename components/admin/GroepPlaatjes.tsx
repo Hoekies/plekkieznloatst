@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { VensterMetKop } from "@/components/shared/Venster";
 import { toonMelding } from "@/components/admin/Melding";
-import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
+import { elementNaarPng, deelOfDownloadMeer, bestandsnaamDeel } from "@/lib/delen";
 import type { GroepPlaatjes as Data } from "@/lib/deel-plaatjes";
 import { UitslagCijfersKaart, RoutePosterKaart, PrijzenKaart, RivaliteitenKaart } from "@/components/shared/Deelkaarten";
 
 // 🖼️ Plaatjes voor de groepsapp (alleen de spelleider; spelers delen de uitslag niet): uitslag en cijfers, routeposter,
 // prijzenuitreiking en rivalen. Alleen plaatjes, geen losse tekst. Bij het openen worden ze gemaakt;
-// daarna deel je elk plaatje met één tik (deelmenu, of downloaden op een computer zonder deelmenu).
+// daarna kies je welke je wilt (tik = ✓, standaard alle) en deel je ze in één keer (deelmenu, of downloaden op een
+// computer zonder deelmenu).
 type Plaatje = { sleutel: string; naam: string; bestand: File; url: string };
 
 export default function GroepPlaatjes({ knopClass = "rl-knop rl-knop--cyan" }: { knopClass?: string }) {
@@ -17,12 +18,15 @@ export default function GroepPlaatjes({ knopClass = "rl-knop rl-knop--cyan" }: {
   const [data, setData] = useState<Data | null>(null);
   const [plaatjes, setPlaatjes] = useState<Plaatje[]>([]);
   const [bezig, setBezig] = useState(false);
+  // Welke plaatjes mee moeten (sleutels); standaard alle die klaar zijn
+  const [uit, setUit] = useState<Set<string>>(new Set());
+  const wissel = (k: string) => setUit((u) => { const n = new Set(u); if (n.has(k)) n.delete(k); else n.add(k); return n; });
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Openen: gegevens ophalen
   useEffect(() => {
     if (!open) return;
-    setPlaatjes([]); setData(null);
+    setPlaatjes([]); setData(null); setUit(new Set());
     fetch("/api/admin/deelplaatjes", { cache: "no-store" }).then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d.fout))))
       .then(setData).catch((f) => toonMelding(typeof f === "string" ? f : "Laden lukte niet", "fout"));
   }, [open]);
@@ -57,9 +61,11 @@ export default function GroepPlaatjes({ knopClass = "rl-knop rl-knop--cyan" }: {
   }, [data]);
   useEffect(() => () => plaatjes.forEach((p) => URL.revokeObjectURL(p.url)), [plaatjes]);
 
-  async function deel(p: Plaatje) {
-    const uit = await deelOfDownload(p.bestand);
-    if (uit === "gedownload") toonMelding("Plaatje gedownload: stuur het in de groepsapp", "info");
+  const gekozen = plaatjes.filter((p) => !uit.has(p.sleutel));
+  async function deelGekozen() {
+    if (!gekozen.length) return;
+    const r = await deelOfDownloadMeer(gekozen.map((p) => p.bestand));
+    if (r === "gedownload") toonMelding(gekozen.length === 1 ? "Plaatje gedownload: stuur het in de groepsapp" : `${gekozen.length} plaatjes gedownload: stuur ze in de groepsapp`, "info");
   }
 
   return (
@@ -73,17 +79,30 @@ export default function GroepPlaatjes({ knopClass = "rl-knop rl-knop--cyan" }: {
             <div className="groep-plaatjes">
               {lijst.map((p) => {
                 const klaar = plaatjes.find((x) => x.sleutel === p.sleutel);
+                const aan = !!klaar && !uit.has(p.sleutel);
                 return (
-                  <div key={p.sleutel} className="groep-plaatje">
-                    {klaar
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={klaar.url} alt={p.naam} />
-                      : <div className="groep-plaatje-wacht">{bezig ? "⏳" : "⚠️"}</div>}
+                  // Tik = wel of niet meesturen
+                  <button key={p.sleutel} type="button" className={`groep-plaatje${aan ? " groep-plaatje--aan" : ""}`} disabled={!klaar}
+                    onClick={() => wissel(p.sleutel)} aria-pressed={aan} title={aan ? "Gaat mee: tik om niet mee te sturen" : "Gaat niet mee: tik om mee te sturen"}>
+                    <span className="groep-plaatje-beeld">
+                      {klaar
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={klaar.url} alt={p.naam} />
+                        : <span className="groep-plaatje-wacht">{bezig ? "⏳" : "⚠️"}</span>}
+                      {klaar && <span className="groep-plaatje-vink" aria-hidden>{aan ? "✓" : ""}</span>}
+                    </span>
                     <span>{p.naam}</span>
-                    <button type="button" className="rl-knop rl-knop--groen" disabled={!klaar} onClick={() => klaar && deel(klaar)}>📤 Delen</button>
-                  </div>
+                  </button>
                 );
               })}
+            </div>
+          )}
+          {data && (
+            <div className="groep-plaatjes-onder">
+              <span className="inst-uitleg">Tik op een plaatje om het wel of niet mee te sturen.</span>
+              <button type="button" className="rl-knop rl-knop--groen groep-plaatjes-deel" disabled={!gekozen.length || bezig} onClick={deelGekozen}>
+                📤 {gekozen.length === plaatjes.length && plaatjes.length > 1 ? `Alle ${gekozen.length} delen` : `${gekozen.length} ${gekozen.length === 1 ? "plaatje" : "plaatjes"} delen`}
+              </button>
             </div>
           )}
         </VensterMetKop>

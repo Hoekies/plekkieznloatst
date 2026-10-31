@@ -66,3 +66,19 @@ export async function deelOfDownload(f: File, tekst?: string): Promise<"gedeeld"
   downloadBestand(f);
   return "gedownload";
 }
+
+// Meerdere plaatjes in één keer delen (bijv. in één bericht in de groepsapp); kan het toestel dat niet,
+// dan worden ze één voor één gedownload
+export async function deelOfDownloadMeer(bestanden: File[]): Promise<"gedeeld" | "geannuleerd" | "gedownload"> {
+  if (bestanden.length === 1) return deelOfDownload(bestanden[0]);
+  if (navigator.canShare?.({ files: bestanden })) {
+    try {
+      await navigator.share({ files: bestanden });
+      return "gedeeld";
+    } catch (e) {
+      if ((e as Error).name === "AbortError") return "geannuleerd";
+    }
+  }
+  for (const f of bestanden) { downloadBestand(f); await new Promise((r) => setTimeout(r, 400)); }
+  return "gedownload";
+}

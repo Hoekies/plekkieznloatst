@@ -109,22 +109,20 @@ export default function RapportWeergave({ data, verslagen, fotoUrls, kaartLinks 
           </div>
         )}
 
+        {/* 🏆 Podium: de nummers 2, 1 en 3 naast elkaar, de winnaar in het midden en het hoogst (vast, zonder animatie: het rapport wordt afgedrukt en gedeeld) */}
         {stand[0] && (
-          <div className="rapport-blok" style={{
-            marginTop: 24, padding: "22px 16px", borderRadius: 18, textAlign: "center",
-            background: "radial-gradient(circle at 50% 0%, rgba(255,217,59,0.35), rgba(255,138,0,0.12) 60%, rgba(0,0,0,0.15))",
-            border: "2px solid rgba(255,217,59,0.7)", boxShadow: "0 0 30px rgba(255,217,59,0.25)",
-          }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "0.12em", color: "#FFE680", fontSize: "0.95rem" }}>
-              {voorlopig ? "AAN KOP (VOORLOPIG)" : "🏆 DE WINNAAR 🏆"}
-            </div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {stand[0].foto ? <img src={stand[0].foto} alt="" crossOrigin="anonymous" className="rapport-winnaar-foto" /> : <div style={{ fontSize: "4.5rem", lineHeight: 1.1, marginTop: 6 }}>{stand[0].icon ?? "🥇"}</div>}
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2.6rem", lineHeight: 1.1, color: "#fff", textShadow: "0 3px 0 rgba(0,0,0,0.35)" }}>
-              {stand[0].naam}
-            </div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.6rem", color: "#00d9ff", marginTop: 4 }}>
-              {stand[0].score} punten
+          <div className="rapport-blok rapport-podium-kader">
+            <div className="rapport-podium-titel">{voorlopig ? "AAN KOP (VOORLOPIG)" : "🏆 HET PODIUM 🏆"}</div>
+            <div className="rapport-podium">
+              {[1, 0, 2].filter((i) => stand[i]).map((i) => (
+                <div key={stand[i].sessie_id} className={`rapport-podium-plek rapport-podium-plek--${i + 1}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {stand[i].foto ? <img src={stand[i].foto!} alt="" crossOrigin="anonymous" className="rapport-podium-foto" /> : <div className="rapport-podium-icoon">{stand[i].icon ?? "👫"}</div>}
+                  <div className="rapport-podium-naam">{stand[i].naam}</div>
+                  <div className="rapport-podium-score">{stand[i].score} punten</div>
+                  <div className="rapport-podium-vlak"><span>{MEDAILLE[i]}</span>{i + 1}</div>
+                </div>
+              ))}
             </div>
           </div>
         )}
