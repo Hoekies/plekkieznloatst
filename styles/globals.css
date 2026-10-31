@@ -1842,7 +1842,16 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 @media (max-width: 768px) {
   .klaar-tekst { flex-basis: calc(100% - 46px) !important; }
   .klaar-stap > .rl-knop { margin-left: 42px; }
+  /* Eén rij die zijwaarts scrollt, binnen de stap; de namen heel (afgekort leken routes met hetzelfde begin gelijk) */
+  .klaar-stap .klaar-routes { flex-basis: calc(100% - 42px); margin-left: 42px; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
+    scroll-snap-type: x proximity; padding-bottom: 4px; scrollbar-width: thin; }
+  .klaar-stap .klaar-routes > .rl-knop { flex: 0 0 auto; max-width: none; scroll-snap-align: start; }
+  .klaar-routes .klaar-routes-naam { overflow: visible; }
 }
+/* Klaarstaande routes om te activeren: lange namen afkorten, nooit breder dan de stap */
+.klaar-routes { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; min-width: 0; max-width: 100%; }
+.klaar-routes > .rl-knop { min-width: 0; max-width: 100%; justify-content: flex-start; }
+.klaar-routes-naam { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Telefoon: een lange routenaam mag de kaart niet breder maken (hij schuift binnen zijn eigen vak) */
 @media (max-width: 768px) {
