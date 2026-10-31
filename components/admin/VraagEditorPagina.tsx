@@ -541,9 +541,13 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 </div>
               )}
               <textarea className="form-textarea" spellCheck lang="nl" value={tekst} onChange={(e) => setTekst(e.target.value)}
-                placeholder={type === "foto_opdracht" ? "Bijv. Maak een groepsfoto bij de molen" : "Typ hier de vraag…"} style={{ minHeight: 70 }} />
-              {/* Instellingen van deze vraag als chips: tik = openen */}
+                placeholder={type === "foto_opdracht" ? "Bijv. Maak een groepsfoto bij de molen" : "Typ hier de vraag…"} rows={2} style={{ minHeight: 54 }} />
+              {/* Eén regel onder de vraag: afbeelding, geluid, tijdslimiet en QR-test (tik = openen), rechts de punten.
+                  Zo blijven alle vier de antwoorden in beeld */}
               <div className="vraag-chips">
+                <span className="vraag-chip-afbeelding" title="Afbeelding bij de vraag (optioneel)">
+                  <AfbeeldingUpload huidigPad={vraagAfbeelding} bucket="vraag-afbeeldingen" onUpload={(pad) => setVraagAfbeelding(pad)} onVerwijder={() => setVraagAfbeelding(null)} compact />
+                </span>
                 <button type="button" className={`vraag-chip${instelling === "geluid" ? " aan" : ""}${geluidPad ? " gezet" : ""}`} onClick={() => wisselInstelling("geluid")} aria-expanded={instelling === "geluid"}>
                   🔊 {geluidPad ? "Geluid" : "Geen geluid"}
                 </button>
@@ -555,6 +559,14 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
                 <button type="button" className={`vraag-chip${instelling === "qr" ? " aan" : ""}${qrEnabled ? " gezet" : ""}`} onClick={() => wisselInstelling("qr")} aria-expanded={instelling === "qr"}>
                   🧪 {qrEnabled ? "QR-test aan" : "QR-test"}
                 </button>
+                <span style={{ flex: 1 }} />
+                <span className="vraag-punten-rij" title="Zoveel punten krijgt een team voor het goede antwoord">
+                  <span className="vraag-punten-label">Punten</span>
+                  {PUNTEN_SNEL.map((p) => (
+                    <button key={p} type="button" className={`rl-knop${punten === p ? " rl-knop--cyan" : ""}`} onClick={() => setPunten(p)} aria-pressed={punten === p}>{p}</button>
+                  ))}
+                  <input className="form-input" type="number" min={0} value={punten} aria-label="Eigen aantal punten" onChange={(e) => setPunten(Number(e.target.value))} />
+                </span>
               </div>
               {instelling && (
                 <div className="vraag-chip-paneel">
@@ -605,29 +617,6 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
               )}
             </div>
 
-            {/* Afbeelding en punten naast elkaar */}
-            <div className="vraag-rij">
-              <div className="form-group" style={{ flex: 1, minWidth: 0 }}>
-                <label className="form-label">Afbeelding bij de vraag (optioneel)</label>
-                <AfbeeldingUpload
-                  huidigPad={vraagAfbeelding}
-                  bucket="vraag-afbeeldingen"
-                  onUpload={(pad) => setVraagAfbeelding(pad)}
-                  onVerwijder={() => setVraagAfbeelding(null)}
-                  compact
-                />
-              </div>
-              <div className="form-group vraag-punten">
-                <label className="form-label">Punten</label>
-                <div className="vraag-punten-rij">
-                  {PUNTEN_SNEL.map((p) => (
-                    <button key={p} type="button" className={`rl-knop${punten === p ? " rl-knop--cyan" : ""}`} onClick={() => setPunten(p)} aria-pressed={punten === p}>{p}</button>
-                  ))}
-                  <input className="form-input" type="number" min={0} value={punten} aria-label="Eigen aantal punten"
-                    onChange={(e) => setPunten(Number(e.target.value))} title="Zoveel punten krijgt een team voor het goede antwoord" />
-                </div>
-              </div>
-            </div>
             {puzzel && <PuzzelLetterKeuze puzzel={puzzel} puntId={punt.id} />}
 
             {/* 🔤 Anagram: het woord */}

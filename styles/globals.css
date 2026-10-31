@@ -4758,3 +4758,15 @@ button.antw-oordeel:hover { border-color: rgba(255,255,255,0.5); }
 .voorbeeld-foto { border: 2.5px dashed rgba(255,255,255,0.3); border-radius: 16px; padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
 .voorbeeld-onder { padding: 10px 16px 16px; border-top: 1px solid rgba(255,255,255,0.1); }
 .voorbeeld-knop { width: 100%; padding: 13px 0; font-size: 0.92rem; border-radius: 13px; text-align: center; }
+/* Vraag-editor compacter: alle vier de antwoorden in beeld op een laptop */
+.vraag-form { gap: 12px; padding-top: 14px; padding-bottom: 14px; }
+.vraag-form .form-group { gap: 6px; }
+.vraag-chips { align-items: center; margin-top: 6px; }
+.vraag-chip-afbeelding .rl-knop, .vraag-chip-afbeelding button { height: 30px !important; font-size: 0.76rem !important; border-radius: 999px !important; padding: 0 12px !important; }
+.vraag-punten-label { font-size: 0.74rem; color: var(--muted); font-weight: 700; margin-right: 2px; }
+.vraag-punten-rij .rl-knop { height: 30px; min-width: 38px; font-size: 0.8rem; }
+.vraag-punten-rij .form-input { width: 60px; height: 30px; font-size: 0.85rem; }
+.antw-rij { padding: 4px 8px; gap: 8px; }
+.antw-rij > .form-input, .antw-rij > input { height: 36px; padding-top: 0; padding-bottom: 0; }
+.puzzel-keuze { padding-top: 6px !important; padding-bottom: 6px !important; }
+.vraag-opslaanbalk { padding-top: 8px; padding-bottom: 8px; }
