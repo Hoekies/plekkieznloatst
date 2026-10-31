@@ -43,6 +43,7 @@ import SchuifTekst from "@/components/admin/SchuifTekst";
 import EditorRondleiding from "@/components/admin/EditorRondleiding";
 import TeamSimulatie, { type SimLoper, type DrukPlek } from "@/components/admin/editor/TeamSimulatie";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
+import { KLEUR_THEMAS } from "@/lib/kleurthema";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -1585,6 +1586,17 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     <>
             {/* Status als label (Concept, Klaar, Actief); de volgende stap is de knop ernaast, de weg ernaartoe staat bij 💡 Wat nu? */}
             <StatusPil status={route.status} isActief={route.is_active} />
+            {/* 🎨 Kleur van de spelersapp: altijd zichtbaar; tik = wijzigen bij Uiterlijk */}
+            {(() => {
+              const k = KLEUR_THEMAS.find((t) => t.sleutel === (route.huis_thema || "paars")) ?? KLEUR_THEMAS[0];
+              return (
+                <button type="button" className="editor-kleur-chip" onClick={() => { setInstellingenTab("uiterlijk"); setInstellingenOpen(true); }}
+                  title={`Achtergrond van de spelersapp: ${k.naam}. Tik om te wijzigen`}>
+                  <span className="editor-kleur-stip" style={{ background: k.staal }} aria-hidden />
+                  <span className="alleen-pc">{k.naam}</span>
+                </button>
+              );
+            })()}
             <span className="editor-chip editor-modus-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }} title={MODUS_INFO[route.modus].label}>
               <ModusIcoon modus={route.modus} size={14} />
               <span className="alleen-pc editor-modus-naam">{MODUS_INFO[route.modus].label}</span>
