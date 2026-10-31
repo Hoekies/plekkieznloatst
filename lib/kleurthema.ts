@@ -6,6 +6,11 @@ export const KLEUR_THEMAS = [
   { sleutel: "groen", naam: "Bosgroen", staal: "#1e5742" },
   { sleutel: "antraciet", naam: "Antraciet", staal: "#363a45" },
   { sleutel: "bordeaux", naam: "Bordeaux", staal: "#62192f" },
+  { sleutel: "petrol", naam: "Petrol", staal: "#1a525b" },
+  { sleutel: "koper", naam: "Koper", staal: "#59321c" },
+  { sleutel: "magenta", naam: "Magenta", staal: "#601b52" },
+  { sleutel: "middernacht", naam: "Middernacht", staal: "#1b1e31" },
+  { sleutel: "olijf", naam: "Olijf", staal: "#444d21" },
 ] as const;
 
 export type KleurThema = (typeof KLEUR_THEMAS)[number]["sleutel"];

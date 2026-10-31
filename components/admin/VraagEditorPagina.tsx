@@ -18,6 +18,7 @@ import Icoon from "@/components/admin/Icoon";
 import PuzzelLetterKeuze, { type PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuze";
 import KaartPrikker from "@/components/shared/KaartPrikker";
 import { KLEUR_RAND, KLEUR_TEKST } from "@/components/speler/VraagPopup";
+import { KLEUR_THEMAS } from "@/lib/kleurthema";
 import { KAART_STRALEN } from "@/lib/vraag-soorten";
 
 const PuntMiniKaart = dynamic(() => import("./PuntMiniKaart"), { ssr: false });
@@ -119,9 +120,11 @@ interface Props {
   // Opslaan en meteen de volgende vraag zonder vraag openen (route-editor); naam = welk punt dat is
   onOpslaanVolgende?: (vraag: VraagMetAntwoorden) => void;
   volgendeNaam?: string;
+  // 🎨 Kleurthema van de spelersapp (route); het voorbeeld toont de vraag in die kleur
+  spelerThema?: string | null;
 }
 
-export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel, standaardPunten = 65, onOpslaanVolgende, volgendeNaam }: Props) {
+export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSluit, opslaanLabel, kaartPunten, onNaamGewijzigd, navigatie, onGewijzigd, puzzel, standaardPunten = 65, onOpslaanVolgende, volgendeNaam, spelerThema }: Props) {
   const router = useRouter();
   // Terug naar de route: als venster gewoon sluiten, als losse pagina naar de route-editor
   const terug = (vraag?: VraagMetAntwoorden | null) => onSluit ? onSluit(vraag) : router.push(`/admin/routes/${routeId}`);
@@ -834,10 +837,10 @@ export default function VraagEditorPagina({ routeId, punt, bestaandeVraag, onSlu
           </div>
 
           {/* Punten en tijd staan niet op de telefoon, wel handig hier */}
-          <div className="voorbeeld-info">{punten} punten{tijdslimiet && type !== "foto_opdracht" ? ` · ⏱️ ${tijdslimiet} s` : ""}</div>
+          <div className="voorbeeld-info">{KLEUR_THEMAS.find((k) => k.sleutel === (spelerThema || "paars"))?.naam ?? "Paars"} · {punten} punten{tijdslimiet && type !== "foto_opdracht" ? ` · ⏱️ ${tijdslimiet} s` : ""}</div>
           <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "4px 14px 12px", display: "flex", justifyContent: "center" }}>
             {/* 📱 Zelfde opbouw en stijl als de vraag op de telefoon (VraagPopup), op ware grootte en verkleind */}
-            <div className="voorbeeld-telefoon">
+            <div className="voorbeeld-telefoon" data-thema={spelerThema || "paars"}>
               <div className="voorbeeld-scherm">
                 <div className="voorbeeld-logo">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

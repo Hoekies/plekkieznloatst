@@ -98,9 +98,10 @@ export default function HuisstijlInstellingen({ route, onOpslaan }: { route: Rou
           return (
             <button key={t.sleutel} type="button" className={`huisstijl-thema${aan ? " aan" : ""}`} style={{ background: t.staal }}
               onClick={() => onOpslaan({ huis_thema: t.sleutel === "paars" ? null : t.sleutel })} title={t.naam} aria-label={`Achtergrond ${t.naam}`} aria-pressed={aan}
-              onMouseEnter={() => zetThema(t.sleutel)} onMouseLeave={() => zetThema(huidigBeheer())} />
+              onMouseEnter={() => zetThema(t.sleutel)} onMouseLeave={() => zetThema(huidigBeheer())}>{aan ? "✓" : ""}</button>
           );
         })}
+        <span className="huisstijl-thema-naam">{KLEUR_THEMAS.find((t) => t.sleutel === (route.huis_thema ?? "paars"))?.naam ?? "Paars"}</span>
       </>)}
 
       {/* Logo: bovenbalk, welkomstscherm, oorkonde, uitslag-afbeelding en rapport; wordt bij uploaden vanzelf uitgeknipt */}

@@ -2697,16 +2697,14 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                         onBlur={() => pasAllePuntenAan({ radius_meters: puntRadius })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Hoe dichtbij een team moet komen. Geldt voor alle punten.</span>
                     </div>
-                    <button type="button" className="es-link" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setMeerInstellingen((m) => !m)} aria-expanded={meerInstellingen}>
-                      <UitklapPijl open={meerInstellingen} /> {meerInstellingen ? "Minder instellingen" : <><Icoon naam="instellingen" />{" Meer instellingen"}</>}
-                    </button>
-                    {meerInstellingen && <div className="form-group inst-geavanceerd">
+                    {/* Het venster ís al de plek voor zeldzame instellingen: geen extra uitklapknop */}
+                    <div className="form-group">
                       <label className="form-label">🏅 Punten voor een punt zonder vraag</label>
                       <input className="form-input" type="number" min={0} value={puntPunten}
                         onChange={(e) => setPuntPunten(Math.max(0, Number(e.target.value)))}
                         onBlur={() => pasAllePuntenAan({ points: puntPunten })} style={{ width: 120 }} />
                       <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Voor punten zonder vraag. Vraagpunten: punten bij de vraag zelf.</span>
-                    </div>}
+                    </div>
                     {/* ⚠️ Gevaarlijk: niet in de werkbalk, zodat je het niet per ongeluk aantikt */}
                     {!route.is_active && (
                       <div className="inst-gevaarlijk">
@@ -2836,7 +2834,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
         {/* Alle vragen achter elkaar */}
         {alleVragenOpen && (
-          <AlleVragenVenster routeId={route.id} punten={alleVragenPunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
+          <AlleVragenVenster routeId={route.id} spelerThema={route.huis_thema} punten={alleVragenPunten} kaartPunten={kaartPunten} nummer={kaartNummer} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
             heeftVraag={(id) => vraagPuntIds.has(id)} onBijgewerkt={vraagBijgewerkt} onNaamGewijzigd={puntNaamGewijzigd}
             onSluit={() => setAlleVragenOpen(false)} />
         )}
@@ -2844,7 +2842,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
         {/* Vraag bewerken als venster over de hele editor */}
         {vraagVenster && (
           <div data-vraagvenster style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
+            <VraagEditorPagina routeId={route.id} punt={vraagVenster.punt} bestaandeVraag={vraagVenster.vraag} spelerThema={route.huis_thema} kaartPunten={kaartPunten} onNaamGewijzigd={puntNaamGewijzigd} puzzel={puzzelKoppeling} standaardPunten={route.vraag_punten ?? 65}
               onSluit={(vraag) => {
                 if (vraag !== undefined) vraagBijgewerkt(vraagVenster.punt.id, vraag);
                 setVraagVenster(null);

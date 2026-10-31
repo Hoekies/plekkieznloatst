@@ -116,6 +116,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (error && /puzzel_aan|puzzel_verdeling|puzzel_letter_punten|puzzel_raad_bonus/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 017 (puzzelwoord per vraag) in Supabase" }, { status: 500 });
   }
+  // Nieuwe kleur geweigerd door de controle in de database: migratie 012 (meer kleuren) ontbreekt nog
+  if (error && /huis_thema_check/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 012 (supabase/migrations/012_meer_kleurthemas.sql) in Supabase" }, { status: 500 });
+  }
   if (error && /huis_thema/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 011 (supabase/migrations/011_kleurthema.sql) in Supabase" }, { status: 500 });
   }

@@ -10,9 +10,10 @@ import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuz
 
 // Alle vragen achter elkaar invullen: links de vraagpunten, rechts de gewone vraag-editor.
 // Na "Opslaan & volgende" gaat het venster door naar het volgende punt.
-export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onNaamGewijzigd, onSluit, puzzel, standaardPunten }: {
+export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer, heeftVraag, onBijgewerkt, onNaamGewijzigd, onSluit, puzzel, standaardPunten, spelerThema }: {
   routeId: string;
   standaardPunten?: number;              // ❓ punten voor een nieuwe vraag
+  spelerThema?: string | null;           // 🎨 kleur van de spelersapp, voor het voorbeeld
   puzzel?: PuzzelKoppeling;              // 🧩 puzzelwoord aan: letters per vraag
   kaartPunten: KaartPunt[];              // alle punten van de route, voor het kaartje
   punten: RoutePunt[];                   // de vraagpunten, in routevolgorde
@@ -90,7 +91,7 @@ export default function AlleVragenVenster({ routeId, punten, kaartPunten, nummer
               <button type="button" className="rl-knop rl-knop--cyan" onClick={() => setPoging((n) => n + 1)}><Icoon naam="vernieuwen" /> Opnieuw proberen</button>
             </div>
           ) : (
-            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd} puzzel={puzzel} standaardPunten={standaardPunten}
+            <VraagEditorPagina key={punt.id} routeId={routeId} punt={punt} bestaandeVraag={vraag} kaartPunten={kaartPunten} onNaamGewijzigd={onNaamGewijzigd} onGewijzigd={meldGewijzigd} puzzel={puzzel} standaardPunten={standaardPunten} spelerThema={spelerThema}
               navigatie={{
                 positie: `${index + 1} van ${punten.length}`,
                 onVorige: index > 0 ? () => setIndex(index - 1) : undefined,
