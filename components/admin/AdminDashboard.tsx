@@ -10,7 +10,6 @@ import { toonMelding } from "@/components/admin/Melding";
 import StatusLabel, { teamStatus } from "@/components/admin/StatusLabel";
 import MenuIcoon from "@/components/admin/MenuIcoon";
 import UitklapPijl from "@/components/shared/UitklapPijl";
-import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 
 import { sessietijd } from "@/lib/admin-live";
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
@@ -24,11 +23,9 @@ import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import PuntenAanpassen from "@/components/admin/PuntenAanpassen";
 import ContactKnop from "@/components/admin/ContactKnop";
 import { uitlegBijStatus } from "@/lib/fout-uitleg";
-import StatStrook from "@/components/admin/StatStrook";
 import dynamic from "next/dynamic";
 import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
-import WatNu from "@/components/admin/WatNu";
 import ChatVenster from "@/components/admin/ChatVenster";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
@@ -130,13 +127,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
     .filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid")
     .sort((a, b) => b.score !== a.score ? b.score - a.score : sessietijd(a) - sessietijd(b));
   const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
-  const aantalKlaar = spelers.filter((s) => s.sessie_status === "voltooid").length;
   const totaalPunten = route_punten.length;
-  // Hulpvragen, en een filter op wie aandacht nodig heeft (hulp, wachten, een tijd niet gezien)
-  const aantalHulp = spelend.filter((s) => s.hulp).length;
-  const [filter, setFilter] = useState<"alles" | "aandacht">("alles");
-  const aandacht = (s: SpelerOverzicht) => !!s.hulp || !!s.wacht || minutenNietGezien(s) !== null;
-  const zichtbaar = filter === "aandacht" ? spelend.filter(aandacht) : spelend;
   // Vaste kleur per speler (zelfde als op de live kaart en de spelerspagina)
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
   const detail = detailId ? spelend.find((s) => s.player_id === detailId) : undefined;
@@ -174,21 +165,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           </div>
         )}
 
-        {/* 👉 Wat nu? De volgende stap in één zin, met de knop erbij (niet voor helpers) */}
-        {!beperkt && <WatNu data={data} spelend={spelend} />}
-
-        {/* Compacte strook (pc en telefoon) in plaats van vier grote tegels; pas zodra er gespeeld wordt */}
-        {spelend.length > 0 && <div style={{ marginBottom: 16 }}>
-          {/* Wat er nu is én wat je kunt doen: hulp en foto's zijn aan te tikken */}
-          <StatStrook vakken={[
-            { icoon: "⚡", waarde: aantalActief, label: "onderweg" },
-            { icoon: "🏁", waarde: aantalKlaar, label: "gefinisht" },
-            { icoon: "⚠️", waarde: aantalHulp, label: aantalHulp === 1 ? "hulpvraag" : "hulpvragen", letOp: aantalHulp > 0,
-              onKlik: aantalHulp ? () => { setFilter("aandacht"); document.querySelector(".spelleider")?.scrollIntoView({ behavior: "smooth", block: "center" }); } : undefined },
-            { icoon: "📸", waarde: data.wachtende_fotos ?? 0, label: "foto's te keuren", letOp: !!data.wachtende_fotos, onKlik: data.wachtende_fotos ? openFotoKeuren : undefined },
-          ]} />
-        </div>}
-
+        {/* Wat er nu moet gebeuren staat op één plek: vóór het spel in Spel klaarzetten, tijdens en na het spel
+            in het Spelleider-blok (geen aparte Wat nu-regel en tellerstrook meer: dat stond er dubbel) */}
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
         <div style={{ marginBottom: 24 }}>
           {spelend.length === 0
@@ -202,17 +180,8 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
           <div style={{ minWidth: 0 }}>
             {/* Spelende spelers, op volgorde van de stand */}
-            <SectieKop titel={`🏆 Spelende spelers${spelend.length ? ` (${spelend.length})` : ""}`}
-              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined}>
-              {spelend.length > 3 && !spelersDicht && (
-                <div className="segment dash-filter" role="radiogroup" aria-label="Welke teams">
-                  <button type="button" role="radio" aria-checked={filter === "alles"} className={filter === "alles" ? "aan" : ""} onClick={() => setFilter("alles")}>Alles</button>
-                  <button type="button" role="radio" aria-checked={filter === "aandacht"} className={filter === "aandacht" ? "aan" : ""} onClick={() => setFilter("aandacht")}>
-                    Aandacht {spelend.filter(aandacht).length ? `(${spelend.filter(aandacht).length})` : ""}
-                  </button>
-                </div>
-              )}
-            </SectieKop>
+            <SectieKop titel={`🏆 Stand${spelend.length ? ` (${spelend.length})` : ""}`}
+              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined} />
             {spelersDicht && spelend.length > 0 ? null : spelend.length === 0 ? (
               !route ? (
                 <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Kies eerst een route en activeer hem.</LeegScherm>
@@ -223,8 +192,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               )
             ) : (
               <div>
-                {filter === "aandacht" && zichtbaar.length === 0 && <div className="dash-filter-leeg">✓ Geen team heeft nu aandacht nodig</div>}
-                {zichtbaar.map((s) => (
+                {spelend.map((s) => (
                   <SpelerKaart
                     key={s.player_id}
                     rang={spelend.indexOf(s) + 1}
@@ -343,6 +311,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             <StatusLabel status={teamStatus(s.sessie_status, s.ingelogd)} />
             <span className={`sk-score${s.score < 0 ? " score-min" : ""}`}>{s.score} pt</span>
           </div>
+          {/* › Tik voor alle details van dit team */}
+          <span className="sk-pijl" aria-hidden>›</span>
         </div>
 
         <div className="sk-lijf">

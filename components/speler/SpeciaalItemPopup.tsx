@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { SpeciaalItem } from "@/types/database";
 import { ITEM_INFO as UITLEG, type RouteWaarden } from "./SpeciaalItemLegende";
 
@@ -82,6 +83,12 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
   const beschrijving = kortUitleg(item.type, waarden) || (UITLEG[item.type]?.beschrijving(waarden) ?? "");
   const later = () => (onSluit ? onSluit() : onVerwerkt(item.id));
   const [valGezet, setValGezet] = useState<number | null>(null);
+  // ⓘ De volledige uitleg van het item (de korte staat er altijd)
+  const [uitlegOpen, setUitlegOpen] = useState(false);
+  const langeUitleg = UITLEG[item.type]?.beschrijving(waarden) ?? "";
+  // Via een portal in de body: zo valt het venster over alles heen (kaartknoppen, chat, afstand)
+  const [klaar, setKlaar] = useState(false);
+  useEffect(() => setKlaar(true), []);
 
   // 🪤 De bom als val op deze plek: alleen jullie zien hem, wie er binnen 15 meter langs loopt verliest punten
   async function legVal() {
@@ -124,21 +131,28 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
     }
   }
 
-  return (
+  if (!klaar) return null;
+  return createPortal(
     <div style={{
-      position: "fixed", inset: 0, zIndex: 500,
+      position: "fixed", inset: 0, zIndex: 3000,
       background: "rgba(12,3,34,0.78)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
     }}>
-      <div className="pr-panel" style={{ maxWidth: 340, width: "100%" }}>
+      <div className="pr-panel" style={{ maxWidth: 340, width: "100%", position: "relative" }}>
         <div className="pr-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center", paddingTop: 22 }}>
+          {/* ⓘ Uitleg van het item */}
+          {langeUitleg && fase !== "bevestigd" && (
+            <button type="button" className={`item-info-knop${uitlegOpen ? " aan" : ""}`} onClick={() => setUitlegOpen((o) => !o)}
+              aria-expanded={uitlegOpen} aria-label="Uitleg van dit item" title="Uitleg">i</button>
+          )}
           {/* Het item zelf, groot */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`/items/${item.type}.webp`} alt="" style={{ width: 96, height: 96, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.55))" }} />
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.45rem", color: info.kleur, lineHeight: 1.1 }}>{info.label}</div>
-          {beschrijving && fase !== "bevestigd" && (
+          {beschrijving && fase !== "bevestigd" && !uitlegOpen && (
             <p style={{ margin: 0, fontSize: "0.86rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.4 }}>{beschrijving}</p>
           )}
+          {uitlegOpen && fase !== "bevestigd" && <p className="item-uitleg">{langeUitleg}</p>}
 
           {/* Zonder doel: meteen gebruiken of bewaren */}
           {fase === "bevestig" && (
@@ -189,6 +203,7 @@ export default function SpeciaalItemPopup({ item, plek, waarden, andereSessies, 
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

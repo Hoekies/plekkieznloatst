@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Route, RoutePunt, SpeciaalItem, SpeciaalItemType } from "@/types/database";
@@ -41,6 +41,7 @@ import type { PuzzelKoppeling } from "@/components/admin/editor/PuzzelLetterKeuz
 import HusselInstelling from "@/components/admin/editor/HusselInstelling";
 import SchuifTekst from "@/components/admin/SchuifTekst";
 import EditorRondleiding from "@/components/admin/EditorRondleiding";
+import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -57,6 +58,9 @@ type RouteMetPunten = Route & {
     answer_options?: { punten: number | null; text?: string | null; is_correct?: boolean }[];
   }[] })[];
 };
+
+// Alle soorten die je op de kaart kunt zetten (verspreid); bij Op volgorde alleen plek zooi
+const ITEM_SOORTEN: SpeciaalItemType[] = ["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "schaduw", "plekzooi"];
 
 const TEAM_KLEUREN = ["#ff3b5c", "#22c55e", "#ffd93b", "#8b5cf6", "#ff8a00", "#ec4899", "#14b8a6", "#00d9ff"];
 
@@ -120,7 +124,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   ));
   const [geselecteerd, setGeselecteerd] = useState<RoutePunt | null>(null);
   const [addModus, setAddModus] = useState(false);
-  const [addSpeciaalModus, setAddSpeciaalModus] = useState(false);
   // Snel plaatsen: gekozen itemsoort; elke klik op de kaart zet er één neer (Esc of nogmaals klikken = stoppen)
   const [plaatsType, setPlaatsType] = useState<SpeciaalItemType | null>(null);
   useSluitMetEsc(() => setPlaatsType(null), !!plaatsType);
@@ -294,10 +297,10 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
   // Sluit het mobiele overlay-paneel zodra de kaart iets te doen krijgt
   useEffect(() => {
-    if (geselecteerd || geselecteerdSpeciaal || addModus || addSpeciaalModus || centrumModus || plaatsType) {
+    if (geselecteerd || geselecteerdSpeciaal || addModus || centrumModus || plaatsType) {
       setMobielPaneelOpen(false);
     }
-  }, [geselecteerd, geselecteerdSpeciaal, addModus, addSpeciaalModus, centrumModus, plaatsType]);
+  }, [geselecteerd, geselecteerdSpeciaal, addModus, centrumModus, plaatsType]);
 
   useEffect(() => {
     api(`/api/admin/routes/${route.id}/speciaal`).then((r) => r.ok ? r.json() : []).then((items: SpeciaalItem[]) => {
@@ -518,7 +521,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
     ? teamSchattingen.reduce((som, s) => som + s.totaalMin, 0) / teamSchattingen.length : 0;
 
   // Check: zijn er genoeg items voor de lengte en speeltijd? En waar zouden extra items goed liggen?
-  const [toonVoorstellen, setToonVoorstellen] = useState(true);
   // Zelf gekozen aantal voorgestelde items (null = het advies van de app)
   const [itemDoel, setItemDoel] = useState<number | null>(null);
   const itemCheck = useMemo(() => {
@@ -772,7 +774,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   useEffect(() => {
     if (!stappenOpen || route.modus !== "verspreid") return;
     if (stappenStap === 3 && !lagen.cirkel) wisselLaag("cirkel");
-    if (stappenStap === 4) { setToonVoorstellen(true); if (!lagen.voorstellen) wisselLaag("voorstellen"); }
+    if (stappenStap === 4 && !lagen.voorstellen) wisselLaag("voorstellen");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stappenOpen, stappenStap]);
 
@@ -940,7 +942,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       onthoud({ soort: "item-erbij", id: nieuw.id });
       setSpecialeItems((p) => [...p, nieuw]);
       if (openPaneel) setGeselecteerdSpeciaal(nieuw);
-      setAddSpeciaalModus(false);
     }
     return res.ok;
   }
@@ -1007,7 +1008,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
       return;
     }
     if (plaatsType) return voegSpeciaalItemToeOp(lat, lng, plaatsType, false);
-    if (addSpeciaalModus) return voegSpeciaalItemToeOp(lat, lng);
     if (addModus) return voegPuntToeOp(lat, lng);
     // Staat er een bewerkpaneel open, dan sluit een tik ernaast dat paneel
     if (geselecteerd || geselecteerdSpeciaal) { setGeselecteerd(null); setGeselecteerdSpeciaal(null); return; }
@@ -1019,13 +1019,13 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   // Rechtsklik of lang drukken op de kaart: altijd het keuzemenu (punt, item, verboden gebied), ook midden in een modus
   function kaartRechtsKlik(lat: number, lng: number) {
     if (tekenGebied || proef || kiesInstapVoor !== null) return;
-    setPlaatsType(null); setAddModus(false); setAddSpeciaalModus(false); setCentrumModus(false);
+    setPlaatsType(null); setAddModus(false); setCentrumModus(false);
     setMobielTikPositie({ lat, lng });
   }
   // Hoofdknop kiezen: lopende plaats-modi stoppen en de zijbalk openen
   function kiesTab(t: typeof actieveTab) {
     setActieveTab(t);
-    if (t !== "items") { setAddSpeciaalModus(false); setPlaatsType(null); }
+    if (t !== "items") setPlaatsType(null);
     if (t !== "punten") setAddModus(false);
     if (t !== "teams") setKiesInstapVoor(null);
     if (lijstDicht) wisselLijst();
@@ -1510,37 +1510,24 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
               onClick={opslag === "fout" ? () => toonMelding(opslagFout, "fout") : undefined}>
               {opslag === "bezig" ? "⏳ Opslaan…" : opslag === "fout" ? "⚠️ Niet opgeslagen ⓘ" : "✓ Opgeslagen"}
             </span>
-            <button type="button" className="rl-knop"
-              disabled={!stappen.length || bezigMetHerstel} onClick={maakOngedaan}
+            {stappen.length > 0 && <button type="button" className="rl-knop"
+              disabled={bezigMetHerstel} onClick={maakOngedaan}
               title={stappen.length ? `Ongedaan maken: ${stapLabel(stappen[stappen.length - 1])} (Ctrl+Z)` : "Niets om ongedaan te maken"}>
-              <Icoon naam="terug" /><span className="alleen-pc"> Ongedaan</span>{stappen.length ? <span className="editor-teller">{stappen.length}</span> : null}
-            </button>
-            {/* Instellingen: goud, als laatste in dezelfde rij */}
-            <button className="rl-knop rl-knop--goud alleen-pc-knop"
-              onClick={() => setInstellingenOpen(true)} title="Route-instellingen: punten, items, tijden, tussenstand…">
+              <Icoon naam="terug" /><span className="alleen-pc"> Ongedaan</span><span className="editor-teller">{stappen.length}</span>
+            </button>}
+            {/* ⚙️ Instellingen: alleen voor wat zelden verandert, dus een gewone knop */}
+            <button className="rl-knop alleen-pc-knop"
+              onClick={() => setInstellingenOpen(true)} title="Instellingen die zelden veranderen: afstellen van punten, verboden gebieden, uiterlijk">
               <Icoon naam="instellingen" /><span className="alleen-pc"> Instellingen</span>
             </button>
     </>
   );
 
-  // Waar staat de route: ✏️ Bewerken → 🩺 Controleren → ▶ Actief (database: concept / gepubliceerd / is_active).
-  // "Klaar" (gepubliceerd, niet actief) telt als gecontroleerd. Daarnaast één opvallende knop: ▶ Starten.
-  const fase = route.is_active ? 2 : route.status === "gepubliceerd" ? 1 : 0;
+  // Status (Concept, Klaar, Actief) als label en één opvallende knop voor de volgende stap
   const statusGroep = (
     <>
-            {/* Computer: de stappen; telefoon: alleen het statuslabel */}
-            <span className="route-stappen" aria-label="Voortgang van de route">
-              {(["Bewerken", "Controleren", "Actief"] as const).map((naam, i) => {
-                const cls = `route-stap${i < fase ? " route-stap--gedaan" : i === fase ? " route-stap--nu" : ""}`;
-                return (
-                  <Fragment key={naam}>
-                    {i > 0 && <span className="route-stap-pijl" aria-hidden>›</span>}
-                    <span className={cls}>{i < fase ? "✓ " : ""}{naam}</span>
-                  </Fragment>
-                );
-              })}
-            </span>
-            <span className="route-status-mobiel"><StatusPil status={route.status} isActief={route.is_active} /></span>
+            {/* Status als label (Concept, Klaar, Actief); de volgende stap is de knop ernaast, de weg ernaartoe staat bij 💡 Wat nu? */}
+            <StatusPil status={route.status} isActief={route.is_active} />
             <span className="editor-chip editor-modus-chip" style={{ background: MODUS_INFO[route.modus].tint, borderColor: `${MODUS_INFO[route.modus].kleur}55`, color: MODUS_INFO[route.modus].kleur }} title={MODUS_INFO[route.modus].label}>
               <ModusIcoon modus={route.modus} size={14} />
               <span className="alleen-pc editor-modus-naam">{MODUS_INFO[route.modus].label}</span>
@@ -1704,7 +1691,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           </div>
 
           {/* Verspreid-instellingen / afstand */}
-          {actieveTab === "punten" && (route.modus === "verspreid" || punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
+          {actieveTab === "punten" && (route.modus === "verspreid" ? (rondjeOpen || punten.length === 0) : punten.length >= 2) && <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
             {route.modus === "verspreid" && (() => {
               const totaalM = punten.length >= 2 ? wegen.totaal(puntPlekken) : 0;
               const stapM = doelAfstandKm > 0 && punten.length > 0 ? doelAfstandKm * 1000 / punten.length : null;
@@ -1712,17 +1699,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
               return (
                 <>
-                  {/* Staan er punten, dan kan dit blok dicht: één regel als samenvatting */}
-                  {punten.length > 0 && (
-                    <button type="button" onClick={() => setRondjeOpen((v) => !v)}
-                      style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "2px 0", background: "none", border: "none", cursor: "pointer", color: "var(--ink)", fontSize: "0.74rem", fontWeight: 700, textAlign: "left" }}>
-                      <UitklapPijl open={rondjeOpen} />
-                      <Icoon naam="rondje" /> Rondje
-                      <span style={{ color: "var(--muted)", fontWeight: 400, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {verwachtTeams} teams · {doelAfstandKm} km · {punten.length} punten
-                      </span>
-                    </button>
-                  )}
                   {(rondjeOpen || punten.length === 0) && (
                     <>
                   {/* Doelafstand + Aantal punten op één regel */}
@@ -1814,14 +1790,26 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           {/* Tab-inhoud */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
 
-            {/* Meerdere punten tegelijk */}
-            {actieveTab === "punten" && punten.length > 1 && (
-              <div className={`meerdere${kiesModus ? " meerdere--aan" : ""}`}>
-                {!kiesModus ? (
-                  <button type="button" className="meerdere-open" onClick={() => { setKiesModus(true); setGekozenIds(new Set()); setGeselecteerd(null); }}>
+            {/* ⭕ Rondje (teams, afstand, punten maken) en ☑️ meerdere punten tegelijk: twee knoppen boven de lijst */}
+            {actieveTab === "punten" && punten.length > 0 && !kiesModus && (
+              <div className="zp-knoppenrij">
+                {route.modus === "verspreid" && (
+                  <button type="button" className={`rl-knop${rondjeOpen ? " rl-knop--cyan" : ""}`} onClick={() => setRondjeOpen((v) => !v)} aria-expanded={rondjeOpen}
+                    title={`Rondje: ${verwachtTeams} teams · ${doelAfstandKm} km · ${punten.length} punten`}>
+                    <Icoon naam="rondje" /> Rondje <span className="zp-knop-klein">{doelAfstandKm} km</span>
+                  </button>
+                )}
+                {punten.length > 1 && (
+                  <button type="button" className="rl-knop" onClick={() => { setKiesModus(true); setGekozenIds(new Set()); setGeselecteerd(null); }}>
                     <Icoon naam="meerdere" /> Meerdere tegelijk
                   </button>
-                ) : (<>
+                )}
+              </div>
+            )}
+            {/* Meerdere punten tegelijk */}
+            {actieveTab === "punten" && punten.length > 1 && kiesModus && (
+              <div className={`meerdere${kiesModus ? " meerdere--aan" : ""}`}>
+                {!kiesModus ? null : (<>
                   {/* Kop: hoeveel gekozen, en klaar */}
                   <div className="meerdere-kop">
                     <span>☑️ <strong>{gekozenIds.size}</strong> gekozen</span>
@@ -1943,23 +1931,19 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 </BevestigKnop>
               </div>
             )}
-            {/* Snel plaatsen: item aanklikken, daarna op de kaart klikken (zo vaak als je wilt) */}
+            {/* Items plaatsen: soort aantikken, daarna op de kaart klikken (zo vaak als je wilt). Dit is de enige
+                plek om een bepaalde soort neer te zetten; het kaartmenu en ✨ Items verdelen doen hetzelfde */}
             {actieveTab === "items" && (
-              <div style={{ margin: "0 10px 8px", display: "flex", flexWrap: "wrap", gap: 4 }}>
-                {(route.modus === "sequentieel" ? ["plekzooi"] : ["ster", "verdubbeling", "radar", "bom", "spook", "dief", "banaan", "wissel", "vraagteken", "schaduw", "plekzooi"] as SpeciaalItemType[]).map((t) => {
+              <div className="zp-items-raster">
+                {(route.modus === "sequentieel" ? ["plekzooi"] : ITEM_SOORTEN).map((t) => {
                   const actief = plaatsType === t;
                   return (
                     <button key={t} type="button" onClick={() => { setPlaatsType(actief ? null : t as SpeciaalItemType); setGeselecteerdSpeciaal(null); setGeselecteerd(null); }}
-                      title={`${ITEM_UITLEG[t] ?? t}\nKlik en zet hem daarna op de kaart.`}
-                      style={{
-                        width: 34, height: 34, borderRadius: 8, padding: 0, cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        border: `1px solid ${actief ? "var(--cyan)" : "rgba(255,255,255,0.12)"}`,
-                        background: actief ? "rgba(0,217,255,0.2)" : "rgba(255,255,255,0.04)",
-                        boxShadow: actief ? "0 0 0 2px rgba(0,217,255,0.35)" : "none",
-                      }}>
+                      title={`${ITEM_UITLEG[t] ?? t}\nKlik en zet hem daarna op de kaart (zo vaak als je wilt).`}
+                      className={`zp-item-knop${actief ? " aan" : ""}`} aria-pressed={actief}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/items/${t}.webp`} alt={t} style={{ width: 24, height: 24 }} />
+                      <img src={`/items/${t}.webp`} alt="" />
+                      <span>{itemNaam(t)}</span>
                     </button>
                   );
                 })}
@@ -2458,10 +2442,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                 onClick={() => { voegPuntToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
                 <Icoon naam="punt" /> Punt
               </button>
-              <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
-                onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng); setMobielTikPositie(null); }}>
-                {route.modus === "sequentieel" ? <><Icoon naam="verboden" />{" Plek zooi"}</> : <><Icoon naam="items" />{" Item"}</>}
-              </button>
+              {route.modus === "sequentieel" ? (
+                <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
+                  onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng, "plekzooi"); setMobielTikPositie(null); }}>
+                  <Icoon naam="verboden" /> Plek zooi
+                </button>
+              ) : (
+                <>
+                  <span className="tik-kiezer-kop"><Icoon naam="items" /> Item hier:</span>
+                  <div className="tik-kiezer-items">
+                    {ITEM_SOORTEN.map((t) => (
+                      <button key={t} type="button" title={ITEM_UITLEG[t] ?? t}
+                        onClick={() => { voegSpeciaalItemToeOp(mobielTikPositie.lat, mobielTikPositie.lng, t); setMobielTikPositie(null); }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`/items/${t}.webp`} alt="" /><span>{itemNaam(t)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
               <button className="btn btn-ghost" style={{ width: "100%", fontSize: "0.82rem" }}
                 onClick={() => { setTekenGebied([[mobielTikPositie.lat, mobielTikPositie.lng]]); setProef(null); setGeselecteerd(null); setMobielTikPositie(null); }}>
                 <Icoon naam="verboden" /> Verboden gebied hier
@@ -2867,7 +2866,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           }
           punten={punten}
           zonderVraag={zonderVraag}
-          addModus={addModus || addSpeciaalModus || centrumModus || !!plaatsType}
+          addModus={addModus || centrumModus || !!plaatsType}
           geselecteerdId={geselecteerd?.id ?? null}
           specialeItems={lagen.items ? specialeItems : []}
           guideCirkel={
@@ -2877,6 +2876,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           }
           hubModus={route.modus === "verspreid" && punten.length >= 3}
           teamRoutes={lagen.routes || actieveTab === "teams" ? teamRoutesKaart : []}
+          teamVlaggen={actieveTab === "teams"}
           onTeamKlik={(team) => { setActieveTab("teams"); setUitgelichtTeam(team); setMobielPaneelOpen(true); }}
           onRechtsKlik={kaartRechtsKlik}
           hoofdStukken={hoofdStukken}
@@ -2904,7 +2904,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
           loper={proef?.pos ?? null} loperSpoor={proef?.spoor ?? []}
           verbodenGebieden={gebieden} tekenGebied={tekenGebied}
           pasIn={pasIn}
-          itemVoorstellen={toonVoorstellen && lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
+          itemVoorstellen={lagen.voorstellen && itemCheck ? itemCheck.voorstellen : []}
           uitgelichtTeam={uitgelichtTeam}
           onItemVoorstelKlik={(v) => voegSpeciaalItemToeOp(v.lat, v.lng, v.type)}
         />
@@ -2939,7 +2939,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
 
 
         {/* Afstand en tijd per team: klein, inklapbaar paneel op de kaart */}
-        {route.modus === "verspreid" && (teamSchattingen.length > 0 || specialeItems.length > 0 || itemCheck) && (
+        {route.modus === "verspreid" && teamSchattingen.length > 0 && (
           <div className="route-editor-tijden">
             <button className="route-editor-tijden-kop" onClick={() => setTijdenOpen((v) => !v)} aria-expanded={tijdenOpen}>
               <UitklapPijl open={tijdenOpen} /> <Icoon naam="tijd" /> Afstand, tijd &amp; punten per team
@@ -2964,35 +2964,6 @@ Punten: vragen ≈ ${s.punten.vragen} (max ${s.punten.maxVragen}, bij ~70% goed)
                 {teamSchattingen.length > 0 && (
                   <div className="route-editor-tijden-voet">4,5 km/u · 2 min/vraag · 70% goed · items meegerekend</div>
                 )}
-                {/* Voorgestelde plekken voor extra items (gouden ➕) tonen of verbergen */}
-                {itemCheck && itemCheck.voorstellen.length > 0 && (
-                  <button onClick={plaatsAlleVoorstellen} disabled={autoItemsBezig}
-                    style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "#A5F3FC", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
-                    {autoItemsBezig ? <><Icoon naam="laden" />{" Items plaatsen…"}</> : <><Icoon naam="nieuw" />{` Alle ${itemCheck.voorstellen.length} voorstellen als item plaatsen`}</>}
-                  </button>
-                )}
-                {itemCheck && itemCheck.voorstellen.length > 0 && (
-                  <button onClick={() => setToonVoorstellen((v) => !v)}
-                    style={{ display: "block", marginTop: 4, background: "none", border: "none", padding: 0, color: "var(--muted)", fontSize: "0.66rem", cursor: "pointer", textDecoration: "underline" }}>
-                    {toonVoorstellen ? <><Icoon naam="plus" />{" Voorstellen verbergen"}</> : <><Icoon naam="plus" />{" Voorstellen tonen"}</>}
-                  </button>
-                )}
-                {/* Geplaatste items per soort (bewust klein en ingetogen) */}
-                {specialeItems.length > 0 && (() => {
-                  const perType = new Map<string, number>();
-                  specialeItems.forEach((i) => perType.set(i.type, (perType.get(i.type) ?? 0) + 1));
-                  return (
-                    <div className="route-editor-tijden-items" title="Geplaatste items op de kaart">
-                      {[...perType].sort((a, b) => b[1] - a[1]).map(([type, n]) => (
-                        <span key={type} style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={`/items/${type}.webp`} alt={type} style={{ width: 16, height: 16, opacity: 0.85 }} />
-                          {n}
-                        </span>
-                      ))}
-                    </div>
-                  );
-                })()}
               </>
             )}
           </div>

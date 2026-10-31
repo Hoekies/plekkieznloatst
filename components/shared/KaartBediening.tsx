@@ -8,9 +8,10 @@ import { Map as KaartIcoon } from "lucide-react";
 const SLEUTEL = "pr_kaartpaneel_ingeklapt";
 
 export default function KaartBediening({ children, extraKlasse = "" }: { children: React.ReactNode; extraKlasse?: string }) {
-  const [ingeklapt, setIngeklapt] = useState(false);
+  // Standaard ingeklapt (rustige kaart); open als je hem zelf openzette
+  const [ingeklapt, setIngeklapt] = useState(true);
   useEffect(() => {
-    try { setIngeklapt(localStorage.getItem(SLEUTEL) === "1"); } catch { /* geen opslag */ }
+    try { setIngeklapt(localStorage.getItem(SLEUTEL) !== "0"); } catch { /* geen opslag */ }
   }, []);
   function wissel(nieuw: boolean) {
     setIngeklapt(nieuw);

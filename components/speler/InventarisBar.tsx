@@ -34,7 +34,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
   // Veel soorten (tot 9): de knoppen worden kleiner zodat ze altijd allemaal op het scherm passen
   // (vroeger liepen ze links en rechts buiten beeld en waren die niet meer aan te tikken)
   const gat = slots.length > 5 ? 6 : 10;
-  const maat = `min(54px, calc((100vw - 24px - ${(slots.length - 1) * gat}px) / ${slots.length}))`;
+  const maat = `min(48px, calc((100vw - 24px - ${(slots.length - 1) * gat}px) / ${slots.length}))`;
 
   // Smalle balk onderaan in de achtergrondkleur van de app (--bg): in Safari loopt hij naadloos over in de
   // onderbalk van de browser, die iOS in dezelfde kleur kleurt. De knoppen staan half op de balk, half
@@ -46,7 +46,8 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
       left: 0,
       right: 0,
       zIndex: 800,
-      height: "calc(27px + env(safe-area-inset-bottom, 0px))",
+      // Dun: alleen een strookje onder de knoppen (de knoppen staan voor driekwart op de kaart)
+      height: "calc(12px + max(6px, env(safe-area-inset-bottom, 0px)))",
       background: "var(--bg)",
     }}>
       <div style={{
@@ -54,7 +55,7 @@ export default function InventarisBar({ inventaris, onGebruik }: Props) {
         top: 0,
         left: 12,
         right: 12,
-        transform: "translateY(-50%)",
+        transform: "translateY(-75%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

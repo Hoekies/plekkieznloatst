@@ -57,6 +57,8 @@ In een stille omgeving (kerk, museum) zet je het geluid uit onder de oranje **i*
 Staat het duel aan en kom je vlak bij een ander team (binnen 25 meter), dan krijgen jullie allebei dezelfde snelle vraag. Wie het eerst goed antwoordt, pakt punten van de ander. Je hebt één poging en een minuut.
 
 **😤 Iets terugsturen**
+Je items staan onderin in een balk. Tik op een item om het te gebruiken; met de **i** rechtsboven in dat venster lees je wat het item precies doet. Met *Later* bewaar je het.
+
 Gooit een ander team een item op jullie, dan kun je in de melding met één tik een emoji terugsturen (😤 🤣 👀 🙈 💪). Dat kost niets en levert niets op; het is gewoon leuk.
 
 **🎉 Extra's** (als de organisatie ze aanzet)

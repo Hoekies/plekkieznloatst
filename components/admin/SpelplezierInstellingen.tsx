@@ -84,12 +84,8 @@ export default function SpelplezierInstellingen({ waarden, onZet, onInstellingen
             </div>
             <div className="plezier-knoppen">
               {!o.zonderInst && <button type="button" className="rl-knop plezier-tandwiel" onClick={() => setOpen(o.sleutel)} title={`Instellingen ${o.naam}`} aria-label={`Instellingen ${o.naam}`}>⚙️</button>}
-              <div className="segment" role="radiogroup" aria-label={`${o.naam} aan of uit`}>
-                {([[false, "Uit"], [true, "Aan"]] as const).map(([aan, tekst]) => (
-                  <button key={tekst} type="button" role="radio" aria-checked={isAan === aan} className={isAan === aan ? "aan" : ""}
-                    onClick={() => zetAan(aan)}>{tekst}</button>
-                ))}
-              </div>
+              <button type="button" className={`rl-knop schakel${isAan ? " schakel--aan" : ""}`} role="switch" aria-checked={isAan}
+                aria-label={`${o.naam} aan of uit`} onClick={() => zetAan(!isAan)}>{isAan ? "Aan" : "Uit"}<span className="schakel-bol" aria-hidden /></button>
             </div>
           </div>
           );

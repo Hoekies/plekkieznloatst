@@ -16,8 +16,10 @@ import Icoon from "@/components/admin/Icoon";
 // 🧹 Opruimen: (1) nieuw spel voorbereiden, (2) eventueel een volgende groep met nieuwe wachtwoorden.
 // Elke stap heeft één knop; een gedane stap krijgt een vinkje. Een stap overslaan mag (bijv. alleen opruimen
 // na een testspel). Opruimen is de enige plek om alles op te ruimen.
-export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
-  spelend: SpelerOverzicht[]; uitslagVrij: boolean; onGewijzigd: () => void;
+// opruimen: de knop 🧹 Opruimen tonen (op het dashboard pas als iedereen binnen is, zodat hij tijdens het spel
+// niet naast Afronden staat en per ongeluk wordt aangetikt)
+export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd, opruimen = true }: {
+  spelend: SpelerOverzicht[]; uitslagVrij: boolean; onGewijzigd: () => void; opruimen?: boolean;
 }) {
   const [open, setOpen] = useState<"afronden" | "opruimen" | null>(null);
   const [rapportOpen, setRapportOpen] = useState(false);
@@ -65,9 +67,11 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd }: {
       <button type="button" className="rl-knop rl-knop--cyan actie-knop spelleider-afrond" onClick={() => setOpen("afronden")}>
         <Icoon naam="vlag" /> Afronden
       </button>
-      <button type="button" className="rl-knop actie-knop spelleider-afrond" onClick={() => setOpen("opruimen")}>
-        <Icoon naam="wissen" /> Opruimen
-      </button>
+      {opruimen && (
+        <button type="button" className="rl-knop actie-knop spelleider-afrond" onClick={() => setOpen("opruimen")}>
+          <Icoon naam="wissen" /> Opruimen
+        </button>
+      )}
       {open === "afronden" && (
         <VensterMetKop icoon="🏁" label="Spel afronden" titel="In drie stappen klaar" onSluit={() => setOpen(null)} breedte={520} maxHoogte={92}>
           <div className="afrond-stappen">

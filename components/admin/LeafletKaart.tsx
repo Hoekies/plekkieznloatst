@@ -72,6 +72,8 @@ interface Props {
   // Uitgeklapt team: die route dik met looprichting-pijlen, de andere vaag
   uitgelichtTeam?: number | null;
   onItemVoorstelKlik?: (v: { lat: number; lng: number; type: string }) => void;
+  // Teamvlaggen met looprichting tonen (route-editor: alleen bij 👫 Teams)
+  teamVlaggen?: boolean;
   // Teamvlag aangetikt (startpunt van dat team)
   onTeamKlik?: (team: number) => void;
   // Rechtsklik of lang drukken op de kaart
@@ -84,7 +86,7 @@ export default function LeafletKaart({
   centrumPunt = null, finishPunt = null, ghostPunten = [], ghostRadiusM = 0,
   onCentrumVerplaatst, onKlik, onMarkerVerplaatst, onMarkerKlik,
   onSpeciaalItemVerplaatst, onSpeciaalItemKlik, geselecteerdSpeciaalId = null,
-  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null, onTeamKlik, onRechtsKlik,
+  vliegNaar = null, pasIn = null, loper = null, loperSpoor = [], verbodenGebieden = [], tekenGebied = null, itemVoorstellen = [], onItemVoorstelKlik, uitgelichtTeam = null, teamVlaggen = true, onTeamKlik, onRechtsKlik,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const kaartRef = useRef<import("leaflet").Map | null>(null);
@@ -336,6 +338,7 @@ export default function LeafletKaart({
         if (!instap) return;
         // Looprichting vanaf het startpunt: een pijl in de teamkleur op het eerste stuk (uitgelicht: pijlen op elk stuk)
         const eerste = stukLijnen[1];
+        if (!teamVlaggen) return;
         if (!uitgelicht && eerste && eerste.length >= 2) {
           const mid = Math.max(1, Math.floor(eerste.length / 2));
           const [aLat, aLng] = eerste[mid - 1], [bLat, bLng] = eerste[mid];
@@ -357,7 +360,8 @@ export default function LeafletKaart({
           className: "",
           html: `<div class="team-vlag" style="--team:${t.kleur}"><span>T${t.teamIndex}</span></div>`,
           iconSize: [34, 30],
-          iconAnchor: [4, 40],
+          // Paaltje net rechts naast het punt, zodat de vlag het nummer van het punt niet bedekt
+          iconAnchor: [-8, 46],
         });
         const marker = L.marker([instap.lat, instap.lng], { icon, interactive: !!onTeamKlikRef.current, zIndexOffset: 300, title: `Team ${t.teamIndex}: tik om startpunt of richting te wijzigen` })
           .addTo(kaartRef.current!);
@@ -365,7 +369,7 @@ export default function LeafletKaart({
         startMarkersRef.current.push(marker);
       });
     });
-  }, [teamRoutes, kaartKlaar, uitgelichtTeam]);
+  }, [teamRoutes, kaartKlaar, uitgelichtTeam, teamVlaggen]);
 
   // Aanbevolen-afstand cirkel bij geselecteerd punt
   useEffect(() => {

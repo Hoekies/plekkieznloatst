@@ -4556,3 +4556,42 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
   .route-editor-topbar .editor-balk .editor-groep { gap: 10px; }
   .route-editor-topbar .editor-balk .editor-groep .rl-knop { border-radius: 11px !important; border-left-width: 1px !important; padding: 0 16px; }
 }
+
+/* Item-venster (spelers): ⓘ rechtsboven met de volledige uitleg */
+.item-info-knop { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; padding: 0;
+  border: 1.5px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85);
+  font: italic 800 1rem Georgia, serif; display: flex; align-items: center; justify-content: center; }
+.item-info-knop.aan { border-color: #FFE680; background: rgba(255,217,59,0.18); color: #FFE680; }
+.item-uitleg { margin: 0; padding: 10px 12px; border-radius: 12px; background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.35);
+  font-size: 0.86rem; line-height: 1.45; color: #fff; text-align: left; }
+
+/* ── Overzichtelijker beheer (audit 31 okt) ── */
+/* Route-editor: Rondje en Meerdere tegelijk als knoppen boven de puntenlijst */
+.zp-knoppenrij { display: flex; gap: 6px; padding: 0 10px 8px; }
+.zp-knoppenrij .rl-knop { flex: 1 1 0; min-width: 0; height: 34px; justify-content: center; font-size: 0.76rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.zp-knop-klein { font-weight: 400; color: var(--muted); font-size: 0.7rem; }
+/* Items plaatsen: icoon met naam, raster van 4 */
+.zp-items-raster { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0 10px 10px; }
+.zp-item-knop { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px 5px; border-radius: 10px; cursor: pointer; font: inherit;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text); min-width: 0; }
+.zp-item-knop img { width: 30px; height: 30px; }
+.zp-item-knop span { font-size: 0.64rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zp-item-knop:hover { border-color: rgba(0,217,255,0.5); }
+.zp-item-knop.aan { border-color: var(--cyan); background: rgba(0,217,255,0.2); box-shadow: 0 0 0 2px rgba(0,217,255,0.35); color: #fff; }
+/* Kaartmenu: item-soort meteen kiezen */
+.tik-kiezer-kop { font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; }
+.tik-kiezer-items { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.tik-kiezer-items button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px 4px; border-radius: 9px; cursor: pointer; font: inherit;
+  border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text); min-width: 0; }
+.tik-kiezer-items button:hover { border-color: var(--cyan); background: rgba(0,217,255,0.15); }
+.tik-kiezer-items img { width: 26px; height: 26px; }
+.tik-kiezer-items span { font-size: 0.6rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Dashboard: korte statusregel van de spelleider, en › op de teamkaart */
+.spelleider-statusregel { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.92rem; line-height: 1.35; }
+.sk-kop { position: relative; }
+.sk-pijl { align-self: center; flex-shrink: 0; margin-left: 2px; font-size: 1.4rem; line-height: 1; color: var(--muted); }
+/* Pc: alle hoofdknoppen in het beheer even hoog (40px), zoals in de werkbalk van de editor */
+@media (min-width: 769px) {
+  .route-editor-topbar .editor-kop .rl-knop, .route-editor-topbar .editor-kop .editor-terug { height: 40px; padding: 0 16px; font-size: 0.86rem; border-radius: 11px; }
+  .spelleider-knoppen .rl-knop, .spelleider-knoppen > * { height: 40px; }
+}

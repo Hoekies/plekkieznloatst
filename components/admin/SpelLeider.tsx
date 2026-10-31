@@ -204,7 +204,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   }, [aandacht.length, vorigAantal]);
   const status = (
     <>
-      {start ? `Speelt sinds ${duurKort(Math.floor((nu - new Date(start).getTime()) / 60000))}` : "Spel loopt"} · {iedereenBinnen ? "🏁 iedereen is binnen" : `${onderweg} onderweg`}
+      ⏱️ {start ? duurKort(Math.floor((nu - new Date(start).getTime()) / 60000)) : "loopt"} · {iedereenBinnen ? "🏁 iedereen binnen" : <>{onderweg} onderweg{spelend.length - onderweg > 0 && ` · ${spelend.length - onderweg} binnen`}</>}
       {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
     </>
   );
@@ -237,7 +237,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
               <UitklapPijl open />
               🎯 Spelleider
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: "1rem" }}>
+            <div className="spelleider-statusregel">
               {status}
             </div>
           </div>
@@ -268,7 +268,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                 <span className="spelleider-groep-naam">🏁 Na het spel</span>
                 <div className="spelleider-knoppen">
                   {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
-                  <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} />
+                  <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} opruimen={iedereenBinnen || !!uitslagVrij} />
                 </div>
               </div>
             </div>
