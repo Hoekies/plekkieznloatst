@@ -254,7 +254,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 /* Desktop: de admin past in één scherm — alleen het werkgebied scrollt, nooit de hele pagina */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .admin-shell {
     height: 100vh;
     min-height: 0;
@@ -535,12 +535,15 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 /* Telefoon: invoervelden minstens 16px, anders zoomt de browser in bij het typen */
-@media (max-width: 768px) and (pointer: coarse) {
+@media (max-width: 768px) and (pointer: coarse), (max-height: 500px) and (pointer: coarse) {
   input, textarea, select { font-size: 16px !important; }
 }
 
-/* ── Admin responsive ── */
-@media (max-width: 768px) {
+/* ── Admin responsive ──
+   "Telefoon" = smaller dan 769 px, óf een liggende telefoon (lager dan 500 px op een aanraakscherm): die krijgt
+   dezelfde indeling als staand (☰-menu, dunne bovenbalk), anders kwam de pc-indeling op een scherm van 390 px hoog.
+   In de code dezelfde regel: TELEFOON_MQ in lib/scherm.ts. */
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-mobile-topbar {
     display: flex;
     align-items: center;
@@ -664,7 +667,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.66rem; color: var(--muted);
 }
 .route-editor-tijden-voet { margin-top: 4px; font-size: 0.64rem; color: var(--muted); line-height: 1.35; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-editor-tijden { right: 10px; top: 10px; width: 270px; }
 }
 /* Bewerkpaneel voor een punt of item: zwevend linksboven op de kaart, zelfde stijl als het
@@ -688,7 +691,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .editor-paneel-kop { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #fff; cursor: move; user-select: none; touch-action: none; }
 .editor-paneel-kop::after { content: "⠿"; order: -1; color: var(--muted); font-size: 0.9rem; margin-right: -2px; }
 .editor-paneel-inhoud button { user-select: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .editor-paneel-kop { cursor: default; }
   .editor-paneel-kop::after { content: none; }
   .route-editor-drawer { left: 0 !important; top: auto !important; }
@@ -718,7 +721,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-editor-zijpaneel {
     position: fixed;
     top: 0; left: 0; bottom: 0;
@@ -1374,7 +1377,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   border-radius: 10px; padding: 8px 12px;
 }
 .pc-tip--alleen-mobiel { display: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .pc-tip--alleen-mobiel { display: block; }
 }
 
@@ -1404,13 +1407,13 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Uitloggen rechtsboven in het beheerscherm; de bovenbalken houden er ruimte voor vrij */
 .admin-uitlog-hoek { position: fixed; top: 0; right: 28px; height: 84px; display: flex; align-items: center; z-index: 900; }
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   /* Vaste hoogte, zodat Uitloggen rechtsboven precies op één lijn staat met de rest */
   .admin-topbar { min-height: 84px; box-sizing: border-box; padding-right: 360px; }
   /* De bovenbalk blijft staan bij het scrollen: de inhoud schuift eronderdoor, niet onder de knoppen rechtsboven */
   .admin-topbar { position: sticky; top: 0; z-index: 800; flex-shrink: 0; background: rgba(var(--o3),0.94); }
 }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-uitlog-hoek { display: none; }
 }
 .route-editor-topbar { padding: 10px 16px; }
@@ -1489,7 +1492,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* ── Telefoon (iPhone e.d.): alles binnen het scherm houden ──
    Staat bewust onderaan, zodat het voorgaat op de grotere knoppen voor de pc. */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Knoppen in de bovenbalk en de ⓘ kleiner */
   .header-knop { height: 42px; padding: 0 12px 0 8px; font-size: 0.8rem; gap: 6px; }
   .header-knop-icoon { width: 26px; font-size: 1.3rem; }
@@ -1523,8 +1526,8 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .alleen-mobiel { display: none; }
 /* Blok (div/span met inhoud) alleen op de pc */
 .alleen-pc-blok { display: inline-flex; }
-@media (max-width: 768px) { .alleen-pc-blok { display: none; } }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .alleen-pc-blok { display: none; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .alleen-pc { display: none; }
   .alleen-mobiel { display: inline; }
 
@@ -1585,7 +1588,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .nieuwe-speler .form-input { height: 40px; box-sizing: border-box; }
 .nieuwe-speler .form-label { margin-bottom: 4px; }
 .pr-gem-avatar.nieuwe-speler-icoon { width: 60px; height: 60px; font-size: 2rem; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .pr-gem-avatar.nieuwe-speler-icoon { display: none; }
   .nieuwe-speler-knoppen { width: 100%; justify-content: flex-end; }
 }
@@ -1604,7 +1607,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .live-kaart-vak { padding: 0; }
 .live-kaart-rand { border-radius: 0; border: none; }
 .live-kaart-lijst { top: 12px; right: 12px; max-height: calc(100% - 24px); }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .live-kaart-vak { padding: 0; }
   .live-kaart-rand { border-radius: 0; border: none; }
   .live-kaart-lijst { top: 10px; right: 10px; max-height: calc(100% - 20px); min-width: 0 !important; max-width: 60vw; }
@@ -1612,7 +1615,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Telefoon: breed logo in de bovenbalk; het logo in het menu is dan overbodig */
 .admin-mobiel-logo { height: 46px; width: auto; display: block; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-sidebar .admin-sidebar-logo { display: none; }
 }
 
@@ -1633,7 +1636,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .admin-menu-route--geen .admin-menu-route-kop { color: var(--muted); }
 .admin-menu-route--geen .admin-menu-route-stip { background: var(--muted); animation: none; }
 .admin-menu-route--geen .admin-menu-route-naam { color: #FFE680; font-size: 0.85rem; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Telefoon: grotere menu-items, makkelijk met de duim */
   /* Alles past in de schermhoogte (geen scrollen): 11 knoppen delen de ruimte, tussen 34 en 52 px */
   .admin-nav { gap: clamp(4px, 0.9dvh, 8px); padding: clamp(4px, 0.8dvh, 8px) 10px; }
@@ -1648,7 +1651,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* WhatsApp in het menu: groen zoals de WhatsApp-knop */
 /* Actieve route op de pc: past in de smalle zijbalk */
-@media (min-width: 769px) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: clamp(5px, 0.8vh, 9px) 10px; } .admin-menu-route-naam { font-size: clamp(0.8rem, 1.6vh, 0.95rem); } }
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) { .admin-menu-route { margin: clamp(4px, 0.8vh, 8px) 10px 0; padding: clamp(5px, 0.8vh, 9px) 10px; } .admin-menu-route-naam { font-size: clamp(0.8rem, 1.6vh, 0.95rem); } }
 
 /* ── Dashboard: spelleider, tijdlijn, stappenplan, spelerkleuren ── */
 /* Telefoon: compacte strook i.p.v. vier tegels */
@@ -1677,7 +1680,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .spelleider-kop { display: flex; align-items: center; gap: 10px 12px; flex-wrap: wrap; }
 .spelleider-status { flex: 1 1 240px; min-width: 0; }
 .spelleider-knoppen { display: flex; gap: 8px; flex-shrink: 0; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Twee knoppen per regel (Pauze · Eindtijd, Afronden · Opruimen); een losse laatste over de volle breedte */
   .spelleider-knoppen { flex: 1 1 100%; flex-wrap: wrap; }
   .spelleider-knoppen > * { flex: 1 1 40%; min-width: 0; justify-content: center; padding: 0 10px !important; white-space: nowrap; }
@@ -1714,7 +1717,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .pr-gem-card .rl-acties--vast .rl-stap { width: 140px; justify-content: center; }
 .pr-gem-card .rl-acties--vast .rl-bewerk { width: 120px; justify-content: center; }
 .rl-leeg { display: inline-block; box-sizing: border-box; visibility: hidden; pointer-events: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Telefoon: kaart start ingeklapt (kop met naam en status); open = twee nette rijen knoppen */
   .rl-kaart .rl-acties { display: none !important; }
   .rl-kaart--open .rl-acties { display: flex !important; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; }
@@ -1726,7 +1729,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .rl-tekstknoppen, .rl-icoonknoppen { display: contents; }
 .rl-titel { flex: 1; min-width: 160px; }
 /* Statuslabel heeft al een bolletje in de tekst: het extra bolletje van .rl-status weg */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-kop { display: flex; gap: 12px; width: 100%; padding: 0; background: none; border: none; text-align: left; cursor: pointer; color: inherit; }
   .rl-kop > :first-child { flex-shrink: 0; }
   .rl-pijl { display: inline-flex; flex-shrink: 0; }
@@ -1779,7 +1782,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .menu-status--uit { background: rgba(255,255,255,0.25); }
 
 /* Telefoon: dashboard nooit breder dan het scherm (vensters en spelerkaarten vielen eraf) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-main { overflow-x: clip; }
   .speler-kaart-klik .pr-gem-card-inner { gap: 8px; }
   .speler-kaart-klik .pr-gem-avatar { width: 40px; height: 40px; font-size: 1.4rem; }
@@ -1797,7 +1800,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .sk-rechts { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
 .sk-lijf { padding-left: 143px; min-width: 0; }
 .sk-lijf > .speler-knoppen { margin-top: 10px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .sk-kop { gap: 10px; }
   .sk-lijf { padding-left: 0; }
   .sk-rechts { gap: 4px; }
@@ -1809,7 +1812,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Route-editor op de telefoon: twee nette rijen (status · gereedschap), compacte knoppen */
 .editor-breuk { display: none; }
 .editor-tip-sluit { flex-shrink: 0; background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 0 2px; line-height: 1.2; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-editor-topbar .editor-balk { gap: 6px; }
   .route-editor-topbar .editor-balk-scheiding, .route-editor-topbar .editor-opslag { display: none; }
   .route-editor-topbar .editor-breuk { display: block; flex-basis: 100%; height: 0; }
@@ -1823,7 +1826,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .versie-regel strong { color: rgba(255,255,255,0.7); font-weight: 700; }
 .info-paneel .versie-regel { margin-top: 2px; font-size: 0.72rem; }
 /* Telefoon: kaartje actieve route schaalt mee, zodat het hele menu in beeld past */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-menu-route { padding: clamp(5px, 0.9dvh, 9px) 12px; margin-bottom: clamp(2px, 0.5dvh, 6px); }
   .admin-menu-route-naam { font-size: clamp(0.8rem, 2dvh, 0.95rem); }
   .admin-sidebar .versie-regel { margin-top: 2px; }
@@ -1832,14 +1835,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Routekaart: volgende stap (publiceren/activeren/deactiveren). Computer: in de knoppenrij; telefoon: naast de naam */
 .rl-kop-stap { display: none; }
 .rl-stap-plek { display: contents; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-kop-stap { flex-shrink: 0; }
   .rl-kop-stap .rl-knop { padding: 0 10px !important; font-size: 0.74rem !important; }
   .rl-stap-plek { display: none; }
 }
 
 /* Stappenplan op de telefoon: de knop (bv. Naar routes) onder de tekst, zodat de tekst de breedte houdt */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .klaar-tekst { flex-basis: calc(100% - 46px) !important; }
   .klaar-stap > .rl-knop, .klaar-stap > .klaar-acties { margin-left: 42px; }
   /* Eén rij die zijwaarts scrollt, binnen de stap; de namen heel (afgekort leken routes met hetzelfde begin gelijk) */
@@ -1855,13 +1858,13 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .klaar-routes-naam { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Telefoon: een lange routenaam mag de kaart niet breder maken (hij schuift binnen zijn eigen vak) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-kaart .pr-gem-card-inner > *, .rl-kop, .rl-titel { min-width: 0; max-width: 100%; }
   .rl-titel { overflow: hidden; }
 }
 
 /* Telefoon: routekaart-kop in twee regels — pijltje (links, zoals overal), icoon en naam; daaronder de stap-knop */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-kop { flex-wrap: wrap; }
   .rl-kop .rl-titel { flex: 1 1 0; min-width: 0; }
   .rl-kop .rl-pijl { order: -1; }
@@ -1872,7 +1875,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .rl-meta { display: block; }
 .rl-modus { display: block; font-size: 0.78rem; font-weight: 600; margin-top: 2px; }
 .rl-datum { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Strakker: kleinere tegel, minder ruimte, alles op een vaste lijn onder de naam */
   .rl-kaart .pr-gem-card-inner { padding: 10px 12px; }
   .rl-kop { column-gap: 10px; row-gap: 6px; align-items: flex-start; }
@@ -1898,7 +1901,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Route-editor: knoppen die alleen op de telefoon of alleen op de computer staan */
 .alleen-mobiel-knop { display: none !important; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .alleen-mobiel-knop { display: inline-flex !important; flex-shrink: 0; }
   .alleen-pc-knop { display: none !important; }
   /* Compacter: kleinere naam, iets minder ruimte tussen de rijen */
@@ -1940,7 +1943,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .testronde-vraag { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 0.86rem; }
 .testronde-optie { display: flex; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 7px; background: rgba(255,255,255,0.04); border-left: 4px solid; font-size: 0.82rem; color: #fff; }
 .testronde-item { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.07); }
-@media (max-width: 768px) { .testronde { left: 8px; right: 8px; bottom: 8px; width: auto; } .testronde .pr-gem-panel-inner { max-height: 48vh; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .testronde { left: 8px; right: 8px; bottom: 8px; width: auto; } .testronde .pr-gem-panel-inner { max-height: 48vh; } }
 
 /* Stappenplan: waarschuwing als het aantal spelers niet past bij de verspreide route */
 .klaar-waarschuwing { flex-basis: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; color: #FDE68A;
@@ -2012,7 +2015,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   background: rgba(255,217,59,0.1); border: 1px solid rgba(255,217,59,0.4); }
 
 /* Spelerkaart dashboard: icoonknop (📢) blijft smal op de telefoon */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .sk-lijf > .speler-knoppen > .sk-icoonknop { flex: 0 0 44px; padding: 0 !important; justify-content: center; }
 }
 
@@ -2023,7 +2026,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .replay-schuif { width: 100%; accent-color: #00d9ff; }
 .replay-snelheid { display: flex; gap: 4px; flex-shrink: 0; }
 .replay-snelheid .rl-knop { height: 32px; padding: 0 8px; font-size: 0.74rem; }
-@media (max-width: 768px) { .replay-snelheid { width: 100%; } .replay-snelheid .rl-knop { flex: 1; justify-content: center; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .replay-snelheid { width: 100%; } .replay-snelheid .rl-knop { flex: 1; justify-content: center; } }
 
 /* Spelleider: melding dat het spel gepauzeerd is */
 .spelleider-pauze { border-left-color: #FBBF24 !important; color: #FDE68A; background: rgba(251,191,36,0.12); }
@@ -2065,14 +2068,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 
 /* Spelers- en helperkaart: icoonknoppen (📞 🔑 🗑️) en de schakelaar */
 .gb-iconen { display: flex; align-items: center; gap: 10px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Telefoon: de naam krijgt de breedte; schakelaar rechts ernaast, icoonknoppen op een eigen regel */
   .gb-kaart .gb-rechts { display: contents; }
   .gb-kaart .gb-schakelaar { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
   .gb-kaart .gb-iconen { grid-column: 1 / -1; grid-row: 3; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Minder lege ruimte op de telefoon (Spelers, Antwoorden) */
   .helpers-blok { margin-top: 20px !important; gap: 10px !important; }
 }
@@ -2108,7 +2111,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .rl-stap.rl-knop--rood { font-weight: 800; }
 .rl-bewerk { background: transparent !important; border: 1px solid rgba(255,255,255,0.28) !important; font-weight: 700; }
 .rl-bewerk:hover { background: rgba(255,255,255,0.08) !important; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Ingeklapt: de stap-knop onder de naam, over de volle breedte (zelfde lijn als de rest) */
   .rl-kop .rl-kop-stap { padding-left: 0 !important; }
   /* Open: de stap-knop en Bewerken naast elkaar op één regel, de stap breder */
@@ -2160,7 +2163,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
   font: inherit; font-size: 0.74rem; font-weight: 700; white-space: nowrap; }
 
 /* Menu inklappen (computer): smalle balk met alleen icoontjes, meer ruimte voor kaart en editor */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .admin-sidebar { transition: width 0.18s ease; }
   .menu-smal .admin-menu-route, .menu-smal .admin-menu-kop, .menu-smal .versie-regel, .menu-smal .menu-status { display: none !important; }
   .menu-smal .admin-nav, .menu-smal .admin-menu-blok { padding-left: 8px; padding-right: 8px; }
@@ -2170,7 +2173,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 }
 
 /* Route-editor (computer): puntenlijst ingeklapt, de kaart krijgt de ruimte */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-zijpaneel { transition: width 0.18s ease; }
   .route-editor-zijpaneel--dicht { width: 0 !important; border-right: none !important; }
 }
@@ -2178,7 +2181,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Route-editor bovenbalk (computer): rij 1 = routekop met status, rij 2 = werkbalk over de volle breedte */
 .editor-status-kop { display: none; }
 .editor-status-groep { display: contents; }
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-topbar { padding: 8px 16px !important; gap: 6px !important; }
   .editor-status-kop { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .editor-status-groep { display: none; }
@@ -2188,7 +2191,7 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Routekop: naam, direct daarachter de status; rechts (vóór de ruimte voor 📢 en uitloggen) opslaan/ongedaan/instellingen */
 .editor-naam { flex: 1 1 auto; }
 .editor-kop-ruimte { display: none; }
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .editor-naam { flex: 0 1 auto; }
   .editor-kop-ruimte { display: block; flex: 1; }
   .route-editor-topbar .editor-kop { padding-right: 300px; }
@@ -2213,7 +2216,7 @@ button.route-stap:hover { color: var(--ink); }
 .route-stap-pijl { font-size: 0.9rem; }
 .route-status-mobiel { display: none; }
 .editor-volgende { font-weight: 800; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-stappen { display: none; }
   .route-status-mobiel { display: inline-flex; }
 }
@@ -2235,13 +2238,13 @@ button.route-stap:hover { color: var(--ink); }
 .vraag-meer-kop { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: none; border: none; cursor: pointer; color: var(--ink); font-weight: 700; font-size: 0.82rem; text-align: left; font-family: inherit; }
 .vraag-meer-samenvatting { font-weight: 400; color: var(--muted); font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .vraag-meer-inhoud { display: flex; flex-direction: column; gap: 16px; padding: 4px 12px 14px; border-top: 1px solid var(--line); }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .vraag-form { padding: 14px; }
   .vraag-opslaanbalk { padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); }
   .vraag-rij { flex-wrap: wrap; }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-topbar .editor-kop { flex-wrap: wrap; row-gap: 6px; }
 }
 
@@ -2252,20 +2255,20 @@ button.route-stap:hover { color: var(--ink); }
 }
 .rl-knop-label { display: block; font-size: 0.62rem; font-weight: 700; line-height: 1; white-space: nowrap; color: rgba(255,255,255,0.85); }
 .rl-knop--rood .rl-knop-label { color: #FECACA; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .pr-gem-card .rl-acties .rl-icoonknoppen .rl-knop--icoon { width: 100%; height: 50px; }
 }
 
 /* Route-editor: stappen als tekst, spelsoort alleen op de telefoon, naam wijzigen compact */
 .route-editor-topbar .editor-kop { flex-wrap: nowrap; }
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .editor-modus-chip { display: none !important; }
   .editor-naam-wijzig { flex: 0 1 460px !important; }
   .editor-naam-wijzig .rl-knop { height: 36px; }
 }
 
 /* Zijbalk: altijd helemaal in beeld, ook « Inklappen en de versie (knoppen iets lager op een laag scherm) */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .admin-sidebar-logo img { max-height: clamp(84px, 20vh, 216px); }
   .admin-nav-link {
     height: clamp(28px, calc((100dvh - 330px) / 15), 42px);
@@ -2276,14 +2279,14 @@ button.route-stap:hover { color: var(--ink); }
 
 /* Routekop past ook op een laptop: stappen compact, opslagstatus alleen als er iets gebeurt */
 .route-editor-topbar .editor-kop .editor-opslag--rust { display: none; }
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-stappen { gap: 2px; }
   .route-stap { height: 26px; padding: 0 8px; font-size: 0.72rem; }
   .route-stap-pijl { font-size: 0.8rem; }
 }
 
 /* Ingeklapt menu: iconen 1,5× zo groot (19 → 29px), balk iets breder zodat ze ruim passen */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .menu-smal .admin-sidebar { width: 76px; }
   .menu-smal .admin-sidebar .admin-nav-link { height: clamp(36px, calc((100dvh - 250px) / 14), 48px); }
   .menu-smal .admin-sidebar .admin-nav-link > [aria-hidden] { font-size: 29px; line-height: 1; }
@@ -2312,7 +2315,7 @@ button.route-stap:hover { color: var(--ink); }
 .sk-stip--nu { background: rgba(255,255,255,0.12); outline: 1px solid var(--speler-kleur, var(--cyan)); animation: sk-stip-nu 1.4s ease-in-out infinite; }
 @keyframes sk-stip-nu { 50% { background: color-mix(in srgb, var(--speler-kleur, var(--cyan)) 45%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .sk-stip--nu { animation: none; } }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .speler-kaart-klik .sk-inner { padding: 8px 10px !important; }
   .speler-kaart-klik .sk-kop { gap: 8px; align-items: flex-start; }
   .sk-rang { width: 22px; padding-top: 10px; }
@@ -2331,7 +2334,7 @@ button.route-stap:hover { color: var(--ink); }
 .gb-label--altijd { display: inline; margin-left: 6px; }
 .gb-tekstknop { display: inline-flex; align-items: center; height: 34px; padding: 0 12px; }
 .gb-iconen { flex-wrap: nowrap; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .gb-kaart .gb-iconen { display: flex; gap: 6px; margin-top: 8px; }
   .gb-kaart .gb-iconen > .rl-knop {
     flex: 1 1 0; min-width: 0; width: auto !important; height: 46px !important; padding: 0 2px !important;
@@ -2351,7 +2354,7 @@ button.route-stap:hover { color: var(--ink); }
 .editor-rechts-kop { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .editor-gereedschap-rij { display: contents; }
 .editor-modus-chip { display: none !important; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-editor-topbar .editor-rechts-kop .rl-knop { padding: 0 9px; }
   .editor-gereedschap-rij {
     display: flex; gap: 6px; width: 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
@@ -2369,7 +2372,7 @@ button.route-stap:hover { color: var(--ink); }
 }
 
 /* Spelers- en helperkaart (pc): icoon zo groot als op het dashboard, kaart lager */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .gb-kaart { padding-top: 10px !important; padding-bottom: 10px !important; }
   .gb-kaart > .pr-gem-avatar:not(.gb-avatar-uit) { width: 48px; height: 48px; font-size: 1.7rem; }
 }
@@ -2410,11 +2413,11 @@ button.route-stap:hover { color: var(--ink); }
 /* 🏢 Eigen logo van de organisatie (huisstijl) in het beheer en op gedeelde pagina's */
 /* Zelfde maat als op de live kaart (.topbar-huislogo-vak) */
 .huislogo-kop { height: 60px; max-width: 240px; object-fit: contain; }
-@media (max-width: 768px) { .huislogo-kop { height: 36px; max-width: 110px; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .huislogo-kop { height: 36px; max-width: 110px; } }
 /* Bovenbalk: het logo in de lege ruimte tussen titel en knoppen (vult ook de ruimte zonder logo) */
 .topbar-huislogo-vak { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
 .topbar-huislogo-vak img { height: 60px; max-width: 240px; object-fit: contain; }
-@media (max-width: 768px) { .topbar-huislogo-vak img { height: 36px; max-width: 110px; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .topbar-huislogo-vak img { height: 36px; max-width: 110px; } }
 .admin-sidebar-huislogo { display: block; width: 90%; max-height: 72px; object-fit: contain; margin: 10px auto 0; }
 /* Niet dubbel: op het dashboard en de live kaart staat het logo al in de bovenbalk */
 .admin-shell:has(.topbar-huislogo-vak img, .dashboard-topbar .huislogo-kop) .admin-sidebar-huislogo { display: none; }
@@ -2470,7 +2473,7 @@ button.route-stap:hover { color: var(--ink); }
 /* Even hoog als het spelsoort-icoon links (56 px), zodat ze bij elkaar passen */
 .rl-logovak img { height: 56px; max-width: 200px; object-fit: contain; }
 .rl-titel:has(+ .rl-logovak) { flex: 0 1 auto; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-logovak { display: none; }
   .rl-tegel--logo { display: block; flex-shrink: 0; }
   .rl-tegel--logo > div { display: none !important; }
@@ -2635,7 +2638,7 @@ button.route-stap:hover { color: var(--ink); }
 .foto-pijl { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 56px; border: 0; border-radius: 10px; background: rgba(0,0,0,0.5); color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; z-index: 1; }
 .foto-pijl--links { left: 6px; }
 .foto-pijl--rechts { right: 6px; }
-@media (max-width: 768px) { .antw-tabs { width: 100%; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .antw-tabs { width: 100%; } }
 
 /* Kaartknoppen in de route-editor: één paneel, twee gelijke rijen (Lagen en Kaart), dezelfde knoppen.
    Aan = overal cyaan (ook licht/donker/luchtfoto op de andere kaarten) */
@@ -2651,7 +2654,7 @@ button.route-stap:hover { color: var(--ink); }
 .kaart-bediening .kaart-stijl button { width: auto; height: 28px; padding: 0 9px; border-radius: 7px; color: #fff;
   font: inherit; font-size: 0.74rem; font-weight: 700; opacity: 0.5; white-space: nowrap; }
 .kaart-bediening .kaart-stijl button.aan { opacity: 1; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .kaart-bediening .kaart-lagen::before, .kaart-bediening .kaart-stijl::before { display: none; }
   .kaart-bediening .kaart-lagen button, .kaart-bediening .kaart-stijl button { padding: 0 7px; font-size: 0.7rem; }
 }
@@ -2751,7 +2754,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .gb-zoekbalk { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .gb-zoekbalk > .form-input { flex: 1 1 220px; margin: 0; }
 .gb-zoekbalk > .segment { flex: 0 1 320px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Spelerskaart: alleen de status-stip op het icoon, het woord ernaast valt weg */
   .gb-status-pc { display: none; }
   /* Knoppenbalk rustiger: neutraal vlak, kleur alleen in de tekst */
@@ -2760,7 +2763,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Telefoon: compacter na het meekijken op de telefoon */
 .antw-nog-niets { font-size: 0.78rem; color: var(--muted); margin-left: 10px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Dashboard: titel, foto's en live op één regel; live is dan alleen het bolletje */
   .dashboard-topbar { flex-wrap: nowrap !important; gap: 8px !important; }
   .dashboard-topbar .admin-live-badge--ok { font-size: 0; gap: 0; padding: 7px; }
@@ -2783,7 +2786,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .zijpaneel-kop-mobiel { display: none; }
 /* Lijst links: zelfde paars als de rest van de app (was marineblauw) */
 .route-editor-zijpaneel { background: rgba(var(--o4),0.9); }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Bovenbalk mag nooit breder worden dan het scherm (↶ en ⚙️ vielen rechts weg) */
   .route-editor-topbar { min-width: 0; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
   .route-editor-topbar .editor-kop, .route-editor-topbar .editor-balk { min-width: 0; max-width: 100%; }
@@ -2802,7 +2805,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Kaartbediening op de telefoon: één rustige balk onderaan (icoontjes), naast de knop "≡ Lijst" */
 .kaart-stijl-wissel { display: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .kaart-bediening:not(.replay-bediening) {
     left: 12px; right: auto; bottom: max(14px, calc(env(safe-area-inset-bottom) + 8px));
     flex-direction: row; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; max-width: calc(100% - 130px);
@@ -2820,7 +2823,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 }
 
 /* Werkbalk op de telefoon: alles zichtbaar op één regel, even breed (niet meer zijwaarts schuiven) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .editor-gereedschap-rij { display: grid !important; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px !important; overflow: visible !important; }
   .editor-gereedschap-rij .editor-groep { display: contents; }
   .editor-gereedschap-rij .editor-opnieuw { display: none !important; }
@@ -2840,7 +2843,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .stat-vak-waarde { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stat-vak--let-op .stat-vak-waarde { color: #FFE680; }
 .stat-vak-label { font-size: 0.7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .stat-strook { gap: 5px; }
   .stat-vak { flex-direction: column; gap: 2px; padding: 6px 4px; text-align: center; }
   .stat-vak-icoon { font-size: 1.05rem; }
@@ -2888,14 +2891,14 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Telefoon: route-editor en live kaart passen precies in het zichtbare scherm en schuiven niet
    (Android rekende de adresbalk mee, waardoor de editor een stuk omhoog kon schuiven) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-shell:has(.route-editor-topbar), .admin-shell:has(.live-kaart-lijst) { height: 100dvh; min-height: 0; overflow: hidden; }
   .admin-shell:has(.route-editor-topbar) .admin-main, .admin-shell:has(.live-kaart-lijst) .admin-main { min-height: 0; overflow: hidden; }
 }
 
 /* Telefoon: het uitgeklapte menu ligt altijd bovenop (ook boven het punt-/itempaneel en de
    kaartpanelen van de route-editor); vensters (z-index 2500) blijven er weer boven */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .admin-sidebar { z-index: 2400; }
 }
 
@@ -2929,7 +2932,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .eerste-stappen-knop { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1100;
   height: 34px; padding: 0 14px; border-radius: 999px; cursor: pointer; font-family: var(--font-display); font-weight: 800; font-size: 0.8rem;
   background: rgba(var(--o5),0.92); color: #FFE680; border: 1px solid rgba(255,217,59,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .eerste-stappen { top: 8px; max-height: calc(100% - 90px); }
   .eerste-stappen-knop { top: 56px; }
 }
@@ -2950,12 +2953,12 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .spelleider-dicht-tekst { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .spelleider-dicht-ok { color: #86EFAC; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
 .spelleider-dicht-let { color: #FCD34D; font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
-@media (max-width: 768px) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .spelleider-dicht-ok { font-size: 0; } .spelleider-dicht-ok::before { content: "✅"; font-size: 0.9rem; } }
 
 /* Stat-vakjes: schuivende tekst in plaats van "…" (SchuifTekst regelt overflow zelf) */
 .stat-vak-waarde, .stat-vak-label { text-overflow: clip; max-width: 100%; }
 .stat-vak-tekst { width: 100%; }
-@media (max-width: 768px) { .stat-vak-tekst { text-align: center; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .stat-vak-tekst { text-align: center; } }
 .spelleider-status--klik { cursor: pointer; }
 
 /* Voorstel voor een item: half doorzichtig; aanwijzen maakt hem even helemaal zichtbaar */
@@ -2964,7 +2967,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 
 /* Telefoon, route-editor en live kaart: ook niet "programmatisch" laten schuiven (Android schoof de
    pagina omhoog bij tikken op de kaart, waardoor de onderste balk pas na scrollen in beeld kwam) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   html:has(.route-editor-topbar), html:has(.live-kaart-lijst),
   html:has(.route-editor-topbar) body, html:has(.live-kaart-lijst) body { overflow: hidden; height: 100%; overscroll-behavior: none; }
   .admin-shell:has(.route-editor-topbar), .admin-shell:has(.live-kaart-lijst),
@@ -2972,7 +2975,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 }
 
 /* Routekaart ingeklapt (telefoon): volgende stap en Bewerken naast elkaar, even breed */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-kop .rl-kop-stap { gap: 8px; }
   .rl-kop .rl-kop-stap > * { flex: 1 1 0; min-width: 0; }
   .rl-kop .rl-kop-stap .rl-knop { height: 40px !important; }
@@ -3035,7 +3038,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Route-editor (groot scherm): 📢 en Uitloggen klein, alleen icoon, op de hoogte van de bovenste regel.
    Zo lopen bij een smaller venster de editorknoppen er niet onder door; past de kop niet, dan loopt
    hij door naar een tweede regel. De routenaam blijft altijd (ingekort) zichtbaar. */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   body:has(.route-editor-topbar) .admin-uitlog-hoek { height: 58px; right: 14px; gap: 6px; }
   body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop { height: 38px; padding: 0 8px; gap: 0; font-size: 0; }
   body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop-icoon { width: 24px; font-size: 1.2rem; }
@@ -3407,7 +3410,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .hulp-kolom-inhoud { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 20px 20px; }
 .hulp-kolom-voet { display: flex; flex-direction: column; gap: 8px; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.82rem; }
 .hulp-kolom-voet a, .hulp-kolom-voet button { color: #FFE680; font-weight: 700; text-decoration: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 700; cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 6px; }
-@media (min-width: 769px) { .info-menu-knop { display: none !important; } }
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) { .info-menu-knop { display: none !important; } }
 /* Leesbaar: rustige regelafstand, kopjes als uitklapbare onderwerpen */
 .hulp-tekst { font-size: 0.9rem; line-height: 1.6; color: var(--text); overflow-wrap: anywhere; }
 .hulp-tekst p { margin: 0 0 10px; }
@@ -3443,7 +3446,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 }
 /* Telefoon in de editor: een eigen ?-knop rechtsonder (de kopknoppen staan daar niet) */
 .hulp-knop-mobiel { display: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .hulp-knop-mobiel { display: inline-flex; position: fixed; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 1500;
     width: 44px; height: 44px; border-radius: 50%; align-items: center; justify-content: center; border: 1px solid rgba(255,217,59,0.6);
     background: rgba(var(--o3),0.92); color: #FFE680; font-size: 1.1rem; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
@@ -3458,7 +3461,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .hulp-focus-kop { font-family: var(--font-display); font-weight: 800; color: #67E8F9; margin-bottom: 6px; }
 .hulp-fout { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; color: var(--ink); font-size: 0.9rem; }
 .hulp-tekst strong.hulp-wijsbaar:focus-visible { outline: 2px solid #FFE680; outline-offset: 2px; border-radius: 4px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .hulp-knop { display: none !important; }
 }
 /* 👆 Aanwijzen vanuit de hulp: knopnamen die op het scherm staan zijn aanklikbaar; de knop licht dan goud op */
@@ -3499,7 +3502,7 @@ button.spelstrook-let { font-family: inherit; font-size: inherit; cursor: pointe
 .rl-zoek { flex: 1 1 220px; max-width: 320px; height: 34px; box-sizing: border-box; }
 .rl-map { color: #FFE680; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
 .rl-knop--map .rl-knop-label { color: #FFE680; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* Telefoon: de map staat op de Map-knop in het opengeklapte deel, niet in de regel onder de naam */
   .rl-meta .rl-map { display: none; }
   /* Ook met een eigen logo de naam naast het tegeltje (de logokolom van de computer is hier verborgen) */
@@ -3538,10 +3541,10 @@ button.spelstrook-let { font-family: inherit; font-size: inherit; cursor: pointe
 .menu-groep-titel { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 2px 4px 4px; }
 .menu-groep-uitklap .admin-nav-link { height: 40px; font-size: 15px; }
 @keyframes menu-uitklap-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 768px) { .menu-groep-uitklap { width: 190px; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .menu-groep-uitklap { width: 190px; } }
 
 /* 📱 Telefoon: met "Inklappen" opent het ☰-menu als smalle balk met alleen iconen (zoals op de pc) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .menu-smal .admin-sidebar { width: 76px; }
   .menu-smal .admin-menu-route, .menu-smal .admin-menu-kop, .menu-smal .versie-regel, .menu-smal .menu-status { display: none !important; }
   .menu-smal .admin-nav, .menu-smal .admin-menu-blok { padding-left: 8px; padding-right: 8px; }
@@ -3557,7 +3560,7 @@ a.rl-knop { display: inline-flex; align-items: center; justify-content: center; 
 
 /* ── Grafische afwerking ───────────────────────────────────────────────────── */
 /* 1 · Bovenbalk: zachte schaduw onder de balk, zodat titel en inhoud loskomen bij het scrollen */
-@media (min-width: 769px) { .admin-topbar { box-shadow: 0 6px 18px -8px rgba(0,0,0,0.55); } }
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) { .admin-topbar { box-shadow: 0 6px 18px -8px rgba(0,0,0,0.55); } }
 /* 5 · Klikbare kaarten komen iets omhoog bij aanwijzen */
 .speler-kaart-klik, .rl-kaart { transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease; }
 @media (hover: hover) {
@@ -3633,7 +3636,7 @@ a.rl-knop { display: inline-flex; align-items: center; justify-content: center; 
 .rl-knop--icoon > .knop-svg svg { width: 1.25em; height: 1.25em; }
 .header-knop > .knop-svg { width: 34px; }
 .header-knop > .knop-svg svg { width: 26px; height: 26px; }
-@media (max-width: 768px) { .header-knop > .knop-svg { width: 26px; } .header-knop > .knop-svg svg { width: 21px; height: 21px; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .header-knop > .knop-svg { width: 26px; } .header-knop > .knop-svg svg { width: 21px; height: 21px; } }
 body:has(.route-editor-topbar) .admin-uitlog-hoek .header-knop > .knop-svg svg { width: 20px; height: 20px; }
 /* Iconen met een betekenis houden hun kleur (zoals de emoji eerst), met een zachte gloed:
    groen = in orde / verder, oranje = let op / bezig, rood = stoppen / weg, goud = uitslag / iets nieuws.
@@ -3676,7 +3679,7 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .menu-smal .admin-sidebar .admin-nav-link { position: relative; }
 .menu-smal .admin-sidebar .menu-teller { position: absolute; top: 3px; right: 6px; margin: 0; font-size: 0.6rem !important; }
 /* 📱 Spelstrook op de telefoon: strak op één regel. Alleen icoon + getal, geen pilvormen; knoppen als vierkant icoon */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .spelstrook { flex-wrap: nowrap; gap: 6px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); overflow: hidden; }
   .spelstrook .spelstrook-chip, .spelstrook .spelstrook-let { height: 34px; padding: 0 6px; border-radius: 10px; flex: none; }
   .spelstrook .spelstrook-chip { background: none; border-color: transparent; }
@@ -3685,7 +3688,7 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .item-keuze-knop > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .antw-teamnaam { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 📱 Antwoorden per team: kop op één regel; de status alleen als icoon (de naam krijgt de ruimte) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .antw-kop { flex-wrap: nowrap; gap: 8px; }
   .antw-status { min-width: 0; }
   .antw-status .status-label-tekst { display: none; }
@@ -3697,7 +3700,7 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
 .sectie-kop-knop { padding: 0 0 0 18.5px; }
 .spelers-acties { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .spelers-acties-ruimte { flex: 1; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .spelers-acties { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
   .spelers-acties-ruimte { display: none; }
   .spelers-acties > * { width: 100%; min-width: 0; height: 52px !important; padding: 0 4px !important; flex-direction: column; gap: 3px !important;
@@ -3725,7 +3728,7 @@ button.spelstrook-chip--knop:hover { border-color: rgba(255,255,255,0.35); backg
   color: #fca5a5; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
 .antw-oordeel--goed { color: #4ade80; background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.45); }
 .antw-uitleg { flex: 1 1 100%; margin-left: 34px; font-size: 0.82rem; min-height: 34px !important; }
-@media (max-width: 768px) { .antw-uitleg { margin-left: 0; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .antw-uitleg { margin-left: 0; } }
 /* Speler: uitleg bij een antwoord (na het antwoorden) */
 .feedback-uitleg { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,0.2); color: #fff; font-size: 0.88rem; line-height: 1.4; text-align: left; }
 .feedback-uitleg--goed { margin-top: 0; background: rgba(34,197,94,0.12); border: 1px solid rgba(134,239,172,0.35); }
@@ -3801,7 +3804,7 @@ button.stat-vak { font: inherit; color: inherit; cursor: pointer; text-align: le
 button.stat-vak:hover { border-color: rgba(255,255,255,0.35); }
 .dash-route { font-family: var(--font-body, inherit); font-size: 0.8rem; font-weight: 700; color: var(--muted); padding: 3px 10px; border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.15); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-@media (max-width: 768px) { .dash-route { display: none; } }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) { .dash-route { display: none; } }
 .dash-filter { width: 200px; }
 .dash-filter-leeg { padding: 14px; text-align: center; color: #4ade80; font-weight: 700; font-size: 0.86rem; }
 .dash-zijtabs { width: 100%; }
@@ -3817,7 +3820,7 @@ button.stat-vak:hover { border-color: rgba(255,255,255,0.35); }
 .live-lijst-open { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
 .live-lijst-open:hover { color: #fff; background: rgba(255,255,255,0.1); }
 /* 📱 Telefoon: teamlijst als paneel van onderen, en geen spelstrook op de live kaart */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .live-kaart-lijst { top: auto !important; bottom: 10px !important; left: 10px !important; right: 10px !important; max-width: none !important; max-height: 45vh !important; }
   body:has(.live-kaart-lijst) .spelstrook { display: none; }
 }
@@ -3852,7 +3855,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .rl-filterknop-pijl { display: inline-block; flex-shrink: 0; margin-left: 4px; transform: rotate(90deg); transition: transform 0.18s; }
 .rl-filterknop-pijl.open { transform: rotate(-90deg); }
 .rl-mapfilter { flex-basis: 100%; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .rl-zoek { flex: 1 1 0; min-width: 0; max-width: none; }
   .rl-filterknop { max-width: calc(50% - 5px); }
 }
@@ -3860,7 +3863,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* ── 📱 Beheer op de telefoon ── */
 .mobiel-paginatitel { display: none; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   /* 1. Paginanaam in de bovenste balk; een kopbalk met alleen een titel valt weg */
   .mobiel-paginatitel { display: inline-flex; align-items: center; gap: 8px; min-width: 0; flex: 1; justify-content: center;
     font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; white-space: nowrap; overflow: hidden; }
@@ -3905,11 +3908,11 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .proef-klaar-titel { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: #fff; }
 .proef-echt { color: var(--muted); font-size: 0.8rem; }
 /* 📱 Dashboard op de telefoon: geen dubbele titel (staat al bovenin) en geen dubbele Foto's-knop (staat in de strook) */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .dashboard-topbar { display: none !important; }
 }
 /* 🖥️ Routekop op één regel: de naam krijgt de vrije ruimte en schuift als hij te lang is */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-topbar .editor-kop { flex-wrap: nowrap !important; }
   .route-editor-topbar .editor-kop .editor-naam { flex: 1 1 0 !important; min-width: 120px; }
   .route-editor-topbar .editor-kop .editor-kop-ruimte { display: none !important; }
@@ -4474,7 +4477,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 /* ── Route-editor: vijf hoofdknoppen, "Wat nu?", inhoud per knop ── */
 .route-editor-zijpaneel { width: 300px; }
 .route-editor-zijpaneel--breed { width: 400px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .route-editor-zijpaneel { width: min(88vw, 340px); }
   .route-editor-zijpaneel--breed { width: min(94vw, 400px); }
 }
@@ -4536,7 +4539,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .spelleider-groep { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .spelleider-groep-naam { font-size: 0.64rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .spelleider-regel--actie { display: flex; align-items: center; gap: 12px; }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
   .spelleider-groepen { flex: 1 1 100%; flex-direction: column; gap: 12px; }
   .spelleider-groep .spelleider-knoppen { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .spelleider-groep .spelleider-knoppen > * { width: 100%; min-width: 0; height: 44px; overflow: hidden; text-overflow: ellipsis; justify-content: center; font-size: 0.84rem !important; }
@@ -4568,7 +4571,7 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .huisstijl-thema.aan { border-color: #fff; box-shadow: 0 0 0 2px var(--cyan); }
 
 /* Route-editor werkbalk op de pc: grotere, losse knoppen zonder scheidingsstreep */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-topbar .editor-balk { gap: 10px; }
   .route-editor-topbar .editor-balk .editor-balk-scheiding { display: none; }
   .route-editor-topbar .editor-balk .rl-knop {
@@ -4613,12 +4616,12 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 .sk-kop { position: relative; }
 .sk-pijl { align-self: center; flex-shrink: 0; margin-left: 2px; font-size: 1.4rem; line-height: 1; color: var(--muted); }
 /* Pc: alle hoofdknoppen in het beheer even hoog (40px), zoals in de werkbalk van de editor */
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) {
   .route-editor-topbar .editor-kop .rl-knop, .route-editor-topbar .editor-kop .editor-terug { height: 40px; padding: 0 16px; font-size: 0.86rem; border-radius: 11px; }
   .spelleider-knoppen .rl-knop, .spelleider-knoppen > * { height: 40px; }
 }
 /* Puntenlijst: ▲▼ alleen op de telefoon (daar werkt slepen niet); op de pc sleep je aan de greep ≡ */
-@media (min-width: 769px) { .lijst-pijlen { display: none !important; } }
+@media (min-width: 769px) and (min-height: 501px), (min-width: 769px) and (pointer: fine) { .lijst-pijlen { display: none !important; } }
 /* Route-editor: stapnummer linksboven op de hoofdknoppen (bouwvolgorde) */
 .editor-hoofdknop-stap { position: absolute; top: 3px; left: 5px; font-size: 0.58rem; font-weight: 800; color: var(--muted); line-height: 1; }
 .editor-hoofdknoppen > button.aan .editor-hoofdknop-stap { color: var(--cyan); }

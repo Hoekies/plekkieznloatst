@@ -16,6 +16,7 @@ import SpelerDetailVenster from "@/components/admin/SpelerDetailVenster";
 import { SpelerActies } from "@/components/admin/AdminDashboard";
 import { minutenNietGezien } from "@/components/admin/SpelLeider";
 import type { SpelerOverzicht } from "@/lib/admin-live";
+import { isTelefoon } from "@/lib/scherm";
 
 const AdminLiveLeaflet = dynamic(() => import("./AdminLiveLeaflet"), {
   ssr: false,
@@ -50,7 +51,7 @@ export default function AdminLiveKaart({ initData }: Props) {
   useEffect(() => {
     try {
       const keuze = localStorage.getItem("pr_live_lijst2");
-      setLijstDicht(keuze ? keuze === "dicht" : window.matchMedia("(max-width: 768px)").matches);
+      setLijstDicht(keuze ? keuze === "dicht" : isTelefoon());
     } catch { /* geen opslag */ }
   }, []);
   function wisselLijst() {

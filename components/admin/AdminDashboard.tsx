@@ -28,6 +28,7 @@ import { TEAM_ICONEN } from "@/lib/team-iconen";
 import Icoon from "@/components/admin/Icoon";
 import WeerBericht from "@/components/admin/WeerBericht";
 import ChatVenster from "@/components/admin/ChatVenster";
+import { TELEFOON_MQ } from "@/lib/scherm";
 
 // Kaart pas laden in de browser (Leaflet), en niet op de server
 const MiniLiveKaart = dynamic(() => import("@/components/admin/MiniLiveKaart"), { ssr: false });
@@ -65,7 +66,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   const [telefoon, setTelefoon] = useState(false);
   const [kaartOpen, setKaartOpen] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
+    const mq = window.matchMedia(TELEFOON_MQ);
     const zet = () => setTelefoon(mq.matches);
     zet(); mq.addEventListener("change", zet);
     try { setKaartOpen(localStorage.getItem("pr_dash_kaart_open") === "1"); } catch { /* geen opslag */ }

@@ -44,6 +44,7 @@ import EditorRondleiding from "@/components/admin/EditorRondleiding";
 import TeamSimulatie, { type SimLoper, type DrukPlek } from "@/components/admin/editor/TeamSimulatie";
 import { itemNaam } from "@/components/speler/SpeciaalItemLegende";
 import { KLEUR_THEMAS } from "@/lib/kleurthema";
+import { isTelefoon } from "@/lib/scherm";
 
 // Vensters die je niet meteen nodig hebt: pas laden als ze opengaan (de editor zelf start sneller)
 const VraagEditorPagina = dynamic(() => import("@/components/admin/VraagEditorPagina"), { ssr: false });
@@ -467,7 +468,7 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
   }, []);
   function startPaneelSlepen(e: React.PointerEvent<HTMLDivElement>) {
     const doel = e.target as HTMLElement;
-    if (!doel.closest(".editor-paneel-kop") || doel.closest("button") || window.innerWidth <= 768) return;
+    if (!doel.closest(".editor-paneel-kop") || doel.closest("button") || isTelefoon()) return;
     const paneel = paneelRef.current, ouder = paneel?.offsetParent as HTMLElement | null;
     if (!paneel || !ouder) return;
     e.preventDefault();

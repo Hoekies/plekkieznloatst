@@ -28,6 +28,7 @@ Een Nederlandstalige PWA voor een route-gebaseerd quizspel op een kaart. Teams l
 - Geen offline vereiste — wel melding bij geen internet
 - Kaarttegels niet offline beschikbaar
 - PWA installeerbaar op mobiel
+- Telefoonindeling bij een scherm smaller dan 769 px, óf lager dan 500 px op een aanraakscherm (liggende telefoon): `@media (max-width: 768px), (max-height: 500px) and (pointer: coarse)` in `styles/globals.css`, in de code `TELEFOON_MQ` / `isTelefoon()` uit `lib/scherm.ts`
 - Alles Nederlandstalig
 
 ---
