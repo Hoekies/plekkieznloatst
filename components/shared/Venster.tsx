@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 // Esc sluit (alleen zolang `actief`, bijv. zolang een venster open staat)
@@ -11,6 +11,21 @@ export function useSluitMetEsc(onSluit: () => void, actief = true) {
     window.addEventListener("keydown", toets);
     return () => window.removeEventListener("keydown", toets);
   }, [onSluit, actief]);
+}
+
+// Tik naast het venster = sluiten, maar alleen als je óók op de achtergrond begon. Anders sloot het venster als je
+// in een invulveld tekst selecteerde en de muis (of vinger) buiten het venster losliet: die klik komt dan op de
+// achtergrond terecht. Geef de props aan het element van de achtergrond.
+export function useAchtergrondKlik(onSluit: () => void) {
+  const begonOpAchtergrond = useRef(false);
+  return {
+    onPointerDown: (e: React.PointerEvent) => { begonOpAchtergrond.current = e.target === e.currentTarget; },
+    onClick: (e: React.MouseEvent) => {
+      const sluit = begonOpAchtergrond.current && e.target === e.currentTarget;
+      begonOpAchtergrond.current = false;
+      if (sluit) onSluit();
+    },
+  };
 }
 
 // Maximale hoogte van een venster: procent van het ZICHTBARE scherm (dvh; vh is op de iPhone hoger dan wat je
@@ -31,10 +46,11 @@ export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, ra
   children: React.ReactNode;
 }) {
   useSluitMetEsc(onSluit);
+  const achtergrond = useAchtergrondKlik(onSluit);
   if (typeof document === "undefined") return null;
   return createPortal(
     // Rand rondom, maar boven en onder minstens vrij van de statusbalk en de thuisbalk (iPhone)
-    <div onClick={onSluit} className="venster-achter" style={{ background: `rgba(12,3,34,${donker})`,
+    <div {...achtergrond} className="venster-achter" style={{ background: `rgba(12,3,34,${donker})`,
       padding: `max(${rand}px, calc(env(safe-area-inset-top) + 8px)) ${rand}px max(${rand}px, calc(env(safe-area-inset-bottom) + 8px))` }}>
       <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel"
         style={{ flex: "none", width: "100%", maxWidth: breedte, ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte) } : {}), ...(relatief ? { position: "relative" } : {}) }}>

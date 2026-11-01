@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import ChatGesprek, { type ChatBericht } from "@/components/shared/ChatGesprek";
+import { useAchtergrondKlik } from "@/components/shared/Venster";
 import { speelBonus } from "@/lib/sounds";
 
 // 💬 Chat met de spelleider op de kaart (spelplezier deel 2, per route aan of uit): een knop rechts met het aantal
@@ -28,6 +29,8 @@ export default function ChatKnop() {
     return () => clearInterval(t);
   }, [laad, open]);
 
+  // Naast het paneel tikken sluit (niet bij tekst selecteren en buiten het paneel loslaten)
+  const achtergrond = useAchtergrondKlik(() => setOpen(false));
   if (!aan) return null;
   const nieuw = berichten.filter((b) => b.van === "leider" && !b.gelezen_op).length;
 
@@ -44,7 +47,7 @@ export default function ChatKnop() {
         💬{nieuw > 0 && <span className="chat-knop-teller">{nieuw}</span>}
       </button>
       {open && (
-        <div className="chat-paneel-achter" onClick={() => setOpen(false)}>
+        <div className="chat-paneel-achter" {...achtergrond}>
           <div className="chat-paneel" onClick={(e) => e.stopPropagation()}>
             <div className="chat-paneel-kop">
               <strong>💬 Spelleider</strong>
