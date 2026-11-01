@@ -654,8 +654,9 @@ export default function RoutesOverzicht() {
                     className="rl-knop rl-knop--icoon" tip="Kopie maken (met punten, vragen en items)" disabled={kopieBezig === r.id}>
                     {kopieBezig === r.id ? "…" : <Icoon naam="klembord" />}<span className="rl-knop-label">Kopiëren</span>
                   </BevestigKnop>
-                  <button className="rl-knop rl-knop--icoon" data-tip="In een map zetten (om je routes te ordenen)" aria-label="Map"
-                    onClick={() => setMapVoor(r)}><Icoon naam="map" /><span className="rl-knop-label">Map</span></button>
+                  {/* De map van de route staat op de knop zelf (op de telefoon niet meer in de regel onder de naam) */}
+                  <button className={`rl-knop rl-knop--icoon${r.map ? " rl-knop--map" : ""}`} data-tip={r.map ? `In map „${r.map}”; tik om te wijzigen` : "In een map zetten (om je routes te ordenen)"}
+                    aria-label={r.map ? `Map: ${r.map}` : "Map"} onClick={() => setMapVoor(r)}><Icoon naam="map" /><span className="rl-knop-label">{r.map ?? "Map"}</span></button>
                   <button className="rl-knop rl-knop--icoon" data-tip="Exporteren: opslaan als bestand (met afbeeldingen)" aria-label="Exporteren"
                     disabled={exportBezig === r.id} onClick={() => exporteer(r.id, r.name)}>{exportBezig === r.id ? "…" : <Icoon naam="versturen" />}<span className="rl-knop-label">Exporteren</span></button>
                   {!r.is_active && r.status === "gepubliceerd" ? (

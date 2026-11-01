@@ -1841,13 +1841,14 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--ink); }
 /* Stappenplan op de telefoon: de knop (bv. Naar routes) onder de tekst, zodat de tekst de breedte houdt */
 @media (max-width: 768px) {
   .klaar-tekst { flex-basis: calc(100% - 46px) !important; }
-  .klaar-stap > .rl-knop { margin-left: 42px; }
+  .klaar-stap > .rl-knop, .klaar-stap > .klaar-acties { margin-left: 42px; }
   /* Eén rij die zijwaarts scrollt, binnen de stap; de namen heel (afgekort leken routes met hetzelfde begin gelijk) */
   .klaar-stap .klaar-routes { flex-basis: calc(100% - 42px); margin-left: 42px; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
     scroll-snap-type: x proximity; padding-bottom: 4px; scrollbar-width: thin; }
   .klaar-stap .klaar-routes > .rl-knop { flex: 0 0 auto; max-width: none; scroll-snap-align: start; }
   .klaar-routes .klaar-routes-naam { overflow: visible; }
 }
+.klaar-acties { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 /* Klaarstaande routes om te activeren: lange namen afkorten, nooit breder dan de stap */
 .klaar-routes { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; min-width: 0; max-width: 100%; }
 .klaar-routes > .rl-knop { min-width: 0; max-width: 100%; justify-content: flex-start; }
@@ -3497,6 +3498,13 @@ button.spelstrook-let { font-family: inherit; font-size: inherit; cursor: pointe
 .rl-filter { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: -8px 0 18px; }
 .rl-zoek { flex: 1 1 220px; max-width: 320px; height: 34px; box-sizing: border-box; }
 .rl-map { color: #FFE680; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.rl-knop--map .rl-knop-label { color: #FFE680; }
+@media (max-width: 768px) {
+  /* Telefoon: de map staat op de Map-knop in het opengeklapte deel, niet in de regel onder de naam */
+  .rl-meta .rl-map { display: none; }
+  /* Ook met een eigen logo de naam naast het tegeltje (de logokolom van de computer is hier verborgen) */
+  .rl-kop .rl-titel:has(+ .rl-logovak) { flex: 1 1 0; }
+}
 /* 📊 Vraag-statistiek in de puntenlijst van de route-editor */
 /* Puntenlijst: naam bovenaan, het goed-percentage klein eronder (de naam houdt altijd zijn ruimte) */
 .lijst-naam-blok { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
@@ -4845,3 +4853,6 @@ button.groep-plaatje:disabled { cursor: default; }
 .editor-actief-balk { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 550; max-width: calc(100% - 140px);
   padding: 7px 14px; border-radius: 999px; background: rgba(251,191,36,0.95); color: #3B2300; font-size: 0.8rem; font-weight: 700;
   box-shadow: 0 4px 14px rgba(0,0,0,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Live kaart: het kaartpaneel (lagen, licht/donker/luchtfoto) rechtsboven; linksonder lag de spelstrook eroverheen */
+.kaart-bediening.kaart-bediening--rechtsboven { left: auto !important; right: 10px; top: 10px; bottom: auto !important; align-items: flex-end; }

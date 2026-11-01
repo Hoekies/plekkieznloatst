@@ -89,13 +89,9 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       id: "whatsapp", auto: false, klaar: !!handmatig.whatsapp,
       titel: "Inloggegevens verstuurd",
       uitleg: "Daarna het bolletje afvinken.",
-      actie: <WhatsAppKnop tekst="Versturen" />,
-    },
-    {
-      id: "test", auto: false, klaar: !!handmatig.test,
-      titel: "Zelf getest",
-      uitleg: "Loop een stukje als testspeler.",
-      actie: route && <Link href={`/admin/routes/${route.id}?test=1`} className="rl-knop"><Icoon naam="testen" /> Testen</Link>,
+      // Overslaan: al op een andere manier verstuurd (of niet nodig); telt dan als klaar
+      actie: <span className="klaar-acties"><WhatsAppKnop tekst="Versturen" />
+        <button type="button" className="rl-knop" onClick={() => wissel("whatsapp")}><Icoon naam="volgende" /> Overslaan</button></span>,
     },
     {
       id: "eindtijd", auto: true, optioneel: true, klaar: !!route?.eindtijd,

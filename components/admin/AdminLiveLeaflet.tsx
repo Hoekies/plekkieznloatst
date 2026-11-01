@@ -223,7 +223,12 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
         bestaand.setZIndexOffset(gevolgd ? 1000 : 0);
       } else {
         const marker = L.marker(latlng, { icon, interactive: true, zIndexOffset: gevolgd ? 1000 : 0, keyboard: false })
-          .on("click", () => kiesRef.current?.(speler.player_id))
+          // Tik op een team: inzoomen op dat team (Meebewegen uit, anders zoomt de kaart weer uit) en zijn venster openen
+          .on("click", () => {
+            setVolgen(false);
+            map.setView(marker.getLatLng(), Math.max(map.getZoom(), 18), { animate: true });
+            kiesRef.current?.(speler.player_id);
+          })
           .addTo(map);
         spelerMarkersRef.current.set(speler.player_id, marker);
       }
@@ -340,8 +345,8 @@ export default function AdminLiveLeaflet({ spelers, route_punten, speciale_items
     <div style={{ flex: 1, minHeight: 0, width: "100%", position: "relative", zIndex: 0 }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       {/* Licht, donker of luchtfoto (zonder vectorkaart: licht of luchtfoto) */}
-      {/* Linksonder: kaartlagen en licht/donker/luchtfoto in één paneel, zoals in de route-editor */}
-      <KaartBediening>
+      {/* Rechtsboven: kaartlagen en licht/donker/luchtfoto in één paneel (linksonder zat de spelstrook eroverheen) */}
+      <KaartBediening extraKlasse="kaart-bediening--rechtsboven">
         <div className="kaart-lagen">
           <button type="button" className={lagen.sporen ? "aan" : ""} aria-pressed={lagen.sporen} onClick={() => wisselLaag("sporen")} title="Gelopen sporen tonen of verbergen"><Icoon naam="sporen" /><span className="laag-tekst"> Sporen</span></button>
           <button type="button" className={lagen.items ? "aan" : ""} aria-pressed={lagen.items} onClick={() => wisselLaag("items")} title="Items op de kaart tonen of verbergen"><Icoon naam="items" /><span className="laag-tekst"> Items</span></button>
