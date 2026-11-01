@@ -7,7 +7,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import { GELUID_SETS, speelVoorbeeld, type GeluidSet } from "@/lib/sounds";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import Icoon from "@/components/admin/Icoon";
-import { KLEUR_THEMAS, BEHEER_THEMA_SLEUTEL, zetThema } from "@/lib/kleurthema";
+import { KLEUR_THEMAS, beheerThemaNu, zetThema } from "@/lib/kleurthema";
 
 // Voorbeeldkleuren; met 🎨 kies je elke andere kleur
 const KLEUREN = ["#FF8A00", "#E11D48", "#2563EB", "#16A34A", "#7C3AED", "#0891B2"];
@@ -30,7 +30,7 @@ export async function verklein(bestand: Blob, maxZijde: number, logo: boolean): 
 
 // Aanwijzen van een achtergrond toont hem even in het beheer; daarna terug naar de kleur van dit toestel
 function huidigBeheer(): string | null {
-  try { return localStorage.getItem(BEHEER_THEMA_SLEUTEL); } catch { return null; }
+  return beheerThemaNu();
 }
 
 // 🎨 Huisstijl (kleur, logo, welkomstfoto) en 🔔 geluiden voor de spelers van deze route

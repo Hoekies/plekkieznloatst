@@ -32,12 +32,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Helper: alleen het dashboard, antwoorden (foto's keuren) en de live kaart
   const helper = rol === "helper";
   // Eigen logo van de organisatie (huisstijl van de actieve route), onder het PointRush-logo
-  const huisLogo = (await haalHuisstijl(createAdminClient())).logo;
+  const huisstijl = await haalHuisstijl(createAdminClient());
+  const huisLogo = huisstijl.logo;
 
   return (
     <div className="admin-shell">
       {/* 🎨 Kleur van het beheer op dit toestel, vóór het tekenen (geen paarse flits) */}
-      <script dangerouslySetInnerHTML={{ __html: themaScript() }} />
+      {/* Met de kleur van de actieve route, voor de keuze "Zoals de spelersapp" */}
+      <script dangerouslySetInnerHTML={{ __html: themaScript(undefined, huisstijl.thema) }} />
       <div className="admin-mobile-topbar">
         <SidebarToggle />
         {/* Telefoon: de naam van de pagina in de bovenbalk (de eigen kopbalk met alleen een titel valt dan weg) */}

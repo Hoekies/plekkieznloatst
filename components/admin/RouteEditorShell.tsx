@@ -2381,6 +2381,25 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     <Icoon naam="klembord" /> Spiekbriefje afdrukken
                   </a>
                 )}
+                {/* 🧩 Puzzelwoord: bovenaan, in één oogopslag aan of uit en of het aantal letters klopt; tik = instellingen */}
+                {(() => {
+                  const teVerdienen = vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
+                  const verschil = puzzelLetters - teVerdienen;
+                  return (
+                    <button type="button" className={`puzzel-chip${puzzelLetters ? "" : " puzzel-chip--uit"}`}
+                      onClick={() => setPuzzelOpen(true)} title="Puzzelwoord instellen">
+                      <span aria-hidden>🧩</span>
+                      {!route.puzzel_aan ? <span>Puzzelwoord uit</span>
+                        : !puzzelLetters ? <span>Puzzelwoord aan, nog geen woord</span>
+                        : <>
+                            <strong className="puzzel-chip-woord">{normaliseerPuzzel(route.puzzelwoord)}</strong>
+                            <span className={`puzzel-chip-stand${verschil === 0 ? " puzzel-chip-stand--goed" : ""}`}>
+                              {verschil === 0 ? `✓ ${puzzelLetters} letters` : verschil > 0 ? `⚠️ ${verschil} te kort` : `⚠️ ${-verschil} te veel`}
+                            </span>
+                          </>}
+                    </button>
+                  );
+                })()}
                 {alleVragenPunten.length === 0 ? (
                   <p className="zp-leeg">Nog geen vraagpunten. Zet eerst punten op de kaart met <em>Punten</em>.</p>
                 ) : (
@@ -2400,25 +2419,6 @@ export default function RouteEditorShell({ route: initRoute }: { route: RouteMet
                     })}
                   </div>
                 )}
-            {/* 🧩 Puzzelwoord: in één oogopslag aan of uit, en of het aantal letters klopt; tik = instellingen */}
-            {(() => {
-              const teVerdienen = vraagpunten.reduce((n, p) => n + lettersVoor(route.puzzel_verdeling, p.id), 0);
-              const verschil = puzzelLetters - teVerdienen;
-              return (
-                <button type="button" className={`puzzel-chip${puzzelLetters ? "" : " puzzel-chip--uit"}`}
-                  onClick={() => setPuzzelOpen(true)} title="Puzzelwoord instellen">
-                  <span aria-hidden>🧩</span>
-                  {!route.puzzel_aan ? <span>Puzzelwoord uit</span>
-                    : !puzzelLetters ? <span>Puzzelwoord aan, nog geen woord</span>
-                    : <>
-                        <strong className="puzzel-chip-woord">{normaliseerPuzzel(route.puzzelwoord)}</strong>
-                        <span className={`puzzel-chip-stand${verschil === 0 ? " puzzel-chip-stand--goed" : ""}`}>
-                          {verschil === 0 ? `✓ ${puzzelLetters} letters` : verschil > 0 ? `⚠️ ${verschil} te kort` : `⚠️ ${-verschil} te veel`}
-                        </span>
-                      </>}
-                </button>
-              );
-            })()}
                     <div className="form-group">
                       <label className="form-label">❓ Punten per vraag</label>
                       <span className="inst-uitleg">Wat een nieuwe vraag krijgt.</span>

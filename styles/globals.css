@@ -4859,3 +4859,7 @@ button.groep-plaatje:disabled { cursor: default; }
 
 /* Live kaart: het kaartpaneel (lagen, licht/donker/luchtfoto) rechtsboven; linksonder lag de spelstrook eroverheen */
 .kaart-bediening.kaart-bediening--rechtsboven { left: auto !important; right: 10px; top: 10px; bottom: auto !important; align-items: flex-end; }
+
+/* 🎨 Kleur van het beheer: "Zoals de spelersapp" over de hele breedte, met de kleur van de actieve route eronder */
+.thema-keuze--speler { grid-column: 1 / -1; }
+.thema-keuze-sub { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
