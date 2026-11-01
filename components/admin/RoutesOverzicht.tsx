@@ -94,6 +94,8 @@ export default function RoutesOverzicht() {
   const [filterOpen, setFilterOpen] = useState(false);
   function kiesMap(m: string | null) { setMapFilter(m); setFilterOpen(false); }
   const [mapVoor, setMapVoor] = useState<Route | null>(null);
+  // Logo groot bekijken (tik op het logo-tegeltje)
+  const [logoVoor, setLogoVoor] = useState<Route | null>(null);
   const [nieuweMap, setNieuweMap] = useState("");
   const mappen = [...new Set(routes.map((r) => r.map).filter((m): m is string => !!m))].sort((a, b) => a.localeCompare(b, "nl"));
   const gefilterd = gesorteerd.filter((r) => (!zoek.trim() || r.name.toLowerCase().includes(zoek.trim().toLowerCase()))
@@ -539,6 +541,14 @@ export default function RoutesOverzicht() {
         </div>
       )}
 
+      {/* Logo groot bekijken */}
+      {logoVoor && (
+        <VensterMetKop icoon="🖼️" label="Logo" titel={logoVoor.name} breedte={520} onSluit={() => setLogoVoor(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={huisLogoUrl(logoVoor)!} alt={`Logo van ${logoVoor.name}`} className="rl-logo-groot" />
+        </VensterMetKop>
+      )}
+
       {/* 📁 Map kiezen voor een route */}
       {mapVoor && (
         <VensterMetKop icoon="📁" label="Map" titel={mapVoor.name} breedte={400} onSluit={() => { setMapVoor(null); setNieuweMap(""); }}>
@@ -587,8 +597,14 @@ export default function RoutesOverzicht() {
                       staat ook in de regel eronder. Zo blijven alle kaarten even hoog. */}
                   <span className={`rl-tegel${r.huisstijl_logo_pad ? " rl-tegel--logo" : ""}`}>
                     <ModusTegel modus={r.modus} size={56} />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {r.huisstijl_logo_pad && <span className="rl-tegel-logo"><img src={huisLogoUrl(r)!} alt="" /></span>}
+                    {r.huisstijl_logo_pad && (
+                      <span className="rl-tegel-logo" role="button" tabIndex={0} aria-label="Logo groot bekijken" title="Logo groot bekijken"
+                        onClick={(e) => { e.stopPropagation(); setLogoVoor(r); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setLogoVoor(r); } }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={huisLogoUrl(r)!} alt="" />
+                      </span>
+                    )}
                   </span>
                   <span className="rl-titel">
                     <SchuifTekst tekst={r.name} style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "#fff" }} />
