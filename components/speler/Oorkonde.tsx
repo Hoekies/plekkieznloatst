@@ -3,10 +3,14 @@
 import { useRef, useState } from "react";
 import { formateerTijd, afstandTekst } from "@/lib/geo";
 import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
+import { spelLogo, themaKaartStijl, type FinishThemaSleutel } from "@/lib/finish-thema";
+import ThemaHoeken from "@/components/shared/ThemaHoeken";
 
 // 🏅 Oorkonde bij de finish: een afbeelding met teamnaam, plaats, punten, tijd en afstand, om te delen
 // in de groepsapp. Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje.
-export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null, voorlopig = false, prijs = null, badges = [] }: {
+export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punten, seconden, meters, plaats, aantalTeams, huisLogo = null, voorlopig = false, prijs = null, badges = [], thema = null, themaEmoji = null }: {
+  // 🎨 Het thema van het spel: kleuren, versiering en logo
+  thema?: FinishThemaSleutel | null; themaEmoji?: string | null;
   teamNaam: string; icoon: string | null; routeNaam: string | null;
   // 📸 Groepsfoto bij de finish (goedgekeurd); anders het icoon
   foto?: string | null; punten: number; seconden: number; meters: number;
@@ -46,9 +50,10 @@ export default function Oorkonde({ teamNaam, icoon, foto = null, routeNaam, punt
 
       {/* Buiten beeld: het kaartje dat een plaatje wordt */}
       <div aria-hidden style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none" }}>
-        <div ref={ref} className="oorkonde">
+        <div ref={ref} className="oorkonde" style={themaKaartStijl(thema)}>
+          <ThemaHoeken thema={thema} emoji={themaEmoji} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/spellogo/vierkant.webp" alt="" className="oorkonde-logo" />
+          <img src={spelLogo("vierkant.webp", thema)} alt="" className="oorkonde-logo" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="oorkonde-huislogo" />}
           <div className="oorkonde-kop">Oorkonde</div>

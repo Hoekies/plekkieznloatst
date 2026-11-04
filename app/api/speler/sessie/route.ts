@@ -1,3 +1,5 @@
+import { huidigFinishThema } from "@/lib/finish-thema";
+import { vastThema } from "@/lib/huisstijl";
 import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { haversine } from "@/lib/geo";
@@ -81,6 +83,8 @@ export async function POST() {
   if (error || !sessie) {
     return serverFout(error, "/api/speler/sessie");
   }
+  // 🎨 Het thema van dit spel bewaren (migratie 014): apart, zodat een ontbrekende kolom de start nooit tegenhoudt
+  await admin.from("player_sessions").update({ thema: huidigFinishThema(new Date(), await vastThema(admin).catch(() => null)) }).eq("id", sessie.id);
   // 🧪 Testteam: de testtegenstander speelt mee (om items op te gooien, en die zelf items gooit)
   if (await isTestSpeler(admin, spelerId)) await zorgTegenstander(admin, route.id).catch(() => undefined);
 

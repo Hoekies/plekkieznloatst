@@ -289,7 +289,7 @@ export default function FinishScherm({ groepNaam, teamIcoon, teamFoto: beginFoto
         {vrij && <>
         {/* 📤 Onder de stand: de oorkonde delen en terugkijken (alleen de oorkonde: de uitslag deelt de organisatie) */}
         <div className="finish-delen-kop">📤 Delen en terugkijken</div>
-        <Oorkonde teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
+        <Oorkonde thema={themaSleutel ?? huidigFinishThema()} themaEmoji={themaEmoji} teamNaam={groepNaam} icoon={teamIcoon} foto={teamFoto} routeNaam={routeNaam} punten={score} seconden={tijdSeconden} meters={distanceMeters}
           plaats={leaderboard.find((e) => e.is_eigen_team)?.rank ?? null} aantalTeams={leaderboard.length} huisLogo={huisLogo} voorlopig={false}
           prijs={leaderboard.find((e) => e.is_eigen_team)?.prijs ?? null} badges={badges.map((b) => BADGES[b].emoji)} />
 

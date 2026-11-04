@@ -2,7 +2,8 @@ import type { createAdminClient } from "@/lib/supabase-admin";
 import { maakStand } from "@/lib/stand";
 import { spelStatistieken, type TeamStatistiek, type Record_ } from "@/lib/statistieken";
 import { haalReplay } from "@/lib/beamer-replay";
-import { huisLogoUrl } from "@/lib/huisstijl";
+import { huisLogoUrl, routeThema } from "@/lib/huisstijl";
+import type { FinishThemaSleutel } from "@/lib/finish-thema";
 import { testRol } from "@/lib/test-rol";
 import { maakKleurMap } from "@/lib/speler-kleur";
 
@@ -20,6 +21,8 @@ export type GroepTeam = {
 };
 export type GroepPlaatjes = {
   route: string; huis_logo: string | null; datum: string;
+  // 🎨 Het thema waarin gespeeld is
+  thema: FinishThemaSleutel;
   teams: GroepTeam[];
   punten: { lat: number; lng: number; type: string }[];
   records: Record_[];
@@ -73,7 +76,7 @@ export async function groepPlaatjes(admin: AdminClient, routeId: string): Promis
   }).sort((a, b) => b.aantal - a.aantal).slice(0, 12);
 
   return {
-    route: (route?.name as string | undefined) ?? "PointRush", huis_logo: huisLogoUrl(route), datum: datumNu(),
+    route: (route?.name as string | undefined) ?? "PointRush", huis_logo: huisLogoUrl(route), datum: datumNu(), thema: await routeThema(admin, routeId),
     teams, records: stats.records, rivaliteit,
     punten: (punten ?? []).map((p) => ({ lat: p.latitude, lng: p.longitude, type: p.type })),
   };

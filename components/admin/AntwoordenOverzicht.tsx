@@ -8,6 +8,7 @@ import { toonMelding } from "@/components/admin/Melding";
 import VraagStatistiek from "@/components/admin/VraagStatistiek";
 import FotoGalerij, { useFotoUrl } from "@/components/admin/FotoGalerij";
 import StatStrook from "@/components/admin/StatStrook";
+import type { FinishThemaSleutel } from "@/lib/finish-thema";
 import UitslagDelen from "@/components/shared/UitslagDelen";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import UitklapPijl from "@/components/shared/UitklapPijl";
@@ -17,7 +18,7 @@ import { openFotoKeuren } from "@/components/admin/FotoKeuren";
 import GroepPlaatjes from "@/components/admin/GroepPlaatjes";
 
 type Data = {
-  route: { id: string; name: string; huis_logo?: string | null } | null;
+  route: { id: string; name: string; huis_logo?: string | null; thema?: FinishThemaSleutel } | null;
   uitslag_vrijgegeven: boolean;
   teams: TeamAntwoorden[];
   wachtende_fotos: number;
@@ -163,7 +164,7 @@ export default function AntwoordenOverzicht({ beperkt = false }: { beperkt?: boo
         )}
         {data.teams.length > 0 && data.uitslag_vrijgegeven && <GroepPlaatjes knopClass="rl-knop actie-knop" />}
         {data.teams.length > 0 && (
-          <UitslagDelen routeNaam={data.route.name} huisLogo={data.route.huis_logo ?? null} knopClass="rl-knop actie-knop" stand={(() => {
+          <UitslagDelen thema={data.route.thema ?? null} routeNaam={data.route.name} huisLogo={data.route.huis_logo ?? null} knopClass="rl-knop actie-knop" stand={(() => {
             // Plaats: hoogste score eerst; bij gelijke score de snelste (zoals de stand)
             const duur = (t: TeamAntwoorden) => (t.finished_at ? Date.parse(t.finished_at) : Date.now()) - (t.started_at ? Date.parse(t.started_at) : 0);
             const lijst = [...data.teams].sort((a, b) => b.score - a.score || duur(a) - duur(b));

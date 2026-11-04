@@ -1,23 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { spelLogo, themaAchtergrond, FINISH_THEMAS, type FinishThemaSleutel } from "@/lib/finish-thema";
 
 export type AlbumFoto = { id: string; src: string; team: string; icoon: string | null; punt: string };
 
 // 📸 Fotoalbum: alle foto's in een raster; tik op een foto om hem groot te zien (en verder te bladeren)
-export default function FotoAlbum({ titel, fotos, nietBeschikbaar = false, huisLogo = null }: { titel: string; fotos: AlbumFoto[]; nietBeschikbaar?: boolean; huisLogo?: string | null }) {
+export default function FotoAlbum({ titel, fotos, nietBeschikbaar = false, huisLogo = null, thema = null }: { thema?: FinishThemaSleutel | null; titel: string; fotos: AlbumFoto[]; nietBeschikbaar?: boolean; huisLogo?: string | null }) {
   const [groot, setGroot] = useState<number | null>(null);
   const huidig = groot !== null ? fotos[groot] : null;
 
   return (
-    <div className="album">
+    <div className="album" style={thema ? { background: themaAchtergrond(thema) } : undefined}>
       <header className="album-kop">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/spellogo/vierkant.webp" alt="PointRush" className="album-logo" />
+        <img src={spelLogo("vierkant.webp", thema)} alt="PointRush" className="album-logo" />
         {/* Eigen logo van de organisatie (huisstijl van de route) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {huisLogo && <img src={huisLogo} alt="" className="album-huislogo" />}
-        <div className="album-label">📸 Fotoalbum</div>
+        <div className="album-label">{thema ? `${FINISH_THEMAS[thema].versiering[0]} ` : ""}📸 Fotoalbum</div>
         <h1>{titel}</h1>
         {!nietBeschikbaar && <div className="album-aantal">{fotos.length} {fotos.length === 1 ? "foto" : "foto's"}</div>}
       </header>

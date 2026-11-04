@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-admin";
-import { seizoenBeeld } from "@/lib/huisstijl";
+import { seizoenBeeld, themaBeeld } from "@/lib/huisstijl";
+import { bestaandThema } from "@/lib/seizoenen";
 
 // 🗓️ Het spellogo van vandaag: van de feestdag of het seizoen van nu (geüpload, anders de standaard uit
 // public/seizoenen); het gewone logo alleen bij een vastgezet vrij thema zonder logo. Overal in de app staat /spellogo/… in plaats van
@@ -19,7 +20,9 @@ const CACHE = "no-cache";
 export async function GET(request: Request, { params }: { params: { bestand: string } }) {
   const logo = LOGOS[params.bestand];
   if (!logo) return new Response("Niet gevonden", { status: 404 });
-  const beeld = await seizoenBeeld(createAdminClient(), logo.soort).catch(() => null);
+  // ?thema=kerst: het logo van dat thema (gedeelde link of oud spel), anders dat van vandaag
+  const thema = new URL(request.url).searchParams.get("thema");
+  const beeld = await (bestaandThema(thema) ? themaBeeld(createAdminClient(), thema, logo.soort) : seizoenBeeld(createAdminClient(), logo.soort)).catch(() => null);
   // Geüpload (volledig adres): via onze eigen site doorgeven
   if (beeld?.startsWith("http")) {
     const etag = `"${beeld.split("/").pop()}"`;

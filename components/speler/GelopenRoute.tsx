@@ -3,12 +3,15 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { RouteSpoorPunt, BezochtPunt, KaartItem } from "./GelopenRouteKaart";
+import { spelLogo, themaAchtergrond, FINISH_THEMAS, type FinishThemaSleutel } from "@/lib/finish-thema";
 
 const GelopenRouteKaart = dynamic(() => import("./GelopenRouteKaart"), { ssr: false });
 
 // terugNaar = knop "← Terug" (speler). Zonder terugNaar is het de openbare pagina die via de
 // link van de beheerder (rapport → Kaart-link) wordt geopend.
-export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "Jullie gelopen route", ondertitel, terugNaar, huisLogo = null }: {
+export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "Jullie gelopen route", ondertitel, terugNaar, huisLogo = null, thema = null }: {
+  // 🎨 Gedeelde link: het thema waarin gespeeld is (kleuren, versiering en logo)
+  thema?: FinishThemaSleutel | null;
   spoor: RouteSpoorPunt[]; punten: BezochtPunt[]; items: KaartItem[]; afstandM: number;
   titel?: string; ondertitel?: string; terugNaar?: string;
   // Eigen logo van de organisatie (huisstijl van de route)
@@ -16,7 +19,7 @@ export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "
 }) {
   const router = useRouter();
   return (
-    <div style={{ minHeight: "100%", background: "var(--game-gradient)", display: "flex", flexDirection: "column", padding: "20px 16px 32px", gap: 14 }}>
+    <div style={{ minHeight: "100%", background: thema ? themaAchtergrond(thema) : "var(--game-gradient)", display: "flex", flexDirection: "column", padding: "20px 16px 32px", gap: 14 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {terugNaar ? (
           <button onClick={() => router.push(terugNaar)}
@@ -25,10 +28,10 @@ export default function GelopenRoute({ spoor, punten, items, afstandM, titel = "
           </button>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/spellogo/vierkant.webp" alt="PointRush" style={{ height: 44, width: "auto" }} />
+          <img src={spelLogo("vierkant.webp", thema)} alt="PointRush" style={{ height: 44, width: "auto" }} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "1.2rem", color: "#fff", fontWeight: 800 }}>{titel}</h1>
+          <h1 style={{ margin: 0, fontSize: "1.2rem", color: "#fff", fontWeight: 800 }}>{thema && <span aria-hidden>{FINISH_THEMAS[thema].versiering[0]} </span>}{titel}</h1>
           {ondertitel && <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>{ondertitel}</div>}
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}

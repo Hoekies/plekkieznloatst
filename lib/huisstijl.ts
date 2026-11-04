@@ -1,6 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { isKleurThema } from "@/lib/kleurthema";
-import { huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
+import { huidigFinishThema, spelThema, type FinishThemaSleutel } from "@/lib/finish-thema";
 import { huidigThema, nederlandseDag, standaardBeeld, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -49,6 +49,19 @@ export async function seizoenBeeld(admin: AdminClient, soort: SeizoenSoort): Pro
   if (!sleutel) return null;
   const pad = metBeeld.find((r) => r.thema === sleutel)?.[kolom];
   return pad ? OPSLAG + pad : standaardBeeld(sleutel, soort);
+}
+
+// Het adres van de afbeelding van één bepaald thema (geüpload, anders de standaard): voor gedeelde links en oude spellen
+export async function themaBeeld(admin: AdminClient, sleutel: string, soort: SeizoenSoort): Promise<string | null> {
+  const { data } = await admin.from("seizoen_achtergronden").select("*").eq("thema", sleutel).maybeSingle();
+  const pad = (data as unknown as Record<string, string | null> | null)?.[SEIZOEN_KOLOM[soort]];
+  return pad ? OPSLAG + pad : standaardBeeld(sleutel, soort);
+}
+
+// Het thema van het laatste spel op een route (voor rapport, album en deelplaatjes)
+export async function routeThema(admin: AdminClient, routeId: string): Promise<FinishThemaSleutel> {
+  const { data } = await admin.from("player_sessions").select("*").eq("route_id", routeId).order("started_at", { ascending: false }).limit(1).maybeSingle();
+  return spelThema(data);
 }
 
 // 📌 Het vastgezette thema (beheer → Seizoenen), of null = automatisch op datum

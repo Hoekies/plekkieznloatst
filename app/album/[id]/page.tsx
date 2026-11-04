@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { geldigeAlbumSleutel } from "@/lib/deel-link";
 import FotoAlbum, { type AlbumFoto } from "@/components/shared/FotoAlbum";
-import { huisLogoUrl } from "@/lib/huisstijl";
+import { huisLogoUrl, routeThema } from "@/lib/huisstijl";
 
 type Props = { params: { id: string }; searchParams: { k?: string } };
 
@@ -45,5 +45,5 @@ export default async function AlbumPagina({ params, searchParams }: Props) {
     const p = r.player_sessions?.players;
     return [{ id: r.id, src, team: p ? p.nickname ?? p.login_name : "Een team", icoon: p?.icon ?? null, punt: r.route_points?.name ?? "" }];
   });
-  return <FotoAlbum titel={route.name} fotos={fotos} huisLogo={huisLogoUrl(route)} />;
+  return <FotoAlbum thema={await routeThema(admin, route.id)} titel={route.name} fotos={fotos} huisLogo={huisLogoUrl(route)} />;
 }

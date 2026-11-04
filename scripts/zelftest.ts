@@ -5,7 +5,7 @@ import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
-import { FINISH_THEMAS, huidigFinishThema } from "../lib/finish-thema";
+import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
 import { SEIZOEN_VOORBEELDEN, seizoenPrompt } from "../lib/seizoen-prompts";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
@@ -181,8 +181,15 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   for (const v of SEIZOEN_VOORBEELDEN) {
     assert.ok(prompt.includes(v.naam), `de prompt noemt ${v.naam} niet`);
     assert.ok(v.los("Voetbal").includes("Voetbal"), `losse prompt van ${v.label} mist het thema`);
+    assert.ok(v.gemini("Voetbal").includes("Voetbal"), `Gemini-prompt van ${v.label} mist het thema`);
     assert.ok(fs.existsSync(path.join("public", v.bestand)), `voorbeeld ${v.bestand} ontbreekt`);
   }
+  // Een spel houdt zijn eigen thema; zonder bewaard thema telt de datum van het spel, niet die van vandaag
+  assert.equal(spelThema({ thema: "kerst", started_at: "2026-06-01T10:00:00Z" }), "kerst");
+  assert.equal(spelThema({ started_at: "2026-12-20T10:00:00Z" }), "kerst");
+  assert.equal(spelThema({ thema: "bestaatniet", started_at: "2026-07-01T10:00:00Z" }), "zomer");
+  assert.equal(spelLogo("vierkant.webp", "kerst"), "/spellogo/vierkant.webp?thema=kerst");
+  for (const k of Object.keys(FINISH_THEMAS) as (keyof typeof FINISH_THEMAS)[]) assert.ok(!/NaN|undefined/.test(themaAchtergrond(k)), `kleuren van ${k} kloppen niet`);
   // Rond middernacht telt de Nederlandse dag, ook op een server in UTC: 23 okt 22:30 UTC is in Nederland al 24 okt
   const dag = nederlandseDag(new Date(Date.UTC(2026, 9, 23, 22, 30)));
   assert.deepEqual([dag.getFullYear(), dag.getMonth(), dag.getDate()], [2026, 9, 24]);

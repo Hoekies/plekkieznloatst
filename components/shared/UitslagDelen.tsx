@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { elementNaarPng, deelOfDownload, bestandsnaamDeel } from "@/lib/delen";
+import { spelLogo, themaKaartStijl, type FinishThemaSleutel } from "@/lib/finish-thema";
+import ThemaHoeken from "@/components/shared/ThemaHoeken";
 
 // foto: groepsfoto bij de finish (goedgekeurd); anders het icoon
 type UitslagTeam = { naam: string; icon: string | null; foto?: string | null; score: number; plaats: number; eigen?: boolean };
@@ -9,8 +11,10 @@ type UitslagTeam = { naam: string; icon: string | null; foto?: string | null; sc
 // 🖼️ Uitslag als afbeelding om te delen (WhatsApp, Instagram): podium met de top 3 en de rest eronder.
 // Het kaartje staat buiten beeld klaar en wordt pas bij de knop een plaatje (zoals de oorkonde).
 // huisLogo: eigen logo van de organisatie (huisstijl van de route), komt naast het PointRush-logo
-export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopClass = "btn btn-ghost", knopStijl }: {
+export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopClass = "btn btn-ghost", knopStijl, thema = null }: {
   stand: UitslagTeam[]; routeNaam: string | null; huisLogo?: string | null; knopClass?: string; knopStijl?: React.CSSProperties;
+  // 🎨 Het thema van het spel: kleuren, versiering en logo
+  thema?: FinishThemaSleutel | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bezig, setBezig] = useState(false);
@@ -36,10 +40,11 @@ export default function UitslagDelen({ stand, routeNaam, huisLogo = null, knopCl
         {bezig ? "⏳ Afbeelding maken…" : "🖼️ Uitslag delen"}
       </button>
       <div aria-hidden style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none" }}>
-        <div ref={ref} className="uitslag-kaart">
+        <div ref={ref} className="uitslag-kaart" style={themaKaartStijl(thema)}>
+          <ThemaHoeken thema={thema} />
           <div className="uitslag-kaart-logos">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/spellogo/vierkant.webp" alt="" className="uitslag-kaart-logo" />
+            <img src={spelLogo("vierkant.webp", thema)} alt="" className="uitslag-kaart-logo" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {huisLogo && <img src={huisLogo} alt="" crossOrigin="anonymous" className="uitslag-kaart-huislogo" />}
           </div>

@@ -21,6 +21,33 @@ export const FINISH_THEMAS = {
 
 export type FinishThemaSleutel = keyof typeof FINISH_THEMAS;
 
+// Het thema waarin een spel gespeeld is: bewaard bij de start (migratie 014), anders de datum van het spel
+export function spelThema(sessie: unknown): FinishThemaSleutel {
+  const s = (sessie ?? {}) as { thema?: string | null; started_at?: string | null; finished_at?: string | null };
+  if (s.thema && s.thema in FINISH_THEMAS) return s.thema as FinishThemaSleutel;
+  const wanneer = s.started_at ?? s.finished_at;
+  return huidigFinishThema(wanneer ? new Date(wanneer) : new Date());
+}
+
+// Het spellogo van een thema (zonder thema: dat van vandaag), via de eigen site zodat het ook in gemaakte afbeeldingen werkt
+export function spelLogo(bestand: "vierkant.webp" | "breed.webp" | "breed.png", thema?: string | null): string {
+  return thema ? `/spellogo/${bestand}?thema=${encodeURIComponent(thema)}` : `/spellogo/${bestand}`;
+}
+
+const meng = (hex: string, met: string, deel: number) => {
+  const kanaal = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+  return `#${[0, 1, 2].map((i) => Math.round(kanaal(hex, i) + (kanaal(met, i) - kanaal(hex, i)) * deel).toString(16).padStart(2, "0")).join("")}`;
+};
+
+// De kleuren van een thema op een kaartje of gedeelde pagina. Als gewone kleuren (geen color-mix): ook goed in een gemaakte afbeelding.
+export function themaAchtergrond(sleutel: FinishThemaSleutel): string {
+  const basis = FINISH_THEMAS[sleutel].basis;
+  return `radial-gradient(circle at 50% 0%, ${meng(basis, "#FFFFFF", 0.3)} 0%, ${basis} 55%, ${meng(basis, "#000000", 0.35)} 100%)`;
+}
+export function themaKaartStijl(sleutel?: FinishThemaSleutel | null): React.CSSProperties | undefined {
+  return sleutel ? { background: themaAchtergrond(sleutel), borderColor: FINISH_THEMAS[sleutel].kleuren[0] } : undefined;
+}
+
 // Ook rond middernacht op een UTC-server de Nederlandse kalenderdag gebruiken.
 // 📌 Een vastgezet thema (beheer → Seizoenen) gaat voor de datum.
 export function huidigFinishThema(datum = new Date(), vast: string | null = null): FinishThemaSleutel {

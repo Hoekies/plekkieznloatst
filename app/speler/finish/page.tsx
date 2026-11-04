@@ -7,7 +7,7 @@ import { huisLogoUrl, vastThema, eigenEmoji } from "@/lib/huisstijl";
 import { itemsNaFinishVan } from "@/lib/item-sessie";
 import type { LeaderboardEntry } from "@/lib/types";
 import { teamFotos } from "@/lib/teamfoto";
-import { huidigFinishThema } from "@/lib/finish-thema";
+import { FINISH_THEMAS, huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
 
 export default async function FinishPage() {
   const user = await haalGebruiker();
@@ -132,11 +132,14 @@ export default async function FinishPage() {
 
   // 📌 Vastgezet thema (beheer → Seizoenen) gaat voor de datum
   const vast = await vastThema(admin).catch(() => null);
+  // Het thema waarin dit team speelde; zonder bewaard thema (migratie 014) dat van nu
+  const bewaard = (sessie as { thema?: string | null }).thema;
+  const themaVanSpel = bewaard && bewaard in FINISH_THEMAS ? (bewaard as FinishThemaSleutel) : huidigFinishThema(new Date(), vast);
 
   return (
     <FinishScherm
-      themaSleutel={huidigFinishThema(new Date(), vast)}
-      themaEmoji={await eigenEmoji(admin, vast).catch(() => null)}
+      themaSleutel={themaVanSpel}
+      themaEmoji={await eigenEmoji(admin, themaVanSpel).catch(() => null)}
       groepNaam={displayNaam}
       teamIcoon={(speler as { icon?: string | null }).icon ?? null}
       teamFoto={fotos.get(sessie.id) ?? null}

@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { tekstAfstand, normaliseerAntwoord } from "@/lib/geo";
-import { huisLogoUrl } from "@/lib/huisstijl";
+import { huisLogoUrl, routeThema } from "@/lib/huisstijl";
+import type { FinishThemaSleutel } from "@/lib/finish-thema";
 import { testRol } from "@/lib/testteam";
 import { teamFotos } from "@/lib/teamfoto";
 
@@ -45,7 +46,8 @@ export type TeamAntwoorden = {
 
 export type AntwoordenData = {
   // huis_logo: eigen logo van de route (huisstijl), voor de uitslag en het rapport
-  route: { id: string; name: string; huis_logo?: string | null } | null;
+  // thema: waarin gespeeld is (uitslagkaart en rapport)
+  route: { id: string; name: string; huis_logo?: string | null; thema?: FinishThemaSleutel } | null;
   uitslag_vrijgegeven: boolean;
   teams: TeamAntwoorden[];
   wachtende_fotos: number;
@@ -147,5 +149,5 @@ export async function haalAntwoorden(admin: AdminClient, { zonderTest = false }:
   const wachtende_fotos = (fotos ?? []).filter((f) => f.status === "wacht").length;
   const teamFotoMap = await teamFotos(admin, route.id, teams.map((t) => t.sessie_id));
   teams.forEach((t) => { t.foto = teamFotoMap.get(t.sessie_id) ?? null; });
-  return { route: { id: route.id, name: route.name, huis_logo: huisLogoUrl(route) }, uitslag_vrijgegeven: !!route.uitslag_vrijgegeven, teams, wachtende_fotos };
+  return { route: { id: route.id, name: route.name, huis_logo: huisLogoUrl(route), thema: await routeThema(admin, route.id) }, uitslag_vrijgegeven: !!route.uitslag_vrijgegeven, teams, wachtende_fotos };
 }

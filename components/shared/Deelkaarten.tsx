@@ -1,6 +1,8 @@
 "use client";
 
 import type { GroepPlaatjes } from "@/lib/deel-plaatjes";
+import { spelLogo, themaKaartStijl, type FinishThemaSleutel } from "@/lib/finish-thema";
+import ThemaHoeken from "@/components/shared/ThemaHoeken";
 
 // 🖼️ Deelplaatjes na afloop (alleen plaatjes, geen losse tekst). Elk kaartje is 540 px breed en wordt met
 // elementNaarPng een PNG. Routes worden als lijnen getekend (SVG) op een eigen achtergrond: kaarttegels van een
@@ -10,12 +12,13 @@ const getal = (x: number) => x.toString().replace(".", ",");
 const medaille = (r: number) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}.`);
 
 // Kop en voet die alle kaartjes delen
-function Kader({ titel, route, logo, datum, children, klasse = "" }: { titel: string; route: string; logo: string | null; datum: string; children: React.ReactNode; klasse?: string }) {
+function Kader({ titel, route, logo, datum, children, klasse = "", thema }: { titel: string; route: string; logo: string | null; datum: string; children: React.ReactNode; klasse?: string; thema: FinishThemaSleutel }) {
   return (
-    <div className={`uitslag-kaart deelkaart ${klasse}`}>
+    <div className={`uitslag-kaart deelkaart ${klasse}`} style={themaKaartStijl(thema)}>
+      <ThemaHoeken thema={thema} />
       <div className="uitslag-kaart-logos">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/spellogo/vierkant.webp" alt="" className="uitslag-kaart-logo deelkaart-logo" />
+        <img src={spelLogo("vierkant.webp", thema)} alt="" className="uitslag-kaart-logo deelkaart-logo" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {logo && <img src={logo} alt="" crossOrigin="anonymous" className="uitslag-kaart-huislogo" />}
       </div>
@@ -87,7 +90,7 @@ function SporenKaart({ sporen, punten, b = 476, h = 420, overlay }: {
 // ── 1. Uitslag en cijfers ──────────────────────────────────────────────────
 export function UitslagCijfersKaart({ d }: { d: GroepPlaatjes }) {
   return (
-    <Kader titel="Uitslag" route={d.route} logo={d.huis_logo} datum={d.datum} klasse="cijfers-kaart">
+    <Kader titel="Uitslag" route={d.route} logo={d.huis_logo} thema={d.thema} datum={d.datum} klasse="cijfers-kaart">
       <div className="cijfers-stand">
         {d.teams.map((t) => (
           <div key={t.sessie} className={`cijfers-team${t.rank <= 3 ? ` cijfers-team--${t.rank}` : ""}`}>
@@ -124,7 +127,7 @@ export function UitslagCijfersKaart({ d }: { d: GroepPlaatjes }) {
 export function RoutePosterKaart({ d }: { d: GroepPlaatjes }) {
   const punten = d.punten.map((p, i) => ({ lat: p.lat, lng: p.lng, soort: (p.type === "eindpunt" ? "finish" : i === 0 ? "start" : "punt") as "start" | "finish" | "punt", label: p.type === "eindpunt" ? "🏁" : undefined }));
   return (
-    <Kader titel="Onze routes" route={d.route} logo={d.huis_logo} datum={d.datum}>
+    <Kader titel="Onze routes" route={d.route} logo={d.huis_logo} thema={d.thema} datum={d.datum}>
       <SporenKaart sporen={[...d.teams].reverse().map((t) => ({ pts: t.spoor, kleur: t.kleur }))} punten={punten} h={460}
         overlay={(proj) => d.teams.filter((t) => t.spoor.length).map((t) => {
           const [x, y] = proj(t.spoor[t.spoor.length - 1]);
@@ -141,7 +144,7 @@ export function RoutePosterKaart({ d }: { d: GroepPlaatjes }) {
 export function PrijzenKaart({ d }: { d: GroepPlaatjes }) {
   const metPrijs = d.teams.filter((t) => t.prijs);
   return (
-    <Kader titel="Prijzen" route={d.route} logo={d.huis_logo} datum={d.datum}>
+    <Kader titel="Prijzen" route={d.route} logo={d.huis_logo} thema={d.thema} datum={d.datum}>
       <div className="deelkaart-awards">
         {metPrijs.map((t) => (
           <div key={t.sessie} className="deelkaart-award">
@@ -177,7 +180,7 @@ export function RivaliteitenKaart({ d }: { d: GroepPlaatjes }) {
     return { ...x, d: `M${x1},${y1} Q${qx},${qy} ${ex},${ey}`, pijl: pijl.map((p) => p.join(",")).join(" "), kleur, dik: 2 + (6 * x.aantal) / max, lx: (mx + qx) / 2, ly: (my + qy) / 2 };
   });
   return (
-    <Kader titel="Rivalen" route={d.route} logo={d.huis_logo} datum={d.datum}>
+    <Kader titel="Rivalen" route={d.route} logo={d.huis_logo} thema={d.thema} datum={d.datum}>
       <div className="deelkaart-kaart" style={{ width: b, height: h }}>
         <svg width={b} height={h}>
           <rect width={b} height={h} rx="18" style={{ fill: "rgb(var(--o1))" }} />

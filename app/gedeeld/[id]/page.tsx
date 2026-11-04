@@ -4,6 +4,7 @@ import { haalRouteVerslag } from "@/lib/team-verslag";
 import { geldigeSleutel } from "@/lib/deel-link";
 import GelopenRoute from "@/components/speler/GelopenRoute";
 import { huisLogoUrl } from "@/lib/huisstijl";
+import { spelThema } from "@/lib/finish-thema";
 
 type Props = { params: { id: string }; searchParams: { k?: string } };
 
@@ -12,7 +13,8 @@ async function haalGegevens(id: string, k: string | undefined) {
   const admin = createAdminClient();
   const { data: sessie } = await admin
     .from("player_sessions")
-    .select("id, route_id, players!inner(login_name, nickname), routes(*)")
+    // "*": het bewaarde thema (migratie 014) mag ontbreken
+    .select("*, players!inner(login_name, nickname), routes(*)")
     .eq("id", id)
     .maybeSingle();
   if (!sessie) return null;
@@ -44,6 +46,7 @@ export default async function GedeeldeRoute({ params, searchParams }: Props) {
       titel={`Gelopen route van ${g.team}`}
       ondertitel={g.route?.name}
       huisLogo={huisLogoUrl(g.route)}
+      thema={spelThema(g.sessie)}
       spoor={verslag.spoor}
       punten={punten}
       items={verslag.items.filter((i) => i.lat != null && i.lng != null).map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! }))}
