@@ -6,7 +6,7 @@ import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek }
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema } from "../lib/finish-thema";
-import { SEIZOEN_PROMPTS } from "../lib/seizoen-prompts";
+import { SEIZOEN_VOORBEELDEN, seizoenPrompt } from "../lib/seizoen-prompts";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/test-rol";
@@ -170,9 +170,13 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
       else assert.ok(beeld && fs.existsSync(path.join("public", beeld)), `${t.sleutel}: ${soort} ontbreekt in public/seizoenen`);
     }
   }
-  for (const soort of Object.keys(SEIZOEN_KOLOM) as SeizoenSoort[]) {
-    assert.ok(SEIZOEN_PROMPTS[soort].tekst("Voetbal").includes("Voetbal"));
-    assert.ok(fs.existsSync(path.join("public", SEIZOEN_PROMPTS[soort].voorbeeld)), `voorbeeld van ${soort} ontbreekt`);
+  // De prompt maakt alle drie de afbeeldingen en noemt elk voorbeeld bij zijn naam
+  const prompt = seizoenPrompt("Voetbal");
+  assert.ok(prompt.includes("Voetbal") && !prompt.includes("[THEMA]"));
+  assert.equal(SEIZOEN_VOORBEELDEN.length, 3);
+  for (const v of SEIZOEN_VOORBEELDEN) {
+    assert.ok(prompt.includes(v.naam), `de prompt noemt ${v.naam} niet`);
+    assert.ok(fs.existsSync(path.join("public", v.bestand)), `voorbeeld ${v.bestand} ontbreekt`);
   }
   // Rond middernacht telt de Nederlandse dag, ook op een server in UTC: 23 okt 22:30 UTC is in Nederland al 24 okt
   const dag = nederlandseDag(new Date(Date.UTC(2026, 9, 23, 22, 30)));

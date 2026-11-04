@@ -204,8 +204,8 @@ export default function SeizoenAfbeeldingen() {
               })}
             </div>
           )}
-          {/* ✨ Zelf een nieuwe laten maken, in dezelfde stijl */}
-          <SeizoenPrompt soort={soort} naam={info.naam} />
+          {/* ✨ Zelf nieuwe laten maken, alle drie in dezelfde stijl */}
+          <SeizoenPrompt />
         </>
       )}
       <input ref={kiesRef} type="file" accept="image/png,image/jpeg,image/webp" hidden
