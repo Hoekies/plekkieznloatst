@@ -191,6 +191,9 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   const logos = logoPrompt("Bier en wandelen");
   assert.ok(logos.includes("## THEMA: Bier en wandelen") && !logos.includes(THEMA_INVUL));
   assert.ok(logos.includes("TWEE LOSSE AFBEELDINGEN") && logos.includes("GELE BANAAN") && logos.includes("PAARS SPOOKJE") && logos.includes("ZWARTE BOM"));
+  // Vrijstaande logo's: geen achtergrondvormen, en de verhouding hoeft niet exact
+  assert.ok(!logos.includes("Dynamische achtergrondvormen") && !logos.includes("Achtergronddecoratie") && !logos.includes("Beeldverhouding 1:1"));
+  assert.ok(logos.includes("ongeveer 3:1") && logos.includes("geen vierkante vulling"));
   assert.ok(logoBreedPrompt("Kerst").includes("ALLEEN OUTPUT 1") && logoVierkantPrompt("Kerst").includes("ALLEEN OUTPUT 2"));
   for (const tekst of [achtergrondPrompt("Kerst"), achtergrondPromptGemini("Kerst")]) assert.ok(tekst.includes("Kerst") && tekst.includes("9:16"));
   assert.equal(LOGO_REFERENTIES.length, 2);

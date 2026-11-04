@@ -60,7 +60,6 @@ Kenmerken:
 - Krachtige 3D-typografie.
 - Dikke donkere of paarse contourlijnen.
 - Glanzende letterafwerking.
-- Dynamische achtergrondvormen.
 - Paarse, gele en oranje basiskleuren.
 - Professionele, vrolijke en kleurrijke cartoonillustraties.
 
@@ -152,7 +151,6 @@ Pas waar passend aan:
 - Kleuren en kleuraccenten.
 - Kleding en accessoires van de mascotte.
 - Gezichtsuitdrukking.
-- Achtergronddecoratie.
 - Lichteffecten.
 - Kleine thematische illustraties.
 - Sfeer en uitstraling.
@@ -193,10 +191,9 @@ Alleen de volgende teksten zijn toegestaan:
 
 ### Formaat
 
-- Horizontaal.
-- Beeldverhouding 3:1.
+- Horizontaal en breed, ongeveer 3:1. De verhouding hoeft niet exact te zijn.
 - Hoge resolutie.
-- Transparante achtergrond indien mogelijk.
+- Transparante achtergrond, zonder achtergrondvlak of achtergrondvorm.
 
 ### Compositie
 
@@ -205,15 +202,14 @@ Alleen de volgende teksten zijn toegestaan:
 - Mascotte prominent links van de tekst.
 - by Hoekies duidelijk leesbaar op een paarse banner onder de hoofdnaam.
 - Paars spookje, gele banaan en zwarte bom rondom de compositie.
-- Thematische decoraties geïntegreerd in de achtergrond.
-- Dynamische vormen en speelse beweging.
+- Thematische decoraties op of tegen de letters en figuren.
+- Speelse beweging.
 
 ### Verhoudingen
 
 - De merknaam is visueel dominant.
 - De mascotte is duidelijk herkenbaar, maar ondergeschikt aan de tekst.
 - De drie game-elementen zijn goed zichtbaar zonder de compositie te overbelasten.
-- Geen grote lege ruimtes.
 - Geen afgesneden onderdelen.
 
 Het brede logo moet geschikt zijn voor websiteheaders, banners, game-introschermen en promotiemateriaal.
@@ -224,10 +220,10 @@ Het brede logo moet geschikt zijn voor websiteheaders, banners, game-introscherm
 
 ### Formaat
 
-- Vierkant.
-- Beeldverhouding 1:1.
+- Ongeveer vierkant. Het hoeft geen perfect vierkant te zijn.
 - Hoge resolutie.
-- Transparante achtergrond indien mogelijk.
+- Transparante achtergrond, zonder achtergrondvlak of achtergrondvorm.
+- De buitenvorm volgt de letters en figuren: geen vierkante vulling en geen kader.
 
 ### Compositie
 
@@ -287,6 +283,7 @@ Vermijd:
 - Onscherpe details.
 - Onleesbare teksten.
 - Overmatige decoratie.
+- Achtergrondvlakken, kaders en achtergrondvormen.
 - Extra woorden.
 - Watermerken.
 - Afgesneden letters of figuren.
@@ -338,8 +335,9 @@ Controleer beide ontwerpen voor oplevering.
 
 - [ ] Thema duidelijk herkenbaar.
 - [ ] Zelfde mascotte en stijl in beide afbeeldingen.
-- [ ] Breed logo correct in 3:1.
-- [ ] Vierkant logo correct in 1:1.
+- [ ] Breed logo ongeveer 3:1.
+- [ ] Vierkant logo ongeveer 1:1.
+- [ ] Geen achtergrondvlak of achtergrondvorm.
 - [ ] Geen afgesneden elementen.
 - [ ] Geen extra teksten.
 
@@ -352,7 +350,7 @@ Als elementen botsen, verklein dan de decoratie of mascotte. Verklein nooit de m
 Genereer precies **TWEE LOSSE AFBEELDINGEN**:
 
 ### OUTPUT 1 – POINT RUSH BREED
-- Formaat 3:1.
+- Formaat ongeveer 3:1.
 - POINT RUSH groot op één regel.
 - Mascotte links.
 - by Hoekies onder de hoofdnaam.
@@ -360,7 +358,7 @@ Genereer precies **TWEE LOSSE AFBEELDINGEN**:
 - Volledig aangepast aan het opgegeven thema.
 
 ### OUTPUT 2 – POINT RUSH VIERKANT
-- Formaat 1:1.
+- Formaat ongeveer 1:1.
 - POINT boven RUSH.
 - by Hoekies onder de hoofdnaam.
 - Zelfde expressieve mascotte.
@@ -378,7 +376,7 @@ Maak bij voorkeur eerst het brede logo en gebruik dat resultaat als aanvullende 
 3. Dezelfde herkenbare expressieve mascotte.
 4. Het paarse spookje, de gele banaan en de zwarte bom.
 5. Een duidelijke, consistente thema-uitvoering.
-6. Twee afzonderlijke professionele logo's in 3:1 en 1:1.
+6. Twee afzonderlijke professionele logo's, ongeveer 3:1 en ongeveer 1:1, zonder achtergrond.
 
 **EINDRESULTAAT:** Twee direct herkenbare, professioneel afgewerkte POINT RUSH-gaminglogo's die eruitzien als officiële speciale thema-edities van hetzelfde spel.`;
 
@@ -389,7 +387,7 @@ export const logoBreedPrompt = (thema: string) => `${logoPrompt(thema)}
 
 ## MAAK IN DIT BERICHT ALLEEN OUTPUT 1 – POINT RUSH BREED
 
-Maak nu alleen het brede logo, als één afbeelding in beeldverhouding 3:1. Het vierkante logo volgt in een volgend bericht.`;
+Maak nu alleen het brede logo, als één afbeelding van ongeveer 3:1. Het vierkante logo volgt in een volgend bericht.`;
 
 export const logoVierkantPrompt = (thema: string) => `${logoPrompt(thema)}
 
@@ -397,7 +395,7 @@ export const logoVierkantPrompt = (thema: string) => `${logoPrompt(thema)}
 
 ## MAAK IN DIT BERICHT ALLEEN OUTPUT 2 – POINT RUSH VIERKANT
 
-Maak nu alleen het vierkante logo, als één afbeelding in beeldverhouding 1:1. Staat het brede logo al in deze chat, gebruik dat dan als extra referentie, met dezelfde mascotte en dezelfde thematische uitstraling.`;
+Maak nu alleen het vierkante logo, als één afbeelding van ongeveer 1:1. Staat het brede logo al in deze chat, gebruik dat dan als extra referentie, met dezelfde mascotte en dezelfde thematische uitstraling.`;
 
 export const achtergrondPrompt = (thema: string) => `Maak in exact dezelfde stijl als de bijgevoegde afbeelding een nieuwe achtergrond voor het welkomstscherm van een speurtocht-game, met als thema: ${thema}.
 
