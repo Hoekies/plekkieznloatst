@@ -195,6 +195,13 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3: VIERKANT LOGO") < prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO"));
   assert.ok(prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO") < prompt.indexOf("AFBEELDING 3 VAN 3: ACHTERGROND"));
   assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3") > 0);
+  // Het brede logo is rustig (klein in de bovenbalk): in alle drie de prompts, en het voorbeeld bestaat
+  const breed = SEIZOEN_VOORBEELDEN.find((v) => v.label === "Logo breed")!;
+  for (const tekst of [breed.los("Voetbal"), breed.opdracht("Voetbal"), breed.gemini("Voetbal")]) {
+    assert.ok(tekst.includes("POINT RUSH") && tekst.includes("twee derde") && tekst.includes("spreekwolken") && tekst.includes("Voetbal"));
+    assert.ok(!tekst.includes("rijke rand"), "het brede logo mag geen rijke rand vragen");
+  }
+  assert.ok(fs.existsSync(path.join("public", breed.bestand)), "voorbeeld van het brede logo ontbreekt");
   for (const v of SEIZOEN_VOORBEELDEN) {
     assert.ok(prompt.includes(v.naam), `de prompt noemt ${v.naam} niet`);
     assert.ok(v.los("Voetbal").includes("Voetbal"), `losse prompt van ${v.label} mist het thema`);

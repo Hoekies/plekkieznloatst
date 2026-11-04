@@ -1,7 +1,8 @@
 // ✨ Prompts om in ChatGPT of Gemini voor een thema de drie afbeeldingen te laten maken, in de stijl van de app.
 // De voorbeeldbestanden gaan als bijlage mee: dat houdt de stijl het best vast. De gezamenlijke prompt noemt ze bij hun
-// bestandsnaam, dus die moeten hier hetzelfde blijven. De voorbeeldlogo's staan in public/voorbeeld; de muts, voorwerpen en
-// slingers daarop horen bij hun eigen thema, dus de prompts zeggen dat die vervangen worden.
+// bestandsnaam, dus die moeten hier hetzelfde blijven. Het vierkante voorbeeldlogo staat in public/voorbeeld; de muts, voorwerpen
+// en slingers daarop horen bij hun eigen thema, dus de prompts zeggen dat die vervangen worden. Het brede logo staat klein in de
+// bovenbalk: dat is bewust rustig (eigen regels, en het strakke logo als voorbeeld), anders is de naam niet te lezen.
 const LOGO_REGELS = (thema: string) => `Houd precies hetzelfde:
 - de opbouw van het logo en de plek van alle onderdelen
 - het witte, vrolijke rennende poppetje, de zwarte bom met brandende lont en het boze paarse spookje
@@ -16,6 +17,23 @@ Vervang voor het thema ${thema}:
 
 Stijl: glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning en felle kleuren.
 Geen extra tekst, geen rand en geen slagschaduw op de achtergrond. Effen witte achtergrond (de app knipt die zelf weg).`;
+
+const BREED_REGELS = (thema: string) => `Dit logo staat klein in de bovenbalk van een telefoon: de naam moet in één oogopslag te lezen zijn. Rust gaat voor versiering.
+
+Houd hetzelfde:
+- de tekst POINT RUSH op één regel (POINT wit, RUSH goud-oranje), met dikke donkere omlijning, en "by Hoekies" op de paarse band: exact deze spelling
+- het witte, rennende poppetje links van de tekst
+- paars en goud-oranje als hoofdkleuren
+
+Houd het rustig:
+- POINT RUSH is veruit het grootste onderdeel: minstens twee derde van de breedte en bijna de volle hoogte
+- niets op, achter, boven of onder de letters: geen voorwerpen, slingers, patronen of vlakken
+- geen spreekwolken, bom, spookje, blokjes of rand
+- thema ${thema}: alleen iets dat het poppetje draagt (bijvoorbeeld een muts, bril of kostuum) en hooguit twee kleine voorwerpen naast het poppetje
+
+Stijl: glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met felle kleuren.
+Geen extra tekst, geen rand en geen slagschaduw op de achtergrond. Effen witte achtergrond (de app knipt die zelf weg).
+Formaat: breed en laag (ongeveer 8:3).`;
 
 const ACHTERGROND_REGELS = (thema: string) => `Inhoud:
 - een sfeervol, sprookjesachtig landschap of straatbeeld dat past bij het thema ${thema}, geschilderd in warme, gouden lichtval
@@ -33,6 +51,8 @@ Geen tekst, geen logo's en geen mensen.`;
 // in de tekst, de exacte tekst, en wat gelijk moet blijven. In dezelfde chat, zodat de versiering gelijk blijft.
 const GEMINI_LOGO = (thema: string) => `Gebruik de bijgevoegde afbeelding als het logo dat je aanpast, en houd de stijl en opbouw precies zo: een glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning en felle kleuren, in paars en goud-oranje. Het witte, vrolijke rennende poppetje, de zwarte bom met brandende lont, het boze paarse spookje, de paarse blokjes met de oranje driehoek en de spreekwolken met +100, +50, +200 en +25 blijven staan waar ze staan. De tekst is letterlijk POINT RUSH, met POINT in wit en RUSH in goud-oranje, en daaronder "by Hoekies" op een paarse band; er staat geen andere tekst in de afbeelding, behalve die spreekwolken. Pas de rest aan voor het thema ${thema}: geef het poppetje iets dat bij ${thema} past, zoals een muts, bril of kostuum, en vervang alle andere voorwerpen en slingers uit het voorbeeld door vrolijke voorwerpen die bij ${thema} passen, in een rijke rand om en achter het logo, zonder dat ze de tekst bedekken. De achtergrond is egaal wit, zonder rand en zonder schaduw.`;
 
+const GEMINI_BREED = (thema: string) => `Gebruik de bijgevoegde afbeelding als voorbeeld voor het lettertype en de stijl: een glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning, in paars en goud-oranje. Dit logo staat klein in de bovenbalk van een telefoon, dus de naam moet in één oogopslag te lezen zijn en rust gaat voor versiering. De tekst is letterlijk POINT RUSH op één regel, met POINT in wit en RUSH in goud-oranje, en daaronder "by Hoekies" op een paarse band; er staat geen andere tekst in de afbeelding. POINT RUSH is veruit het grootste onderdeel: minstens twee derde van de breedte en bijna de volle hoogte. Links van de tekst staat alleen het witte, rennende poppetje. Voor het thema ${thema} draagt het poppetje iets dat daarbij past, zoals een muts, bril of kostuum, met hooguit twee kleine voorwerpen naast het poppetje. Er staat niets op, achter, boven of onder de letters: geen voorwerpen, slingers, patronen of vlakken, en ook geen spreekwolken, bom, spookje, blokjes of rand. De achtergrond is egaal wit, zonder schaduw. Maak de afbeelding breed en laag, in beeldverhouding 21:9.`;
+
 // De drie afbeeldingen, logo's eerst: wat vooraan staat, bepaalt in ChatGPT het sterkst wat er gemaakt wordt
 export const SEIZOEN_VOORBEELDEN = [
   {
@@ -43,11 +63,11 @@ export const SEIZOEN_VOORBEELDEN = [
     gemini: (thema: string) => `${GEMINI_LOGO(thema)} Maak de afbeelding vierkant, in beeldverhouding 1:1.`,
   },
   {
-    label: "Logo breed", bestand: "/voorbeeld/logo-breed.webp", naam: "pointrush-logo-breed.webp",
+    label: "Logo breed", bestand: "/logo-breed-strak.webp", naam: "pointrush-logo-breed.webp",
     kop: "BREED LOGO",
-    los: (thema: string) => `Maak van het bijgevoegde PointRush-logo een versie voor het thema: ${thema}.\n\n${LOGO_REGELS(thema)}\n\nFormaat: breed en laag (ongeveer 8:3), met het poppetje links en POINT RUSH op één regel rechts ernaast. Laat de voorwerpen niet ver boven of onder het logo uitsteken.`,
-    opdracht: (thema: string) => `Maak van het voorbeeld een breed logo voor het thema ${thema}, met hetzelfde poppetje en dezelfde voorwerpen als afbeelding 1.\n\nDezelfde regels als afbeelding 1, maar: formaat breed en laag (ongeveer 8:3), met het poppetje links en POINT RUSH op één regel rechts ernaast. Laat de voorwerpen niet ver boven of onder het logo uitsteken.`,
-    gemini: (thema: string) => `${GEMINI_LOGO(thema)} Maak de afbeelding breed en laag, in beeldverhouding 21:9, met het poppetje links en POINT RUSH op één regel rechts ernaast, en houd de voorwerpen dicht bij het logo. Gebruik hetzelfde poppetje en dezelfde voorwerpen als in het vierkante logo uit deze chat, als dat er is.`,
+    los: (thema: string) => `Maak van het bijgevoegde PointRush-logo een rustige versie voor het thema: ${thema}.\n\n${BREED_REGELS(thema)}`,
+    opdracht: (thema: string) => `Maak van het voorbeeld een rustig, breed logo voor het thema ${thema}, met hetzelfde poppetje als afbeelding 1. Neem de voorwerpen en spreekwolken van afbeelding 1 niet over.\n\n${BREED_REGELS(thema)}`,
+    gemini: (thema: string) => `${GEMINI_BREED(thema)} Gebruik hetzelfde poppetje als in het vierkante logo uit deze chat, als dat er is, maar neem de voorwerpen en spreekwolken daarvan niet over.`,
   },
   {
     label: "Achtergrond", bestand: "/seizoenen/zomer-achtergrond.webp", naam: "pointrush-achtergrond.webp",
