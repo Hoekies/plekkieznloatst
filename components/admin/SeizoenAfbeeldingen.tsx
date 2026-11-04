@@ -196,13 +196,13 @@ export default function SeizoenAfbeeldingen() {
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}{!pad && standaard && <span className="seizoen-standaard">standaard</span>}</span>
                     <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
                       onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
-                      title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${t.naam} overal vastzetten`}
-                      aria-label={vast === t.sleutel ? `${t.naam} losmaken` : `${t.naam} vastzetten`}>📌</button>
+                      title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${themaNaam(t, namen)} overal vastzetten`}
+                      aria-label={vast === t.sleutel ? `${themaNaam(t, namen)} losmaken` : `${themaNaam(t, namen)} vastzetten`}>📌</button>
                     {/* Alleen een gekozen afbeelding is te verwijderen; de standaard blijft er altijd */}
                     {pad && (
                       <BevestigKnop venster icoon="🗑️" titel={`${info.naam} van ${themaNaam(t, namen)} verwijderen?`} vraag=""
                         uitleg={standaard ? "De standaardafbeelding komt er weer voor terug." : "Dit vak wordt weer leeg."}
-                        ja="Ja, verwijderen" onBevestig={() => weg(t.sleutel, soort)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
+                        ja="Ja, verwijderen" onBevestig={() => weg(t.sleutel, soort)} className="seizoen-weg" title={`${info.naam} verwijderen`} label={`${info.naam} van ${themaNaam(t, namen)} verwijderen`}>✕</BevestigKnop>
                     )}
                   </div>
                 );
@@ -236,12 +236,17 @@ export default function SeizoenAfbeeldingen() {
                   {pad && (
                     <BevestigKnop venster icoon="🗑️" titel={`${s.naam} van ${themaNaam(openThema, namen)} verwijderen?`} vraag=""
                       uitleg={standaard ? "De standaardafbeelding komt er weer voor terug." : "Dit vak wordt weer leeg."}
-                      ja="Ja, verwijderen" onBevestig={() => weg(openThema.sleutel, s.soort)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
+                      ja="Ja, verwijderen" onBevestig={() => weg(openThema.sleutel, s.soort)} className="seizoen-weg" title={`${s.naam} verwijderen`} label={`${s.naam} van ${themaNaam(openThema, namen)} verwijderen`}>✕</BevestigKnop>
                   )}
                 </div>
               );
             })}
           </div>
+          {/* 📌 Ook hier, met tekst: wat de knop doet staat er meteen bij */}
+          <button type="button" className="rl-knop seizoen-set-pin" aria-pressed={vast === openThema.sleutel}
+            onClick={() => zetVast(vast === openThema.sleutel ? null : openThema.sleutel)}>
+            📌 {vast === openThema.sleutel ? "Staat overal vast: tik om los te maken" : "Dit thema overal vastzetten"}
+          </button>
         </VensterMetKop>
       )}
       <input ref={kiesRef} type="file" accept="image/png,image/jpeg,image/webp" hidden

@@ -8,8 +8,10 @@ import { createPortal } from "react-dom";
 // er een venster midden in beeld met alleen een icoon, de titel en twee knoppen (vraag geldt dan niet).
 export default function BevestigKnop({
   children, vraag, ja = "Ja", onBevestig, className = "btn btn-ghost", style, disabled, title,
-  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst, uitleg, sneltoets,
+  venster = false, titel, icoon, gevaarlijk = true, tip, tipOnder = false, knopTekst, uitleg, sneltoets, label,
 }: {
+  // Naam voor schermlezers, voor een knop met alleen een teken en zonder tip
+  label?: string;
   // ⌨️ Toets die deze knop indrukt (zie components/admin/Sneltoetsen.tsx)
   sneltoets?: string;
   children: ReactNode;
@@ -53,7 +55,7 @@ export default function BevestigKnop({
     try { await onBevestig(); } finally { setBezig(false); setVragen(false); }
   }
 
-  const knop = <button type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip} data-sneltoets={sneltoets} onClick={() => setVragen(true)}>{children}</button>;
+  const knop = <button type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip ?? label} data-sneltoets={sneltoets} onClick={() => setVragen(true)}>{children}</button>;
 
   if (venster) {
     return (
