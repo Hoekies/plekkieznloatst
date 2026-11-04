@@ -174,8 +174,13 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   const prompt = seizoenPrompt("Voetbal");
   assert.ok(prompt.includes("Voetbal") && !prompt.includes("[THEMA]"));
   assert.equal(SEIZOEN_VOORBEELDEN.length, 3);
+  // Elke afbeelding expliciet genummerd, de logo's vooraan (anders maakte ChatGPT drie achtergronden)
+  assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3: VIERKANT LOGO") < prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO"));
+  assert.ok(prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO") < prompt.indexOf("AFBEELDING 3 VAN 3: ACHTERGROND"));
+  assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3") > 0);
   for (const v of SEIZOEN_VOORBEELDEN) {
     assert.ok(prompt.includes(v.naam), `de prompt noemt ${v.naam} niet`);
+    assert.ok(v.los("Voetbal").includes("Voetbal"), `losse prompt van ${v.label} mist het thema`);
     assert.ok(fs.existsSync(path.join("public", v.bestand)), `voorbeeld ${v.bestand} ontbreekt`);
   }
   // Rond middernacht telt de Nederlandse dag, ook op een server in UTC: 23 okt 22:30 UTC is in Nederland al 24 okt

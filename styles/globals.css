@@ -4907,4 +4907,5 @@ button.plezier-toast { font: inherit; color: inherit; text-align: left; cursor: 
 .seizoen-prompt-rij .form-input { flex: 1 1 220px; min-width: 0; margin: 0; }
 .seizoen-prompt-rij .rl-knop { height: 40px; }
 .seizoen-prompt-label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.seizoen-prompt-los { display: flex; flex-direction: column; gap: 6px; }
 .seizoen-prompt-tekst { width: 100%; box-sizing: border-box; resize: vertical; font-size: 0.78rem; line-height: 1.45; color: var(--text); }
