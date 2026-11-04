@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
   let body: RouteExport;
-  try { body = await request.json(); } catch { return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 }); }
+  try { body = await request.json().catch(() => ({})); } catch { return NextResponse.json({ fout: "Ongeldig JSON-bestand" }, { status: 400 }); }
   // 💬 Uitleg per antwoord alleen meenemen als migratie 023 gedraaid is (anders mislukt het invoegen)
   const uitlegKan = !(await createAdminClient().from("answer_options").select("uitleg").limit(1)).error;
 

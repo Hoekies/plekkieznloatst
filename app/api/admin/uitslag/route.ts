@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const user = await haalGebruiker();
   if (!isAdmin(user)) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
-  const { vrij } = await request.json();
+  const { vrij } = await request.json().catch(() => ({}));
   const admin = createAdminClient();
   const { data: route, error: leesFout } = await admin.from("routes").select("id").eq("is_active", true).maybeSingle();
   if (leesFout) return NextResponse.json({ fout: leesFout.message }, { status: 500 });

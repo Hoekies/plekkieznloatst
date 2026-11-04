@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { inlogMoment, uitgelogdNaLogin } from "@/lib/inlog-moment";
 
 export async function POST(request: NextRequest) {
-  const { deviceId } = await request.json();
+  const { deviceId } = await request.json().catch(() => ({}));
   if (!deviceId) return NextResponse.json({ fout: "Geen device ID" }, { status: 400 });
 
   const supabase = await createServerSupabaseClient();

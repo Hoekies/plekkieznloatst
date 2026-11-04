@@ -26,7 +26,7 @@ type Antwoord = { color: string; answer_type: string; text: string | null; image
 export async function PUT(request: NextRequest, { params }: Params) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const admin = createAdminClient();
 
   // ── Controleren vóór er iets wordt opgeslagen (zelfde eisen als de editor) ──

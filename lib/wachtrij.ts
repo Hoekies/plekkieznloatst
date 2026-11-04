@@ -58,7 +58,8 @@ const post = (url: string, body: unknown) =>
 
 // Later opnieuw proberen bij pauze (409 met pauze), een tijdelijk geblokkeerd punt (423) of een serverfout
 async function opnieuwLater(res: Response) {
-  if (res.status >= 500 || res.status === 423 || res.status === 429) return true;
+  // 401: niet (meer) ingelogd. Bewaren: na opnieuw inloggen gaat het alsnog mee
+  if (res.status >= 500 || res.status === 401 || res.status === 423 || res.status === 429) return true;
   if (res.status === 409) return !!(await res.clone().json().catch(() => ({}))).pauze;
   return false;
 }
@@ -76,12 +77,15 @@ export function verstuurWachtrij(): Promise<void> {
       for (let lijst = lees(); lijst.length; lijst = lees()) {
         const o = lijst[0];
         let res: Response;
-        try { res = await post(o.url, o.body); } catch { return; }  // nog geen bereik
+        // uit_wachtrij: dit is eerder gegeven dan het nu aankomt (telt niet als te laat bij een tijdslimiet)
+        try { res = await post(o.url, { ...(o.body as Record<string, unknown>), uit_wachtrij: true }); } catch { return; }  // nog geen bereik
         if (!res.ok && await opnieuwLater(res)) return;
         if (!res.ok && !await alGedaan(res)) {
           // Geweigerd: bewaren met de reden, zodat het team (of de spelleider) het ziet
           const reden = String((await res.clone().json().catch(() => ({}))).fout ?? `Fout ${res.status}`);
           schrijfMislukt([...leesMislukt(), { ...o, reden }]);
+          // Ook voor de beheerder (Systeemcheck → Foutmeldingen)
+          fetch("/api/fout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bericht: `Opdracht geweigerd: ${reden}`, pad: o.url }) }).catch(() => undefined);
         }
         schrijf(lees().slice(1));
       }
@@ -98,7 +102,8 @@ export async function stuur(url: string, body: Record<string, unknown>): Promise
   if (!lees().length) {
     try {
       const res = await post(url, metSessie);
-      return { status: res.ok ? "ok" : "fout", res };
+      // Niet meer ingelogd: bewaren en na het inloggen alsnog versturen, in plaats van het antwoord kwijt te raken
+      if (res.status !== 401) return { status: res.ok ? "ok" : "fout", res };
     } catch { /* geen bereik: bewaren */ }
   }
   schrijf([...lees(), { url, body: metSessie, tijd: Date.now(), sessie: huidigeSessie }]);

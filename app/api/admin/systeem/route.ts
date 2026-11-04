@@ -1,131 +1,186 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { verwachtSchema, verwachteMappen } from "@/lib/migratie-schema.mjs";
 
-// 🩺 Systeemcheck: is de database bijgewerkt (alle migraties), staat de opslag goed, en de instellingen?
-// Alleen lezen. Waarden van geheime instellingen worden nooit teruggegeven, alleen of ze er zijn.
-export type Check = { groep: string; naam: string; ok: boolean; uitleg?: string };
+// 🩺 Systeemcheck: klopt de database met de migraties, is alles afgeschermd, staan opslag en instellingen goed, zijn
+// de externe diensten bereikbaar? Waarden van geheime instellingen worden nooit teruggegeven, alleen of ze er zijn.
+// ?teller=1: alleen het lichte deel, voor het bolletje in het menu (geen schrijfpogingen, geen externe diensten).
+// licht: hoort bij dat lichte deel. info: ter informatie, telt niet mee. tijdelijk: ligt aan een andere dienst, geen actie.
+export type Check = { groep: string; naam: string; ok: boolean; uitleg?: string; licht?: boolean; info?: boolean; tijdelijk?: boolean };
 
-const MIGRATIES: { nr: string; bestand: string; wat: string; tabel: string; kolom?: string }[] = [
-  { nr: "003", bestand: "003_routes_bewerkt_op.sql", wat: "laatst aangepast bij routes", tabel: "routes", kolom: "bewerkt_op" },
-  { nr: "004", bestand: "004_pushmeldingen.sql", wat: "pushmeldingen", tabel: "push_abonnementen" },
-  { nr: "005", bestand: "005_spelers_vernieuwen.sql", wat: "wijzigingen naar spelers sturen", tabel: "routes", kolom: "spelers_vernieuwen_at" },
-  { nr: "006", bestand: "006_correcties_en_eindtijd.sql", wat: "punten aanpassen en eindtijd", tabel: "score_correcties" },
-  { nr: "007", bestand: "007_vragenbank.sql", wat: "favorieten in de vragenbank", tabel: "vragenbank_markering" },
-  { nr: "008", bestand: "008_inloglinks.sql", wat: "inloglinks zonder wachtwoord", tabel: "inlog_links" },
-  { nr: "009", bestand: "009_teambericht_en_telefoon.sql", wat: "bericht aan één team en telefoonnummers", tabel: "players", kolom: "telefoon" },
-  { nr: "010", bestand: "010_pauze.sql", wat: "spel pauzeren", tabel: "routes", kolom: "gepauzeerd_sinds" },
-  { nr: "011", bestand: "011_wachtwoord_bewaren.sql", wat: "wachtwoord opnieuw versturen", tabel: "players", kolom: "wachtwoord_versleuteld" },
-  { nr: "012", bestand: "012_hele_route_zichtbaar.sql", wat: "hele route zichtbaar", tabel: "routes", kolom: "alle_punten_zichtbaar" },
-  { nr: "014", bestand: "014_vraagopties_puzzel_verboden.sql", wat: "vraagopties, puzzelwoord, verboden gebieden", tabel: "routes", kolom: "verboden_gebieden" },
-  { nr: "015", bestand: "015_indexen_opruimen_foutlog.sql", wat: "snellere database, opruimen, foutlogboek", tabel: "client_fouten" },
-  { nr: "016", bestand: "016_huisstijl_geluid_stemvraag.sql", wat: "huisstijl, geluidset en stemvraag", tabel: "routes", kolom: "geluid_set" },
-  { nr: "017", bestand: "017_puzzel_verdeling.sql", wat: "puzzelwoord aan/uit en letters per vraag", tabel: "routes", kolom: "puzzel_verdeling" },
-  { nr: "018", bestand: "018_puzzel_gok.sql", wat: "puzzelwoord raden na de finish", tabel: "player_sessions", kolom: "puzzel_gok" },
-  { nr: "019", bestand: "019_seizoen_achtergronden.sql", wat: "achtergronden per seizoen en feestdag", tabel: "seizoen_achtergronden" },
-  { nr: "020", bestand: "020_seizoen_logos.sql", wat: "spellogo per seizoen en feestdag", tabel: "seizoen_achtergronden", kolom: "logo_pad" },
-  { nr: "022", bestand: "022_routes_map_statistiek.sql", wat: "routes in mappen en vraag-statistiek", tabel: "routes", kolom: "map" },
-  { nr: "023", bestand: "023_antwoord_uitleg.sql", wat: "uitleg per antwoord", tabel: "answer_options", kolom: "uitleg" },
-  { nr: "024", bestand: "024_puzzel_raad_start.sql", wat: "puzzelwoord raden met Start", tabel: "player_sessions", kolom: "puzzel_raad_start" },
-  { nr: "025", bestand: "025_routes_vraag_punten.sql", wat: "punten per vraag", tabel: "routes", kolom: "vraag_punten" },
-  { nr: "026", bestand: "026_routes_startvraag_meter.sql", wat: "afstand tot de eerste vraag", tabel: "routes", kolom: "startvraag_meter" },
-];
+const SQL_EDITOR = "Draai in Supabase → SQL Editor";
+const NUL = "00000000-0000-0000-0000-000000000000";
 
-export async function GET() {
-  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const admin = createAdminClient();
+type Admin = ReturnType<typeof createAdminClient>;
+
+// Staan alle tabellen en kolommen uit de migraties in de database? Eén verzoek per tabel; alleen als dat mislukt
+// per kolom, om te kunnen zeggen welk bestand er ontbreekt.
+async function schemaChecks(admin: Admin): Promise<Check[]> {
+  let schema: Map<string, Map<string, string>>;
+  try { schema = verwachtSchema(); } catch {
+    return [{ groep: "Database", naam: "Migratiebestanden lezen", ok: false, licht: true, uitleg: "De bestanden in supabase/migrations zijn niet meegekomen met deze versie." }];
+  }
+  const missend = new Map<string, string[]>();
+  let goed = 0;
+  await Promise.all([...schema].map(async ([tabel, kolommen]) => {
+    const namen = [...kolommen.keys()];
+    const { error } = await admin.from(tabel).select(namen.join(",") || "*").limit(0);
+    if (!error) { goed += namen.length; return; }
+    const uitslagen = await Promise.all([...kolommen].map(async ([k, bron]) => {
+      const { error: e } = await admin.from(tabel).select(k).limit(0);
+      return { k, bron, ok: !e };
+    }));
+    for (const u of uitslagen) {
+      if (u.ok) goed++;
+      else missend.set(u.bron, [...(missend.get(u.bron) ?? []), `${tabel}.${u.k}`]);
+    }
+  }));
+  const checks: Check[] = [{ groep: "Database", naam: `Tabellen en kolommen uit de migraties (${goed})`, ok: true, licht: true }];
+  for (const [bestand, wat] of [...missend].sort()) {
+    checks.push({ groep: "Database", naam: `${bestand} is niet (helemaal) gedraaid`, ok: false, licht: true,
+      uitleg: `${SQL_EDITOR}: supabase/migrations/${bestand}. Mist: ${wat.slice(0, 4).join(", ")}${wat.length > 4 ? ` en nog ${wat.length - 4}` : ""}.` });
+  }
+  return checks.length > 1 ? checks.filter((c) => !c.ok) : checks;
+}
+
+// Regels die je niet aan een kolom ziet: probeer iets dat op een latere controle afstuit. Weigert de regel zelf (23514),
+// dan ontbreekt de migratie. Er komt nooit iets bij: er is altijd een volgende controle die het tegenhoudt.
+async function regelChecks(admin: Admin): Promise<Check[]> {
   const checks: Check[] = [];
-
-  // Verbinding
-  const { error: verbindingFout } = await admin.from("routes").select("id").limit(1);
-  checks.push({ groep: "Database", naam: "Verbinding met de database", ok: !verbindingFout, uitleg: verbindingFout?.message });
-
-  // Migraties: bestaat de tabel of kolom die ze toevoegen?
-  for (const m of MIGRATIES) {
-    const { error } = await admin.from(m.tabel).select(m.kolom ?? "*").limit(1);
-    checks.push({ groep: "Database", naam: `Migratie ${m.nr}: ${m.wat}`, ok: !error, uitleg: error ? `Draai in Supabase → SQL Editor het deel "Migratie ${m.nr}" uit supabase/migrations/001_schema.sql (was ${m.bestand}).` : undefined });
-  }
-  // 013: mag een punt "doorlooppunt" zijn? Probeer een punt op een route die niet bestaat: zonder migratie
-  // weigert de soortcontrole (23514), met migratie pas de verwijzing naar de route (23503). Er komt nooit iets bij.
-  const { error: soortFout } = await admin.from("route_points").insert({
-    route_id: "00000000-0000-0000-0000-000000000000", order_index: 0, type: "doorlooppunt", name: "systeemcheck", latitude: 0, longitude: 0,
-  });
+  const { error: soortFout } = await admin.from("route_points").insert({ route_id: NUL, order_index: 0, type: "doorlooppunt", name: "systeemcheck", latitude: 0, longitude: 0 });
   const doorloopOk = !!soortFout && soortFout.code !== "23514";
-  checks.push({ groep: "Database", naam: "Migratie 013: 🚶 doorlooppunten", ok: doorloopOk, uitleg: doorloopOk ? undefined : "Draai in Supabase → SQL Editor het deel \"Migratie 013\" uit supabase/migrations/001_schema.sql." });
-  // 021: mag een score onder 0? Zelfde truc: een spel met score −1 voor een speler die niet bestaat. Zonder
-  // migratie weigert de scorecontrole (23514), met migratie pas de verwijzing (23503). Er komt nooit iets bij.
-  const { error: scoreFout } = await admin.from("player_sessions").insert({
-    player_id: "00000000-0000-0000-0000-000000000000", route_id: "00000000-0000-0000-0000-000000000000", score: -1, status: "vervallen",
-  });
-  const minOk = !!scoreFout && scoreFout.code !== "23514";
-  checks.push({ groep: "Database", naam: "Migratie 021: minpunten (score onder 0)", ok: minOk, uitleg: minOk ? undefined : "Draai in Supabase → SQL Editor het deel \"Migratie 021\" uit supabase/migrations/001_schema.sql." });
-  // Nieuwe migratie 002: scores in één stap. Aanroep op een sessie die niet bestaat verandert niets.
-  const { error: atoomFout } = await admin.rpc("pr_score_bij", { p_sessie: "00000000-0000-0000-0000-000000000000", p_delta: 0 });
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 002: scores en items in één stap", ok: !atoomFout, uitleg: atoomFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/002_atomaire_acties.sql. Tot dan werkt alles op de oude manier." : undefined });
-  // Migratie 003: spelers mogen routes (met het puzzelwoord) niet zelf lezen. Met de openbare sleutel moet
-  // Supabase het verzoek weigeren (zonder die migratie: een lege lijst).
-  const routesAfgeschermd = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/routes?select=id&limit=1`, {
-    headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""}` },
-    cache: "no-store",
-  }).then((r) => r.status === 401 || r.status === 403).catch(() => false);
-  // Ook de kolom van 003 (startitems maar één keer): die regel kan apart vergeten worden
-  const { error: startitemsFout } = await admin.from("player_sessions").select("startitems_op").limit(1);
-  const ok003 = routesAfgeschermd && !startitemsFout;
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 003: puzzelwoord afgeschermd en startitems één keer", ok: ok003, uitleg: ok003 ? undefined
-    : !routesAfgeschermd ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/003_afschermen_en_startitems.sql."
-    : "Draai in Supabase → SQL Editor nog: ALTER TABLE player_sessions ADD COLUMN IF NOT EXISTS startitems_op timestamptz; NOTIFY pgrst, 'reload schema';" });
-  // Migratie 004: ⚡ bonusvragen
-  const { error: bonusFout } = await admin.from("bonus_antwoorden").select("id").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 004: ⚡ bonusvragen", ok: !bonusFout, uitleg: bonusFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/004_bonusvragen.sql." : undefined });
-  // Migratie 006: ⚔️ duel
-  const { error: duelFout } = await admin.from("duels").select("id").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 006: ⚔️ duel", ok: !duelFout, uitleg: duelFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/006_duel.sql." : undefined });
-  // Migratie 007: 🎉 spelplezier
-  const { error: plezierFout } = await admin.from("schatten").select("id").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 007: 🎉 spelplezier", ok: !plezierFout, uitleg: plezierFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/007_spelplezier.sql." : undefined });
-  // Migratie 008: ⚙️ instellingen spelplezier
-  const { error: instFout } = await admin.from("routes").select("spelplezier, fotobattle_uitgekeerd_op").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 008: ⚙️ instellingen spelplezier", ok: !instFout, uitleg: instFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/008_spelplezier_instellingen.sql." : undefined });
-  // Migratie 009: 🎉 spelplezier deel 2
-  const { error: deel2Fout } = await admin.from("chat_berichten").select("id").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 009: 🎉 spelplezier deel 2", ok: !deel2Fout, uitleg: deel2Fout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/009_spelplezier_2.sql." : undefined });
-  // Migratie 010: 🧩 volgorde van de puzzelletters (herstel van een kolom uit het oude 018)
-  const { error: volgordeFout } = await admin.from("routes").select("puzzel_volgorde").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 010: 🧩 volgorde puzzelletters", ok: !volgordeFout, uitleg: volgordeFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/010_puzzel_volgorde.sql." : undefined });
-  // Migratie 005: 🧪 testteam
-  const { error: testFout } = await admin.from("players").select("test_rol").limit(1);
-  checks.push({ groep: "Database", naam: "Nieuwe migratie 005: 🧪 testteam", ok: !testFout, uitleg: testFout ? "Draai in Supabase → SQL Editor het bestand supabase/migrations/005_testteam.sql." : undefined });
+  checks.push({ groep: "Database", naam: "🚶 Doorlooppunten toegestaan", ok: doorloopOk, uitleg: doorloopOk ? undefined : `${SQL_EDITOR} het deel "Migratie 013" uit supabase/migrations/001_schema.sql.` });
 
-  // Opslag (afbeeldingen en foto's)
-  const { data: buckets, error: opslagFout } = await admin.storage.listBuckets();
-  for (const naam of ["route-afbeeldingen", "vraag-afbeeldingen", "foto-inzendingen", "vraag-geluid"]) {
-    const ok = !opslagFout && !!buckets?.some((b) => b.name === naam);
-    checks.push({ groep: "Opslag", naam: `Map "${naam}"`, ok, uitleg: ok ? undefined : naam === "vraag-geluid" ? "Draai migratie 014 (maakt deze map aan)." : "Maak deze map aan in Supabase → Storage." });
+  const { error: scoreFout } = await admin.from("player_sessions").insert({ player_id: NUL, route_id: NUL, score: -1, status: "vervallen" });
+  const minOk = !!scoreFout && scoreFout.code !== "23514";
+  checks.push({ groep: "Database", naam: "Minpunten toegestaan (score onder 0)", ok: minOk, uitleg: minOk ? undefined : `${SQL_EDITOR} het deel "Migratie 021" uit supabase/migrations/001_schema.sql.` });
+
+  // 🎨 Alle kleuren: een bestaande route opnieuw invoegen met een van de nieuwe kleuren. De kleurcontrole komt eerst
+  // (23514 = migratie mist), daarna weigert de database hem omdat die route al bestaat (23505).
+  const { data: route } = await admin.from("routes").select("*").limit(1).maybeSingle();
+  if (route) {
+    const { error: kleurFout } = await admin.from("routes").insert({ ...route, huis_thema: "petrol" });
+    const kleurOk = !!kleurFout && kleurFout.code !== "23514";
+    checks.push({ groep: "Database", naam: "🎨 Alle kleuren voor de spelersapp", ok: kleurOk, uitleg: kleurOk ? undefined : `${SQL_EDITOR}: supabase/migrations/012_meer_kleurthemas.sql.` });
   }
 
-  // Instellingen op Vercel (alleen of ze er zijn)
+  // Scores in één stap: een aanroep op een sessie die niet bestaat verandert niets
+  const { error: atoomFout } = await admin.rpc("pr_score_bij", { p_sessie: NUL, p_delta: 0 });
+  checks.push({ groep: "Database", naam: "Scores en items in één stap", ok: !atoomFout, uitleg: atoomFout ? `${SQL_EDITOR}: supabase/migrations/002_atomaire_acties.sql.` : undefined });
+  return checks;
+}
+
+// Kan iemand met de openbare sleutel (die staat in elke browser) gegevens lezen? Toont nooit inhoud, alleen of het kan.
+async function beveiligingChecks(): Promise<Check[]> {
+  const groep = "Beveiliging";
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const kop = { apikey: anon, Authorization: `Bearer ${anon}` };
+  const lees = async (tabel: string) => {
+    const r = await fetch(`${url}/rest/v1/${tabel}?select=*&limit=1`, { headers: kop, cache: "no-store" }).catch(() => null);
+    const rijen = r?.ok ? await r.json().catch(() => []) : [];
+    return { tabel, status: r?.status ?? 0, rijen: Array.isArray(rijen) ? rijen.length : 0 };
+  };
+  const checks: Check[] = [];
+  const tabellen = [...verwachtSchema().keys()];
+  const uitslagen = await Promise.all(tabellen.map(lees));
+  const open = uitslagen.filter((u) => u.rijen > 0).map((u) => u.tabel);
+  checks.push({ groep, naam: `Tabellen niet leesbaar voor buitenstaanders (${tabellen.length})`, ok: !open.length,
+    uitleg: open.length ? `Openbaar leesbaar: ${open.join(", ")}. Zet Row Level Security aan op deze tabellen.` : undefined });
+  // Het puzzelwoord en de goede antwoorden: hier moet Supabase het verzoek helemaal weigeren
+  const geheim = ["routes", "questions", "answer_options", "route_points", "special_items"];
+  const nietDicht = uitslagen.filter((u) => geheim.includes(u.tabel) && u.status !== 401 && u.status !== 403).map((u) => u.tabel);
+  checks.push({ groep, naam: "Puzzelwoord en goede antwoorden afgeschermd", ok: !nietDicht.length,
+    uitleg: nietDicht.length ? `Niet afgeschermd: ${nietDicht.join(", ")}. ${SQL_EDITOR}: supabase/migrations/003_afschermen_en_startitems.sql.` : undefined });
+  // Foto's van teams: niet op te vragen als lijst
+  const lijst = await fetch(`${url}/storage/v1/object/list/foto-inzendingen`, { method: "POST", headers: { ...kop, "Content-Type": "application/json" }, body: JSON.stringify({ prefix: "", limit: 1 }), cache: "no-store" }).catch(() => null);
+  const items = lijst?.ok ? await lijst.json().catch(() => []) : [];
+  const fotosDicht = !Array.isArray(items) || items.length === 0;
+  checks.push({ groep, naam: "Teamfoto's niet op te vragen als lijst", ok: fotosDicht, uitleg: fotosDicht ? undefined : "Haal in Supabase → Storage de openbare leesregel van foto-inzendingen weg." });
+  return checks;
+}
+
+async function opslagChecks(admin: Admin): Promise<Check[]> {
+  const { data: buckets, error } = await admin.storage.listBuckets();
+  return [...verwachteMappen()].map(([naam, openbaar]) => {
+    const b = buckets?.find((x) => x.name === naam);
+    const ok = !error && !!b && b.public === openbaar;
+    const wat = openbaar ? "openbaar" : "niet openbaar";
+    return { groep: "Opslag", naam: `Map "${naam}" (${wat})`, ok,
+      uitleg: ok ? undefined : b ? `Zet deze map in Supabase → Storage op ${wat}.` : `${SQL_EDITOR}: supabase/migrations/013_opslagmappen.sql.` };
+  });
+}
+
+function instellingChecks(): Check[] {
   const env = [
     ["NEXT_PUBLIC_SUPABASE_URL", "Adres van de database"],
+    ["NEXT_PUBLIC_SUPABASE_ANON_KEY", "Openbare sleutel"],
     ["SUPABASE_SERVICE_ROLE_KEY", "Sleutel voor de server"],
     ["NEXT_PUBLIC_VAPID_PUBLIC_KEY", "Pushmeldingen (openbare sleutel)"],
     ["VAPID_PRIVATE_KEY", "Pushmeldingen (geheime sleutel)"],
   ] as const;
-  for (const [naam, wat] of env) {
+  const checks: Check[] = env.map(([naam, wat]) => {
     const ok = !!process.env[naam];
-    checks.push({ groep: "Instellingen", naam: wat, ok, uitleg: ok ? undefined : `Zet ${naam} in Vercel → Settings → Environment Variables.` });
+    return { groep: "Instellingen", naam: wat, ok, licht: true, uitleg: ok ? undefined : `Zet ${naam} in Vercel → Settings → Environment Variables.` };
+  });
+  checks.push({ groep: "Instellingen", naam: process.env.ANTHROPIC_API_KEY ? "✨ Woordvoorstellen: met AI (Claude)" : "✨ Woordvoorstellen: gratis (Wiktionary); met ANTHROPIC_API_KEY begrijpt Claude elke hint", ok: true, info: true, licht: true });
+  return checks;
+}
+
+// De diensten die de app van buiten gebruikt. Ligt er een even plat, dan is dat geen fout van jou (tijdelijk).
+async function dienstChecks(): Promise<Check[]> {
+  const diensten: [string, string][] = [
+    ["🌦️ Weer (Open-Meteo)", "https://api.open-meteo.com/v1/forecast?latitude=52&longitude=5&hourly=temperature_2m&forecast_days=1"],
+    ["🗺️ Kaart (OpenFreeMap)", "https://tiles.openfreemap.org/styles/liberty"],
+    ["🛰️ Luchtfoto (PDOK)", "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0?request=GetCapabilities&service=wmts"],
+    ["🚶 Looproutes (OSM-routing)", "https://routing.openstreetmap.de/routed-foot/nearest/v1/foot/5,52?number=1"],
+    ["📍 Adres zoeken (Nominatim)", "https://nominatim.openstreetmap.org/status"],
+    ["🧱 Ondergrond (Overpass)", "https://overpass-api.de/api/status"],
+  ];
+  return Promise.all(diensten.map(async ([naam, url]) => {
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000), cache: "no-store", headers: { "User-Agent": "PointRush-systeemcheck" } }).catch(() => null);
+    // 4xx (bijvoorbeeld "te veel verzoeken") betekent ook: de dienst leeft
+    const ok = !!r && r.status < 500;
+    return { groep: "Externe diensten", naam, ok, tijdelijk: !ok, uitleg: ok ? undefined : "Nu niet bereikbaar. Dit ligt niet aan de app; dit onderdeel werkt weer zodra de dienst terug is." };
+  }));
+}
+
+// Stand van het spel: wat je kunt nagaan vóór en tijdens een spel
+async function spelChecks(admin: Admin): Promise<Check[]> {
+  const groep = "Spel";
+  const { data: actief } = await admin.from("routes").select("id, name").eq("is_active", true).maybeSingle();
+  if (!actief) return [{ groep, naam: "Geen actieve route", ok: true, info: true }];
+  const [{ count: punten }, { data: lopend }] = await Promise.all([
+    admin.from("route_points").select("id", { count: "exact", head: true }).eq("route_id", actief.id),
+    admin.from("player_sessions").select("id, started_at").eq("route_id", actief.id).eq("status", "actief"),
+  ]);
+  const checks: Check[] = [{ groep, naam: `Actieve route: ${actief.name}`, ok: true, info: true }];
+  checks.push({ groep, naam: `Punten op de route (${punten ?? 0})`, ok: (punten ?? 0) > 0, uitleg: (punten ?? 0) > 0 ? undefined : "De actieve route heeft geen punten: zet ze erop in de editor." });
+  const oud = (lopend ?? []).filter((s) => s.started_at && Date.now() - Date.parse(s.started_at) > 12 * 3600 * 1000).length;
+  checks.push({ groep, naam: "Geen vergeten spellen", ok: !oud, uitleg: oud ? `${oud} ${oud === 1 ? "spel loopt" : "spellen lopen"} al langer dan 12 uur. Rond ze af op het dashboard (🏁 Afronden).` : undefined });
+  return checks;
+}
+
+export async function GET(request: NextRequest) {
+  if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
+  const admin = createAdminClient();
+  const teller = request.nextUrl.searchParams.get("teller") === "1";
+
+  const { error: verbindingFout } = await admin.from("routes").select("id").limit(1);
+  const verbinding: Check = { groep: "Database", naam: "Verbinding met de database", ok: !verbindingFout, licht: true, uitleg: verbindingFout?.message };
+
+  if (teller) {
+    // Nieuwe foutmeldingen sinds je ze voor het laatst bekeek
+    const sinds = request.nextUrl.searchParams.get("sinds");
+    let telling = admin.from("client_fouten").select("id", { count: "exact", head: true });
+    if (sinds) telling = telling.gt("created_at", sinds);
+    const [schema, { count: fouten }] = await Promise.all([schemaChecks(admin), telling]);
+    return NextResponse.json({ checks: [verbinding, ...schema, ...instellingChecks()], fouten: fouten ?? 0 });
   }
 
-  // Puzzelwoord bedenken: met Claude als de sleutel er is, anders gratis via Wiktionary (geen fout)
-  checks.push({ groep: "Instellingen", naam: process.env.ANTHROPIC_API_KEY ? "✨ Woordvoorstellen: met AI (Claude)" : "✨ Woordvoorstellen: gratis (Wiktionary); met ANTHROPIC_API_KEY ook vrije vragen", ok: true });
-
-  // Stand van het spel
-  const { data: actief } = await admin.from("routes").select("name").eq("is_active", true).maybeSingle();
-  checks.push({ groep: "Spel", naam: actief ? `Actieve route: ${actief.name}` : "Geen actieve route", ok: true });
-
-  // Migraties op nummer (013 en 021 worden apart gecontroleerd en kwamen anders achteraan); de rest blijft op zijn plek
-  const nr = (c: Check) => Number(c.naam.match(/^Migratie (\d+)/)?.[1] ?? -1);
-  const plek = new Map(checks.map((c, i) => [c, i]));
-  checks.sort((a, b) => a.groep !== b.groep || nr(a) < 0 || nr(b) < 0 ? plek.get(a)! - plek.get(b)! : nr(a) - nr(b));
-
-  return NextResponse.json({ checks });
+  // Alles tegelijk: het scherm wacht niet op elk onderdeel apart
+  const [schema, regels, beveiliging, opslag, diensten, spel] = await Promise.all([
+    schemaChecks(admin), regelChecks(admin), beveiligingChecks(), opslagChecks(admin), dienstChecks(), spelChecks(admin),
+  ]);
+  return NextResponse.json({ checks: [verbinding, ...schema, ...regels, ...beveiliging, ...opslag, ...instellingChecks(), ...diensten, ...spel] });
 }

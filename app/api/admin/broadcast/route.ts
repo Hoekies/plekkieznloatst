@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   }
 
   // player_id: alleen aan dat team (migratie 009); zonder: aan alle teams
-  const { bericht, player_id } = await request.json();
+  const { bericht, player_id } = await request.json().catch(() => ({}));
   const aanTeam = typeof player_id === "string" && /^[0-9a-f-]{36}$/i.test(player_id) ? player_id : null;
   if (!bericht || typeof bericht !== "string" || !bericht.trim()) {
     return NextResponse.json({ fout: "Bericht ontbreekt" }, { status: 400 });

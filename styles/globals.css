@@ -3277,10 +3277,19 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .album-sluit { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 1.1rem; cursor: pointer; }
 .systeem-telling { font-size: 0.8rem; color: #86EFAC; }
 .systeem-telling--mis { color: #FCA5A5; }
+.systeem-telling--let { color: #FDE68A; }
+.systeem-regel--let { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.35); }
+.systeem-gemeten { display: block; font-size: 0.74rem; color: var(--muted); }
+.systeem-leeg { font-size: 0.8rem; color: var(--muted); padding: 0 0 4px 34px; }
+.systeem-onderhoud { flex-wrap: wrap; }
+.systeem-onderhoud .systeem-onderdeel-naam { flex: 1 1 260px; }
+.systeem-onderhoud-uitleg { display: block; font-family: inherit; font-size: 0.76rem; font-weight: 400; color: var(--muted); }
 .systeem-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
-.systeem-fout { width: 100%; border: 0; cursor: pointer; font: inherit; }
+.systeem-fout { width: 100%; border: 0; cursor: pointer; font: inherit; font-size: 0.86rem; }
 .systeem-fout-details { margin: 6px 0 0; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.3); font-size: 0.7rem; color: #CBD5E1; white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; }
-.systeem-vakje { font-size: 0.76rem; padding: 6px 10px; border-radius: 8px; background: rgba(74,222,128,0.08); color: #D1FAE5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Namen over meerdere regels: afkappen maakte ze onleesbaar, en een tooltip werkt niet op de telefoon */
+.systeem-vakje { font-size: 0.76rem; line-height: 1.35; padding: 6px 10px; border-radius: 8px; background: rgba(74,222,128,0.08); color: #D1FAE5; overflow-wrap: anywhere; }
+.systeem-vakje--info { background: rgba(255,255,255,0.06); color: var(--text); }
 
 /* Vraag met tijdslimiet: aftelklok bovenaan, rood in de laatste 10 seconden */
 .vraag-klok { align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(139,92,246,0.25); color: #DDD6FE; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
@@ -4883,3 +4892,7 @@ button.groep-plaatje:disabled { cursor: default; }
   .klaar-opties-naam { flex-basis: 100%; }
   .klaar-opties > .rl-knop, .klaar-opties > button { flex: 1 1 0; min-width: 0; justify-content: center; }
 }
+
+/* 📲 Installatievraag: onderaan als balk, de pagina eronder blijft te gebruiken */
+.app-installeer-balk { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000; display: flex; justify-content: center; padding: 0 10px calc(10px + env(safe-area-inset-bottom)); pointer-events: none; }
+button.plezier-toast { font: inherit; color: inherit; text-align: left; cursor: pointer; pointer-events: auto; }

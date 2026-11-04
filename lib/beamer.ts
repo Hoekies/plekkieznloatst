@@ -2,6 +2,7 @@
 // De sleutel is af te leiden uit het route-id en de geheime servicesleutel: alleen de server kan hem maken,
 // en zodra er een andere route actief is werkt de oude link niet meer.
 import type { LiveData, SpelerOverzicht } from "@/lib/admin-live";
+import { afrondenOpRaster } from "@/lib/geo";
 
 export async function beamerSleutel(routeId: string): Promise<string> {
   const geheim = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -17,6 +18,9 @@ export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
     .map((s) => ({
       ...s,
       login_name: s.display_name, nickname: s.display_name, telefoon: null, ingelogd: false,
+      // De link werkt zonder inloggen: de plek afgerond op 25 m, niet de exacte GPS. En niets over stilstaan of snelheid
+      stil: null, snel: null,
+      ...(s.laatste_lat !== null && s.laatste_lng !== null ? (() => { const p = afrondenOpRaster(s.laatste_lat!, s.laatste_lng!, 25); return { laatste_lat: p.lat, laatste_lng: p.lng }; })() : {}),
       // Puzzelwoord: wel hoeveel letters (blokjes), nooit welke; het beamerscherm is openbaar
       // Ook niet waar een team heen loopt (geen lijn naar het volgende punt op de beamer)
       hulp: null, wacht: null, volgend_punt: null, volgend_punt_id: null, volgend_punt_naam: null, items: { in_balk: [], ingezet: s.items.ingezet },

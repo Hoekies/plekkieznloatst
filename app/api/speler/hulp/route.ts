@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { stuurPushNaarBeheer } from "@/lib/push";
 import { bepaalVolgendPunt } from "@/lib/volgend-punt";
@@ -45,7 +46,7 @@ export async function POST() {
     .insert({ session_id: sessie.id, route_point_id: punt.id })
     .select("id, status")
     .single();
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  if (error) return serverFout(error, "/api/speler/hulp");
 
   // Pushmelding naar de beheerder: dit team kan niet verder
   // "*": zonder migratie 009 bestaat telefoon nog niet

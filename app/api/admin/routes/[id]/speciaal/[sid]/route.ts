@@ -10,7 +10,7 @@ export async function PATCH(
   { params }: { params: { id: string; sid: string } }
 ) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const update: Record<string, unknown> = {};
   for (const veld of TOEGESTANE_VELDEN) {
     if (veld in body) update[veld] = body[veld];

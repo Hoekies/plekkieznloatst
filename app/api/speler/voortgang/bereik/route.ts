@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextRequest, NextResponse } from "next/server";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest) {
   if (!ctx?.sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
   const admin = ctx.admin, sessie = ctx.sessie;
   if (await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { route_point_id, qr_secret } = body;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
   // Uit de wachtrij van een eerder spel (na uitloggen of een nieuw spel): niet bij dit spel optellen
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (error || !voortgang) return NextResponse.json({ fout: error?.message }, { status: 500 });
+  if (error || !voortgang) return serverFout(error, "/api/speler/voortgang/bereik");
 
   // Huidige punt bijwerken in sessie
   await admin.from("player_sessions").update({ current_point_id: route_point_id }).eq("id", sessie.id);

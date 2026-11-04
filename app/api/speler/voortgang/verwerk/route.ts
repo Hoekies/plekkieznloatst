@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
   }
   if (tijd.pauze) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { route_point_id, selected_answer_id, open_answer_text } = body;
   // De tijdslimiet van de vraag is verstreken: de vraag telt als fout
-  const teLaat = body.te_laat === true;
+  let teLaat = body.te_laat === true;
   if (!route_point_id) return NextResponse.json({ fout: "route_point_id ontbreekt" }, { status: 400 });
   // Uit de wachtrij van een eerder spel (na uitloggen of een nieuw spel): niet bij dit spel optellen
   if (body.sessie_id && body.sessie_id !== sessie.id) return NextResponse.json({ fout: "Dit hoort bij een eerder spel" }, { status: 409 });
@@ -89,6 +89,11 @@ export async function POST(request: NextRequest) {
     // afronden en geen punten geven, maar het team het opnieuw laten proberen
     if (vraagFout) return NextResponse.json({ fout: "De vraag kon niet worden geladen, probeer het opnieuw" }, { status: 503 });
     metVraag = !!vraag;
+    // ⏱️ De klok loopt op de telefoon, en begint daar opnieuw als je de app herlaadt. Daarom rekent de server na vanaf
+    // het bereiken van het punt, met 2 minuten marge (slechte verbinding, een korte pauze). Een antwoord uit de
+    // wachtrij is eerder gegeven dan het hier aankomt: dat telt niet als te laat.
+    const limiet = (vraag as { tijdslimiet_seconden?: number | null } | null)?.tijdslimiet_seconden;
+    if (limiet && !body.uit_wachtrij && bestaand.reached_at && Date.now() - Date.parse(bestaand.reached_at) > (limiet + 120) * 1000) teLaat = true;
 
     if (!vraag) {
       // Vraagpunt zonder vraag → doorgaan als informatiepunt; een doorlooppunt levert niets op

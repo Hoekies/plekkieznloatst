@@ -42,7 +42,8 @@ export default function ItemLijst({ items, gekozen, onKies, onVerwijder }: {
             {isOpen && lijst.map((item, i) => {
               const isGekozen = gekozen?.id === item.id;
               return (
-                <div key={item.id} onClick={() => onKies(isGekozen ? null : item)}
+                <div key={item.id} role="button" tabIndex={0} aria-pressed={isGekozen} onClick={() => onKies(isGekozen ? null : item)}
+                  onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); onKies(isGekozen ? null : item); } }}
                   className={`lijst-rij item-rij${isGekozen ? " lijst-rij--gekozen item-rij--gekozen" : ""}${item.claimed ? " item-rij--gepakt" : ""}`}>
                   <span className="item-rij-naam">
                     {/* Eigen naam, anders de soort met een volgnummer */}

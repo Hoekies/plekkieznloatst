@@ -18,7 +18,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const admin = createAdminClient();
 
   // Volgende order_index: één hoger dan de hoogste. Niet "aantal + 1": na het verwijderen van

@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
@@ -12,7 +13,7 @@ export async function GET() {
     .select("icon")
     .eq("is_uitgeschakeld", false);
 
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  if (error) return serverFout(error, "/api/speler/iconen");
 
   const gebruikt = (spelers ?? [])
     .map((s) => s.icon)

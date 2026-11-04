@@ -9,6 +9,7 @@ import { detecteerInAppBrowser } from "@/components/shared/InAppBrowserWaarschuw
 // - Android: een website mag het installeren niet zelf starten, de speler tikt op "Installeren".
 // - iPhone: Apple kent geen installatievraag; we leggen uit hoe je hem op het beginscherm zet.
 // "Later" wordt een week onthouden; op Android blijft de knop op het inlogscherm beschikbaar.
+// Onderaan als balk, zonder de pagina af te dekken: het inlogscherm (QR-code scannen) blijft te gebruiken.
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
 const LATER_KEY = "pointrush_installeren_later";
@@ -66,10 +67,9 @@ export default function AppInstallatie({ toonKnop = false }: { toonKnop?: boolea
         </button>
       )}
       {vraag && createPortal(
-        <div onClick={later} data-geen-volledig style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(12,3,34,0.78)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 360, position: "relative" }}>
-            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "22px 20px 18px" }}>
-              <div style={{ fontSize: "2.6rem", lineHeight: 1 }}>📲</div>
+        <div data-geen-volledig className="app-installeer-balk">
+          <div className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 420, position: "relative", pointerEvents: "auto" }}>
+            <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center", padding: "14px 16px 12px" }}>
               {vraag === "android" ? (
                 <>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", color: "#fff" }}>PointRush als app installeren?</div>

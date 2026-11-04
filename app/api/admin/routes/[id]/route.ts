@@ -21,7 +21,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const toegestaan: Record<string, unknown> = {};
   if (typeof body.name === "string") toegestaan.name = body.name;
   // 📁 Map voor het routeoverzicht (migratie 022); leeg = geen map

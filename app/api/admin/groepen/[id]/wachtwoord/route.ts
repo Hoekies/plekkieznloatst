@@ -21,7 +21,7 @@ export async function PATCH(
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { wachtwoord } = await request.json();
+  const { wachtwoord } = await request.json().catch(() => ({}));
   if (!wachtwoord || wachtwoord.length < 8) {
     return NextResponse.json({ fout: "Wachtwoord moet minimaal 8 tekens zijn" }, { status: 400 });
   }

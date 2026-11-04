@@ -22,7 +22,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { name } = body;
   if (!name?.trim()) return NextResponse.json({ fout: "Naam is verplicht" }, { status: 400 });
 

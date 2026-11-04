@@ -368,6 +368,10 @@ Alle vlakkleuren staan als RGB-drietal in `--o0` (donkerst) t/m `--o7` (lichtst)
 | GPS valt weg | Melding tonen; GPS watcher blijft actief; spel pauzeert niet |
 | GPS accuracy te slecht | Melding + "Controleer locatie"-knop; puntdetectie tijdelijk uitschakelen |
 | Supabase realtime onderbroken | Het verversen (poll) loopt door; *Verbinding weg* staat er pas als de stand niet meer lukt (`vers` in `useLiveData`); spel loopt door |
+| Valsspelen beperken | Naar de telefoon gaan geen `qr_secret`, puzzelwoord of `claimed_by_session_id`; `/api/speler/vraag/[pid]` geeft alleen bereikte punten en de volgende drie; de server rekent de tijdslimiet na vanaf `reached_at` (+2 min, niet voor `uit_wachtrij`); `afstand_m` groeit hoogstens 12 m/s. GPS zelf blijft te vervalsen |
+| Niet ingelogd op een API | Middleware antwoordt 401 JSON (geen doorverwijzing); de wachtrij bewaart de opdracht en verstuurt hem na het inloggen |
+| Systeemcheck | `lib/migratie-schema.mjs` leest tabellen, kolommen en opslagmappen uit `supabase/migrations/*.sql` (ook gebruikt door `npm run controle`); `?teller=1` is het lichte deel voor het bolletje, zonder schrijfpogingen en externe diensten; de CSP wordt in de browser zelf getest. Fouten: `client_fouten` (foutscherm, `lib/server-fout.ts`, 5xx-meldingen in het beheer, geweigerde opdrachten uit de wachtrij) |
+| Oude gegevens | `lib/oude-gegevens.ts`: `location_updates` en `client_fouten` ouder dan 30 dagen weg, bij het openen van het dashboard (hoogstens eens per 6 uur) |
 | Afronden: iedereen stoppen | `/api/admin/spel-afronden` zet lopende sessies op `voltooid` (telt mee in uitslag en rapport); `spel-stoppen` bij één team zet op `vervallen` (telt niet mee, opnieuw beginnen kan) |
 | Reset tijdens actief spel | Sessie markeert als `vervallen`; speler ziet melding bij volgende actie |
 | Import JSON | Validatie vóór opslaan; route wordt niet automatisch actief |

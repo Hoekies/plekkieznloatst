@@ -115,6 +115,10 @@ Een bom, een vraagteken met pech of een fout antwoord met minpunten kost altijd 
 **Batterij**
 De app gebruikt continu GPS. Zorg dat je telefoon voldoende geladen is, of neem een powerbank mee.
 
+## 🔒 Jouw gegevens
+
+Tijdens het spel ziet de spelleider waar je bent; andere teams zien je plek soms ongeveer, en je team kan op een groot scherm staan. Je gelopen route wordt uiterlijk na 30 dagen gewist. Foto's en je teamnaam blijven tot de spelleider het spel opruimt.
+
 ---
 
 *Voor de organisatie: zie [beheerdershandleiding.md](beheerdershandleiding.md).*

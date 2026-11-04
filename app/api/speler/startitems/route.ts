@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { startitemsVan, startitemsMeter } from "@/lib/startitems";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
@@ -55,6 +56,6 @@ export async function POST() {
     })));
   if (!rijen.length) return NextResponse.json({ items: [] });
   const { data: items, error } = await admin.from("special_items").insert(rijen).select();
-  if (error) { await geefTerug(); return NextResponse.json({ fout: error.message }, { status: 500 }); }
+  if (error) { await geefTerug(); return serverFout(error, "/api/speler/startitems"); }
   return NextResponse.json({ items: items ?? [] });
 }

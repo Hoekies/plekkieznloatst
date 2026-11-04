@@ -42,6 +42,8 @@ export async function middleware(request: NextRequest) {
     && !pad.startsWith("/proef/") && !pad.startsWith("/api/proef/")
     // 📄 Spelregels voor spelers als tekst (ook de stijl /spelregels.css): openbaar, de link gaat mee in de groepsapp
     && !pad.startsWith("/spelregels")) {
+    // Een API antwoordt met een fout: een doorverwijzing werd bij een POST 405 (en het antwoord van een team raakte zoek)
+    if (pad.startsWith("/api/")) return NextResponse.json({ fout: "Je bent niet ingelogd" }, { status: 401 });
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

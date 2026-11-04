@@ -13,6 +13,9 @@ interface SpelUitleg {
 const PUNTEN_GPS = "Nodig om te zien wanneer je bij een punt bent.";
 const PUNTEN_GELUID = "Zet je volume aan: je hoort een signaal bij punten en aanvallen.";
 
+// 🔒 Wat er met de gegevens van een team gebeurt (bij de start en in de spelregels)
+export const PRIVACY_UITLEG = "Tijdens het spel ziet de spelleider waar je bent; andere teams zien je plek soms ongeveer, en je team kan op een groot scherm staan. Je gelopen route wordt uiterlijk na 30 dagen gewist. Foto's en je teamnaam blijven tot de spelleider het spel opruimt.";
+
 export function spelUitleg(modus: RouteModus | null): SpelUitleg {
   if (modus === "verspreid") {
     return {

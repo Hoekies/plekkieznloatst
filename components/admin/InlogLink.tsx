@@ -11,9 +11,9 @@ import Icoon from "@/components/admin/Icoon";
 
 const DUUR: { uren: number; label: string }[] = [
   { uren: 4, label: "4 uur" },
-  { uren: 12, label: "½ dag" },
   { uren: 24, label: "1 dag" },
-  { uren: 48, label: "2 dagen" },
+  { uren: 72, label: "3 dagen" },
+  { uren: 120, label: "5 dagen" },
 ];
 
 export function tijdTekst(iso: string) {
@@ -29,7 +29,7 @@ function waLinkTekst(url: string, geldigTot: string) {
 export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewijzigd }: {
   spelerId: string; toegangTot?: string | null; telefoon?: string | null; onGewijzigd?: () => void;
 }) {
-  const [uren, setUren] = useState(12);
+  const [uren, setUren] = useState(24);
   const [bezig, setBezig] = useState(false);
   const [link, setLink] = useState<{ url: string; geldig_tot: string } | null>(null);
   const actief = !!toegangTot && new Date(toegangTot).getTime() > Date.now();

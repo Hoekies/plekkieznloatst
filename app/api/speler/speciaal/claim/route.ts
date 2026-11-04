@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextRequest, NextResponse } from "next/server";
 import { logItem } from "@/lib/item-log";
 import { spelGepauzeerd, PAUZE_FOUT } from "@/lib/eindtijd";
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
   if (!sessie) return NextResponse.json({ fout: "Geen actieve sessie" }, { status: 403 });
   if (await spelGepauzeerd(admin, sessie.route_id)) return NextResponse.json({ fout: PAUZE_FOUT, pauze: true }, { status: 409 });
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { special_item_id } = body;
   const plek = typeof body.latitude === "number" && typeof body.longitude === "number"
     ? { lat: body.latitude, lng: body.longitude } : null;
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     .select()
     .maybeSingle();
 
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  if (error) return serverFout(error, "/api/speler/speciaal/claim");
   if (!item) return NextResponse.json({ status: "al_geclaimd" });
 
   // Respawn inplannen als item_respawn aan staat in verspreid-modus

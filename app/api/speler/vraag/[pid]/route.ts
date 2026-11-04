@@ -11,6 +11,22 @@ export async function GET(_: NextRequest, { params }: { params: { pid: string } 
   const { data: punt } = await admin.from("route_points").select("id").eq("id", params.pid).eq("route_id", sessie.route_id).maybeSingle();
   if (!punt) return NextResponse.json({ fout: "Onbekend punt" }, { status: 404 });
 
+  // Alleen een punt dat het team al bereikt heeft, of een van de volgende drie: die haalt de app alvast op voor als
+  // er straks geen bereik is (lib/vraag-cache.ts). Zo is niet de hele route vooraf te lezen.
+  const [{ data: voortgang }, { data: eigenVolgorde }, { data: routeVolgorde }] = await Promise.all([
+    admin.from("player_point_progress").select("route_point_id, answered_at").eq("session_id", sessie.id),
+    admin.from("session_point_order").select("route_point_id").eq("session_id", sessie.id).order("volgorde"),
+    admin.from("route_points").select("id").eq("route_id", sessie.route_id).order("order_index"),
+  ]);
+  const bereikt = (voortgang ?? []).some((v) => v.route_point_id === params.pid);
+  if (!bereikt) {
+    const klaar = new Set((voortgang ?? []).filter((v) => v.answered_at).map((v) => v.route_point_id));
+    const volgorde = eigenVolgorde?.length ? eigenVolgorde.map((v) => v.route_point_id) : (routeVolgorde ?? []).map((v) => v.id);
+    if (!volgorde.filter((id) => !klaar.has(id)).slice(0, 3).includes(params.pid)) {
+      return NextResponse.json({ fout: "Deze vraag is nog niet aan de beurt" }, { status: 403 });
+    }
+  }
+
   const { data: vraag } = await admin
     .from("questions")
     .select(`

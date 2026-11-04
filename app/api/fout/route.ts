@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
   const rol = user.app_metadata?.rol ?? "speler";
   let wie: string | null = null;
   if (rol !== "admin" && rol !== "helper") {
-    const { data: speler } = await admin.from("players").select("display_name").eq("auth_user_id", user.id).maybeSingle();
-    wie = speler?.display_name ?? null;
+    const { data: speler } = await admin.from("players").select("nickname, login_name").eq("auth_user_id", user.id).maybeSingle();
+    wie = speler?.nickname ?? speler?.login_name ?? null;
   }
   await admin.from("client_fouten").insert({
     rol, wie, bericht,

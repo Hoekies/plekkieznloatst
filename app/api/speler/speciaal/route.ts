@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { haalSpelerSessie } from "@/lib/speler-sessie";
 
@@ -30,12 +31,13 @@ export async function GET() {
   // Ook opgepakte items meesturen: de kaart slaat die over (claimed). De uitleg (ℹ️) haalt zijn
   // itemtypen niet meer hieruit maar uit de route zelf (app/speler/kaart/page.tsx).
   // Sequentieel: alleen plek zooi op de kaart.
+  // Vaste kolommen: dit gaat naar de telefoon, dus niet welk team welk item heeft (claimed_by_session_id)
   let query = admin
     .from("special_items")
-    .select("*")
+    .select("id, route_id, type, name, latitude, longitude, radius_meters, points_effect, claimed, claimed_at, created_at, updated_at, used_at, respawn_at, is_startitem")
     .eq("route_id", sessie.route_id);
   if (route?.modus === "sequentieel") query = query.or("type.eq.plekzooi,is_startitem.eq.true");
   const { data, error } = await query;
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  if (error) return serverFout(error, "/api/speler/speciaal");
   return NextResponse.json(data ?? []);
 }

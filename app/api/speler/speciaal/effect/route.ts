@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Het spel is afgelopen: de eindtijd is voorbij" }, { status: 403 });
   }
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { special_item_id, target_session_id } = body;
   const plek = typeof body.latitude === "number" && typeof body.longitude === "number"
     ? { lat: body.latitude, lng: body.longitude } : null;

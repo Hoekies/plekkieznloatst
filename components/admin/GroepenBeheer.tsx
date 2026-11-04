@@ -488,7 +488,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                     <>
                       <label className="form-label" style={{ marginTop: 8 }}>Hoe lang werkt de link?</label>
                       <div className="punten-snel">
-                        {[[4, "4 uur"], [12, "½ dag"], [24, "1 dag"], [48, "2 dagen"]].map(([u, label]) => (
+                        {[[4, "4 uur"], [24, "1 dag"], [72, "3 dagen"], [120, "5 dagen"]].map(([u, label]) => (
                           <button key={u} type="button" className={`rl-knop${linkUren === u ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(u as number)}>{label}</button>
                         ))}
                       </div>

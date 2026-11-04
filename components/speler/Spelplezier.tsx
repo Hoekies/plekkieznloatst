@@ -146,10 +146,10 @@ export default function Spelplezier({ sessieId, positie, onMarkers }: {
       {toasts.length > 0 && (
         <div className="plezier-toasts">
           {toasts.map((t) => (
-            <div key={t.id} className="plezier-toast" onClick={() => setToasts((l) => l.filter((x) => x.id !== t.id))}>
+            <button type="button" key={t.id} className="plezier-toast" title="Melding sluiten" onClick={() => setToasts((l) => l.filter((x) => x.id !== t.id))}>
               <span className="plezier-toast-emoji" aria-hidden>{t.emoji}</span>
               <span><strong>{t.titel}</strong><br />{t.tekst}</span>
-            </div>
+            </button>
           ))}
         </div>
       )}

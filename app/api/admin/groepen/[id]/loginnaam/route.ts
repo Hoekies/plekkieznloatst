@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { loginNaam } = await request.json();
+  const { loginNaam } = await request.json().catch(() => ({}));
   if (!loginNaam?.trim()) return NextResponse.json({ fout: "Vul een naam in" }, { status: 400 });
 
   const admin = createAdminClient();

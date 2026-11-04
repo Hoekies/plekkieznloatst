@@ -1,4 +1,4 @@
-import { haalLiveData } from "@/lib/admin-live";
+import { haalLiveData, voorHelper } from "@/lib/admin-live";
 import { haalGebruiker } from "@/lib/auth-server";
 import AdminLiveKaart from "@/components/admin/AdminLiveKaart";
 import LeegScherm from "@/components/admin/LeegScherm";
@@ -24,5 +24,5 @@ export default async function LiveKaartPagina() {
     );
   }
 
-  return <AdminLiveKaart initData={initData} />;
+  return <AdminLiveKaart initData={user?.app_metadata?.rol === "helper" ? voorHelper(initData) : initData} />;
 }

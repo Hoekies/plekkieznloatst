@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextResponse } from "next/server";
 import { haversine } from "@/lib/geo";
 import { instappuntenMetKeuze } from "@/lib/instappunten";
@@ -78,7 +79,7 @@ export async function POST() {
     .single();
 
   if (error || !sessie) {
-    return NextResponse.json({ fout: error?.message ?? "Sessie aanmaken mislukt" }, { status: 500 });
+    return serverFout(error, "/api/speler/sessie");
   }
   // 🧪 Testteam: de testtegenstander speelt mee (om items op te gooien, en die zelf items gooit)
   if (await isTestSpeler(admin, spelerId)) await zorgTegenstander(admin, route.id).catch(() => undefined);

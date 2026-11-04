@@ -55,6 +55,8 @@ export type SpelerOverzicht = {
   wacht: { effect_id: string; soort: "spook" | "plekzooi"; tot: string } | null;
   // 🧍 Staat al een tijd op dezelfde plek, niet bij een punt (alleen onderweg, niet bij plek zooi of pauze)
   stil?: { minuten: number } | null;
+  // 🚗 Bewoog het laatste halfuur sneller dan iemand loopt of fietst (auto, of een GPS-sprong)
+  snel?: { kmh: number } | null;
 };
 
 export type RoutePuntKort = {
@@ -82,6 +84,13 @@ export type LiveData = {
 
 // 🧍 Na zoveel minuten op dezelfde plek (niet bij een punt) vraagt een team aandacht op het dashboard
 export const STIL_MIN = 8;
+// 🚗 Zo hard loopt of fietst niemand tijdens een speurtocht
+const SNEL_KMH = 40;
+
+// Een helper keurt foto's en kijkt mee: geen telefoonnummers en geen puzzelwoord (ook niet in het antwoord van de server)
+export function voorHelper(data: LiveData): LiveData {
+  return { ...data, spelers: data.spelers.map((s) => ({ ...s, telefoon: null, puzzel: null })) };
+}
 
 export function sessietijd(s: SpelerOverzicht): number {
   if (!s.started_at) return 0;
@@ -310,12 +319,22 @@ export async function haalLiveData(): Promise<LiveData> {
   const actief = spelers.filter((sp) => sp.sessie_status === "actief" && sp.sessie_id && !sp.wacht);
   if (actief.length && !tijd?.pauze) {
     const sinds = new Date(Date.now() - 30 * 60000).toISOString();
-    const { data: recent } = await admin.from("location_updates").select("session_id, latitude, longitude, created_at")
+    const { data: recent } = await admin.from("location_updates").select("session_id, latitude, longitude, accuracy_meters, created_at")
       .in("session_id", actief.map((sp) => sp.sessie_id!)).gte("created_at", sinds).order("created_at", { ascending: false }).limit(3000);
-    const perSessie = new Map<string, { latitude: number; longitude: number; created_at: string }[]>();
+    const perSessie = new Map<string, { latitude: number; longitude: number; accuracy_meters: number | null; created_at: string }[]>();
     for (const r of recent ?? []) perSessie.set(r.session_id, [...(perSessie.get(r.session_id) ?? []), r]);
     for (const sp of actief) {
       const rij = perSessie.get(sp.sessie_id!) ?? [];
+      // 🚗 Hardste stuk van minstens 200 m tussen twee nauwkeurige metingen; ter info voor de spelleider
+      const nauwkeurig = rij.filter((r) => (r.accuracy_meters ?? 0) <= 40);
+      let hardst = 0;
+      for (let i = 0; i + 1 < nauwkeurig.length; i++) {
+        const a = nauwkeurig[i], b = nauwkeurig[i + 1];
+        const sec = (Date.parse(a.created_at) - Date.parse(b.created_at)) / 1000;
+        const m = haversine(a.latitude, a.longitude, b.latitude, b.longitude);
+        if (sec > 0 && m >= 200) hardst = Math.max(hardst, (m / sec) * 3.6);
+      }
+      if (hardst >= SNEL_KMH) sp.snel = { kmh: Math.round(hardst) };
       const laatste = rij[0];
       if (!laatste || Date.now() - Date.parse(laatste.created_at) > 3 * 60000) continue;
       // Bij een punt (vraag beantwoorden, foto maken) is stilstaan gewoon

@@ -14,7 +14,7 @@ export async function PATCH(
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { status, punten, opmerking } = await request.json();
+  const { status, punten, opmerking } = await request.json().catch(() => ({}));
   if (status !== "goedgekeurd" && status !== "afgekeurd") {
     return NextResponse.json({ fout: "Ongeldige status" }, { status: 400 });
   }

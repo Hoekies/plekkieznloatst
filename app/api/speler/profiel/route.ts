@@ -1,3 +1,4 @@
+import { serverFout } from "@/lib/server-fout";
 import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
@@ -11,7 +12,7 @@ export async function PATCH(request: NextRequest) {
   const user = await haalGebruiker();
   if (!user) return NextResponse.json({ fout: "Niet ingelogd" }, { status: 401 });
 
-  const { teamnaam, icon } = await request.json();
+  const { teamnaam, icon } = await request.json().catch(() => ({}));
   const naam = typeof teamnaam === "string" ? teamnaam.trim().slice(0, 30) : "";
   if (!naam || !icon) return NextResponse.json({ fout: "Naam en icoon zijn verplicht" }, { status: 400 });
   if (!isTeamIcoon(icon)) return NextResponse.json({ fout: "Kies een van de iconen" }, { status: 400 });
@@ -42,6 +43,6 @@ export async function PATCH(request: NextRequest) {
     .update({ nickname: naam, icon })
     .eq("auth_user_id", user.id);
 
-  if (error) return NextResponse.json({ fout: error.message }, { status: 500 });
+  if (error) return serverFout(error, "/api/speler/profiel");
   return NextResponse.json({ ok: true });
 }

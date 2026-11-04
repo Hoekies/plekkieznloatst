@@ -10,9 +10,17 @@ type Item = { id: number; tekst: string; soort: Soort };
 let volgend = 1;
 const luisteraars = new Set<(m: Item) => void>();
 
+const gemeld = new Set<string>();
+function meldServerFout(tekst: string) {
+  if (!/er ging iets mis op de server/i.test(tekst) || gemeld.has(tekst) || gemeld.size >= 20) return;
+  gemeld.add(tekst);
+  fetch("/api/fout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bericht: tekst, pad: window.location.pathname }) }).catch(() => undefined);
+}
+
 export function toonMelding(tekst: string, soort: Soort = "info") {
   const m = { id: volgend++, tekst, soort };
   luisteraars.forEach((l) => l(m));
+  if (soort === "fout") meldServerFout(tekst);
 }
 
 const ICOON: Record<Soort, string> = { info: "ℹ️", ok: "✅", fout: "⚠️" };

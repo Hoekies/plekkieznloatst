@@ -3,6 +3,7 @@
 // stopt de push niet: je krijgt een waarschuwing met het nummer van de migratie die je nog moet draaien.
 // Geheimen worden nooit geprint. Zonder .env.local of zonder internet wordt de check overgeslagen.
 import fs from "node:fs";
+import { verwachtSchema } from "../lib/migratie-schema.mjs";
 
 function leesEnv() {
   try {
@@ -14,23 +15,9 @@ const env = { ...leesEnv(), ...process.env };
 const url = env.NEXT_PUBLIC_SUPABASE_URL, sleutel = env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !sleutel) { console.log("⏭️  Database-check overgeslagen (geen .env.local)"); process.exit(0); }
 
-// Wat de migraties verwachten: tabel → kolom → bestand
-const verwacht = new Map();
+// Wat de migraties verwachten: tabel → kolom → bestand (zelfde bron als de Systeemcheck)
 const map = "supabase/migrations";
-for (const f of fs.readdirSync(map).filter((x) => x.endsWith(".sql")).sort()) {
-  const sql = fs.readFileSync(`${map}/${f}`, "utf8").replace(/--[^\n]*/g, "");
-  for (const m of sql.matchAll(/CREATE TABLE(?: IF NOT EXISTS)?\s+(?:public\.)?(\w+)\s*\(([\s\S]*?)\n\);/gi)) {
-    if (!verwacht.has(m[1])) verwacht.set(m[1], new Map());
-    for (const regel of m[2].split("\n")) {
-      const k = regel.trim().match(/^(\w+)\s+(uuid|text|integer|int|bigint|boolean|timestamptz|double|float8|jsonb|numeric|smallint|date|real|serial|bigserial)/i);
-      if (k && !/^(constraint|primary|unique|check|foreign)$/i.test(k[1])) verwacht.get(m[1]).set(k[1], f);
-    }
-  }
-  for (const m of sql.matchAll(/ALTER TABLE\s+(?:public\.)?(\w+)\s+ADD COLUMN(?: IF NOT EXISTS)?\s+(\w+)/gi)) {
-    if (!verwacht.has(m[1])) verwacht.set(m[1], new Map());
-    verwacht.get(m[1]).set(m[2], f);
-  }
-}
+const verwacht = verwachtSchema();
 
 const kop = { apikey: sleutel, Authorization: `Bearer ${sleutel}` };
 const bestaat = (pad) => fetch(`${url}/rest/v1/${pad}&limit=0`, { headers: kop }).then((r) => r.ok);

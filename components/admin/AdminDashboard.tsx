@@ -337,6 +337,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               {/* Telefoon: het statuslabel staat daar niet, dus hier dat het team binnen is */}
               {s.sessie_status === "voltooid" && <span className="alleen-mobiel sk-binnen">🏁 Gefinisht</span>}
               {s.stil && <span className="sk-stil" title="Staat al een tijd op dezelfde plek, niet bij een punt">🧍 {s.stil.minuten} min stil</span>}
+              {s.snel && <span className="sk-stil" title="Bewoog het laatste halfuur sneller dan iemand loopt of fietst: een auto, of een sprong van de GPS">🚗 {s.snel.kmh} km/u</span>}
               {stil !== null && <span className="sk-stil" title="Al een tijd geen locatie ontvangen">📵 {duurKort(stil)} niet gezien{s.ingelogd ? "" : " · uitgelogd"}</span>}
             </div>
           </div>

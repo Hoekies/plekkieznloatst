@@ -103,7 +103,7 @@ export default function AdminLiveKaart({ initData }: Props) {
     if (!res?.ok || !json.pad) { toonMelding(json.fout ?? "Beamerlink ophalen lukte niet", "fout"); return; }
     const url = `${window.location.origin}${json.pad}`;
     window.open(url, "_blank");
-    navigator.clipboard?.writeText(url).then(() => toonMelding("Beamerlink gekopieerd: open hem op de tv of laptop bij de beamer", "ok")).catch(() => {});
+    navigator.clipboard?.writeText(url).then(() => toonMelding("Beamerlink gekopieerd: open hem op de tv of laptop bij de beamer. Wie de link heeft, kan zonder inloggen meekijken", "ok")).catch(() => {});
   }
 
   const { spelers, route_punten } = data;

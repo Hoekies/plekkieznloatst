@@ -34,7 +34,8 @@ export default async function SpelerKaartPage() {
   const [{ data: ruwePunten }, { data: voortgang }, { data: route }, { data: spoEerst }, { data: alleSpelers }, { data: kaartItems }] = await Promise.all([
     admin
       .from("route_points")
-      .select("*")
+      // Vaste kolommen: dit gaat naar de telefoon, dus nooit qr_secret (daarmee open je een punt zonder er te zijn)
+      .select("id, route_id, order_index, type, name, description, latitude, longitude, radius_meters, points, image_path, sound_path, created_at, updated_at, qr_unlock_enabled, sleutel_punt_id")
       .eq("route_id", sessie.route_id)
       .order("order_index"),
     admin
@@ -94,11 +95,15 @@ export default async function SpelerKaartPage() {
   ]));
 
   // Sorteer punten op de teamvolgorde
-  let punten = ruwePunten ?? [];
+  const allePunten = (ruwePunten ?? []).map((p) => ({ ...p, qr_secret: null }));
+  let punten = allePunten;
   if (spo && heeftVolgorde) {
-    const puntenMap = new Map((ruwePunten ?? []).map((p) => [p.id, p]));
+    const puntenMap = new Map(allePunten.map((p) => [p.id, p]));
     punten = spo.map((s) => puntenMap.get(s.route_point_id)).filter(Boolean) as typeof punten;
   }
+
+  // 🧩 Alleen de punten voor de uitleg: het woord en de verdeling blijven op de server
+  const puzzel = puzzelRegels(route);
 
   return (
     <SpelerKaart
@@ -112,7 +117,7 @@ export default async function SpelerKaartPage() {
       startVraagMeter={(route as { startvraag_meter?: number | null }).startvraag_meter ?? undefined}
       startitemsNaMeter={startitemsMeter(route)}
       itemTypen={itemTypen}
-      puzzel={puzzelRegels(route)}
+      puzzel={puzzel && { letterPunten: puzzel.letterPunten, alleBonus: puzzel.alleBonus, raadBonus: puzzel.raadBonus }}
       valAan={spelplezierAan(route).val}
       plezier={plezierInstellingen(route)}
       stilleIds={stilleIds}

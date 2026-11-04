@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   }
 
-  const { loginNaam, wachtwoord } = await request.json();
+  const { loginNaam, wachtwoord } = await request.json().catch(() => ({}));
 
   if (!loginNaam?.trim() || !wachtwoord?.trim()) {
     return NextResponse.json({ fout: "Vul alle velden in" }, { status: 400 });

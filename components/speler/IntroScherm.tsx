@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
-import { spelUitleg } from "@/lib/spelmodus-uitleg";
+import { PRIVACY_UITLEG, spelUitleg } from "@/lib/spelmodus-uitleg";
 import type { RouteModus } from "@/types/database";
 import { ontgrendelAudio, speelPuntBereikt } from "@/lib/sounds";
 import { TEAM_ICONEN, ICONEN_IN_BEELD, schud, willekeurigIcoon } from "@/lib/team-iconen";
@@ -282,7 +282,7 @@ export default function IntroScherm({ modus, melding = null, welkomFoto = null, 
                     </ul>
                   </div>
                 </div>
-                {([["📍", "GPS locatie", uitleg.gpsUitleg], ["🔔", "Geluid", uitleg.geluidUitleg]] as const).map(([icoon, titel, tekst]) => (
+                {([["📍", "GPS locatie", uitleg.gpsUitleg], ["🔔", "Geluid", uitleg.geluidUitleg], ["🔒", "Jouw gegevens", PRIVACY_UITLEG]] as const).map(([icoon, titel, tekst]) => (
                   <Fragment key={titel}>
                     <div style={{ height: 1, background: "rgba(255,255,255,0.12)" }} />
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 12, textAlign: "left" }}>

@@ -16,7 +16,7 @@ const config = {
     // Bij het wisselen tussen pagina's altijd de actuele versie ophalen (standaard 30 s bewaard)
     staleTimes: { dynamic: 0 },
     // De handleidingpagina leest het Markdown-bestand op de server; zorg dat het meegaat
-    outputFileTracingIncludes: { "/admin/uitleg": ["./docs/beheerdershandleiding.md"], "/api/admin/uitleg": ["./docs/beheerdershandleiding.md"] },
+    outputFileTracingIncludes: { "/admin/uitleg": ["./docs/beheerdershandleiding.md"], "/api/admin/uitleg": ["./docs/beheerdershandleiding.md"], "/api/admin/systeem": ["./supabase/migrations/*.sql"] },
   },
   async headers() {
     const csp = [
@@ -26,7 +26,10 @@ const config = {
       "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tiles.openfreemap.org https://service.pdok.nl https://server.arcgisonline.com",
       // tiles.openfreemap.org: vectorkaart (stijl, tegels, lettertypen, symbolen)
       // tile.openstreetmap.org: de service worker haalt ook de gewone kaartplaatjes op (en bewaart ze)
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://service.pdok.nl https://server.arcgisonline.com",
+      // api.open-meteo.com: 🌦️ weer op het dashboard
+      "connect-src 'self' https://api.open-meteo.com https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://service.pdok.nl https://server.arcgisonline.com",
+      // 🔊 Geluid bij een vraag staat in Supabase-opslag (zonder deze regel geldt default-src en speelt het niet)
+      "media-src 'self' blob: https://*.supabase.co",
       // De vectorkaart rekent in web workers die als blob worden gestart
       "worker-src 'self' blob:",
       "child-src 'self' blob:",
