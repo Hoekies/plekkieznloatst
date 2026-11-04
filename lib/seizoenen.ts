@@ -72,6 +72,13 @@ export const themaEmoji = (t: Thema, namen: EigenNamen) => namen[t.sleutel]?.emo
 export const SEIZOEN_KOLOM = { achtergrond: "pad", logo: "logo_pad", logo_breed: "logo_breed_pad" } as const;
 export type SeizoenSoort = keyof typeof SEIZOEN_KOLOM;
 
+// 🖼️ De standaardafbeelding van een thema (public/seizoenen, hoort bij de app). Een geüploade afbeelding gaat daarvoor;
+// verwijder je die, dan komt de standaard terug. Vrije thema's hebben geen standaard.
+const STANDAARD_BESTAND: Record<SeizoenSoort, string> = { achtergrond: "achtergrond.webp", logo: "logo.webp", logo_breed: "breed.webp" };
+export function standaardBeeld(sleutel: string, soort: SeizoenSoort): string | null {
+  return THEMAS.some((t) => t.sleutel === sleutel && !t.eigen) ? `/seizoenen/${sleutel}-${STANDAARD_BESTAND[soort]}` : null;
+}
+
 // Valt de datum in de periode van dit thema? (ook als die over de jaarwisseling loopt)
 function inPeriode(t: Thema, datum: Date): boolean {
   const dag = new Date(datum.getFullYear(), datum.getMonth(), datum.getDate());

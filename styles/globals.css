@@ -3339,6 +3339,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-naam { font-size: 0.74rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; }
 .seizoen-nu { padding: 0 5px; border-radius: 5px; background: #FFD93B; color: rgb(var(--o5)); font-size: 0.62rem; font-weight: 800; }
 .seizoen-periode { font-size: 0.66rem; color: var(--muted); }
+.seizoen-standaard { display: block; opacity: 0.8; }
 /* 📌 Thema vastzetten: links boven in het vak; vast = goud */
 .seizoen-pin { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); font-size: 0.7rem; cursor: pointer; opacity: 0.75; }
 .seizoen-pin:hover { opacity: 1; }

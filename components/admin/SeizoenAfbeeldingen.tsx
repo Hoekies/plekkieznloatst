@@ -3,19 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
-import { THEMAS, huidigThema, periodeTekst, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
+import { THEMAS, huidigThema, periodeTekst, standaardBeeld, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
+import BevestigKnop from "@/components/admin/BevestigKnop";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 import Icoon from "@/components/admin/Icoon";
 
-const SOORTEN: { soort: SeizoenSoort; label: string; uitleg: string }[] = [
-  { soort: "achtergrond", label: "🖼️ Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
-  { soort: "logo", label: "🔲 Logo", uitleg: "Spellogo, vierkant: inlogscherm, welkomstscherm, oorkonde, uitslag, beamer." },
-  { soort: "logo_breed", label: "▭ Logo breed", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
+const SOORTEN: { soort: SeizoenSoort; label: string; naam: string; uitleg: string }[] = [
+  { soort: "achtergrond", label: "🖼️ Achtergrond", naam: "Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
+  { soort: "logo", label: "🔲 Logo", naam: "Logo", uitleg: "Spellogo, vierkant: inlogscherm, welkomstscherm, oorkonde, uitslag, beamer." },
+  { soort: "logo_breed", label: "▭ Logo breed", naam: "Breed logo", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
 ];
 
 // 🗓️ Afbeeldingen per seizoen en feestdag, voor alle routes: achtergrond van het welkomstscherm en het
-// spellogo (vierkant en breed), op alfabet of door het jaar heen. Upload ze nu al; de app kiest op datum (feestdag gaat voor seizoen).
+// spellogo (vierkant en breed), op alfabet of door het jaar heen. De app kiest op datum (feestdag gaat voor seizoen).
+// Elk thema met een datum heeft een standaardafbeelding (public/seizoenen); een gekozen afbeelding gaat daarvoor, en
+// verwijder je die, dan komt de standaard terug. Vrije thema's beginnen leeg.
 // Een eigen welkomstfoto van een route gaat altijd voor de seizoensachtergrond. Eigen pagina: /admin/seizoenen.
 export default function SeizoenAfbeeldingen() {
   const [paden, setPaden] = useState<Record<SeizoenSoort, Record<string, string>> | null>(null);
@@ -93,14 +96,16 @@ export default function SeizoenAfbeeldingen() {
   }
   async function weg(thema: string) {
     const res = await fetch("/api/admin/achtergronden", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort }) }).catch(() => null);
-    if (res?.ok) setPaden((p) => { if (!p) return p; const n = { ...p[soort] }; delete n[thema]; return { ...p, [soort]: n }; });
+    if (!res?.ok) { toonMelding("Verwijderen lukte niet: controleer je internet en probeer het opnieuw", "fout"); return; }
+    setPaden((p) => { if (!p) return p; const n = { ...p[soort] }; delete n[thema]; return { ...p, [soort]: n }; });
   }
 
   const nu = new Date();
   const huidig = paden?.[soort] ?? {};
   const vastThema = THEMAS.find((t) => t.sleutel === vast) ?? null;
   // Vast: altijd dat thema (zonder afbeelding van deze soort: de gewone); anders op datum
-  const actief = vastThema ? (huidig[vastThema.sleutel] ? vastThema : null) : paden ? huidigThema(nu, new Set(Object.keys(huidig))) : null;
+  const heeftBeeld = (sleutel: string, s: SeizoenSoort) => !!paden?.[s]?.[sleutel] || !!standaardBeeld(sleutel, s);
+  const actief = vastThema ? (heeftBeeld(vastThema.sleutel, soort) ? vastThema : null) : paden ? huidigThema(nu, new Set(THEMAS.filter((t) => heeftBeeld(t.sleutel, soort)).map((t) => t.sleutel))) : null;
   const info = SOORTEN.find((s) => s.soort === soort)!;
   const logo = soort !== "achtergrond";
   // Door het jaar heen: op begindatum dit jaar (januari → december)
@@ -111,7 +116,7 @@ export default function SeizoenAfbeeldingen() {
   return (
     <div className="form-group seizoen">
       <span className="inst-uitleg">
-        Voor <strong>alle routes</strong>. Upload ze nu al; de app wisselt vanzelf naar de feestdag of het seizoen van dat moment.
+        Voor <strong>alle routes</strong>. De app wisselt vanzelf naar de feestdag of het seizoen van dat moment. Elk thema heeft een standaardafbeelding: kies je een andere, dan komt die ervoor in de plaats; verwijder je die, dan komt de standaard terug.
         {soort === "achtergrond" && " Een route met een eigen welkomstfoto houdt die foto."}
       </span>
       {fout && <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>}
@@ -120,7 +125,7 @@ export default function SeizoenAfbeeldingen() {
           <div className="seizoen-soorten">
             {SOORTEN.map((s) => (
               <button key={s.soort} type="button" className={`rl-knop${soort === s.soort ? " rl-knop--cyan" : ""}`} onClick={() => setSoort(s.soort)} aria-pressed={soort === s.soort}>
-                {s.label} <span className="seizoen-telling">{Object.keys(paden[s.soort] ?? {}).length}</span>
+                {s.label} <span className="seizoen-telling">{THEMAS.filter((t) => heeftBeeld(t.sleutel, s.soort)).length}</span>
               </button>
             ))}
             <span className="seizoen-volgorde" role="radiogroup" aria-label="Volgorde">
@@ -147,14 +152,16 @@ export default function SeizoenAfbeeldingen() {
             <div className={`seizoen-raster${logo ? " seizoen-raster--logo" : ""}`}>
               {themas.map((t) => {
                 const pad = huidig[t.sleutel];
+                const standaard = standaardBeeld(t.sleutel, soort);
+                const beeld = pad ? OPSLAG + pad : standaard;
                 const isNu = actief?.sleutel === t.sleutel;
                 return (
                   <div key={t.sleutel} className={`seizoen-vak${isNu ? " seizoen-vak--nu" : ""}`}>
                     <button type="button" className="seizoen-beeld" disabled={!!bezig}
                       onClick={() => { voorThema.current = t.sleutel; kiesRef.current?.click(); }}
-                      title={pad ? "Andere afbeelding kiezen" : "Afbeelding kiezen"}
-                      style={pad ? { backgroundImage: `url(${OPSLAG + pad})` } : undefined}>
-                      {bezig === t.sleutel ? <Icoon naam="laden" /> : pad ? "" : "+"}
+                      title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"}
+                      style={beeld ? { backgroundImage: `url(${beeld})` } : undefined}>
+                      {bezig === t.sleutel ? <Icoon naam="laden" /> : beeld ? "" : "+"}
                     </button>
                     {bewerk?.sleutel === t.sleutel ? (
                       // ✏️ Naam en emoji van een vrij thema
@@ -169,12 +176,17 @@ export default function SeizoenAfbeeldingen() {
                           onClick={() => setBewerk({ sleutel: t.sleutel, naam: namen[t.sleutel]?.naam ?? "", emoji: themaEmoji(t, namen) })}>✏️</button>}
                       </span>
                     )}
-                    <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}</span>
+                    <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}{!pad && standaard && <span className="seizoen-standaard">standaard</span>}</span>
                     <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
                       onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
                       title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${t.naam} overal vastzetten`}
                       aria-label={vast === t.sleutel ? `${t.naam} losmaken` : `${t.naam} vastzetten`}>📌</button>
-                    {pad && <button type="button" className="seizoen-weg" onClick={() => weg(t.sleutel)} title="Weghalen" aria-label={`${info.label} ${t.naam} weghalen`}>✕</button>}
+                    {/* Alleen een gekozen afbeelding is te verwijderen; de standaard blijft er altijd */}
+                    {pad && (
+                      <BevestigKnop venster icoon="🗑️" titel={`${info.naam} van ${themaNaam(t, namen)} verwijderen?`} vraag=""
+                        uitleg={standaard ? "De standaardafbeelding komt er weer voor terug." : "Dit vak wordt weer leeg."}
+                        ja="Ja, verwijderen" onBevestig={() => weg(t.sleutel)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
+                    )}
                   </div>
                 );
               })}

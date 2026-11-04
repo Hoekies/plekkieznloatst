@@ -1,6 +1,6 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { isKleurThema } from "@/lib/kleurthema";
-import { huidigThema, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
+import { huidigThema, standaardBeeld, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -22,29 +22,32 @@ export async function haalHuisstijl(admin: AdminClient): Promise<Huisstijl> {
   const { data } = await admin.from("routes").select("*").eq("is_active", true).maybeSingle();
   const r = (data ?? {}) as { huisstijl_kleur?: string | null; huisstijl_logo_pad?: string | null; welkom_foto_pad?: string | null; geluid_set?: string | null; huis_thema?: string | null };
   // Geen eigen welkomstfoto: de achtergrond van het seizoen of de feestdag van nu (migratie 019)
-  if (!r.welkom_foto_pad) r.welkom_foto_pad = await seizoenPad(admin, "achtergrond");
+  const welkomFoto = r.welkom_foto_pad ? OPSLAG + r.welkom_foto_pad : await seizoenBeeld(admin, "achtergrond");
   return {
     kleur: r.huisstijl_kleur && /^#[0-9A-Fa-f]{6}$/.test(r.huisstijl_kleur) ? r.huisstijl_kleur : null,
     logo: r.huisstijl_logo_pad ? OPSLAG + r.huisstijl_logo_pad : null,
-    welkomFoto: r.welkom_foto_pad ? OPSLAG + r.welkom_foto_pad : null,
+    welkomFoto,
     geluidSet: r.geluid_set ?? "klassiek",
     thema: isKleurThema(r.huis_thema) ? r.huis_thema : null,
   };
 }
 
-// 🗓️ De seizoensafbeelding van dit moment (achtergrond of spellogo; migratie 019/020), of null.
-// Feestdag gaat voor seizoen; alleen thema's waarvoor deze soort is geüpload tellen mee.
-// 📌 Is een thema vastgezet, dan altijd dat thema; heeft het deze soort niet, dan het gewone (null),
+// 🗓️ Het adres van de seizoensafbeelding van dit moment (achtergrond of spellogo; migratie 019/020), of null.
+// Feestdag gaat voor seizoen. Per thema: de geüploade afbeelding, anders de standaard (public/seizoenen).
+// 📌 Is een thema vastgezet, dan altijd dat thema; heeft een vrij thema deze soort niet, dan het gewone (null),
 // zodat achtergrond en logo's nooit uit verschillende thema's komen.
-export async function seizoenPad(admin: AdminClient, soort: SeizoenSoort): Promise<string | null> {
+export async function seizoenBeeld(admin: AdminClient, soort: SeizoenSoort): Promise<string | null> {
   const kolom = SEIZOEN_KOLOM[soort];
   // "*": zonder migratie 020 ontbreken de logokolommen; dan is er gewoon geen seizoenslogo
   const { data } = await admin.from("seizoen_achtergronden").select("*");
   const rijen = (data ?? []) as unknown as Record<string, string | null>[];
   const vast = rijen.find((r) => r.thema === VAST_SLEUTEL)?.pad;
   const metBeeld = rijen.filter((r) => !isInstelRij(r.thema) && r[kolom]);
-  const sleutel = bestaandThema(vast) ? vast : huidigThema(new Date(), new Set(metBeeld.map((r) => r.thema as string)))?.sleutel;
-  return sleutel ? metBeeld.find((r) => r.thema === sleutel)?.[kolom] ?? null : null;
+  // Elk thema met datum heeft een standaard, dus die doen altijd mee
+  const sleutel = bestaandThema(vast) ? vast : huidigThema(new Date(), new Set(THEMAS.filter((t) => !t.eigen).map((t) => t.sleutel)))?.sleutel;
+  if (!sleutel) return null;
+  const pad = metBeeld.find((r) => r.thema === sleutel)?.[kolom];
+  return pad ? OPSLAG + pad : standaardBeeld(sleutel, soort);
 }
 
 // 📌 Het vastgezette thema (beheer → Seizoenen), of null = automatisch op datum

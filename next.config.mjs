@@ -56,7 +56,7 @@ const config = {
       // Afbeeldingen een dag in de browser bewaren (en daarna op de achtergrond verversen),
       // zodat iconen en logo niet bij elke pagina opnieuw gecontroleerd worden
       {
-        source: "/:pad(items|kaarten)/:bestand*",
+        source: "/:pad(items|kaarten|seizoenen)/:bestand*",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
       {
