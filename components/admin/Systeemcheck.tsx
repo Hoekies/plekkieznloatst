@@ -176,12 +176,12 @@ export default function Systeemcheck() {
                 <UitklapPijl open={isOpen} />
                 <span className="systeem-onderdeel-naam">{g}</span>
                 <span className={foutIn.length ? "systeem-telling systeem-telling--mis" : tijdelijk.length ? "systeem-telling systeem-telling--let" : "systeem-telling"}>
-                  {meetellend.length ? <>{goed}/{meetellend.length} {foutIn.length || tijdelijk.length ? <Icoon naam="waarschuwing" /> : <Icoon naam="goed" />}</> : "ter info"}
+                  {meetellend.length ? <>{goed}/{meetellend.length} {foutIn.length ? <Icoon naam="waarschuwing" /> : tijdelijk.length ? <span title="Even niet bereikbaar">⏳</span> : <Icoon naam="goed" />}</> : "ter info"}
                 </span>
               </button>
-              {[...foutIn, ...tijdelijk].map((c) => (
-                <div key={c.naam} className={`systeem-regel ${c.tijdelijk ? "systeem-regel--let" : "systeem-regel--mis"}`}>
-                  <span aria-hidden>{c.tijdelijk ? "⏳" : "❌"}</span>
+              {foutIn.map((c) => (
+                <div key={c.naam} className="systeem-regel systeem-regel--mis">
+                  <span aria-hidden>❌</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: "block", fontWeight: 700 }}>{c.naam}</span>
                     {c.uitleg && <span style={{ display: "block", fontSize: "0.78rem", color: "#FDE68A", overflowWrap: "anywhere" }}>{c.uitleg}</span>}
@@ -191,6 +191,7 @@ export default function Systeemcheck() {
               {isOpen && (
                 <div className="systeem-raster">
                   {inGroep.filter((c) => c.ok).map((c) => <span key={c.naam} className={`systeem-vakje${c.info ? " systeem-vakje--info" : ""}`}>{c.info ? "ℹ️" : "✓"} {c.naam}</span>)}
+                  {tijdelijk.map((c) => <span key={c.naam} className="systeem-vakje systeem-vakje--let">⏳ {c.naam}: even niet bereikbaar, ligt niet aan de app</span>)}
                 </div>
               )}
             </div>

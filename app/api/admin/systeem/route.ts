@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { verwachtSchema, verwachteMappen } from "@/lib/migratie-schema.mjs";
+import { OVERPASS_SERVERS } from "@/lib/overpass";
 
 // 🩺 Systeemcheck: klopt de database met de migraties, is alles afgeschermd, staan opslag en instellingen goed, zijn
 // de externe diensten bereikbaar? Waarden van geheime instellingen worden nooit teruggegeven, alleen of ze er zijn.
@@ -135,14 +136,18 @@ async function dienstChecks(): Promise<Check[]> {
     ["🛰️ Luchtfoto (PDOK)", "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0?request=GetCapabilities&service=wmts"],
     ["🚶 Looproutes (OSM-routing)", "https://routing.openstreetmap.de/routed-foot/nearest/v1/foot/5,52?number=1"],
     ["📍 Adres zoeken (Nominatim)", "https://nominatim.openstreetmap.org/status"],
-    ["🧱 Ondergrond (Overpass)", "https://overpass-api.de/api/status"],
   ];
-  return Promise.all(diensten.map(async ([naam, url]) => {
-    const r = await fetch(url, { signal: AbortSignal.timeout(4000), cache: "no-store", headers: { "User-Agent": "PointRush-systeemcheck" } }).catch(() => null);
+  const antwoord = (url: string) => fetch(url, { signal: AbortSignal.timeout(6000), cache: "no-store", headers: { "User-Agent": "PointRush-systeemcheck" } }).catch(() => null);
+  const uit = (naam: string, ok: boolean): Check => ({ groep: "Externe diensten", naam, ok, tijdelijk: !ok });
+  const gewoon = diensten.map(async ([naam, url]) => {
+    const r = await antwoord(url);
     // 4xx (bijvoorbeeld "te veel verzoeken") betekent ook: de dienst leeft
-    const ok = !!r && r.status < 500;
-    return { groep: "Externe diensten", naam, ok, tijdelijk: !ok, uitleg: ok ? undefined : "Nu niet bereikbaar. Dit ligt niet aan de app; dit onderdeel werkt weer zodra de dienst terug is." };
-  }));
+    return uit(naam, !!r && r.status < 500);
+  });
+  // Overpass heeft een reserve-server: goed als er minstens één echt antwoordt (hij geeft soms 406 als hij vol zit)
+  const overpass = Promise.all(OVERPASS_SERVERS.map((s) => antwoord(`${s}/status`)))
+    .then((lijst) => uit("🧱 Ondergrond en vraagideeën (Overpass)", lijst.some((r) => r?.ok)));
+  return Promise.all([...gewoon, overpass]);
 }
 
 // Stand van het spel: wat je kunt nagaan vóór en tijdens een spel

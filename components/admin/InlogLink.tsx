@@ -8,13 +8,8 @@ import { toonMelding } from "@/components/admin/Melding";
 import { waLink, toonTelefoon } from "@/lib/telefoon";
 import { foutUitleg, uitlegBijStatus } from "@/lib/fout-uitleg";
 import Icoon from "@/components/admin/Icoon";
+import { LINK_DUUR } from "@/lib/link-duur";
 
-const DUUR: { uren: number; label: string }[] = [
-  { uren: 4, label: "4 uur" },
-  { uren: 24, label: "1 dag" },
-  { uren: 72, label: "3 dagen" },
-  { uren: 120, label: "5 dagen" },
-];
 
 export function tijdTekst(iso: string) {
   return new Date(iso).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -90,7 +85,7 @@ export default function InlogLinkSectie({ spelerId, toegangTot, telefoon, onGewi
       <div>
         <label className="form-label">Hoe lang werkt de link?</label>
         <div className="punten-snel">
-          {DUUR.map((d) => (
+          {LINK_DUUR.map((d) => (
             <button key={d.uren} type="button" className={`rl-knop${uren === d.uren ? " rl-knop--cyan" : ""}`} onClick={() => setUren(d.uren)}>{d.label}</button>
           ))}
         </div>

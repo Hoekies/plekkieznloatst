@@ -3278,7 +3278,6 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .systeem-telling { font-size: 0.8rem; color: #86EFAC; }
 .systeem-telling--mis { color: #FCA5A5; }
 .systeem-telling--let { color: #FDE68A; }
-.systeem-regel--let { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.35); }
 .systeem-gemeten { display: block; font-size: 0.74rem; color: var(--muted); }
 .systeem-leeg { font-size: 0.8rem; color: var(--muted); padding: 0 0 4px 34px; }
 .systeem-onderhoud { flex-wrap: wrap; }
@@ -3290,6 +3289,7 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 /* Namen over meerdere regels: afkappen maakte ze onleesbaar, en een tooltip werkt niet op de telefoon */
 .systeem-vakje { font-size: 0.76rem; line-height: 1.35; padding: 6px 10px; border-radius: 8px; background: rgba(74,222,128,0.08); color: #D1FAE5; overflow-wrap: anywhere; }
 .systeem-vakje--info { background: rgba(255,255,255,0.06); color: var(--text); }
+.systeem-vakje--let { background: rgba(251,191,36,0.1); color: #FDE68A; }
 
 /* Vraag met tijdslimiet: aftelklok bovenaan, rood in de laatste 10 seconden */
 .vraag-klok { align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(139,92,246,0.25); color: #DDD6FE; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }

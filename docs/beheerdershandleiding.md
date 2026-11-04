@@ -359,7 +359,7 @@ Elke speler krijgt een **vaste kleur** (ring om het icoon). Die kleur zie je ook
 - **Status in één oogopslag**: het stipje rechtsonder op het icoon is groen (speelt), blauw (ingelogd), goud (gefinisht), grijs (niet ingelogd) of rood (uitgeschakeld). Op de pc staat het woord er ook bij.
 - **🔍 Zoeken en sorteren** (vanaf 5 spelers): zoek op naam, login of telefoonnummer en sorteer op **🔤 Naam**, **⚡ Status** of **🆕 Nieuwst** (wordt onthouden).
 - **✏️ Teamnaam aanpassen**: het potloodje achter de naam. Handig bij een ongepaste naam; leeg maken = het team kiest bij de start opnieuw.
-- **📤 Uitdelen** opent één venster met **Printen** (*Alle kaartjes*) en **WhatsApp**. **Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. De **QR-code** op elk kaartje logt 48 uur lang meteen in, zonder typen: scannen met de camera van de telefoon, of in de app met **📷 QR-code scannen** op het inlogscherm. Daarna vult scannen alleen de loginnaam in en typt de speler het wachtwoord van het kaartje. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
+- **📤 Uitdelen** opent één venster met **Printen** (*Alle kaartjes*) en **WhatsApp**. **Alle kaartjes**: de inlogkaartjes van alle spelers in één keer, om te printen (8 per A4) of per kaartje via WhatsApp te versturen. Kies hoe lang de **QR-code** op de kaartjes werkt (4 uur, **1 dag**, 3 dagen of 5 dagen): zo lang logt hij meteen in, zonder typen: scannen met de camera van de telefoon, of in de app met **📷 QR-code scannen** op het inlogscherm. Daarna vult scannen alleen de loginnaam in en typt de speler het wachtwoord van het kaartje. Is van een speler het wachtwoord niet bewaard, dan vraagt de app eerst of die een nieuw wachtwoord krijgt (of print je alleen de anderen).
 
 #### Meerdere spelers tegelijk
 
@@ -738,7 +738,7 @@ In het menu onder **⚙️ Instellingen** staat **🩺 Systeemcheck**. (Alle mig
 - **Beveiliging** — of buitenstaanders met de openbare sleutel geen gegevens kunnen lezen, en of het puzzelwoord, de goede antwoorden en de teamfoto's afgeschermd zijn. Er wordt nooit inhoud getoond.
 - **Opslag** — of de mappen voor afbeeldingen, geluid en foto's bestaan en goed staan (openbaar of niet).
 - **Instellingen** — of de sleutels in Vercel staan (alleen óf ze er zijn, nooit de waarde), bijvoorbeeld voor pushmeldingen.
-- **Externe diensten** — of weer, kaart, luchtfoto, looproutes, adres zoeken en ondergrond bereikbaar zijn. Ligt er een even plat, dan staat er ⏳: dat ligt niet aan de app en telt niet als probleem.
+- **Externe diensten** — of weer, kaart, luchtfoto, looproutes, adres zoeken en ondergrond bereikbaar zijn. Ligt er een even plat, dan staat er ⏳ achter de telling (klap open om te zien welke): dat ligt niet aan de app en telt niet als probleem. Overpass zit vaak vol; de app probeert dan vanzelf een reserve-server.
 - **Spel** — welke route actief is, of daar punten op staan en of er geen spellen vergeten zijn (langer dan 12 uur).
 - **Deze browser** — of weer, kaart en geluid hier echt mogen laden. Dit wordt in je eigen browser geprobeerd.
 - **🧹 Oude gegevens** — gelopen routes (exacte GPS) en foutmeldingen ouder dan 30 dagen gaan vanzelf weg als je het dashboard opent; met *Nu opruimen* meteen (met bevestiging). Ook bij *Terugkijken* van oude spellen is de gelopen route dan weg. Foto's, teamnamen en antwoorden blijven tot je *🧹 Opruimen* doet. Spelers zien dit bij de start onder *Jouw gegevens*.

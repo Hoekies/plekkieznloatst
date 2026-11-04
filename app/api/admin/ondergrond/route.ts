@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { haalGebruiker, isAdmin } from "@/lib/auth-server";
+import { vraagOverpass } from "@/lib/overpass";
 
 // 🛤️ Ondergrond-check: loopt de route over een trap, onverhard pad of langs een drukke weg?
 // Vraagt OpenStreetMap (Overpass) naar zulke wegen in het gebied en legt de route ernaast.
@@ -21,6 +22,9 @@ function afstandTotStuk(p: Plek, a: Plek, b: Plek): number {
 }
 function meter(a: Plek, b: Plek) { return afstandTotStuk(a, b, b); }
 
+// Twee pogingen (met reserve-server) van hooguit 13 s: de functie mag daarom wat langer duren dan standaard
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
   if (!isAdmin(await haalGebruiker())) return NextResponse.json({ fout: "Geen toegang" }, { status: 403 });
   const body = await request.json().catch(() => null);
@@ -40,12 +44,8 @@ export async function POST(request: Request) {
   const lats = meet.map((p) => p.lat), lngs = meet.map((p) => p.lng);
   const bbox = [Math.min(...lats) - 0.0005, Math.min(...lngs) - 0.0005, Math.max(...lats) + 0.0005, Math.max(...lngs) + 0.0005].map((x) => x.toFixed(5)).join(",");
   const query = `[out:json][timeout:25];(way["highway"="steps"](${bbox});way["highway"]["surface"~"^(unpaved|gravel|fine_gravel|dirt|earth|ground|grass|sand|mud|pebblestone|woodchips|compacted)$"](${bbox});way["highway"~"^(trunk|primary|secondary|trunk_link|primary_link|secondary_link)$"](${bbox}););out geom;`;
-  const res = await fetch("https://overpass-api.de/api/interpreter", {
-    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": "PointRush route-editor" },
-    body: "data=" + encodeURIComponent(query), signal: AbortSignal.timeout(30000),
-  }).catch(() => null);
-  if (!res?.ok) return NextResponse.json({ fout: "OpenStreetMap is nu niet bereikbaar. Probeer het straks opnieuw." }, { status: 502 });
-  const osm = await res.json().catch(() => null) as { elements?: { tags?: Record<string, string>; geometry?: { lat: number; lon: number }[] }[] } | null;
+  const osm = await vraagOverpass<{ elements?: { tags?: Record<string, string>; geometry?: { lat: number; lon: number }[] }[] }>(query, 13000);
+  if (!osm) return NextResponse.json({ fout: "OpenStreetMap is nu niet bereikbaar. Probeer het straks opnieuw." }, { status: 502 });
   const wegen: Weg[] = (osm?.elements ?? []).filter((e) => e.geometry?.length).map((e) => {
     const t = e.tags ?? {};
     const soort: Soort = t.highway === "steps" ? "trap" : DRUK.test(t.highway ?? "") ? "drukke weg" : ONVERHARD.test(t.surface ?? "") ? "onverhard" : "onverhard";

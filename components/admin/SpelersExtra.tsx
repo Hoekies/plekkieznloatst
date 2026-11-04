@@ -39,13 +39,14 @@ export function TeamnaamVenster({ spelerId, naam, icoon, onSluit, onOpgeslagen }
 }
 
 // 🖨️ Alle kaartjes: inloggegevens van alle actieve spelers in één keer, om te printen of per WhatsApp te sturen
-export function AlleKaartjesKnop() {
+// uren: hoe lang de QR-code op de kaartjes werkt
+export function AlleKaartjesKnop({ uren }: { uren: number }) {
   const [bezig, setBezig] = useState(false);
   const [onbekend, setOnbekend] = useState<string[] | null>(null);
   async function haal(nieuw: boolean) {
     setBezig(true);
     const res = await fetch("/api/admin/groepen/kaartjes", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nieuw }),
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nieuw, uren }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     setBezig(false);
@@ -58,7 +59,7 @@ export function AlleKaartjesKnop() {
   }
   // Zonder nieuwe wachtwoorden: alleen wie een bewaard wachtwoord heeft
   async function haalZonder() {
-    const res = await fetch("/api/admin/groepen/kaartjes", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).catch(() => null);
+    const res = await fetch("/api/admin/groepen/kaartjes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uren }) }).catch(() => null);
     const data = res?.ok ? await res.json().catch(() => ({})) : {};
     setOnbekend(null);
     if (data.inlogs?.length) openKaartjes(data.inlogs);

@@ -16,6 +16,7 @@ import LeegScherm from "@/components/admin/LeegScherm";
 import StatStrook from "@/components/admin/StatStrook";
 import LaadBlokjes from "@/components/shared/LaadBlokjes";
 import WhatsAppKnop from "@/components/admin/WhatsAppKnop";
+import { LINK_DUUR } from "@/lib/link-duur";
 import { TeamnaamVenster, AlleKaartjesKnop } from "@/components/admin/SpelersExtra";
 import Venster, { VensterKop, VensterMetKop } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
@@ -488,8 +489,8 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
                     <>
                       <label className="form-label" style={{ marginTop: 8 }}>Hoe lang werkt de link?</label>
                       <div className="punten-snel">
-                        {[[4, "4 uur"], [24, "1 dag"], [72, "3 dagen"], [120, "5 dagen"]].map(([u, label]) => (
-                          <button key={u} type="button" className={`rl-knop${linkUren === u ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(u as number)}>{label}</button>
+                        {LINK_DUUR.map((d) => (
+                          <button key={d.uren} type="button" className={`rl-knop${linkUren === d.uren ? " rl-knop--cyan" : ""}`} onClick={() => setLinkUren(d.uren)}>{d.label}</button>
                         ))}
                       </div>
                     </>
@@ -513,6 +514,7 @@ export function WijzigVenster({ modal, onSluit, onGewijzigd }: { modal: BeheerMo
 // 📤 Uitdelen: alle inlogkaartjes printen, of uitleg en kaartjes via WhatsApp versturen. Eén team: 🔑 Inlog bij dat team.
 function UitdeelKnop({ heeftSpelers }: { heeftSpelers: boolean }) {
   const [open, setOpen] = useState(false);
+  const [uren, setUren] = useState(24);
   return (
     <>
       <button type="button" className="rl-knop actie-knop" onClick={() => setOpen(true)} disabled={!heeftSpelers} title="Inloggegevens uitdelen: printen of WhatsApp">
@@ -522,7 +524,15 @@ function UitdeelKnop({ heeftSpelers }: { heeftSpelers: boolean }) {
         <VensterMetKop icoon="📤" label="Spelers" titel="Inloggegevens uitdelen" onSluit={() => setOpen(false)} breedte={460}>
           <div className="huisstijl-regel">
             <div className="huisstijl-naam"><strong>Printen</strong><span>Alle inlogkaartjes op papier, om uit te delen bij de start</span></div>
-            <div className="huisstijl-knoppen"><AlleKaartjesKnop /></div>
+            <div className="huisstijl-knoppen"><AlleKaartjesKnop uren={uren} /></div>
+          </div>
+          <div>
+            <label className="form-label">Hoe lang werkt de QR-code op de kaartjes?</label>
+            <div className="punten-snel">
+              {LINK_DUUR.map((d) => (
+                <button key={d.uren} type="button" className={`rl-knop${uren === d.uren ? " rl-knop--cyan" : ""}`} onClick={() => setUren(d.uren)}>{d.label}</button>
+              ))}
+            </div>
           </div>
           <div className="huisstijl-regel">
             <div className="huisstijl-naam"><strong>WhatsApp</strong><span>Uitleg, beginscherm en kaartje per team naar hun telefoon</span></div>

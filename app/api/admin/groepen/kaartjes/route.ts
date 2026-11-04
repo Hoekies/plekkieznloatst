@@ -4,10 +4,10 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { bewaarWachtwoord, ontsleutel } from "@/lib/wachtwoord-kluis";
 import { maakWachtwoord } from "@/lib/wachtwoord";
 import { willekeurigIcoon } from "@/lib/team-iconen";
-import { maakLinkCode, hashLinkCode } from "@/lib/inlog-link";
+import { maakLinkCode, hashLinkCode, LINK_UREN } from "@/lib/inlog-link";
 
-// QR-code op het kaartje = direct inloggen; zo lang werkt de link (en de toegang die hij geeft)
-const LINK_UREN = 48;
+// QR-code op het kaartje = direct inloggen; zo lang werkt de link (en de toegang die hij geeft), als er niets gekozen is
+const STANDAARD_UREN = 48;
 
 // 🖨️ Alle kaartjes: de inloggegevens van alle actieve spelers in één keer (om te printen of te versturen).
 // Spelers van wie het wachtwoord niet bewaard is (van vóór migratie 011): bij { nieuw: true } krijgen
@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
   type Rij = { id: string; auth_user_id: string; login_name: string; nickname: string | null; telefoon?: string | null; wachtwoord_versleuteld?: string | null };
   const inlogs: { login: string; wachtwoord: string; naam: string | null; telefoon: string | null; link: { url: string; geldig_tot: string } | null }[] = [];
   const origin = new URL(request.url).origin;
-  const geldigTot = new Date(Date.now() + LINK_UREN * 3600_000).toISOString();
+  const uren = (LINK_UREN as readonly number[]).includes(Number(body?.uren)) ? Number(body.uren) : STANDAARD_UREN;
+  const geldigTot = new Date(Date.now() + uren * 3600_000).toISOString();
   const onbekend: string[] = [];
   // 🔁 Nieuwe groep (na het afronden): dezelfde logins, maar alles van de vorige groep eraf
   const nieuweGroep = body?.nieuweGroep === true;
