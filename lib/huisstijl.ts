@@ -1,6 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { isKleurThema } from "@/lib/kleurthema";
-import { huidigThema, standaardBeeld, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
+import { huidigFinishThema, type FinishThemaSleutel } from "@/lib/finish-thema";
+import { huidigThema, nederlandseDag, standaardBeeld, SEIZOEN_KOLOM, VAST_SLEUTEL, NAMEN_SLEUTEL, THEMAS, bestaandThema, isInstelRij, leesNamen, type SeizoenSoort } from "@/lib/seizoenen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -44,7 +45,7 @@ export async function seizoenBeeld(admin: AdminClient, soort: SeizoenSoort): Pro
   const vast = rijen.find((r) => r.thema === VAST_SLEUTEL)?.pad;
   const metBeeld = rijen.filter((r) => !isInstelRij(r.thema) && r[kolom]);
   // Elk thema met datum heeft een standaard, dus die doen altijd mee
-  const sleutel = bestaandThema(vast) ? vast : huidigThema(new Date(), new Set(THEMAS.filter((t) => !t.eigen).map((t) => t.sleutel)))?.sleutel;
+  const sleutel = bestaandThema(vast) ? vast : huidigThema(nederlandseDag(), new Set(THEMAS.filter((t) => !t.eigen).map((t) => t.sleutel)))?.sleutel;
   if (!sleutel) return null;
   const pad = metBeeld.find((r) => r.thema === sleutel)?.[kolom];
   return pad ? OPSLAG + pad : standaardBeeld(sleutel, soort);
@@ -55,6 +56,13 @@ export async function vastThema(admin: AdminClient): Promise<string | null> {
   const { data } = await admin.from("seizoen_achtergronden").select("pad").eq("thema", VAST_SLEUTEL).maybeSingle();
   const pad = (data as { pad?: string | null } | null)?.pad;
   return bestaandThema(pad) ? pad : null;
+}
+
+// 🎉 Het thema voor de confetti: het vastgezette thema, anders dat van de datum (zelfde als logo en achtergrond).
+// Voor elke omgeving die confetti kan laten zien (inlogscherm, beheer, spelersapp, QR-proef): zie ConfettiThema.
+export async function confettiInstelling(admin: AdminClient): Promise<{ sleutel: FinishThemaSleutel; emoji: string | null }> {
+  const vast = await vastThema(admin).catch(() => null);
+  return { sleutel: huidigFinishThema(new Date(), vast), emoji: await eigenEmoji(admin, vast).catch(() => null) };
 }
 
 // ✏️ Het emoji van een vrij thema zoals de beheerder het instelde (of null), bijv. voor de versiering van de finish

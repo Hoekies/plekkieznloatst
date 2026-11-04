@@ -4,7 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
-import { huidigThema, paaszondag, THEMAS } from "../lib/seizoenen";
+import { huidigThema, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
+import { FINISH_THEMAS, huidigFinishThema } from "../lib/finish-thema";
+import { SEIZOEN_PROMPTS } from "../lib/seizoen-prompts";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/test-rol";
@@ -155,6 +157,27 @@ test("seizoensachtergrond op datum", () => {
   assert.equal(huidigThema(new Date(2026, 9, 24), new Set(["herfst"]))?.sleutel, "herfst");
   // Vrije thema's hebben geen datum: alleen met 📌, nooit vanzelf
   for (let dag = 0; dag < 366; dag += 1) assert.equal(huidigThema(new Date(2026, 0, 1 + dag), new Set(["eigen1", "eigen2"])), null);
+});
+
+test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema", () => {
+  for (const t of THEMAS) {
+    assert.ok(t.sleutel in FINISH_THEMAS, `${t.sleutel} heeft geen finish en confetti`);
+    assert.equal(huidigFinishThema(new Date(2026, 5, 1), t.sleutel), t.sleutel, `vastzetten van ${t.sleutel} geldt niet`);
+    for (const soort of Object.keys(SEIZOEN_KOLOM) as SeizoenSoort[]) {
+      const beeld = standaardBeeld(t.sleutel, soort);
+      // Vrije thema's beginnen leeg; de rest moet een standaardbestand hebben
+      if (t.eigen) assert.equal(beeld, null);
+      else assert.ok(beeld && fs.existsSync(path.join("public", beeld)), `${t.sleutel}: ${soort} ontbreekt in public/seizoenen`);
+    }
+  }
+  for (const soort of Object.keys(SEIZOEN_KOLOM) as SeizoenSoort[]) {
+    assert.ok(SEIZOEN_PROMPTS[soort].tekst("Voetbal").includes("Voetbal"));
+    assert.ok(fs.existsSync(path.join("public", SEIZOEN_PROMPTS[soort].voorbeeld)), `voorbeeld van ${soort} ontbreekt`);
+  }
+  // Rond middernacht telt de Nederlandse dag, ook op een server in UTC: 23 okt 22:30 UTC is in Nederland al 24 okt
+  const dag = nederlandseDag(new Date(Date.UTC(2026, 9, 23, 22, 30)));
+  assert.deepEqual([dag.getFullYear(), dag.getMonth(), dag.getDate()], [2026, 9, 24]);
+  assert.equal(huidigFinishThema(new Date(Date.UTC(2026, 9, 23, 22, 30))), "halloween");
 });
 
 // 👆 De hulpkolom wijst knoppen aan op hun naam: elke vetgedrukte knopnaam in de handleiding (met een emoji

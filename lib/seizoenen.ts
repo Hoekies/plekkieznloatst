@@ -79,6 +79,13 @@ export function standaardBeeld(sleutel: string, soort: SeizoenSoort): string | n
   return THEMAS.some((t) => t.sleutel === sleutel && !t.eigen) ? `/seizoenen/${sleutel}-${STANDAARD_BESTAND[soort]}` : null;
 }
 
+// De Nederlandse kalenderdag: de server draait op UTC, dus anders wisselen logo en achtergrond rond middernacht later dan de rest
+export function nederlandseDag(datum = new Date()): Date {
+  const delen = new Intl.DateTimeFormat("en", { timeZone: "Europe/Amsterdam", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(datum);
+  const getal = (soort: string) => Number(delen.find((x) => x.type === soort)?.value);
+  return new Date(getal("year"), getal("month") - 1, getal("day"));
+}
+
 // Valt de datum in de periode van dit thema? (ook als die over de jaarwisseling loopt)
 function inPeriode(t: Thema, datum: Date): boolean {
   const dag = new Date(datum.getFullYear(), datum.getMonth(), datum.getDate());

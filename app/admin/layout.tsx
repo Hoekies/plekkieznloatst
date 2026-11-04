@@ -12,7 +12,8 @@ import PushMeldingenKnop from "@/components/admin/PushMeldingenKnop";
 import VersieRegel from "@/components/admin/VersieRegel";
 import MenuInklap from "@/components/admin/MenuInklap";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { haalHuisstijl } from "@/lib/huisstijl";
+import { haalHuisstijl, confettiInstelling } from "@/lib/huisstijl";
+import ConfettiThema from "@/components/speler/ConfettiThema";
 import HulpKolom from "@/components/admin/HulpKolom";
 import TabTeller from "@/components/admin/TabTeller";
 import Sneltoetsen from "@/components/admin/Sneltoetsen";
@@ -33,6 +34,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const helper = rol === "helper";
   // Eigen logo van de organisatie (huisstijl van de actieve route), onder het PointRush-logo
   const huisstijl = await haalHuisstijl(createAdminClient());
+  // 🎉 De proef van een vraag in de editor: zelfde confetti als de spelers
+  const confetti = await confettiInstelling(createAdminClient());
   const huisLogo = huisstijl.logo;
 
   return (
@@ -40,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* 🎨 Kleur van het beheer op dit toestel, vóór het tekenen (geen paarse flits) */}
       {/* Met de kleur van de actieve route, voor de keuze "Zoals de spelersapp" */}
       <script dangerouslySetInnerHTML={{ __html: themaScript(undefined, huisstijl.thema) }} />
+      <ConfettiThema sleutel={confetti.sleutel} emoji={confetti.emoji} />
       <div className="admin-mobile-topbar">
         <SidebarToggle />
         {/* Telefoon: de naam van de pagina in de bovenbalk (de eigen kopbalk met alleen een titel valt dan weg) */}

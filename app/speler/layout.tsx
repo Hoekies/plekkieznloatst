@@ -8,8 +8,7 @@ import AutoVolledigScherm from "@/components/shared/AutoVolledigScherm";
 import SpelerUitlog from "@/components/speler/SpelerUitlog";
 import GeluidSetKiezen from "@/components/speler/GeluidSetKiezen";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { haalHuisstijl, vastThema, eigenEmoji } from "@/lib/huisstijl";
-import { huidigFinishThema } from "@/lib/finish-thema";
+import { haalHuisstijl, confettiInstelling } from "@/lib/huisstijl";
 import ConfettiThema from "@/components/speler/ConfettiThema";
 import { themaScript } from "@/lib/kleurthema";
 
@@ -22,9 +21,7 @@ export default async function SpelerLayout({ children }: { children: React.React
   const admin = createAdminClient();
   const huisstijl = await haalHuisstijl(admin);
   // 🗓️ Confetti in het thema van het seizoen (of het vastgezette thema uit het beheer)
-  const vast = await vastThema(admin).catch(() => null);
-  const confettiSleutel = huidigFinishThema(new Date(), vast);
-  const confettiEmoji = await eigenEmoji(admin, vast).catch(() => null);
+  const confetti = await confettiInstelling(admin);
   const kleurVars = huisstijl.kleur
     ? ({ "--pr-orange": huisstijl.kleur, "--huis-kleur": huisstijl.kleur } as React.CSSProperties)
     : undefined;
@@ -34,7 +31,7 @@ export default async function SpelerLayout({ children }: { children: React.React
       {/* 🎨 Kleurthema van de route (migratie 011), vóór het tekenen */}
       <script dangerouslySetInnerHTML={{ __html: themaScript(huisstijl.thema) }} />
       <GeluidSetKiezen set={huisstijl.geluidSet} />
-      <ConfettiThema sleutel={confettiSleutel} emoji={confettiEmoji} />
+      <ConfettiThema sleutel={confetti.sleutel} emoji={confetti.emoji} />
       <AudioUnlock />
       <IOSFixes />
       <DeviceGuard />

@@ -5,6 +5,7 @@ import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
 import { THEMAS, huidigThema, periodeTekst, standaardBeeld, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import { zetConfettiThema } from "@/lib/confetti";
 import SeizoenPrompt from "@/components/admin/SeizoenPrompt";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
@@ -63,6 +64,8 @@ export default function SeizoenAfbeeldingen() {
     if (!res?.ok) { setVast(oud); toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
     const t = THEMAS.find((x) => x.sleutel === sleutel);
     ververLogos();
+    // null = terug naar de datum; de eigen emoji van een vrij thema
+    zetConfettiThema(sleutel, t?.eigen ? themaEmoji(t, namen) : null);
     toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (op telefoons zodra een scherm opnieuw opent)` : "Weer automatisch op datum");
   }
 
