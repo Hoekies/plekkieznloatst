@@ -162,7 +162,7 @@ export default function SeizoenAfbeeldingen() {
     setBezig({ thema, soort: s });
     try {
       const logo = s !== "achtergrond";
-      const bron = logo ? (await knipLogoUit(bestand)) ?? bestand : bestand;
+      const bron = logo ? (await knipLogoUit(bestand, s === "logo" ? 600 : 900)) ?? bestand : bestand;
       const klein = await verklein(bron, s === "achtergrond" ? 1600 : s === "logo" ? 600 : 900, logo);
       if (!klein) { toonMelding("Dit bestand kan niet als afbeelding worden geopend", "fout"); return; }
       const form = new FormData();
