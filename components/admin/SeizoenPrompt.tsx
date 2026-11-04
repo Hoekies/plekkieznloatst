@@ -12,7 +12,7 @@ const SLEUTEL = "pr_seizoen_dienst";
 // ✨ Zelf nieuwe laten maken: typ een woord of seizoen, kopieer de prompt en plak hem in ChatGPT of Gemini, met de
 // voorbeelden als bijlage. ChatGPT: één prompt voor alle drie (met losse als reserve). Gemini: per afbeelding een prompt.
 export default function SeizoenPrompt() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [thema, setThema] = useState("");
   const [dienst, setDienst] = useState<Dienst>("chatgpt");
   // Gemini: welke prompt er in het tekstvak staat
@@ -48,8 +48,8 @@ export default function SeizoenPrompt() {
         <>
           <div className="seizoen-prompt-dienst" role="radiogroup" aria-label="Waarmee maak je de afbeeldingen?">
             {(["chatgpt", "gemini"] as const).map((d) => (
-              <button key={d} type="button" role="radio" aria-checked={dienst === d} className={`rl-knop${dienst === d ? " rl-knop--cyan" : ""}`} onClick={() => kiesDienst(d)}>
-                {d === "chatgpt" ? "ChatGPT" : "Gemini"}
+              <button key={d} type="button" role="radio" aria-checked={dienst === d} className={`seizoen-dienst seizoen-dienst--${d}`} onClick={() => kiesDienst(d)}>
+                {dienst === d && "✓ "}{d === "chatgpt" ? "ChatGPT" : "Gemini"}
               </button>
             ))}
           </div>
@@ -60,7 +60,7 @@ export default function SeizoenPrompt() {
                 <li>Typ een woord of seizoen en tik op <strong>Kopieer prompt</strong></li>
                 <li>Bewaar de <strong>drie voorbeelden</strong> en voeg ze in ChatGPT toe als bijlage</li>
                 <li>Plak de prompt en verstuur</li>
-                <li>Plaats elk resultaat hierboven: kies Achtergrond, Logo of Logo breed en tik op een afbeelding, of op <strong>+</strong> bij Eigen 1 of 2</li>
+                <li>Plaats de resultaten hierboven: tik op het thema, en in het venster op Achtergrond, Logo of Logo breed</li>
               </ol>
               <div className="seizoen-prompt-rij">
                 {invoer}
@@ -94,7 +94,7 @@ export default function SeizoenPrompt() {
               <ol className="seizoen-prompt-stappen">
                 <li>Typ een woord of seizoen</li>
                 <li>Begin in Gemini een nieuwe chat. Doe per afbeelding hieronder, van boven naar beneden en in dezelfde chat: voeg het <strong>Voorbeeld</strong> toe als bijlage, tik op <strong>Kopieer</strong>, plak en verstuur</li>
-                <li>Plaats elk resultaat hierboven: kies Achtergrond, Logo of Logo breed en tik op een afbeelding, of op <strong>+</strong> bij Eigen 1 of 2</li>
+                <li>Plaats de resultaten hierboven: tik op het thema, en in het venster op Achtergrond, Logo of Logo breed</li>
               </ol>
               <div className="seizoen-prompt-rij">{invoer}</div>
               {SEIZOEN_VOORBEELDEN.map((v, i) => (

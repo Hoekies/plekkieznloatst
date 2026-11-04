@@ -10,6 +10,7 @@ import SeizoenPrompt from "@/components/admin/SeizoenPrompt";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 import Icoon from "@/components/admin/Icoon";
+import { VensterMetKop } from "@/components/shared/Venster";
 
 const SOORTEN: { soort: SeizoenSoort; label: string; naam: string; uitleg: string }[] = [
   { soort: "achtergrond", label: "🖼️ Achtergrond", naam: "Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
@@ -27,14 +28,17 @@ function ververLogos() {
 // Elk thema met een datum heeft een standaardafbeelding (public/seizoenen); een gekozen afbeelding gaat daarvoor, en
 // verwijder je die, dan komt de standaard terug. Vrije thema's beginnen leeg.
 // Een eigen welkomstfoto van een route gaat altijd voor de seizoensachtergrond. Eigen pagina: /admin/seizoenen.
+// Tik op een thema: dan opent een venster met de achtergrond en beide logo's, zodat je ze meteen alle drie kunt plaatsen.
 export default function SeizoenAfbeeldingen() {
   const [paden, setPaden] = useState<Record<SeizoenSoort, Record<string, string>> | null>(null);
   const [logosKlaar, setLogosKlaar] = useState(true);
   const [soort, setSoort] = useState<SeizoenSoort>("achtergrond");
   const [fout, setFout] = useState<string | null>(null);
-  const [bezig, setBezig] = useState<string | null>(null);
+  const [bezig, setBezig] = useState<{ thema: string; soort: SeizoenSoort } | null>(null);
+  // Het thema waarvan het venster met alle drie de afbeeldingen open staat
+  const [open, setOpen] = useState<string | null>(null);
   const kiesRef = useRef<HTMLInputElement>(null);
-  const voorThema = useRef<string | null>(null);
+  const voorKeuze = useRef<{ thema: string; soort: SeizoenSoort } | null>(null);
   // Volgorde van de thema's: op alfabet of door het jaar heen (onthouden op dit toestel)
   const [volgorde, setVolgorde] = useState<"alfabet" | "periode">("alfabet");
   useEffect(() => { try { if (localStorage.getItem("pr_seizoen_volgorde") === "periode") setVolgorde("periode"); } catch { /* geen opslag */ } }, []);
@@ -82,13 +86,13 @@ export default function SeizoenAfbeeldingen() {
   }
 
   // Achtergrond als jpg; logo eerst uitknippen (achtergrond doorzichtig, lege randen eraf), dan als webp
-  async function upload(thema: string, bestand: File | undefined) {
+  async function upload(thema: string, s: SeizoenSoort, bestand: File | undefined) {
     if (!bestand) return;
-    setBezig(thema);
+    setBezig({ thema, soort: s });
     try {
-      const logo = soort !== "achtergrond";
+      const logo = s !== "achtergrond";
       const bron = logo ? (await knipLogoUit(bestand)) ?? bestand : bestand;
-      const klein = await verklein(bron, soort === "achtergrond" ? 1600 : soort === "logo" ? 600 : 900, logo);
+      const klein = await verklein(bron, s === "achtergrond" ? 1600 : s === "logo" ? 600 : 900, logo);
       if (!klein) { toonMelding("Dit bestand kan niet als afbeelding worden geopend", "fout"); return; }
       const form = new FormData();
       form.append("bestand", new File([klein], logo ? "logo.webp" : "achtergrond.jpg", { type: klein.type }));
@@ -96,19 +100,19 @@ export default function SeizoenAfbeeldingen() {
       const up = await fetch("/api/admin/upload", { method: "POST", body: form }).catch(() => null);
       const data = up ? await up.json().catch(() => ({})) : {};
       if (!up?.ok) { toonMelding(data.fout ?? "Uploaden lukte niet", "fout"); return; }
-      const res = await fetch("/api/admin/achtergronden", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort, pad: data.pad }) }).catch(() => null);
+      const res = await fetch("/api/admin/achtergronden", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort: s, pad: data.pad }) }).catch(() => null);
       const r = res ? await res.json().catch(() => ({})) : {};
       if (!res?.ok) { toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
-      setPaden((p) => p && { ...p, [soort]: { ...p[soort], [thema]: data.pad } });
+      setPaden((p) => p && { ...p, [s]: { ...p[s], [thema]: data.pad } });
       ververLogos();
     } finally {
       setBezig(null);
     }
   }
-  async function weg(thema: string) {
-    const res = await fetch("/api/admin/achtergronden", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort }) }).catch(() => null);
+  async function weg(thema: string, s: SeizoenSoort) {
+    const res = await fetch("/api/admin/achtergronden", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort: s }) }).catch(() => null);
     if (!res?.ok) { toonMelding("Verwijderen lukte niet: controleer je internet en probeer het opnieuw", "fout"); return; }
-    setPaden((p) => { if (!p) return p; const n = { ...p[soort] }; delete n[thema]; return { ...p, [soort]: n }; });
+    setPaden((p) => { if (!p) return p; const n = { ...p[s] }; delete n[thema]; return { ...p, [s]: n }; });
     ververLogos();
   }
 
@@ -124,6 +128,7 @@ export default function SeizoenAfbeeldingen() {
   const begin = (t: (typeof THEMAS)[number]) => { const [van] = t.periode(nu.getFullYear()); return van.getMonth() * 100 + van.getDate(); };
   // Vrije thema's altijd achteraan
   const themas = [...THEMAS].sort((a, b) => Number(!!a.eigen) - Number(!!b.eigen) || (a.eigen ? 0 : volgorde === "periode" ? begin(a) - begin(b) : a.naam.localeCompare(b.naam, "nl")));
+  const openThema = THEMAS.find((t) => t.sleutel === open) ?? null;
 
   return (
     <div className="form-group seizoen">
@@ -170,10 +175,10 @@ export default function SeizoenAfbeeldingen() {
                 return (
                   <div key={t.sleutel} className={`seizoen-vak${isNu ? " seizoen-vak--nu" : ""}`}>
                     <button type="button" className="seizoen-beeld" disabled={!!bezig}
-                      onClick={() => { voorThema.current = t.sleutel; kiesRef.current?.click(); }}
-                      title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"}
+                      onClick={() => setOpen(t.sleutel)}
+                      title="Achtergrond en logo's van dit thema" aria-label={`${themaNaam(t, namen)}: achtergrond en logo's`}
                       style={beeld ? { backgroundImage: `url(${beeld})` } : undefined}>
-                      {bezig === t.sleutel ? <Icoon naam="laden" /> : beeld ? "" : "+"}
+                      {bezig?.thema === t.sleutel ? <Icoon naam="laden" /> : beeld ? "" : "+"}
                     </button>
                     {bewerk?.sleutel === t.sleutel ? (
                       // ✏️ Naam en emoji van een vrij thema
@@ -197,7 +202,7 @@ export default function SeizoenAfbeeldingen() {
                     {pad && (
                       <BevestigKnop venster icoon="🗑️" titel={`${info.naam} van ${themaNaam(t, namen)} verwijderen?`} vraag=""
                         uitleg={standaard ? "De standaardafbeelding komt er weer voor terug." : "Dit vak wordt weer leeg."}
-                        ja="Ja, verwijderen" onBevestig={() => weg(t.sleutel)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
+                        ja="Ja, verwijderen" onBevestig={() => weg(t.sleutel, soort)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
                     )}
                   </div>
                 );
@@ -208,8 +213,39 @@ export default function SeizoenAfbeeldingen() {
           <SeizoenPrompt />
         </>
       )}
+      {/* Alle afbeeldingen van één thema bij elkaar, elk apart te kiezen */}
+      {openThema && (
+        <VensterMetKop icoon={themaEmoji(openThema, namen)} label={periodeTekst(openThema, nu.getFullYear())} titel={themaNaam(openThema, namen)}
+          onSluit={() => setOpen(null)} breedte={420} maxHoogte={96}>
+          <span className="inst-uitleg">Tik op een vak om de afbeelding te kiezen.</span>
+          <div className="seizoen-set">
+            {SOORTEN.map((s) => {
+              const pad = paden?.[s.soort]?.[openThema.sleutel];
+              const standaard = standaardBeeld(openThema.sleutel, s.soort);
+              const beeld = pad ? OPSLAG + pad : standaard;
+              return (
+                <div key={s.soort} className={`seizoen-set-vak seizoen-set-vak--${s.soort}`}>
+                  <button type="button" className="seizoen-beeld" disabled={!!bezig || (s.soort !== "achtergrond" && !logosKlaar)}
+                    onClick={() => { voorKeuze.current = { thema: openThema.sleutel, soort: s.soort }; kiesRef.current?.click(); }}
+                    title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"} aria-label={`${s.naam} van ${themaNaam(openThema, namen)} kiezen`}
+                    style={beeld ? { backgroundImage: `url(${beeld})` } : undefined}>
+                    {bezig?.thema === openThema.sleutel && bezig.soort === s.soort ? <Icoon naam="laden" /> : beeld ? "" : "+"}
+                  </button>
+                  <span className="seizoen-naam">{s.label}</span>
+                  <span className="seizoen-periode">{pad ? "eigen" : standaard ? "standaard" : "leeg"}</span>
+                  {pad && (
+                    <BevestigKnop venster icoon="🗑️" titel={`${s.naam} van ${themaNaam(openThema, namen)} verwijderen?`} vraag=""
+                      uitleg={standaard ? "De standaardafbeelding komt er weer voor terug." : "Dit vak wordt weer leeg."}
+                      ja="Ja, verwijderen" onBevestig={() => weg(openThema.sleutel, s.soort)} className="seizoen-weg" title="Verwijderen">✕</BevestigKnop>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </VensterMetKop>
+      )}
       <input ref={kiesRef} type="file" accept="image/png,image/jpeg,image/webp" hidden
-        onChange={(e) => { if (voorThema.current) upload(voorThema.current, e.target.files?.[0]); e.target.value = ""; }} />
+        onChange={(e) => { if (voorKeuze.current) upload(voorKeuze.current.thema, voorKeuze.current.soort, e.target.files?.[0]); e.target.value = ""; }} />
     </div>
   );
 }
