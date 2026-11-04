@@ -36,7 +36,8 @@ export function vensterHoogte(procent: number, aftrek = 0): string {
 
 // Venster in de stijl van de app: donkere achtergrond (tik ernaast = sluiten), paneel in het midden, Esc sluit.
 // De inhoud (meestal een .pr-gem-panel-inner of een formulier) geeft de aanroeper zelf mee.
-export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, rand = 16, relatief = false, children }: {
+export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, rand = 16, relatief = false, label, children }: {
+  label?: string;             // naam van het venster voor schermlezers
   onSluit: () => void;
   breedte: number;            // maximale breedte in px
   maxHoogte?: number;         // maximale hoogte in vh (dan scrollt de inhoud)
@@ -47,13 +48,31 @@ export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, ra
 }) {
   useSluitMetEsc(onSluit);
   const achtergrond = useAchtergrondKlik(onSluit);
+  // ♿ De focus gaat het venster in (tenzij een veld hem al heeft) en bij sluiten terug. Niet terug naar een invulveld:
+  // dan springt op de telefoon het toetsenbord weer open.
+  const paneel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const vorige = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!paneel.current?.contains(document.activeElement)) paneel.current?.focus({ preventScroll: true });
+    return () => { if (vorige?.isConnected && !vorige.matches("input, textarea")) vorige.focus({ preventScroll: true }); };
+  }, []);
+  // Tab blijft binnen het venster. Een bevestigvenster hierbinnen staat elders in de pagina en regelt dat zelf.
+  function houdTabBinnen(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== "Tab" || !e.currentTarget.contains(e.target as Node)) return;
+    const knoppen = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]'));
+    if (!knoppen.length) { e.preventDefault(); return; }
+    const eerste = knoppen[0], laatste = knoppen[knoppen.length - 1], nu = document.activeElement;
+    if (e.shiftKey && (nu === eerste || nu === e.currentTarget)) { e.preventDefault(); laatste.focus(); }
+    else if (!e.shiftKey && nu === laatste) { e.preventDefault(); eerste.focus(); }
+  }
   if (typeof document === "undefined") return null;
   return createPortal(
     // Rand rondom, maar boven en onder minstens vrij van de statusbalk en de thuisbalk (iPhone)
     <div {...achtergrond} className="venster-achter" style={{ background: `rgba(12,3,34,${donker})`,
       padding: `max(${rand}px, calc(env(safe-area-inset-top) + 8px)) ${rand}px max(${rand}px, calc(env(safe-area-inset-bottom) + 8px))` }}>
-      <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel"
-        style={{ flex: "none", width: "100%", maxWidth: breedte, ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte) } : {}), ...(relatief ? { position: "relative" } : {}) }}>
+      <div ref={paneel} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} onKeyDown={houdTabBinnen}
+        onClick={(e) => e.stopPropagation()} className="pr-gem-panel"
+        style={{ flex: "none", width: "100%", maxWidth: breedte, outline: "none", ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte) } : {}), ...(relatief ? { position: "relative" } : {}) }}>
         {children}
       </div>
     </div>,
@@ -83,7 +102,7 @@ export function VensterMetKop({ icoon, label, titel, onSluit, breedte, maxHoogte
   icoon?: string | null; label: string; titel: string; onSluit: () => void; breedte: number; maxHoogte?: number; children: React.ReactNode;
 }) {
   return (
-    <Venster onSluit={onSluit} breedte={breedte} maxHoogte={maxHoogte}>
+    <Venster onSluit={onSluit} breedte={breedte} maxHoogte={maxHoogte} label={titel}>
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12, padding: "18px 18px 16px",
         ...(maxHoogte ? { maxHeight: vensterHoogte(maxHoogte, 6), overflowY: "auto" } : {}) }}>
         <VensterKop icoon={icoon} label={label} titel={titel} onSluit={onSluit} />

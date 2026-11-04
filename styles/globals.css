@@ -3367,16 +3367,18 @@ button.route-stap:hover { border-color: rgba(255,255,255,0.2); }
 .seizoen-pin, .seizoen-weg { position: absolute; top: 5px; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.7); cursor: pointer; transition: transform 0.12s; }
 .seizoen-pin::after, .seizoen-weg::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
 .seizoen-pin:hover, .seizoen-weg:hover { transform: scale(1.12); }
+.seizoen-pin:disabled { cursor: wait; transform: none; opacity: 0.7; }
 .seizoen-pin:focus-visible, .seizoen-weg:focus-visible { outline: 3px solid #67E8F9; outline-offset: 2px; }
 .seizoen-pin { left: 5px; background: #1C0C45; font-size: 0.9rem; }
 .seizoen-pin[aria-pressed="true"] { background: #FFD93B; }
 /* ✏️ Vrij thema: naam en emoji wijzigen */
-.seizoen-naam-wijzig { flex: none; margin-left: auto; padding: 0 2px; border: none; background: none; cursor: pointer; font-size: 0.7rem; opacity: 0.7; }
-.seizoen-naam-wijzig:hover { opacity: 1; }
-.seizoen-bewerk { display: flex; gap: 3px; }
+.seizoen-naam-wijzig { position: relative; flex: none; margin-left: auto; padding: 0 2px; border: none; background: none; cursor: pointer; font-size: 0.85rem; }
+.seizoen-naam-wijzig::after { content: ""; position: absolute; inset: -13px -10px; }
+.seizoen-bewerk { display: flex; gap: 8px; }
+.seizoen-bewerk .form-input { flex: 1; min-width: 0; margin: 0; }
 .seizoen-bewerk input { min-width: 0; flex: 1; padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.25); color: #fff; font: inherit; font-size: 0.72rem; }
-.seizoen-bewerk .seizoen-bewerk-emoji { flex: 0 0 2.2em; text-align: center; }
-.seizoen-bewerk-ok { border: none; border-radius: 6px; background: #22C55E; color: #fff; font-weight: 800; font-size: 0.72rem; cursor: pointer; padding: 0 6px; }
+.seizoen-bewerk .seizoen-bewerk-emoji { flex: 0 0 56px; padding-left: 4px; padding-right: 4px; text-align: center; }
+.seizoen-bewerk-ok { flex: 0 0 44px; height: 44px; align-self: center; border: none; border-radius: 10px; background: #15803D; color: #fff; font-weight: 800; font-size: 1.1rem; cursor: pointer; }
 .seizoen-weg { right: 5px; background: #DC2626; color: #fff; font-size: 0.85rem; font-weight: 800; line-height: 1; }
 /* Achtergrond van een venster (components/shared/Venster.tsx): over alles heen, paneel in het midden */
 .venster-achter { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: center; justify-content: center; }

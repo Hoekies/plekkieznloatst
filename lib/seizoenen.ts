@@ -22,9 +22,10 @@ export const THEMAS: Thema[] = [
   { sleutel: "sinterklaas", naam: "Sinterklaas", emoji: "🎁", feestdag: true, periode: (j) => [d(j, 11, 13), d(j, 12, 6)] },
   { sleutel: "kerst", naam: "Kerst", emoji: "🎄", feestdag: true, periode: (j) => [d(j, 12, 7), d(j, 12, 27)] },
   { sleutel: "oudnieuw", naam: "Oud & nieuw", emoji: "🎆", feestdag: true, periode: (j) => [d(j, 12, 28), d(j + 1, 1, 6)] },
-  { sleutel: "valentijn", naam: "Valentijn", emoji: "💘", feestdag: true, periode: (j) => [d(j, 2, 7), d(j, 2, 21)] },
+  // Bij overlap wint de eerste in deze lijst. Carnaval staat vóór Valentijn, anders valt het in sommige jaren helemaal weg (bijv. 2026).
   // Carnaval: carnavalszondag is 7 weken voor Pasen; van een week ervoor tot en met de dinsdag
   { sleutel: "carnaval", naam: "Carnaval", emoji: "🎭", feestdag: true, periode: (j) => { const z = plus(paaszondag(j), -49); return [plus(z, -7), plus(z, 2)]; } },
+  { sleutel: "valentijn", naam: "Valentijn", emoji: "💘", feestdag: true, periode: (j) => [d(j, 2, 7), d(j, 2, 21)] },
   { sleutel: "pasen", naam: "Pasen", emoji: "🐣", feestdag: true, periode: (j) => { const p = paaszondag(j); return [plus(p, -7), plus(p, 7)]; } },
   { sleutel: "koningsdag", naam: "Koningsdag", emoji: "👑", feestdag: true, periode: (j) => [d(j, 4, 20), d(j, 5, 4)] },
   // Seizoenen (daarbuiten)
@@ -94,6 +95,10 @@ function inPeriode(t: Thema, datum: Date): boolean {
 
 // Het thema van dit moment waarvoor een achtergrond is geüpload: eerst feestdagen, dan het seizoen
 export function huidigThema(datum: Date, beschikbaar: Set<string>): Thema | null {
+  // 27 april is altijd Koningsdag, ook als Pasen laat valt en die dag nog meetelt (bijv. 2030 en 2038)
+  if (datum.getMonth() === 3 && datum.getDate() === 27 && beschikbaar.has("koningsdag")) {
+    return THEMAS.find((t) => t.sleutel === "koningsdag") ?? null;
+  }
   return THEMAS.find((t) => t.feestdag && beschikbaar.has(t.sleutel) && inPeriode(t, datum))
     ?? THEMAS.find((t) => !t.feestdag && beschikbaar.has(t.sleutel) && inPeriode(t, datum))
     ?? null;

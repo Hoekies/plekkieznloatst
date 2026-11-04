@@ -82,10 +82,12 @@ export default function SeizoenAfbeeldingen() {
     try { localStorage.setItem("pr_seizoen_volgorde", v); } catch { /* geen opslag */ }
   }
 
+  // Lukt het laden niet, dan is onbekend wat er ingesteld staat: dan alleen de fout en opnieuw proberen, geen thema's
   async function laad() {
+    setFout(null);
     const res = await fetch("/api/admin/achtergronden").catch(() => null);
     const d = res ? await res.json().catch(() => ({})) : {};
-    if (!res?.ok) { setFout(d.fout ?? "Laden lukte niet"); setPaden({ achtergrond: {}, logo: {}, logo_breed: {} }); return; }
+    if (!res?.ok || !d.paden) { setFout(d.fout ?? "Laden lukte niet: controleer je internet"); return; }
     setPaden(d.paden);
     setLogosKlaar(d.logosKlaar !== false);
     setVast(d.vast ?? null);
@@ -94,23 +96,36 @@ export default function SeizoenAfbeeldingen() {
   useEffect(() => { laad(); }, []);
 
   // 📌 Eén thema overal vastzetten (achtergrond, beide logo's en de finish), wat de datum ook is; null = weer op datum
+  // Eén wijziging tegelijk: de knoppen staan uit tot het antwoord binnen is, zodat scherm en opslag niet uit elkaar lopen
   const [vast, setVast] = useState<string | null>(null);
+  const [pinBezig, setPinBezig] = useState(false);
+  // De ref is meteen bij, ook als twee tikken vlak na elkaar komen en de state nog niet is ververst
+  const pinLoopt = useRef(false);
   async function zetVast(sleutel: string | null) {
+    if (pinLoopt.current) return;
+    pinLoopt.current = true;
+    setPinBezig(true);
     const oud = vast;
     setVast(sleutel);
     const res = await fetch("/api/admin/achtergronden", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vast: sleutel }) }).catch(() => null);
     const r = res ? await res.json().catch(() => ({})) : {};
+    pinLoopt.current = false;
+    setPinBezig(false);
     if (!res?.ok) { setVast(oud); toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
     const t = THEMAS.find((x) => x.sleutel === sleutel);
     ververLogos();
     // null = terug naar de datum; de eigen emoji van een vrij thema
     zetConfettiThema(sleutel, t?.eigen ? themaEmoji(t, namen) : null);
-    toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (op telefoons zodra een scherm opnieuw opent)` : "Weer automatisch op datum");
+    toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (wie de app al open heeft: na opnieuw openen of verversen)` : "Weer automatisch op datum");
   }
 
   // ✏️ Vrije thema's (Eigen 1 en 2): zelf een naam en emoji geven
   const [namen, setNamen] = useState<EigenNamen>({});
   const [bewerk, setBewerk] = useState<{ sleutel: string; naam: string; emoji: string } | null>(null);
+  function bewerkNaam(sleutel: string) {
+    const t = THEMAS.find((x) => x.sleutel === sleutel);
+    if (t) setBewerk({ sleutel, naam: namen[sleutel]?.naam ?? "", emoji: themaEmoji(t, namen) });
+  }
   async function bewaarNaam() {
     if (!bewerk) return;
     const res = await fetch("/api/admin/achtergronden", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eigen: bewerk.sleutel, naam: bewerk.naam, emoji: bewerk.emoji }) }).catch(() => null);
@@ -172,7 +187,12 @@ export default function SeizoenAfbeeldingen() {
         Voor <strong>alle routes</strong>. De app wisselt vanzelf op datum. Tik op een thema om de achtergrond en logo&apos;s te wijzigen.
         {soort === "achtergrond" && " Een route met een eigen welkomstfoto houdt die foto."}
       </span>
-      {fout && <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>}
+      {fout && (
+        <div className="seizoen-status">
+          <span style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>
+          <button type="button" className="rl-knop" onClick={laad}>↺ Opnieuw</button>
+        </div>
+      )}
       {paden && (
         <>
           <div className="segment seizoen-soorten" role="group" aria-label="Soort afbeelding">
@@ -189,7 +209,7 @@ export default function SeizoenAfbeeldingen() {
             {vastThema ? (
               <>
                 <span>📌 Overal vast: <strong>{themaEmoji(vastThema, namen)} {themaNaam(vastThema, namen)}</strong>{!actief && <> (hier {gewoon})</>}</span>
-                <button type="button" className="rl-knop" onClick={() => zetVast(null)}>↺ Weer automatisch</button>
+                <button type="button" className="rl-knop" disabled={pinBezig} onClick={() => zetVast(null)}>↺ Weer automatisch</button>
               </>
             ) : (
               <span>🗓️ Op datum: <strong>{actief ? <>{themaEmoji(actief, namen)} {themaNaam(actief, namen)}</> : gewoon}</strong>. Tik op 📌 om een thema overal vast te zetten.</span>
@@ -216,22 +236,13 @@ export default function SeizoenAfbeeldingen() {
                     <SeizoenBeeld beeld={beeld} bezig={bezig?.thema === t.sleutel} disabled={!!bezig}
                       onClick={() => setOpen(t.sleutel)}
                       title="Achtergrond en logo's van dit thema" label={`${themaNaam(t, namen)}: achtergrond en logo's`} />
-                    {bewerk?.sleutel === t.sleutel ? (
-                      // ✏️ Naam en emoji van een vrij thema
-                      <form className="seizoen-bewerk" onSubmit={(e) => { e.preventDefault(); bewaarNaam(); }}>
-                        <input value={bewerk.emoji} onChange={(e) => setBewerk({ ...bewerk, emoji: e.target.value })} maxLength={MAX_EMOJI} aria-label="Emoji" className="seizoen-bewerk-emoji" />
-                        <input value={bewerk.naam} onChange={(e) => setBewerk({ ...bewerk, naam: e.target.value })} maxLength={MAX_NAAM} aria-label="Naam" placeholder={t.naam} autoFocus />
-                        <button type="submit" className="seizoen-bewerk-ok" aria-label="Bewaren">✓</button>
-                      </form>
-                    ) : (
-                      <span className="seizoen-naam"><span className="seizoen-naam-tekst" title={themaNaam(t, namen)}>{themaEmoji(t, namen)} {themaNaam(t, namen)}</span>
-                        {t.eigen && <button type="button" className="seizoen-naam-wijzig" title="Naam en emoji wijzigen" aria-label={`${themaNaam(t, namen)}: naam en emoji wijzigen`}
-                          onClick={() => setBewerk({ sleutel: t.sleutel, naam: namen[t.sleutel]?.naam ?? "", emoji: themaEmoji(t, namen) })}>✏️</button>}
-                      </span>
-                    )}
+                    <span className="seizoen-naam"><span className="seizoen-naam-tekst" title={themaNaam(t, namen)}>{themaEmoji(t, namen)} {themaNaam(t, namen)}</span>
+                      {t.eigen && <button type="button" className="seizoen-naam-wijzig" title="Naam en emoji wijzigen" aria-label={`${themaNaam(t, namen)}: naam en emoji wijzigen`}
+                        onClick={() => { setOpen(t.sleutel); bewerkNaam(t.sleutel); }}>✏️</button>}
+                    </span>
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}{!pad && standaard && <span className="seizoen-standaard">standaard</span>}</span>
                     {isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}
-                    <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
+                    <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel} disabled={pinBezig}
                       onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
                       title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${themaNaam(t, namen)} overal vastzetten`}
                       aria-label={vast === t.sleutel ? `${themaNaam(t, namen)} losmaken` : `${themaNaam(t, namen)} vastzetten`}>📌</button>
@@ -253,7 +264,7 @@ export default function SeizoenAfbeeldingen() {
       {/* Alle afbeeldingen van één thema bij elkaar, elk apart te kiezen */}
       {openThema && (
         <VensterMetKop icoon={themaEmoji(openThema, namen)} label={periodeTekst(openThema, nu.getFullYear())} titel={themaNaam(openThema, namen)}
-          onSluit={() => setOpen(null)} breedte={420} maxHoogte={96}>
+          onSluit={() => { setOpen(null); setBewerk(null); }} breedte={420} maxHoogte={96}>
           <span className="inst-uitleg">Tik op een vak om de afbeelding te kiezen.</span>
           <div className="seizoen-set">
             {SOORTEN.map((s) => {
@@ -277,8 +288,18 @@ export default function SeizoenAfbeeldingen() {
               );
             })}
           </div>
+          {/* ✏️ Naam en emoji van een vrij thema */}
+          {openThema.eigen && (bewerk?.sleutel === openThema.sleutel ? (
+            <form className="seizoen-bewerk" onSubmit={(e) => { e.preventDefault(); bewaarNaam(); }}>
+              <input className="form-input seizoen-bewerk-emoji" value={bewerk.emoji} onChange={(e) => setBewerk({ ...bewerk, emoji: e.target.value })} maxLength={MAX_EMOJI} aria-label="Emoji" />
+              <input className="form-input" value={bewerk.naam} onChange={(e) => setBewerk({ ...bewerk, naam: e.target.value })} maxLength={MAX_NAAM} aria-label="Naam" placeholder={openThema.naam} autoFocus />
+              <button type="submit" className="seizoen-bewerk-ok" aria-label="Bewaren">✓</button>
+            </form>
+          ) : (
+            <button type="button" className="rl-knop seizoen-set-pin" onClick={() => bewerkNaam(openThema.sleutel)}>✏️ Naam en emoji wijzigen</button>
+          ))}
           {/* 📌 Ook hier, met tekst: wat de knop doet staat er meteen bij */}
-          <button type="button" className="rl-knop seizoen-set-pin" aria-pressed={vast === openThema.sleutel}
+          <button type="button" className="rl-knop seizoen-set-pin" aria-pressed={vast === openThema.sleutel} disabled={pinBezig}
             onClick={() => zetVast(vast === openThema.sleutel ? null : openThema.sleutel)}>
             📌 {vast === openThema.sleutel ? "Staat overal vast: tik om los te maken" : "Dit thema overal vastzetten"}
           </button>

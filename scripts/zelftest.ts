@@ -155,6 +155,21 @@ test("seizoensachtergrond op datum", () => {
   assert.equal(huidigThema(new Date(2026, 10, 8), alle)?.sleutel, "herfst");
   assert.equal(huidigThema(new Date(2027, 0, 3), alle)?.sleutel, "oudnieuw");
   assert.equal(huidigThema(new Date(2026, 9, 24), new Set(["herfst"]))?.sleutel, "herfst");
+  // Carnaval gaat voor Valentijn: elke carnavalsdag is carnaval, ook als de hele periode binnen Valentijn valt (2026)
+  assert.equal(huidigThema(new Date(2026, 1, 10), alle)?.sleutel, "carnaval");
+  assert.equal(huidigThema(new Date(2026, 1, 20), alle)?.sleutel, "valentijn");
+  // Late Pasen: 27 april blijft Koningsdag, de dagen eromheen blijven Pasen; zonder Koningsdag-afbeelding gewoon Pasen
+  for (const jaar of [2030, 2038]) {
+    assert.equal(huidigThema(new Date(jaar, 3, 27), alle)?.sleutel, "koningsdag");
+    assert.equal(huidigThema(new Date(jaar, 3, 26), alle)?.sleutel, "pasen");
+    assert.equal(huidigThema(new Date(jaar, 3, 28), alle)?.sleutel, "pasen");
+  }
+  assert.equal(huidigThema(new Date(2030, 3, 27), new Set(["pasen"]))?.sleutel, "pasen");
+  const carnaval = THEMAS.find((t) => t.sleutel === "carnaval")!;
+  for (let jaar = 2026; jaar <= 2040; jaar += 1) {
+    const [van, tot] = carnaval.periode(jaar);
+    for (const d = new Date(van); d <= tot; d.setDate(d.getDate() + 1)) assert.equal(huidigThema(d, alle)?.sleutel, "carnaval", `carnaval ${jaar}`);
+  }
   // Vrije thema's hebben geen datum: alleen met 📌, nooit vanzelf
   for (let dag = 0; dag < 366; dag += 1) assert.equal(huidigThema(new Date(2026, 0, 1 + dag), new Set(["eigen1", "eigen2"])), null);
 });
