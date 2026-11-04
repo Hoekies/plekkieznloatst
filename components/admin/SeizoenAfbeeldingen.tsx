@@ -5,6 +5,7 @@ import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
 import { THEMAS, huidigThema, periodeTekst, standaardBeeld, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import SeizoenPrompt from "@/components/admin/SeizoenPrompt";
 import { knipLogoUit } from "@/lib/logo-uitknippen";
 import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 import Icoon from "@/components/admin/Icoon";
@@ -200,6 +201,8 @@ export default function SeizoenAfbeeldingen() {
               })}
             </div>
           )}
+          {/* ✨ Zelf een nieuwe laten maken, in dezelfde stijl */}
+          <SeizoenPrompt soort={soort} naam={info.naam} />
         </>
       )}
       <input ref={kiesRef} type="file" accept="image/png,image/jpeg,image/webp" hidden
