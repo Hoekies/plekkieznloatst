@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
-import { huidigThema, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
+import { huidigThema, kleinBeeld, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
 import { SEIZOEN_VOORBEELDEN, seizoenPrompt } from "../lib/seizoen-prompts";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
@@ -158,6 +158,8 @@ test("seizoensachtergrond op datum", () => {
   // Carnaval gaat voor Valentijn: elke carnavalsdag is carnaval, ook als de hele periode binnen Valentijn valt (2026)
   assert.equal(huidigThema(new Date(2026, 1, 10), alle)?.sleutel, "carnaval");
   assert.equal(huidigThema(new Date(2026, 1, 20), alle)?.sleutel, "valentijn");
+  // Kleine versie voor een tegel: het adres zit gecodeerd in de url, de breedte is een toegestane maat
+  assert.equal(kleinBeeld("/seizoenen/kerst-achtergrond.webp", 384), "/_next/image?url=%2Fseizoenen%2Fkerst-achtergrond.webp&w=384&q=70");
   // Late Pasen: 27 april blijft Koningsdag, de dagen eromheen blijven Pasen; zonder Koningsdag-afbeelding gewoon Pasen
   for (const jaar of [2030, 2038]) {
     assert.equal(huidigThema(new Date(jaar, 3, 27), alle)?.sleutel, "koningsdag");

@@ -104,6 +104,12 @@ export function huidigThema(datum: Date, beschikbaar: Set<string>): Thema | null
     ?? null;
 }
 
+// 🖼️ Kleine versie voor een tegel in het beheer: een telefoon kan niet veel volle afbeeldingen tegelijk aan (toegestane
+// breedtes: images in next.config.mjs). Lukt verkleinen niet, dan valt SeizoenBeeld terug op het origineel.
+export function kleinBeeld(adres: string, breedte: 384 | 640): string {
+  return `/_next/image?url=${encodeURIComponent(adres)}&w=${breedte}&q=70`;
+}
+
 // Periode als tekst, bijv. "24 okt – 7 nov" (voor het beheer)
 export function periodeTekst(t: Thema, jaar: number): string {
   if (t.eigen) return "alleen met 📌";

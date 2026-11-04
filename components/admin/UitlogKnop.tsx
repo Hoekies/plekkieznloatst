@@ -1,23 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import BevestigKnop from "@/components/admin/BevestigKnop";
+import { toonMelding } from "@/components/admin/Melding";
 
 // Uitloggen (eerst bevestigen): compact = knop met tekst rechtsboven (groot scherm), anders alleen het icoon (bovenbalk telefoon)
 export default function UitlogKnop({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
-
+  // Geeft false als het niet lukte: dan blijft het venster open, met een melding, en kun je het opnieuw proberen
   async function uitloggen() {
-    await fetch("/api/auth/uitloggen", { method: "POST" });
+    const res = await fetch("/api/auth/uitloggen", { method: "POST", headers: { Accept: "application/json" } }).catch(() => null);
+    if (!res?.ok) {
+      const d = res ? await res.json().catch(() => ({})) : {};
+      toonMelding(d.fout ?? "Uitloggen lukte niet: controleer je internet en probeer het opnieuw", "fout");
+      return false;
+    }
     // Telefoon: de app meteen sluiten. Lukt dat niet (iPhone staat dat niet toe), dan naar het inlogscherm.
     if (!compact) {
       window.close();
       await new Promise((r) => setTimeout(r, 300));
     }
-    router.replace("/login");
+    // Volledig laden: er blijft niets van het beheer in het geheugen staan
+    window.location.replace("/login");
   }
 
-  const venster = { venster: true, icoon: "🚪", titel: "Uitloggen?", vraag: "Je gaat terug naar het inlogscherm. Het spel loopt gewoon door.", ja: "Ja, uitloggen", onBevestig: uitloggen };
+  const venster = { venster: true, gevaarlijk: false, icoon: "🚪", titel: "Uitloggen?", vraag: "", uitleg: "Alleen op dit toestel. Het spel loopt gewoon door.", onBevestig: uitloggen };
   if (compact) {
     return (
       <BevestigKnop {...venster} className="btn btn-outline header-knop" title="Uitloggen">

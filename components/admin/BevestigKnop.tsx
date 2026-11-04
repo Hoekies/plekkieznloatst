@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { houdTabBinnen } from "@/components/shared/Venster";
 
 // Knop voor iets wat je niet per ongeluk wilt doen. Vervangt de confirm() van de browser.
 // Standaard vraagt de eerste klik "Zeker?" met Ja/Nee op dezelfde plek; met `venster` opent
@@ -17,7 +18,8 @@ export default function BevestigKnop({
   children: ReactNode;
   vraag: string;
   ja?: string;
-  onBevestig: () => void | Promise<void>;
+  // Geef false terug als het niet lukte: dan blijft de vraag staan en kan het opnieuw
+  onBevestig: () => void | boolean | Promise<void | boolean>;
   className?: string;
   style?: CSSProperties;
   disabled?: boolean;
@@ -37,6 +39,7 @@ export default function BevestigKnop({
 }) {
   const [vragen, setVragen] = useState(false);
   const [bezig, setBezig] = useState(false);
+  const knopRef = useRef<HTMLButtonElement>(null);
 
   // Inline: na een paar seconden zonder keuze terug naar de gewone knop. Venster: sluiten met Esc.
   useEffect(() => {
@@ -49,13 +52,20 @@ export default function BevestigKnop({
     window.addEventListener("keydown", toets);
     return () => window.removeEventListener("keydown", toets);
   }, [vragen, venster, bezig]);
+  // ♿ Venster dicht: de focus terug op de knop (is die er nog)
+  useEffect(() => {
+    if (!vragen || !venster) return;
+    const knop = knopRef.current;
+    return () => { if (knop?.isConnected) knop.focus({ preventScroll: true }); };
+  }, [vragen, venster]);
 
   async function bevestig() {
     setBezig(true);
-    try { await onBevestig(); } finally { setBezig(false); setVragen(false); }
+    let gelukt: void | boolean = undefined;
+    try { gelukt = await onBevestig(); } finally { setBezig(false); if (gelukt !== false) setVragen(false); }
   }
 
-  const knop = <button type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip ?? label} data-sneltoets={sneltoets} onClick={() => setVragen(true)}>{children}</button>;
+  const knop = <button ref={knopRef} type="button" className={className} style={style} disabled={disabled} title={tip ? undefined : title} data-tip={tip} data-tip-pos={tipOnder ? "onder" : undefined} aria-label={tip ?? label} data-sneltoets={sneltoets} onClick={() => setVragen(true)}>{children}</button>;
 
   if (venster) {
     return (
@@ -66,7 +76,7 @@ export default function BevestigKnop({
             position: "fixed", inset: 0, zIndex: 2500, background: "rgba(12,3,34,0.72)",
             display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
           }}>
-            <div onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 340, position: "relative" }}>
+            <div role="dialog" aria-modal="true" aria-label={titel} onKeyDown={houdTabBinnen} onClick={(e) => e.stopPropagation()} className="pr-gem-panel" style={{ flex: "none", width: "100%", maxWidth: 340, position: "relative" }}>
               <button type="button" className="editor-paneel-sluit venster-sluit" disabled={bezig} onClick={() => setVragen(false)} title="Annuleren" aria-label="Annuleren">✕</button>
               {/* Compact: icoon, titel (de vraag) en één knop; annuleren met het kruisje */}
               <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "18px 44px 14px" }}>

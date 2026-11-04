@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { OPSLAG } from "@/lib/huisstijl";
 import { toonMelding } from "@/components/admin/Melding";
-import { THEMAS, huidigThema, periodeTekst, standaardBeeld, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
+import { THEMAS, huidigThema, kleinBeeld, periodeTekst, standaardBeeld, themaNaam, themaEmoji, MAX_NAAM, MAX_EMOJI, type EigenNamen, type SeizoenSoort } from "@/lib/seizoenen";
 import BevestigKnop from "@/components/admin/BevestigKnop";
 import { zetConfettiThema } from "@/lib/confetti";
 import SeizoenPrompt from "@/components/admin/SeizoenPrompt";
@@ -18,34 +18,55 @@ const SOORTEN: { soort: SeizoenSoort; emoji: string; knop: string; naam: string;
   { soort: "logo_breed", emoji: "▭", knop: "Logo breed", naam: "Breed logo", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
 ];
 
-// Tegel met een afbeelding. Een CSS-achtergrond die niet laadt blijft stil leeg, dus laden we hem ook apart: een zandloper
-// zolang het duurt, twee keer opnieuw proberen, en lukt dat niet dan een zichtbare melding in plaats van een leeg vak.
-function SeizoenBeeld({ beeld, bezig, disabled, onClick, title, label }: {
-  beeld: string | null; bezig: boolean; disabled: boolean; onClick: () => void; title: string; label: string;
+// Een verzoek dat op een slechte verbinding blijft hangen, geeft nooit een fout: na deze tijd de volgende poging
+const LAAD_LIMIET_MS = 8000;
+
+// Tegel met een afbeelding. Een telefoon raakt in de knel bij veel volle afbeeldingen tegelijk (elke keer andere vakken
+// leeg). Daarom: alleen laden wat bijna in beeld is, een kleine versie, en die pas tonen als hij binnen is. Lukt dat niet,
+// dan het origineel, nog een keer, en daarna een zichtbare melding. Tot die tijd een zandloper.
+function SeizoenBeeld({ beeld, breedte = 384, bezig, disabled, onClick, title, label }: {
+  beeld: string | null; breedte?: 384 | 640; bezig: boolean; disabled: boolean; onClick: () => void; title: string; label: string;
 }) {
-  const [toon, setToon] = useState(beeld);
+  const knop = useRef<HTMLButtonElement>(null);
+  const [inBeeld, setInBeeld] = useState(false);
+  useEffect(() => {
+    if (!knop.current || typeof IntersectionObserver === "undefined") { setInBeeld(true); return; }
+    const kijker = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { setInBeeld(true); kijker.disconnect(); } }, { rootMargin: "100px" });
+    kijker.observe(knop.current);
+    return () => kijker.disconnect();
+  }, []);
+  const [toon, setToon] = useState<string | null>(null);
   const [stand, setStand] = useState<"laden" | "klaar" | "fout">(beeld ? "laden" : "klaar");
   useEffect(() => {
-    setToon(beeld);
+    setToon(null);
     if (!beeld) { setStand("klaar"); return; }
     setStand("laden");
+    if (!inBeeld) return;
+    const pogingen = [kleinBeeld(beeld, breedte), beeld, `${beeld}?poging=3`];
     let weg = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const probeer = (poging: number) => {
-      const adres = poging === 1 ? beeld : `${beeld}?poging=${poging}`;
+    const probeer = (n: number) => {
       const img = new Image();
-      img.onload = () => { if (!weg) { setToon(adres); setStand("klaar"); } };
-      img.onerror = () => { if (weg) return; if (poging < 3) timer = setTimeout(() => probeer(poging + 1), 1500); else setStand("fout"); };
-      img.src = adres;
+      const volgende = () => {
+        clearTimeout(timer);
+        img.onload = img.onerror = null;
+        img.src = "";
+        if (n + 1 < pogingen.length) timer = setTimeout(() => probeer(n + 1), 1000);
+        else setStand("fout");
+      };
+      img.onload = () => { clearTimeout(timer); if (!weg) { setToon(pogingen[n]); setStand("klaar"); } };
+      img.onerror = volgende;
+      timer = setTimeout(volgende, LAAD_LIMIET_MS);
+      img.src = pogingen[n];
     };
-    probeer(1);
+    probeer(0);
     return () => { weg = true; clearTimeout(timer); };
-  }, [beeld]);
+  }, [beeld, breedte, inBeeld]);
   const fout = stand === "fout";
   return (
-    <button type="button" className="seizoen-beeld" disabled={disabled} onClick={onClick} aria-label={label}
+    <button ref={knop} type="button" className="seizoen-beeld" disabled={disabled} onClick={onClick} aria-label={label}
       title={fout ? "Deze afbeelding kon niet worden geladen" : title}
-      style={toon && !fout ? { backgroundImage: `url(${toon})` } : undefined}>
+      style={toon && !fout ? { backgroundImage: `url("${toon}")` } : undefined}>
       {bezig || stand === "laden" ? <span className="seizoen-beeld-laden"><Icoon naam="laden" /></span>
         : fout ? <span className="seizoen-beeld-fout">⚠️ Niet geladen</span>
         : beeld ? "" : "+"}
@@ -273,7 +294,7 @@ export default function SeizoenAfbeeldingen() {
               const beeld = pad ? OPSLAG + pad : standaard;
               return (
                 <div key={s.soort} className={`seizoen-set-vak seizoen-set-vak--${s.soort}`}>
-                  <SeizoenBeeld beeld={beeld} bezig={bezig?.thema === openThema.sleutel && bezig.soort === s.soort}
+                  <SeizoenBeeld beeld={beeld} breedte={s.soort === "achtergrond" ? 384 : 640} bezig={bezig?.thema === openThema.sleutel && bezig.soort === s.soort}
                     disabled={!!bezig || (s.soort !== "achtergrond" && !logosKlaar)}
                     onClick={() => { voorKeuze.current = { thema: openThema.sleutel, soort: s.soort }; kiesRef.current?.click(); }}
                     title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"} label={`${s.naam} van ${themaNaam(openThema, namen)} kiezen`} />

@@ -28,6 +28,16 @@ export function useAchtergrondKlik(onSluit: () => void) {
   };
 }
 
+// Tab blijft binnen het venster. Een bevestigvenster hierbinnen staat elders in de pagina en regelt dat zelf.
+export function houdTabBinnen(e: React.KeyboardEvent<HTMLDivElement>) {
+  if (e.key !== "Tab" || !e.currentTarget.contains(e.target as Node)) return;
+  const knoppen = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]'));
+  if (!knoppen.length) { e.preventDefault(); return; }
+  const eerste = knoppen[0], laatste = knoppen[knoppen.length - 1], nu = document.activeElement;
+  if (e.shiftKey && (nu === eerste || nu === e.currentTarget)) { e.preventDefault(); laatste.focus(); }
+  else if (!e.shiftKey && nu === laatste) { e.preventDefault(); eerste.focus(); }
+}
+
 // Maximale hoogte van een venster: procent van het ZICHTBARE scherm (dvh; vh is op de iPhone hoger dan wat je
 // ziet) en nooit onder de statusbalk/notch of de thuisbalk. aftrek = px eraf (rand van het paneel).
 export function vensterHoogte(procent: number, aftrek = 0): string {
@@ -56,15 +66,6 @@ export default function Venster({ onSluit, breedte, maxHoogte, donker = 0.72, ra
     if (!paneel.current?.contains(document.activeElement)) paneel.current?.focus({ preventScroll: true });
     return () => { if (vorige?.isConnected && !vorige.matches("input, textarea")) vorige.focus({ preventScroll: true }); };
   }, []);
-  // Tab blijft binnen het venster. Een bevestigvenster hierbinnen staat elders in de pagina en regelt dat zelf.
-  function houdTabBinnen(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key !== "Tab" || !e.currentTarget.contains(e.target as Node)) return;
-    const knoppen = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]'));
-    if (!knoppen.length) { e.preventDefault(); return; }
-    const eerste = knoppen[0], laatste = knoppen[knoppen.length - 1], nu = document.activeElement;
-    if (e.shiftKey && (nu === eerste || nu === e.currentTarget)) { e.preventDefault(); laatste.focus(); }
-    else if (!e.shiftKey && nu === laatste) { e.preventDefault(); eerste.focus(); }
-  }
   if (typeof document === "undefined") return null;
   return createPortal(
     // Rand rondom, maar boven en onder minstens vrij van de statusbalk en de thuisbalk (iPhone)

@@ -3,11 +3,19 @@ import { readFileSync } from "fs";
 // Versienummer (package.json) en het moment van bouwen: zichtbaar onderin het beheermenu
 const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
+// Kleine versies van de seizoensafbeeldingen (zie kleinBeeld in lib/seizoenen.ts): alleen uit onze eigen afbeeldingenmap
+const supabaseHost = (() => { try { return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname; } catch { return null; } })();
+
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
   // npm run controle bouwt in een eigen map, zodat een draaiende dev-server er geen last van heeft
   distDir: process.env.PR_DIST || ".next",
+  images: {
+    remotePatterns: supabaseHost ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/route-afbeeldingen/**" }] : [],
+    // Geüploade bestanden krijgen een unieke naam: een week bewaren scheelt opnieuw verkleinen
+    minimumCacheTTL: 604800,
+  },
   env: {
     NEXT_PUBLIC_VERSIE: version,
     NEXT_PUBLIC_BOUWDATUM: new Date().toISOString(),
