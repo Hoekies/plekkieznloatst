@@ -39,6 +39,24 @@ function LoginForm() {
 
   const [qrVerlopen, setQrVerlopen] = useState(false);
 
+  // 🎉 Eerst even de confetti, dan pas versturen: anders verdwijnt die zodra de volgende pagina er is (op wifi vrijwel meteen).
+  // Geldt voor spelers en beheerders. form.submit() slaat dit onSubmit over; dubbel tikken verstuurt maar één keer.
+  const verstuurd = useRef(false);
+  useEffect(() => {
+    // Terug naar deze pagina (bijv. met de terugknop): weer opnieuw kunnen inloggen
+    const terug = () => { verstuurd.current = false; };
+    window.addEventListener("pageshow", terug);
+    return () => window.removeEventListener("pageshow", terug);
+  }, []);
+  function inloggenMetConfetti(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (verstuurd.current) return;
+    verstuurd.current = true;
+    strooiConfetti({ aantal: 70, duurMs: 1400, knal: true });
+    const form = e.currentTarget;
+    setTimeout(() => form.submit(), 700);
+  }
+
   // 📷 QR-code van het inlogkaartje: loginnaam en wachtwoord staan achter het #-teken → invullen en
   // meteen inloggen, zolang de code geldig is (48 uur). Daarna alleen de loginnaam invullen.
   // Het #-deel gaat eerst uit de adresbalk, zodat het wachtwoord niet in de geschiedenis blijft.
@@ -120,7 +138,7 @@ function LoginForm() {
           <div className="login-of" aria-hidden><span>of</span></div>
           {/* ⌨️ Naam en wachtwoord altijd open onder de scanknop (de QR van het kaartje vult ze ook in) */}
           <form ref={formRef} action="/api/auth/inloggen" method="post" className="login-form"
-            onSubmit={() => strooiConfetti({ aantal: 70, duurMs: 1400, knal: true })}>
+            onSubmit={inloggenMetConfetti}>
 
             <label htmlFor="naam" className="pr-field-label2">
               Naam

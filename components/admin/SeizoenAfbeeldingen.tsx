@@ -12,11 +12,46 @@ import { verklein } from "@/components/admin/editor/HuisstijlInstellingen";
 import Icoon from "@/components/admin/Icoon";
 import { VensterMetKop } from "@/components/shared/Venster";
 
-const SOORTEN: { soort: SeizoenSoort; label: string; naam: string; uitleg: string }[] = [
-  { soort: "achtergrond", label: "🖼️ Achtergrond", naam: "Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
-  { soort: "logo", label: "🔲 Logo", naam: "Logo", uitleg: "Spellogo, vierkant: inlogscherm, welkomstscherm, oorkonde, uitslag, beamer." },
-  { soort: "logo_breed", label: "▭ Logo breed", naam: "Breed logo", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
+const SOORTEN: { soort: SeizoenSoort; emoji: string; knop: string; naam: string; uitleg: string }[] = [
+  { soort: "achtergrond", emoji: "🖼️", knop: "Achtergrond", naam: "Achtergrond", uitleg: "Achtergrond van het welkomstscherm (staand, 9:16)." },
+  { soort: "logo", emoji: "🔲", knop: "Logo", naam: "Logo", uitleg: "Spellogo, vierkant: inlogscherm, welkomstscherm, oorkonde, uitslag, beamer." },
+  { soort: "logo_breed", emoji: "▭", knop: "Logo breed", naam: "Breed logo", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
 ];
+
+// Tegel met een afbeelding. Een CSS-achtergrond die niet laadt blijft stil leeg, dus laden we hem ook apart: een zandloper
+// zolang het duurt, twee keer opnieuw proberen, en lukt dat niet dan een zichtbare melding in plaats van een leeg vak.
+function SeizoenBeeld({ beeld, bezig, disabled, onClick, title, label }: {
+  beeld: string | null; bezig: boolean; disabled: boolean; onClick: () => void; title: string; label: string;
+}) {
+  const [toon, setToon] = useState(beeld);
+  const [stand, setStand] = useState<"laden" | "klaar" | "fout">(beeld ? "laden" : "klaar");
+  useEffect(() => {
+    setToon(beeld);
+    if (!beeld) { setStand("klaar"); return; }
+    setStand("laden");
+    let weg = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const probeer = (poging: number) => {
+      const adres = poging === 1 ? beeld : `${beeld}?poging=${poging}`;
+      const img = new Image();
+      img.onload = () => { if (!weg) { setToon(adres); setStand("klaar"); } };
+      img.onerror = () => { if (weg) return; if (poging < 3) timer = setTimeout(() => probeer(poging + 1), 1500); else setStand("fout"); };
+      img.src = adres;
+    };
+    probeer(1);
+    return () => { weg = true; clearTimeout(timer); };
+  }, [beeld]);
+  const fout = stand === "fout";
+  return (
+    <button type="button" className="seizoen-beeld" disabled={disabled} onClick={onClick} aria-label={label}
+      title={fout ? "Deze afbeelding kon niet worden geladen" : title}
+      style={toon && !fout ? { backgroundImage: `url(${toon})` } : undefined}>
+      {bezig || stand === "laden" ? <span className="seizoen-beeld-laden"><Icoon naam="laden" /></span>
+        : fout ? <span className="seizoen-beeld-fout">⚠️ Niet geladen</span>
+        : beeld ? "" : "+"}
+    </button>
+  );
+}
 
 // Het logo in het menu en de kop meteen mee laten wisselen (dat adres blijft hetzelfde, dus de browser haalt het niet vanzelf op)
 function ververLogos() {
@@ -124,6 +159,7 @@ export default function SeizoenAfbeeldingen() {
   const actief = vastThema ? (heeftBeeld(vastThema.sleutel, soort) ? vastThema : null) : paden ? huidigThema(nu, new Set(THEMAS.filter((t) => heeftBeeld(t.sleutel, soort)).map((t) => t.sleutel))) : null;
   const info = SOORTEN.find((s) => s.soort === soort)!;
   const logo = soort !== "achtergrond";
+  const gewoon = logo ? "het gewone logo" : "de gewone achtergrond";
   // Door het jaar heen: op begindatum dit jaar (januari → december)
   const begin = (t: (typeof THEMAS)[number]) => { const [van] = t.periode(nu.getFullYear()); return van.getMonth() * 100 + van.getDate(); };
   // Vrije thema's altijd achteraan
@@ -133,36 +169,39 @@ export default function SeizoenAfbeeldingen() {
   return (
     <div className="form-group seizoen">
       <span className="inst-uitleg">
-        Voor <strong>alle routes</strong>. De app wisselt vanzelf naar de feestdag of het seizoen van dat moment. Elk thema heeft een standaardafbeelding: kies je een andere, dan komt die ervoor in de plaats; verwijder je die, dan komt de standaard terug.
+        Voor <strong>alle routes</strong>. De app wisselt vanzelf op datum. Tik op een thema om de achtergrond en logo&apos;s te wijzigen.
         {soort === "achtergrond" && " Een route met een eigen welkomstfoto houdt die foto."}
       </span>
       {fout && <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>}
       {paden && (
         <>
-          <div className="seizoen-soorten">
+          <div className="segment seizoen-soorten" role="group" aria-label="Soort afbeelding">
             {SOORTEN.map((s) => (
-              <button key={s.soort} type="button" className={`rl-knop${soort === s.soort ? " rl-knop--cyan" : ""}`} onClick={() => setSoort(s.soort)} aria-pressed={soort === s.soort}>
-                {s.label} <span className="seizoen-telling">{THEMAS.filter((t) => heeftBeeld(t.sleutel, s.soort)).length}</span>
+              <button key={s.soort} type="button" className={soort === s.soort ? "aan" : undefined} onClick={() => setSoort(s.soort)} aria-pressed={soort === s.soort}>
+                <span aria-hidden>{s.emoji}</span>
+                <span>{s.knop}</span>
+                <span className="seizoen-telling">{THEMAS.filter((t) => heeftBeeld(t.sleutel, s.soort)).length}</span>
               </button>
             ))}
-            <span className="seizoen-volgorde" role="radiogroup" aria-label="Volgorde">
-              <button type="button" role="radio" className={`rl-knop${volgorde === "alfabet" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "alfabet"} onClick={() => kiesVolgorde("alfabet")}><Icoon naam="tekst" /> Alfabet</button>
-              <button type="button" role="radio" className={`rl-knop${volgorde === "periode" ? " rl-knop--cyan" : ""}`} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}><Icoon naam="kalender" /> Periode</button>
-            </span>
           </div>
-          <div className="seizoen-vast">
+          <span className="inst-uitleg">{info.uitleg}</span>
+          <div className="seizoen-status">
             {vastThema ? (
               <>
-                <span>📌 Vast: <strong>{themaEmoji(vastThema, namen)} {themaNaam(vastThema, namen)}</strong>, overal (ook de finish), wat de datum ook is.</span>
+                <span>📌 Overal vast: <strong>{themaEmoji(vastThema, namen)} {themaNaam(vastThema, namen)}</strong>{!actief && <> (hier {gewoon})</>}</span>
                 <button type="button" className="rl-knop" onClick={() => zetVast(null)}>↺ Weer automatisch</button>
               </>
             ) : (
-              <span>Automatisch op datum. Tik op 📌 bij een thema om dat overal vast te zetten.</span>
+              <span>🗓️ Op datum: <strong>{actief ? <>{themaEmoji(actief, namen)} {themaNaam(actief, namen)}</> : gewoon}</strong>. Tik op 📌 om een thema overal vast te zetten.</span>
             )}
           </div>
-          <span className="inst-uitleg">
-            {info.uitleg}{actief ? <> Nu: <strong>{themaEmoji(actief, namen)} {themaNaam(actief, namen)}</strong>.</> : logo ? " Nu: het gewone logo." : vastThema ? " Nu: de gewone achtergrond." : null}
-          </span>
+          <div className="seizoen-kop">
+            <span>Thema&apos;s</span>
+            <div className="segment seizoen-volgorde" role="radiogroup" aria-label="Volgorde">
+              <button type="button" role="radio" className={volgorde === "alfabet" ? "aan" : undefined} aria-checked={volgorde === "alfabet"} onClick={() => kiesVolgorde("alfabet")}><Icoon naam="tekst" /> Alfabet</button>
+              <button type="button" role="radio" className={volgorde === "periode" ? "aan" : undefined} aria-checked={volgorde === "periode"} onClick={() => kiesVolgorde("periode")}><Icoon naam="kalender" /> Periode</button>
+            </div>
+          </div>
           {logo && !logosKlaar ? (
             <span className="inst-uitleg" style={{ color: "#FCA5A5" }}>⚠️ Draai eerst migratie 020 (seizoenslogo&apos;s) in Supabase.</span>
           ) : (
@@ -174,12 +213,9 @@ export default function SeizoenAfbeeldingen() {
                 const isNu = actief?.sleutel === t.sleutel;
                 return (
                   <div key={t.sleutel} className={`seizoen-vak${isNu ? " seizoen-vak--nu" : ""}`}>
-                    <button type="button" className="seizoen-beeld" disabled={!!bezig}
+                    <SeizoenBeeld beeld={beeld} bezig={bezig?.thema === t.sleutel} disabled={!!bezig}
                       onClick={() => setOpen(t.sleutel)}
-                      title="Achtergrond en logo's van dit thema" aria-label={`${themaNaam(t, namen)}: achtergrond en logo's`}
-                      style={beeld ? { backgroundImage: `url(${beeld})` } : undefined}>
-                      {bezig?.thema === t.sleutel ? <Icoon naam="laden" /> : beeld ? "" : "+"}
-                    </button>
+                      title="Achtergrond en logo's van dit thema" label={`${themaNaam(t, namen)}: achtergrond en logo's`} />
                     {bewerk?.sleutel === t.sleutel ? (
                       // ✏️ Naam en emoji van een vrij thema
                       <form className="seizoen-bewerk" onSubmit={(e) => { e.preventDefault(); bewaarNaam(); }}>
@@ -188,12 +224,13 @@ export default function SeizoenAfbeeldingen() {
                         <button type="submit" className="seizoen-bewerk-ok" aria-label="Bewaren">✓</button>
                       </form>
                     ) : (
-                      <span className="seizoen-naam">{themaEmoji(t, namen)} {themaNaam(t, namen)}{isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}
+                      <span className="seizoen-naam"><span className="seizoen-naam-tekst" title={themaNaam(t, namen)}>{themaEmoji(t, namen)} {themaNaam(t, namen)}</span>
                         {t.eigen && <button type="button" className="seizoen-naam-wijzig" title="Naam en emoji wijzigen" aria-label={`${themaNaam(t, namen)}: naam en emoji wijzigen`}
                           onClick={() => setBewerk({ sleutel: t.sleutel, naam: namen[t.sleutel]?.naam ?? "", emoji: themaEmoji(t, namen) })}>✏️</button>}
                       </span>
                     )}
                     <span className="seizoen-periode">{periodeTekst(t, nu.getFullYear())}{!pad && standaard && <span className="seizoen-standaard">standaard</span>}</span>
+                    {isNu && <span className="seizoen-nu">{vast ? "vast" : "nu"}</span>}
                     <button type="button" className="seizoen-pin" aria-pressed={vast === t.sleutel}
                       onClick={() => zetVast(vast === t.sleutel ? null : t.sleutel)}
                       title={vast === t.sleutel ? "Vastgezet: tik om weer automatisch op datum te wisselen" : `${themaNaam(t, namen)} overal vastzetten`}
@@ -225,13 +262,11 @@ export default function SeizoenAfbeeldingen() {
               const beeld = pad ? OPSLAG + pad : standaard;
               return (
                 <div key={s.soort} className={`seizoen-set-vak seizoen-set-vak--${s.soort}`}>
-                  <button type="button" className="seizoen-beeld" disabled={!!bezig || (s.soort !== "achtergrond" && !logosKlaar)}
+                  <SeizoenBeeld beeld={beeld} bezig={bezig?.thema === openThema.sleutel && bezig.soort === s.soort}
+                    disabled={!!bezig || (s.soort !== "achtergrond" && !logosKlaar)}
                     onClick={() => { voorKeuze.current = { thema: openThema.sleutel, soort: s.soort }; kiesRef.current?.click(); }}
-                    title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"} aria-label={`${s.naam} van ${themaNaam(openThema, namen)} kiezen`}
-                    style={beeld ? { backgroundImage: `url(${beeld})` } : undefined}>
-                    {bezig?.thema === openThema.sleutel && bezig.soort === s.soort ? <Icoon naam="laden" /> : beeld ? "" : "+"}
-                  </button>
-                  <span className="seizoen-naam">{s.label}</span>
+                    title={beeld ? "Andere afbeelding kiezen" : "Afbeelding kiezen"} label={`${s.naam} van ${themaNaam(openThema, namen)} kiezen`} />
+                  <span className="seizoen-naam">{s.emoji} {s.knop}</span>
                   <span className="seizoen-periode">{pad ? "eigen" : standaard ? "standaard" : "leeg"}</span>
                   {pad && (
                     <BevestigKnop venster icoon="🗑️" titel={`${s.naam} van ${themaNaam(openThema, namen)} verwijderen?`} vraag=""
