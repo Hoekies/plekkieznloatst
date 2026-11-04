@@ -367,7 +367,8 @@ Alle vlakkleuren staan als RGB-drietal in `--o0` (donkerst) t/m `--o7` (lichtst)
 | Refresh tijdens spel | `player_sessions.current_point_id` opslaan; bij heropen sessie hervatten |
 | GPS valt weg | Melding tonen; GPS watcher blijft actief; spel pauzeert niet |
 | GPS accuracy te slecht | Melding + "Controleer locatie"-knop; puntdetectie tijdelijk uitschakelen |
-| Supabase realtime onderbroken | Toast melding "Verbinding onderbroken"; auto-reconnect; spel loopt door |
+| Supabase realtime onderbroken | Het verversen (poll) loopt door; *Verbinding weg* staat er pas als de stand niet meer lukt (`vers` in `useLiveData`); spel loopt door |
+| Afronden: iedereen stoppen | `/api/admin/spel-afronden` zet lopende sessies op `voltooid` (telt mee in uitslag en rapport); `spel-stoppen` bij één team zet op `vervallen` (telt niet mee, opnieuw beginnen kan) |
 | Reset tijdens actief spel | Sessie markeert als `vervallen`; speler ziet melding bij volgende actie |
 | Import JSON | Validatie vóór opslaan; route wordt niet automatisch actief |
 | Numerieke invoer komma/punt | Normaliseren: `"1,5"` → `1.5` vóór vergelijking |

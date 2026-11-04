@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { SpelerOverzicht } from "@/lib/admin-live";
 import { sessietijd } from "@/lib/admin-live";
@@ -21,19 +21,29 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
 }) {
   const [verslag, setVerslag] = useState<RouteVerslag | null>(null);
   const [fout, setFout] = useState(false);
+  // De kaart blijft op de stand die je hebt (anders zoomt hij steeds terug); bijwerken doe je met de knop
+  const [kaart, setKaart] = useState<RouteVerslag | null>(null);
+  const geladen = useRef(false);
 
+  // Onderweg ververst het verslag elke halve minuut: cijfers, antwoorden en items lopen mee met de stand erboven
+  const onderweg = s.sessie_status === "actief";
   useEffect(() => {
     if (!s.sessie_id) return;
-    fetch(`/api/admin/sessies/${s.sessie_id}/verslag`)
+    const laad = () => fetch(`/api/admin/sessies/${s.sessie_id}/verslag`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setVerslag)
-      .catch(() => setFout(true));
-  }, [s.sessie_id]);
+      .then((v: RouteVerslag) => { geladen.current = true; setFout(false); setVerslag(v); setKaart((k) => k ?? v); })
+      .catch(() => { if (!geladen.current) setFout(true); });
+    laad();
+    if (!onderweg) return;
+    const t = setInterval(() => { if (!document.hidden) laad(); }, 30000);
+    return () => clearInterval(t);
+  }, [s.sessie_id, onderweg]);
 
 
-  // Eén keer per verslag: anders bouwt het kaartje bij elke verversing van het dashboard opnieuw op
-  const kaartItems = useMemo(() => (verslag?.items ?? []).filter((i) => i.lat != null && i.lng != null)
-    .map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! })), [verslag]);
+  // Eén keer per kaartstand: anders bouwt het kaartje bij elke verversing van het dashboard opnieuw op
+  const kaartItems = useMemo(() => (kaart?.items ?? []).filter((i) => i.lat != null && i.lng != null)
+    .map((i) => ({ soort: i.soort, type: i.type, ander: i.ander, lat: i.lat!, lng: i.lng! })), [kaart]);
+  const kaartOud = !!verslag && !!kaart && (verslag.spoor.length !== kaart.spoor.length || verslag.punten.length !== kaart.punten.length);
   const vragen = verslag?.punten.filter((p) => p.heeftVraag) ?? [];
   const goed = vragen.filter((p) => p.goed).length;
 
@@ -72,11 +82,12 @@ export default function SpelerDetailVenster({ speler: s, rang, kleur, totaalPunt
           )}
 
           {/* Gelopen route */}
-          <div style={{ height: 330, borderRadius: 14, overflow: "hidden", flexShrink: 0 }}>
+          <div style={{ height: 330, borderRadius: 14, overflow: "hidden", flexShrink: 0, position: "relative" }}>
             {fout ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Kon de gegevens niet laden.</p>
-              : !verslag ? <LaadBlokjes aantal={1} hoogte={330} />
-              : verslag.spoor.length < 2 && verslag.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>
-              : <GelopenRouteKaart scherp spoor={verslag.spoor} punten={verslag.punten} items={kaartItems} />}
+              : !kaart ? <LaadBlokjes aantal={1} hoogte={330} />
+              : kaart.spoor.length < 2 && kaart.punten.length === 0 ? <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Nog geen GPS-spoor.</p>
+              : <GelopenRouteKaart scherp spoor={kaart.spoor} punten={kaart.punten} items={kaartItems} />}
+            {kaartOud && <button type="button" className="rl-knop detail-kaart-bijwerken" onClick={() => setKaart(verslag)}>↻ Kaart bijwerken</button>}
           </div>
 
           {/* Antwoorden */}

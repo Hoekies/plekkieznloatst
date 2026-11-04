@@ -4635,9 +4635,9 @@ button.doel-wijzer { pointer-events: auto; cursor: pointer; }
 
 /* 🌦️ Weer op het dashboard: de komende uren in één rij */
 .weer { margin-bottom: 12px; padding: 8px 10px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-.weer-kop { font-size: 0.74rem; font-weight: 800; color: var(--muted); }
+.weer-kop { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 800; color: var(--text); text-align: left; }
 .weer-let { color: #93C5FD; }
-.weer-uren { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+.weer-uren { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin-top: 6px; max-width: 640px; }
 .weer-uur { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0; border-radius: 9px; font-size: 1rem; line-height: 1.15; }
 .weer-uur small { font-size: 0.62rem; color: var(--muted); }
 .weer-uur strong { font-size: 0.8rem; color: #fff; }
@@ -4863,3 +4863,23 @@ button.groep-plaatje:disabled { cursor: default; }
 /* 🎨 Kleur van het beheer: "Zoals de spelersapp" over de hele breedte, met de kleur van de actieve route eronder */
 .thema-keuze--speler { grid-column: 1 / -1; }
 .thema-keuze-sub { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+
+/* ── Dashboard-audit ── */
+/* Spel klaarzetten: wat ook mag (eindtijd, bonusvraag) compact op één regel onder de stappen */
+.klaar-opties { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; }
+.klaar-opties-naam { font-size: 0.74rem; font-weight: 800; color: var(--muted); }
+/* 🧪 Testteam onder de stand */
+.dash-testteam { margin-top: 16px; }
+.sk-stats > .sk-binnen { color: #86EFAC; font-weight: 700; }
+/* Teamvenster: de kaart bijwerken (rechtsboven op de kaart) */
+.detail-kaart-bijwerken { position: absolute; top: 8px; right: 8px; z-index: 1000; background: rgba(var(--o3),0.95); }
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
+  /* Spelleider op de telefoon: eerst de status en wat aandacht vraagt, dan pas de knoppen */
+  .spelleider-kop { display: contents; }
+  .spelleider-kop > * { flex: none; }
+  .spelleider-status { order: -2; }
+  .spelleider-regel { order: -1; }
+  /* Spel klaarzetten: de twee knoppen naast elkaar */
+  .klaar-opties-naam { flex-basis: 100%; }
+  .klaar-opties > .rl-knop, .klaar-opties > button { flex: 1 1 0; min-width: 0; justify-content: center; }
+}

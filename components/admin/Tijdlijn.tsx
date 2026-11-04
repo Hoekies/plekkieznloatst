@@ -35,7 +35,7 @@ export default function Tijdlijn({ kleuren, teams = [] }: { kleuren: Map<string,
       } catch { /* verbindingsfout */ }
     }
     laad();
-    const t = setInterval(laad, 8000);
+    const t = setInterval(() => { if (!document.hidden) laad(); }, 8000);
     return () => { actief = false; clearInterval(t); };
   }, []);
 

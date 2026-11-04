@@ -19,7 +19,8 @@ const zend = () => luisteraars.forEach((f) => f(staat));
 export async function verversBeheerStatus(ookLive = true) {
   const hulp = await fetch("/api/admin/hulp").then((r) => (r.ok ? r.json() : null)).catch(() => null);
   let live = staat.live;
-  if (ookLive && Date.now() - liveOp > 8000) {
+  // Verborgen tabblad: de stand minder vaak (de hulpvragen blijven lopen, voor de melding en de teller in het tabblad)
+  if (ookLive && Date.now() - liveOp > (document.hidden ? 30000 : 8000)) {
     const l = await fetch("/api/admin/live/spelers").then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (l) { live = l; liveOp = Date.now(); }
   }

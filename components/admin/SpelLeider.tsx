@@ -42,8 +42,10 @@ export async function stuurPauze(aan: boolean): Promise<string | null | undefine
 }
 
 // "Spelleider": hoe lang het spel loopt, wat nu je aandacht vraagt, en het spel afronden
-export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null, goudenAan = false, bezwaren = [], chatAan = false }: {
+export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVrij, onKies, routeId, eindtijd, pauze = null, beperkt = false, onGewijzigd, gouden = null, goudenAan = false, bezwaren = [], chatAan = false, nietGestart = [] }: {
   spelend: SpelerOverzicht[];
+  // Teams die nog niet op pad zijn (zonder testteam en uitgeschakelde teams): die zijn nog niet "binnen"
+  nietGestart?: SpelerOverzicht[];
   wachtendeFotos: number;
   kleuren: Map<string, string>;
   uitslagVrij?: boolean;
@@ -74,12 +76,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   for (const s of spelend) {
     if (s.hulp) aandacht.push({ id: `hulp-${s.player_id}`, kleur: "#FF8A00", tekst: `⚠️ ${s.display_name} kan ${s.hulp.punt_naam ? `"${s.hulp.punt_naam}"` : "het volgende punt"} niet bereiken`, speler: s });
   }
-  for (const s of spelend) {
-    if (s.wacht && new Date(s.wacht.tot).getTime() > nu) {
-      const min = Math.ceil((new Date(s.wacht.tot).getTime() - nu) / 60000);
-      aandacht.push({ id: `wacht-${s.player_id}`, kleur: "#A78BFA", tekst: `${s.wacht.soort === "spook" ? "👻" : "⛔"} ${s.display_name} moet wachten (${s.wacht.soort === "spook" ? "spook" : "plek zooi"}, nog ± ${min} min)`, speler: s });
-    }
-  }
+  // (Wachten door een spook of plek zooi is gewoon spelverloop: dat staat op de teamkaart, met de knop −30 s)
   // 🧍 Staat al een tijd stil, niet bij een punt: misschien verdwaald, of de telefoon ligt ergens
   for (const s of spelend) {
     if (s.stil) aandacht.push({ id: `stil-${s.player_id}`, kleur: "#F59E0B", tekst: `🧍 ${s.display_name} staat al ${s.stil.minuten} min op dezelfde plek (niet bij een punt)`, speler: s });
@@ -126,31 +123,35 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       ),
     });
   }
-  const stil = spelend.filter((s) => minutenNietGezien(s, nu) !== null && !vergeten.includes(s));
-  if (stil.length === 1) {
-    const s = stil[0];
-    aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(minutenNietGezien(s, nu)!)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
-  } else if (stil.length > 1) {
-    aandacht.push({ id: "stil", kleur: "#9CA3AF", tekst: `📵 ${stil.length} teams een tijd niet gezien: ${stil.map((s) => s.display_name).join(", ")}` });
+  // Een helper kan vergeten spellen niet afsluiten: die ziet ze gewoon als "niet gezien". Per team een regel, tik = dat team
+  for (const s of spelend) {
+    if (minutenNietGezien(s, nu) === null || (vergeten.includes(s) && !beperkt)) continue;
+    aandacht.push({ id: `nietgezien-${s.player_id}`, kleur: "#9CA3AF", tekst: `📵 ${s.display_name} ${duurKort(minutenNietGezien(s, nu)!)} niet gezien${s.ingelogd ? "" : " (uitgelogd)"}`, speler: s });
   }
 
   // 🏁 Iedereen is binnen: wat de spelleider nu moet doen, bovenaan en met de knop erbij. Eerst de foto's keuren
   // (die tellen mee), dan de uitslag vrijgeven (pas dan zien de teams de eindstand, hun oorkonde, de antwoorden en
   // de gelopen route), daarna het rapport bewaren en opruimen.
-  const iedereenBinnen = spelend.length > 0 && onderweg === 0;
-  if (iedereenBinnen && !beperkt) {
+  // Niemand meer onderweg, maar nog niet iedereen gestart: dat is nog niet "iedereen binnen". De uitslag vrijgeven kan
+  // wel (een team kan ook wegblijven), maar dan staat erbij wie er nog ontbreekt.
+  const niemandOnderweg = spelend.length > 0 && onderweg === 0;
+  const iedereenBinnen = niemandOnderweg && nietGestart.length === 0;
+  const ontbreekt = nietGestart.map((s) => s.display_name).join(", ");
+  const binnenKop = iedereenBinnen ? "Iedereen is binnen" : `Niemand meer onderweg, maar ${ontbreekt} ${nietGestart.length === 1 ? "is" : "zijn"} nog niet gestart`;
+  if (niemandOnderweg && !beperkt) {
     if (!uitslagVrij) {
       aandacht.unshift({
         id: "uitslag", kleur: "#00D9FF",
         tekst: wachtendeFotos > 0
-          ? `🏁 Iedereen is binnen. Stap 1: keur de ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""}. Stap 2: geef de uitslag vrij.`
-          : "🏁 Iedereen is binnen: geef de uitslag vrij. Tot dan wachten de teams op hun eindstand, oorkonde, antwoorden en gelopen route.",
+          ? `🏁 ${binnenKop}. Stap 1: keur de ${wachtendeFotos} foto${wachtendeFotos !== 1 ? "'s" : ""}. Stap 2: geef de uitslag vrij.`
+          : iedereenBinnen ? "🏁 Iedereen is binnen: geef de uitslag vrij. Tot dan wachten de teams op hun eindstand, oorkonde, antwoorden en gelopen route."
+          : `🏁 ${binnenKop}. Wacht nog even, of geef de uitslag vrij.`,
         actie: (
           <span style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
             {wachtendeFotos > 0 && <button type="button" className="rl-knop rl-knop--groen" onClick={openFotoKeuren}><Icoon naam="camera" /> Foto&apos;s keuren</button>}
             <BevestigKnop venster gevaarlijk={false} icoon="🏆" titel="Uitslag vrijgeven?" ja="Ja, vrijgeven" onBevestig={geefUitslagVrij}
-              vraag={`Alle teams zien dan de eindstand, hun oorkonde, de antwoorden en de gelopen route.${wachtendeFotos > 0 ? ` ⚠️ Er ${wachtendeFotos === 1 ? "is nog 1 foto" : `zijn nog ${wachtendeFotos} foto's`} niet gekeurd.` : ""}`}
-              className={`rl-knop${wachtendeFotos > 0 ? "" : " rl-knop--cyan"}`}>
+              vraag={`Alle teams zien dan de eindstand, hun oorkonde, de antwoorden en de gelopen route.${wachtendeFotos > 0 ? ` ⚠️ Er ${wachtendeFotos === 1 ? "is nog 1 foto" : `zijn nog ${wachtendeFotos} foto's`} niet gekeurd.` : ""}${iedereenBinnen ? "" : ` ⚠️ Nog niet gestart: ${ontbreekt}.`}`}
+              className={`rl-knop${wachtendeFotos > 0 || !iedereenBinnen ? "" : " rl-knop--cyan"}`}>
               <Icoon naam="uitslag" /> Uitslag vrijgeven
             </BevestigKnop>
           </span>
@@ -170,6 +171,10 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
       });
     }
   }
+  // 12: het belangrijkste eerst: wat nu moet, dan een team dat vastloopt, dan bezwaren en chat, dan de rest
+  const prio = (id: string) => (id === "uitslag" || id === "afgerond" ? 0 : id.startsWith("hulp-") ? 1 : id.startsWith("bezwaar-") ? 2 : id.startsWith("chat-") ? 3 : 4);
+  aandacht.sort((a, b) => prio(a.id) - prio(b.id));
+
   async function geefUitslagVrij() {
     const res = await fetch("/api/admin/uitslag", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vrij: true }),
@@ -183,6 +188,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
     const uit = await Promise.all(lijst.map((s) => fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" }).then((r) => r.ok).catch(() => false)));
     const goed = uit.filter(Boolean).length;
     toonMelding(goed === lijst.length ? `🧹 ${goed} ${goed === 1 ? "spel" : "spellen"} afgesloten` : "Afsluiten lukte niet bij elk spel", goed === lijst.length ? "ok" : "fout");
+    onGewijzigd();
   }
 
   // ⏸️ Pauze: alle teams staan stil; ▶️ Verder: de eindtijd schuift mee
@@ -208,7 +214,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
   }, [aandacht.length, vorigAantal]);
   const status = (
     <>
-      ⏱️ {start ? duurKort(Math.floor((nu - new Date(start).getTime()) / 60000)) : "loopt"} · {iedereenBinnen ? "🏁 iedereen binnen" : <>{onderweg} onderweg{spelend.length - onderweg > 0 && ` · ${spelend.length - onderweg} binnen`}</>}
+      ⏱️ {start ? duurKort(Math.floor((nu - new Date(start).getTime()) / 60000)) : "loopt"} · {iedereenBinnen ? "🏁 iedereen binnen" : <>{onderweg} onderweg{spelend.length - onderweg > 0 && ` · ${spelend.length - onderweg} binnen`}{nietGestart.length > 0 && ` · ${nietGestart.length} niet gestart`}</>}
       {eindtijd && new Date(eindtijd).getTime() > nu && <span style={{ color: "#FFE680" }}> · nog {resterend(eindtijd, nu)}</span>}
     </>
   );
@@ -272,7 +278,7 @@ export default function SpelLeider({ spelend, wachtendeFotos, kleuren, uitslagVr
                 <span className="spelleider-groep-naam">🏁 Na het spel</span>
                 <div className="spelleider-knoppen">
                   {/* 🏁 Afronden (stoppen, uitslag, rapport) en 🧹 Opruimen (nieuw spel, volgende groep) */}
-                  <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} opruimen={iedereenBinnen || !!uitslagVrij} />
+                  <SpelAfronden spelend={spelend} uitslagVrij={!!uitslagVrij} onGewijzigd={onGewijzigd} opruimen={niemandOnderweg || !!uitslagVrij} />
                 </div>
               </div>
             </div>

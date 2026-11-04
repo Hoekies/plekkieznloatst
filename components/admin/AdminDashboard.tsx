@@ -45,10 +45,8 @@ interface Props {
 
 
 export default function AdminDashboard({ initData, beperkt = false }: Props) {
-  const { data, realtimeOk, ververs, bijgewerkt } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
+  const { data, vers, uitgelogd, nu: nuTik, ververs, bijgewerkt } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live");
   // 📡 Slecht bereik: de laatste stand blijft staan, met hoe oud hij is
-  const [nuTik, setNuTik] = useState(() => Date.now());
-  useEffect(() => { const t = setInterval(() => setNuTik(Date.now()), 10000); return () => clearInterval(t); }, []);
   const oudMin = Math.floor((nuTik - bijgewerkt) / 60000);
   // Speler waarvan het detailvenster open staat
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -92,51 +90,51 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
   function wisselSpelers() {
     setSpelersDicht((d) => { try { localStorage.setItem("pr_dash_spelers_dicht", d ? "0" : "1"); } catch { /* geen opslag */ } return !d; });
   }
+  // Eén actie op de server: bij een fout of slecht bereik altijd een melding (niet stilletjes niets), daarna verversen.
+  // Geeft het antwoord terug, of null als het niet lukte.
+  async function actie(url: string, naam: string, methode = "POST"): Promise<{ voorbij?: boolean } | null> {
+    const res = await fetch(url, { method: methode }).catch(() => null);
+    const antwoord = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) toonMelding(uitlegBijStatus(res?.status ?? 0, naam, antwoord.fout), "fout");
+    ververs();
+    return res?.ok ? antwoord : null;
+  }
+
   async function geefPuntVrij(s: SpelerOverzicht) {
     if (!s.sessie_id) return;
-    const naam = s.nickname ?? s.login_name;
-    const res = await fetch(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, { method: "POST" });
-    if (!res.ok) {
-      const { fout } = await res.json().catch(() => ({ fout: null }));
-      toonMelding(uitlegBijStatus(res.status, "Vrijgeven", fout), "fout");
-    } else toonMelding(`Punt van ${naam} vrijgegeven`, "ok");
-    ververs();
+    if (await actie(`/api/admin/sessies/${s.sessie_id}/punt-vrijgeven`, "Vrijgeven")) toonMelding(`Punt van ${s.display_name} vrijgegeven`, "ok");
   }
 
   async function stopSpel(s: SpelerOverzicht) {
-    const res = await fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" });
-    if (!res.ok) {
-      const { fout } = await res.json().catch(() => ({ fout: null }));
-      toonMelding(uitlegBijStatus(res.status, "Stoppen", fout), "fout");
-    }
-    ververs();
+    if (await actie(`/api/admin/groepen/${s.player_id}/spel-stoppen`, "Stoppen")) toonMelding(`Spel van ${s.display_name} gestopt`, "ok");
   }
 
   // Spook of plek zooi 30 seconden korter laten duren
   async function verkortWachten(effectId: string) {
-    const res = await fetch(`/api/admin/effecten/${effectId}/verkorten`, { method: "POST" });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) toonMelding(uitlegBijStatus(res.status, "Inkorten", data.fout), "fout");
-    else if (data.voorbij) toonMelding("Wachttijd voorbij: het team kan weer verder", "ok");
-    ververs();
+    const antwoord = await actie(`/api/admin/effecten/${effectId}/verkorten`, "Inkorten");
+    if (antwoord?.voorbij) toonMelding("Wachttijd voorbij: het team kan weer verder", "ok");
   }
 
   async function negeerHulp(hulpId: string) {
-    await fetch(`/api/admin/hulp/${hulpId}`, { method: "PATCH" });
-    ververs();
+    if (await actie(`/api/admin/hulp/${hulpId}`, "Negeren", "PATCH")) toonMelding("Hulpvraag genegeerd", "ok");
   }
 
   const { spelers, route, route_punten } = data;
   // Alleen spelers die meedoen (bezig of gefinisht), op volgorde van de stand: hoogste score eerst,
   // bij gelijke score de snelste. Wie nog niet gestart is, staat bij Spelers.
-  const spelend = spelers
+  const spelendAlle = spelers
     .filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid")
     .sort((a, b) => b.score !== a.score ? b.score - a.score : sessietijd(a) - sessietijd(b));
-  const aantalActief = spelers.filter((s) => s.sessie_status === "actief").length;
+  // 🧪 Een testteam loopt mee (eigen kopje), maar telt nergens mee: niet in de stand, niet bij onderweg of binnen,
+  // en het vervangt het stappenplan niet
+  const spelend = spelendAlle.filter((s) => !s.test);
+  const testTeams = spelendAlle.filter((s) => s.test);
+  const nietGestart = spelers.filter((s) => s.sessie_status === "geen_sessie" && !s.test && !s.uitgeschakeld);
+  const aantalActief = spelendAlle.filter((s) => s.sessie_status === "actief").length;
   const totaalPunten = route_punten.length;
   // Vaste kleur per speler (zelfde als op de live kaart en de spelerspagina)
   const kleuren = useMemo(() => maakKleurMap(spelers.map((s) => s.player_id)), [spelers]);
-  const detail = detailId ? spelend.find((s) => s.player_id === detailId) : undefined;
+  const detail = detailId ? spelendAlle.find((s) => s.player_id === detailId) : undefined;
 
   return (
     <>
@@ -152,9 +150,9 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
         </span>
         <FotoBeoordelingPanel />
         <div style={{ justifySelf: "end", display: "flex", alignItems: "center", gap: 12 }}>
-          <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
-            <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
-            {realtimeOk ? "Live" : "Verbinding weg"}
+          <div className={`admin-live-badge${vers ? " admin-live-badge--ok" : ""}`}>
+            <span className={`admin-live-dot${vers ? " admin-live-dot--pulse" : ""}`} />
+            {vers ? "Live" : "Verbinding weg"}
           </div>
         </div>
       </div>
@@ -171,12 +169,17 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
           </div>
         )}
 
+        {/* 🔒 Sessie verlopen: geen verbindingsprobleem, verversen helpt dan niet */}
+        {uitgelogd && (
+          <div className="dash-oud" role="alert">🔒 Je bent uitgelogd, dus dit is niet meer de actuele stand. <a href="/login" style={{ color: "#fff", fontWeight: 800 }}>Opnieuw inloggen</a></div>
+        )}
         {/* 📡 Geen verbinding: de stand hieronder is de laatst bekende */}
-        {nuTik - bijgewerkt > 30000 && (
+        {!uitgelogd && nuTik - bijgewerkt > 30000 && (
           <div className="dash-oud" role="status">📡 Geen verbinding. Dit is de stand van {oudMin < 1 ? "zojuist" : `${oudMin} min geleden`}; hij ververst vanzelf zodra er weer bereik is.</div>
         )}
         {/* 🌦️ Weer bij de start: de komende uren */}
-        {route_punten.length > 0 && <WeerBericht lat={route_punten[0].latitude} lng={route_punten[0].longitude} />}
+        {/* (niet meer als iedereen klaar is met lopen) */}
+        {route_punten.length > 0 && !(spelend.length > 0 && spelend.every((s) => s.sessie_status !== "actief")) && <WeerBericht lat={route_punten[0].latitude} lng={route_punten[0].longitude} />}
         {/* Wat er nu moet gebeuren staat op één plek: vóór het spel in Spel klaarzetten, tijdens en na het spel
             in het Spelleider-blok (geen aparte Wat nu-regel en tellerstrook meer: dat stond er dubbel) */}
         {/* Voor het spel: stappenplan. Tijdens het spel: wat vraagt je aandacht, en afronden */}
@@ -186,16 +189,17 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
             : <SpelLeider spelend={spelend} wachtendeFotos={data.wachtende_fotos ?? 0} kleuren={kleuren}
                 uitslagVrij={!!route?.uitslag_vrijgegeven} onKies={(s) => setDetailId(s.player_id)}
                 routeId={route?.id} eindtijd={route?.eindtijd} pauze={route?.gepauzeerd_sinds ?? null} beperkt={beperkt} onGewijzigd={ververs} gouden={route?.gouden_tot ?? null} goudenAan={!!route?.gouden_aan}
-                bezwaren={data.bezwaren ?? []} chatAan={!!route?.chat_aan} />}
+                bezwaren={data.bezwaren ?? []} chatAan={!!route?.chat_aan} nietGestart={nietGestart} />}
         </div>
 
-        <div className={route && spelend.length > 0 ? "dash-kolommen" : undefined}>
+        <div className={route && spelendAlle.length > 0 ? "dash-kolommen" : undefined}>
           <div style={{ minWidth: 0 }}>
             {/* Spelende spelers, op volgorde van de stand */}
-            <SectieKop titel={`🏆 Stand${spelend.length ? ` (${spelend.length})` : ""}`}
-              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined} />
+            {/* Vóór het spel staat alles al in het stappenplan: geen lege Stand eronder (wel voor een hulp, die het stappenplan niet heeft) */}
+            {(spelend.length > 0 || beperkt) && <SectieKop titel={`🏆 Stand${spelend.length ? ` (${spelend.length})` : ""}`}
+              open={!spelersDicht} onWissel={spelend.length ? wisselSpelers : undefined} />}
             {spelersDicht && spelend.length > 0 ? null : spelend.length === 0 ? (
-              !route ? (
+              !beperkt ? null : !route ? (
                 <LeegScherm icoon="🗺️" knop={{ label: "🗺️ Naar routes", href: "/admin/routes" }}>Er is geen actieve route. Kies eerst een route en activeer hem.</LeegScherm>
               ) : spelers.length === 0 ? (
                 <LeegScherm icoon="👫" knop={{ label: "👫 Spelers aanmaken", href: "/admin/groepen" }}>Nog geen spelers aangemaakt.</LeegScherm>
@@ -219,15 +223,27 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
                     onNegeer={negeerHulp}
                     onGewijzigd={ververs}
                     beperkt={beperkt}
+                    chatAan={!!route?.chat_aan}
                   />
                 ))}
               </div>
             )}
+            {/* 🧪 Testteam: loopt mee, buiten de stand */}
+            {testTeams.length > 0 && (
+              <div className="dash-testteam">
+                <SectieKop titel="🧪 Testteam (telt niet mee)" />
+                {testTeams.map((s) => (
+                  <SpelerKaart key={s.player_id} rang={0} speler={s} kleur={kleuren.get(s.player_id) ?? "#A78BFA"} totaalPunten={totaalPunten} kanVrijgeven
+                    onOpen={() => setDetailId(s.player_id)} onVerkort={verkortWachten} onVrijgeven={() => geefPuntVrij(s)} onStop={() => stopSpel(s)}
+                    onNegeer={negeerHulp} onGewijzigd={ververs} beperkt={beperkt} chatAan={!!route?.chat_aan} />
+                ))}
+              </div>
+            )}
             {/* 📈 Stand door het spel heen, per team: los van het in- en uitklappen van de spelers */}
-            {spelend.length > 0 && !breed && <PuntenVerloop kleuren={kleuren} />}
+            {spelendAlle.length > 0 && !breed && <PuntenVerloop kleuren={kleuren} />}
           </div>
           {/* Tijdlijn: naast de spelers op een breed scherm, eronder op de telefoon */}
-          {route && spelend.length > 0 && (
+          {route && spelendAlle.length > 0 && (
             <div className="dash-zijkolom">
               {telefoon ? (
                 <div className="verloop dash-kaart">
@@ -247,7 +263,7 @@ export default function AdminDashboard({ initData, beperkt = false }: Props) {
               )}
               {breed && zijTab === "verloop"
                 ? <PuntenVerloop kleuren={kleuren} />
-                : <Tijdlijn kleuren={kleuren} teams={spelend.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />}
+                : <Tijdlijn kleuren={kleuren} teams={spelendAlle.map((s) => ({ id: s.player_id, naam: s.display_name, icon: s.icon }))} />}
             </div>
           )}
         </div>
@@ -273,8 +289,10 @@ function teamIcoonVoor(id: string): string {
   return TEAM_ICONEN[hash % TEAM_ICONEN.length];
 }
 
-function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVerkort, onVrijgeven, onStop, onNegeer, onGewijzigd, beperkt }: {
+function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpen, onVerkort, onVrijgeven, onStop, onNegeer, onGewijzigd, beperkt, chatAan = false }: {
+  // Plaats in de stand; 0 = 🧪 testteam (telt niet mee)
   rang: number;
+  chatAan?: boolean;
   speler: SpelerOverzicht;
   kleur: string;
   onOpen: () => void;
@@ -294,7 +312,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
   return (
     // Tik op de kaart: alles van deze speler in één venster (de knoppen erin doen hun eigen ding)
     <div className="pr-gem-card speler-kaart-klik" role="button" tabIndex={0} title="Tik voor alle details"
-      onClick={onOpen} onKeyDown={(e) => { if (e.key === "Enter") onOpen(); }}
+      onClick={onOpen} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) onOpen(); }}
       style={s.hulp ? { boxShadow: "0 0 0 3px #ff8a00, 0 0 18px rgba(255,138,0,0.6)" }
       : rang === 1 && s.score > 0 ? { boxShadow: "0 0 0 2px #ffd93b, 0 0 16px rgba(255,217,59,0.45)" } : undefined}>
       {/* Bovenaan: plek, icoon, naam en score op één regel; daaronder over de volle breedte de rest */}
@@ -302,8 +320,8 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
           score; regel 2 de cijfers; daaronder de voortgang. Items en knoppen in het venster */}
       <div className="pr-gem-card-inner sk-inner">
         <div className="sk-kop">
-          <span className="sk-rang" title={`${rang}e plaats`} style={{ fontSize: rang <= 3 ? "1.5rem" : "1rem" }}>
-            {rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
+          <span className="sk-rang" title={rang ? `${rang}e plaats` : "Testteam: telt niet mee"} style={{ fontSize: rang <= 3 ? "1.5rem" : "1rem" }}>
+            {rang === 0 ? "🧪" : rang <= 3 ? ["🥇", "🥈", "🥉"][rang - 1] : rang}
           </span>
           <div className="pr-gem-avatar speler-ring sk-avatar" style={{ ["--speler-kleur" as string]: kleur }}>{s.icon ?? teamIcoonVoor(s.player_id)}</div>
           <div className="sk-naam">
@@ -315,7 +333,9 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
               <span title="Punten bezocht">📍 {totaalPunten ? `${s.bezochte_punten}/${totaalPunten}` : s.bezochte_punten}</span>
               <span title="Gelopen">🚶 {(s.afstand_m / 1000).toFixed(2).replace(".", ",")} km</span>
               {s.started_at && <span title="Speeltijd">⏱ {duurKort(Math.floor(sessietijd(s) / 60))}</span>}
-              {s.huidig_punt_naam && <span className="sk-volgend" title={`Op weg naar ${s.huidig_punt_naam}`}>➡️ {s.huidig_punt_naam}</span>}
+              {s.volgend_punt_naam && <span className="sk-volgend" title={`Op weg naar ${s.volgend_punt_naam}`}>➡️ {s.volgend_punt_naam}</span>}
+              {/* Telefoon: het statuslabel staat daar niet, dus hier dat het team binnen is */}
+              {s.sessie_status === "voltooid" && <span className="alleen-mobiel sk-binnen">🏁 Gefinisht</span>}
               {s.stil && <span className="sk-stil" title="Staat al een tijd op dezelfde plek, niet bij een punt">🧍 {s.stil.minuten} min stil</span>}
               {stil !== null && <span className="sk-stil" title="Al een tijd geen locatie ontvangen">📵 {duurKort(stil)} niet gezien{s.ingelogd ? "" : " · uitgelogd"}</span>}
             </div>
@@ -353,7 +373,7 @@ function SpelerKaart({ rang, speler: s, kleur, totaalPunten, kanVrijgeven, onOpe
             </div>
           )}
           {/* Hulpvraag: de knoppen (dezelfde als in het venster) meteen hier */}
-          {s.hulp && <SpelerActies s={s} kanVrijgeven={kanVrijgeven} beperkt={beperkt}
+          {s.hulp && <SpelerActies s={s} kanVrijgeven={kanVrijgeven} beperkt={beperkt} chatAan={chatAan}
             onVrijgeven={onVrijgeven} onStop={onStop} onNegeer={onNegeer} onGewijzigd={onGewijzigd} />}
         </div>
       </div>

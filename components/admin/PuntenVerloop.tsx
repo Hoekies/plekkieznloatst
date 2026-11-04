@@ -43,7 +43,7 @@ export default function PuntenVerloop({ kleuren }: { kleuren: Map<string, string
     if (!open) return;
     const laad = () => fetch("/api/admin/puntenverloop").then((r) => (r.ok ? r.json() : null)).then((d) => d && setTeams(d.teams ?? [])).catch(() => {});
     laad();
-    const t = setInterval(laad, 30000);
+    const t = setInterval(() => { if (!document.hidden) laad(); }, 30000);
     return () => clearInterval(t);
   }, [open]);
   useEffect(() => {

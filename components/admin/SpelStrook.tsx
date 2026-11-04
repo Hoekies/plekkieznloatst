@@ -20,7 +20,7 @@ export default function SpelStrook({ beperkt = false }: { beperkt?: boolean }) {
   const [nu, setNu] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNu(Date.now()), 30000); return () => clearInterval(t); }, []);
 
-  const onderweg = live?.spelers.filter((s) => s.sessie_status === "actief").length ?? 0;
+  const onderweg = live?.spelers.filter((s) => s.sessie_status === "actief" && !s.test).length ?? 0;
   if (!live?.route || onderweg === 0 || pad === "/admin" || /^\/admin\/routes\/[^/]+/.test(pad)) return null;
   const fotos = live.wachtende_fotos ?? 0;
   const eindtijd = live.route.eindtijd && new Date(live.route.eindtijd).getTime() > nu ? live.route.eindtijd : null;

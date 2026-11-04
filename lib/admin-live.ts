@@ -32,7 +32,8 @@ export type SpelerOverzicht = {
   score: number;
   afstand_m: number;
   bezochte_punten: number;
-  huidig_punt_naam: string | null;
+  // Het punt waar het team nu heen loopt (niet current_point_id: dat is het laatst bereikte punt)
+  volgend_punt_naam?: string | null;
   laatste_gezien: string | null;
   laatste_lat: number | null;
   laatste_lng: number | null;
@@ -154,19 +155,16 @@ export async function haalLiveData(): Promise<LiveData> {
   }
   const sessieIds = (sessies).map((s) => s.id);
 
-  const huidigePointIds = [...new Set(
-    (sessies).filter((s) => s.current_point_id).map((s) => s.current_point_id as string)
-  )];
   // Alles per sessie tegelijk ophalen
   const leeg = Promise.resolve({ data: null });
-  const [ptsRes, progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes, spoRes] = await Promise.all([
-    huidigePointIds.length ? admin.from("route_points").select("id, name").in("id", huidigePointIds) : leeg,
+  const [progRes, locsRes, hulpRes, teamItemsRes, fotoRes, wachtRes, spoRes] = await Promise.all([
     sessieIds.length
       ? admin.from("player_point_progress").select("session_id, route_point_id, is_correct").in("session_id", sessieIds).not("answered_at", "is", null)
       : leeg,
     // Laatste locatie per sessie apart opvragen: één gezamenlijke "nieuwste N" miste juist de speler
-    // die al een tijdje niets stuurde (en die wil je op het dashboard zien als "niet gezien")
-    Promise.all(sessieIds.map((id) =>
+    // die al een tijdje niets stuurde (en die wil je op het dashboard zien als "niet gezien").
+    // Alleen de sessie die per speler telt: niet ook elk eerder gestopt spel.
+    Promise.all([...sessieMap.values()].map((s) => s.id).map((id) =>
       admin.from("location_updates").select("session_id, latitude, longitude, created_at")
         .eq("session_id", id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     )).then((rijen) => ({ data: rijen.map((r) => r.data).filter(Boolean) })),
@@ -206,9 +204,6 @@ export async function haalLiveData(): Promise<LiveData> {
     const volgorde = volgordeMap.get(sessie.id) ?? routePunten.map((p) => p.id);
     return volgorde.find((id) => !klaar.has(id)) ?? null;
   };
-
-  const puntNaam = new Map<string, string>();
-  ((ptsRes.data ?? []) as { id: string; name: string }[]).forEach((p) => puntNaam.set(p.id, p.name));
 
   const progressMap = new Map<string, number>();
   const bezochtMap = new Map<string, string[]>();
@@ -277,6 +272,8 @@ export async function haalLiveData(): Promise<LiveData> {
   const spelers: SpelerOverzicht[] = allePlayers.map((player) => {
     const sessie = sessieMap.get(player.id);
     const locatie = sessie ? locatieMap.get(sessie.id) : null;
+    const volgendId = volgendPuntId(sessie);
+    const volgend = volgendId ? routePunten.find((r) => r.id === volgendId) : null;
     return {
       player_id: player.id,
       login_name: player.login_name,
@@ -294,7 +291,7 @@ export async function haalLiveData(): Promise<LiveData> {
       score: sessie?.score ?? 0,
       afstand_m: sessie?.afstand_m ?? 0,
       bezochte_punten: sessie ? (progressMap.get(sessie.id) ?? 0) : 0,
-      huidig_punt_naam: sessie?.current_point_id ? (puntNaam.get(sessie.current_point_id) ?? null) : null,
+      volgend_punt_naam: volgend?.name ?? null,
       laatste_gezien: locatie?.created_at ?? null,
       laatste_lat: locatie?.lat ?? null,
       laatste_lng: locatie?.lng ?? null,
@@ -302,13 +299,9 @@ export async function haalLiveData(): Promise<LiveData> {
       items: (sessie ? itemMap.get(sessie.id) : null) ?? { in_balk: [], ingezet: [] },
       wacht: sessie ? (wachtMap.get(sessie.id) ?? null) : null,
       puzzel: sessie ? (puzzelMap.get(sessie.id) ?? null) : null,
-      volgend_punt_id: volgendPuntId(sessie),
+      volgend_punt_id: volgendId,
       bezochte_ids: sessie ? (bezochtMap.get(sessie.id) ?? []) : [],
-      volgend_punt: (() => {
-        const id = volgendPuntId(sessie);
-        const p = id ? routePunten.find((r) => r.id === id) : null;
-        return p ? { lat: p.latitude, lng: p.longitude } : null;
-      })(),
+      volgend_punt: volgend ? { lat: volgend.latitude, lng: volgend.longitude } : null,
     };
   });
 

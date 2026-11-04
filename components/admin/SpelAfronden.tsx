@@ -28,9 +28,11 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd, opruim
   const uitslag = vrij ?? uitslagVrij;
 
   async function stopAlle() {
-    const uit = await Promise.all(onderweg.map((s) => fetch(`/api/admin/groepen/${s.player_id}/spel-stoppen`, { method: "POST" }).then((r) => r.ok).catch(() => false)));
-    const goed = uit.filter(Boolean).length;
-    toonMelding(goed === onderweg.length ? `${goed} ${goed === 1 ? "team" : "teams"} gestopt` : "Stoppen lukte niet bij elk team", goed === onderweg.length ? "ok" : "fout");
+    // Gefinisht op dit moment (zie /api/admin/spel-afronden): hun stand telt mee in de uitslag en het rapport
+    const res = await fetch("/api/admin/spel-afronden", { method: "POST" }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) toonMelding(uitlegBijStatus(res?.status ?? 0, "Stoppen", data.fout), "fout");
+    else toonMelding(`${data.gestopt ?? 0} ${data.gestopt === 1 ? "team" : "teams"} gestopt: hun stand telt mee`, "ok");
     onGewijzigd();
   }
   async function geefUitslagVrij() {
@@ -64,7 +66,8 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd, opruim
 
   return (
     <>
-      <button type="button" className="rl-knop rl-knop--cyan actie-knop spelleider-afrond" onClick={() => setOpen("afronden")}>
+      {/* Pas opvallend als niemand meer onderweg is: tijdens het spel is dit niet de volgende stap */}
+      <button type="button" className={`rl-knop${onderweg.length === 0 ? " rl-knop--cyan" : ""} actie-knop spelleider-afrond`} onClick={() => setOpen("afronden")}>
         <Icoon naam="vlag" /> Afronden
       </button>
       {opruimen && (
@@ -79,7 +82,7 @@ export default function SpelAfronden({ spelend, uitslagVrij, onGewijzigd, opruim
               onderweg.length ? `Nog ${onderweg.length} ${onderweg.length === 1 ? "team" : "teams"} onderweg: ${onderweg.map((s) => s.display_name).join(", ")}` : "Niemand meer onderweg",
               onderweg.length > 0 && (
                 <BevestigKnop venster icoon="⏹️" titel={`${onderweg.length} ${onderweg.length === 1 ? "team" : "teams"} stoppen?`} vraag=""
-                  uitleg="Hun spel stopt nu; de punten die ze hebben blijven staan." ja="Ja, stoppen" onBevestig={stopAlle} className="rl-knop rl-knop--rood">
+                  uitleg="Hun spel stopt nu en ze gelden als gefinisht: de punten die ze hebben tellen mee in de uitslag en het rapport." ja="Ja, stoppen" onBevestig={stopAlle} className="rl-knop rl-knop--rood">
                   <Icoon naam="stoppen" /> Stoppen
                 </BevestigKnop>
               ))}

@@ -13,13 +13,13 @@ export async function beamerSleutel(routeId: string): Promise<string> {
 // Alleen wat op een groot scherm mag: geen loginnamen, telefoonnummers, hulpvragen of wachtende effecten
 export function beamerSpelers(spelers: SpelerOverzicht[]): SpelerOverzicht[] {
   return spelers
-    .filter((s) => s.sessie_status === "actief" || s.sessie_status === "voltooid")
+    .filter((s) => (s.sessie_status === "actief" || s.sessie_status === "voltooid") && !s.test)
     .map((s) => ({
       ...s,
       login_name: s.display_name, nickname: s.display_name, telefoon: null, ingelogd: false,
       // Puzzelwoord: wel hoeveel letters (blokjes), nooit welke; het beamerscherm is openbaar
       // Ook niet waar een team heen loopt (geen lijn naar het volgende punt op de beamer)
-      hulp: null, wacht: null, volgend_punt: null, volgend_punt_id: null, items: { in_balk: [], ingezet: s.items.ingezet },
+      hulp: null, wacht: null, volgend_punt: null, volgend_punt_id: null, volgend_punt_naam: null, items: { in_balk: [], ingezet: s.items.ingezet },
       // (en nooit de gok: een goede gok is het woord zelf)
       puzzel: s.puzzel ? { woord: "•".repeat(s.puzzel.woord.length), open: [...s.puzzel.open].sort((a, b) => Number(b) - Number(a)), opgelost: s.puzzel.opgelost } : null,
     }));

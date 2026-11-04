@@ -48,7 +48,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
   useEffect(() => {
     if (route) return;
     fetch("/api/admin/routes").then((r) => (r.ok ? r.json() : [])).then((lijst: { id: string; name: string; status: string }[]) =>
-      setKlaarRoutes(lijst.filter((r) => r.status === "gepubliceerd").slice(0, 3))).catch(() => {});
+      setKlaarRoutes(lijst.filter((r) => r.status === "gepubliceerd"))).catch(() => {});
   }, [route]);
   useEffect(() => {
     try { setHandmatig(JSON.parse(localStorage.getItem(sleutel) ?? "{}")); } catch { setHandmatig({}); }
@@ -65,8 +65,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
   }
 
   const ingelogd = spelers.filter((s) => s.ingelogd).length;
-  // optioneel: telt niet mee voor "klaar" en wordt nooit "Wat nu"
-  const stappen: { id: string; titel: string; uitleg: string; klaar: boolean; auto: boolean; actie?: React.ReactNode; optioneel?: boolean }[] = [
+  const stappen: { id: string; titel: string; uitleg: string; klaar: boolean; auto: boolean; actie?: React.ReactNode }[] = [
     {
       id: "route", auto: true, klaar: !!route,
       titel: route ? `Route actief: ${route.name}` : "Activeer een route",
@@ -75,6 +74,7 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       actie: !route && (klaarRoutes.length
         ? <span className="klaar-routes">
             {klaarRoutes.map((r) => <Link key={r.id} href={`/admin/routes/${r.id}?controle=1`} className="rl-knop hoofdknop" title={`${r.name}: laatste controle, daarna activeren`}><Icoon naam="start" /> <span className="klaar-routes-naam">{r.name}</span></Link>)}
+            <Link href="/admin/routes" className="rl-knop"><Icoon naam="kaart" /> Alle routes</Link>
           </span>
         : <Link href="/admin/routes" className="rl-knop hoofdknop"><Icoon naam="kaart" /> Naar routes</Link>),
     },
@@ -90,33 +90,20 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       titel: "Inloggegevens verstuurd",
       uitleg: "Daarna het bolletje afvinken.",
       // Overslaan: al op een andere manier verstuurd (of niet nodig); telt dan als klaar
-      actie: <span className="klaar-acties"><WhatsAppKnop tekst="Versturen" />
+      actie: spelers.length > 0 && <span className="klaar-acties"><WhatsAppKnop tekst="Versturen" />
         <button type="button" className="rl-knop" onClick={() => wissel("whatsapp")}><Icoon naam="volgende" /> Overslaan</button></span>,
     },
     {
-      id: "eindtijd", auto: true, optioneel: true, klaar: !!route?.eindtijd,
-      titel: route?.eindtijd ? "Eindtijd ingesteld" : "Eindtijd (mag)",
-      uitleg: "Om deze tijd stopt het spel voor iedereen.",
-      actie: route && <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />,
-    },
-    {
-      id: "bonus", auto: true, optioneel: true, klaar: false,
-      titel: "⚡ Bonusvraag (mag)",
-      uitleg: "Een extra vraag die na een ingestelde speeltijd bij alle teams tegelijk in beeld komt.",
-      actie: route && <BonusKnop />,
-    },
-    {
       id: "ingelogd", auto: true, klaar: spelers.length > 0 && ingelogd === spelers.length,
-      titel: `Spelers ingelogd: ${ingelogd}/${spelers.length}`,
+      titel: spelers.length ? `Spelers ingelogd: ${ingelogd}/${spelers.length}` : "Spelers loggen in",
       uitleg: "Daarna kunnen ze op ‘Ga op pad’ drukken.",
     },
   ];
-  const verplicht = stappen.filter((s) => !s.optioneel);
-  const klaar = verplicht.filter((s) => s.klaar).length;
-  // Wat nu? De eerste (verplichte) stap die nog niet klaar is
-  const nu = verplicht.find((s) => !s.klaar);
+  const klaar = stappen.filter((s) => s.klaar).length;
+  // Wat nu? De eerste stap die nog niet klaar is
+  const nu = stappen.find((s) => !s.klaar);
 
-  if (klaar === verplicht.length && !toonStappen) {
+  if (klaar === stappen.length && !toonStappen) {
     return (
       <div className="pr-gem-panel">
         <div className="pr-gem-panel-inner" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -138,14 +125,14 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
       <div className="pr-gem-panel-inner" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <div className="pr-gem-label">📋 Spel klaarzetten · {klaar} van {verplicht.length} klaar</div>
+            <div className="pr-gem-label">📋 Spel klaarzetten · {klaar} van {stappen.length} klaar</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff" }}>{nu ? <>👉 Wat nu: {nu.titel}</> : "Alles klaar"}</div>
             {/* Eén keer uitleggen hoe je zelf afvinkt (i.p.v. bij elke stap) */}
             {stappen.some((s) => !s.auto && !s.klaar) && <div style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Tik op een bolletje om een stap af te vinken.</div>}
           </div>
-          {klaar === verplicht.length && <button type="button" className="rl-knop" onClick={() => setToonStappen(false)}>Inklappen</button>}
+          {klaar === stappen.length && <button type="button" className="rl-knop" onClick={() => setToonStappen(false)}>Inklappen</button>}
         </div>
-        <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${(klaar / verplicht.length) * 100}%` }} /></div>
+        <div className="pr-xp-bar" style={{ marginTop: 0 }}><div className="pr-xp-fill" style={{ width: `${(klaar / stappen.length) * 100}%` }} /></div>
         {stappen.map((s, i) => (
           <div key={s.id} className={`klaar-stap${s.klaar ? " klaar-stap--klaar" : ""}${s === nu ? " klaar-stap--nu" : ""}`}>
             {s.auto ? (
@@ -160,9 +147,17 @@ export default function Klaarzetten({ route, spelers: alleSpelers }: { route: { 
               <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.88rem" }}>{s.titel}</div>
               {!s.klaar && <div style={{ fontSize: "0.76rem", color: "var(--muted)" }}>{s.uitleg}</div>}
             </div>
-            {(!s.klaar || s.optioneel) && s.actie}
+            {!s.klaar && s.actie}
           </div>
         ))}
+        {/* Mag ook: geen stap, dus compact op één regel */}
+        {route && (
+          <div className="klaar-opties">
+            <span className="klaar-opties-naam">Mag ook</span>
+            <EindtijdKnop routeId={route.id} eindtijd={route.eindtijd} />
+            <BonusKnop />
+          </div>
+        )}
         {waarschuwing}
       </div>
     </div>

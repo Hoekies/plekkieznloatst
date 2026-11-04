@@ -37,7 +37,7 @@ interface Props {
 }
 
 export default function AdminLiveKaart({ initData }: Props) {
-  const { data, realtimeOk, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live-kaart");
+  const { data, vers, ververs } = useLiveData(initData, POLL_INTERVAL_MS, "admin-live-kaart");
   // Speler die de kaart volgt (null = iedereen in beeld houden)
   const [volgId, setVolgId] = useState<string | null>(null);
   // Spoor van de laatste 10 minuten per speler
@@ -144,9 +144,9 @@ export default function AdminLiveKaart({ initData }: Props) {
             <button type="button" className="rl-knop" onClick={startReplay} disabled={replayLaden} title="Het hele spel versneld afspelen">
               {replayLaden ? <Icoon naam="laden" /> : <Icoon naam="replay" />} Replay
             </button>
-            <div className={`admin-live-badge${realtimeOk ? " admin-live-badge--ok" : ""}`}>
-              <span className={`admin-live-dot${realtimeOk ? " admin-live-dot--pulse" : ""}`} />
-              {realtimeOk ? "Live" : "Verbinding weg"}
+            <div className={`admin-live-badge${vers ? " admin-live-badge--ok" : ""}`}>
+              <span className={`admin-live-dot${vers ? " admin-live-dot--pulse" : ""}`} />
+              {vers ? "Live" : "Verbinding weg"}
             </div>
           </>
         )}
@@ -190,7 +190,7 @@ export default function AdminLiveKaart({ initData }: Props) {
                     </span>
                     {/* Waar het team heen loopt (of: gefinisht) */}
                     <span className="live-lijst-sub">
-                      {s.sessie_status === "voltooid" ? "Gefinisht" : s.huidig_punt_naam ? <><Icoon naam="volgende" />{` ${s.huidig_punt_naam}`}</> : "Onderweg"}
+                      {s.sessie_status === "voltooid" ? "Gefinisht" : s.volgend_punt_naam ? <><Icoon naam="volgende" />{` ${s.volgend_punt_naam}`}</> : "Onderweg"}
                     </span>
                     {/* 🧩 Puzzelwoord: gevonden letters in goud */}
                     {s.puzzel && <PuzzelVoortgang p={s.puzzel} gefinisht={s.sessie_status === "voltooid"} lijst />}
