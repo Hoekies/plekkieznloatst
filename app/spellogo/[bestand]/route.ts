@@ -12,8 +12,9 @@ const LOGOS: Record<string, { soort: "logo" | "logo_breed"; standaard: string }>
   "breed.webp": { soort: "logo_breed", standaard: "/logo-breed-strak.webp" },
   "breed.png": { soort: "logo_breed", standaard: "/logo-breed.png" },   // breed met meer ruimte (kaartje, vraag)
 };
-// Browser en server-cache 5 minuten: een nieuw seizoen, nieuw logo of vastgezet thema is er dus snel
-const CACHE = "public, max-age=300, s-maxage=300, stale-while-revalidate=600";
+// Elke keer even navragen, zodat een ander thema meteen te zien is (ook op het inlogscherm). Is het nog hetzelfde
+// logo, dan antwoordt de server kort met 304 en gebruikt de browser zijn eigen kopie (ETag).
+const CACHE = "no-cache";
 
 export async function GET(request: Request, { params }: { params: { bestand: string } }) {
   const logo = LOGOS[params.bestand];
@@ -21,8 +22,10 @@ export async function GET(request: Request, { params }: { params: { bestand: str
   const beeld = await seizoenBeeld(createAdminClient(), logo.soort).catch(() => null);
   // Geüpload (volledig adres): via onze eigen site doorgeven
   if (beeld?.startsWith("http")) {
+    const etag = `"${beeld.split("/").pop()}"`;
+    if (request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers: { ETag: etag, "Cache-Control": CACHE } });
     const res = await fetch(beeld, { cache: "no-store" }).catch(() => null);
-    if (res?.ok) return new Response(res.body, { headers: { "Content-Type": res.headers.get("Content-Type") ?? "image/webp", "Cache-Control": CACHE } });
+    if (res?.ok) return new Response(res.body, { headers: { "Content-Type": res.headers.get("Content-Type") ?? "image/webp", "Cache-Control": CACHE, ETag: etag } });
   }
   // Staat al op onze eigen site: de standaard van het thema, of anders het gewone logo
   const adres = beeld && !beeld.startsWith("http") ? beeld : logo.standaard;

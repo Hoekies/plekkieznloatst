@@ -15,6 +15,11 @@ const SOORTEN: { soort: SeizoenSoort; label: string; naam: string; uitleg: strin
   { soort: "logo_breed", label: "▭ Logo breed", naam: "Breed logo", uitleg: "Spellogo, breed: bovenbalk, rapport, voorproefje, inlogkaartje, beamer." },
 ];
 
+// Het logo in het menu en de kop meteen mee laten wisselen (dat adres blijft hetzelfde, dus de browser haalt het niet vanzelf op)
+function ververLogos() {
+  document.querySelectorAll<HTMLImageElement>('img[src*="/spellogo/"]').forEach((img) => { img.src = `${img.src.split("?")[0]}?v=${Date.now()}`; });
+}
+
 // 🗓️ Afbeeldingen per seizoen en feestdag, voor alle routes: achtergrond van het welkomstscherm en het
 // spellogo (vierkant en breed), op alfabet of door het jaar heen. De app kiest op datum (feestdag gaat voor seizoen).
 // Elk thema met een datum heeft een standaardafbeelding (public/seizoenen); een gekozen afbeelding gaat daarvoor, en
@@ -56,7 +61,8 @@ export default function SeizoenAfbeeldingen() {
     const r = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) { setVast(oud); toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
     const t = THEMAS.find((x) => x.sleutel === sleutel);
-    toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (binnen 5 minuten op alle telefoons)` : "Weer automatisch op datum");
+    ververLogos();
+    toonMelding(t ? `${themaEmoji(t, namen)} ${themaNaam(t, namen)} staat nu overal vast (op telefoons zodra een scherm opnieuw opent)` : "Weer automatisch op datum");
   }
 
   // ✏️ Vrije thema's (Eigen 1 en 2): zelf een naam en emoji geven
@@ -90,6 +96,7 @@ export default function SeizoenAfbeeldingen() {
       const r = res ? await res.json().catch(() => ({})) : {};
       if (!res?.ok) { toonMelding(r.fout ?? "Opslaan lukte niet", "fout"); return; }
       setPaden((p) => p && { ...p, [soort]: { ...p[soort], [thema]: data.pad } });
+      ververLogos();
     } finally {
       setBezig(null);
     }
@@ -98,6 +105,7 @@ export default function SeizoenAfbeeldingen() {
     const res = await fetch("/api/admin/achtergronden", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ thema, soort }) }).catch(() => null);
     if (!res?.ok) { toonMelding("Verwijderen lukte niet: controleer je internet en probeer het opnieuw", "fout"); return; }
     setPaden((p) => { if (!p) return p; const n = { ...p[soort] }; delete n[thema]; return { ...p, [soort]: n }; });
+    ververLogos();
   }
 
   const nu = new Date();

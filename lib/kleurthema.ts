@@ -42,6 +42,13 @@ export function zetThema(t: string | null | undefined) {
   else delete document.documentElement.dataset.thema;
 }
 
+// Inlogscherm: de kleur die op dit toestel is gekozen in het beheer; zonder keuze (telefoon van een speler) die van de actieve route
+export function themaInlogScript(spelerThema?: string | null): string {
+  const geldig = JSON.stringify(KLEUR_THEMAS.map((k) => k.sleutel).filter((k) => k !== "paars"));
+  const speler = JSON.stringify(isKleurThema(spelerThema) ? spelerThema : "");
+  return `(function(){var s=${speler},t=null;try{t=localStorage.getItem(${JSON.stringify(BEHEER_THEMA_SLEUTEL)})}catch(e){}if(!t||t===${JSON.stringify(VOLGT_SPELER)})t=s;if(${geldig}.indexOf(t)>=0)document.documentElement.dataset.thema=t;else delete document.documentElement.dataset.thema;})();`;
+}
+
 // Klein script dat vóór het tekenen het thema zet (geen paarse flits): beheer uit localStorage, speler vast.
 // spelerThema (beheer): de kleur van de actieve route, voor de keuze "Zoals de spelersapp".
 export function themaScript(vast?: string | null, spelerThema?: string | null): string {
