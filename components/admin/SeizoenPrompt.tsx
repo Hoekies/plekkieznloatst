@@ -4,19 +4,32 @@ import { useEffect, useState } from "react";
 import { toonMelding } from "@/components/admin/Melding";
 import Icoon from "@/components/admin/Icoon";
 import UitklapPijl from "@/components/shared/UitklapPijl";
-import { SEIZOEN_VOORBEELDEN, seizoenPrompt } from "@/lib/seizoen-prompts";
+import { ACHTERGROND_VOORBEELD, LOGO_REFERENTIES, THEMA_INVUL, achtergrondPrompt, achtergrondPromptGemini, logoBreedPrompt, logoPrompt, logoVierkantPrompt } from "@/lib/seizoen-prompts";
 
 type Dienst = "chatgpt" | "gemini";
+type Stuk = { id: string; kop: string; bijlagen: { label: string; bestand: string; naam: string }[]; prompt: (thema: string) => string; knop: string };
 const SLEUTEL = "pr_seizoen_dienst";
 
-// ✨ Zelf nieuwe laten maken: typ een woord of seizoen, kopieer de prompt en plak hem in ChatGPT of Gemini, met de
-// voorbeelden als bijlage. ChatGPT: één prompt voor alle drie (met losse als reserve). Gemini: per afbeelding een prompt.
+const LOGOS: Stuk = { id: "logos", kop: "Logo's", bijlagen: LOGO_REFERENTIES, prompt: logoPrompt, knop: "Kopieer prompt" };
+const LOGO_BREED: Stuk = { id: "breed", kop: "Logo breed", bijlagen: LOGO_REFERENTIES, prompt: logoBreedPrompt, knop: "Kopieer" };
+const LOGO_VIERKANT: Stuk = { id: "vierkant", kop: "Logo", bijlagen: LOGO_REFERENTIES, prompt: logoVierkantPrompt, knop: "Kopieer" };
+const ACHTERGROND: Stuk = { id: "achtergrond", kop: "Achtergrond", bijlagen: [ACHTERGROND_VOORBEELD], prompt: achtergrondPrompt, knop: "Kopieer" };
+const ACHTERGROND_GEMINI: Stuk = { ...ACHTERGROND, prompt: achtergrondPromptGemini };
+
+// ChatGPT: één prompt voor beide logo's, de achtergrond apart. Gemini: één afbeelding per bericht.
+const STUKKEN: Record<Dienst, Stuk[]> = {
+  chatgpt: [LOGOS, ACHTERGROND],
+  gemini: [LOGO_BREED, LOGO_VIERKANT, ACHTERGROND_GEMINI],
+};
+
+// ✨ Zelf nieuwe laten maken: typ 1 tot 4 woorden, kopieer de prompt en plak hem in ChatGPT of Gemini, met de
+// referenties of het voorbeeld als bijlage.
 export default function SeizoenPrompt() {
   const [open, setOpen] = useState(false);
   const [thema, setThema] = useState("");
   const [dienst, setDienst] = useState<Dienst>("chatgpt");
-  // Gemini: welke prompt er in het tekstvak staat
-  const [gekozen, setGekozen] = useState(0);
+  // Welke prompt er in het tekstvak staat
+  const [gekozen, setGekozen] = useState("logos");
   useEffect(() => { try { if (localStorage.getItem(SLEUTEL) === "gemini") setDienst("gemini"); } catch { /* geen opslag */ } }, []);
   function kiesDienst(d: Dienst) {
     setDienst(d);
@@ -24,19 +37,19 @@ export default function SeizoenPrompt() {
   }
 
   const woord = thema.trim();
-  const invul = woord || "[THEMA]";
-  const tekst = dienst === "chatgpt" ? seizoenPrompt(invul) : SEIZOEN_VOORBEELDEN[gekozen].gemini(invul);
+  const invul = woord || THEMA_INVUL;
+  const teVeel = woord.split(/\s+/).length > 4;
+  const stukken = STUKKEN[dienst];
+  const reserve = dienst === "chatgpt" ? [LOGO_BREED, LOGO_VIERKANT] : [];
+  const huidig = [...stukken, ...reserve].find((s) => s.id === gekozen) ?? stukken[0];
 
-  function kopieer(inhoud: string, melding: string) {
-    navigator.clipboard?.writeText(inhoud)
-      .then(() => toonMelding(melding, "ok"))
+  function kopieer(s: Stuk) {
+    setGekozen(s.id);
+    navigator.clipboard?.writeText(s.prompt(woord))
+      .then(() => toonMelding(`Prompt voor ${s.kop} gekopieerd: plak hem in ${dienst === "chatgpt" ? "ChatGPT" : "Gemini"}, met de bijlagen erbij`, "ok"))
       .catch(() => toonMelding("Kopiëren lukte niet: selecteer de tekst en kopieer hem zelf", "fout"));
   }
-  const uitlegKnop = woord ? undefined : "Typ eerst een woord of seizoen";
-  const invoer = (
-    <input className="form-input" value={thema} onChange={(e) => setThema(e.target.value)} maxLength={60}
-      placeholder="Bijv. Zomer, Bedrijfsuitje, Voetbal" aria-label="Woord of seizoen" />
-  );
+  const uitlegKnop = woord ? undefined : "Typ eerst 1 tot 4 woorden";
 
   return (
     <div className="seizoen-prompt">
@@ -54,61 +67,48 @@ export default function SeizoenPrompt() {
             ))}
           </div>
 
-          {dienst === "chatgpt" ? (
-            <>
-              <ol className="seizoen-prompt-stappen">
-                <li>Typ een woord of seizoen en tik op <strong>Kopieer prompt</strong></li>
-                <li>Bewaar de <strong>drie voorbeelden</strong> en voeg ze in ChatGPT toe als bijlage</li>
-                <li>Plak de prompt en verstuur</li>
-                <li>Plaats de resultaten hierboven: tik op het thema, en in het venster op Achtergrond, Logo of Logo breed</li>
-              </ol>
+          <ol className="seizoen-prompt-stappen">
+            <li>Typ het thema: 1 tot 4 woorden</li>
+            {dienst === "chatgpt" ? (
+              <>
+                <li><strong>Logo&apos;s:</strong> bewaar beide referenties, voeg ze als bijlage toe en plak de prompt. Je krijgt twee logo&apos;s</li>
+                <li><strong>Achtergrond:</strong> in een nieuw bericht, met het voorbeeld als bijlage</li>
+              </>
+            ) : (
+              <li>Begin een nieuwe chat. Doe per afbeelding, van boven naar beneden: voeg de bijlagen toe, tik op <strong>Kopieer</strong>, plak en verstuur</li>
+            )}
+            <li>Plaats de resultaten hierboven: tik op het thema, en in het venster op Achtergrond, Logo of Logo breed</li>
+          </ol>
+
+          <input className="form-input" value={thema} onChange={(e) => setThema(e.target.value)} maxLength={60}
+            placeholder="Bijv. Kerst, Vriendenweekend, Bier en wandelen" aria-label="Thema: 1 tot 4 woorden" />
+          {teVeel && <span className="seizoen-prompt-label">De prompt werkt het best met 1 tot 4 woorden.</span>}
+
+          {stukken.map((s) => (
+            <div key={s.id} className="seizoen-prompt-stuk">
+              <strong>{s.kop}</strong>
+              {s.bijlagen.map((b) => (
+                <a key={b.naam} className="rl-knop" href={b.bestand} download={b.naam}><Icoon naam="downloaden" /> {b.label}</a>
+              ))}
+              <button type="button" className={`rl-knop${huidig.id === s.id ? " rl-knop--cyan" : ""}`} disabled={!woord} title={uitlegKnop} onClick={() => kopieer(s)}>
+                <Icoon naam="klembord" /> {s.knop}
+              </button>
+            </div>
+          ))}
+          <textarea className="form-input seizoen-prompt-tekst" readOnly value={huidig.prompt(invul)} rows={6} aria-label="Prompt" />
+
+          {/* Reserve: maakt ChatGPT maar één logo, of beide in één afbeelding, dan per bericht één */}
+          {reserve.length > 0 && (
+            <div className="seizoen-prompt-los">
+              <span className="seizoen-prompt-label">Krijg je maar één logo, of staan ze samen in één afbeelding? Stuur ze los, met de referenties erbij:</span>
               <div className="seizoen-prompt-rij">
-                {invoer}
-                <button type="button" className="rl-knop rl-knop--cyan" disabled={!woord} title={uitlegKnop}
-                  onClick={() => kopieer(tekst, "Prompt gekopieerd: plak hem in ChatGPT, met de drie voorbeelden als bijlage")}>
-                  <Icoon naam="klembord" /> Kopieer prompt
-                </button>
-              </div>
-              <div className="seizoen-prompt-rij">
-                <span className="seizoen-prompt-label">Voorbeelden:</span>
-                {SEIZOEN_VOORBEELDEN.map((v) => (
-                  <a key={v.naam} className="rl-knop" href={v.bestand} download={v.naam}><Icoon naam="downloaden" /> {v.label}</a>
+                {reserve.map((s) => (
+                  <button key={s.id} type="button" className={`rl-knop${huidig.id === s.id ? " rl-knop--cyan" : ""}`} disabled={!woord} title={uitlegKnop} onClick={() => kopieer(s)}>
+                    <Icoon naam="klembord" /> {s.kop}
+                  </button>
                 ))}
               </div>
-              <textarea className="form-input seizoen-prompt-tekst" readOnly value={tekst} rows={8} aria-label="Prompt" />
-              {/* Reserve: ChatGPT maakt soms drie keer hetzelfde. Eén bericht per afbeelding is het zekerst */}
-              <div className="seizoen-prompt-los">
-                <span className="seizoen-prompt-label">Krijg je drie keer hetzelfde? Stuur ze los, één bericht per afbeelding, met alleen dat voorbeeld erbij:</span>
-                <div className="seizoen-prompt-rij">
-                  {SEIZOEN_VOORBEELDEN.map((v) => (
-                    <button key={v.naam} type="button" className="rl-knop" disabled={!woord} title={uitlegKnop}
-                      onClick={() => kopieer(v.los(woord), `Prompt voor ${v.label} gekopieerd: plak hem in ChatGPT, met dat voorbeeld als bijlage`)}>
-                      <Icoon naam="klembord" /> {v.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <ol className="seizoen-prompt-stappen">
-                <li>Typ een woord of seizoen</li>
-                <li>Begin in Gemini een nieuwe chat. Doe per afbeelding hieronder, van boven naar beneden en in dezelfde chat: voeg het <strong>Voorbeeld</strong> toe als bijlage, tik op <strong>Kopieer</strong>, plak en verstuur</li>
-                <li>Plaats de resultaten hierboven: tik op het thema, en in het venster op Achtergrond, Logo of Logo breed</li>
-              </ol>
-              <div className="seizoen-prompt-rij">{invoer}</div>
-              {SEIZOEN_VOORBEELDEN.map((v, i) => (
-                <div key={v.naam} className="seizoen-prompt-stuk">
-                  <strong>{i + 1}. {v.label}</strong>
-                  <a className="rl-knop" href={v.bestand} download={v.naam}><Icoon naam="downloaden" /> Voorbeeld</a>
-                  <button type="button" className={`rl-knop${gekozen === i ? " rl-knop--cyan" : ""}`} disabled={!woord} title={uitlegKnop}
-                    onClick={() => { setGekozen(i); kopieer(v.gemini(woord), `Prompt voor ${v.label} gekopieerd: plak hem in Gemini, met dat voorbeeld als bijlage`); }}>
-                    <Icoon naam="klembord" /> Kopieer
-                  </button>
-                </div>
-              ))}
-              <textarea className="form-input seizoen-prompt-tekst" readOnly value={tekst} rows={6} aria-label="Prompt" />
-            </>
+            </div>
           )}
         </>
       )}

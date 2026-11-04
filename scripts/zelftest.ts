@@ -6,7 +6,7 @@ import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek }
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { huidigThema, kleinBeeld, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
-import { SEIZOEN_VOORBEELDEN, seizoenPrompt } from "../lib/seizoen-prompts";
+import { ACHTERGROND_VOORBEELD, LOGO_REFERENTIES, THEMA_INVUL, achtergrondPrompt, achtergrondPromptGemini, logoBreedPrompt, logoPrompt, logoVierkantPrompt } from "../lib/seizoen-prompts";
 import { hulpNamen, normaliseerNaam } from "../lib/hulp-namen";
 import { bonusPunten, bonusOpen } from "../lib/bonus";
 import { testRol } from "../lib/test-rol";
@@ -187,33 +187,14 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
       else assert.ok(beeld && fs.existsSync(path.join("public", beeld)), `${t.sleutel}: ${soort} ontbreekt in public/seizoenen`);
     }
   }
-  // De prompt maakt alle drie de afbeeldingen en noemt elk voorbeeld bij zijn naam
-  const prompt = seizoenPrompt("Voetbal");
-  assert.ok(prompt.includes("Voetbal") && !prompt.includes("[THEMA]"));
-  assert.equal(SEIZOEN_VOORBEELDEN.length, 3);
-  // Elke afbeelding expliciet genummerd, de logo's vooraan (anders maakte ChatGPT drie achtergronden)
-  assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3: VIERKANT LOGO") < prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO"));
-  assert.ok(prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO") < prompt.indexOf("AFBEELDING 3 VAN 3: ACHTERGROND"));
-  assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3") > 0);
-  // Het vierkante logo is wat rustiger dan het voorbeeld: zes tot acht voorwerpen, geen rijke rand
-  const vierkant = SEIZOEN_VOORBEELDEN.find((v) => v.label === "Logo")!;
-  for (const tekst of [vierkant.los("Voetbal"), vierkant.opdracht("Voetbal"), vierkant.gemini("Voetbal")]) {
-    assert.ok(tekst.includes("zes tot acht") && tekst.includes("rustiger dan het voorbeeld") && tekst.includes("Voetbal"));
-    assert.ok(!tekst.includes("rijke rand") && !tekst.includes("+200"), "het vierkante logo moet rustig blijven");
-  }
-  // Het brede logo is rustig (klein in de bovenbalk): in alle drie de prompts, en het voorbeeld bestaat
-  const breed = SEIZOEN_VOORBEELDEN.find((v) => v.label === "Logo breed")!;
-  for (const tekst of [breed.los("Voetbal"), breed.opdracht("Voetbal"), breed.gemini("Voetbal")]) {
-    assert.ok(tekst.includes("POINT RUSH") && tekst.includes("twee derde") && tekst.includes("spreekwolken") && tekst.includes("Voetbal"));
-    assert.ok(!tekst.includes("rijke rand"), "het brede logo mag geen rijke rand vragen");
-  }
-  assert.ok(fs.existsSync(path.join("public", breed.bestand)), "voorbeeld van het brede logo ontbreekt");
-  for (const v of SEIZOEN_VOORBEELDEN) {
-    assert.ok(prompt.includes(v.naam), `de prompt noemt ${v.naam} niet`);
-    assert.ok(v.los("Voetbal").includes("Voetbal"), `losse prompt van ${v.label} mist het thema`);
-    assert.ok(v.gemini("Voetbal").includes("Voetbal"), `Gemini-prompt van ${v.label} mist het thema`);
-    assert.ok(fs.existsSync(path.join("public", v.bestand)), `voorbeeld ${v.bestand} ontbreekt`);
-  }
+  // De logoprompt vult het thema in en vraagt om twee logo's met de drie vaste figuren; losse prompts vragen er één
+  const logos = logoPrompt("Bier en wandelen");
+  assert.ok(logos.includes("## THEMA: Bier en wandelen") && !logos.includes(THEMA_INVUL));
+  assert.ok(logos.includes("TWEE LOSSE AFBEELDINGEN") && logos.includes("GELE BANAAN") && logos.includes("PAARS SPOOKJE") && logos.includes("ZWARTE BOM"));
+  assert.ok(logoBreedPrompt("Kerst").includes("ALLEEN OUTPUT 1") && logoVierkantPrompt("Kerst").includes("ALLEEN OUTPUT 2"));
+  for (const tekst of [achtergrondPrompt("Kerst"), achtergrondPromptGemini("Kerst")]) assert.ok(tekst.includes("Kerst") && tekst.includes("9:16"));
+  assert.equal(LOGO_REFERENTIES.length, 2);
+  for (const b of [...LOGO_REFERENTIES, ACHTERGROND_VOORBEELD]) assert.ok(fs.existsSync(path.join("public", b.bestand)), `bijlage ${b.bestand} ontbreekt`);
   // Een spel houdt zijn eigen thema; zonder bewaard thema telt de datum van het spel, niet die van vandaag
   assert.equal(spelThema({ thema: "kerst", started_at: "2026-06-01T10:00:00Z" }), "kerst");
   assert.equal(spelThema({ started_at: "2026-12-20T10:00:00Z" }), "kerst");

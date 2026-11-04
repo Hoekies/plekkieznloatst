@@ -4953,6 +4953,11 @@ button.plezier-toast { font: inherit; color: inherit; text-align: left; cursor: 
 .seizoen-prompt-stuk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .seizoen-prompt-stuk strong { flex: 1 1 0; min-width: max-content; font-size: 0.86rem; color: #fff; }
 .seizoen-prompt-stuk .rl-knop { height: 36px; padding: 0 10px; }
+/* Telefoon: de kop op een eigen regel, de bijlagen naast elkaar en Kopieer over de volle breedte eronder */
+@media (max-width: 520px) {
+  .seizoen-prompt-stuk strong { flex: 0 0 100%; min-width: 0; }
+  .seizoen-prompt-stuk .rl-knop { flex: 1 1 40%; justify-content: center; height: 40px; }
+}
 .seizoen-prompt-tekst { width: 100%; box-sizing: border-box; resize: vertical; font-size: 0.78rem; line-height: 1.45; color: var(--text); }
 
 /* 🎉 Versiering van het thema in de hoeken van een kaartje (oorkonde, uitslag, deelplaatjes) */
