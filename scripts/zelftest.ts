@@ -193,7 +193,10 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   assert.ok(logos.includes("TWEE LOSSE AFBEELDINGEN") && logos.includes("GELE BANAAN") && logos.includes("PAARS SPOOKJE") && logos.includes("ZWARTE BOM"));
   // Vrijstaande logo's: geen achtergrondvormen, en de verhouding hoeft niet exact
   assert.ok(!logos.includes("Dynamische achtergrondvormen") && !logos.includes("Achtergronddecoratie") && !logos.includes("Beeldverhouding 1:1"));
-  assert.ok(logos.includes("ongeveer 3:1") && logos.includes("geen vierkante vulling"));
+  assert.ok(logos.includes("ongeveer 3:1") && logos.includes("MASTER LOGO GENERATOR V2") && logos.includes("volledig transparante achtergrond"));
+  // Pet, zonnebril en bier horen bij het vriendenweekend: niet als vaste eis voor elk thema
+  assert.ok(logos.includes("passend bij het thema (bij vriendenweekend:"));
+  for (const vast of ["- Paarse pet achterstevoren.", "- Bierglas met schuim omhoog.", "- Gele banaan met zonnebril.", "- Dezelfde bierglazen.", "- Dezelfde kleding en pet."]) assert.ok(!logos.includes(vast), `vast aan het vriendenweekend: ${vast}`);
   assert.ok(logoBreedPrompt("Kerst").includes("ALLEEN OUTPUT 1") && logoVierkantPrompt("Kerst").includes("ALLEEN OUTPUT 2"));
   for (const tekst of [achtergrondPrompt("Kerst"), achtergrondPromptGemini("Kerst")]) assert.ok(tekst.includes("Kerst") && tekst.includes("9:16"));
   assert.equal(LOGO_REFERENTIES.length, 2);

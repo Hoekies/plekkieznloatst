@@ -1,5 +1,7 @@
 // ✨ Prompts om in ChatGPT of Gemini voor een thema de afbeeldingen te laten maken, in de stijl van de app.
 // De logo's komen uit één masterprompt (twee afbeeldingen, in dezelfde stijl), met twee referentielogo's als bijlage.
+// Die tekst is de aangeleverde prompt: de regel met het thema wordt ingevuld, en wat alleen bij het vriendenweekend hoort
+// (pet, zonnebril, bierglas) staat er met "bij vriendenweekend" bij, zodat andere thema's eigen kleding krijgen.
 // De achtergrond heeft een eigen prompt en voorbeeld.
 export const THEMA_INVUL = "[VUL HIER 1 TOT 4 WOORDEN IN]";
 
@@ -10,17 +12,19 @@ export const LOGO_REFERENTIES = [
 ];
 export const ACHTERGROND_VOORBEELD = { label: "Voorbeeld", bestand: "/seizoenen/zomer-achtergrond.webp", naam: "pointrush-achtergrond.webp" };
 
-export const logoPrompt = (thema: string) => `# POINT RUSH – MASTER LOGO GENERATOR
+export const logoPrompt = (thema: string) => `# POINT RUSH – MASTER LOGO GENERATOR V2
 
 ## THEMA: ${thema}
 
 Gebruik de twee bijgevoegde originele POINT RUSH-logo's als visuele referentie.
 
-**Referentie 1:** Het originele brede POINT RUSH-logo, met de herkenbare kleuren, typografie, het witte poppetje, het paarse spookje en de zwarte bom.
+**Referentie 1:** Het originele brede POINT RUSH-logo met de herkenbare kleuren, typografie, het witte poppetje, het paarse spookje en de zwarte bom.
 
 **Referentie 2:** Het POINT RUSH-logo met de expressieve witte 3D-cartoonmascotte, vrolijke uitstraling, kleding en grote gezichtsuitdrukking.
 
-Maak op basis van het ingevulde thema **TWEE AFZONDERLIJKE AFBEELDINGEN** die samen één consistente, professionele POINT RUSH-thema-editie vormen.
+Maak op basis van het opgegeven thema **TWEE AFZONDERLIJKE AFBEELDINGEN** die samen één consistente, professionele POINT RUSH-thema-editie vormen.
+
+De afbeeldingen moeten eruitzien als hoogwaardige, vrijstaande 3D-gaminglogo's met een volledig transparante achtergrond.
 
 ---
 
@@ -33,20 +37,26 @@ De naam **POINT RUSH** is het belangrijkste onderdeel van beide afbeeldingen.
 - De tekst moet exact **POINT RUSH** zijn.
 - De volledige merknaam moet groot, dominant en onmiddellijk leesbaar zijn.
 - De merknaam krijgt minimaal 50% van de visuele aandacht.
-- Geen enkel personage, voorwerp of decoratief element mag letters afdekken.
+- Geen enkel personage of voorwerp mag letters afdekken.
 - Gebruik dikke, krachtige, glanzende 3D-gamingletters.
-- Gebruik sterke contrasten en duidelijke paarse of donkere contourlijnen.
+- Gebruik sterke contrasten en diepe paarse of donkere contourlijnen.
 - Houd voldoende ruimte tussen de letters.
 - Geen vervormde, samengevoegde, ontbrekende of verkeerd gespelde letters.
-- De tekst moet ook op kleinere afbeeldingen goed leesbaar blijven.
+- De tekst moet ook op kleine afbeeldingen goed leesbaar blijven.
 
 **Breed logo:** POINT RUSH op één horizontale regel.
 
-**Vierkant logo:** bij voorkeur POINT boven RUSH, groot en centraal.
+**Vierkant logo:** POINT boven RUSH, groot en centraal.
 
-De tekst **by Hoekies** moet in beide afbeeldingen exact gespeld en duidelijk leesbaar onder de hoofdnaam staan.
+### Vaste letterkleuren
 
-**BELANGRIJK:** De hoofdnaam heeft ALTIJD voorrang op mascottes, thema-effecten en decoratie.
+- **POINT:** glanzend wit met subtiele lichtgrijze 3D-schaduwen.
+- **RUSH:** helder geel met warme oranje onderzijde.
+- Beide woorden krijgen dikke, donkerpaarse contouren en een glanzende 3D-afwerking.
+
+De tekst **by Hoekies** moet in beide afbeeldingen exact gespeld en duidelijk leesbaar zijn op een glanzende paarse banner onder de merknaam.
+
+**BELANGRIJK: De merknaam heeft altijd voorrang op mascottes, decoratie en thema-effecten.**
 
 ---
 
@@ -57,129 +67,151 @@ Behoud de herkenbare uitstraling van het originele POINT RUSH-logo.
 Kenmerken:
 
 - Speelse, energieke casual-gamingstijl.
-- Krachtige 3D-typografie.
-- Dikke donkere of paarse contourlijnen.
+- Premium 3D-cartoonillustratie.
+- Grote, krachtige 3D-typografie.
+- Dikke donkerpaarse contourlijnen.
 - Glanzende letterafwerking.
-- Paarse, gele en oranje basiskleuren.
-- Professionele, vrolijke en kleurrijke cartoonillustraties.
+- Paarse, gele, oranje en witte basiskleuren.
+- Expressieve cartoonpersonages.
+- Dieptewerking, zachte schaduwen en heldere highlights.
+- Professionele, vrolijke en kleurrijke uitstraling.
 
-De themaversie mag een andere sfeer of kleuraccenten krijgen, maar moet altijd herkenbaar blijven als een officiële POINT RUSH-editie.
-
-Het resultaat mag niet lijken op een compleet ander merk.
+Het resultaat moet direct herkenbaar zijn als een officiële POINT RUSH-thema-editie.
 
 ---
 
 ## 3. HOOFDMASCOTTE
 
-Vervang het eenvoudige witte lopende poppetje uit referentie 1 door een expressieve 3D-cartoonmascotte geïnspireerd op referentie 2.
+Gebruik een expressieve witte 3D-cartoonmascotte, geïnspireerd op referentie 2.
 
-### Uiterlijk
+### Vast uiterlijk
 
 - Wit, rond en schattig cartoonkarakter.
 - Groot, expressief gezicht.
 - Duidelijk zichtbare ogen en mond.
-- Vriendelijke, speelse uitstraling.
+- Brede, vrolijke glimlach.
 - Zachte afgeronde vormen.
-- Glanzende 3D-afwerking.
-- Dikke, duidelijke contourlijnen.
-- Dynamische houding met armen en benen.
+- Glanzende witte 3D-afwerking.
+- Dikke donkere contourlijnen.
+- Dynamische armen en benen.
+- Speelse en enthousiaste lichaamshouding.
 
 ### Thema-aanpassing
 
-De mascotte mag afhankelijk van het thema veranderen in:
+Pas de mascotte aan het opgegeven thema aan door middel van:
 
 - Gezichtsuitdrukking.
-- Houding en beweging.
+- Houding.
 - Kleding.
 - Hoofddeksel.
 - Accessoires.
 - Kleine thematische details.
 
-De basisvorm en identiteit van de mascotte moeten in alle thema-edities herkenbaar blijven.
+### Voor het thema vriendenweekend
 
-### Consistentie
+De mascotte:
 
-Gebruik in het brede en vierkante logo exact dezelfde mascotte-identiteit, kleding, accessoires en kleurstelling.
+- Draagt een paarse pet achterstevoren.
+- Heeft een zonnebril op de pet.
+- Draagt paarse kleding met gele accenten.
+- Heeft eventueel een kleine rugzak.
+- Lacht uitbundig.
+- Houdt een groot goudkleurig bierglas met wit schuim omhoog.
+- Heeft een feestelijke, enthousiaste houding.
 
-De mascotte mag van positie of houding veranderen om beter in het formaat te passen.
+Gebruik in beide logo's dezelfde mascotte-identiteit, kleding, accessoires en kleurstelling.
 
 ---
 
 ## 4. DRIE VERPLICHTE GAME-ELEMENTEN
 
-In BEIDE afbeeldingen moeten ALTIJD de volgende drie elementen zichtbaar zijn.
+In beide afbeeldingen moeten altijd de volgende drie elementen aanwezig zijn.
 
 ### A. PAARS SPOOKJE
 
 - Herkenbare paarse cartoonspookvorm.
-- Schattig en expressief gezicht.
+- Groot, vrolijk en expressief gezicht.
+- Glanzende 3D-afwerking.
+- Dikke donkere contourlijnen.
 - Mag thematische accessoires dragen.
-- Mag een andere gezichtsuitdrukking krijgen.
+- Mag een klein voorwerp vasthouden dat bij het thema past (bij vriendenweekend: een klein bierglas).
 - Moet duidelijk zichtbaar blijven.
 
 ### B. GELE BANAAN
 
 - Duidelijk herkenbare gele cartoonbanaan.
-- Mag armen, ogen, mond of accessoires krijgen.
-- Mag grappig, vrolijk of thematisch aangekleed zijn.
+- Vrolijk gezicht met grote mond.
+- Draagt bij het vriendenweekend een zwarte zonnebril.
+- Mag een voorwerp vasthouden dat bij het thema past (bij vriendenweekend: een bierglas).
+- Mag een duim omhoog steken.
+- Glanzende gele 3D-afwerking.
 - Moet als banaan herkenbaar blijven.
 
 ### C. ZWARTE BOM
 
 - Zwarte ronde cartoonbom.
 - Duidelijk zichtbare lont.
-- Kleine heldere vonk bij de lont.
-- Mag thematische details krijgen.
-- Moet duidelijk herkenbaar blijven als bom.
+- Kleine heldere geel-oranje vonk.
+- Expressief cartoongezicht.
+- Glanzende zwarte 3D-afwerking.
+- Dikke contourlijnen.
 
 ### Belangrijke voorwaarden
 
-- Alle drie de elementen zijn verplicht in beide formaten.
-- Ze mogen niet verdwijnen.
-- Ze mogen niet door andere voorwerpen worden vervangen.
-- Ze mogen de tekst POINT RUSH nooit bedekken.
-- Plaats ze als ondersteunende onderdelen rondom de hoofdcompositie.
+- Alle drie de elementen zijn verplicht.
+- Ze mogen niet verdwijnen of worden vervangen.
+- Ze mogen geen letters afdekken.
+- Ze worden compact rondom de hoofdnaam geplaatst.
+- Ze zijn duidelijk herkenbaar, maar ondergeschikt aan POINT RUSH.
 
 ---
 
 ## 5. AUTOMATISCHE THEMA-INTERPRETATIE
 
-Gebruik het opgegeven thema om de volledige uitstraling automatisch aan te passen.
+Gebruik het opgegeven thema om het logo creatief aan te passen.
 
-Pas waar passend aan:
+Pas uitsluitend de volgende onderdelen thematisch aan:
 
-- Kleuren en kleuraccenten.
-- Kleding en accessoires van de mascotte.
-- Gezichtsuitdrukking.
-- Lichteffecten.
-- Kleine thematische illustraties.
-- Sfeer en uitstraling.
-- Details aan de letters en banner.
+- Kleding van de mascotte.
+- Accessoires van de personages.
+- Gezichtsuitdrukkingen.
+- Houding en beweging.
+- Kleine decoraties direct rondom de letters.
+- Lichteffecten op de figuren.
+- Kleine voorwerpen die de mascottes vasthouden.
+- Subtiele details op de paarse banner.
 
 ### Voorbeelden
 
-**Valentijn**
-Romantische sfeer, hartjes, rood-roze accenten, liefdevolle mascotte en subtiele glanzende harten.
+**Vriendenweekend:** Bierglazen, zonnebrillen, feestelijke kleding, uitbundig lachen en vrolijke groepssfeer.
 
-**Vriendenweekend**
-Vrolijke groepssfeer, feestelijke accessoires, confetti, gezelligheid, humor, avontuur en eventueel kampeeraccenten.
+**Valentijn:** Hartjes, roze accenten, romantische accessoires en liefdevolle gezichtsuitdrukkingen.
 
-**Halloween**
-Paarse en oranje gloed, pompoenen, spinnenwebben, speels griezelige mascotte en mysterieuze lichtaccenten.
+**Halloween:** Kleine pompoenen, heksenhoedjes, paarse en oranje highlights en speels griezelige gezichten.
 
-**Kerst**
-Sneeuw, kerstmuts, feestverlichting, warme kleuren en winterse decoratie.
+**Kerst:** Kerstmutsen, cadeautjes, kleine sneeuwaccenten en feestelijke accessoires.
 
-**Zomerfeest**
-Zonnebril, tropische accenten, vrolijke kleuren, zomerse accessoires en feestelijke details.
+**Zomerfeest:** Zonnebrillen, tropische drankjes, zomerse kleding en vrolijke kleuren.
 
-### Belangrijk
+### Cruciale regel
 
-De AI moet het opgegeven thema zelfstandig creatief interpreteren.
+**Het thema mag nooit worden uitgebeeld met een landschap of achtergrondscène.**
 
-Voeg de themanaam NIET als extra tekst toe aan het logo.
+Dus bij een vriendenweekend:
 
-Alleen de volgende teksten zijn toegestaan:
+- Wel bierglazen, zonnebrillen en feestelijke mascottes.
+- Geen campinglandschap.
+- Geen tenten op de achtergrond.
+- Geen bomen.
+- Geen lucht of zonsondergang.
+- Geen grasveld.
+- Geen complete feestlocatie.
+
+Het thema moet herkenbaar zijn door de figuren en hun accessoires.
+
+Voeg de themanaam NIET als extra tekst toe.
+
+Alleen deze teksten zijn toegestaan:
 
 **POINT RUSH**
 
@@ -187,132 +219,261 @@ Alleen de volgende teksten zijn toegestaan:
 
 ---
 
-## 6. AFBEELDING 1 – BREED LOGO
+## 6. ABSOLUTE PRIORITEIT – GEEN ACHTERGROND
 
-### Formaat
+Dit onderdeel is verplicht voor beide afbeeldingen.
 
-- Horizontaal en breed, ongeveer 3:1. De verhouding hoeft niet exact te zijn.
-- Hoge resolutie.
-- Transparante achtergrond, zonder achtergrondvlak of achtergrondvorm.
+### Transparantie
 
-### Compositie
+Maak een **vrijstaand 3D-logo met een volledig transparante achtergrond (alpha channel)**.
 
-- Grote POINT RUSH-tekst centraal en richting rechts.
-- Beide woorden naast elkaar op één regel.
-- Mascotte prominent links van de tekst.
-- by Hoekies duidelijk leesbaar op een paarse banner onder de hoofdnaam.
-- Paars spookje, gele banaan en zwarte bom rondom de compositie.
-- Thematische decoraties op of tegen de letters en figuren.
-- Speelse beweging.
+Het ontwerp bestaat uitsluitend uit:
 
-### Verhoudingen
+1. De grote POINT RUSH-letters.
+2. De paarse by Hoekies-banner.
+3. De witte mascotte.
+4. Het paarse spookje.
+5. De gele banaan.
+6. De zwarte bom.
+7. Kleine thematische accessoires direct rondom de figuren en letters.
 
-- De merknaam is visueel dominant.
-- De mascotte is duidelijk herkenbaar, maar ondergeschikt aan de tekst.
-- De drie game-elementen zijn goed zichtbaar zonder de compositie te overbelasten.
-- Geen afgesneden onderdelen.
+### VERBODEN ACHTERGRONDELEMENTEN
 
-Het brede logo moet geschikt zijn voor websiteheaders, banners, game-introschermen en promotiemateriaal.
+Voeg GEEN van de volgende elementen toe:
+
+- Lucht.
+- Zonsondergang.
+- Wolken.
+- Sterrenhemel.
+- Bomen.
+- Bossen.
+- Bergen.
+- Landschap.
+- Grasveld.
+- Grond.
+- Tentenkamp.
+- Kampeeromgeving.
+- Gebouwen.
+- Feestlocatie.
+- Achtergrondverlichting.
+- Lichtgevende achtergrondvlakken.
+- Gekleurde rechthoeken.
+- Cirkelvormige achtergronden.
+- Decoratieve achtergrondpanelen.
+- Achtergrondframes.
+- Achtergrondbanners achter het complete logo.
+
+### Belangrijk onderscheid
+
+De paarse banner met **by Hoekies** hoort bij het logo en moet behouden blijven.
+
+Ook de paarse 3D-contouren en schaduwen direct achter de letters horen bij het logo.
+
+Deze zijn toegestaan.
+
+Een groot vlak achter de totale compositie is NIET toegestaan.
+
+### Gewenste visuele uitstraling
+
+Het resultaat moet lijken op een professioneel uitgesneden 3D-gaminglogo of een hoogwaardige digitale sticker.
+
+De buitencontour van de afbeelding volgt nauwkeurig de letters, mascottes en accessoires.
+
+Alles buiten deze contour moet volledig transparant zijn.
+
+**Geen witte achtergrond, geen zwarte achtergrond, geen gekleurde achtergrond en geen schaakbordpatroon dat als afbeelding is meegetekend.**
 
 ---
 
-## 7. AFBEELDING 2 – VIERKANT LOGO
+## 7. AFBEELDING 1 – BREED LOGO
 
 ### Formaat
 
-- Ongeveer vierkant. Het hoeft geen perfect vierkant te zijn.
+- Horizontale compositie.
+- Beeldverhouding ongeveer 3:1.
 - Hoge resolutie.
-- Transparante achtergrond, zonder achtergrondvlak of achtergrondvorm.
-- De buitenvorm volgt de letters en figuren: geen vierkante vulling en geen kader.
+- PNG met transparante achtergrond.
 
 ### Compositie
 
-Ontwerp een nieuwe compositie speciaal voor het vierkante formaat.
+Plaats de onderdelen als volgt:
+
+**LINKS:**
+
+- Grote witte mascotte.
+- Lachend en in een feestelijke houding.
+- Kleding, hoofddeksel en accessoires passend bij het thema (bij vriendenweekend: paarse pet achterstevoren, zonnebril op de pet en bierglas met schuim omhoog).
+
+**MIDDEN:**
+
+- Zeer grote tekst POINT RUSH.
+- Beide woorden naast elkaar op exact één horizontale regel.
+- POINT in glanzend wit.
+- RUSH in geel-oranje 3D.
+- Dikke paarse contourlijnen.
+
+**BOVEN DE LETTERS:**
+
+- Vrolijk paars spookje.
+- Gele banaan met een accessoire passend bij het thema (bij vriendenweekend: zonnebril).
+- Eventueel kleine feestelijke details.
+
+**RECHTS:**
+
+- Zwarte bom met brandende lont en heldere vonk.
+
+**ONDER DE LETTERS:**
+
+- Paarse banner met exact de tekst by Hoekies.
+
+### Verhoudingen
+
+- POINT RUSH blijft de belangrijkste blikvanger.
+- De mascotte is prominent, maar niet groter dan de hoofdnaam.
+- Het spookje en de banaan zijn duidelijk herkenbaar.
+- De bom staat compact tegen de rechterzijde.
+- De by Hoekies-banner is goed leesbaar.
+- Geen onderdelen worden afgesneden.
+
+### Achtergrond
+
+Volledig transparant.
+
+Er mag GEEN landschap, lucht, boom, tent, grasveld of ander achtergrondobject zichtbaar zijn.
+
+De illustratie moet een compacte, vrijstaande compositie vormen.
+
+---
+
+## 8. AFBEELDING 2 – VIERKANT LOGO
+
+### Formaat
+
+- Ongeveer vierkante compositie.
+- Beeldverhouding ongeveer 1:1.
+- Hoge resolutie.
+- PNG met transparante achtergrond.
+
+### Compositie
+
+Ontwerp een aparte compositie voor dit formaat.
 
 **NIET simpelweg het brede logo bijsnijden.**
 
-### Tekstindeling
+### BOVENSTE DEEL
 
-Plaats de merknaam bij voorkeur op twee regels:
+- Grote witte mascotte centraal.
+- Kleding, hoofddeksel en accessoires passend bij het thema (bij vriendenweekend: paarse pet achterstevoren, zonnebril op de pet en bierglas met schuim omhoog).
+- Vrolijk gezicht.
+- Paars spookje links van de mascotte.
+- Gele banaan rechts van de mascotte.
+
+### MIDDEN
+
+Plaats de merknaam groot op twee regels:
 
 **POINT**
 
 **RUSH**
 
-Gebruik grote, dikke, duidelijk leesbare 3D-letters.
+- POINT in glanzend wit.
+- RUSH in geel-oranje.
+- Dikke paarse contouren.
+- Sterke 3D-dieptewerking.
+- Goed leesbaar op kleine afmetingen.
 
-Plaats **by Hoekies** op een kleinere paarse banner onder de merknaam.
+### RECHTERZIJDE
 
-### Mascotte en spelelementen
+- Zwarte bom met brandende lont.
+- Duidelijk zichtbaar naast de tekst.
+- Geen letters afdekken.
 
-- Mascotte boven of links van de merknaam.
-- De mascotte mag gedeeltelijk achter de tekst staan, maar nooit letters bedekken.
-- Paars spookje, gele banaan en zwarte bom compact rondom de tekst.
-- Zorg dat alle vier de figuren duidelijk herkenbaar blijven.
-- Gebruik dezelfde thematische details als in het brede logo.
+### ONDERSTE DEEL
 
-### Prioriteit
+- Paarse banner met exact de tekst by Hoekies.
 
-De naam POINT RUSH moet ook in het vierkante logo de belangrijkste blikvanger blijven.
+### Verhoudingen
 
-Maak de mascotte en decoratie kleiner wanneer dat nodig is.
+- POINT RUSH blijft visueel dominant.
+- De vier personages zijn duidelijk herkenbaar.
+- Compacte, uitgebalanceerde compositie.
+- Geen onnodige lege ruimtes.
+- Geen afgesneden onderdelen.
 
-Het logo moet goed leesbaar zijn als app-icoon, game-tegel, socialmedia-profielfoto of thumbnail.
+### Achtergrond
+
+Volledig transparant.
+
+De buitencontour volgt de figuren, letters en banner.
+
+Er mag geen vierkant achtergrondvlak worden gemaakt.
+
+Het logo moet vrijstaand zijn, net als een uitgesneden 3D-sticker.
 
 ---
 
-## 8. VISUELE STIJL EN KWALITEIT
+## 9. VISUELE STIJL EN KWALITEIT
 
 Gebruik voor beide ontwerpen:
 
 - Premium 3D-cartoonillustratie.
 - Professionele casual-gamingstijl.
-- Krachtige en heldere kleuren.
-- Subtiele glans en highlights.
+- Heldere, krachtige kleuren.
+- Glanzende materialen.
+- Subtiele highlights.
 - Zachte 3D-schaduwen.
-- Diepe paarse en donkere contouren.
+- Dikke donkerpaarse contourlijnen.
 - Sterk contrast.
 - Scherpe en vloeiende afwerking.
-- Energieke, vrolijke uitstraling.
-- Hoogwaardige digitale illustratie.
+- Expressieve gezichten.
+- Vrolijke, energieke uitstraling.
+- Hoge detailkwaliteit.
+- Strakke vrijstaande buitencontouren.
 
-Vermijd:
+### Vermijd
 
 - Fotorealisme.
-- Minimalistische platte iconen.
+- Platte minimalistische iconen.
 - Onscherpe details.
-- Onleesbare teksten.
-- Overmatige decoratie.
-- Achtergrondvlakken, kaders en achtergrondvormen.
+- Vervormde letters.
+- Onleesbare tekst.
+- Te veel decoratie.
+- Landschappen.
+- Achtergrondscènes.
+- Achtergrondvlakken.
 - Extra woorden.
 - Watermerken.
-- Afgesneden letters of figuren.
+- Afgesneden figuren.
+- Losse voorwerpen ver buiten de hoofdcompositie.
 
 ---
 
-## 9. CONSISTENTIE TUSSEN BEIDE LOGO'S
+## 10. CONSISTENTIE TUSSEN BEIDE LOGO'S
 
 De twee afbeeldingen moeten duidelijk onderdeel zijn van dezelfde POINT RUSH-thema-editie.
 
-Gebruik in beide logo's:
+Gebruik in beide afbeeldingen:
 
-- Dezelfde mascotte.
-- Dezelfde kleding en accessoires.
+- Dezelfde witte mascotte.
+- Dezelfde kleding en hetzelfde hoofddeksel.
+- Dezelfde accessoires.
 - Dezelfde kleurstelling.
+- Dezelfde gezichtsuitdrukking of vergelijkbare vrolijke expressie.
 - Dezelfde 3D-letterstijl.
-- Dezelfde thematische sfeer.
 - Hetzelfde paarse spookje.
 - Dezelfde gele banaan.
 - Dezelfde zwarte bom.
+- Dezelfde voorwerpen die de figuren vasthouden.
 - Dezelfde stijl voor de by Hoekies-banner.
+- Dezelfde glans, schaduwen en contourlijnen.
 
-Alleen de plaatsing en schaal van de onderdelen mogen worden aangepast voor het betreffende formaat.
+Alleen de plaatsing, houding en schaal van de onderdelen mogen veranderen om de formaten goed te vullen.
 
-**Maak geen twee verschillende interpretaties van het thema.**
+**Maak geen twee verschillende interpretaties van hetzelfde thema.**
 
 ---
 
-## 10. VERPLICHTE KWALITEITSCONTROLE
+## 11. VERPLICHTE KWALITEITSCONTROLE
 
 Controleer beide ontwerpen voor oplevering.
 
@@ -322,63 +483,96 @@ Controleer beide ontwerpen voor oplevering.
 - [ ] by Hoekies exact gespeld.
 - [ ] Beide teksten volledig zichtbaar.
 - [ ] POINT RUSH groot en dominant.
-- [ ] Geen letters bedekt door decoratie.
+- [ ] Breed logo: POINT RUSH op één regel.
+- [ ] Vierkant logo: POINT boven RUSH.
+- [ ] Geen letters bedekt door accessoires.
 
-### Personages en objecten
+### Personages
 
 - [ ] Expressieve witte mascotte aanwezig.
 - [ ] Paars spookje aanwezig.
 - [ ] Gele banaan aanwezig.
 - [ ] Zwarte bom met lont aanwezig.
+- [ ] Dezelfde kleding en accessoires in beide afbeeldingen.
+
+### Achtergrond
+
+- [ ] Volledig transparante achtergrond.
+- [ ] Geen lucht.
+- [ ] Geen bomen.
+- [ ] Geen landschap.
+- [ ] Geen grasveld.
+- [ ] Geen achtergrondscène.
+- [ ] Geen rechthoekig of rond achtergrondvlak.
+- [ ] Buitencontour volgt de logo-elementen.
+- [ ] Transparantie daadwerkelijk aanwezig in het PNG-bestand.
 
 ### Vormgeving
 
 - [ ] Thema duidelijk herkenbaar.
-- [ ] Zelfde mascotte en stijl in beide afbeeldingen.
+- [ ] Consistente stijl tussen beide afbeeldingen.
 - [ ] Breed logo ongeveer 3:1.
 - [ ] Vierkant logo ongeveer 1:1.
-- [ ] Geen achtergrondvlak of achtergrondvorm.
 - [ ] Geen afgesneden elementen.
 - [ ] Geen extra teksten.
 
-Als elementen botsen, verklein dan de decoratie of mascotte. Verklein nooit de merknaam ten gunste van decoratie.
+Als elementen elkaar overlappen of de compositie te druk wordt, verklein dan de accessoires of personages.
+
+**Verklein nooit POINT RUSH om meer decoratie mogelijk te maken.**
 
 ---
 
-## 11. DEFINITIEVE GENERATIEOPDRACHT
+## 12. DEFINITIEVE GENERATIEOPDRACHT
 
-Genereer precies **TWEE LOSSE AFBEELDINGEN**:
+Genereer precies **TWEE LOSSE AFBEELDINGEN**.
 
 ### OUTPUT 1 – POINT RUSH BREED
-- Formaat ongeveer 3:1.
+
+- Ongeveer 3:1.
 - POINT RUSH groot op één regel.
-- Mascotte links.
-- by Hoekies onder de hoofdnaam.
-- Spookje, banaan en bom zichtbaar.
-- Volledig aangepast aan het opgegeven thema.
+- Witte mascotte links.
+- Paars spookje en gele banaan boven of naast de letters.
+- Zwarte bom rechts.
+- by Hoekies op paarse banner onder de hoofdnaam.
+- Thema verwerkt in kleding, gezichten en accessoires.
+- Volledig transparante achtergrond.
+- Geen landschap of achtergronddecoratie.
 
 ### OUTPUT 2 – POINT RUSH VIERKANT
-- Formaat ongeveer 1:1.
+
+- Ongeveer 1:1.
 - POINT boven RUSH.
-- by Hoekies onder de hoofdnaam.
-- Zelfde expressieve mascotte.
-- Zelfde spookje, banaan en bom.
-- Exact dezelfde thematische uitstraling als output 1.
+- Grote mascotte boven de tekst.
+- Paars spookje links.
+- Gele banaan rechts.
+- Zwarte bom naast de letters.
+- by Hoekies op paarse banner.
+- Identieke mascotte en themastijl.
+- Volledig transparante achtergrond.
+- Geen landschap of achtergronddecoratie.
 
-**Genereer twee afzonderlijke afbeeldingsbestanden. Plaats de twee logo's niet samen in één afbeelding.**
+**Genereer twee afzonderlijke PNG-bestanden. Plaats de logo's niet samen in één afbeelding.**
 
-Maak bij voorkeur eerst het brede logo en gebruik dat resultaat als aanvullende visuele referentie voor het vierkante logo.
+Maak bij voorkeur eerst het brede logo en gebruik dit als aanvullende visuele referentie voor de vierkante versie.
 
-**HOOGSTE PRIORITEIT:**
+### HOOGSTE PRIORITEIT
 
-1. POINT RUSH groot en volledig leesbaar.
-2. by Hoekies correct en duidelijk zichtbaar.
-3. Dezelfde herkenbare expressieve mascotte.
-4. Het paarse spookje, de gele banaan en de zwarte bom.
-5. Een duidelijke, consistente thema-uitvoering.
-6. Twee afzonderlijke professionele logo's, ongeveer 3:1 en ongeveer 1:1, zonder achtergrond.
+1. POINT RUSH groot en correct gespeld.
+2. by Hoekies volledig leesbaar.
+3. Dezelfde expressieve witte mascotte.
+4. Paars spookje, gele banaan en zwarte bom.
+5. Thema zichtbaar via personages en accessoires.
+6. Geen achtergrond of omgeving.
+7. Transparante PNG-bestanden.
+8. Twee consistente composities.
 
-**EINDRESULTAAT:** Twee direct herkenbare, professioneel afgewerkte POINT RUSH-gaminglogo's die eruitzien als officiële speciale thema-edities van hetzelfde spel.`;
+### EINDRESULTAAT
+
+Twee professionele, vrijstaande POINT RUSH 3D-gaminglogo's met een transparante achtergrond.
+
+De afbeeldingen moeten eruitzien als hoogwaardige, glanzende, uitgesneden gamingstickers.
+
+**GEEN ACHTERGRONDSCÈNE. ALLEEN HET LOGO, DE MASCOTTES, DE GAME-ELEMENTEN EN DIRECT BIJBEHORENDE ACCESSOIRES.**`;
 
 // Eén logo per bericht: voor Gemini, en als reserve als ChatGPT er maar één maakt. Dezelfde prompt, met onderaan wat nu moet.
 export const logoBreedPrompt = (thema: string) => `${logoPrompt(thema)}
