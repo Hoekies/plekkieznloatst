@@ -1,19 +1,21 @@
 // ✨ Prompts om in ChatGPT of Gemini voor een thema de drie afbeeldingen te laten maken, in de stijl van de app.
 // De voorbeeldbestanden gaan als bijlage mee: dat houdt de stijl het best vast. De gezamenlijke prompt noemt ze bij hun
 // bestandsnaam, dus die moeten hier hetzelfde blijven. Het vierkante voorbeeldlogo staat in public/voorbeeld; de muts, voorwerpen
-// en slingers daarop horen bij hun eigen thema, dus de prompts zeggen dat die vervangen worden. Het brede logo staat klein in de
-// bovenbalk: dat is bewust rustig (eigen regels, en het strakke logo als voorbeeld), anders is de naam niet te lezen.
-const LOGO_REGELS = (thema: string) => `Houd precies hetzelfde:
-- de opbouw van het logo en de plek van alle onderdelen
+// en slingers daarop horen bij hun eigen thema, dus de prompts zeggen dat die vervangen worden, en dat het rustiger moet dan het
+// voorbeeld. Het brede logo staat klein in de bovenbalk: dat is het rustigst (eigen regels, en het strakke logo als voorbeeld),
+// anders is de naam niet te lezen.
+const LOGO_REGELS = (thema: string) => `Houd hetzelfde:
+- de opbouw van het logo
 - het witte, vrolijke rennende poppetje, de zwarte bom met brandende lont en het boze paarse spookje
 - de paarse blokjes met de oranje driehoek
 - de tekst POINT RUSH (POINT wit, RUSH goud-oranje) en "by Hoekies" op de paarse band: exact deze spelling
-- de spreekwolken met +100, +50, +200 en +25, in dezelfde stijl
+- twee spreekwolken, +100 en +25, in dezelfde stijl
 - paars en goud-oranje als hoofdkleuren
 
-Vervang voor het thema ${thema}:
+Pas aan voor het thema ${thema}, en houd het rustiger dan het voorbeeld:
 - wat het poppetje draagt: geef het iets dat bij het thema past (bijvoorbeeld een muts, bril of kostuum)
-- alle andere voorwerpen en slingers uit het voorbeeld: zet er vrolijke voorwerpen voor in de plaats die bij het thema passen, in een rijke rand om en achter het logo; ze mogen de tekst niet bedekken
+- vervang alle andere voorwerpen en slingers uit het voorbeeld door vier tot zes vrolijke voorwerpen die bij het thema passen, los om het logo met ruimte ertussen; geen slingers en geen dichte rand
+- POINT RUSH blijft het grootste onderdeel en is goed leesbaar: niets op of achter de letters
 
 Stijl: glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning en felle kleuren.
 Geen extra tekst, geen rand en geen slagschaduw op de achtergrond. Effen witte achtergrond (de app knipt die zelf weg).`;
@@ -49,7 +51,7 @@ Geen tekst, geen logo's en geen mensen.`;
 
 // Gemini: elke opdracht als één lopende beschrijving (zo raadt Google het aan), met de rol van de bijlage, het formaat
 // in de tekst, de exacte tekst, en wat gelijk moet blijven. In dezelfde chat, zodat de versiering gelijk blijft.
-const GEMINI_LOGO = (thema: string) => `Gebruik de bijgevoegde afbeelding als het logo dat je aanpast, en houd de stijl en opbouw precies zo: een glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning en felle kleuren, in paars en goud-oranje. Het witte, vrolijke rennende poppetje, de zwarte bom met brandende lont, het boze paarse spookje, de paarse blokjes met de oranje driehoek en de spreekwolken met +100, +50, +200 en +25 blijven staan waar ze staan. De tekst is letterlijk POINT RUSH, met POINT in wit en RUSH in goud-oranje, en daaronder "by Hoekies" op een paarse band; er staat geen andere tekst in de afbeelding, behalve die spreekwolken. Pas de rest aan voor het thema ${thema}: geef het poppetje iets dat bij ${thema} past, zoals een muts, bril of kostuum, en vervang alle andere voorwerpen en slingers uit het voorbeeld door vrolijke voorwerpen die bij ${thema} passen, in een rijke rand om en achter het logo, zonder dat ze de tekst bedekken. De achtergrond is egaal wit, zonder rand en zonder schaduw.`;
+const GEMINI_LOGO = (thema: string) => `Gebruik de bijgevoegde afbeelding als het logo dat je aanpast, en houd de stijl en opbouw zo: een glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning en felle kleuren, in paars en goud-oranje. Het witte, vrolijke rennende poppetje, de zwarte bom met brandende lont, het boze paarse spookje, de paarse blokjes met de oranje driehoek en twee spreekwolken, +100 en +25, blijven staan. De tekst is letterlijk POINT RUSH, met POINT in wit en RUSH in goud-oranje, en daaronder "by Hoekies" op een paarse band; er staat geen andere tekst in de afbeelding, behalve die spreekwolken. POINT RUSH blijft het grootste onderdeel en is goed leesbaar, met niets op of achter de letters. Pas de rest aan voor het thema ${thema} en houd het rustiger dan het voorbeeld: geef het poppetje iets dat bij ${thema} past, zoals een muts, bril of kostuum, en vervang alle andere voorwerpen en slingers uit het voorbeeld door vier tot zes vrolijke voorwerpen die bij ${thema} passen, los om het logo met ruimte ertussen, zonder slingers en zonder dichte rand. De achtergrond is egaal wit, zonder rand en zonder schaduw.`;
 
 const GEMINI_BREED = (thema: string) => `Gebruik de bijgevoegde afbeelding als voorbeeld voor het lettertype en de stijl: een glanzend, vrolijk 3D-cartoonlogo van een mobiele game, met dikke donkere omlijning, in paars en goud-oranje. Dit logo staat klein in de bovenbalk van een telefoon, dus de naam moet in één oogopslag te lezen zijn en rust gaat voor versiering. De tekst is letterlijk POINT RUSH op één regel, met POINT in wit en RUSH in goud-oranje, en daaronder "by Hoekies" op een paarse band; er staat geen andere tekst in de afbeelding. POINT RUSH is veruit het grootste onderdeel: minstens twee derde van de breedte en bijna de volle hoogte. Links van de tekst staat alleen het witte, rennende poppetje. Voor het thema ${thema} draagt het poppetje iets dat daarbij past, zoals een muts, bril of kostuum, met hooguit twee kleine voorwerpen naast het poppetje. Er staat niets op, achter, boven of onder de letters: geen voorwerpen, slingers, patronen of vlakken, en ook geen spreekwolken, bom, spookje, blokjes of rand. De achtergrond is egaal wit, zonder schaduw. Maak de afbeelding breed en laag, in beeldverhouding 21:9.`;
 

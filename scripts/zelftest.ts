@@ -195,6 +195,12 @@ test("seizoenen: elk thema heeft alles, en elke plek volgt het vastgezette thema
   assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3: VIERKANT LOGO") < prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO"));
   assert.ok(prompt.indexOf("AFBEELDING 2 VAN 3: BREED LOGO") < prompt.indexOf("AFBEELDING 3 VAN 3: ACHTERGROND"));
   assert.ok(prompt.indexOf("AFBEELDING 1 VAN 3") > 0);
+  // Het vierkante logo is rustiger dan het voorbeeld: een paar losse voorwerpen, geen rijke rand
+  const vierkant = SEIZOEN_VOORBEELDEN.find((v) => v.label === "Logo")!;
+  for (const tekst of [vierkant.los("Voetbal"), vierkant.opdracht("Voetbal"), vierkant.gemini("Voetbal")]) {
+    assert.ok(tekst.includes("vier tot zes") && tekst.includes("rustiger dan het voorbeeld") && tekst.includes("Voetbal"));
+    assert.ok(!tekst.includes("rijke rand") && !tekst.includes("+200"), "het vierkante logo moet rustig blijven");
+  }
   // Het brede logo is rustig (klein in de bovenbalk): in alle drie de prompts, en het voorbeeld bestaat
   const breed = SEIZOEN_VOORBEELDEN.find((v) => v.label === "Logo breed")!;
   for (const tekst of [breed.los("Voetbal"), breed.opdracht("Voetbal"), breed.gemini("Voetbal")]) {
