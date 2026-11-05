@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { geluidAan, zetGeluid } from "@/lib/sounds";
 import { vensterHoogte } from "@/components/shared/Venster";
 import UitklapPijl from "@/components/shared/UitklapPijl";
+import dynamic from "next/dynamic";
+
+const MeespeelKnop = dynamic(() => import("./MeespeelKnop"), { ssr: false });
 
 // Waarden uit de route-instellingen, zodat de uitleg de echte aantallen en tijden noemt
 export type RouteWaarden = { ster: number; bom: number; spookSec: number; plekzooiSec: number };
@@ -74,9 +77,11 @@ interface Props {
   schermAan?: { aan: boolean; kan: boolean; wissel: () => void };
   // Extra uitleg bij "Het spel" voor deze route (bijv. het puzzelwoord)
   extraUitleg?: string[];
+  // 🤝 Knop om medespelers te laten meekijken (staat per route aan of uit)
+  meespeelLink?: boolean;
 }
 
-export default function SpeciaalItemLegende({ onSluit, itemTypen, modus, waarden, schermAan, extraUitleg = [] }: Props) {
+export default function SpeciaalItemLegende({ onSluit, itemTypen, modus, waarden, schermAan, extraUitleg = [], meespeelLink = false }: Props) {
   // Alles standaard ingeklapt; tik op een regel om hem uit te vouwen (één tegelijk)
   const [open, setOpen] = useState<string | null>(null);
   const wissel = (sleutel: string) => setOpen((o) => (o === sleutel ? null : sleutel));
@@ -200,6 +205,8 @@ export default function SpeciaalItemLegende({ onSluit, itemTypen, modus, waarden
               {item.beschrijving(waarden)}
             </Regel>
           ))}
+
+          {meespeelLink && <div style={{ marginTop: 14, textAlign: "center" }}><MeespeelKnop /></div>}
 
           {/* Uitloggen: hier en met een bevestiging, zodat niemand het per ongeluk tijdens het spel doet */}
           <form action="/api/auth/uitloggen" method="post" style={{ marginTop: 14, textAlign: "center" }}

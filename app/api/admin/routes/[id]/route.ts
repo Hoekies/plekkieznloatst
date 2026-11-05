@@ -37,6 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (typeof body.vraag_punten === "number" && body.vraag_punten >= 0) toegestaan.vraag_punten = Math.round(body.vraag_punten);
   if (typeof body.startvraag_meter === "number" && body.startvraag_meter >= 0) toegestaan.startvraag_meter = Math.min(500, Math.round(body.startvraag_meter));
   if (typeof body.alle_punten_zichtbaar === "boolean") toegestaan.alle_punten_zichtbaar = body.alle_punten_zichtbaar;
+  if (typeof body.meespeellink === "boolean") toegestaan.meespeellink = body.meespeellink;
   // ⚔️ Duel (migratie 006)
   if (typeof body.duel_aan === "boolean") toegestaan.duel_aan = body.duel_aan;
   if (typeof body.duel_punten === "number" && body.duel_punten > 0) toegestaan.duel_punten = Math.min(500, Math.round(body.duel_punten));
@@ -119,6 +120,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   // Nieuwe kleur geweigerd door de controle in de database: migratie 012 (meer kleuren) ontbreekt nog
   if (error && /huis_thema_check/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 012 (supabase/migrations/012_meer_kleurthemas.sql) in Supabase" }, { status: 500 });
+  }
+  if (error && /meespeellink/.test(error.message)) {
+    return NextResponse.json({ fout: "Draai eerst migratie 015 (supabase/migrations/015_meespeellink.sql) in Supabase" }, { status: 500 });
   }
   if (error && /huis_thema/.test(error.message)) {
     return NextResponse.json({ fout: "Draai eerst migratie 011 (supabase/migrations/011_kleurthema.sql) in Supabase" }, { status: 500 });

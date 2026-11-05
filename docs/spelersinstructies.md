@@ -26,6 +26,9 @@ Tik op de link uit WhatsApp. De app vraagt dan zelf of je hem wilt installeren (
 **Eén apparaat per team**
 Een team kan maar op één telefoon tegelijk ingelogd zijn. Wil je wisselen van toestel, log dan eerst uit op het oude: tijdens het spel staat **🚪 Uitloggen** onderaan onder de oranje **i**-knop (zo tik je er niet per ongeluk op). Is de app weggedrukt zonder uitloggen en lukt inloggen niet meer? Vraag de organisatie om de QR-code om in te loggen: scan je die met de nieuwe telefoon, dan neemt die het team over.
 
+**Medespelers laten meekijken**
+Loopt er iemand met je mee? Tik onder ℹ️ op de kaart op **🤝 Medespelers laten meekijken** en deel de link of laat de QR-code scannen. Je medespeler hoeft niet in te loggen en ziet de items op het speelveld, jullie letters, de balk en de score, maar niet het volgende punt. Inloggen en spelen blijft op één telefoon.
+
 **Locatie en geluid**
 Alle spellen gebruiken je GPS-locatie — zonder locatietoegang kun je niet spelen. Tik je bij de uitleg op **OK, begrepen**, dan hoor je meteen een geluidje en trilt je telefoon (Android): zo weet je dat je geluid goed staat. Hoor je niets, zet je telefoon dan niet op stil. Zet ook je geluid aan: de app speelt geluiden af bij vragen, bij het behalen van een prestatie, en een klokslag als een ander team een item tegen jullie inzet. Houd de app open terwijl je speelt: met het scherm op slot of de app op de achtergrond kan je telefoon geen geluid afspelen.
 

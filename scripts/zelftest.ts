@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
+import { meespeelSleutel, meespeelSleutelKlopt, zichtbareItems } from "../lib/meespelen";
 import { huidigThema, kleinBeeld, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
 import { ACHTERGROND_VOORBEELD, LOGO_REFERENTIES, THEMA_INVUL, achtergrondPrompt, achtergrondPromptGemini, logoBreedPrompt, logoPrompt, logoVierkantPrompt } from "../lib/seizoen-prompts";
@@ -146,6 +147,34 @@ test("duelvragen: vier keuzes en een geldig goed antwoord", () => {
     assert.equal(v.keuzes.length, 4, v.vraag);
     assert.ok(v.goed >= 0 && v.goed < 4, v.vraag);
   }
+});
+
+test("meespeellink: sleutel per spel, en alleen wat de speler ook ziet", () => {
+  const eerder = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "test-geheim";
+  try {
+    const a = "11111111-1111-4111-8111-111111111111", b = "22222222-2222-4222-8222-222222222222";
+    const sleutel = meespeelSleutel(a);
+    assert.equal(sleutel.length, 32);
+    assert.notEqual(sleutel, meespeelSleutel(b));
+    assert.equal(meespeelSleutelKlopt(a, sleutel), true);
+    assert.equal(meespeelSleutelKlopt(b, sleutel), false, "de sleutel van een ander spel mag niet werken");
+    assert.equal(meespeelSleutelKlopt(a, "fout"), false);
+    assert.equal(meespeelSleutelKlopt("geen-uuid", sleutel), false);
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    assert.equal(meespeelSleutelKlopt(a, sleutel), false, "zonder geheim werkt geen enkele link");
+  } finally {
+    if (eerder === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY; else process.env.SUPABASE_SERVICE_ROLE_KEY = eerder;
+  }
+  const items = [
+    { id: "1", type: "ster", latitude: 52, longitude: 4, claimed: false, is_startitem: false, claimed_by_session_id: "geheim", points_effect: 100 },
+    { id: "2", type: "bom", latitude: 52, longitude: 4, claimed: true, is_startitem: false },
+    { id: "3", type: "plekzooi", latitude: 52, longitude: 4, claimed: false, is_startitem: false },
+    { id: "4", type: "radar", latitude: 52, longitude: 4, claimed: false, is_startitem: true },
+  ];
+  // Geen opgepakte items, geen onzichtbare val, geen startitems, en alleen de vaste velden
+  assert.deepEqual(zichtbareItems(items, "verspreid"), [{ id: "1", type: "ster", latitude: 52, longitude: 4, claimed: false }]);
+  assert.deepEqual(zichtbareItems(items, "sequentieel"), []);
 });
 
 test("seizoensachtergrond op datum", () => {

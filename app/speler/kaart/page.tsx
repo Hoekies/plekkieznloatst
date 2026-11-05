@@ -123,6 +123,7 @@ export default async function SpelerKaartPage() {
       stilleIds={stilleIds}
       verbodenGebieden={(route as { verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null }).verboden_gebieden ?? []}
       heleRoute={route.modus !== "verspreid" && (route as { alle_punten_zichtbaar?: boolean }).alle_punten_zichtbaar === true}
+      meespeelLink={(route as { meespeellink?: boolean | null }).meespeellink !== false}
       waarden={{
         ster: route.ster_waarde ?? 50,
         bom: route.bom_waarde ?? 30,

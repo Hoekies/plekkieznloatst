@@ -24,6 +24,8 @@ export interface Route {
   item_respawn: boolean;
   // Op volgorde: spelers zien meteen alle punten en de lijn ertussen (migratie 012)
   alle_punten_zichtbaar?: boolean;
+  // 🤝 Medespelers mogen meekijken via een link (migratie 015; ontbreekt = aan)
+  meespeellink?: boolean | null;
   // ⚔️ Duel aan/uit en punten per duel (migratie 006)
   duel_aan?: boolean;
   duel_punten?: number;

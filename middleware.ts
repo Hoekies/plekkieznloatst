@@ -36,6 +36,8 @@ export async function middleware(request: NextRequest) {
   if (!user && pad !== "/login" && !pad.startsWith("/api/auth/") && !pad.startsWith("/gedeeld/") && !pad.startsWith("/l/")
     // Beamerscherm: openbaar met een geheime link (de sleutel controleert de API zelf)
     && !pad.startsWith("/beamer/") && !pad.startsWith("/api/beamer/")
+    // 🤝 Meespeellink: openbaar met de geheime sleutel van een spel (pagina en API controleren die)
+    && !pad.startsWith("/meespelen/") && !pad.startsWith("/api/meespelen/")
     // Fotoalbum: openbaar met een geheime link (de pagina controleert de sleutel)
     && !pad.startsWith("/album/")
     // 🧪 Proefversie van een vraag via de QR-code: openbaar met de geheime code (de API controleert die)

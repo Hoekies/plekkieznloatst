@@ -24,6 +24,8 @@ interface Props {
   heleRoute?: boolean;
   // ⛔ Verboden gebieden: rood gearceerd
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
+  // Waar de kaart begint zolang er geen eigen plek is (de meespeellink: de items op het speelveld)
+  beginGebied?: [number, number][];
   andereSpelers: SpelerLocatie[];
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
@@ -48,7 +50,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], beginGebied, andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -73,6 +75,13 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   }, [verbodenGebieden, kaartKlaar]);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
+  const beginGezetRef = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !kaartKlaar || beginGezetRef.current || gecenterRef.current || !beginGebied?.length) return;
+    beginGezetRef.current = true;
+    map.fitBounds(beginGebied, { padding: [36, 36], maxZoom: ZOOM_SPELER });
+  }, [beginGebied, kaartKlaar]);
   // Licht, donker of luchtfoto met één knop; de kaart begint altijd licht
   const basiskaartRef = useRef<Basiskaart | null>(null);
   const [stijl, setStijl] = useState<KaartStijl>("licht");

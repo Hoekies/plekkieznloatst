@@ -66,6 +66,8 @@ interface Props {
   heleRoute?: boolean;
   // ⛔ Verboden gebieden: rood op de kaart, waarschuwing als het team erin loopt
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
+  // 🤝 Knop onder ℹ️ om medespelers te laten meekijken
+  meespeelLink?: boolean;
   // 🌈 Vaste teamkleur: rand onder de puntenbalk en ring om je eigen icoon op de kaart
   teamKleur?: string | null;
   // 🧩 Puzzelwoord van de route (punten), of null: dan geen uitleg erover bij de start
@@ -113,7 +115,7 @@ function hudGetalGrootte(tekst: string): string {
   return "1.35rem";
 }
 
-export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen, valAan = false, plezier = null }: Props) {
+export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waarden, spelerIcoon = null, spelerNaam = null, stilleIds = [], heleRoute = false, verbodenGebieden = [], meespeelLink = false, teamKleur = null, puzzel = null, startVraagMeter = STARTVRAAG_NA_METER, startitemsNaMeter = STARTITEMS_NA_METER, itemTypen, valAan = false, plezier = null }: Props) {
   const router = useRouter();
   const effectGezienKey = `pointrush_effect_gezien_${sessie.id}`;
   const [voortgang, setVoortgang] = useState<SpelerPuntVoortgang[]>(initVoortgang);
@@ -1416,6 +1418,7 @@ export default function SpelerKaart({ sessie, punten, initVoortgang, modus, waar
           modus={modus}
           waarden={waarden}
           schermAan={schermAan}
+          meespeelLink={meespeelLink}
         />
       )}
 

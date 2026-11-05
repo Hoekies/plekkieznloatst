@@ -99,6 +99,27 @@ export default function InstellingenVenster({ api, centrumPunt, finishPunt, fini
                         onClick={() => { setInstellingenOpen(false); setTekenGebied([]); setProef(null); setGeselecteerd(null); }}><Icoon naam="plus" /> Gebied tekenen</button>
                       <span className="inst-uitleg">Bijv. een drukke weg of privéterrein. Teams zien het rood op hun kaart en krijgen een waarschuwing als ze erin lopen.</span>
                     </div>
+                {/* 🤝 Medespelers mogen meekijken via een link van het team */}
+                <div className="form-group">
+                  <label className="form-label">🤝 Meespeellink</label>
+                  <div className="segment" role="radiogroup" aria-label="Meespeellink">
+                    {([[true, "Aan"], [false, "Uit"]] as const).map(([waarde, tekst]) => (
+                      <button key={tekst} type="button" role="radio" aria-checked={(route.meespeellink !== false) === waarde}
+                        className={(route.meespeellink !== false) === waarde ? "aan" : ""}
+                        onClick={async () => {
+                          if ((route.meespeellink !== false) === waarde) return;
+                          const res = await api(`/api/admin/routes/${route.id}`, {
+                            method: "PATCH", headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ meespeellink: waarde }),
+                          });
+                          if (res.ok) setRoute((r) => ({ ...r, meespeellink: waarde }));
+                        }}>{tekst}</button>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                    {route.meespeellink !== false ? "Teams kunnen een link delen: medespelers zien de items op het speelveld, de letters, de balk en de score, maar niet het volgende punt." : "Teams kunnen geen link delen, en bestaande links tonen niets meer."}
+                  </span>
+                </div>
                 {/* Op volgorde: wat zien de spelers op de kaart */}
                 {route.modus === "sequentieel" && (
                   <div className="form-group">
