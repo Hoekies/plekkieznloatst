@@ -4979,6 +4979,16 @@ button.plezier-toast { font: inherit; color: inherit; text-align: left; cursor: 
 .meespeel-team span { font-size: 0.72rem; color: var(--muted); }
 .meespeel-team strong { font-family: var(--font-display); font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .meespeel-score { flex: none; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16); font-weight: 800; font-variant-numeric: tabular-nums; }
+.meespeel-stand { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 0.8rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.meespeel-tijd--laatste { color: #FCA5A5; }
+.meespeel-bericht { display: flex; align-items: flex-start; gap: 8px; padding: 8px 4px 8px 10px; border-radius: 10px; background: rgba(255,217,59,0.14); border: 1px solid rgba(255,217,59,0.5); font-size: 0.84rem; line-height: 1.4; color: #fff; }
+.meespeel-bericht span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.meespeel-bericht button { flex: none; width: 32px; height: 32px; margin-top: -4px; border: none; background: none; color: #FCA5A5; font-size: 0.95rem; cursor: pointer; }
+/* Lange woorden blijven op één regel: de tegels worden smaller in plaats van over te lopen */
+.meespeel .puzzel-tegels { flex-wrap: nowrap; gap: 3px; width: 100%; }
+.meespeel .puzzel-tegel { flex: 0 1 22px; width: auto; min-width: 0; }
+.meespeel .puzzel-tegels--lang { gap: 2px; }
+.meespeel .puzzel-tegels--lang .puzzel-tegel { font-size: 0.66rem; }
 .meespeel-vak { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
 .meespeel-tip { font-size: 0.74rem; color: var(--muted); text-align: center; }
 .meespeel-balk { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px 10px; }

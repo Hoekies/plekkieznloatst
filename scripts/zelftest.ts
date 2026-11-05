@@ -5,6 +5,7 @@ import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
 import { itemGebied, meespeelSleutel, meespeelSleutelKlopt, zichtbareItems } from "../lib/meespelen";
+import { itemMaatBijZoom, resterendeTijd } from "../lib/meespelen-weergave";
 import { huidigThema, kleinBeeld, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
 import { ACHTERGROND_VOORBEELD, LOGO_REFERENTIES, THEMA_INVUL, achtergrondPrompt, achtergrondPromptGemini, logoBreedPrompt, logoPrompt, logoVierkantPrompt } from "../lib/seizoen-prompts";
@@ -184,6 +185,18 @@ test("meespeellink: sleutel per spel, en alleen wat de speler ook ziet", () => {
   ], "verspreid");
   assert.deepEqual(gebied, [[52, 4], [53, 5]]);
   assert.deepEqual(itemGebied(items, "sequentieel"), []);
+  // Ver uitgezoomd kleinere items; ingezoomd even groot als bij de speler
+  assert.equal(itemMaatBijZoom(18), 42);
+  assert.ok(itemMaatBijZoom(14.5) < itemMaatBijZoom(16));
+  // Resterende tijd: geen eindtijd, pauze, laatste minuten, uren en voorbij
+  const t0 = new Date("2026-11-05T12:00:00Z").getTime();
+  assert.equal(resterendeTijd(null, null, t0), null);
+  assert.equal(resterendeTijd("2026-11-05T12:25:00Z", "2026-11-05T11:00:00Z", t0)?.tekst, "⏸️ Gepauzeerd");
+  assert.deepEqual(resterendeTijd("2026-11-05T12:25:00Z", null, t0), { tekst: "⏱️ Nog 25 min", laatste: false });
+  assert.deepEqual(resterendeTijd("2026-11-05T12:08:00Z", null, t0), { tekst: "⏱️ Nog 8 min", laatste: true });
+  assert.equal(resterendeTijd("2026-11-05T13:05:00Z", null, t0)?.tekst, "⏱️ Nog 1 u 5 min");
+  assert.equal(resterendeTijd("2026-11-05T13:00:00Z", null, t0)?.tekst, "⏱️ Nog 1 u");
+  assert.deepEqual(resterendeTijd("2026-11-05T11:59:00Z", null, t0), { tekst: "⏱️ De tijd is om", laatste: true });
 });
 
 test("seizoensachtergrond op datum", () => {

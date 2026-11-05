@@ -39,7 +39,14 @@ export function itemGebied(items: RuwItem[], modus: string | null | undefined): 
 export type MeespeelData =
   | {
       actief: true;
-      team: string;
+      // De gekozen teamnaam; null = nog geen naam (de loginnaam gaat nooit mee)
+      team: string | null;
+      // Hoe ver het team is, zonder iets over de plek van de punten
+      voortgang: { gedaan: number; totaal: number };
+      eindtijd: string | null;
+      pauze: string | null;
+      // Het laatste bericht van de organisatie aan alle teams; nooit een bericht aan één team
+      bericht: { id: string; tekst: string } | null;
       score: number;
       modus: string;
       items: ReturnType<typeof zichtbareItems>;
@@ -52,4 +59,4 @@ export type MeespeelData =
       puzzel: { letters: (string | null)[]; omschrijving: string | null } | null;
       verboden: { naam: string; punten: [number, number][] }[];
     }
-  | { actief: false; team: string; reden: "klaar" | "gestopt" | "uit" };
+  | { actief: false; team: string | null; reden: "klaar" | "gestopt" | "uit" };

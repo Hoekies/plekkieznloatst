@@ -36,7 +36,7 @@ export default function MeespeelKnop() {
       <button type="button" className="meespeel-deelknop" onClick={openen}>🤝 Medespelers laten meekijken</button>
       {open && (
         <VensterMetKop icoon="🤝" label="Meespeellink" titel="Medespelers" onSluit={() => setOpen(false)} breedte={360} maxHoogte={96}>
-          <span className="inst-uitleg">Zij zien de items op het speelveld, jullie letters, de balk en de score. Niet het volgende punt.</span>
+          <span className="inst-uitleg">Zij zien de items op het speelveld, jullie letters, de balk, de score, hoe ver jullie zijn en de resterende tijd. Niet het volgende punt.</span>
           {fout && <span className="inst-uitleg" role="alert" style={{ color: "#FCA5A5" }}>⚠️ {fout}</span>}
           {url && (
             <>

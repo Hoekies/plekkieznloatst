@@ -117,7 +117,7 @@ export default function InstellingenVenster({ api, centrumPunt, finishPunt, fini
                     ))}
                   </div>
                   <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
-                    {route.meespeellink !== false ? "Teams kunnen een link delen: medespelers zien de items op het speelveld, de letters, de balk en de score, maar niet het volgende punt." : "Teams kunnen geen link delen, en bestaande links tonen niets meer."}
+                    {route.meespeellink !== false ? "Teams kunnen een link delen: medespelers zien de items op het speelveld, de letters, de balk, de score, de voortgang en de resterende tijd, maar niet het volgende punt." : "Teams kunnen geen link delen, en bestaande links tonen niets meer."}
                   </span>
                 </div>
                 {/* Op volgorde: wat zien de spelers op de kaart */}

@@ -6,6 +6,7 @@ import type { SpelerLocatie } from "@/lib/types";
 import { escapeHtml } from "@/lib/html";
 import { voegBasiskaartToe, type Basiskaart, type KaartStijl, ruimKaartOp, laadLeafletCss } from "@/lib/basiskaart";
 import { haversine } from "@/lib/geo";
+import { itemMaatBijZoom } from "@/lib/meespelen-weergave";
 import KaartStijlKnoppen from "@/components/shared/KaartStijlKnoppen";
 
 const VEROUDERD_MS = 2 * 60 * 1000; // 2 minuten
@@ -26,6 +27,8 @@ interface Props {
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
   // Waar de kaart begint zolang er geen eigen plek is (de meespeellink: het gebied van de items)
   beginGebied?: [number, number][];
+  // Items worden kleiner als je ver uitzoomt, en het beginbeeld past nauwkeuriger (de meespeellink toont het hele speelveld)
+  iconenMeeZoomen?: boolean;
   // Tik op een item op de kaart (de meespeellink: uitleg). Zonder deze functie zijn items niet aan te tikken
   opItem?: (item: SpeciaalItem) => void;
   andereSpelers: SpelerLocatie[];
@@ -52,7 +55,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], beginGebied, opItem, andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], beginGebied, iconenMeeZoomen = false, opItem, andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -79,6 +82,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   const gecenterRef = useRef(false);
   const opItemRef = useRef(opItem);
   opItemRef.current = opItem;
+  const [zoomNiveau, setZoomNiveau] = useState<number | null>(null);
   const beginGezetRef = useRef(false);
   useEffect(() => {
     const map = mapRef.current;
@@ -114,9 +118,14 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         center: [52.37, 4.9],
         zoomControl: true,
         attributionControl: false,
+        ...(iconenMeeZoomen ? { zoomSnap: 0.25 } : {}),
       });
 
       mapRef.current = map;
+      if (iconenMeeZoomen) {
+        setZoomNiveau(map.getZoom());
+        map.on("zoomend", () => setZoomNiveau(map.getZoom()));
+      }
       setKaartKlaar(true);
       // Scherpe kaart (vectortegels) met duidelijke paden, huizen en groen; anders de gewone OSM-plaatjes
       voegBasiskaartToe(L, map, "licht").then((b) => {
@@ -340,7 +349,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
 
       // Vraagteken iets groter en pulserend, zodat hij extra opvalt
       const isVraagteken = item.type === "vraagteken";
-      const maat = isVraagteken ? 48 : 42;
+      const basisMaat = zoomNiveau === null ? 42 : itemMaatBijZoom(zoomNiveau);
+      const maat = isVraagteken ? basisMaat + 6 : basisMaat;
       const icon = L.divIcon({
         className: "",
         html: `<img src="/items/${item.type}.webp" alt="" style="
@@ -356,7 +366,7 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
       if (opItemRef.current) marker.on("click", () => opItemRef.current?.(item));
       specialeItemMarkersRef.current.set(item.id, marker);
     });
-  }, [specialeItems, kaartKlaar]);
+  }, [specialeItems, kaartKlaar, zoomNiveau]);
 
   // 🎉 Schat en eigen val: een groot emoji dat zachtjes pulseert
   const extraLaagRef = useRef<import("leaflet").LayerGroup | null>(null);

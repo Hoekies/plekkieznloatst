@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { RoutePunt, SpeciaalItem } from "@/types/database";
 import type { MeespeelData } from "@/lib/meespelen";
+import { resterendeTijd } from "@/lib/meespelen-weergave";
 import { ITEM_INFO } from "./SpeciaalItemLegende";
 
 const SpelerLeaflet = dynamic(() => import("./SpelerLeaflet"), { ssr: false });
@@ -13,8 +14,8 @@ const GEEN_PUNTEN: RoutePunt[] = [];
 const GEEN_IDS = new Set<string>();
 
 const EIND_TEKST = {
-  klaar: (team: string) => `${team} is binnen. Bedankt voor het meespelen!`,
-  gestopt: (team: string) => `Dit spel van ${team} is gestopt. Speelt het team nog? Vraag dan om een nieuwe link.`,
+  klaar: (team: string | null) => `${team ?? "Het team"} is binnen. Bedankt voor het meespelen!`,
+  gestopt: (team: string | null) => `Dit spel van ${team ?? "het team"} is gestopt. Speelt het team nog? Vraag dan om een nieuwe link.`,
   uit: () => "De spelleider heeft meekijken op deze route uitgezet.",
 };
 
@@ -65,6 +66,11 @@ export default function MeespeelScherm({ sessie, sleutel, linkKlopt }: { sessie:
     setGetikt(true);
   }
 
+  // ⏱️ De resterende tijd loopt door tussen het ophalen; 📢 een weggetikt bericht blijft weg tot er een nieuw is
+  const [nu, setNu] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNu(Date.now()), 20000); return () => clearInterval(t); }, []);
+  const [wegBericht, setWegBericht] = useState<string | null>(null);
+
   // 📍 De eigen plek, pas als de medespeler erom vraagt
   const [positie, setPositie] = useState<GeolocationCoordinates | null>(null);
   const [plekAan, setPlekAan] = useState(false);
@@ -107,6 +113,7 @@ export default function MeespeelScherm({ sessie, sleutel, linkKlopt }: { sessie:
   if (!data) return <main className="meespeel meespeel--melding"><p>{traag ? "Laden lukt nog niet. Controleer je internet; we blijven het proberen." : "Even laden…"}</p></main>;
 
   const heeftKaart = data.modus !== "sequentieel";
+  const tijd = resterendeTijd(data.eindtijd, data.pauze, nu);
   // Opgepakt terwijl de uitleg open staat: dan verdwijnt die vanzelf
   const gekozen = gekozenId ? items.find((i) => i.id === gekozenId) : null;
   const uitleg = gekozen ? ITEM_INFO[gekozen.type] : null;
@@ -116,15 +123,26 @@ export default function MeespeelScherm({ sessie, sleutel, linkKlopt }: { sessie:
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/spellogo/breed.webp" alt="PointRush" className="meespeel-logo" />
         <div className="meespeel-team">
-          <span>🤝 Meespelen met</span>
-          <strong>{data.team}</strong>
+          {data.team ? <><span>🤝 Meespelen met</span><strong>{data.team}</strong></> : <strong>🤝 Meespelen</strong>}
         </div>
         <div className="meespeel-score" aria-label={`Score: ${data.score}`}>⭐ {data.score}</div>
       </header>
 
+      {data.bericht && data.bericht.id !== wegBericht && (
+        <div className="meespeel-bericht" role="status">
+          <span>📢 {data.bericht.tekst}</span>
+          <button type="button" aria-label="Bericht sluiten" onClick={() => setWegBericht(data.bericht?.id ?? null)}>✕</button>
+        </div>
+      )}
+
+      <div className="meespeel-stand">
+        <span>📍 {data.voortgang.gedaan} van {data.voortgang.totaal} punten</span>
+        {tijd && <span className={tijd.laatste ? "meespeel-tijd--laatste" : undefined}>{tijd.tekst}</span>}
+      </div>
+
       {data.puzzel && (
         <section className="meespeel-vak" aria-label="Puzzelwoord">
-          <div className="puzzel-tegels">
+          <div className={`puzzel-tegels${data.puzzel.letters.length > 16 ? " puzzel-tegels--lang" : ""}`}>
             {data.puzzel.letters.map((l, i) => <span key={i} className={`puzzel-tegel${l ? " puzzel-tegel--open" : ""}`}>{l ?? ""}</span>)}
           </div>
           {data.puzzel.omschrijving && <span className="meespeel-tip">{data.puzzel.omschrijving}</span>}
@@ -147,7 +165,7 @@ export default function MeespeelScherm({ sessie, sleutel, linkKlopt }: { sessie:
       {heeftKaart ? (
         <section className="meespeel-kaart" aria-label="Items op het speelveld">
           <SpelerLeaflet positie={positie} punten={GEEN_PUNTEN} verwerktIds={GEEN_IDS} bereiktIds={GEEN_IDS} activePuntId={null}
-            andereSpelers={[]} specialeItems={items} ghostedPuntId={null} verbodenGebieden={verboden} beginGebied={beginGebied} opItem={kiesItem} stijlOnder={12} />
+            andereSpelers={[]} specialeItems={items} ghostedPuntId={null} verbodenGebieden={verboden} beginGebied={beginGebied} iconenMeeZoomen opItem={kiesItem} stijlOnder={12} />
           <button type="button" className="rl-knop meespeel-plek" aria-pressed={plekAan} onClick={wisselPlek}>📍 {plekAan ? "Mijn plek uit" : "Toon mijn plek"}</button>
           {plekFout && <span className="meespeel-plekfout" role="alert">{plekFout}</span>}
           {items.length === 0 && <span className="meespeel-leeg">Er liggen nu geen items op het speelveld</span>}

@@ -7,8 +7,11 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 
 // Wat een medespeler mag zien. Bewust niet: het volgende punt, vragen en antwoorden, andere teams, de plek van het team
 // en het hele puzzelwoord. Alleen lezen: dit verandert niets aan het spel. Geen spel gevonden: null.
+// Een bericht van de organisatie is hooguit zo lang nieuws
+const BERICHT_MINUTEN = 60;
+
 export async function meespeelData(admin: AdminClient, sessieId: string): Promise<MeespeelData | null> {
-  const { data: sessie } = await admin.from("player_sessions").select("id, player_id, route_id, score, status").eq("id", sessieId).maybeSingle();
+  const { data: sessie } = await admin.from("player_sessions").select("id, player_id, route_id, score, status, started_at").eq("id", sessieId).maybeSingle();
   if (!sessie) return null;
   const [{ data: route }, { data: speler }] = await Promise.all([
     // "*": een ontbrekende instellingskolom mag de link niet blokkeren
@@ -16,20 +19,25 @@ export async function meespeelData(admin: AdminClient, sessieId: string): Promis
     admin.from("players").select("*").eq("id", sessie.player_id).maybeSingle(),
   ]);
   // Teamnaam, nooit de loginnaam: de link kan worden doorgestuurd
-  const s = (speler ?? {}) as { nickname?: string | null; display_name?: string | null };
-  const team = s.nickname || s.display_name || "dit team";
+  const team = (speler as { nickname?: string | null } | null)?.nickname || null;
   const r = (route ?? {}) as { is_active?: boolean; meespeellink?: boolean | null; modus?: string; verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null;
-    ster_waarde?: number | null; bom_waarde?: number | null; spook_duur_seconden?: number | null; plekzooi_duur_seconden?: number | null };
+    ster_waarde?: number | null; bom_waarde?: number | null; spook_duur_seconden?: number | null; plekzooi_duur_seconden?: number | null;
+    eindtijd?: string | null; gepauzeerd_sinds?: string | null };
 
   if (r.meespeellink === false) return { actief: false, team, reden: "uit" };
   if (sessie.status === "voltooid") return { actief: false, team, reden: "klaar" };
   if (sessie.status !== "actief" || !r.is_active) return { actief: false, team, reden: "gestopt" };
 
   const regels = puzzelRegels(route);
-  const [{ data: items }, { data: balk }, gevonden] = await Promise.all([
+  const sinds = new Date(Math.max(new Date(sessie.started_at ?? 0).getTime(), Date.now() - BERICHT_MINUTEN * 60000)).toISOString();
+  const [{ data: items }, { data: balk }, gevonden, { count: gedaan }, { count: totaal }, { data: berichten }] = await Promise.all([
     admin.from("special_items").select("id, type, latitude, longitude, claimed, is_startitem").eq("route_id", sessie.route_id),
     admin.from("special_items").select("type").eq("claimed_by_session_id", sessie.id).is("used_at", null),
     regels ? gevondenLetters(admin, sessie.id, regels) : Promise.resolve(0),
+    admin.from("player_point_progress").select("id", { count: "exact", head: true }).eq("session_id", sessie.id).not("answered_at", "is", null),
+    admin.from("route_points").select("id", { count: "exact", head: true }).eq("route_id", sessie.route_id),
+    // Alleen aan iedereen. Lukt dit filter niet, dan géén bericht: een bericht aan één team mag hier nooit doorheen
+    admin.from("broadcasts").select("id, bericht").is("player_id", null).gte("created_at", sinds).order("created_at", { ascending: false }).limit(1),
   ]);
   // Nog niet opgelost: puzzelStand geeft alleen de verdiende letters
   const stand = regels ? puzzelStand(regels.woord, sessie.id, gevonden, false, regels.alleBonus, regels.omschrijving, regels.opVolgorde) : null;
@@ -38,6 +46,11 @@ export async function meespeelData(admin: AdminClient, sessieId: string): Promis
     actief: true,
     team,
     score: sessie.score ?? 0,
+    voortgang: { gedaan: gedaan ?? 0, totaal: totaal ?? 0 },
+    // Alleen lezen: bewust niet rondAfAlsTijdVoorbij (lib/eindtijd.ts), want die finisht teams
+    eindtijd: r.eindtijd ?? null,
+    pauze: r.gepauzeerd_sinds ?? null,
+    bericht: berichten?.[0] ? { id: berichten[0].id, tekst: berichten[0].bericht } : null,
     modus: r.modus ?? "verspreid",
     items: zichtbareItems(items ?? [], r.modus),
     gebied: itemGebied(items ?? [], r.modus),
