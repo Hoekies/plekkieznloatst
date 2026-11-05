@@ -26,6 +26,16 @@ export function zichtbareItems(items: RuwItem[], modus: string | null | undefine
     .map(({ id, type, latitude, longitude }) => ({ id, type, latitude, longitude, claimed: false }));
 }
 
+// Waar de kaart begint: een rechthoek om de items, ook de opgepakte (anders start de kaart op de verkeerde plek als alles op
+// is). Alleen de twee hoeken: dit zegt niet waar een item lag. Zonder startitems en zonder de onzichtbare Plek zooi.
+export function itemGebied(items: RuwItem[], modus: string | null | undefined): [number, number][] {
+  if (modus === "sequentieel") return [];
+  const plekken = items.filter((i) => !i.is_startitem && i.type !== "plekzooi");
+  if (!plekken.length) return [];
+  const lat = plekken.map((i) => i.latitude), lng = plekken.map((i) => i.longitude);
+  return [[Math.min(...lat), Math.min(...lng)], [Math.max(...lat), Math.max(...lng)]];
+}
+
 export type MeespeelData =
   | {
       actief: true;
@@ -33,6 +43,9 @@ export type MeespeelData =
       score: number;
       modus: string;
       items: ReturnType<typeof zichtbareItems>;
+      gebied: [number, number][];
+      // De getallen in de uitleg van een item (zoals op de spelerskaart)
+      waarden: { ster: number; bom: number; spookSec: number; plekzooiSec: number };
       // Itemtypen die het team in de balk heeft
       balk: string[];
       // Alleen de verdiende letters: de rest van het woord verlaat de server nooit

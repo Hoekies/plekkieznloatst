@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { tekstKlopt, tekstAfstand, binnenVlak, haversine, normaliserenNumeriek } from "../lib/geo";
 import { normaliseerPuzzel, puzzelVolgorde, puzzelStand } from "../lib/puzzel";
-import { meespeelSleutel, meespeelSleutelKlopt, zichtbareItems } from "../lib/meespelen";
+import { itemGebied, meespeelSleutel, meespeelSleutelKlopt, zichtbareItems } from "../lib/meespelen";
 import { huidigThema, kleinBeeld, nederlandseDag, paaszondag, standaardBeeld, SEIZOEN_KOLOM, THEMAS, type SeizoenSoort } from "../lib/seizoenen";
 import { FINISH_THEMAS, huidigFinishThema, spelThema, spelLogo, themaAchtergrond } from "../lib/finish-thema";
 import { ACHTERGROND_VOORBEELD, LOGO_REFERENTIES, THEMA_INVUL, achtergrondPrompt, achtergrondPromptGemini, logoBreedPrompt, logoPrompt, logoVierkantPrompt } from "../lib/seizoen-prompts";
@@ -175,6 +175,15 @@ test("meespeellink: sleutel per spel, en alleen wat de speler ook ziet", () => {
   // Geen opgepakte items, geen onzichtbare val, geen startitems, en alleen de vaste velden
   assert.deepEqual(zichtbareItems(items, "verspreid"), [{ id: "1", type: "ster", latitude: 52, longitude: 4, claimed: false }]);
   assert.deepEqual(zichtbareItems(items, "sequentieel"), []);
+  // Het begingebied telt ook opgepakte items mee, maar niet de onzichtbare val: die mag de kaart niet verraden
+  const gebied = itemGebied([
+    { id: "a", type: "ster", latitude: 52, longitude: 4, claimed: true },
+    { id: "b", type: "bom", latitude: 53, longitude: 5, claimed: false },
+    { id: "c", type: "plekzooi", latitude: 60, longitude: 9, claimed: false },
+    { id: "d", type: "radar", latitude: 1, longitude: 1, claimed: true, is_startitem: true },
+  ], "verspreid");
+  assert.deepEqual(gebied, [[52, 4], [53, 5]]);
+  assert.deepEqual(itemGebied(items, "sequentieel"), []);
 });
 
 test("seizoensachtergrond op datum", () => {

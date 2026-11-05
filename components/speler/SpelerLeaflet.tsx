@@ -24,8 +24,10 @@ interface Props {
   heleRoute?: boolean;
   // ⛔ Verboden gebieden: rood gearceerd
   verbodenGebieden?: { naam: string; punten: [number, number][] }[];
-  // Waar de kaart begint zolang er geen eigen plek is (de meespeellink: de items op het speelveld)
+  // Waar de kaart begint zolang er geen eigen plek is (de meespeellink: het gebied van de items)
   beginGebied?: [number, number][];
+  // Tik op een item op de kaart (de meespeellink: uitleg). Zonder deze functie zijn items niet aan te tikken
+  opItem?: (item: SpeciaalItem) => void;
   andereSpelers: SpelerLocatie[];
   specialeItems: SpeciaalItem[];
   // Teamicoon van de speler zelf (anders een blauwe stip)
@@ -50,7 +52,7 @@ interface Props {
 const ZOOM_SPELER = 17;
 const ZOOM_INIT = 14;
 
-export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], beginGebied, andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
+export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds, activePuntId, stilleIds, heleRoute = false, verbodenGebieden = [], beginGebied, opItem, andereSpelers, specialeItems, ghostedPuntId, richtingNaar = null, spelerIcoon = null, spelerNaam = null, teamKleur = null, stijlOnder = 84, stijlLinks, centreerVerzoek = 0, extraMarkers = [] }: Props) {
   const ring = teamKleur ?? "#3B82F6";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -75,6 +77,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   }, [verbodenGebieden, kaartKlaar]);
   const guideLijnRef = useRef<import("leaflet").Polyline | null>(null);
   const gecenterRef = useRef(false);
+  const opItemRef = useRef(opItem);
+  opItemRef.current = opItem;
   const beginGezetRef = useRef(false);
   useEffect(() => {
     const map = mapRef.current;
@@ -159,7 +163,16 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
   useEffect(() => {
     const L = LRef.current;
     const map = mapRef.current;
-    if (!L || !map || !positie) return;
+    if (!L || !map) return;
+    // Geen plek (meer): de meespeellink kan hem weer uitzetten. De stip mag dan niet op de oude plek blijven staan.
+    if (!positie) {
+      spelerMarkerRef.current?.remove();
+      spelerMarkerRef.current = null;
+      accuracyCirkelRef.current?.remove();
+      accuracyCirkelRef.current = null;
+      gecenterRef.current = false;
+      return;
+    }
 
     const latlng: [number, number] = [positie.latitude, positie.longitude];
 
@@ -339,7 +352,8 @@ export default function SpelerLeaflet({ positie, punten, verwerktIds, bereiktIds
         iconAnchor: [maat / 2, maat / 2],
       });
 
-      const marker = L.marker([item.latitude, item.longitude], { icon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+      const marker = L.marker([item.latitude, item.longitude], { icon, interactive: !!opItemRef.current, zIndexOffset: 1000 }).addTo(map);
+      if (opItemRef.current) marker.on("click", () => opItemRef.current?.(item));
       specialeItemMarkersRef.current.set(item.id, marker);
     });
   }, [specialeItems, kaartKlaar]);

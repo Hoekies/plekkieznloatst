@@ -1,7 +1,7 @@
 import type { createAdminClient } from "@/lib/supabase-admin";
 import { puzzelStand } from "@/lib/puzzel";
 import { puzzelRegels, gevondenLetters } from "@/lib/puzzel-server";
-import { zichtbareItems, type MeespeelData } from "@/lib/meespelen";
+import { itemGebied, zichtbareItems, type MeespeelData } from "@/lib/meespelen";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -18,7 +18,8 @@ export async function meespeelData(admin: AdminClient, sessieId: string): Promis
   // Teamnaam, nooit de loginnaam: de link kan worden doorgestuurd
   const s = (speler ?? {}) as { nickname?: string | null; display_name?: string | null };
   const team = s.nickname || s.display_name || "dit team";
-  const r = (route ?? {}) as { is_active?: boolean; meespeellink?: boolean | null; modus?: string; verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null };
+  const r = (route ?? {}) as { is_active?: boolean; meespeellink?: boolean | null; modus?: string; verboden_gebieden?: { naam: string; punten: [number, number][] }[] | null;
+    ster_waarde?: number | null; bom_waarde?: number | null; spook_duur_seconden?: number | null; plekzooi_duur_seconden?: number | null };
 
   if (r.meespeellink === false) return { actief: false, team, reden: "uit" };
   if (sessie.status === "voltooid") return { actief: false, team, reden: "klaar" };
@@ -39,6 +40,8 @@ export async function meespeelData(admin: AdminClient, sessieId: string): Promis
     score: sessie.score ?? 0,
     modus: r.modus ?? "verspreid",
     items: zichtbareItems(items ?? [], r.modus),
+    gebied: itemGebied(items ?? [], r.modus),
+    waarden: { ster: r.ster_waarde ?? 50, bom: r.bom_waarde ?? 30, spookSec: r.spook_duur_seconden ?? 600, plekzooiSec: r.plekzooi_duur_seconden ?? 300 },
     balk: (balk ?? []).map((b) => b.type),
     puzzel: stand ? { letters: stand.letters, omschrijving: stand.omschrijving } : null,
     verboden: r.verboden_gebieden ?? [],
